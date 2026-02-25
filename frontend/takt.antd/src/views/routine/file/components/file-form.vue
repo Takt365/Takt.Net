@@ -108,10 +108,10 @@
       />
     </a-form-item>
 
-    <a-form-item label="备注" name="remark">
+    <a-form-item :label="t('common.entity.remark')" name="remark">
       <a-textarea
         v-model:value="formState.remark"
-        placeholder="请输入备注"
+        :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"
         :rows="4"
       />
     </a-form-item>
@@ -174,6 +174,7 @@ import { generateFileIdentifier } from '@/utils/upload'
 import { DateTimeHelper } from '@/utils/datetime'
 import { getFileExtension, getFileCategoryByFileName } from '@/utils/file-type'
 import { message } from 'ant-design-vue'
+import { useI18n } from 'vue-i18n'
 
 // 自定义上传请求选项类型
 interface CustomUploadRequestOption {
@@ -198,6 +199,7 @@ const emit = defineEmits<{
   'cancel': []
 }>()
 
+const { t } = useI18n()
 const formRef = ref()
 const tagInputRef = ref()
 const tagInputVisible = ref(false)
@@ -211,12 +213,7 @@ const userStore = useUserStore()
 // 生成默认文件描述：{用户名}于{YYYY-MM-DD HH:mm:ss}上传
 const generateDefaultFileDescription = (): string => {
   const userName = userStore.userInfo?.userName || '未知用户'
-  const instance = getCurrentInstance()
-  const formatDateTime = instance?.appContext.config.globalProperties.formatDateTime as typeof DateTimeHelper.format | undefined
-  
-  const dateStr = formatDateTime?.(new Date(), 'YYYY-MM-DD HH:mm:ss') || 
-    DateTimeHelper.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
-  
+  const dateStr = DateTimeHelper.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
   return `${userName}于${dateStr}上传`
 }
 
@@ -283,7 +280,9 @@ const formState = reactive<FormState>({
 // 文件标签列表（从逗号分隔的字符串转换为数组）
 const fileTagsList = computed({
   get: () => {
-    if (!formState.fileTags) return []
+    if (!formState.fileTags) {
+      return []
+    }
     return formState.fileTags.split(',').filter(tag => tag.trim() !== '')
   },
   set: (tags: string[]) => {
@@ -620,7 +619,7 @@ const getFtpTooltipText = (provider?: string): string => {
 }
 
 // 文件类型验证：只允许 jpg, pdf, xlsx, rar
-const validateFileType = (file: File | any, fileList?: File[] | any[]): boolean => {
+const validateFileType = (file: File | any, _fileList?: File[] | any[]): boolean => {
   // 获取原生 File 对象
   const originFile = (file as any).originFileObj || (file as File)
   

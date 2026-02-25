@@ -107,7 +107,7 @@ import { RiCheckLine, RiArrowRightDoubleLine } from '@remixicon/vue'
 import { generateCaptcha, verifyCaptcha, type CaptchaGenerateResult, type CaptchaVerifyRequest } from '@/api/identity/captcha'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import { useSettingStore, getThemeColorValue } from '@/stores/setting'
+import { useSettingStore, getEffectiveThemeColorValue } from '@/stores/setting'
 import { logger } from '@/utils/logger'
 
 interface Props {
@@ -140,7 +140,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 const { t } = useI18n()
 const { setting } = storeToRefs(useSettingStore())
-const themeColor = computed(() => getThemeColorValue(setting.value?.themeColor ?? { type: 'blue' }))
+const themeColor = computed(() => getEffectiveThemeColorValue(setting.value?.themeColor ?? { type: 'blue' }))
 
 // 状态
 const loading = ref(false)
@@ -285,7 +285,9 @@ function handleDragStart(e: MouseEvent | TouchEvent) {
 
 // 拖拽中
 function handleDragMoving(e: MouseEvent | TouchEvent) {
-  if (!isDragging.value || verified.value || !captchaData.value || !actionRef.value || !barRef.value) return
+  if (!isDragging.value || verified.value || !captchaData.value || !actionRef.value || !barRef.value) {
+    return
+  }
 
   e.preventDefault()
   e.stopPropagation()
@@ -322,14 +324,18 @@ function handleDragMoving(e: MouseEvent | TouchEvent) {
 
 // 拖拽结束
 function handleDragOver(e: MouseEvent | TouchEvent) {
-  if (!isDragging.value || verified.value || loading.value) return
+  if (!isDragging.value || verified.value || loading.value) {
+    return
+  }
 
   e.preventDefault()
   e.stopPropagation()
 
   isDragging.value = false
 
-  if (!actionRef.value || !barRef.value) return
+  if (!actionRef.value || !barRef.value) {
+    return
+  }
 
   const moveX = getEventPageX(e) - moveDistance.value
   const { actionWidth, offset, wrapperWidth } = getOffset()
@@ -386,15 +392,19 @@ function handleDragOver(e: MouseEvent | TouchEvent) {
 
 // 检查是否通过
 function checkPass() {
-  if (!captchaData.value || loading.value || verified.value) return
+  if (!captchaData.value || loading.value || verified.value) {
+    return
+  }
 
   endTime.value = Date.now()
   const timeSpent = (endTime.value - startTime.value) / 1000
   
   // 计算滑块实际到达的位置百分比
   // 使用“滑块手柄最右边缘”相对于整个滑块宽度的百分比
-  if (!actionRef.value || !wrapperRef.value) return
-  
+  if (!actionRef.value || !wrapperRef.value) {
+    return
+  }
+
   const wrapperWidth = wrapperRef.value.offsetWidth
   const actionLeft = Number.parseFloat(actionRef.value.style.left.replace('px', '') || '0')
   const actionWidth = ACTION_WIDTH
@@ -423,7 +433,9 @@ function checkPass() {
 
 // 验证验证码
 async function verify(position: number, timeSpent: number) {
-  if (!captchaData.value) return
+  if (!captchaData.value) {
+    return
+  }
 
   try {
     loading.value = true
@@ -507,7 +519,9 @@ function resume() {
   endTime.value = 0
   mouseTrajectory.value = []
 
-  if (!actionRef.value || !barRef.value || !contentRef.value) return
+  if (!actionRef.value || !barRef.value || !contentRef.value) {
+    return
+  }
 
   // 重置进度条宽度
   contentRef.value.style.width = '100%'
@@ -589,7 +603,9 @@ let refreshTimer: ReturnType<typeof setInterval> | null = null
 // 根据容器宽度缩放（参照登录页表单输入框宽度）
 function updateScale() {
   const el = containerRef.value
-  if (!el) return
+  if (!el) {
+    return
+  }
   const w = el.offsetWidth || el.clientWidth
   if (w > 0) {
     // 仅缩小不放大，避免 scale>1 时横向拉伸变形；容器≤400px 时与表单同宽
@@ -602,7 +618,9 @@ let resizeObserver: ResizeObserver | null = null
 // 使用外部传入的预填数据（不请求接口）
 function applyInitialData() {
   const data = props.initialData
-  if (!data) return false
+  if (!data) {
+    return false
+  }
   loading.value = false
   if (data.enabled === false || data.enabled === undefined) {
     verified.value = true

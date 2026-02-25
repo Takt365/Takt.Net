@@ -10,11 +10,20 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-import request from '{{ table.request_import_path }}'
+{{~ path_parts = table.frontend_module_path | string.split "/" ~}}
+{{~ req_path = "" ~}}
+{{~ for part in path_parts ~}}
+{{~ req_path = req_path + "../" ~}}
+{{~ end ~}}
+{{~ req_path = req_path + "request" ~}}
+import request from '{{ req_path }}'
 import type { TaktPagedResult, TaktSelectOption } from '@/types/common'
 import type {
 {{~ for cat in table.dto_category_descriptors ~}}
-  {{ cat.TsInterfaceName }}{{ if !for.last }},{{ end }}
+{{~ cat_name = cat.name ~}}
+{{~ if cat_name != "TemplateDto" && cat_name != "ImportDto" && cat_name != "ExportDto" ~}}
+  {{ cat.ts_interface_name }}{{ if !for.last }},{{ end }}
+{{~ end ~}}
 {{~ end ~}}
 } from '@/types/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
 
@@ -23,23 +32,70 @@ import type {
 // ========================================
 
 {{~ for action in table.controller_actions ~}}
+{{~ fn_name = action["frontend_method_name"] ~}}
+{{~ if fn_name == "create" ~}}
+{{~ fn_name = "create" + table.entity_name_pascal ~}}
+{{~ else if fn_name == "update" ~}}
+{{~ fn_name = "update" + table.entity_name_pascal ~}}
+{{~ else if fn_name == "delete" ~}}
+{{~ fn_name = "delete" + table.entity_name_pascal ~}}
+{{~ else if fn_name == "import" ~}}
+{{~ fn_name = "import" + table.entity_name_pascal_plural ~}}
+{{~ else if fn_name == "export" ~}}
+{{~ fn_name = "export" + table.entity_name_pascal_plural ~}}
+{{~ end ~}}
 /**
- * {{ action.Summary }}
- * 对应后端：{{ action.MethodName }}
+ * {{ action["summary"] }}
+ * 对应后端：{{ action["method_name"] }}
  */
-export function {{ action.FrontendMethodName }}({{ action.FrontendSignature }}): {{ action.FrontendReturnType }} {
+export function {{ fn_name }}({{ action["frontend_signature"] }}): {{ action["frontend_return_type"] }} {
+{{~ m_name = action["method_name"] ~}}
+{{~ if m_name == "GetTemplateAsync" ~}}
   return request({
-{{ if action.Route == "{id}" }}
+    url: '{{ table.api_base_path }}/template',
+    method: 'get',
+    params: { sheetName, fileName },
+    responseType: 'blob'
+  })
+{{~ else if m_name == "ImportAsync" ~}}
+  const formData = new FormData()
+  formData.append('file', file)
+  if (sheetName) {
+    formData.append('sheetName', sheetName)
+  }
+  return request({
+    url: '{{ table.api_base_path }}/import',
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+{{~ else if m_name == "ExportAsync" ~}}
+  return request({
+    url: '{{ table.api_base_path }}/export',
+    method: 'post',
+    data: query,
+    params: { sheetName, fileName },
+    responseType: 'blob'
+  })
+{{~ else ~}}
+  return request({
+{{~ a_route = action["route"] ~}}
+{{ if a_route == "{id}" }}
     url: {{ "`" }}{{ table.api_base_path }}/${{ "{" }}id{{ "}" }}{{ "`" }},
-{{ else if action.Route == "" }}
+{{ else if a_route == "" }}
     url: '{{ table.api_base_path }}',
 {{ else }}
-    url: '{{ table.api_base_path }}/{{ action.Route }}',
+    url: '{{ table.api_base_path }}/{{ a_route }}',
 {{ end }}
-    method: '{{ if action.HttpMethod == "HttpGet" }}get{{ else if action.HttpMethod == "HttpPost" }}post{{ else if action.HttpMethod == "HttpPut" }}put{{ else }}delete{{ end }}'{{ if action.FrontendRequestKey == "params" }},
-    params{{ else if action.FrontendRequestKey == "data" }},
-    data{{ else if action.FrontendRequestKey == "data: ids" }},
+{{~ a_http = action["http_method"] ~}}
+{{~ a_req_key = action["frontend_request_key"] ~}}
+    method: '{{ if a_http == "HttpGet" }}get{{ else if a_http == "HttpPost" }}post{{ else if a_http == "HttpPut" }}put{{ else }}delete{{ end }}'{{ if a_req_key == "params" }},
+    params{{ else if a_req_key == "data" }},
+    data{{ else if a_req_key == "data: ids" }},
     data: ids{{ end }}
   })
+{{~ end ~}}
 }
 {{~ end ~}}

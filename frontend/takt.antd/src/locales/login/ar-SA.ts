@@ -70,7 +70,9 @@ export default {
     rememberMe: 'تذكرني',
     login: 'تسجيل الدخول',
     logout: 'تسجيل الخروج',
-    noAccountRegister: 'جديد على Takt365؟ {register}'
+    noAccountRegister: 'جديد على Takt365؟ {register}',
+    success: 'تم تسجيل الدخول بنجاح',
+    fail: 'فشل تسجيل الدخول'
   },
 
   /** نسيت كلمة المرور */

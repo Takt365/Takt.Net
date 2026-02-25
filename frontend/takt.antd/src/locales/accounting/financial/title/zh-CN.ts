@@ -1,0 +1,20 @@
+export default {
+  title: '会计科目',
+  titleCode: '科目编码',
+  titleName: '科目名称',
+  titleType: '科目类型',
+  titleStatus: '科目状态',
+  balanceDirection: '余额方向',
+  orderNum: '排序号',
+  effectiveDate: '生效日期',
+  expiryDate: '失效日期',
+  isReconciliationAccount: '是否统驭科目',
+  _self: '会计科目',
+  exportFileName: '会计科目',
+  name: '科目名称',
+  code: '科目编码',
+  type: '科目类型',
+  status: '科目状态',
+  debit: '借方',
+  credit: '贷方'
+}

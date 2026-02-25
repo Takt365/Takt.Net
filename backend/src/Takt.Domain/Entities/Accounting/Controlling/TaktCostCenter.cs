@@ -19,7 +19,9 @@ namespace Takt.Domain.Entities.Accounting.Controlling;
 /// Takt成本中心实体
 /// </summary>
 [SugarTable("takt_accounting_controlling_cost_center", "成本中心表")]
-[SugarIndex("ix_takt_accounting_controlling_cost_center_cost_center_code", nameof(CostCenterCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_accounting_controlling_cost_center_company_code", nameof(CompanyCode), OrderByType.Asc)]
+[SugarIndex("ix_takt_accounting_controlling_cost_center_plant_id", nameof(PlantId), OrderByType.Asc)]
+[SugarIndex("ix_takt_accounting_controlling_cost_center_company_code_cost_center_code", nameof(CompanyCode), OrderByType.Asc, nameof(CostCenterCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_controlling_cost_center_parent_id", nameof(ParentId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_controlling_cost_center_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_controlling_cost_center_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
@@ -27,7 +29,13 @@ namespace Takt.Domain.Entities.Accounting.Controlling;
 public class TaktCostCenter : TaktEntityBase
 {
     /// <summary>
-    /// 成本中心编码（唯一索引）
+    /// 公司代码（关联公司主数据）
+    /// </summary>
+    [SugarColumn(ColumnName = "company_code", ColumnDescription = "公司代码", ColumnDataType = "nvarchar", Length = 4, IsNullable = false)]
+    public string CompanyCode { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 成本中心编码（同一公司内唯一）
     /// </summary>
     [SugarColumn(ColumnName = "cost_center_code", ColumnDescription = "成本中心编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
     public string CostCenterCode { get; set; } = string.Empty;
@@ -78,12 +86,6 @@ public class TaktCostCenter : TaktEntityBase
     public string? DeptName { get; set; }
 
     /// <summary>
-    /// 成本中心层级（从1开始）
-    /// </summary>
-    [SugarColumn(ColumnName = "cost_center_level", ColumnDescription = "成本中心层级", ColumnDataType = "int", IsNullable = false, DefaultValue = "1")]
-    public int CostCenterLevel { get; set; } = 1;
-
-    /// <summary>
     /// 排序号（越小越靠前）
     /// </summary>
     [SugarColumn(ColumnName = "order_num", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
@@ -94,4 +96,17 @@ public class TaktCostCenter : TaktEntityBase
     /// </summary>
     [SugarColumn(ColumnName = "cost_center_status", ColumnDescription = "成本中心状态", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int CostCenterStatus { get; set; } = 0;
+
+    /// <summary>
+    /// 工厂ID（关联 TaktPlant.Id；序列化为 string 避免前端精度问题）
+    /// </summary>
+    [SugarColumn(ColumnName = "plant_id", ColumnDescription = "工厂ID", ColumnDataType = "bigint", IsNullable = false)]
+    [JsonConverter(typeof(ValueToStringConverter))]
+    public long PlantId { get; set; }
+
+    /// <summary>
+    /// 工厂代码（冗余，便于列表展示；来源于 TaktPlant.PlantCode）
+    /// </summary>
+    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 4, IsNullable = true)]
+    public string? PlantCode { get; set; }
 }

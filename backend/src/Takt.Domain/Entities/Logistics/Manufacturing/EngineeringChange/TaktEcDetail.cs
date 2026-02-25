@@ -1,7 +1,7 @@
 // ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
-// 命名空间：Takt.Domain.Entities.Logistics.Manufacturing.Ecn
-// 文件名称：TaktEcnDetail.cs
+// 命名空间：Takt.Domain.Entities.Logistics.Manufacturing.EngineeringChange
+// 文件名称：TaktEcDetail.cs
 // 创建时间：2025-02-02
 // 创建人：Takt365(Cursor AI)
 // 功能描述：设变（ECN）子表实体，参照 Ec_ 子表字段：BOM 编号/日期、变更内容、新旧料号/数量/单位、采购、位置、录入日期等
@@ -17,132 +17,132 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.EngineeringChange;
 /// <summary>
 /// 设变（ECN）子表实体
 /// </summary>
-[SugarTable("takt_logistics_manufacturing_ecn_detail", "设变明细表")]
-[SugarIndex("ix_takt_logistics_manufacturing_ecn_detail_ecn_id", nameof(EcnId), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_manufacturing_ecn_detail_config_id", nameof(ConfigId), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_manufacturing_ecn_detail_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
+[SugarTable("takt_logistics_manufacturing_ec_detail", "设变明细表")]
+[SugarIndex("ix_takt_logistics_manufacturing_ec_detail_ec_id", nameof(EcId), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_manufacturing_ec_detail_config_id", nameof(ConfigId), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_manufacturing_ec_detail_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktEcDetail : TaktEntityBase
 {
     /// <summary>
     /// 设变主表ID（主表主键，序列化为string以避免Javascript精度问题）
     /// </summary>
-    [SugarColumn(ColumnName = "ecn_id", ColumnDescription = "设变ID", ColumnDataType = "bigint", IsNullable = false)]
+    [SugarColumn(ColumnName = "ec_id", ColumnDescription = "设变ID", ColumnDataType = "bigint", IsNullable = false)]
     [JsonConverter(typeof(ValueToStringConverter))]
-    public long EcnId { get; set; }
+    public long EcId { get; set; }
 
     /// <summary>
     /// 设变编号（Ec_no）
     /// </summary>
     [SugarColumn(ColumnName = "ec_no", ColumnDescription = "设变编号", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnNo { get; set; }
+    public string? EcNo { get; set; }
 
     /// <summary>
     /// 型号（Ec_model）
     /// </summary>
     [SugarColumn(ColumnName = "ec_model", ColumnDescription = "型号", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnModel { get; set; }
+    public string? EcModel { get; set; }
 
     /// <summary>
     /// BOM 主项料号（Ec_bomitem）
     /// </summary>
     [SugarColumn(ColumnName = "ec_bomitem", ColumnDescription = "BOM主项料号", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnBomItem { get; set; }
+    public string? EcBomItem { get; set; }
 
     /// <summary>
     /// BOM 子项料号（Ec_bomsubitem）
     /// </summary>
     [SugarColumn(ColumnName = "ec_bomsubitem", ColumnDescription = "BOM子项料号", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnBomSubItem { get; set; }
+    public string? EcBomSubItem { get; set; }
 
     /// <summary>
     /// BOM 编号（Ec_bomno）
     /// </summary>
     [SugarColumn(ColumnName = "ec_bomno", ColumnDescription = "BOM编号", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnBomNo { get; set; }
+    public string? EcBomNo { get; set; }
 
     /// <summary>
     /// 变更内容（Ec_change）
     /// </summary>
     [SugarColumn(ColumnName = "ec_change", ColumnDescription = "变更内容", Length = 500, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnChange { get; set; }
+    public string? EcChange { get; set; }
 
     /// <summary>
     /// 本地/现场（Ec_local）
     /// </summary>
     [SugarColumn(ColumnName = "ec_local", ColumnDescription = "本地现场", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnLocal { get; set; }
+    public string? EcLocal { get; set; }
 
     /// <summary>
     /// 备注（Ec_note）
     /// </summary>
     [SugarColumn(ColumnName = "ec_note", ColumnDescription = "备注", Length = 500, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnNote { get; set; }
+    public string? EcNote { get; set; }
 
     /// <summary>
     /// 工序（Ec_process）
     /// </summary>
     [SugarColumn(ColumnName = "ec_process", ColumnDescription = "工序", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnProcess { get; set; }
+    public string? EcProcess { get; set; }
 
     /// <summary>
     /// BOM 日期（Ec_bomdate）
     /// </summary>
     [SugarColumn(ColumnName = "ec_bomdate", ColumnDescription = "BOM日期", ColumnDataType = "date", IsNullable = true)]
-    public DateTime? EcnBomDate { get; set; }
+    public DateTime? EcBomDate { get; set; }
 
     /// <summary>
     /// 录入日期（Ec_entrydate）
     /// </summary>
     [SugarColumn(ColumnName = "ec_entrydate", ColumnDescription = "录入日期", ColumnDataType = "date", IsNullable = true)]
-    public DateTime? EcnEntryDate { get; set; }
+    public DateTime? EcEntryDate { get; set; }
 
     /// <summary>
     /// 旧料号（Ec_olditem）
     /// </summary>
     [SugarColumn(ColumnName = "ec_olditem", ColumnDescription = "旧料号", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnOldItem { get; set; }
+    public string? EcOldItem { get; set; }
 
     /// <summary>
     /// 旧料号描述（Ec_oldtext）
     /// </summary>
     [SugarColumn(ColumnName = "ec_oldtext", ColumnDescription = "旧料号描述", Length = 200, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnOldText { get; set; }
+    public string? EcOldText { get; set; }
 
     /// <summary>
     /// 旧数量（Ec_oldqty）
     /// </summary>
     [SugarColumn(ColumnName = "ec_oldqty", ColumnDescription = "旧数量", ColumnDataType = "decimal", Length = 18, DecimalDigits = 2, IsNullable = true)]
-    public decimal? EcnOldQty { get; set; }
+    public decimal? EcOldQty { get; set; }
 
     /// <summary>
     /// 旧单位/设置（Ec_oldset）
     /// </summary>
     [SugarColumn(ColumnName = "ec_oldset", ColumnDescription = "旧单位", Length = 20, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnOldSet { get; set; }
+    public string? EcOldSet { get; set; }
 
     /// <summary>
     /// 新料号（Ec_newitem）
     /// </summary>
     [SugarColumn(ColumnName = "ec_newitem", ColumnDescription = "新料号", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnNewItem { get; set; }
+    public string? EcNewItem { get; set; }
 
     /// <summary>
     /// 新料号描述（Ec_newtext）
     /// </summary>
     [SugarColumn(ColumnName = "ec_newtext", ColumnDescription = "新料号描述", Length = 200, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnNewText { get; set; }
+    public string? EcNewText { get; set; }
 
     /// <summary>
     /// 新数量（Ec_newqty）
     /// </summary>
     [SugarColumn(ColumnName = "ec_newqty", ColumnDescription = "新数量", ColumnDataType = "decimal", Length = 18, DecimalDigits = 2, IsNullable = true)]
-    public decimal? EcnNewQty { get; set; }
+    public decimal? EcNewQty { get; set; }
 
     /// <summary>
     /// 新单位/设置（Ec_newset）
     /// </summary>
     [SugarColumn(ColumnName = "ec_newset", ColumnDescription = "新单位", Length = 20, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnNewSet { get; set; }
+    public string? EcNewSet { get; set; }
 
     /// <summary>
     /// 是否采购（0=否 1=是）
@@ -166,89 +166,17 @@ public class TaktEcDetail : TaktEntityBase
     /// 仓库（Ec_warehouse）
     /// </summary>
     [SugarColumn(ColumnName = "ec_warehouse", ColumnDescription = "仓库", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnWarehouse { get; set; }
+    public string? EcWarehouse { get; set; }
 
     /// <summary>
     /// 设变主表
     /// </summary>
-    [Navigate(NavigateType.OneToOne, nameof(EcnId))]
-    public TaktEc? Ecn { get; set; }
+    [Navigate(NavigateType.OneToOne, nameof(EcId))]
+    public TaktEc? Ec { get; set; }
 
     /// <summary>
-    /// 设变明细-财务课列表（部门设变为本子表的子表）
+    /// 设变明细-部门 rollout 列表（按 dept_code 区分部门，记录各部门推出/实施推广过程）
     /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcFins.EcnDetailId))]
-    public List<TaktEcFins>? EcnFinances { get; set; }
-
-    /// <summary>
-    /// 设变明细-电脑课列表
-    /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcIt.EcnDetailId))]
-    public List<TaktEcIt>? EcnComputers { get; set; }
-
-    /// <summary>
-    /// 设变明细-总务课列表
-    /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcGas.EcnDetailId))]
-    public List<TaktEcGas>? EcnGeneralAffairs { get; set; }
-
-    /// <summary>
-    /// 设变明细-报关课列表
-    /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcCus.EcnDetailId))]
-    public List<TaktEcCus>? EcnCustoms { get; set; }
-
-    /// <summary>
-    /// 设变明细-生管课列表
-    /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcPmc.EcnDetailId))]
-    public List<TaktEcPmc>? EcnManufacturingControls { get; set; }
-
-    /// <summary>
-    /// 设变明细-部管课列表
-    /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcMc.EcnDetailId))]
-    public List<TaktEcMc>? EcnMaterialsManagements { get; set; }
-
-    /// <summary>
-    /// 设变明细-采购课列表
-    /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcMp.EcnDetailId))]
-    public List<TaktEcMp>? EcnPurchasings { get; set; }
-
-    /// <summary>
-    /// 设变明细-技术课列表
-    /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcEng.EcnDetailId))]
-    public List<TaktEcEng>? EcnTechnologies { get; set; }
-
-    /// <summary>
-    /// 设变明细-制造一课列表
-    /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcMfg1.EcnDetailId))]
-    public List<TaktEcMfg1>? EcnManufacturing1s { get; set; }
-
-    /// <summary>
-    /// 设变明细-制造二课列表
-    /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcPcba.EcnDetailId))]
-    public List<TaktEcPcba>? EcnManufacturing2s { get; set; }
-
-    /// <summary>
-    /// 设变明细-制造技术课列表
-    /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcTe.EcnDetailId))]
-    public List<TaktEcTe>? EcnManufacturingTechnologies { get; set; }
-
-    /// <summary>
-    /// 设变明细-受检课列表
-    /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcIqc.EcnDetailId))]
-    public List<TaktEcIqc>? EcnIncomingQualityControls { get; set; }
-
-    /// <summary>
-    /// 设变明细-品管课列表
-    /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcQa.EcnDetailId))]
-    public List<TaktEcQa>? EcnQualityAssurances { get; set; }
+    [Navigate(NavigateType.OneToMany, nameof(TaktEcDetailRollout.EcDetailId))]
+    public List<TaktEcDetailRollout>? EcDetailRollouts { get; set; }
 }

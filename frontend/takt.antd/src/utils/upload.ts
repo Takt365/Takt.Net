@@ -313,7 +313,9 @@ export class UploadHelper {
    */
   removeFile(id: string): void {
     const fileInfo = this.files.get(id)
-    if (!fileInfo) return
+    if (!fileInfo) {
+      return
+    }
 
     // 取消正在上传的分片
     if (fileInfo.status === UploadStatus.UPLOADING || fileInfo.status === UploadStatus.PAUSED) {

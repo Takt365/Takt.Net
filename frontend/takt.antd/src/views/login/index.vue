@@ -50,7 +50,9 @@
       <!-- 左侧内容区（仅在非居中模式下显示） -->
       <div v-if="layoutPosition !== 'center'" class="login-left-panel">
         <div class="login-illustration">
-          <Svgator />
+          <div class="login-svgator-wrap">
+            <Svgator />
+          </div>
           <div class="login-slogan">
             <a-typography-text class="login-slogan-text">{{ $t('common.app.slogan') }}</a-typography-text>
             <a-typography-text class="login-tagline">{{ $t('common.app.tagline') }}</a-typography-text>
@@ -153,15 +155,15 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import ForgetView from './components/forgot.vue'
-import RegisterView from './components/register.vue'
-import Svgator from './components/svgator.vue'
+import ForgetView from './components/forgot-password/index.vue'
+import RegisterView from './components/register-form/index.vue'
+import Svgator from './components/svgator-player/index.vue'
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores/identity/user'
 import { useThemeStore } from '@/stores/theme'
 import { storeToRefs } from 'pinia'
-import { defaultSetting, useSettingStore, getThemeColorValue } from '@/stores/setting'
-import { message } from 'ant-design-vue'
+import { defaultSetting, useSettingStore, getEffectiveThemeColorValue } from '@/stores/setting'
+import { message, Modal } from 'ant-design-vue'
 import { RiUserLine, RiLockLine, RiLoginBoxLine } from '@remixicon/vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import logoSvg from '@/assets/images/takt.svg'
@@ -216,7 +218,7 @@ function switchView(mode: LoginViewMode) {
   viewMode.value = mode
 }
 
-const themeColor = computed(() => getThemeColorValue(settingState.value?.themeColor ?? { type: 'blue' }))
+const themeColor = computed(() => getEffectiveThemeColorValue(settingState.value?.themeColor ?? { type: 'blue' }))
 
 // 计算背景径向渐变样式
 const backgroundGradient = computed(() => {
@@ -288,11 +290,18 @@ const rules = computed<Record<string, Rule[]>>(() => ({
 }))
 
 // 实际执行登录（验证码已通过或未启用时调用）
-async function doLogin() {
+// forceLogin：为 true 时携带 force_login 参数，后端将踢掉已有会话并通知对方
+async function doLogin(forceLogin?: boolean) {
   try {
     loading.value = true
-    logger.info('[Login] 开始登录，用户名:', formState.username)
-    await userStore.login(formState)
+    logger.info('[Login] 开始登录，用户名:', formState.username, forceLogin ? '，强制登录' : '')
+    const loginParams = {
+      username: formState.username,
+      password: formState.password,
+      rememberMe: formState.rememberMe,
+      force_login: forceLogin === true
+    }
+    await userStore.login(loginParams)
 
     try {
       const { clearDynamicRoutes } = await import('@/router')
@@ -315,11 +324,24 @@ async function doLogin() {
 
     const redirect = (route.query.redirect as string) || '/dashboard/workspace'
     await router.push(redirect)
-    message.success('登录成功')
+    message.success(t('login.login.success'))
     loading.value = false
   } catch (error: any) {
+    // 已在其他位置登录：弹窗让用户选择强制登录或取消
+    if (error?.code === 'already_logged_in_elsewhere') {
+      loading.value = false
+      captchaModalVisible.value = false
+      Modal.confirm({
+        title: t('login.login.alreadyElsewhereTitle'),
+        content: error.error_description || t('login.login.alreadyElsewhereContent'),
+        okText: t('login.login.forceLogin'),
+        cancelText: t('common.button.cancel'),
+        onOk: () => doLogin(true)
+      })
+      return
+    }
     logger.error('[Login] 登录失败，用户名:', formState.username, '错误:', error.message || error)
-    message.error(error.message || '登录失败')
+    message.error(error.message || t('login.login.fail'))
     captchaModalVisible.value = false
     loading.value = false
   }
@@ -405,7 +427,6 @@ onMounted(async () => {
   margin: 0 !important;
   padding-bottom: 0;
   display: block !important;
-  vertical-align: unset !important;
   transform: translate(-50%, -50%) !important;
 }
 /* 居左：与表单左侧 1/3 区域对齐 */

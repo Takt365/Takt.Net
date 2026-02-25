@@ -14,17 +14,23 @@ export default {
 
   /** <summary>2. settings</summary> */
   settings: {
+    /** عشرة ألوان شهيرة، تطابق color-base.less */
     color: {
-      blue: 'أزرق',
-      cyan: 'سماوي',
+      blue: 'أزرق كلاين',
+      brown: 'بني فان دايك',
+      cyan: 'أزرق تيفاني',
       gold: 'ذهبي',
-      green: 'أخضر',
-      orange: 'برتقالي',
-      pink: 'وردي',
-      purple: 'بنفسجي',
-      red: 'أحمر',
+      gray: 'رمادي تذكاري',
+      green: 'أخضر مارس',
+      indigo: 'أزرق بروسي',
+      orange: 'أحمر تيتيان',
+      pink: 'بوردو',
+      purple: 'برغندي',
+      red: 'أحمر صيني',
+      yellow: 'أصفر سينلييه',
       switch: 'تبديل اللون',
-      title: 'اللون'
+      title: 'اللون',
+      locked: 'لون المظهر اليوم ثابت ولا يمكن تغييره'
     },
     locale: {
       'ar-SA': 'العربية',
@@ -108,6 +114,7 @@ export default {
     more: 'المزيد',
     no: 'لا',
     ok: 'موافق',
+    open: 'فتح',
     password: 'كلمة المرور',
     permission: 'الصلاحيات',
     personalSettings: 'الإعدادات الشخصية',
@@ -158,18 +165,21 @@ export default {
     yes: 'نعم'
   },
 
-  /** <summary>4. entity</summary> */
+  /** <summary>4. entity</summary> 审计字段顺序与 TaktEntityBase 一致 */
   entity: {
     configId: 'معرف التكوين',
+    extFieldJson: 'حقل موسع JSON',
+    remark: 'ملاحظة',
+    createId: 'معرف المنشئ',
     createBy: 'أنشئ بواسطة',
     createTime: 'وقت الإنشاء',
-    deletedBy: 'حذف بواسطة',
-    deletedTime: 'وقت الحذف',
-    extFieldJson: 'حقل موسع JSON',
-    isDeleted: 'محذوف',
-    remark: 'ملاحظة',
+    updateId: 'معرف المحدث',
     updateBy: 'حدث بواسطة',
-    updateTime: 'وقت التحديث'
+    updateTime: 'وقت التحديث',
+    isDeleted: 'محذوف',
+    deleteId: 'معرف الحاذف',
+    deletedBy: 'حذف بواسطة',
+    deletedTime: 'وقت الحذف'
   },
 
   /** <summary>5. msg</summary> */
@@ -178,23 +188,25 @@ export default {
     actionSuccess: '{action} بنجاح',
     assignFail: 'فشل تخصيص {target}',
     assignSuccess: 'تم تخصيص {target} بنجاح',
-    createSuccess: 'تم الإنشاء بنجاح',
-    deleteFail: 'فشل الحذف',
-    deleteSuccess: 'تم الحذف بنجاح',
+    createSuccess: 'تم إنشاء {target} بنجاح',
+    deleteFail: 'فشل حذف {target}',
+    deleteSuccess: 'تم حذف {target} بنجاح',
     entityIdRequired: 'معرف {entity} مطلوب',
     entityNotFound: '{entity} غير موجود',
-    exportFail: 'فشل التصدير',
-    exportSuccess: 'تم التصدير بنجاح',
+    exportFail: 'فشل تصدير {target}',
+    exportSuccess: 'تم تصدير {target} بنجاح',
     loadFail: 'فشل تحميل البيانات',
-    loadOptionsFail: 'فشل تحميل الخيارات، يرجى المحاولة لاحقاً',
+    loadOptionsFail: 'فشل تحميل خيارات {target}. يرجى المحاولة لاحقاً',
+    loadListFail: 'فشل تحميل قائمة {target}.\nيرجى التحقق من الخادم والمحاولة مرة أخرى.',
     loadTargetFail: 'فشل تحميل {target}',
     noSearchResult: 'لا توجد نتائج بحث',
-    operateFail: 'فشلت العملية',
-    updateSuccess: 'تم التحديث بنجاح'
+    operateFail: 'فشل {action}',
+    updateSuccess: 'تم تحديث {target} بنجاح'
   },
 
   /** <summary>6. action</summary> */
   action: {
+    cancel: 'إلغاء',
     confirmAction: 'تأكيد {action}',
     confirmDelete: 'تأكيد الحذف',
     etc: 'وغيرها',
@@ -252,6 +264,14 @@ export default {
     resetPwdContent: 'هل تريد إعادة تعيين كلمة مرور {entity} «{name}» إلى الافتراضية؟',
     unlockContent: 'هل تريد فتح قفل {entity} «{name}»؟'
   },
+  /** PWA إشعار التحديث */
+  pwa: {
+    offlineReady: 'التطبيق جاهز للعمل دون اتصال',
+    needRefresh: 'محتوى جديد متاح، انقر فوق إعادة التحميل للتحديث',
+    reload: 'إعادة التحميل',
+    close: 'إغلاق'
+  },
+
   api: {
     loginExpired: 'انتهت الجلسة، يرجى تسجيل الدخول مرة أخرى',
     tokenRefreshFail: 'فشل تحديث الرمز',

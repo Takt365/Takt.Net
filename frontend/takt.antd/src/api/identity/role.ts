@@ -111,7 +111,7 @@ export function updateStatus(data: RoleStatus): Promise<Role> {
  * 获取导入模板
  * 对应后端：GetTemplateAsync
  */
-export function getTemplate(sheetName?: string, fileName?: string): Promise<BlobDownloadResult> {
+export function getTemplate(sheetName?: string, fileName?: string): Promise<Blob> {
   return request({
     url: '/api/TaktRoles/template',
     method: 'get',

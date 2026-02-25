@@ -10,7 +10,7 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using Takt.Domain.Entities.Tenant;
+using Takt.Domain.Entities.Identity;
 using Takt.Shared.Helpers;
 
 namespace Takt.Infrastructure.Tenant;
@@ -88,7 +88,7 @@ public class TaktTenantContext
     }
 
     /// <summary>
-    /// 是否使用多库模式（租户启用时为多库模式，未启用时为单库模式）
+    /// 是否使用多库模式（与租户开关无关；当前实现下多库始终按实体映射 0～5 使用）
     /// </summary>
-    public static bool IsMultiDatabaseMode => IsTenantEnabled;
+    public static bool IsMultiDatabaseMode => true;
 }

@@ -11,7 +11,7 @@
 <!-- ======================================== -->
 
 <template>
-  <!-- 字典数量 3 个及以下且非多选模式下，使用 Radio 单选 -->
+  <!-- 字典/选项数量 3 个及以下且非多选时，使用 Radio 单选（与选项值类型无关，统一展示） -->
   <a-radio-group
     v-if="shouldUseRadio && !multiple"
     :value="modelValue"
@@ -157,10 +157,14 @@ function inferValueType(modelValue: string | number | (string | number)[] | unde
  * 判断值是否是数值类型（number 或可转换为 number 的 string）
  */
 function isNumericValue(value: string | number | (string | number)[] | undefined): boolean {
-  if (value == null) return false
-  
+  if (value == null) {
+    return false
+  }
+
   if (Array.isArray(value)) {
-    if (value.length === 0) return false
+    if (value.length === 0) {
+      return false
+    }
     const first = value[0]
     return typeof first === 'number' || (typeof first === 'string' && first !== '' && !isNaN(Number(first)))
   }
@@ -172,7 +176,9 @@ function isNumericValue(value: string | number | (string | number)[] | undefined
  * 判断字符串是否是纯数字字符串（用于字典值的类型转换）
  */
 function isNumericString(str: string): boolean {
-  if (!str || str.trim() === '') return false
+  if (!str || str.trim() === '') {
+    return false
+  }
   const trimmed = String(str).trim()
   return /^-?\d+(\.\d+)?$/.test(trimmed) && !isNaN(Number(trimmed))
 }
@@ -301,18 +307,10 @@ const shouldUseVirtual = computed(() => {
   return props.virtual ?? options.value.length > 100
 })
 
-// 判断是否应该使用 Radio 单选（字典数量 3 个及以下且非多选模式，且值必须是数值类型）
+// 判断是否应该使用 Radio 单选：选项数量 1～3 个且非多选时统一用 Radio，与选项值类型无关
 const shouldUseRadio = computed(() => {
-  if (!props.dictType || props.multiple || options.value.length === 0 || options.value.length > 3) {
-    return false
-  }
-  
-  const allOptionsAreNumeric = options.value.every(option => isNumericValue((option as any).value))
-  if (!allOptionsAreNumeric) {
-    return false
-  }
-  
-  return props.modelValue == null || isNumericValue(props.modelValue)
+  const n = options.value.length
+  return !props.multiple && n >= 1 && n <= 3
 })
 
 // Radio 组件的尺寸（RadioGroup 不支持 'middle'，只支持 'small' | 'large' | 'default'）
@@ -399,8 +397,10 @@ const extractRawValue = (value: SelectValue): string | number | (string | number
 // 处理 Radio 值变化
 const handleRadioChange = (event: any) => {
   const value = event?.target?.value ?? event
-  if (value == null) return
-  
+  if (value == null) {
+    return
+  }
+
   emit('update:modelValue', value)
   const option = radioOptions.value.find(opt => opt.value === value)
   emit('change', value, option ?? null)

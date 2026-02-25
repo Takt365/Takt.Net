@@ -1090,38 +1090,6 @@ const handleFormCancel = () => {
   }
 }
 
-// 状态颜色
-const getStatusColor = (status: number) => {
-  switch (status) {
-    case 0:
-      return 'success' // 正常
-    case 1:
-      return 'warning' // 已锁定
-    case 2:
-      return 'processing' // 已归档
-    case 3:
-      return 'error' // 已删除
-    default:
-      return 'default'
-  }
-}
-
-// 状态文本
-const getStatusText = (status: number) => {
-  switch (status) {
-    case 0:
-      return '正常'
-    case 1:
-      return '已锁定'
-    case 2:
-      return '已归档'
-    case 3:
-      return '已删除'
-    default:
-      return '未知'
-  }
-}
-
 // 文件分类文本
 const getCategoryText = (category: number) => {
   switch (category) {
@@ -1160,7 +1128,9 @@ const getStorageTypeText = (storageType: number) => {
 
 // 格式化文件大小
 const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 B'
+  if (bytes === 0) {
+    return '0 B'
+  }
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))

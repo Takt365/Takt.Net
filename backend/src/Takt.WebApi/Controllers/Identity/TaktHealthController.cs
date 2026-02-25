@@ -10,6 +10,7 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
+using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -58,7 +59,7 @@ public class TaktHealthController : ControllerBase
         {
             status = "healthy",
             timestamp = DateTime.UtcNow,
-            version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown"
+            version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown"
         });
     }
 
@@ -69,8 +70,8 @@ public class TaktHealthController : ControllerBase
     [HttpGet("detailed")]
     public ActionResult<object> Detailed()
     {
-        var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-        var version = assembly.GetName().Version?.ToString() ?? "unknown";
+        var assembly = Assembly.GetExecutingAssembly();
+        var version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? assembly.GetName().Version?.ToString() ?? "unknown";
 
         return Ok(new
         {

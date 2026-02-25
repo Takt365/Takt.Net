@@ -14,10 +14,10 @@ using Takt.Application.Dtos.HumanResource.Organization;
 using Takt.Application.Dtos.Identity;
 using Takt.Shared.Models;
 
-namespace Takt.Application.Organization;
+namespace Takt.Application.Services.HumanResource.Organization;
 
 /// <summary>
-/// Takt部门应用服务接口
+/// Takt部门应用服务接口.
 /// </summary>
 public interface ITaktDeptService
 {

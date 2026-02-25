@@ -20,6 +20,24 @@ export interface LoginParams {
   password: string
   /** 记住我（对应后端 RememberMe） */
   rememberMe?: boolean
+  /** 强制登录：已达设备上限时踢掉已有会话并通知对方（对应后端 force_login） */
+  force_login?: boolean
+}
+
+/** 已在别处登录时后端返回的已有会话项（对应 TaktExistingSessionDto） */
+export interface ExistingSessionItem {
+  connectLocation?: string
+  connectIp?: string
+  deviceType?: string
+  browserType?: string
+  connectTime?: string
+}
+
+/** 登录接口返回“已在其他位置登录”时的结构化错误，供登录页弹窗与强制登录重试 */
+export interface AlreadyLoggedInElsewhereError extends Error {
+  code: 'already_logged_in_elsewhere'
+  error_description: string
+  existing_sessions: ExistingSessionItem[]
 }
 
 /**
@@ -48,12 +66,26 @@ export interface UserInfo {
   userName: string
   /** 真实姓名（对应后端 RealName） */
   realName: string
+  /** 英文名（对应后端 EnglishName，非 zh-CN/zh-TW 时优先展示） */
+  englishName?: string
+  /** 昵称（对应后端 NickName，zh-CN/zh-TW 时优先展示） */
+  nickname?: string
   /** 头像（对应后端 Avatar） */
   avatar: string
   /** 角色列表（对应后端 Roles） */
   roles: string[]
   /** 权限列表（对应后端 Permissions） */
   permissions: string[]
+  /** 今日是否为假日（access_token 为 JWE 时由 userinfo 返回） */
+  holidayToday?: boolean
+  /** 假日名称 */
+  holidayName?: string
+  /** 假日问候语（简短，用于问候语行） */
+  holidayGreeting?: string
+  /** 假日引用/诗句（用于引用区展示） */
+  holidayQuote?: string
+  /** 假日主题（对应 themeColorMap 的 key） */
+  holidayTheme?: string
 }
 
 /**

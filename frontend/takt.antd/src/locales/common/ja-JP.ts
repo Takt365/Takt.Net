@@ -14,17 +14,23 @@ export default {
 
   /** <summary>2. settings</summary> */
   settings: {
+    /** 十大著名色彩、color-base.less に準拠 */
     color: {
-      blue: '青',
-      cyan: 'シアン',
+      blue: 'クラインブルー',
+      brown: 'バン・ダイク・ブラウン',
+      cyan: 'ティファニーブルー',
       gold: 'ゴールド',
-      green: '緑',
-      orange: 'オレンジ',
-      pink: 'ピンク',
-      purple: '紫',
-      red: '赤',
+      gray: 'メモリアルグレー',
+      green: 'マーズグリーン',
+      indigo: 'プルシアンブルー',
+      orange: 'ティツィアーノレッド',
+      pink: 'ボルドー',
+      purple: 'ブルゴーニュ',
+      red: 'チャイニーズレッド',
+      yellow: 'セネリエイエロー',
       switch: '色を切り替え',
-      title: '色'
+      title: '色',
+      locked: '本日のテーマ色は固定で変更できません'
     },
     locale: {
       'ar-SA': 'العربية',
@@ -108,6 +114,7 @@ export default {
     more: 'もっと',
     no: 'いいえ',
     ok: 'OK',
+    open: '開く',
     password: 'パスワード',
     permission: '権限設定',
     personalSettings: '個人設定',
@@ -158,18 +165,21 @@ export default {
     yes: 'はい'
   },
 
-  /** <summary>4. entity</summary> */
+  /** <summary>4. entity</summary> 审计字段顺序与 TaktEntityBase 一致 */
   entity: {
     configId: '設定ID',
+    extFieldJson: '拡張フィールドJSON',
+    remark: '備考',
+    createId: '作成者ID',
     createBy: '作成者',
     createTime: '作成日時',
-    deletedBy: '削除者',
-    deletedTime: '削除日時',
-    extFieldJson: '拡張フィールドJSON',
-    isDeleted: '削除済み',
-    remark: '備考',
+    updateId: '更新者ID',
     updateBy: '更新者',
-    updateTime: '更新日時'
+    updateTime: '更新日時',
+    isDeleted: '削除済み',
+    deleteId: '削除者ID',
+    deletedBy: '削除者',
+    deletedTime: '削除日時'
   },
 
   /** <summary>5. msg</summary> */
@@ -178,23 +188,25 @@ export default {
     actionSuccess: '{action}しました',
     assignFail: '{target}の割り当てに失敗しました',
     assignSuccess: '{target}を割り当てました',
-    createSuccess: '作成しました',
-    deleteFail: '削除に失敗しました',
-    deleteSuccess: '削除しました',
+    createSuccess: '{target}を作成しました',
+    deleteFail: '{target}の削除に失敗しました',
+    deleteSuccess: '{target}を削除しました',
     entityIdRequired: '{entity}IDが必要です',
     entityNotFound: '{entity}が見つかりません',
-    exportFail: 'エクスポートに失敗しました',
-    exportSuccess: 'エクスポートしました',
+    exportFail: '{target}のエクスポートに失敗しました',
+    exportSuccess: '{target}をエクスポートしました',
     loadFail: 'データの読み込みに失敗しました',
-    loadOptionsFail: 'オプションの読み込みに失敗しました。しばらくして再試行してください',
+    loadOptionsFail: '{target}オプションの読み込みに失敗しました。しばらくして再試行してください',
+    loadListFail: '{target}リストの読み込みに失敗しました。\nサーバーを確認して再試行してください。',
     loadTargetFail: '{target}の読み込みに失敗しました',
     noSearchResult: '検索結果がありません',
-    operateFail: '操作に失敗しました',
-    updateSuccess: '更新しました'
+    operateFail: '{action}に失敗しました',
+    updateSuccess: '{target}を更新しました'
   },
 
   /** <summary>6. action</summary> */
   action: {
+    cancel: 'キャンセル',
     confirmAction: '{action}の確認',
     confirmDelete: '削除の確認',
     etc: 'など',
@@ -237,7 +249,8 @@ export default {
       selectFirst: '先に{field}を選択してください',
       selectOnly: '選択してください',
       treeKeyword: 'ツリーキーワード',
-      watermark: '透かし文字を入力'
+      watermark: '透かし文字を入力',
+      lengthExact: '{field}は{length}文字で入力してください'
     },
     validation: {
       enterValid: '正しい{field}を入力してください',
@@ -252,6 +265,14 @@ export default {
     resetPwdContent: '{entity}「{name}」のパスワードをデフォルトにリセットしてもよろしいですか？',
     unlockContent: '{entity}「{name}」のロックを解除してもよろしいですか？'
   },
+  /** PWA 更新通知 */
+  pwa: {
+    offlineReady: 'アプリはオフラインで使用できるようになりました',
+    needRefresh: '新しいバージョンが利用可能です。再読み込みをクリックして更新してください',
+    reload: '再読み込み',
+    close: '閉じる'
+  },
+
   api: {
     loginExpired: 'ログインの有効期限が切れました。再度ログインしてください',
     tokenRefreshFail: 'Token の更新に失敗しました',

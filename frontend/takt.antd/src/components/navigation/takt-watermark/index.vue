@@ -74,7 +74,9 @@ const watermarkContent = computed(() => {
 /** 按主题适配水印颜色：亮色用深色半透明，暗色用浅色半透明 */
 const fontByTheme = computed(() => {
   const base = props.font ?? { fontSize: 16 }
-  if (base.color !== undefined) return { ...base }
+  if (base.color !== undefined) {
+    return { ...base }
+  }
   const color =
     themeStore.themeMode === 'dark'
       ? 'rgba(255, 255, 255, 0.12)'

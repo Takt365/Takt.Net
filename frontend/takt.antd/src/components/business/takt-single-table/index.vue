@@ -17,7 +17,7 @@
       @resizeColumn="handleResizeColumn"
       v-bind="$attrs"
     >
-      <template v-for="(_, name) in $slots" #[name]="slotData">
+      <template v-for="(_, name) in $slots" :key="name" #[name]="slotData">
         <slot :name="name" v-bind="slotData" />
       </template>
       <!-- 总结栏插槽
@@ -106,7 +106,9 @@ const emit = defineEmits<{
 
 /** 行选择：默认显示选择列（showRowSelection 为 true 且未传 rowSelection 时用空对象） */
 const effectiveRowSelection = computed(() => {
-  if (!props.showRowSelection) return undefined
+  if (!props.showRowSelection) {
+    return undefined
+  }
   return props.rowSelection !== undefined && props.rowSelection !== null ? props.rowSelection : {}
 })
 

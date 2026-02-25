@@ -142,8 +142,7 @@ const { t } = useI18n()
 
 const menuTypeOptions = computed(() => [
   { label: t('identity.menu.menuType.dir'), value: 0 },
-  { label: t('identity.menu.menuType.menu'), value: 1 },
-  { label: t('identity.menu.menuType.button'), value: 2 }
+  { label: t('identity.menu.menuType.menu'), value: 1 }
 ])
 const menuStatusOptions = computed(() => [
   { label: t('identity.menu.menuStatus.enable'), value: 0 },
@@ -260,7 +259,14 @@ const validate = async () => {
 
 const getValues = (): MenuCreate => {
   const p = formState.parentId
-  const parentId = p === '' || p === undefined ? 0 : (typeof p === 'string' ? (p === '' ? 0 : Number(p)) : p)
+  let parentId: number
+  if (p === '' || p === undefined) {
+    parentId = 0
+  } else if (typeof p === 'string') {
+    parentId = p === '' ? 0 : Number(p)
+  } else {
+    parentId = p
+  }
   return {
     menuName: formState.menuName ?? '',
     menuCode: formState.menuCode ?? '',

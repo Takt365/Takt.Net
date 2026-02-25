@@ -46,4 +46,9 @@ public static class TaktAppConstants
     /// 默认雪花ID工作节点ID
     /// </summary>
     public const int DefaultWorkId = 1;
+
+    /// <summary>
+    /// 种子数据等特殊场景使用的统一用户ID（无法获取当前用户时用于 CreateId 等）
+    /// </summary>
+    public const long SeedOrSystemUserId = 999;
 }

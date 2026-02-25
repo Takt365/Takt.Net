@@ -59,7 +59,6 @@ export default {
     avatar: 'رفع الصورة الرمزية',
     avatarUpload: 'رفع الصورة الرمزية',
     avatarUploading: 'جاري الرفع...',
-    cancel: 'إلغاء',
     confirm: 'موافق',
     confirmDeleteAvatar: 'تأكيد الحذف',
     confirmDeleteAvatarContent: 'حذف الصورة الرمزية الحالية؟',

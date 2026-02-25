@@ -13,7 +13,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Takt.Application.Dtos.Routine.I18n;
-using Takt.Application.Routine.I18n;
+using Takt.Application.Services.Routine.I18n;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
@@ -152,7 +152,7 @@ public class TaktTranslationsController : TaktControllerBase
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件</returns>
     [HttpGet("template")]
-    [TaktPermission("routine:translation:import", "获取导入模板")]
+    [TaktPermission("routine:translation:template", "获取导入模板")]
     public async Task<IActionResult> GetTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try

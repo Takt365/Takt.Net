@@ -22,11 +22,24 @@ namespace Takt.Domain.Entities.Routine.News;
 [SugarIndex("ix_takt_routine_news_news_code", nameof(NewsCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_routine_news_news_category", nameof(NewsCategory), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_news_publish_time", nameof(PublishTime), OrderByType.Desc)]
+[SugarIndex("ix_takt_routine_news_company_code", nameof(CompanyCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_news_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_news_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_news_news_status", nameof(NewsStatus), OrderByType.Asc)]
 public class TaktNews : TaktEntityBase
 {
+    /// <summary>
+    /// 公司代码（关联公司主数据）
+    /// </summary>
+    [SugarColumn(ColumnName = "company_code", ColumnDescription = "公司代码", ColumnDataType = "nvarchar", Length = 4, IsNullable = true)]
+    public string? CompanyCode { get; set; }
+
+    /// <summary>
+    /// 工厂代码（关联工厂主数据 TaktPlant.PlantCode；冗余便于列表展示）
+    /// </summary>
+    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 4, IsNullable = true)]
+    public string? PlantCode { get; set; }
+
     /// <summary>
     /// 新闻编码（唯一索引）
     /// </summary>

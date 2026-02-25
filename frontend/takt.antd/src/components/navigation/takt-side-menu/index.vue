@@ -48,14 +48,18 @@ const menuItems = computed(() => menuStore.menuItems)
 
 /** 手风琴：只保留“当前展开分支”（最后一个 key 及其祖先），其它子菜单收起 */
 function getAccordionOpenKeys(keys: string[]): string[] {
-  if (keys.length === 0) return []
+  if (keys.length === 0) {
+    return []
+  }
   const last = keys[keys.length - 1]
   const branch = keys.filter(k => last === k || last.startsWith(k + '/'))
   return branch.slice().sort((a, b) => a.length - b.length)
 }
 
 const theme = computed(() => {
-  if (props.theme === 'dark') return 'dark'
+  if (props.theme === 'dark') {
+    return 'dark'
+  }
   return themeStore.themeMode === 'dark' ? 'dark' : 'light'
 })
 
@@ -81,7 +85,9 @@ watch(
 watch(
   () => [...openKeys.value],
   (newVal) => {
-    if (!setting.value.menuAccordion || newVal.length <= 1) return
+    if (!setting.value.menuAccordion || newVal.length <= 1) {
+      return
+    }
     const next = getAccordionOpenKeys(newVal)
     if (next.length !== newVal.length || next.some((k, i) => k !== newVal[i])) {
       openKeys.value = next

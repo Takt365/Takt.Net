@@ -15,17 +15,15 @@ using Microsoft.Extensions.Logging;
 using SqlSugar;
 using Takt.Application.Dtos.HumanResource.Organization;
 using Takt.Application.Dtos.Identity;
-using Takt.Application.Dtos.Tenant;
 using Takt.Application.Services;
 using Takt.Domain.Entities.HumanResource.Organization;
 using Takt.Domain.Entities.Identity;
-using Takt.Domain.Entities.Tenant;
 using Takt.Domain.Interfaces;
 using Takt.Domain.Validation;
 using Takt.Shared.Exceptions;
 using Takt.Shared.Helpers;
 
-namespace Takt.Application.Identity;
+namespace Takt.Application.Services.Identity;
 
 /// <summary>
 /// Takt用户应用服务
@@ -274,7 +272,7 @@ public class TaktUserService : TaktServiceBase, ITaktUserService
                 var templatesPath = _configuration["Email:TemplatesPath"];
                 var body = TaktEmailTemplateHelper.GetFilledBody(TaktEmailTemplateNames.InitialPassword, variables, templatesPath);
                 var subject = GetLocalizedString("InitialPassword_Subject", "Email");
-                await TaktMailHelper.SendEmailAsync(_configuration, user.UserEmail, subject, body, isHtml: false);
+                await TaktMailHelper.SendEmailAsync(_configuration, user.UserEmail ?? string.Empty, subject, body, isHtml: false);
             }
             catch (Exception ex)
             {
@@ -831,7 +829,7 @@ public class TaktUserService : TaktServiceBase, ITaktUserService
                 var templatesPath = _configuration["Email:TemplatesPath"];
                 var body = TaktEmailTemplateHelper.GetFilledBody(TaktEmailTemplateNames.ForgotPassword, variables, templatesPath);
                 var subject = GetLocalizedString("ForgotPassword_Subject", "Email");
-                await TaktMailHelper.SendEmailAsync(_configuration, user.UserEmail, subject, body, isHtml: false);
+                await TaktMailHelper.SendEmailAsync(_configuration, user.UserEmail ?? string.Empty, subject, body, isHtml: false);
             }
             catch (Exception ex)
             {
@@ -870,7 +868,10 @@ public class TaktUserService : TaktServiceBase, ITaktUserService
     /// <summary>
     /// 构建找回密码邮件模板变量（本地化）
     /// </summary>
+    /// <param name="greeting">邮件称呼（如：尊敬的xxx）</param>
     /// <param name="accountDisplay">账号显示：显示名(用户名)，与称呼一致</param>
+    /// <param name="userEmail">用户邮箱</param>
+    /// <param name="defaultPassword">重置后的默认密码</param>
     private Dictionary<string, string?> BuildForgotPasswordEmailVariables(string greeting, string accountDisplay, string userEmail, string defaultPassword)
     {
         return new Dictionary<string, string?>

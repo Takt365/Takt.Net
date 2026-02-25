@@ -1,5 +1,11 @@
 import request from '../request'
-import type { LoginParams, LoginResponse, UserInfo } from '@/types/identity/auth'
+import type {
+  LoginParams,
+  LoginResponse,
+  UserInfo,
+  ExistingSessionItem,
+  AlreadyLoggedInElsewhereError
+} from '@/types/identity/auth'
 
 // 登录
 export function login(params: LoginParams) {
@@ -13,6 +19,9 @@ export function login(params: LoginParams) {
   // 后端使用 PBKDF2 算法验证密码（TaktEncryptHelper.VerifyPassword）
   // 密码通过 HTTPS 传输，确保传输安全
   formData.append('password', params.password)
+  if (params.force_login === true) {
+    formData.append('force_login', 'true')
+  }
 
   // 直接使用 axios 发送请求，绕过 request 拦截器的响应处理
   // 因为 OpenIddict 返回的是 OAuth2 标准格式，不是 { code: 200, data: ... } 格式
@@ -24,7 +33,9 @@ export function login(params: LoginParams) {
       const CSRF_TOKEN_COOKIE = 'CSRF-Token'
       const CSRF_TOKEN_HEADER = 'X-CSRF-Token'
       function getCsrfTokenFromCookie(): string | null {
-        if (typeof document === 'undefined') return null
+        if (typeof document === 'undefined') {
+          return null
+        }
         const cookies = document.cookie.split(';')
         for (const cookie of cookies) {
           const [name, value] = cookie.trim().split('=')
@@ -86,6 +97,21 @@ export function login(params: LoginParams) {
         }
       )
 
+      const data = response.data as Record<string, unknown> | null | undefined
+      // 已在其他位置登录：必须先于 token 判断。后端返回 200 + error/error_description/existing_sessions，无 access_token
+      if (data && String(data.error) === 'already_logged_in_elsewhere') {
+        if (import.meta.env.DEV) {
+          logger.debug('[Login] 响应数据:', response.data)
+          logger.debug('[Login] 已在其他位置登录，等待用户选择强制登录或取消', data.existing_sessions)
+        }
+        const err = new Error((data.error_description as string) || '当前用户已在其他位置登录，需要发送通知吗？') as AlreadyLoggedInElsewhereError
+        err.code = 'already_logged_in_elsewhere'
+        err.error_description = (data.error_description as string) || ''
+        err.existing_sessions = (Array.isArray(data.existing_sessions) ? data.existing_sessions : []) as ExistingSessionItem[]
+        reject(err)
+        return
+      }
+
       // 调试：打印响应数据（仅在开发环境）
       if (import.meta.env.DEV) {
         logger.debug('[Login] 响应数据:', response.data)
@@ -94,8 +120,8 @@ export function login(params: LoginParams) {
       }
 
       // 将 OAuth2 响应格式转换为 LoginResponse 格式
-      const token = response.data?.access_token
-      
+      const token = (response.data as { access_token?: string } | null | undefined)?.access_token
+
       if (!token) {
         logger.error('[Login] Token 未找到，响应数据:', response.data)
         reject(new Error('登录失败：未获取到访问令牌'))
@@ -168,7 +194,9 @@ export function refreshToken(refreshToken: string): Promise<LoginResponse> {
       const CSRF_TOKEN_COOKIE = 'CSRF-Token'
       const CSRF_TOKEN_HEADER = 'X-CSRF-Token'
       function getCsrfTokenFromCookie(): string | null {
-        if (typeof document === 'undefined') return null
+        if (typeof document === 'undefined') {
+          return null
+        }
         const cookies = document.cookie.split(';')
         for (const cookie of cookies) {
           const [name, value] = cookie.trim().split('=')

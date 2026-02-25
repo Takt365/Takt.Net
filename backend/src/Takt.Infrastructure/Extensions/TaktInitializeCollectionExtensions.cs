@@ -38,21 +38,26 @@ public static class TaktInitializeCollectionExtensions
         var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
         var logger = loggerFactory.CreateLogger(string.Empty); // 使用空字符串作为类别名称，不显示类别
 
-        // 1. 优先初始化OpenIddict数据库
-        await app.InitializeOpenIddictDatabaseAsync();
+        // 1. 优先初始化OpenIddict数据库（仅 EF 迁移，官方方式）；未就绪时返回 false，不再执行应用/Scope 初始化，避免 4060 连串错误
+        var openIddictDbReady = await app.InitializeOpenIddictDatabaseAsync();
 
-        // 2. 初始化OpenIddict应用和范围
-        try
+        // 2. 仅当 OpenIddict 数据库已就绪时，初始化应用和范围（官方 IOpenIddictApplicationManager/IOpenIddictScopeManager）；否则跳过
+        if (openIddictDbReady)
         {
-            logger.LogInformation("开始初始化OpenIddict应用和范围...");
-            await TaktOpenIddictConfig.InitializeAsync(app.Services);
-            logger.LogInformation("OpenIddict应用和范围初始化完成");
+            try
+            {
+                logger.LogInformation("开始初始化OpenIddict应用和范围...");
+                await TaktOpenIddictConfig.InitializeAsync(app.Services);
+                logger.LogInformation("OpenIddict应用和范围初始化完成");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "OpenIddict应用和范围初始化失败: {Message}", ex.Message);
+            }
         }
-        catch (Exception ex)
+        else
         {
-            logger.LogError(ex, "OpenIddict应用和范围初始化失败: {Message}", ex.Message);
-            // 不抛出异常，允许应用程序继续启动，但记录错误
-            // 注意：这可能导致认证功能不可用
+            logger.LogWarning("OpenIddict 数据库未就绪（无迁移或连接失败），已跳过应用和范围初始化。请先执行上述 dotnet ef 命令后再重启。");
         }
 
         // 3. 判断租户启用状态并输出配置状态
@@ -61,23 +66,23 @@ public static class TaktInitializeCollectionExtensions
         var defaultConfigId = tenantSection["DefaultConfigId"] ?? "0";
         if (!useTenant)
         {
-            logger.LogInformation("多租户功能已禁用，使用主库配置 ConfigId: {DefaultConfigId}", defaultConfigId);
+            logger.LogInformation("多租户功能已禁用，多库按实体映射 0～5，不按租户过滤；主库 ConfigId: {DefaultConfigId}", defaultConfigId);
         }
         else
         {
-            logger.LogInformation("多租户功能已启用，主库 ConfigId: {DefaultConfigId}", defaultConfigId);
+            logger.LogInformation("多租户功能已启用，多库按实体映射 0～5 并按租户过滤；主库 ConfigId: {DefaultConfigId}", defaultConfigId);
         }
 
         // 输出其他配置状态
         var initSection = configuration.GetSection("Init");
         var initDb = initSection.GetValue<bool>("InitDb", false);
         var seedData = initSection.GetValue<bool>("SeedData", false);
-        var singleLogin = configuration.GetValue<bool>("SingleLogin", false);
+        var singleDeviceLogin = configuration.GetValue<bool>("SingleDeviceLogin", false);
         var demoMode = configuration.GetValue<bool>("DemoMode", false);
         
         logger.LogInformation("数据库初始化: {InitDb}", initDb ? "启用" : "禁用");
         logger.LogInformation("种子数据初始化: {SeedData}", seedData ? "启用" : "禁用");
-        logger.LogInformation("单点登录: {SingleLogin}", singleLogin ? "启用" : "禁用");
+        logger.LogInformation("单设备登录配置 SingleDeviceLogin: {Value}（false=每账号1台，true=每账号3台）", singleDeviceLogin ? "true" : "false");
         logger.LogInformation("演示模式: {DemoMode}", demoMode ? "启用" : "禁用");
 
         // 4. 初始化数据表和种子数据
@@ -88,10 +93,8 @@ public static class TaktInitializeCollectionExtensions
             var sqlSugarClient = app.Services.GetRequiredService<ISqlSugarClient>();
             var dbConfigsSection = configuration.GetSection("dbConfigs");
 
-            // 初始化逻辑：
-            // 无论 Tenant.Enabled 是 true 还是 false，都需要初始化所有配置的数据库
-            // Tenant.Enabled = false：不启用租户管理，但使用多库，只有一条租户记录 ConfigId="0"，不需要过滤
-            // Tenant.Enabled = true：启用租户管理，多租户多库，需要过滤
+            // 初始化逻辑：无论 Tenant.Enabled 为何，都初始化 appsettings 里配置的所有库（建表/种子）。
+            // 运行时：租户禁用与启用均为多库（按实体映射 0～5）；租户禁用时不按租户过滤，租户启用时按租户过滤。
             var configIds = new List<string>();
             
             if (dbConfigsSection.Exists())
@@ -128,48 +131,90 @@ public static class TaktInitializeCollectionExtensions
                 logger.LogInformation("租户功能已禁用（但使用多库），将初始化 {Count} 个数据库", configIds.Count);
             }
 
-            // 为每个数据库执行初始化
+            var tenant = sqlSugarClient.AsTenant();
+
+            // 阶段一：先为所有 ConfigId 创建数据库（仅建库，不建表、不种子）
+            logger.LogInformation("阶段一：创建所有数据库（如不存在）...");
             foreach (var configId in configIds)
             {
                 try
                 {
-                    logger.LogInformation("正在初始化数据库 ConfigId: {ConfigId}", configId);
-
-                    var tenant = sqlSugarClient.AsTenant();
                     var db = tenant.GetConnectionScope(configId);
-
                     if (db != null)
                     {
-                        // 设置租户上下文（确保仓储能正确获取 ConfigId）
-                        Takt.Infrastructure.Tenant.TaktTenantContext.CurrentConfigId = configId;
-                        Takt.Infrastructure.Tenant.TaktTenantContext.CurrentConnectionString = db.Ado.Connection.ConnectionString;
-                        Takt.Infrastructure.Tenant.TaktTenantContext.DefaultConnectionString = db.Ado.Connection.ConnectionString;
-
-                        // 从服务容器获取种子数据提供者集合和日志记录器
-                        var seedDataProviders = app.Services.GetServices<ITaktSeedData>();
-                        var initializerLogger = loggerFactory.CreateLogger(string.Empty); // 使用空字符串作为类别名称，不显示类别
-                        var initializer = new TaktDatabaseInitializer(db, seedDataProviders, app.Services, configId, initializerLogger);
-
-                        // 初始化数据库结构
-                        if (initDb)
-                        {
-                            await initializer.InitializeTablesAsync();
-                            logger.LogInformation("数据库结构初始化完成 ConfigId: {ConfigId}", configId);
-                        }
-
-                        // 初始化种子数据
-                        if (seedData)
-                        {
-                            var (totalInsertCount, totalUpdateCount) = await initializer.SeedDataAsync();
-                            logger.LogInformation("种子数据初始化完成 ConfigId: {ConfigId}, 总计 - 插入: {TotalInsertCount}, 更新: {TotalUpdateCount}", 
-                                configId, totalInsertCount, totalUpdateCount);
-                        }
+                        db.DbMaintenance.CreateDatabase();
+                        logger.LogInformation("数据库已就绪 ConfigId: {ConfigId}", configId);
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "数据库初始化失败 ConfigId: {ConfigId}", configId);
+                    logger.LogError(ex, "创建数据库失败 ConfigId: {ConfigId}", configId);
+                    throw;
                 }
+            }
+            logger.LogInformation("阶段一完成：所有数据库已创建");
+
+            // 阶段二：为每个 ConfigId 初始化表结构
+            if (initDb)
+            {
+                logger.LogInformation("阶段二：初始化所有表结构...");
+                foreach (var configId in configIds)
+                {
+                    try
+                    {
+                        logger.LogInformation("正在初始化表结构 ConfigId: {ConfigId}", configId);
+                        var db = tenant.GetConnectionScope(configId);
+                        if (db != null)
+                        {
+                            Takt.Infrastructure.Tenant.TaktTenantContext.CurrentConfigId = configId;
+                            Takt.Infrastructure.Tenant.TaktTenantContext.CurrentConnectionString = db.Ado.Connection.ConnectionString;
+                            Takt.Infrastructure.Tenant.TaktTenantContext.DefaultConnectionString = db.Ado.Connection.ConnectionString;
+                            var seedDataProviders = app.Services.GetServices<ITaktSeedData>();
+                            var initializerLogger = loggerFactory.CreateLogger(string.Empty);
+                            var initializer = new TaktDatabaseInitializer(db, seedDataProviders, app.Services, configId, initializerLogger);
+                            await initializer.InitializeTablesAsync();
+                            logger.LogInformation("表结构初始化完成 ConfigId: {ConfigId}", configId);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "表结构初始化失败 ConfigId: {ConfigId}", configId);
+                        throw;
+                    }
+                }
+                logger.LogInformation("阶段二完成：所有表结构已初始化");
+            }
+
+            // 阶段三：为每个 ConfigId 执行种子数据
+            if (seedData)
+            {
+                logger.LogInformation("阶段三：执行种子数据...");
+                foreach (var configId in configIds)
+                {
+                    try
+                    {
+                        logger.LogInformation("正在执行种子数据 ConfigId: {ConfigId}", configId);
+                        var db = tenant.GetConnectionScope(configId);
+                        if (db != null)
+                        {
+                            Takt.Infrastructure.Tenant.TaktTenantContext.CurrentConfigId = configId;
+                            Takt.Infrastructure.Tenant.TaktTenantContext.CurrentConnectionString = db.Ado.Connection.ConnectionString;
+                            Takt.Infrastructure.Tenant.TaktTenantContext.DefaultConnectionString = db.Ado.Connection.ConnectionString;
+                            var seedDataProviders = app.Services.GetServices<ITaktSeedData>();
+                            var initializerLogger = loggerFactory.CreateLogger(string.Empty);
+                            var initializer = new TaktDatabaseInitializer(db, seedDataProviders, app.Services, configId, initializerLogger);
+                            var (totalInsertCount, totalUpdateCount) = await initializer.SeedDataAsync();
+                            logger.LogInformation("种子数据完成 ConfigId: {ConfigId}, 插入: {TotalInsertCount}, 更新: {TotalUpdateCount}",
+                                configId, totalInsertCount, totalUpdateCount);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "种子数据执行失败 ConfigId: {ConfigId}", configId);
+                        throw;
+                    }
+                }
+                logger.LogInformation("阶段三完成：所有种子数据已执行");
             }
 
             logger.LogInformation("数据库初始化完成");

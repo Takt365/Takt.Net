@@ -1,6 +1,6 @@
 // ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.Application.Logistics.Maintenance
+// 命名空间：Takt.Application.Services.Logistics.Maintenance
 // 文件名称：ITaktEquipmentService.cs
 // 创建时间：2025-01-20
 // 创建人：Takt365(Cursor AI)
@@ -13,7 +13,7 @@
 using Takt.Application.Dtos.Logistics.Maintenance;
 using Takt.Shared.Models;
 
-namespace Takt.Application.Logistics.Maintenance;
+namespace Takt.Application.Services.Logistics.Maintenance;
 
 /// <summary>
 /// Takt工厂设备应用服务接口

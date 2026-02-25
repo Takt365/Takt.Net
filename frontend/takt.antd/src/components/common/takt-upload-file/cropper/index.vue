@@ -110,7 +110,9 @@ const cropperInstance = ref<CropperInstance | null>(null)
 
 // 初始化裁剪器
 const initCropper = () => {
-  if (!cropperImgRef.value || !props.imageSrc) return
+  if (!cropperImgRef.value || !props.imageSrc) {
+    return
+  }
 
   // 销毁旧实例
   if (cropperInstance.value) {
@@ -119,7 +121,9 @@ const initCropper = () => {
   }
 
   nextTick(() => {
-    if (!cropperImgRef.value) return
+    if (!cropperImgRef.value) {
+      return
+    }
 
     try {
       // cropperjs 2.0: 使用构造函数创建实例
@@ -470,14 +474,14 @@ const getImageTransform = () => {
 /**
  * 设置裁剪框数据
  */
-const setCropBoxData = (x: number, y: number, width: number, height: number) => {
+const setCropBoxData = (data: { x: number; y: number; width: number; height: number }) => {
   if (cropperInstance.value) {
     const selection = cropperInstance.value.getCropperSelection()
     if (selection) {
-      selection.x = x
-      selection.y = y
-      selection.width = width
-      selection.height = height
+      selection.x = data.x
+      selection.y = data.y
+      selection.width = data.width
+      selection.height = data.height
     }
   }
 }

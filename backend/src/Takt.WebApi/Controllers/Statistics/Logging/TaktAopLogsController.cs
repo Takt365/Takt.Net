@@ -1,6 +1,6 @@
 // ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.WebApi.Controllers.Logging
+// 命名空间：Takt.WebApi.Controllers.Statistics.Logging
 // 文件名称：TaktAopLogsController.cs
 // 创建时间：2025-01-20
 // 创建人：Takt365(Cursor AI)
@@ -31,7 +31,7 @@ namespace Takt.WebApi.Controllers.Statistics.Logging;
 [Route("api/[controller]", Name = "差异日志")]
 [ApiModule("Logging", "日志管理")]
 [Authorize]
-[TaktPermission("logging:aoplog", "差异日志管理")]
+[TaktPermission("statistics:logging:aoplog", "差异日志管理")]
 public class TaktAopLogsController : TaktControllerBase
 {
     private readonly ITaktAopLogService _aopLogService;
@@ -59,7 +59,7 @@ public class TaktAopLogsController : TaktControllerBase
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
     [HttpGet("list")]
-    [TaktPermission("logging:aoplog:list", "查询差异日志列表")]
+    [TaktPermission("statistics:logging:aoplog:list", "查询差异日志列表")]
     public async Task<ActionResult<TaktPagedResult<TaktAopLogDto>>> GetListAsync([FromQuery] TaktAopLogQueryDto queryDto)
     {
         try
@@ -79,7 +79,7 @@ public class TaktAopLogsController : TaktControllerBase
     /// <param name="id">日志ID</param>
     /// <returns>差异日志DTO</returns>
     [HttpGet("{id}")]
-    [TaktPermission("logging:aoplog:query", "查询差异日志详情")]
+    [TaktPermission("statistics:logging:aoplog:query", "查询差异日志详情")]
     public async Task<ActionResult<TaktAopLogDto>> GetByIdAsync(long id)
     {
         try
@@ -101,7 +101,7 @@ public class TaktAopLogsController : TaktControllerBase
     /// <param name="dto">创建差异日志DTO</param>
     /// <returns>差异日志DTO</returns>
     [HttpPost]
-    [TaktPermission("logging:aoplog:create", "创建差异日志")]
+    [TaktPermission("statistics:logging:aoplog:create", "创建差异日志")]
     public async Task<ActionResult<TaktAopLogDto>> CreateAsync([FromBody] TaktCreateAopLogDto dto)
     {
         try
@@ -121,7 +121,7 @@ public class TaktAopLogsController : TaktControllerBase
     /// <param name="id">日志ID</param>
     /// <returns>任务</returns>
     [HttpDelete("{id}")]
-    [TaktPermission("logging:aoplog:delete", "删除差异日志")]
+    [TaktPermission("statistics:logging:aoplog:delete", "删除差异日志")]
     public async Task<ActionResult> DeleteAsync(long id)
     {
         try
@@ -141,7 +141,7 @@ public class TaktAopLogsController : TaktControllerBase
     /// <param name="ids">日志ID列表</param>
     /// <returns>任务</returns>
     [HttpDelete("batch")]
-    [TaktPermission("logging:aoplog:delete", "批量删除差异日志")]
+    [TaktPermission("statistics:logging:aoplog:delete", "批量删除差异日志")]
     public async Task<ActionResult> DeleteBatchAsync([FromBody] List<long> ids)
     {
         try
@@ -163,7 +163,7 @@ public class TaktAopLogsController : TaktControllerBase
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件</returns>
     [HttpGet("export")]
-    [TaktPermission("logging:aoplog:export", "导出差异日志")]
+    [TaktPermission("statistics:logging:aoplog:export", "导出差异日志")]
     public async Task<ActionResult> ExportAsync(
         [FromQuery] TaktAopLogQueryDto queryDto,
         [FromQuery] string? sheetName = null,

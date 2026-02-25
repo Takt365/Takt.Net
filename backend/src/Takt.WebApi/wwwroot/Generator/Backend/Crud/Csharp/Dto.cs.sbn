@@ -4,7 +4,7 @@
 // 文件名称：{{ table.entity_class_name }}Dtos.cs
 // 创建时间：2025-02-02
 // 创建人：{{ table.gen_author }}
-// 功能描述：{{ table.comment }}DTO，由 DtoCategory 配置驱动，按 type 判断输出
+// 功能描述：{{ table.comment }}DTO，由 GenFunction 驱动：主 Dto 始终生成，其余 DTO 按功能开关生成
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -16,7 +16,7 @@ using Takt.Shared.Models;
 namespace {{ table.dto_namespace }};
 
 {{~ for cat in table.dto_category_descriptors ~}}
-{{ type = cat.Name }}
+{{~ type = cat["name"] ~}}
 {{~ if type == "Dto" ~}}
 /// <summary>
 /// {{ table.comment }}Dto
@@ -29,8 +29,12 @@ public class {{ table.entity_class_name }}Dto
     public {{ table.entity_class_name }}Dto()
     {
 {{~ for col in columns ~}}
-{{~ if col.csharp_column_name != "Id" && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_required == 0 ~}}
+{{~ if col.csharp_data_type == "string" || col.csharp_data_type == "String" ~}}
         {{ col.csharp_column_name }} = string.Empty;
+{{~ else ~}}
+        {{ col.csharp_column_name }} = default;
+{{~ end ~}}
 {{~ end ~}}
 {{~ end ~}}
     }
@@ -46,7 +50,7 @@ public class {{ table.entity_class_name }}Dto
     /// <summary>
     /// {{ col.comment }}
     /// </summary>
-    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 1 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }{{ if col.csharp_data_type | string.downcase == "string" }} = string.Empty;{{ else if col.csharp_data_type | string.downcase == "bool" }} = false;{{ else if col.csharp_data_type | string.downcase == "int" || col.csharp_data_type | string.downcase == "long" }}{{ if col.is_required == 0 }} = 0;{{ end }}{{ end }}
+    public {{ col.csharp_data_type }}{{ if col.is_required == 1 && (col.csharp_data_type != "string" && col.csharp_data_type != "String") }}?{{ end }} {{ col.csharp_column_name }} { get; set; }{{ if col.csharp_data_type == "string" || col.csharp_data_type == "String" }} = string.Empty;{{ else if col.is_required == 0 }}{{ col.csharp_default_value }}{{ end }}
 {{~ end ~}}
 {{~ end ~}}
     /// <summary>
@@ -112,8 +116,12 @@ public class {{ table.entity_class_name }}QueryDto : TaktPagedQuery
     public {{ table.entity_class_name }}QueryDto()
     {
 {{~ for col in columns ~}}
-{{~ if col.csharp_column_name != "Id" && col.is_query == 0 && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_query == 0 && col.is_required == 0 ~}}
+{{~ if col.csharp_data_type == "string" || col.csharp_data_type == "String" ~}}
         {{ col.csharp_column_name }} = string.Empty;
+{{~ else ~}}
+        {{ col.csharp_column_name }} = default;
+{{~ end ~}}
 {{~ end ~}}
 {{~ end ~}}
     }
@@ -124,10 +132,11 @@ public class {{ table.entity_class_name }}QueryDto : TaktPagedQuery
     /// <summary>
     /// {{ col.comment }}
     /// </summary>
-    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 1 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }
+    public {{ col.csharp_data_type }}{{ if col.is_required == 1 && (col.csharp_data_type != "string" && col.csharp_data_type != "String") }}?{{ end }} {{ col.csharp_column_name }} { get; set; }
 {{~ end ~}}
 {{~ end ~}}
 }
+{{~ end ~}}
 
 {{~ else if type == "CreateDto" ~}}
 /// <summary>
@@ -141,8 +150,12 @@ public class {{ table.entity_class_name }}CreateDto
     public {{ table.entity_class_name }}CreateDto()
     {
 {{~ for col in columns ~}}
-{{~ if col.csharp_column_name != "Id" && col.is_create == 0 && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_create == 0 && col.is_required == 0 ~}}
+{{~ if col.csharp_data_type == "string" || col.csharp_data_type == "String" ~}}
         {{ col.csharp_column_name }} = string.Empty;
+{{~ else ~}}
+        {{ col.csharp_column_name }} = default;
+{{~ end ~}}
 {{~ end ~}}
 {{~ end ~}}
     }
@@ -151,9 +164,14 @@ public class {{ table.entity_class_name }}CreateDto
     /// <summary>
     /// {{ col.comment }}
     /// </summary>
-    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 1 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }{{ if col.csharp_data_type | string.downcase == "string" }} = string.Empty;{{ else if col.csharp_data_type | string.downcase == "bool" }} = false;{{ else if col.csharp_data_type | string.downcase == "int" || col.csharp_data_type | string.downcase == "long" }}{{ if col.is_required == 0 }} = 0;{{ end }}{{ end }}
+    public {{ col.csharp_data_type }}{{ if col.is_required == 1 && (col.csharp_data_type != "string" && col.csharp_data_type != "String") }}?{{ end }} {{ col.csharp_column_name }} { get; set; }{{ if col.csharp_data_type == "string" || col.csharp_data_type == "String" }} = string.Empty;{{ else if col.is_required == 0 }}{{ col.csharp_default_value }}{{ end }}
 {{~ end ~}}
 {{~ end ~}}
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 {{~ else if type == "UpdateDto" ~}}
@@ -188,8 +206,12 @@ public class {{ table.entity_class_name }}TemplateDto
     public {{ table.entity_class_name }}TemplateDto()
     {
 {{~ for col in columns ~}}
-{{~ if col.csharp_column_name != "Id" && col.is_create == 0 && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_create == 0 && col.is_required == 0 ~}}
+{{~ if col.csharp_data_type == "string" || col.csharp_data_type == "String" ~}}
         {{ col.csharp_column_name }} = string.Empty;
+{{~ else ~}}
+        {{ col.csharp_column_name }} = default;
+{{~ end ~}}
 {{~ end ~}}
 {{~ end ~}}
     }
@@ -198,7 +220,7 @@ public class {{ table.entity_class_name }}TemplateDto
     /// <summary>
     /// {{ col.comment }}
     /// </summary>
-    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 1 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }{{ if col.csharp_data_type | string.downcase == "string" }} = string.Empty;{{ else if col.csharp_data_type | string.downcase == "bool" }} = false;{{ else if col.csharp_data_type | string.downcase == "int" || col.csharp_data_type | string.downcase == "long" }}{{ if col.is_required == 0 }} = 0;{{ end }}{{ end }}
+    public {{ col.csharp_data_type }}{{ if col.is_required == 1 && (col.csharp_data_type != "string" && col.csharp_data_type != "String") }}?{{ end }} {{ col.csharp_column_name }} { get; set; }{{ if col.csharp_data_type == "string" || col.csharp_data_type == "String" }} = string.Empty;{{ else if col.is_required == 0 }}{{ col.csharp_default_value }}{{ end }}
 {{~ end ~}}
 {{~ end ~}}
 }
@@ -215,8 +237,12 @@ public class {{ table.entity_class_name }}ImportDto
     public {{ table.entity_class_name }}ImportDto()
     {
 {{~ for col in columns ~}}
-{{~ if col.csharp_column_name != "Id" && col.is_create == 0 && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_create == 0 && col.is_required == 0 ~}}
+{{~ if col.csharp_data_type == "string" || col.csharp_data_type == "String" ~}}
         {{ col.csharp_column_name }} = string.Empty;
+{{~ else ~}}
+        {{ col.csharp_column_name }} = default;
+{{~ end ~}}
 {{~ end ~}}
 {{~ end ~}}
     }
@@ -225,9 +251,14 @@ public class {{ table.entity_class_name }}ImportDto
     /// <summary>
     /// {{ col.comment }}
     /// </summary>
-    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 1 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }{{ if col.csharp_data_type | string.downcase == "string" }} = string.Empty;{{ else if col.csharp_data_type | string.downcase == "bool" }} = false;{{ else if col.csharp_data_type | string.downcase == "int" || col.csharp_data_type | string.downcase == "long" }}{{ if col.is_required == 0 }} = 0;{{ end }}{{ end }}
+    public {{ col.csharp_data_type }}{{ if col.is_required == 1 && (col.csharp_data_type != "string" && col.csharp_data_type != "String") }}?{{ end }} {{ col.csharp_column_name }} { get; set; }{{ if col.csharp_data_type == "string" || col.csharp_data_type == "String" }} = string.Empty;{{ else if col.is_required == 0 }}{{ col.csharp_default_value }}{{ end }}
 {{~ end ~}}
 {{~ end ~}}
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 {{~ else if type == "ExportDto" ~}}
@@ -242,8 +273,12 @@ public class {{ table.entity_class_name }}ExportDto
     public {{ table.entity_class_name }}ExportDto()
     {
 {{~ for col in columns ~}}
-{{~ if col.csharp_column_name != "Id" && col.is_export == 0 && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_export == 0 && col.is_required == 0 ~}}
+{{~ if col.csharp_data_type == "string" || col.csharp_data_type == "String" ~}}
         {{ col.csharp_column_name }} = string.Empty;
+{{~ else ~}}
+        {{ col.csharp_column_name }} = default;
+{{~ end ~}}
 {{~ end ~}}
 {{~ end ~}}
     }
@@ -252,7 +287,7 @@ public class {{ table.entity_class_name }}ExportDto
     /// <summary>
     /// {{ col.comment }}
     /// </summary>
-    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 1 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }{{ if col.csharp_data_type | string.downcase == "string" }} = string.Empty;{{ else if col.csharp_data_type | string.downcase == "bool" }} = false;{{ else if col.csharp_data_type | string.downcase == "int" || col.csharp_data_type | string.downcase == "long" }}{{ if col.is_required == 0 }} = 0;{{ end }}{{ end }}
+    public {{ col.csharp_data_type }}{{ if col.is_required == 1 && (col.csharp_data_type != "string" && col.csharp_data_type != "String") }}?{{ end }} {{ col.csharp_column_name }} { get; set; }{{ if col.csharp_data_type == "string" || col.csharp_data_type == "String" }} = string.Empty;{{ else if col.is_required == 0 }}{{ col.csharp_default_value }}{{ end }}
 {{~ end ~}}
 {{~ end ~}}
 }

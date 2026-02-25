@@ -6,46 +6,103 @@ alwaysApply: false
 
 # Takt 前端规则
 
-## 语言与运行时
+## 一、语言与运行时
 
 - **JavaScript/TypeScript 须符合 ES2020 规范**：与项目 `tsconfig.json` 的 `target: "ES2020"`、`lib: ["ES2020", "DOM", "DOM.Iterable"]` 一致。
 - 可使用的 ES2020 特性包括但不限于：可选链 `?.`、空值合并 `??`、`Promise.allSettled`、`String.prototype.matchAll`、`BigInt`、动态 `import()`、`globalThis`、`Object.fromEntries`、`Array.prototype.flat`/`flatMap`、`Symbol.prototype.description` 等；不依赖 ES2021+ 专属语法（如 `?.=`、`numeric separators`、`Promise.any`、`String.replaceAll`、`WeakRef` 等）除非项目已显式升级 target/lib。
 
-## 注释
+## 二、类型系统规范
 
-- **TypeScript 强烈推荐使用 JSDoc 风格注释**（以 `/** ... */` 开头）：用于文件/模块说明、函数与 API 说明、locales 区块说明等；行内短注释可用 `//`，但结构性说明与对外文档优先使用 JSDoc。
+- **禁止使用 any**：变量、参数、返回值必须显式声明类型；必要时用 `unknown` 或具体类型断言。
+- **优先类型推断**：类型明确时让 TS 自动推断，减少冗余声明。
+- **interface 优于 type**：对象结构用 `interface`，联合/工具类型用 `type`；字面量类型优先，如 `'success' | 'error'` 而非 `string`。
+- **Props 严格定义**：使用 `defineProps<Type>()`，禁止运行时类型检查；Emit 必须定义完整类型签名；`ref()` 须指定泛型。
+- **API 响应泛型**：统一使用 `Promise<ApiResponse<T>>` 模式；善用 `Partial<T>`、`Pick<T,K>`、`Omit<T,K>` 等工具类型。
 
-## 目录与模块
+## 三、组件设计规范
 
-- **api/**：按后端模块划分（identity、humanresource/organization、logging、routine/dict、routine/i18n、tenant 等）；每个模块对应后端 Controller，如 `api/humanresource/organization/dept.ts` 对应 `TaktDeptsController`；请求使用 `request.ts` 封装的 axios 实例。
-- **types/**：与 api 模块对应，定义接口（对应后端 DTO）；主实体接口继承或对齐 `TaktEntityBase`（来自 `@/types/common`）；分页查询继承 `TaktPagedQuery`，分页结果使用 `TaktPagedResult<T>`；ID 与 long 对应字段使用 **string** 类型（避免 JS 精度问题）。
-- **views/**：页面按模块划分，与路由、菜单一致；子组件放在对应 `components/` 下。
-- **locales/**：按模块分 zh-CN、en-US；路径与 views 模块对应（如 identity/user、routine/dict/type）。
+- **单向数据流**：Props 向下、Events 向上；禁止子组件直接修改 props；状态变更统一通过定义好的方法执行。
+- **v-model 标准化**：使用 `defineModel()` 或标准 `v-model` 语法；自定义事件使用 kebab-case，如 `update:user-info`；事件载荷必须类型化。
+- **职责分离**：展示组件只负责 UI 渲染；容器组件负责数据与状态；可复用逻辑抽取为 composable。
+
+## 四、状态管理规范
+
+- **状态分层**：组件内部用 `ref()`/`reactive()`；页面级共享用 composable；跨页面用 Pinia Store。
+- **Store 设计**：State 最小化；派生状态放 getters；所有修改通过 actions；不可变更新，禁止直接修改原状态。
+- **异步规范**：统一管理 loading；必须有错误处理；支持取消正在进行的异步操作。
+
+## 五、目录与模块
+
+- **api/**：按后端模块划分（identity、humanresource/organization、logging、routine/dict、routine/i18n、tenant 等）；每个模块对应后端 Controller；请求使用 `request.ts` 封装的 axios 实例。
+- **types/**：与 api 对应，主实体继承或对齐 `TaktEntityBase`；分页用 `TaktPagedQuery`、`TaktPagedResult<T>`；ID 与 long 对应字段用 `string`。
+- **views/**：按模块划分，与路由、菜单一致；子组件放对应 `components/`。
+- **locales/**：按模块分 zh-CN、en-US；路径与 views 对应。
 - **stores/**：Pinia，按模块（identity、routine、theme 等）。
 - **utils/**、**composables/**、**layouts/**、**router/**、**assets/**：按现有结构使用。
 
-## API 与类型命名
+## 六、命名与代码风格
 
-- API 方法：语义化动词，如 `getList`、`getById`、`create`、`update`、`remove`、`getTreeOptions`、`updateStatus`、`getTemplate`、`importXxx`、`exportXxx`；URL 与后端一致：`/api/TaktXxx/list`、`/api/TaktXxx/{id}`、`/api/TaktXxx`(POST)、`/api/TaktXxx/{id}`(PUT/DELETE)。
-- 类型：主实体如 `Dept`、`User`；查询 `DeptQuery`、`UserQuery`；创建/更新 `DeptCreate`、`DeptUpdate`、`DeptStatus`；与后端 DTO 一一对应，属性使用 camelCase；ID 字段（对应后端 long）使用 `string`。
+- **命名**：类型 PascalCase；变量/函数 camelCase；常量 UPPER_SNAKE_CASE；文件 kebab-case。
+- **导入导出**：优先命名导出；类型导入用 `import type { X } from '...'`；依赖顺序：第三方 → 本地工具 → 类型 → 业务代码。
+- **单一职责**：每个文件只包含一个主要功能；公共 API 须包含 JSDoc 注释。
 
-## 通用类型（common.d.ts）
+## 七、文件头与注释（必须，不得省略）
 
-- `TaktEntityBase`：不含 id 的审计/租户字段；具体实体在各自类型文件中扩展并增加 `xxxId: string` 等。
-- `TaktPagedQuery`：`pageIndex`、`pageSize`。
-- `TaktPagedResult<T>`：`data`、`total`、`pageIndex`、`pageSize`、`totalPages`、`hasPreviousPage`、`hasNextPage`。
-- `TaktTreeSelectOption`、`TaktSelectOption`：树形/下拉选项。
-- `TaktApiResult<T>`：与后端统一返回结构一致；使用 `@/utils/enum` 的 `TaktResultCode`。
+- **每个 .ts、.vue 文件顶部必须包含项目统一文件头**（新增必加，修改时若缺失必补）。格式如下。
+  - **.ts（含 .d.ts）**：
+```
+// ========================================
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：@/types/... 或 @/api/... 等（本文件对应路径）
+// 文件名称：xxx.d.ts / xxx.ts
+// 创建时间：YYYY-MM-DD
+// 创建人：Takt365(Cursor AI)
+// 功能描述：{本文件职责，对应后端时写明对应 Controller/Dto}
+//
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+```
+  - **.vue**：使用 HTML 注释块，同上内容，首尾用 `<!-- ======== -->`。
+- **JSDoc（必须）**：对外 API 方法、类型定义须有 `/** ... */`；API 方法注释中须写明「对应后端：XXX」。行内短注释用 `//`。
+- 参照：`types/accounting/financial/company.d.ts`、`api/accounting/financial/company.ts`、`views/accounting/financial/company/index.vue`、`company-form.vue`。
 
-## 请求与错误
+## 八、API 与类型命名
 
-- 使用 `api/request.ts` 的 axios 实例；带 CSRF、withCredentials、统一错误提示与 token 刷新；导入/导出等大请求可设更长 timeout 或使用项目已有常量（如 IMPORT_TIMEOUT）。
+- API 方法：语义化动词，如 `getList`、`getById`、`create`、`update`、`remove`、`getTreeOptions`、`updateStatus`、`getTemplate`、`importXxx`、`exportXxx`；URL 与后端一致。
+- 类型：主实体 `Dept`、`User`；查询 `DeptQuery`；创建/更新 `DeptCreate`、`DeptUpdate`、`DeptStatus`；属性 camelCase；ID 用 `string`。
 
-## Vue 与样式
+## 九、通用类型（common.d.ts）
 
-- 使用 Vue 3 Composition API；组件、页面与后端功能模块对应；样式使用项目已有 Less/主题（assets/styles、theme）；路由、权限与后端菜单/权限码一致。
+- `TaktEntityBase`、`TaktPagedQuery`、`TaktPagedResult<T>`、`TaktTreeSelectOption`、`TaktSelectOption`、`TaktApiResult<T>`；使用 `@/utils/enum` 的 `TaktResultCode`。
 
-## 树表布局（takt-tree-left-* / takt-tree-right-*）
+## 十、请求与错误
 
-- **边距与尺寸在组件内设置**：`takt-tree-left-query-bar`、`takt-tree-left-tools-bar`、`takt-tree-left-table`、`takt-tree-right-query-bar`、`takt-tree-right-tools-bar`、`takt-tree-right-table` 的 margin、padding、width 等均在各自组件内定义，引用页不重复设置。
-- **引用页只做行布局**：菜单、部门等使用树表布局的页面只负责 flex 行结构（query-row、toolbar-row、tree-table-wrap），不设置与组件尺寸/边距相关的样式。
+- 使用 `api/request.ts` 的 axios 实例；CSRF、withCredentials、统一错误提示与 token 刷新；大请求可设更长 timeout。
+- 拦截器统一处理错误；向用户显示友好错误信息；生产环境错误应上报。
+
+## 十一、Vue 与样式
+
+- Vue 3 Composition API；组件、页面与后端功能模块对应；样式使用项目 Less/主题；路由、权限与后端菜单/权限码一致。
+
+## 十二、useI18n 规范
+
+- **仅需翻译文案**：`const { t } = useI18n()`
+- **需要当前语言 locale**（时区、按语言分支、computed 随语言更新）：从 `useLocaleStore()` + `storeToRefs` 获取 `locale`，不要从 `useI18n()` 解构 locale。
+- 不要混写：不需要 locale 的组件只解构 `t`。
+
+## 十三、不可变数据规范
+
+- **禁止直接修改对象/数组**：使用解构、`Object.assign()` 或工具库创建新引用；嵌套对象也保持不可变。
+- **更新模式**：数组用扩展运算符或 `map`/`filter`；对象用扩展运算符或 `Object.assign`；深层更新用 `structuredClone()` 或工具库。
+- 对外暴露的数据优先使用 `Readonly<T>`。
+
+## 十四、性能与内存
+
+- **响应式优化**：昂贵计算用 `computed()`；必要时用 `shallowRef()`/`shallowReactive()`；善用 `watch`/`watchEffect` 的 flush 选项。
+- **组件优化**：路由和大型组件懒加载；频繁切换用 `v-show` 替代 `v-if`；列表渲染必须提供唯一 `key`。
+- **内存**：`onUnmounted()` 中清理事件监听器、定时器；组件卸载时取消异步操作。
+
+## 十五、树表布局（takt-tree-left-* / takt-tree-right-*）
+
+- 边距与尺寸在组件内设置；引用页只做行布局（query-row、toolbar-row、tree-table-wrap），不重复设置组件尺寸/边距。

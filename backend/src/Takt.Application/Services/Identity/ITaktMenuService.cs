@@ -13,7 +13,7 @@
 using Takt.Application.Dtos.Identity;
 using Takt.Shared.Models;
 
-namespace Takt.Application.Identity;
+namespace Takt.Application.Services.Identity;
 
 /// <summary>
 /// Takt菜单应用服务接口
@@ -55,7 +55,7 @@ public interface ITaktMenuService
     Task<List<TaktMenuTreeDto>> GetTreeAsync(long parentId = 0, bool includeDisabled = false);
 
     /// <summary>
-    /// 获取当前用户的菜单树形列表（根据用户权限过滤）
+    /// 获取当前用户的菜单树形列表（根据用户角色-菜单 TaktRoleMenu 过滤，与权限 TaktRolePermission 分离）
     /// </summary>
     /// <returns>当前用户的菜单树形列表</returns>
     Task<List<TaktMenuTreeDto>> GetCurrentTreeMenuAsync();

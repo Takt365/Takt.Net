@@ -2,11 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：@/types/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}
 // 文件名称：{{ table.entity_name_kebab }}.d.ts
-// 创建时间：2025-02-02
-// 创建人：{{ table.gen_author }}
 // 功能描述：{{ table.comment }}相关类型定义，对应后端 {{ table.dto_namespace }}.{{ table.entity_class_name }}Dtos
-// 规则：主类型 extends TaktEntityBase；查询 extends TaktPagedQuery；更新 extends Create；其它类型不继承。
-// 字段名均为小驼峰（与后端 Dto 属性一一对应，后端 PascalCase 对应前端 camelCase）。不生成模板/导入/导出类型。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,44 +13,48 @@ import type { TaktEntityBase, TaktPagedQuery } from '@/types/common'
 {{ entity_id_ts = table.entity_name_camel + "Id" }}
 {{ entity_id_pascal = table.entity_name_pascal + "Id" }}
 {{~ for cat in table.dto_category_descriptors ~}}
-{{~ if cat.Name != "TemplateDto" && cat.Name != "ImportDto" && cat.Name != "ExportDto" ~}}
-{{ body_kind = cat.body_kind || cat.BodyKind || "NoId" }}
+{{~ cat_name = cat["name"] ~}}
+{{~ show_type = (cat_name == "Dto" && table.gen_query == 1) || (cat_name == "QueryDto" && table.gen_query == 1) || (cat_name == "CreateDto" && table.gen_create == 1) || (cat_name == "UpdateDto" && table.gen_update == 1) || (cat_name == "TemplateDto" && table.gen_template_feature == 1) || (cat_name == "ImportDto" && table.gen_import == 1) || (cat_name == "ExportDto" && table.gen_export == 1) ~}}
+{{~ if show_type ~}}
+{{ body_kind = cat["body_kind"] ~}}
 /**
- * {{ table.comment }}{{ cat.Name }}类型（对应后端 {{ table.dto_namespace }}.{{ table.entity_class_name }}{{ cat.Name }}）
+ * {{ table.comment }}{{ cat_name }}类型（对应后端 {{ table.dto_namespace }}.{{ table.entity_class_name }}{{ cat_name }}）
  */
-export interface {{ cat.TsInterfaceName }}{{ if cat.TsExtendsName }} extends {{ cat.TsExtendsName }}{{ end }} {
-{{~ if body_kind == "Full" ~}}
+{{~ ts_name = cat["ts_interface_name"] ~}}
+{{~ ts_extends = cat["ts_extends_name"] | string.strip ~}}
+export interface {{ ts_name }}{{ if ts_extends != "" }} extends {{ ts_extends }}{{ end }} {
+{{~ if body_kind == "full" || body_kind == "Full" ~}}
   /** {{ table.comment }}ID（对应后端 {{ entity_id_pascal }}，序列化为string以避免Javascript精度问题） */
   {{ entity_id_ts }}: string
 {{~ for col in columns ~}}
-{{~ if col.csharp_column_name != "Id" ~}}
+{{~ if col.csharp_column_name != "Id" && col.csharp_column_name != entity_id_pascal ~}}
   /** {{ col.comment }} */
-  {{ col.ts_column_name }}{{ if col.is_required == 1 }}?{{ end }}: {{ col.ts_data_type }}
+  {{ col.ts_column_name }}{{ if col.is_required != 1 }}?{{ end }}: {{ col.ts_data_type }}
 {{~ end ~}}
 {{~ end ~}}
 {{~ end ~}}
-{{~ if body_kind == "Query" ~}}
+{{~ if body_kind == "query" || body_kind == "Query" ~}}
   /** 关键词（模糊查询） */
   keyWords?: string
 {{~ for col in columns ~}}
 {{~ if col.is_query == 0 ~}}
   /** {{ col.comment }} */
-  {{ col.ts_column_name }}{{ if col.is_required == 1 }}?{{ end }}: {{ col.ts_data_type }}
+  {{ col.ts_column_name }}{{ if col.is_required != 1 }}?{{ end }}: {{ col.ts_data_type }}
 {{~ end ~}}
 {{~ end ~}}
 {{~ end ~}}
-{{~ if body_kind == "NoId" ~}}
-{{~ is_create_dto = cat.Name == "CreateDto" ~}}
+{{~ if body_kind == "noid" || body_kind == "NoId" ~}}
+{{~ is_create_dto = cat_name == "CreateDto" ~}}
 {{~ if is_create_dto ~}}
 {{~ for col in columns ~}}
 {{~ if col.is_create == 0 ~}}
   /** {{ col.comment }} */
-  {{ col.ts_column_name }}{{ if col.is_required == 1 }}?{{ end }}: {{ col.ts_data_type }}
+  {{ col.ts_column_name }}{{ if col.is_required != 1 }}?{{ end }}: {{ col.ts_data_type }}
 {{~ end ~}}
 {{~ end ~}}
 {{~ end ~}}
 {{~ end ~}}
-{{~ if body_kind == "OnlyId" ~}}
+{{~ if body_kind == "onlyid" || body_kind == "OnlyId" ~}}
   /** {{ table.comment }}ID（对应后端 {{ entity_id_pascal }}，序列化为string以避免Javascript精度问题） */
   {{ entity_id_ts }}: string
 {{~ end ~}}

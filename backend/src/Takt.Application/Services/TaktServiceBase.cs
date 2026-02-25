@@ -11,7 +11,6 @@
 // ========================================
 
 using Takt.Domain.Entities.Identity;
-using Takt.Domain.Entities.Tenant;
 using Takt.Domain.Interfaces;
 using Takt.Shared.Exceptions;
 using Takt.Shared.Helpers;

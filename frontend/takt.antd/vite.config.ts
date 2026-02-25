@@ -10,6 +10,7 @@ import Components from 'unplugin-vue-components/vite'
 import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers'
 import { vitePluginLogger } from './src/utils/logger'
 import dayjs from 'dayjs'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -43,6 +44,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   
   return {
+    base: env.VITE_BASE_URL || '/',
     plugins: [
       appInfoPlugin(),
       vue(),
@@ -51,7 +53,8 @@ export default defineConfig(({ mode }) => {
       ...(env.VITE_DEV_SERVER_HTTPS === 'true' ? [mkcert()] : []),
       // PWA 插件配置
       VitePWA({
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
+        injectRegister: false,
         includeAssets: ['favicon.ico'],
         manifest: {
           name: 'Takt Digital Factory (TDF)',
@@ -158,6 +161,13 @@ export default defineConfig(({ mode }) => {
         extensions: ['vue', 'tsx'],
         // 生成类型声明文件
         dts: true
+      }),
+      // 构建时生成 bundle 分析报告（输出到项目根，避免被 PWA 预缓存）
+      visualizer({
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+        filename: 'stats.html'
       })
     ],
     resolve: {
@@ -217,7 +227,7 @@ export default defineConfig(({ mode }) => {
       // 这确保了预览构建产物时刷新页面不会出现 404 错误
       // 
       // 注意：生产环境部署时，需要在 Web 服务器（Nginx/Apache/IIS）中配置 history fallback
-      // 参考项目根目录下的配置文件：
+      // 参考 deploy/ 目录下的配置文件：
       // - nginx.conf.example (Nginx)
       // - .htaccess.example (Apache)
       // - web.config.example (IIS)
@@ -227,26 +237,76 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       assetsDir: 'assets',
       sourcemap: env.VITE_BUILD_SOURCEMAP === 'true',
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 2000,
+      reportCompressedSize: false,
       minify: env.VITE_BUILD_COMPRESS !== 'false' ? 'terser' : false,
-      // 可以根据依赖信息进行优化配置
+      ...(env.VITE_BUILD_COMPRESS !== 'false' && {
+        terserOptions: {
+          compress: {
+            drop_console: true,
+            drop_debugger: true
+          }
+        }
+      }),
       rollupOptions: {
+        onwarn(warning, warn) {
+          // 抑制 @microsoft/signalr 中 /*#__PURE__*/ 注释位置导致的警告（第三方库，无法修改）
+          if (warning.code === 'PURE_ANNOTATION_HINT' || (warning.message && String(warning.message).includes('__PURE__'))) {
+            return
+          }
+          // 抑制「动态导入不会移动模块到另一 chunk」提示（模块同时被静态/动态导入，预期行为）
+          if (warning.message && String(warning.message).includes('dynamic import will not move module into another chunk')) {
+            return
+          }
+          warn(warning)
+        },
         output: {
-          // 可以根据依赖自动配置 chunk 分割策略
+          // chunk 按项目目录拆分；api、router、locales、utils、stores/identity 存在循环，合并为 app-core
           manualChunks: (id) => {
-            // 将 node_modules 中的依赖分离
             if (id.includes('node_modules')) {
-              // 将 Vue 相关依赖单独打包
               if (id.includes('vue') || id.includes('vue-router') || id.includes('pinia')) {
-                return 'vue-vendor'
+                return 'vendor/vue-vendor'
               }
-              // 将 Ant Design Vue 相关依赖单独打包
               if (id.includes('ant-design-vue') || id.includes('@ant-design')) {
-                return 'antd-vendor'
+                return 'vendor/antd-vendor'
               }
-              // 其他第三方依赖
-              return 'vendor'
+              return 'vendor/vendor'
             }
+            const srcMatch = id.match(/[\\/]src[\\/]([^\\/]+)[\\/]([^\\/]+)(?:[\\/]([^\\/]+))?(?:[\\/]([^\\/]+))?/)
+            if (srcMatch) {
+              const [, top, second, third] = srcMatch
+              // 循环链：api ↔ router ↔ locales ↔ utils ↔ stores/identity，合并为 app-core
+              if (top === 'api' || top === 'router' || top === 'locales' || top === 'utils' || (top === 'stores' && second === 'identity')) {
+                return 'app-core'
+              }
+              if (top === 'views' && second) {
+                return third ? `views/${second}/${third}` : `views/${second}`
+              }
+              if (top === 'stores' && second) {
+                return `stores/${second}`
+              }
+              if (top === 'layouts') {
+                return 'layouts'
+              }
+              if (top === 'components') {
+                return second ? `components/${second}` : 'components'
+              }
+            }
+          },
+          entryFileNames: 'assets/js/[name]-[hash].js',
+          chunkFileNames: 'assets/js/[name]-[hash].js',
+          assetFileNames: (assetInfo) => {
+            const name = assetInfo.name ?? ''
+            if (/\.(png|jpe?g|gif|svg|webp|ico)$/i.test(name)) {
+              return 'assets/images/[name]-[hash][extname]'
+            }
+            if (/\.(woff2?|eot|ttf|otf)$/i.test(name)) {
+              return 'assets/fonts/[name]-[hash][extname]'
+            }
+            if (/\.css$/i.test(name)) {
+              return 'assets/css/[name]-[hash][extname]'
+            }
+            return 'assets/other/[name]-[hash][extname]'
           }
         }
       }

@@ -121,6 +121,14 @@ export interface SignalRErrorEvent {
 }
 
 /**
+ * 在别处请求登录事件（推送给旧会话）
+ */
+export interface LoginRequestElsewhereEvent {
+  /** 请求登录的位置描述（如 IP 或地点） */
+  requestLocation: string
+}
+
+/**
  * 上线消息事件数据
  */
 export interface OnlineMessageEvent {

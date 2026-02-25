@@ -81,11 +81,6 @@ public class TaktMenuDto
     public int MenuType { get; set; }
 
     /// <summary>
-    /// 权限标识
-    /// </summary>
-    public string? Permission { get; set; }
-
-    /// <summary>
     /// 是否可见（0=是，1=否）
     /// </summary>
     public int IsVisible { get; set; }
@@ -126,6 +121,12 @@ public class TaktMenuDto
     public string? Remark { get; set; }
 
     /// <summary>
+    /// 创建人ID（与实体基类一致）
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long CreateId { get; set; }
+
+    /// <summary>
     /// 创建人（用户名）
     /// </summary>
     public string? CreateBy { get; set; }
@@ -134,6 +135,12 @@ public class TaktMenuDto
     /// 创建时间
     /// </summary>
     public DateTime CreateTime { get; set; }
+
+    /// <summary>
+    /// 更新人ID（与实体基类一致）
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? UpdateId { get; set; }
 
     /// <summary>
     /// 更新人（用户名）
@@ -149,6 +156,12 @@ public class TaktMenuDto
     /// 是否删除（软删除标记，0=未删除，1=已删除）
     /// </summary>
     public int IsDeleted { get; set; }
+
+    /// <summary>
+    /// 删除人ID（与实体基类一致）
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? DeleteId { get; set; }
 
     /// <summary>
     /// 删除人（用户名）
@@ -280,11 +293,6 @@ public class TaktMenuCreateDto
     /// 菜单类型（0=目录，1=菜单，2=按钮）
     /// </summary>
     public int MenuType { get; set; } = 0;
-
-    /// <summary>
-    /// 权限标识
-    /// </summary>
-    public string? Permission { get; set; }
 
     /// <summary>
     /// 是否可见（0=是，1=否）
@@ -447,7 +455,6 @@ public class TaktMenuTemplateDto
         Path = string.Empty;
         Component = string.Empty;
         MenuIcon = string.Empty;
-        Permission = string.Empty;
         LinkUrl = string.Empty;
         Remark = string.Empty;
     }
@@ -497,11 +504,6 @@ public class TaktMenuTemplateDto
     /// 菜单类型（0=目录，1=菜单，2=按钮）
     /// </summary>
     public int MenuType { get; set; }
-
-    /// <summary>
-    /// 权限标识
-    /// </summary>
-    public string Permission { get; set; }
 
     /// <summary>
     /// 是否可见（0=是，1=否）
@@ -549,7 +551,6 @@ public class TaktMenuImportDto
         Path = string.Empty;
         Component = string.Empty;
         MenuIcon = string.Empty;
-        Permission = string.Empty;
         LinkUrl = string.Empty;
         Remark = string.Empty;
     }
@@ -599,11 +600,6 @@ public class TaktMenuImportDto
     /// 菜单类型（0=目录，1=菜单，2=按钮）
     /// </summary>
     public int MenuType { get; set; }
-
-    /// <summary>
-    /// 权限标识
-    /// </summary>
-    public string Permission { get; set; }
 
     /// <summary>
     /// 是否可见（0=是，1=否）
@@ -687,11 +683,6 @@ public class TaktMenuExportDto
     /// 排序号（越小越靠前）
     /// </summary>
     public int OrderNum { get; set; }
-
-    /// <summary>
-    /// 权限标识
-    /// </summary>
-    public string? Permission { get; set; }
 
     /// <summary>
     /// 是否可见（0=是，1=否）

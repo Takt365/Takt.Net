@@ -27,6 +27,7 @@
       update-permission="identity:user:update"
       delete-permission="identity:user:delete"
       import-permission="identity:user:import"
+      template-permission="identity:user:template"
       export-permission="identity:user:export"
       :show-create="true"
       :show-update="true"
@@ -177,6 +178,8 @@
     >
       <TaktImportFile
         file-type="xlsx"
+        template-permission="identity:user:template"
+        import-permission="identity:user:import"
         :sheet-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.user._self') })"
         :template-file-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.user._self') })"
         :download-template="handleDownloadTemplate"
@@ -326,7 +329,7 @@ const columns = computed<TableColumnsType>(() => [
     }
   },
   {
-    title: t('entity.user.username'),
+    title: t('entity.user.name'),
     dataIndex: 'userName',
     key: 'userName',
     width: 120,
@@ -360,7 +363,7 @@ const columns = computed<TableColumnsType>(() => [
     ellipsis: true,
   },
   {
-    title: t('entity.user.useremail'),
+    title: t('entity.user.email'),
     dataIndex: 'userEmail',
     key: 'userEmail',
     width: 180,
@@ -368,7 +371,7 @@ const columns = computed<TableColumnsType>(() => [
     ellipsis: true,
   },
   {
-    title: t('entity.user.userphone'),
+    title: t('entity.user.phone'),
     dataIndex: 'userPhone',
     key: 'userPhone',
     width: 130
@@ -380,13 +383,13 @@ const columns = computed<TableColumnsType>(() => [
     width: 80
   },
   {
-    title: t('entity.user.usertype'),
+    title: t('entity.user.type'),
     dataIndex: 'userType',
     key: 'userType',
     width: 100
   },
   {
-    title: t('entity.user.userstatus'),
+    title: t('entity.user.status'),
     dataIndex: 'userStatus',
     key: 'userStatus',
     width: 100
@@ -481,7 +484,9 @@ const columns = computed<TableColumnsType>(() => [
         icon: RiLockUnlockLine,
         permission: 'identity:user:unlock',
         visible: (record: User) => {
-          if (isAdminUser(record)) return false
+          if (isAdminUser(record)) {
+      return false
+    }
           return record.userStatus === 3
         },
         onClick: (record: User) => handleUnlock(record)
@@ -502,7 +507,9 @@ const getUserField = (user: any, field: string): any => {
 
 // 辅助函数：判断是否为受保护的管理员用户（admin、guest）
 const isAdminUser = (user: User | null): boolean => {
-  if (!user) return false
+  if (!user) {
+    return false
+  }
   const userName = getUserField(user, 'userName') || ''
   const lowerUserName = userName.toLowerCase()
   return lowerUserName === 'admin' || lowerUserName === 'guest'
@@ -762,10 +769,10 @@ const handleDeleteOne = (record: User) => {
       try {
         loading.value = true
         await deleteUser(getUserId(record))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deleteSuccess', { target: t('entity.user._self') }))
         loadData()
       } catch (error: any) {
-        message.error(error.message || t('common.msg.deleteFail'))
+        message.error(error.message || t('common.msg.deleteFail', { target: t('entity.user._self') }))
       } finally {
         loading.value = false
       }
@@ -797,13 +804,13 @@ const handleDelete = () => {
         loading.value = true
         const deletePromises = selectedRows.value.map(user => deleteUser(getUserId(user)))
         await Promise.all(deletePromises)
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deleteSuccess', { target: t('entity.user._self') }))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: any) {
-        message.error(error.message || t('common.msg.deleteFail'))
+        message.error(error.message || t('common.msg.deleteFail', { target: t('entity.user._self') }))
       } finally {
         loading.value = false
       }
@@ -1064,10 +1071,10 @@ const handleExport = async () => {
       window.URL.revokeObjectURL(url)
     }, 100)
     
-    message.success(t('common.msg.exportSuccess'))
+    message.success(t('common.msg.exportSuccess', { target: t('entity.user._self') }))
   } catch (error: any) {
     logger.error('[User Management] 导出失败:', error)
-    message.error(error.message || t('common.msg.exportFail'))
+    message.error(error.message || t('common.msg.exportFail', { target: t('entity.user._self') }))
   } finally {
     loading.value = false
   }
@@ -1175,7 +1182,7 @@ const handleFormSubmit = async () => {
       
       logger.debug('[User Management] 更新用户数据:', JSON.stringify(updateData, null, 2))
       await update(formData.value.userId, updateData)
-      message.success(t('common.msg.updateSuccess'))
+      message.success(t('common.msg.updateSuccess', { target: t('entity.user._self') }))
     } else {
       // 新增
       const createData = { ...formValues }
@@ -1185,7 +1192,7 @@ const handleFormSubmit = async () => {
         delete createData.password
       }
       await create(createData)
-      message.success(t('common.msg.createSuccess'))
+      message.success(t('common.msg.createSuccess', { target: t('entity.user._self') }))
     }
 
     // 重置表单
@@ -1199,7 +1206,7 @@ const handleFormSubmit = async () => {
       // 表单验证错误
       return
     }
-    message.error(error.message || t('common.msg.operateFail'))
+    message.error(error.message || t('common.msg.operateFail', { action: t('common.action.operation') }))
   } finally {
     formLoading.value = false
   }
@@ -1214,7 +1221,7 @@ const handleFormCancel = () => {
   }
 }
 
-
+defineExpose({ tableRef })
 </script>
 
 <style scoped lang="less">

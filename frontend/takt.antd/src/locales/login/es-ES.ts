@@ -70,7 +70,9 @@ export default {
     rememberMe: 'Recordarme',
     login: 'Iniciar sesión',
     logout: 'Cerrar sesión',
-    noAccountRegister: '¿Nuevo en Takt365? {register}'
+    noAccountRegister: '¿Nuevo en Takt365? {register}',
+    success: 'Inicio de sesión exitoso',
+    fail: 'Inicio de sesión fallido'
   },
 
   /** Olvidó contraseña */

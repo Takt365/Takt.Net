@@ -11,7 +11,7 @@
 // ========================================
 
 using SqlSugar;
-using Takt.Domain.Entities.Tenant;
+using Takt.Domain.Entities.Identity;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Data;
 using Takt.Shared.Constants;

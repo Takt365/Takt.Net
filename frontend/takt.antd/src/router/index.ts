@@ -13,12 +13,36 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { nextTick } from 'vue'
-import { useUserStore } from '@/stores/identity/user'
-import { usePermissionStore } from '@/stores/identity/permission'
-import { useMenuStore } from '@/stores/identity/menu'
+import type { UserInfo } from '@/types/identity/auth'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import i18n from '@/locales'
+
+/** 路由守卫上下文，由 main 注入（router 不依赖 stores） */
+export interface GuardContext {
+  hasToken(): boolean
+  hasUserInfo(): boolean
+  loadUserInfo(): Promise<UserInfo | null>
+  getUserInfo(): UserInfo | null
+  setPermissions(permissions: string[]): void
+  hasPermission(permission: string): boolean
+  loadBackendTranslations(): Promise<void>
+  loadDictData(): Promise<void>
+  connectSignalR(): Promise<void>
+  generateRoutes(): Promise<RouteRecordRaw[]>
+  getIsRoutesLoaded(): boolean
+  getHasDynamicRoutes(): boolean
+  getRoutes(): RouteRecordRaw[]
+  getMenuListLength(): number
+  syncRoutesStateFromRouter(): void
+  resetMenuAndRegenerateRoutes(): Promise<void>
+  logout(): Promise<void>
+}
+
+let guardContext: GuardContext | null = null
+export function setGuardContext(ctx: GuardContext): void {
+  guardContext = ctx
+}
 
 // 配置 NProgress
 NProgress.configure({ showSpinner: false })
@@ -61,21 +85,52 @@ const routes: RouteRecordRaw[] = [
     children: []
   },
   {
+    path: '/400',
+    name: 'BadRequest',
+    component: () => import('@/views/error/bad-request/index.vue'),
+    meta: { title: '400', requiresAuth: false }
+  },
+  {
+    path: '/401',
+    name: 'Unauthorized',
+    component: () => import('@/views/error/unauthorized/index.vue'),
+    meta: { title: '401', requiresAuth: false }
+  },
+  {
     path: '/403',
     name: 'Forbidden',
-    component: () => import('@/views/error/403.vue'),
-    meta: {
-      title: '403',
-      requiresAuth: false
-    }
+    component: () => import('@/views/error/forbidden/index.vue'),
+    meta: { title: '403', requiresAuth: false }
+  },
+  {
+    path: '/500',
+    name: 'InternalServerError',
+    component: () => import('@/views/error/internal-server-error/index.vue'),
+    meta: { title: '500', requiresAuth: false }
+  },
+  {
+    path: '/502',
+    name: 'BadGateway',
+    component: () => import('@/views/error/bad-gateway/index.vue'),
+    meta: { title: '502', requiresAuth: false }
+  },
+  {
+    path: '/503',
+    name: 'ServiceUnavailable',
+    component: () => import('@/views/error/service-unavailable/index.vue'),
+    meta: { title: '503', requiresAuth: false }
+  },
+  {
+    path: '/504',
+    name: 'GatewayTimeout',
+    component: () => import('@/views/error/gateway-timeout/index.vue'),
+    meta: { title: '504', requiresAuth: false }
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('@/views/error/404.vue'),
-    meta: {
-      title: '404'
-    }
+    component: () => import('@/views/error/not-found/index.vue'),
+    meta: { title: '404' }
   }
 ]
 
@@ -89,10 +144,10 @@ const getRootRoute = () => {
   return router.getRoutes().find(r => r.path === '/' && (r.name === 'Root' || !r.name))
 }
 
-// 辅助函数：处理根路径重定向
-const handleRootRedirect = (next: Function) => {
-  next('/dashboard/workspace')
+/** 处理根路径重定向（Vue Router 4 推荐 return 替代 next） */
+const handleRootRedirect = (): string => {
   NProgress.done()
+  return '/dashboard/workspace'
 }
 
 // 辅助函数：清除动态路由（退出登录时调用）
@@ -135,272 +190,88 @@ const registerDynamicRoutes = (routes: RouteRecordRaw[]) => {
   return false
 }
 
-// 辅助函数：跳转到登录页
-const redirectToLogin = (next: Function, redirectPath?: string) => {
-  next({
+/** 跳转到登录页（Vue Router 4 推荐 return 替代 next） */
+const redirectToLogin = (redirectPath?: string): { path: string; query?: { redirect: string } } => {
+  NProgress.done()
+  return {
     path: '/login',
     query: redirectPath ? { redirect: redirectPath } : undefined
-  })
-  NProgress.done()
-}
-
-// 辅助函数：加载后端翻译数据
-const loadBackendTranslations = async () => {
-  try {
-    const { loadTranslationsFromBackend } = await import('@/locales')
-    const { unref } = await import('vue')
-    const i18n = await import('@/locales')
-    const currentLocale = unref(i18n.default.global.locale) as string
-    await loadTranslationsFromBackend(currentLocale, 'Frontend')
-    logger.info('[Router Guard] 后端翻译数据加载成功')
-  } catch (error) {
-    logger.error('[Router Guard] 加载后端翻译数据失败:', error)
-    // 翻译数据加载失败不影响路由跳转，继续执行
   }
 }
 
-// 辅助函数：加载字典数据
-const loadDictData = async () => {
-  try {
-    const { useDictDataStore } = await import('@/stores/routine/dict/dictdata')
-    const dictDataStore = useDictDataStore()
-    await dictDataStore.loadAllDictData()
-    logger.info('[Router Guard] 字典数据加载成功')
-  } catch (error) {
-    logger.error('[Router Guard] 加载字典数据失败:', error)
-  }
-}
-
-// 辅助函数：连接 SignalR
-const connectSignalR = async () => {
-  try {
-    const { useSignalRStore } = await import('@/stores/identity/signalr')
-    const signalRStore = useSignalRStore()
-    if (!signalRStore.isConnected) {
-      await signalRStore.connect()
-      logger.info('[Router Guard] SignalR 连接成功')
-    }
-  } catch (error: any) {
-    logger.error('[Router Guard] SignalR 连接失败:', error.message || error)
-  }
-}
-
-// 路由守卫
-router.beforeEach(async (to, _from, next) => {
+// 路由守卫（使用 main 注入的 guardContext；通过 return 返回值，不再使用 next()）
+router.beforeEach(async (to, _from) => {
   NProgress.start()
+  if (!guardContext) {
+    if (to.meta.requiresAuth !== false) return redirectToLogin(to.fullPath)
+    return
+  }
 
-  const userStore = useUserStore()
-  const permissionStore = usePermissionStore()
-  const menuStore = useMenuStore()
-
-  // 检查是否需要登录
   if (to.meta.requiresAuth !== false) {
-    if (!userStore.token) {
-      redirectToLogin(next, to.fullPath)
-      return
-    }
-
-    // 检查是否已加载用户信息
-    if (!userStore.userInfo) {
+    if (!guardContext.hasToken()) return redirectToLogin(to.fullPath)
+    if (!guardContext.hasUserInfo()) {
       try {
-        const userInfo = await userStore.getUserInfo()
-        // 获取用户信息后，设置权限列表
-        if (userInfo?.permissions) {
-          permissionStore.permissions = userInfo.permissions
-        }
-        
-        // 获取用户信息后，优先加载翻译和字典数据
-        await Promise.all([
-          loadBackendTranslations(),
-          loadDictData()
-        ])
-        logger.info('[Router Guard] 翻译和字典数据加载完成')
-        
-        // 连接 SignalR（登录成功后）
-        await connectSignalR()
+        const userInfo = await guardContext.loadUserInfo()
+        if (userInfo?.permissions) guardContext.setPermissions(userInfo.permissions)
+        await Promise.all([guardContext.loadBackendTranslations(), guardContext.loadDictData()])
+        await guardContext.connectSignalR()
       } catch (error) {
-        userStore.logout()
-        redirectToLogin(next, to.fullPath)
-        return
+        await guardContext.logout()
+        return redirectToLogin(to.fullPath)
       }
     } else {
-      // 如果用户信息已存在但权限列表为空，则设置权限
-      const userInfo = userStore.userInfo
-      if (userInfo?.permissions && permissionStore.permissions.length === 0) {
-        permissionStore.permissions = userInfo.permissions
-      } else if (!userInfo?.permissions && import.meta.env.DEV) {
-        logger.warn('[Router Guard] 用户信息已存在但权限列表为空或未定义')
-      }
-      
-      // 检查翻译数据是否已加载（如果未加载则加载）
-      const { unref } = await import('vue')
-      const i18n = await import('@/locales')
-      const currentLocale = unref(i18n.default.global.locale) as string
-      const { useTranslationStore } = await import('@/stores/routine/localization/translation')
-      const translationStore = useTranslationStore()
-      const { useDictDataStore } = await import('@/stores/routine/dict/dictdata')
-      const dictDataStore = useDictDataStore()
-      
-      const promises: Promise<void>[] = []
-      
-      if (!translationStore.isLoaded(currentLocale, 'Frontend')) {
-        promises.push(loadBackendTranslations())
-      }
-      
-      if (!dictDataStore.isLoaded) {
-        promises.push(loadDictData())
-      }
-      
-      if (promises.length > 0) {
-        await Promise.all(promises)
-        logger.info('[Router Guard] 翻译和字典数据加载完成')
-      }
-      
-      // 检查并连接 SignalR（刷新页面时，如果已登录但未连接）
-      await connectSignalR()
+      const userInfo = guardContext.getUserInfo()
+      if (userInfo?.permissions) guardContext.setPermissions(userInfo.permissions)
+      await guardContext.loadBackendTranslations()
+      await guardContext.loadDictData()
+      await guardContext.connectSignalR()
     }
 
-    // 检查是否已加载权限路由
-    // 注意：刷新页面后 Pinia store 状态会丢失，但动态路由已注册到 router 中
-    // 所以需要检查根路由是否已有子路由，而不仅仅依赖 isRoutesLoaded 标志
-    const rootRoute = getRootRoute()
-    const hasDynamicRoutes = rootRoute?.children && rootRoute.children.length > 0
-    
-    // 如果路由未加载且根路由没有动态子路由，则需要加载
-    if (!menuStore.isRoutesLoaded && !hasDynamicRoutes) {
+    const hasDynamicRoutes = guardContext.getHasDynamicRoutes()
+
+    if (!guardContext.getIsRoutesLoaded() && !hasDynamicRoutes) {
       try {
-        await menuStore.generateRoutes()
-        logger.info('[Router Guard] 权限路由加载成功，路由数量:', menuStore.routes.length)
-        
-        // 将动态路由添加到根路由的 children 中
-        const registered = registerDynamicRoutes(menuStore.routes)
-        if (!registered) {
-          // 如果找不到根路由，直接添加到根路由下
-          menuStore.routes.forEach((route) => {
-            router.addRoute('/', route)
-          })
-        }
-        
-        // 等待 Vue Router 更新路由表（确保路由已完全注册）
+        await guardContext.generateRoutes()
+        const routes = guardContext.getRoutes()
+        const registered = registerDynamicRoutes(routes)
+        if (!registered) routes.forEach((route) => router.addRoute('/', route))
         await nextTick()
-        
-        // 如果访问的是根路径，重定向到 /dashboard/workspace（由后端菜单数据生成）
-        if (to.path === '/') {
-          handleRootRedirect(next)
-          return
-        }
-        
-        // 路由注册后，使用 next(to.fullPath) 强制重新导航以确保路由匹配
-        // 这样可以确保 Vue Router 重新匹配路由表，识别新注册的动态路由
-        // 使用 replace: true 避免在历史记录中留下中间状态
-        next({ path: to.fullPath, replace: true })
+        if (to.path === '/') return handleRootRedirect()
         NProgress.done()
-        return
+        return { path: to.fullPath, replace: true }
       } catch (error) {
         logger.error('[Router Guard] 加载权限路由失败:', error)
-        redirectToLogin(next)
-        return
-      }
-    } else {
-      // 路由已加载或已注册的情况
-      
-      // 场景1：刷新页面 - 路由已注册但 store 状态丢失
-      if (hasDynamicRoutes && !menuStore.isRoutesLoaded) {
-        // 刷新页面后，动态路由已注册但 store 状态丢失
-        // 需要恢复 store 状态，但不需要重新加载路由
-        menuStore.isRoutesLoaded = true
-        // 从已注册的路由中恢复 routes（用于保持状态一致性）
-        if (rootRoute?.children) {
-          menuStore.routes = rootRoute.children as RouteRecordRaw[]
-        }
-      }
-      // 场景2：退出后再次登录 - 路由已注册但菜单数据为空
-      else if (hasDynamicRoutes && menuStore.isRoutesLoaded && (!menuStore.menuList || menuStore.menuList.length === 0)) {
-        // 退出登录后再次登录时，路由可能还在但菜单数据被清空
-        // 需要清除旧路由并重新加载
-        try {
-          // 清除旧路由
-          if (rootRoute && rootRoute.name) {
-            router.removeRoute(rootRoute.name)
-            // 重新添加空的根路由
-            router.addRoute({
-              path: '/',
-              name: 'Root',
-              component: () => import('@/layouts/index.vue'),
-              meta: { requiresAuth: true },
-              children: []
-            })
-          }
-          // 重置状态
-          menuStore.isRoutesLoaded = false
-          // 重新加载路由和菜单
-          await menuStore.generateRoutes()
-          logger.info('[Router Guard] 再次登录：路由和菜单重新加载成功', {
-            routesCount: menuStore.routes.length,
-            menuCount: menuStore.menuList.length
-          })
-          
-          // 注册新路由
-          const registered = registerDynamicRoutes(menuStore.routes)
-          if (!registered) {
-            menuStore.routes.forEach((route) => {
-              router.addRoute('/', route)
-            })
-          }
-          
-          // 加载后端翻译数据
-          await loadBackendTranslations()
-          
-          // 等待路由更新
-          await nextTick()
-          
-          // 如果访问的是根路径，重定向到 /dashboard/workspace
-          if (to.path === '/') {
-            handleRootRedirect(next)
-            return
-          }
-          
-          // 重新导航以确保路由匹配
-          next({ path: to.fullPath, replace: true })
-          NProgress.done()
-          return
-        } catch (error) {
-          logger.error('[Router Guard] 再次登录：重新加载路由和菜单失败:', error)
-          redirectToLogin(next)
-          return
-        }
-      }
-      // 场景3：正常情况 - 路由和菜单都已加载
-      
-      // 如果访问的是根路径，重定向到 /dashboard/workspace（由后端菜单数据生成）
-      if (to.path === '/') {
-        handleRootRedirect(next)
-        return
+        return redirectToLogin()
       }
     }
+
+    if (hasDynamicRoutes && !guardContext.getIsRoutesLoaded()) {
+      guardContext.syncRoutesStateFromRouter()
+    } else if (hasDynamicRoutes && guardContext.getIsRoutesLoaded() && guardContext.getMenuListLength() === 0) {
+      try {
+        await guardContext.resetMenuAndRegenerateRoutes()
+        await guardContext.loadBackendTranslations()
+        await nextTick()
+        if (to.path === '/') return handleRootRedirect()
+        NProgress.done()
+        return { path: to.fullPath, replace: true }
+      } catch (error) {
+        logger.error('[Router Guard] 再次登录：重新加载路由和菜单失败:', error)
+        return redirectToLogin()
+      }
+    }
+
+    if (to.path === '/') return handleRootRedirect()
   }
 
-  // 检查权限
-  // 注意：如果路由是从菜单生成的（路由链中有 menuType），则不需要检查权限
-  // 因为菜单已经根据用户权限过滤过了，能显示的菜单用户肯定有权限
-  // 只有静态路由（路由链中没有 menuType）且有 permission 时才检查权限
   const hasMenuType = to.matched.some(record => record.meta.menuType !== undefined)
-  
-  // 只有静态路由（没有 menuType）且有 permission 时才检查权限
   if (to.meta.permission && !hasMenuType) {
-    if (!permissionStore.hasPermission(to.meta.permission as string)) {
-      logger.warn('[Router Guard] 权限检查失败:', {
-        path: to.path,
-        permission: to.meta.permission,
-        userPermissions: permissionStore.permissions
-      })
-      next('/403')
+    if (!guardContext.hasPermission(to.meta.permission as string)) {
+      logger.warn('[Router Guard] 权限检查失败:', { path: to.path, permission: to.meta.permission })
       NProgress.done()
-      return
+      return '/403'
     }
   }
-
-  next()
 })
 
 // 处理路由错误（包括动态导入失败）
@@ -457,6 +328,6 @@ router.afterEach(() => {
 })
 
 // 导出清除动态路由的函数（供退出登录时调用）
-export { clearDynamicRoutes }
+export { clearDynamicRoutes, registerDynamicRoutes }
 
 export default router

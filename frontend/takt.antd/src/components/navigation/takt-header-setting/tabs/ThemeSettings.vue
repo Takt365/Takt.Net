@@ -9,7 +9,25 @@
       </a-form-item>
 
       <a-form-item :label="$t('components.navigation.systemSetting.themeColor')">
-        <div class="theme-color-picker">
+        <a-tooltip v-if="themeColorLocked" :title="$t('common.settings.color.locked')" placement="top">
+          <div class="theme-color-picker locked">
+            <a-tooltip
+              v-for="(color, key) in themeColorMap"
+              :key="key"
+              :title="$t(`common.settings.color.${key}`)"
+              placement="top"
+            >
+              <div
+                class="color-item"
+                :class="{ active: effectiveThemeType === key }"
+                :style="{ backgroundColor: color }"
+              >
+                <RiCheckLine v-if="effectiveThemeType === key" class="color-item-check" />
+              </div>
+            </a-tooltip>
+          </div>
+        </a-tooltip>
+        <div v-else class="theme-color-picker">
           <a-tooltip
             v-for="(color, key) in themeColorMap"
             :key="key"
@@ -86,7 +104,7 @@
 import { computed, inject } from 'vue'
 import { RiCheckLine } from '@remixicon/vue'
 import type { AppSetting, ThemeColor } from '@/stores/setting'
-import { themeColorMap, validateFontSize } from '@/stores/setting'
+import { themeColorMap, validateFontSize, isThemeColorLocked, getFixedThemeForDate } from '@/stores/setting'
 
 const setting = inject<AppSetting>('setting')!
 
@@ -107,7 +125,11 @@ const customColorValue = computed({
   }
 })
 
+const themeColorLocked = computed(() => isThemeColorLocked())
+const effectiveThemeType = computed(() => getFixedThemeForDate() ?? setting.themeColor?.type ?? 'blue')
+
 const handleColorSelect = (color: ThemeColor) => {
+  if (themeColorLocked.value) return
   setting.themeColor.type = color
   if (color !== 'custom') {
     setting.themeColor.customColor = undefined

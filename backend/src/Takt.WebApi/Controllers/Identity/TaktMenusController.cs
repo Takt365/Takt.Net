@@ -13,7 +13,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Takt.Application.Dtos.Identity;
-using Takt.Application.Identity;
+using Takt.Application.Services.Identity;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
@@ -189,7 +189,7 @@ public class TaktMenusController : TaktControllerBase
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件</returns>
     [HttpGet("template")]
-    [TaktPermission("identity:menu:import", "获取导入模板")]
+    [TaktPermission("identity:menu:template", "获取导入模板")]
     public async Task<IActionResult> GetTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try

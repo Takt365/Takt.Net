@@ -66,10 +66,10 @@
           style="width: 100%"
         />
       </a-form-item>
-      <a-form-item label="备注" name="remark">
+      <a-form-item :label="t('common.entity.remark')" name="remark">
         <a-textarea
           v-model:value="formState.remark"
-          placeholder="可选"
+          :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"
           :rows="2"
         />
       </a-form-item>
@@ -79,6 +79,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Rule } from 'ant-design-vue/es/form'
 import * as languageApi from '@/api/routine/i18n/language'
 import type { Translation, TranslationCreate, TranslationUpdate } from '@/types/routine/i18n/translation'
@@ -94,6 +95,7 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false
 })
 
+const { t } = useI18n()
 const formRef = ref()
 const languageOptions = ref<TaktSelectOption[]>([])
 const languageOptionsLoading = ref(false)

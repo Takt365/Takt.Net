@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Takt.Application.Dtos.HumanResource.Organization;
 using Takt.Application.Dtos.Identity;
-using Takt.Application.Identity;
+using Takt.Application.Services.Identity;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
@@ -174,6 +174,19 @@ public class TaktRolesController : TaktControllerBase
     }
 
     /// <summary>
+    /// 获取角色权限列表
+    /// </summary>
+    /// <param name="roleId">角色ID</param>
+    /// <returns>角色权限列表</returns>
+    [HttpGet("{roleId}/permissions")]
+    [TaktPermission("identity:role:query", "查询角色权限")]
+    public async Task<ActionResult<List<TaktRolePermissionDto>>> GetRolePermissionIdsAsync(long roleId)
+    {
+        var permissions = await _roleService.GetRolePermissionIdsAsync(roleId);
+        return Ok(permissions);
+    }
+
+    /// <summary>
     /// 获取角色部门列表
     /// </summary>
     /// <param name="roleId">角色ID</param>
@@ -199,6 +212,27 @@ public class TaktRolesController : TaktControllerBase
         try
         {
             var result = await _roleService.AssignRoleMenusAsync(roleId, menuIds);
+            return Ok(new { success = result });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// 分配角色权限
+    /// </summary>
+    /// <param name="roleId">角色ID</param>
+    /// <param name="permissionIds">权限ID列表</param>
+    /// <returns>操作结果</returns>
+    [HttpPut("{roleId}/permissions")]
+    [TaktPermission("identity:role:update", "分配角色权限")]
+    public async Task<IActionResult> AssignRolePermissionsAsync(long roleId, [FromBody] long[] permissionIds)
+    {
+        try
+        {
+            var result = await _roleService.AssignRolePermissionsAsync(roleId, permissionIds);
             return Ok(new { success = result });
         }
         catch (Exception ex)
@@ -256,7 +290,7 @@ public class TaktRolesController : TaktControllerBase
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件</returns>
     [HttpGet("template")]
-    [TaktPermission("identity:role:import", "获取导入模板")]
+    [TaktPermission("identity:role:template", "获取导入模板")]
     public async Task<IActionResult> GetTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try

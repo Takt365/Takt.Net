@@ -161,49 +161,63 @@ public class TaktTableInitializer
                 targetConfigId, filteredEntityTypes.Length);
         }
 
-        // 创建所有表（SqlSugar会自动处理依赖关系）
-        int successCount = 0;
-        int skipCount = 0;
-        int errorCount = 0;
+        // 创建所有表（SqlSugar 自动处理依赖）
+        // 三者逻辑：创建 = 表初始前不存在且 InitTables 未抛异常；更新 = 表初始前已存在且 InitTables 后仍可见；失败 = InitTables 抛异常 或 表曾存在但 InitTables 后不可见
+        int createdCount = 0;
+        int updatedCount = 0;
+        int failedCount = 0;
         foreach (var entityType in filteredEntityTypes)
         {
             try
             {
                 var tableName = _client.EntityMaintenance.GetTableName(entityType);
                 var existsBefore = _client.DbMaintenance.IsAnyTable(tableName);
-                
-                _client.CodeFirst.InitTables(entityType);
-                
-                var existsAfter = _client.DbMaintenance.IsAnyTable(tableName);
-                if (existsAfter)
+
+                bool initThrew = false;
+                try
                 {
-                    if (existsBefore)
+                    _client.CodeFirst.InitTables(entityType);
+                }
+                catch (Exception exInner)
+                {
+                    initThrew = true;
+                    _logger?.LogError(exInner, "建表失败: {TableName} ({EntityType})", tableName, entityType.Name);
+                    failedCount++;
+                }
+
+                if (initThrew)
+                    continue;
+
+                var existsAfter = _client.DbMaintenance.IsAnyTable(tableName);
+                if (existsBefore)
+                {
+                    if (existsAfter)
                     {
                         _logger?.LogInformation("表已存在，已更新: {TableName} ({EntityType})", tableName, entityType.Name);
-                        skipCount++;
+                        updatedCount++;
                     }
                     else
                     {
-                        _logger?.LogInformation("表创建成功: {TableName} ({EntityType})", tableName, entityType.Name);
-                        successCount++;
+                        _logger?.LogWarning("建表失败: {TableName} ({EntityType})（表曾存在，初始化后不可见）", tableName, entityType.Name);
+                        failedCount++;
                     }
                 }
                 else
                 {
-                    _logger?.LogWarning("表初始化后仍不存在: {TableName} ({EntityType})", tableName, entityType.Name);
-                    errorCount++;
+                    _logger?.LogInformation("表创建成功: {TableName} ({EntityType})", tableName, entityType.Name);
+                    createdCount++;
                 }
             }
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "表初始化失败: {EntityType}", entityType.Name);
-                errorCount++;
+                failedCount++;
                 throw;
             }
         }
-        
-        _logger?.LogInformation("表结构初始化完成，成功创建: {SuccessCount}, 已存在: {SkipCount}, 失败: {ErrorCount}, 总计: {TotalCount}", 
-            successCount, skipCount, errorCount, filteredEntityTypes.Length);
+
+        _logger?.LogInformation("表结构初始化完成，创建: {CreatedCount}, 更新: {UpdatedCount}, 失败: {FailedCount}, 总计: {TotalCount}",
+            createdCount, updatedCount, failedCount, filteredEntityTypes.Length);
         
         return Task.CompletedTask;
     }

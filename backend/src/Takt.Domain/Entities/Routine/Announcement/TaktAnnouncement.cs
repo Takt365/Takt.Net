@@ -4,8 +4,8 @@
 // 文件名称：TaktAnnouncement.cs
 // 创建时间：2025-01-20
 // 创建人：Takt365(Cursor AI)
-// 功能描述：Takt公告实体，定义公告领域模型
-// 
+// 功能描述：Takt公告实体，定义公告领域模型；公告发布需经工作流审批（关联 TaktFlowInstance）
+//
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
@@ -18,10 +18,12 @@ namespace Takt.Domain.Entities.Routine.Announcement;
 /// <summary>
 /// Takt公告实体
 /// </summary>
+/// <remarks>公告发布需经工作流审批，通过 InstanceId 关联 TaktFlowInstance。创建流程实例时：BusinessKey = 本实体 Id，ProcessKey = "Announcement"（需在 TaktFlowScheme 中已配置）。</remarks>
 [SugarTable("takt_routine_announcement", "公告表")]
 [SugarIndex("ix_takt_routine_announcement_announcement_code", nameof(AnnouncementCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_routine_announcement_announcement_type", nameof(AnnouncementType), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_announcement_publish_time", nameof(PublishTime), OrderByType.Desc)]
+[SugarIndex("ix_takt_routine_announcement_instance_id", nameof(InstanceId), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_announcement_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_announcement_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_announcement_announcement_status", nameof(AnnouncementStatus), OrderByType.Asc)]
@@ -76,6 +78,13 @@ public class TaktAnnouncement : TaktEntityBase
     /// </summary>
     [SugarColumn(ColumnName = "dept_name", ColumnDescription = "发布部门名称", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
     public string? DeptName { get; set; }
+
+    /// <summary>
+    /// 关联工作流实例ID（对应 TaktFlowInstance.Id，0=未关联；流程处理见 TaktFlowInstanceService：发起时按 ProcessKey+BusinessKey 回写本字段，结束时按本字段查找并更新状态；序列化为 string 避免前端精度问题）
+    /// </summary>
+    [SugarColumn(ColumnName = "instance_id", ColumnDescription = "工作流实例ID", ColumnDataType = "bigint", IsNullable = false, DefaultValue = "0")]
+    [JsonConverter(typeof(ValueToStringConverter))]
+    public long InstanceId { get; set; }
 
     /// <summary>
     /// 发布范围（0=全部，1=指定部门，2=指定用户，3=指定角色）
@@ -138,7 +147,7 @@ public class TaktAnnouncement : TaktEntityBase
     public int OrderNum { get; set; } = 0;
 
     /// <summary>
-    /// 公告状态（0=草稿，1=已发布，2=已撤回，3=已过期）
+    /// 公告状态（0=草稿，1=已发布，2=已撤回，3=已过期，4=审批中，5=已驳回；与工作流审批流程匹配）
     /// </summary>
     [SugarColumn(ColumnName = "announcement_status", ColumnDescription = "公告状态", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int AnnouncementStatus { get; set; } = 0;

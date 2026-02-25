@@ -71,10 +71,17 @@ export interface GenerateCodeResult {
   files: string[]
 }
 
-/** 生成预览返回（自定义路径时）：将生成的文件列表与已存在的文件列表，用于覆盖确认。 */
+/** 预览项：文件名 + 内容，用于代码预览弹窗 */
+export interface PreviewFileItem {
+  name: string
+  content: string
+}
+
+/** 生成预览返回：将生成的文件路径、已存在文件及预览内容（用于代码预览弹窗与覆盖确认）。 */
 export interface GenerateCodePreviewResult {
   files: string[]
   existingFiles: string[]
+  previewFiles?: PreviewFileItem[]
 }
 
 /** 生成代码预览。GenMethod=1（自定义路径）或 2（当前项目）时有效，返回将生成的文件及其中已存在的文件。 */

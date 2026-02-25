@@ -16,9 +16,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Takt.Application.Identity;
 using Takt.Application.Services.Captcha;
-using Takt.Application.Services.Generator.CodeEngine;
+using Takt.Application.Services.Identity;
 using Takt.Domain.Interfaces;
 using Takt.Domain.Repositories;
 using Takt.Infrastructure.Cache;
@@ -26,8 +25,11 @@ using Takt.Infrastructure.Data;
 using Takt.Infrastructure.Localization;
 using Takt.Infrastructure.Repositories;
 using Takt.Infrastructure.Security;
+using Takt.Infrastructure.SignalR;
 using Takt.Infrastructure.Tenant;
 using Takt.Infrastructure.User;
+using Takt.Application.Services.Code.Generator.CodeEngine;
+using Takt.Application.Services.Routine.NumberingRules.RuleEngine;
 
 namespace Takt.Infrastructure.Extensions;
 
@@ -73,6 +75,8 @@ public static class TaktServiceCollectionExtensions
             services.AddHttpClient();
             services.AddHostedService<TaktCaptchaInitializer>();
         }
+
+        services.AddHostedService<Takt.Infrastructure.Workflow.TaktFlowTimeoutHostedService>();
 
         // 注意：基础设施服务（ITaktLocalizer、ITaktUserContext、ITaktTenantContext）和应用服务
         // 在 Autofac 中注册（通过 TaktAutofacModule），不需要在此处注册。
@@ -147,6 +151,16 @@ public static class TaktServiceCollectionExtensions
         builder.RegisterType<TaktDatabaseSchemaProvider>()
             .As<ITaktDatabaseSchemaProvider>()
             .InstancePerLifetimeScope();
+
+        // 注册“在别处请求登录”通知器（向旧会话推送 SignalR 消息）
+        builder.RegisterType<TaktLoginElsewhereNotifier>()
+            .As<ITaktLoginElsewhereNotifier>()
+            .InstancePerLifetimeScope();
+
+        // 工作流通知服务（默认空实现；可替换为对接 NotificationConfig/站内信/SignalR 的实现）
+        builder.RegisterType<Takt.Infrastructure.Workflow.TaktFlowNotificationService>()
+            .As<Takt.Application.Services.Workflow.ITaktFlowNotificationService>()
+            .InstancePerLifetimeScope();
     }
 
     /// <summary>
@@ -163,6 +177,11 @@ public static class TaktServiceCollectionExtensions
             .As<ITaktCodeEngine>()
             .InstancePerLifetimeScope();
 
+        // 注册单据编码规则引擎（类名不以 Service 结尾，需显式注册）
+        builder.RegisterType<TaktNumberingRuleEngine>()
+            .As<ITaktNumberingRuleEngine>()
+            .InstancePerLifetimeScope();
+
         // 注册所有应用服务（自动扫描Takt.Application程序集中以Service结尾的类）
         // 排除验证码服务，因为它们已经手动注册
         builder.RegisterAssemblyTypes(typeof(TaktUserService).Assembly)
@@ -172,6 +191,7 @@ public static class TaktServiceCollectionExtensions
                        !t.Name.Contains("Captcha")) // 排除验证码服务
             .AsImplementedInterfaces()
             .InstancePerLifetimeScope();
+
     }
 
     /// <summary>

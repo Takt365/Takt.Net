@@ -11,16 +11,44 @@
 // ========================================
 
 import axios, { type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
-import { message, notification } from 'ant-design-vue'
-import { h } from 'vue'
-import { useUserStore } from '@/stores/identity/user'
-import router from '@/router'
+import { message } from 'ant-design-vue'
+import { eventBus, AuthEvents } from '@/utils/eventBus'
 import { TaktResultCode } from '@/utils/enum'
+import { showApiConnectFail, closeApiConnectFailNotification } from '@/utils/notification'
 import { refreshToken as refreshTokenApi } from './identity/auth'
 import i18n from '@/locales'
 
 /** 获取 API 相关文案（request 在非组件中运行，使用 i18n.global.t） */
 const t = (key: string) => (i18n.global.t as (k: string) => string)(key)
+
+/**
+ * Token 读取：Pinia（user store）管理全局认证状态，localStorage 为其持久化层（仅 store 写入）。
+ * 本模块仅从 localStorage 读取，key 与 stores/identity/user 一致，确保刷新后请求仍能带 token。
+ */
+const TOKEN_KEY = 'token'
+const REFRESH_TOKEN_KEY = 'refreshToken'
+const TOKEN_EXPIRES_AT_KEY = 'tokenExpiresAt'
+
+function getTokenFromStorage(): string | null {
+  if (typeof localStorage === 'undefined') return null
+  const t = localStorage.getItem(TOKEN_KEY)
+  return typeof t === 'string' && t.length > 0 ? t : null
+}
+
+function getRefreshTokenFromStorage(): string | null {
+  if (typeof localStorage === 'undefined') return null
+  const r = localStorage.getItem(REFRESH_TOKEN_KEY)
+  return typeof r === 'string' && r.length > 0 ? r : null
+}
+
+let _getToken: () => string | null = () => getTokenFromStorage()
+let _getRefreshToken: () => string | null = () => getRefreshTokenFromStorage()
+let _getExpiresAt: () => number | null = () => null
+let _setToken: (token: string, refreshToken?: string, expiresIn?: number) => void = () => {}
+export function setTokenGetter(fn: () => string | null): void { _getToken = fn }
+export function setRefreshTokenGetter(fn: () => string | null): void { _getRefreshToken = fn }
+export function setTokenSetter(fn: (token: string, refreshToken?: string, expiresIn?: number) => void): void { _setToken = fn }
+export function setExpiresAtGetter(fn: () => number | null): void { _getExpiresAt = fn }
 
 // ========================================
 // 常量定义
@@ -128,10 +156,14 @@ function getCsrfTokenFromCookie(): string | null {
     const cookies = document.cookie.split(';')
     for (const cookie of cookies) {
       const trimmedCookie = cookie.trim()
-      if (!trimmedCookie) continue
+      if (!trimmedCookie) {
+        continue
+      }
 
       const equalIndex = trimmedCookie.indexOf('=')
-      if (equalIndex === -1) continue
+      if (equalIndex === -1) {
+        continue
+      }
 
       const name = trimmedCookie.substring(0, equalIndex).trim()
       const value = trimmedCookie.substring(equalIndex + 1).trim()
@@ -177,7 +209,9 @@ function isProtectedMethod(method: string): boolean {
  * @returns 是否为健康检查请求
  */
 function isHealthCheckRequest(url?: string): boolean {
-  if (!url) return false
+  if (!url) {
+    return false
+  }
   return url.includes('/api/TaktHealth') || url.includes('/TaktHealth')
 }
 
@@ -220,61 +254,14 @@ function processQueue(error: any, token: string | null = null) {
  * @returns 是否刷新成功
  */
 export async function tryRefreshToken(): Promise<boolean> {
-  const userStore = useUserStore()
-  const refreshToken = userStore.refreshToken
-
-  if (!refreshToken) {
-    return false
-  }
-
+  const refreshToken = _getRefreshToken()
+  if (!refreshToken) return false
   try {
     logger.info('[Token Refresh] 开始刷新 token')
     const result = await refreshTokenApi(refreshToken)
-    
-    // 更新 token 和 refreshToken
-    userStore.token = result.token
-    if (result.refreshToken) {
-      userStore.refreshToken = result.refreshToken
-      localStorage.setItem('refreshToken', result.refreshToken)
-    }
-    localStorage.setItem('token', result.token)
-    
-    // 记录 token 过期时间（用于定时刷新）
-    if (result.expiresIn) {
-      const expiresAt = Date.now() + result.expiresIn * 1000
-      localStorage.setItem('tokenExpiresAt', expiresAt.toString())
-    }
-    
+    _setToken(result.token, result.refreshToken, result.expiresIn)
     logger.info('[Token Refresh] Token 刷新成功')
-    
-    // Token 刷新成功后，重新建立 SignalR 连接（使用新 token）
-    // 注意：SignalR 的 accessTokenFactory 只在连接建立时调用一次，不会自动更新
-    // 因此需要在 token 刷新后重新连接
-    // 使用 setTimeout 延迟执行，避免循环依赖和阻塞
-    setTimeout(async () => {
-      try {
-        const { useSignalRStore } = await import('@/stores/identity/signalr')
-        const signalRStore = useSignalRStore()
-        if (signalRStore.isConnected) {
-          logger.info('[Token Refresh] 检测到 SignalR 已连接，重新连接以使用新 token')
-          // 先断开旧连接
-          await signalRStore.disconnect().catch((err: any) => {
-            logger.warn('[Token Refresh] 断开 SignalR 连接时出错:', err.message || err)
-          })
-          // 等待一小段时间确保断开完成
-          await new Promise(resolve => setTimeout(resolve, 500))
-          // 使用新 token 重新连接
-          await signalRStore.connect().catch((err: any) => {
-            logger.error('[Token Refresh] SignalR 重新连接失败:', err.message || err)
-          })
-          logger.info('[Token Refresh] SignalR 已使用新 token 重新连接')
-        }
-      } catch (signalRError: any) {
-        // SignalR 重连失败不影响 token 刷新成功
-        logger.warn('[Token Refresh] SignalR 重新连接失败（不影响 token 刷新）:', signalRError.message || signalRError)
-      }
-    }, 100)
-    
+    eventBus.$emit(AuthEvents.TokenRefreshed)
     return true
   } catch (error: any) {
     logger.error('[Token Refresh] Token 刷新失败:', error.message || error)
@@ -282,20 +269,30 @@ export async function tryRefreshToken(): Promise<boolean> {
   }
 }
 
+/** 请求配置扩展：标记是否已重试过（防止 401 重试死循环） */
+type ConfigWithRetry = InternalAxiosRequestConfig & { _retry?: boolean }
+
+/** 401 时统一对用户展示的文案（避免出现「Token 刷新失败」等技术用语） */
+const UNAUTHORIZED_USER_MESSAGE = () => t('common.api.loginExpired')
+
 /**
  * 处理 401 未授权错误（统一处理逻辑）
- * @param errorMessage 错误消息
+ * @param errorMessage 错误消息（用于 UI 展示，如「登录已过期，请重新登录」）
  * @param config 请求配置（可选，用于重试）
  * @returns 刷新成功且传入 config 时返回重试请求的 Promise，否则 resolve/reject
  */
 async function handleUnauthorized(errorMessage: string, config?: InternalAxiosRequestConfig): Promise<any> {
-  const userStore = useUserStore()
-  
+  const configWithRetry = config as ConfigWithRetry | undefined
   if (isRedirectingToLogin) {
     return Promise.reject(new Error(t('common.api.redirectingToLogin')))
   }
-  
-  // 如果正在刷新 token，将请求加入队列
+  if (configWithRetry?._retry) {
+    logger.warn('[Auth] 401 重试后仍失败，跳转登录页')
+    isRedirectingToLogin = true
+    showErrorOnce(UNAUTHORIZED_USER_MESSAGE())
+    eventBus.$emit(AuthEvents.RedirectToLogin)
+    return Promise.reject(new Error(UNAUTHORIZED_USER_MESSAGE()))
+  }
   if (isRefreshing) {
     if (config) {
       return new Promise((resolve, reject) => {
@@ -304,51 +301,38 @@ async function handleUnauthorized(errorMessage: string, config?: InternalAxiosRe
     }
     return
   }
-
-  // 尝试刷新 token
+  const hasRefreshToken = !!_getRefreshToken()
+  if (!hasRefreshToken) {
+    logger.warn('[Auth] 401 且无 refreshToken，直接跳转登录页')
+    isRedirectingToLogin = true
+    showErrorOnce(UNAUTHORIZED_USER_MESSAGE())
+    eventBus.$emit(AuthEvents.RedirectToLogin)
+    return Promise.reject(new Error(UNAUTHORIZED_USER_MESSAGE()))
+  }
   isRefreshing = true
   const refreshSuccess = await tryRefreshToken()
   isRefreshing = false
-
   if (refreshSuccess) {
-    // 刷新成功，处理队列中的请求
-    processQueue(null, userStore.token)
-    
-    // 如果有待重试的请求，不跳转登录
+    const token = _getToken()
+    processQueue(null, token)
     if (config) {
-      // 重试原请求
-      if (config.headers) {
-        config.headers.Authorization = `Bearer ${userStore.token}`
+      if (config.headers && token) {
+        (config.headers as Record<string, string>).Authorization = 'Bearer ' + token
       }
+      (config as ConfigWithRetry)._retry = true
       return service.request(config)
     }
     return Promise.resolve()
-  } else {
-    processQueue(new Error(t('common.api.tokenRefreshFail')))
-
-    if (isRedirectingToLogin) {
-      return Promise.reject(new Error(t('common.api.redirectingToLogin')))
-    }
-
-    if (router.currentRoute.value.path === '/login') {
-      showErrorOnce(errorMessage)
-      return Promise.reject(new Error(t('common.api.tokenRefreshFailOnLoginPage')))
-    }
-
-    isRedirectingToLogin = true
-    try {
-      await userStore.logout()
-      await router.replace('/login')
-      showErrorOnce(errorMessage)
-    } catch (error) {
-      logger.error('[Auth] 跳转登录页失败:', error)
-      // 即使跳转失败，也重置标志，允许后续重试
-      isRedirectingToLogin = false
-      throw error
-    }
-    
-    // 注意：不重置 isRedirectingToLogin，因为已经跳转到登录页，后续请求不应该再触发
   }
+  const userMsg = UNAUTHORIZED_USER_MESSAGE()
+  processQueue(new Error(userMsg))
+  if (isRedirectingToLogin) {
+    return Promise.reject(new Error(t('common.api.redirectingToLogin')))
+  }
+  isRedirectingToLogin = true
+  showErrorOnce(userMsg)
+  eventBus.$emit(AuthEvents.RedirectToLogin)
+  return Promise.reject(new Error(userMsg))
 }
 
 /**
@@ -359,22 +343,16 @@ function handle401AndRetry(config?: InternalAxiosRequestConfig): Promise<any> {
   return handleUnauthorized(t('common.api.loginExpired'), config)
 }
 
-/**
- * 启动 token 自动刷新定时器
- * 在 token 过期前 5 分钟自动刷新
- */
-function startTokenRefreshTimer() {
-  const userStore = useUserStore()
-  if (!userStore.token) return
-
+/** 启动 token 自动刷新定时器（由 main 订阅 LoginSuccess 后调用） */
+export function startTokenRefreshTimer() {
+  if (!_getToken()) return
   const doRefreshAndReschedule = () => {
-    if (userStore.token && userStore.refreshToken) {
+    if (_getToken() && _getRefreshToken()) {
       tryRefreshToken().then((success) => success && startTokenRefreshTimer())
     }
   }
-
-  const expiresAtStr = localStorage.getItem('tokenExpiresAt')
-  if (!expiresAtStr) {
+  const expiresAt = _getExpiresAt()
+  if (expiresAt == null) {
     const defaultExpiresIn = 3600
     const refreshDelay = (defaultExpiresIn - 300) * 1000
     setTimeout(() => {
@@ -383,17 +361,13 @@ function startTokenRefreshTimer() {
     }, refreshDelay)
     return
   }
-
-  const expiresAt = parseInt(expiresAtStr, 10)
   const now = Date.now()
   const refreshDelay = expiresAt - now - 5 * 60 * 1000
-
   if (refreshDelay <= 0) {
     logger.info('[Token Refresh] Token 即将过期，立即刷新')
     doRefreshAndReschedule()
     return
   }
-
   setTimeout(() => {
     logger.info('[Token Refresh] 定时刷新 token（提前 5 分钟）')
     doRefreshAndReschedule()
@@ -401,14 +375,9 @@ function startTokenRefreshTimer() {
   logger.debug(`[Token Refresh] Token 刷新定时器已设置，将在 ${Math.round(refreshDelay / 1000)} 秒后刷新`)
 }
 
-// 在应用启动时启动定时器（如果已有 token）
 if (typeof window !== 'undefined') {
-  // 延迟启动，确保 userStore 已初始化
   setTimeout(() => {
-    const userStore = useUserStore()
-    if (userStore.token) {
-      startTokenRefreshTimer()
-    }
+    if (_getToken()) startTokenRefreshTimer()
   }, 1000)
 }
 
@@ -418,11 +387,9 @@ if (typeof window !== 'undefined') {
 
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // 1. 添加认证 Token
-    const userStore = useUserStore()
-    if (userStore.token) {
-      config.headers.Authorization = `Bearer ${userStore.token}`
-    }
+    // 1. 添加认证 Token：优先读 localStorage（store 的持久化备份），再兜底注入的 getter
+    const token = getTokenFromStorage() || _getToken()
+    if (token) config.headers.Authorization = `Bearer ${token}`
 
     // 1.1 传递当前语言，供后端本地化（RequestCultureProviders 优先 QueryString → Cookie → Accept-Language）
     const locale = typeof localStorage !== 'undefined' ? (localStorage.getItem('locale') || 'zh-CN') : 'zh-CN'
@@ -500,6 +467,7 @@ service.interceptors.response.use(
 
     // 如果返回的状态码为 200 且业务代码也为成功，说明接口请求成功
     if (response.status === 200 && (code === TaktResultCode.Success || code === 200 || success)) {
+      closeApiConnectFailNotification()
       logger.apiResponse(response.status, requestMethod, url || '', data !== undefined ? data : res, messageText)
       // 如果存在 Data 字段（PascalCase 或 camelCase），返回 Data，否则返回整个响应
       return data !== undefined ? data : res
@@ -631,31 +599,15 @@ service.interceptors.response.use(
         }
       }
     } else if (error.request || error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'ETIMEDOUT' || error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
-      // 请求已发出但没有收到响应（网络错误）
-      // 包括：连接被拒绝、无法解析域名、超时、网络错误等
+      // 请求已发出但没有收到响应（网络错误），统一在此处理：提示 + 跳转登录（含健康检查失败）
       const { url, method } = config || {}
       const requestMethod = method ? method.toUpperCase() : 'UNKNOWN'
       logger.networkError(requestMethod, url || '', error)
 
-      // 只有非健康检查请求才显示错误提示（健康检查的错误会在 App.vue 中统一处理）
-      if (shouldShowError) {
-        notification.error({
-          message: t('common.api.connectFail'),
-          description: h('div', { style: { whiteSpace: 'pre-line' } }, t('common.api.connectFailDescription')),
-          duration: 0,
-          placement: 'topRight'
-        })
-        // 后端不可用时跳转登录页并清除登录态，与 App.vue 健康检查失败行为一致
-        if (!isRedirectingToLogin && router.currentRoute.value.path !== '/login') {
-          isRedirectingToLogin = true
-          const userStore = useUserStore()
-          userStore.logout().then(() => {
-            router.replace('/login')
-          }).catch((e) => {
-            logger.error('[API] 连接失败后退出登录失败:', e)
-            router.replace('/login')
-          })
-        }
+      showApiConnectFail()
+      if (!isRedirectingToLogin) {
+        isRedirectingToLogin = true
+        eventBus.$emit(AuthEvents.RedirectToLogin)
       }
     } else {
       logger.error('[Request Error] 请求配置错误:', error.message)
@@ -669,6 +621,9 @@ service.interceptors.response.use(
 // ========================================
 // 导出
 // ========================================
+
+/** Blob 下载接口返回类型（responseType: 'blob' 时 Axios 返回 Blob） */
+export type BlobDownloadResult = Blob
 
 /**
  * 重置跳转登录页标志（登录成功后调用）

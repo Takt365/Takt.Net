@@ -10,6 +10,7 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
+using System.Linq.Expressions;
 using Mapster;
 using SqlSugar;
 using {{ table.dto_namespace }};
@@ -48,8 +49,9 @@ public class {{ if table.service_class_name != null && table.service_class_name 
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     }
 {{~ for cat in table.dto_category_descriptors ~}}
-{{ type = cat.Name }}
+{{~ type = cat["name"] ~}}
 {{~ if type == "QueryDto" ~}}
+{{~ if table.gen_query == 1 ~}}
     /// <summary>
     /// 获取{{ table.comment }}列表（分页）
     /// </summary>
@@ -77,16 +79,63 @@ public class {{ if table.service_class_name != null && table.service_class_name 
         return entity?.Adapt<{{ table.entity_class_name }}Dto>();
     }
 
-    private static System.Linq.Expressions.Expression<Func<{{ table.entity_class_name }}, bool>> QueryExpression({{ table.entity_class_name }}QueryDto queryDto)
+    /// <summary>
+    /// 获取{{ table.comment }}选项列表（用于下拉框等）
+    /// </summary>
+    /// <returns>{{ table.comment }}选项列表</returns>
+    public async Task<List<TaktSelectOption>> GetOptionsAsync()
     {
-        var exp = Expressionable.Create<{{ table.entity_class_name }}>();
-        if (!string.IsNullOrEmpty(queryDto?.KeyWords))
-        {
-            exp = exp.And(x => x.Remark != null && x.Remark.Contains(queryDto.KeyWords));
-        }
-        return exp.ToExpression();
+{{~ opt_label_col = null ~}}
+{{~ opt_label_fallback = null ~}}
+{{~ for col in columns ~}}
+{{~ col_name = col.csharp_column_name ~}}
+{{~ col_type = col.csharp_data_type ~}}
+{{~ skip_id = col_name == "Id" ~}}
+{{~ is_string = col_type == "string" || col_type == "String" ~}}
+{{~ if !skip_id && is_string ~}}
+{{~ has_name = col_name == "Name" || col_name == "name" || col_name == "DisplayName" || col_name == "EntityName" ~}}
+{{~ has_code = col_name == "Code" || col_name == "code" ~}}
+{{~ name_or_code = has_name || has_code ~}}
+{{~ if name_or_code && opt_label_col == null ~}}
+{{~ opt_label_col = col ~}}
+{{~ else if opt_label_fallback == null ~}}
+{{~ opt_label_fallback = col ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ opt_label_col = opt_label_col || opt_label_fallback ~}}
+{{~ opt_label_name = "" ~}}
+{{~ if opt_label_col != null ~}}
+{{~ opt_label_name = opt_label_col.csharp_column_name ?? "" ~}}
+{{~ end ~}}
+{{~ if opt_label_col != null && opt_label_name != "" ~}}
+        var list = await _repository.FindAsync(x => x.IsDeleted == 0);
+        return list
+            .OrderBy(x => x.CreateTime)
+            .Select(x => new TaktSelectOption
+            {
+                DictLabel = (x.{{ opt_label_name }} ?? "").ToString(),
+                DictValue = x.Id,
+                OrderNum = 0
+            })
+            .ToList();
+{{~ else ~}}
+        var list = await _repository.FindAsync(x => x.IsDeleted == 0);
+        return list
+            .OrderBy(x => x.CreateTime)
+            .Select(x => new TaktSelectOption
+            {
+                DictLabel = x.Id.ToString(),
+                DictValue = x.Id,
+                OrderNum = 0
+            })
+            .ToList();
+{{~ end ~}}
     }
+{{~ end ~}}
+
 {{~ else if type == "CreateDto" ~}}
+{{~ if table.gen_create == 1 ~}}
     /// <summary>
     /// 创建{{ table.comment }}
     /// </summary>
@@ -98,7 +147,10 @@ public class {{ if table.service_class_name != null && table.service_class_name 
         entity = await _repository.CreateAsync(entity);
         return entity.Adapt<{{ table.entity_class_name }}Dto>();
     }
+{{~ end ~}}
+
 {{~ else if type == "UpdateDto" ~}}
+{{~ if table.gen_update == 1 ~}}
     /// <summary>
     /// 更新{{ table.comment }}
     /// </summary>
@@ -115,7 +167,7 @@ public class {{ if table.service_class_name != null && table.service_class_name 
         await _repository.UpdateAsync(entity);
         return entity.Adapt<{{ table.entity_class_name }}Dto>();
     }
-{{ if table.is_delete == 1 }}
+{{ if table.gen_delete == 1 }}
     /// <summary>
     /// 删除{{ table.comment }}
     /// </summary>
@@ -138,7 +190,10 @@ public class {{ if table.service_class_name != null && table.service_class_name 
         await _repository.DeleteAsync(idList);
     }
 {{ end }}
+{{~ end ~}}
+
 {{~ else if type == "TemplateDto" ~}}
+{{~ if table.gen_template_feature == 1 ~}}
     /// <summary>
     /// 获取导入模板
     /// </summary>
@@ -152,7 +207,10 @@ public class {{ if table.service_class_name != null && table.service_class_name 
             fileName: string.IsNullOrWhiteSpace(fileName) ? "{{ table.comment }}导入模板" : fileName
         );
     }
+{{~ end ~}}
+
 {{~ else if type == "ImportDto" ~}}
+{{~ if table.gen_import == 1 ~}}
     /// <summary>
     /// 导入{{ table.comment }}
     /// </summary>
@@ -186,7 +244,10 @@ public class {{ if table.service_class_name != null && table.service_class_name 
         }
         return (success, fail, errors);
     }
+{{~ end ~}}
+
 {{~ else if type == "ExportDto" ~}}
+{{~ if table.gen_export == 1 ~}}
     /// <summary>
     /// 导出{{ table.comment }}
     /// </summary>
@@ -204,5 +265,79 @@ public class {{ if table.service_class_name != null && table.service_class_name 
             string.IsNullOrWhiteSpace(fileName) ? "{{ table.comment }}导出" : fileName);
     }
 {{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ if table.gen_query == 1 ~}}
+
+    /// <summary>
+    /// 构建查询表达式（供 GetListAsync / ExportAsync 使用，放在类末尾）
+    /// </summary>
+    /// <param name="queryDto">查询DTO，可为 null</param>
+    /// <returns>查询表达式</returns>
+    private static Expression<Func<{{ table.entity_class_name }}, bool>> QueryExpression({{ table.entity_class_name }}QueryDto? queryDto)
+    {
+        var exp = Expressionable.Create<{{ table.entity_class_name }}>();
+        if (queryDto == null)
+            return exp.ToExpression();
+
+        // 关键词查询（在多个字段中模糊查询）
+{{~ kw_cols = array.new ~}}
+{{~ for col in columns ~}}
+{{~ if col.is_query == 0 && (col.query_type == "like" || col.query_type == "Like" || col.query_type == "LIKE") && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+{{~ kw_cols = array.add kw_cols col ~}}
+{{~ end ~}}
+{{~ end ~}}
+        if (!string.IsNullOrEmpty(queryDto?.KeyWords))
+        {
+{{~ if kw_cols.size > 0 ~}}
+            exp = exp.And(x => {{ for col in kw_cols ~}}{{ if for.index > 0 }} || {{ end }}(x.{{ col.csharp_column_name }} != null && x.{{ col.csharp_column_name }}.Contains(queryDto.KeyWords)){{ end ~}});
+{{~ end ~}}
+        }
+
+        // 单字段查询
+{{~ for col in columns ~}}
+{{~ if col.is_query == 0 ~}}
+{{~ qt_like = col.query_type == "like" || col.query_type == "Like" || col.query_type == "LIKE" ~}}
+{{~ qt_eq = col.query_type == "eq" || col.query_type == "Eq" || col.query_type == "EQ" ~}}
+{{~ qt_ne = col.query_type == "ne" || col.query_type == "Ne" || col.query_type == "NE" ~}}
+{{~ qt_gt = col.query_type == "gt" || col.query_type == "Gt" || col.query_type == "GT" ~}}
+{{~ qt_lt = col.query_type == "lt" || col.query_type == "Lt" || col.query_type == "LT" ~}}
+{{~ is_str = col.csharp_data_type == "string" || col.csharp_data_type == "String" ~}}
+{{~ is_nullable_val = col.is_required == 1 && (col.csharp_data_type != "string" && col.csharp_data_type != "String") ~}}
+{{~ if qt_like && is_str ~}}
+        exp = exp.AndIF(!string.IsNullOrEmpty(queryDto?.{{ col.csharp_column_name }}), x => x.{{ col.csharp_column_name }} != null && x.{{ col.csharp_column_name }}.Contains(queryDto!.{{ col.csharp_column_name }}!));
+{{~ else if qt_eq ~}}
+{{~ if is_str ~}}
+        exp = exp.AndIF(!string.IsNullOrEmpty(queryDto?.{{ col.csharp_column_name }}), x => x.{{ col.csharp_column_name }} == queryDto!.{{ col.csharp_column_name }}!);
+{{~ else if is_nullable_val ~}}
+        exp = exp.AndIF(queryDto?.{{ col.csharp_column_name }}.HasValue == true, x => x.{{ col.csharp_column_name }} == queryDto!.{{ col.csharp_column_name }}!.Value);
+{{~ else ~}}
+        exp = exp.AndIF(queryDto != null, x => x.{{ col.csharp_column_name }} == queryDto!.{{ col.csharp_column_name }});
+{{~ end ~}}
+{{~ else if qt_ne ~}}
+{{~ if is_str ~}}
+        exp = exp.AndIF(!string.IsNullOrEmpty(queryDto?.{{ col.csharp_column_name }}), x => x.{{ col.csharp_column_name }} != queryDto!.{{ col.csharp_column_name }}!);
+{{~ else if is_nullable_val ~}}
+        exp = exp.AndIF(queryDto?.{{ col.csharp_column_name }}.HasValue == true, x => x.{{ col.csharp_column_name }} != queryDto!.{{ col.csharp_column_name }}!.Value);
+{{~ else ~}}
+        exp = exp.AndIF(queryDto != null, x => x.{{ col.csharp_column_name }} != queryDto!.{{ col.csharp_column_name }});
+{{~ end ~}}
+{{~ else if qt_gt ~}}
+{{~ if is_nullable_val ~}}
+        exp = exp.AndIF(queryDto?.{{ col.csharp_column_name }}.HasValue == true, x => x.{{ col.csharp_column_name }} > queryDto!.{{ col.csharp_column_name }}!.Value);
+{{~ else ~}}
+        exp = exp.AndIF(queryDto != null, x => x.{{ col.csharp_column_name }} > queryDto!.{{ col.csharp_column_name }});
+{{~ end ~}}
+{{~ else if qt_lt ~}}
+{{~ if is_nullable_val ~}}
+        exp = exp.AndIF(queryDto?.{{ col.csharp_column_name }}.HasValue == true, x => x.{{ col.csharp_column_name }} < queryDto!.{{ col.csharp_column_name }}!.Value);
+{{~ else ~}}
+        exp = exp.AndIF(queryDto != null, x => x.{{ col.csharp_column_name }} < queryDto!.{{ col.csharp_column_name }});
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+        return exp.ToExpression();
+    }
 {{~ end ~}}
 }

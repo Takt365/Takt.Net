@@ -89,6 +89,12 @@ public class TaktSettingsDto
     public string? Remark { get; set; }
 
     /// <summary>
+    /// 创建人ID（与实体基类一致）
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long CreateId { get; set; }
+
+    /// <summary>
     /// 创建人（用户名）
     /// </summary>
     public string? CreateBy { get; set; }
@@ -97,6 +103,12 @@ public class TaktSettingsDto
     /// 创建时间
     /// </summary>
     public DateTime CreateTime { get; set; }
+
+    /// <summary>
+    /// 更新人ID（与实体基类一致）
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? UpdateId { get; set; }
 
     /// <summary>
     /// 更新人（用户名）
@@ -112,6 +124,12 @@ public class TaktSettingsDto
     /// 是否删除（软删除标记，0=未删除，1=已删除）
     /// </summary>
     public int IsDeleted { get; set; }
+
+    /// <summary>
+    /// 删除人ID（与实体基类一致）
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? DeleteId { get; set; }
 
     /// <summary>
     /// 删除人（用户名）

@@ -1,0 +1,100 @@
+/**
+ * BPMN 流程设计器主题
+ * 亮色由 diagram-js.css 默认变量控制，暗色在此覆盖 .djs-parent 下变量
+ * 使用 [data-doc-theme='dark']，色值固定，不依赖根节点 token
+ */
+[data-doc-theme='dark'] .djs-parent {
+  /* 灰阶：暗色下浅色变深、深色变浅 */
+  --color-grey-225-10-15: hsl(225, 10%, 88%);
+  --color-grey-225-10-35: hsl(225, 10%, 72%);
+  --color-grey-225-10-55: hsl(225, 10%, 58%);
+  --color-grey-225-10-75: hsl(225, 10%, 42%);
+  --color-grey-225-10-80: hsl(225, 10%, 38%);
+  --color-grey-225-10-85: hsl(225, 10%, 32%);
+  --color-grey-225-10-90: hsl(225, 10%, 24%);
+  --color-grey-225-10-95: hsl(225, 10%, 18%);
+  --color-grey-225-10-97: hsl(225, 10%, 15%);
+
+  --color-white: hsl(225, 10%, 12%);
+  --color-black: hsl(0, 0%, 98%);
+  --color-black-opacity-10: hsla(0, 0%, 98%, 0.1);
+  --color-black-opacity-30: hsla(0, 0%, 98%, 0.25);
+
+  /* 画布背景 */
+  --canvas-fill-color: #141414;
+
+  /* 连接点、轮廓、选中 */
+  --bendpoint-stroke-color: #141414;
+  --context-pad-entry-background-color: #1f1f1f;
+  --context-pad-entry-hover-background-color: #2a2a2a;
+  --element-hover-outline-fill-color: hsl(205, 100%, 55%);
+  --element-selected-outline-secondary-stroke-color: hsl(205, 100%, 65%);
+  --resizer-stroke-color: #141414;
+
+  /* 调色板 */
+  --palette-entry-color: rgba(255, 255, 255, 0.85);
+  --palette-entry-hover-color: hsl(205, 100%, 65%);
+  --palette-entry-selected-color: hsl(205, 100%, 55%);
+  --palette-separator-color: rgba(255, 255, 255, 0.15);
+  --palette-toggle-hover-background-color: #3a3a3a;
+  --palette-background-color: #1f1f1f;
+  --palette-border-color: rgba(255, 255, 255, 0.12);
+
+  /* 弹窗、搜索 */
+  --popup-background-color: #1f1f1f;
+  --popup-shadow-color: rgba(0, 0, 0, 0.5);
+  --popup-disabled-color: rgba(255, 255, 255, 0.35);
+  --popup-description-color: rgba(255, 255, 255, 0.55);
+  --popup-no-results-color: rgba(255, 255, 255, 0.55);
+  --popup-entry-title-color: rgba(255, 255, 255, 0.65);
+  --popup-entry-hover-color: #2a2a2a;
+  --popup-search-border-color: rgba(255, 255, 255, 0.2);
+  --popup-search-focus-background-color: #262626;
+  --search-container-background-color: #1f1f1f;
+  --search-input-border-color: rgba(255, 255, 255, 0.2);
+  --search-input-focus-background-color: #262626;
+  --search-result-hover-background-color: #2a2a2a;
+  --search-result-secondary-color: rgba(255, 255, 255, 0.55);
+  --search-preselected-background-color: hsla(205, 100%, 50%, 0.2);
+
+  /* 形状：连接/放置允许、不允许、附着 */
+  --shape-connect-allowed-fill-color: #262626;
+  --shape-drop-allowed-fill-color: #262626;
+  --shape-drop-not-allowed-fill-color: rgba(255, 77, 79, 0.15);
+  --tooltip-error-background-color: rgba(255, 77, 79, 0.15);
+  --tooltip-error-border-color: #ff4d4f;
+  --tooltip-error-color: #ff7875;
+
+  /* 十字线等 */
+  --space-tool-crosshair-stroke-color: rgba(255, 255, 255, 0.6);
+}
+
+/* 标签位置由 default-label-behavior 以元素中心为基点、下移 64px 控制，此处不叠加 translate */
+.djs-parent .djs-shape .djs-label,
+.djs-parent .djs-element.djs-label {
+  transform: none;
+}
+
+/* 画布上元素名称（.djs-label）随 data-doc-theme 亮/暗色，与主题系统一致 */
+[data-doc-theme='light'] .djs-parent .djs-label,
+[data-doc-theme='light'] .djs-parent .djs-label text,
+[data-doc-theme='light'] .djs-parent .djs-label tspan {
+  fill: rgba(0, 0, 0, 0.88) !important;
+}
+[data-doc-theme='dark'] .djs-parent .djs-label,
+[data-doc-theme='dark'] .djs-parent .djs-label text,
+[data-doc-theme='dark'] .djs-parent .djs-label tspan {
+  fill: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 暗色下连接线由渲染器写死为深色，需用 CSS 覆盖为浅色才能可见。描边在 .djs-visual 内的 path 上 */
+[data-doc-theme='dark'] .djs-parent .djs-connection .djs-visual path {
+  stroke: rgba(255, 255, 255, 0.85) !important;
+}
+/* 连接线端点标记（箭头等） */
+[data-doc-theme='dark'] .djs-parent .djs-connection .djs-visual marker path,
+[data-doc-theme='dark'] .djs-parent .djs-connection .djs-visual marker polygon,
+[data-doc-theme='dark'] .djs-parent .djs-connection .djs-visual marker circle {
+  fill: rgba(255, 255, 255, 0.85) !important;
+  stroke: rgba(255, 255, 255, 0.85) !important;
+}

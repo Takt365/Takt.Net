@@ -136,6 +136,23 @@
   gap: 32px;
 }
 
+// Svgator 与内容区同宽，高度固定 256px
+.login-svgator-wrap {
+  width: 100%;
+  height: 256px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  :deep(.svgator-object),
+  :deep(.svgator-fallback) {
+    width: 100% !important;
+    max-width: 100%;
+    height: 256px !important;
+    object-fit: contain;
+  }
+}
+
 // 暗黑主题下图标继承颜色，否则默认黑色在深色背景上不可见
 .login-page.theme-dark .login-illustration .fa-solid {
   color: rgba(255, 255, 255, 0.85);

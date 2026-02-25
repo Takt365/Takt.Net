@@ -21,28 +21,42 @@ namespace {{ table.service_namespace }};
 public interface {{ if table.i_service_class_name != null && table.i_service_class_name != ""; table.i_service_class_name; else; "I" + table.entity_class_name + "Service"; end }}
 {
 {{~ for cat in table.dto_category_descriptors ~}}
-{{ type = cat.Name }}
+{{~ type = cat["name"] ~}}
 {{~ if type == "QueryDto" ~}}
+{{~ if table.gen_query == 1 ~}}
     /// <summary>
     /// 获取{{ table.comment }}列表（分页）
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
     Task<TaktPagedResult<{{ table.entity_class_name }}Dto>> GetListAsync({{ table.entity_class_name }}QueryDto queryDto);
+
     /// <summary>
     /// 根据ID获取{{ table.comment }}
     /// </summary>
     /// <param name="id">{{ table.comment }}ID</param>
     /// <returns>{{ table.comment }}DTO</returns>
     Task<{{ table.entity_class_name }}Dto?> GetByIdAsync(long id);
+
+    /// <summary>
+    /// 获取{{ table.comment }}选项列表（用于下拉框等）
+    /// </summary>
+    /// <returns>{{ table.comment }}选项列表</returns>
+    Task<List<TaktSelectOption>> GetOptionsAsync();
+{{~ end ~}}
+
 {{~ else if type == "CreateDto" ~}}
+{{~ if table.gen_create == 1 ~}}
     /// <summary>
     /// 创建{{ table.comment }}
     /// </summary>
     /// <param name="dto">创建{{ table.comment }}DTO</param>
     /// <returns>{{ table.comment }}DTO</returns>
     Task<{{ table.entity_class_name }}Dto> CreateAsync({{ table.entity_class_name }}CreateDto dto);
+{{~ end ~}}
+
 {{~ else if type == "UpdateDto" ~}}
+{{~ if table.gen_update == 1 ~}}
     /// <summary>
     /// 更新{{ table.comment }}
     /// </summary>
@@ -50,7 +64,7 @@ public interface {{ if table.i_service_class_name != null && table.i_service_cla
     /// <param name="dto">更新{{ table.comment }}DTO</param>
     /// <returns>{{ table.comment }}DTO</returns>
     Task<{{ table.entity_class_name }}Dto> UpdateAsync(long id, {{ table.entity_class_name }}UpdateDto dto);
-{{ if table.is_delete == 1 }}
+{{ if table.gen_delete == 1 }}
     /// <summary>
     /// 删除{{ table.comment }}
     /// </summary>
@@ -64,7 +78,10 @@ public interface {{ if table.i_service_class_name != null && table.i_service_cla
     /// <returns>任务</returns>
     Task DeleteAsync(IEnumerable<long> ids);
 {{ end }}
+{{~ end ~}}
+
 {{~ else if type == "TemplateDto" ~}}
+{{~ if table.gen_template_feature == 1 ~}}
     /// <summary>
     /// 获取导入模板
     /// </summary>
@@ -72,7 +89,10 @@ public interface {{ if table.i_service_class_name != null && table.i_service_cla
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件信息（文件名和内容）</returns>
     Task<(string fileName, byte[] content)> GetTemplateAsync(string? sheetName, string? fileName);
+{{~ end ~}}
+
 {{~ else if type == "ImportDto" ~}}
+{{~ if table.gen_import == 1 ~}}
     /// <summary>
     /// 导入{{ table.comment }}
     /// </summary>
@@ -80,7 +100,10 @@ public interface {{ if table.i_service_class_name != null && table.i_service_cla
     /// <param name="sheetName">工作表名称</param>
     /// <returns>导入结果（成功数量、失败数量、错误信息列表）</returns>
     Task<(int success, int fail, List<string> errors)> ImportAsync(Stream fileStream, string? sheetName);
+{{~ end ~}}
+
 {{~ else if type == "ExportDto" ~}}
+{{~ if table.gen_export == 1 ~}}
     /// <summary>
     /// 导出{{ table.comment }}
     /// </summary>
@@ -89,6 +112,7 @@ public interface {{ if table.i_service_class_name != null && table.i_service_cla
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
     Task<(string fileName, byte[] content)> ExportAsync({{ table.entity_class_name }}QueryDto query, string? sheetName, string? fileName);
+{{~ end ~}}
 {{~ end ~}}
 {{~ end ~}}
 }

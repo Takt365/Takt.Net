@@ -71,18 +71,9 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>实体</returns>
     public virtual async Task<TEntity?> GetByIdAsync(long id)
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.Id == id && e.IsDeleted == 0);
-        
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            query = query.Where(e => e.ConfigId == CurrentConfigId);
-        }
-        
-        return await query.FirstAsync();
+        return await Db.Queryable<TEntity>()
+            .Where(e => e.Id == id)
+            .FirstAsync();
     }
 
     /// <summary>
@@ -92,18 +83,9 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>实体</returns>
     public virtual async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> predicate)
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.IsDeleted == 0);
-        
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            query = query.Where(e => e.ConfigId == CurrentConfigId);
-        }
-        
-        return await query.Where(predicate).FirstAsync();
+        return await Db.Queryable<TEntity>()
+            .Where(predicate)
+            .FirstAsync();
     }
 
     /// <summary>
@@ -112,18 +94,7 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>实体列表</returns>
     public virtual async Task<List<TEntity>> GetAllAsync()
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.IsDeleted == 0);
-        
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            query = query.Where(e => e.ConfigId == CurrentConfigId);
-        }
-        
-        return await query.ToListAsync();
+        return await Db.Queryable<TEntity>().ToListAsync();
     }
 
     /// <summary>
@@ -133,18 +104,9 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>实体列表</returns>
     public virtual async Task<List<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate)
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.IsDeleted == 0);
-        
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            query = query.Where(e => e.ConfigId == CurrentConfigId);
-        }
-        
-        return await query.Where(predicate).ToListAsync();
+        return await Db.Queryable<TEntity>()
+            .Where(predicate)
+            .ToListAsync();
     }
 
     /// <summary>
@@ -156,17 +118,7 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>分页结果</returns>
     public virtual async Task<(List<TEntity> Data, int Total)> GetPagedAsync(int pageIndex, int pageSize, Expression<Func<TEntity, bool>>? predicate = null)
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.IsDeleted == 0);
-
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            query = query.Where(e => e.ConfigId == CurrentConfigId);
-        }
-
+        var query = Db.Queryable<TEntity>();
         if (predicate != null)
         {
             query = query.Where(predicate);
@@ -184,101 +136,45 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>实体</returns>
     public virtual Task<TEntity> CreateAsync(TEntity entity)
     {
-        // 设置 ConfigId（用于多租户数据隔离）
-        entity.ConfigId = CurrentConfigId;
-        // 如果实体已经设置了 CreateTime，则不覆盖（允许手动设置）
-        if (entity.CreateTime == default(DateTime))
-        {
-            entity.CreateTime = DateTime.Now;
-        }
-        // 如果实体已经设置了 CreateBy，则不覆盖（允许手动设置，如登录日志场景）
-        // 否则从用户上下文获取 CreateBy（如果无法获取，则使用 "Takt365" 用于种子数据场景）
-        if (string.IsNullOrEmpty(entity.CreateBy))
-        {
-            entity.CreateBy = GetCurrentUserName();
-        }
-        entity.IsDeleted = 0;
+        FillCreateAudit(entity);
 
-        // 排除日志实体自身，避免循环日志记录
-        var entityType = typeof(TEntity);
-        var isLoggingEntity = entityType == typeof(TaktAopLog) || 
-                              entityType == typeof(TaktOperLog);
-        
-        // 输出审计日志：记录创建操作的用户和租户信息（排除日志实体自身）
-        if (!isLoggingEntity)
+        if (!IsLoggingEntity)
         {
-            var userName = entity.CreateBy;
             var tenantInfo = TaktTenantContext.CurrentTenant != null
                 ? $"TenantId: {TaktTenantContext.CurrentTenant.Id}, TenantCode: {TaktTenantContext.CurrentTenant.TenantCode}, ConfigId: {entity.ConfigId}"
                 : $"ConfigId: {entity.ConfigId}";
             TaktLogger.Information("创建实体: EntityType: {EntityType}, EntityId: {EntityId}, CreateBy: {CreateBy}, CreateTime: {CreateTime}, {TenantInfo}",
-                entityType.Name, entity.Id, userName, entity.CreateTime, tenantInfo);
-        }
-        
-        // 根据配置决定使用雪花ID还是自增ID
-        var snowflakeSection = _configuration.GetSection("Snowflake");
-        var snowflakeId = snowflakeSection.GetValue<bool>("Enabled", true);
-        
-        // 检查是否启用差异日志
-        var aopLogEnabled = _configuration.GetValue<bool>("Logging:AopLog", true);
-        
-        // 获取数据库客户端（确保不为null）
-        var db = Db;
-        if (db == null)
-        {
-            throw new InvalidOperationException($"无法获取数据库客户端，EntityType: {entityType.Name}, ConfigId: {CurrentConfigId}");
+                typeof(TEntity).Name, entity.Id, entity.CreateBy ?? string.Empty, entity.CreateTime, tenantInfo);
         }
 
-        // 确保映射信息已初始化（通过访问 EntityMaintenance 触发初始化）
-        // 这可以避免在调用 Insertable 时出现空引用异常
-        try
-        {
-            _ = db.EntityMaintenance;
-        }
+        var db = Db ?? throw new InvalidOperationException($"无法获取数据库客户端，EntityType: {typeof(TEntity).Name}, ConfigId: {CurrentConfigId}");
+        try { _ = db.EntityMaintenance; }
         catch (Exception initEx)
         {
-            var entityNamespace = entityType.Namespace ?? "未知";
-            var mappedConfigId = TaktEntityDatabaseMapping.GetConfigIdByEntityNamespace(entityNamespace);
-            TaktLogger.Warning(initEx, "初始化映射信息时发生异常（可能不影响后续操作）: EntityType: {EntityType}, EntityNamespace: {EntityNamespace}, MappedConfigId: {MappedConfigId}, CurrentConfigId: {CurrentConfigId}", 
-                entityType.Name, entityNamespace, mappedConfigId, CurrentConfigId);
+            var ns = typeof(TEntity).Namespace ?? "未知";
+            TaktLogger.Warning(initEx, "初始化映射信息时发生异常: EntityType: {EntityType}, EntityNamespace: {EntityNamespace}, MappedConfigId: {MappedConfigId}, CurrentConfigId: {CurrentConfigId}",
+                typeof(TEntity).Name, ns, TaktEntityDatabaseMapping.GetConfigIdByEntityNamespace(ns), CurrentConfigId);
         }
+
+        var snowflakeId = _configuration.GetSection("Snowflake").GetValue<bool>("Enabled", true);
+        var aopLogEnabled = _configuration.GetValue<bool>("TaktLogging:AopLog", true);
+        var insertable = db.Insertable(entity);
+        if (aopLogEnabled && !IsLoggingEntity) insertable = insertable.EnableDiffLogEvent();
 
         long id;
         try
         {
-            if (snowflakeId)
-            {
-                // 官方方法：ExecuteReturnSnowflakeId（同步方法）
-                var insertable = db.Insertable(entity);
-                // 如果启用差异日志且不是日志实体，则启用差异日志事件
-                if (aopLogEnabled && !isLoggingEntity)
-                {
-                    insertable = insertable.EnableDiffLogEvent();
-                }
-                id = insertable.ExecuteReturnSnowflakeId();
-            }
-            else
-            {
-                // 官方方法：ExecuteReturnIdentity（同步方法）
-                var insertable = db.Insertable(entity);
-                // 如果启用差异日志且不是日志实体，则启用差异日志事件
-                if (aopLogEnabled && !isLoggingEntity)
-                {
-                    insertable = insertable.EnableDiffLogEvent();
-                }
-                id = insertable.ExecuteReturnIdentity();
-            }
+            id = snowflakeId ? insertable.ExecuteReturnSnowflakeId() : insertable.ExecuteReturnIdentity();
         }
         catch (NullReferenceException ex)
         {
-            // 捕获空引用异常，提供更详细的错误信息
-            var entityNamespace = entityType.Namespace ?? "未知";
-            var mappedConfigId = TaktEntityDatabaseMapping.GetConfigIdByEntityNamespace(entityNamespace);
-            TaktLogger.Error(ex, "创建实体时发生空引用异常: EntityType: {EntityType}, EntityNamespace: {EntityNamespace}, MappedConfigId: {MappedConfigId}, CurrentConfigId: {CurrentConfigId}, ConfigId: {ConfigId}", 
-                entityType.Name, entityNamespace, mappedConfigId, CurrentConfigId, entity.ConfigId);
-            throw new InvalidOperationException($"创建实体失败（SqlSugar映射信息未初始化）: EntityType={entityType.Name}, EntityNamespace={entityNamespace}, MappedConfigId={mappedConfigId}, CurrentConfigId={CurrentConfigId}。请确保数据库已正确初始化，并且实体类型已注册到对应的数据库。", ex);
+            var ns = typeof(TEntity).Namespace ?? "未知";
+            var mappedConfigId = TaktEntityDatabaseMapping.GetConfigIdByEntityNamespace(ns);
+            TaktLogger.Error(ex, "创建实体时发生空引用异常: EntityType: {EntityType}, EntityNamespace: {EntityNamespace}, MappedConfigId: {MappedConfigId}, CurrentConfigId: {CurrentConfigId}",
+                typeof(TEntity).Name, ns, mappedConfigId, CurrentConfigId);
+            throw new InvalidOperationException($"创建实体失败（SqlSugar映射信息未初始化）: EntityType={typeof(TEntity).Name}, EntityNamespace={ns}, MappedConfigId={mappedConfigId}, CurrentConfigId={CurrentConfigId}。", ex);
         }
-        
+
         entity.Id = id;
         return Task.FromResult(entity);
     }
@@ -291,65 +187,24 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     public virtual Task CreateRangeAsync(IEnumerable<TEntity> entities)
     {
         var entityList = entities.ToList();
-        var currentUserName = GetCurrentUserName();
-        
-        // 排除日志实体自身，避免循环日志记录
-        var entityType = typeof(TEntity);
-        var isLoggingEntity = entityType == typeof(TaktAopLog) || 
-                              entityType == typeof(TaktOperLog);
-        
-        foreach (var entity in entityList)
-        {
-            entity.ConfigId = CurrentConfigId;
-            // 如果实体已经设置了 CreateTime，则不覆盖（允许手动设置）
-            if (entity.CreateTime == default(DateTime))
-            {
-                entity.CreateTime = DateTime.Now;
-            }
-            // 如果实体已经设置了 CreateBy，则不覆盖（允许手动设置）
-            // 否则从用户上下文或HTTP上下文获取 CreateBy（如果都未设置，则为空字符串）
-            if (string.IsNullOrEmpty(entity.CreateBy))
-            {
-                entity.CreateBy = currentUserName;
-            }
-            entity.IsDeleted = 0;
-        }
-        
-        // 根据配置决定使用雪花ID还是自增ID
-        var snowflakeSection = _configuration.GetSection("Snowflake");
-        var snowflakeId = snowflakeSection.GetValue<bool>("Enabled", true);
-        
-        // 检查是否启用差异日志
-        var aopLogEnabled = _configuration.GetValue<bool>("Logging:AopLog", true);
-        
+        var (name, id) = GetCurrentUserOrNull();
+        FillCreateAudit(entityList, name, id);
+
+        var snowflakeId = _configuration.GetSection("Snowflake").GetValue<bool>("Enabled", true);
+        var aopLogEnabled = _configuration.GetValue<bool>("TaktLogging:AopLog", true);
+        var insertable = Db.Insertable(entityList);
+        if (aopLogEnabled && !IsLoggingEntity) insertable = insertable.EnableDiffLogEvent();
+
         if (snowflakeId)
         {
-            // 官方方法：ExecuteReturnSnowflakeIdList（同步方法，批量返回雪花ID列表）
-            var insertable = Db.Insertable(entityList);
-            // 如果启用差异日志且不是日志实体，则启用差异日志事件
-            if (aopLogEnabled && !isLoggingEntity)
-            {
-                insertable = insertable.EnableDiffLogEvent();
-            }
             var ids = insertable.ExecuteReturnSnowflakeIdList();
-            // 将返回的ID赋值给实体
             for (int i = 0; i < entityList.Count && i < ids.Count; i++)
-            {
                 entityList[i].Id = ids[i];
-            }
         }
         else
         {
-            // 使用自增ID，执行插入后ID会自动赋值
-            var insertable = Db.Insertable(entityList);
-            // 如果启用差异日志且不是日志实体，则启用差异日志事件
-            if (aopLogEnabled && !isLoggingEntity)
-            {
-                insertable = insertable.EnableDiffLogEvent();
-            }
             insertable.ExecuteCommand();
         }
-        
         return Task.CompletedTask;
     }
 
@@ -361,35 +216,16 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     public virtual Task CreateRangeBulkAsync(IEnumerable<TEntity> entities)
     {
         var entityList = entities.ToList();
-        if (entityList.Count == 0)
-            return Task.CompletedTask;
+        if (entityList.Count == 0) return Task.CompletedTask;
 
-        var currentUserName = GetCurrentUserName();
-
-        foreach (var entity in entityList)
-        {
-            entity.ConfigId = CurrentConfigId;
-            if (entity.CreateTime == default(DateTime))
-                entity.CreateTime = DateTime.Now;
-            if (string.IsNullOrEmpty(entity.CreateBy))
-                entity.CreateBy = currentUserName;
-            entity.IsDeleted = 0;
-        }
-
-        var snowflakeSection = _configuration.GetSection("Snowflake");
-        var snowflakeId = snowflakeSection.GetValue<bool>("Enabled", true);
-        if (snowflakeId)
+        var (name, id) = GetCurrentUserOrNull();
+        FillCreateAudit(entityList, name, id);
+        if (_configuration.GetSection("Snowflake").GetValue<bool>("Enabled", true))
         {
             foreach (var entity in entityList)
                 entity.Id = SnowFlakeSingle.Instance.NextId();
         }
-
-        var fastest = Db.Fastest<TEntity>();
-
-        return Task.Run(() =>
-        {
-            fastest.PageSize(100000).BulkCopy(entityList);
-        });
+        return Task.Run(() => Db.Fastest<TEntity>().PageSize(100000).BulkCopy(entityList));
     }
 
     /// <summary>
@@ -400,23 +236,10 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     public virtual Task UpdateRangeBulkAsync(IEnumerable<TEntity> entities)
     {
         var entityList = entities.ToList();
-        if (entityList.Count == 0)
-            return Task.CompletedTask;
-
-        var currentUserName = GetCurrentUserName();
-        var now = DateTime.Now;
-        foreach (var entity in entityList)
-        {
-            entity.UpdateTime = now;
-            entity.UpdateBy = currentUserName;
-        }
-
-        var fastest = Db.Fastest<TEntity>();
-
-        return Task.Run(() =>
-        {
-            fastest.PageSize(100000).BulkUpdate(entityList);
-        });
+        if (entityList.Count == 0) return Task.CompletedTask;
+        var (name, id) = GetCurrentUserOrNull();
+        FillUpdateAudit(entityList, name, id);
+        return Task.Run(() => Db.Fastest<TEntity>().PageSize(100000).BulkUpdate(entityList));
     }
 
     /// <summary>
@@ -426,148 +249,126 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>任务</returns>
     public virtual async Task UpdateAsync(TEntity entity)
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        if (entity == null) throw new ArgumentNullException(nameof(entity));
 
-        // 设置更新时间
-        entity.UpdateTime = DateTime.Now;
-        
-        // 设置更新人（从用户上下文获取，如果无法获取，则使用 "Takt365" 用于种子数据场景）
-        // 更新操作应该总是设置 UpdateBy，确保审计日志正确记录
-        entity.UpdateBy = GetCurrentUserName();
-        
-        // 排除日志实体自身，避免循环日志记录
-        var entityType = typeof(TEntity);
-        var isLoggingEntity = entityType == typeof(TaktAopLog) || 
-                              entityType == typeof(TaktOperLog);
-        
-        // 输出审计日志：记录更新操作的用户和租户信息（在执行更新前记录，排除日志实体自身）
-        if (!isLoggingEntity)
+        FillUpdateAudit(entity);
+
+        if (!IsLoggingEntity)
         {
-            var userName = entity.UpdateBy;
             var tenantInfo = TaktTenantContext.CurrentTenant != null
                 ? $"TenantId: {TaktTenantContext.CurrentTenant.Id}, TenantCode: {TaktTenantContext.CurrentTenant.TenantCode}, ConfigId: {entity.ConfigId ?? CurrentConfigId}"
                 : $"ConfigId: {entity.ConfigId ?? CurrentConfigId}";
             TaktLogger.Information("更新实体: EntityType: {EntityType}, EntityId: {EntityId}, UpdateBy: {UpdateBy}, UpdateTime: {UpdateTime}, {TenantInfo}",
-                entityType.Name, entity.Id, userName, entity.UpdateTime, tenantInfo);
+                typeof(TEntity).Name, entity.Id, entity.UpdateBy ?? string.Empty, entity.UpdateTime?.ToString("O") ?? string.Empty, tenantInfo);
         }
-        
+
         var updateable = Db.Updateable(entity);
-        
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            updateable = updateable.Where(e => e.ConfigId == CurrentConfigId);
-        }
-        
-        // 检查是否启用差异日志
-        var aopLogEnabled = _configuration.GetValue<bool>("Logging:AopLog", true);
-        // 如果启用差异日志且不是日志实体，则启用差异日志事件
-        if (aopLogEnabled && !isLoggingEntity)
-        {
-            updateable = updateable.EnableDiffLogEvent();
-        }
-        
-        // 执行更新操作
+        if (TaktTenantContext.IsTenantEnabled) updateable = updateable.Where(e => e.ConfigId == CurrentConfigId);
+        if (_configuration.GetValue<bool>("TaktLogging:AopLog", true) && !IsLoggingEntity) updateable = updateable.EnableDiffLogEvent();
+
         var rowsAffected = await updateable.ExecuteCommandAsync();
-        
-        // 如果更新行数为0，可能是实体不存在或条件不匹配
         if (rowsAffected == 0)
         {
-            if (!isLoggingEntity)
+            if (!IsLoggingEntity)
             {
-                var userName = entity.UpdateBy;
                 var tenantInfo = TaktTenantContext.CurrentTenant != null
                     ? $"TenantId: {TaktTenantContext.CurrentTenant.Id}, TenantCode: {TaktTenantContext.CurrentTenant.TenantCode}, ConfigId: {entity.ConfigId ?? CurrentConfigId}"
                     : $"ConfigId: {entity.ConfigId ?? CurrentConfigId}";
                 TaktLogger.Warning("更新实体失败（未找到匹配记录）: EntityType: {EntityType}, EntityId: {EntityId}, UpdateBy: {UpdateBy}, {TenantInfo}",
-                    entityType.Name, entity.Id, userName, tenantInfo);
+                    typeof(TEntity).Name, entity.Id, entity.UpdateBy ?? string.Empty, tenantInfo);
             }
-            throw new InvalidOperationException($"更新实体失败：实体ID={entity.Id}，类型={entityType.Name}，未找到匹配的记录或更新条件不满足");
+            throw new InvalidOperationException($"更新实体失败：实体ID={entity.Id}，类型={typeof(TEntity).Name}，未找到匹配的记录或更新条件不满足");
         }
-        
-        if (!isLoggingEntity)
-        {
+        if (!IsLoggingEntity)
             TaktLogger.Debug("更新实体成功: EntityType: {EntityType}, EntityId: {EntityId}, RowsAffected: {RowsAffected}, UpdateBy: {UpdateBy}",
-                entityType.Name, entity.Id, rowsAffected, entity.UpdateBy);
-        }
+                typeof(TEntity).Name, entity.Id, rowsAffected, entity.UpdateBy ?? string.Empty);
     }
 
     /// <summary>
-    /// 获取当前用户名（从用户上下文获取）
+    /// 种子数据/系统操作时的统一用户ID（审计字段 CreateId/UpdateId/DeleteId，未登录或种子场景使用，与 TaktAppConstants.SeedOrSystemUserId 一致）
     /// </summary>
-    /// <returns>用户名，如果未登录则返回"Takt365"（用于种子数据等场景）</returns>
-    /// <remarks>
-    /// 获取用户名的优先级：
-    /// 1. TaktUserContext.CurrentUser（由 TaktUserMiddleware 中间件设置，最可靠，使用 AsyncLocal 确保线程安全）
-    /// 2. ITaktUserContext.GetCurrentUserName()（如果 _userContext 已注入，会从 HTTP 上下文获取）
-    /// 3. 直接从 HTTP 上下文的 Claims 获取（如果 _httpContextAccessor 已注入）
-    /// 4. 固定值 "Takt365"（用于种子数据等特殊场景）
-    /// 
-    /// 注意：对于 TaktRepository&lt;TaktUser&gt; 和 TaktRepository&lt;TaktTenant&gt;，_userContext 为 null，
-    /// 但可以通过 _httpContextAccessor 直接从 HTTP 上下文获取，这避免了循环依赖问题。
-    /// </remarks>
-    protected string GetCurrentUserName()
+    private const long SeedUserId = TaktAppConstants.SeedOrSystemUserId;
+
+    /// <summary>
+    /// 种子数据/系统操作时的统一用户名称（审计字段 CreateBy/UpdateBy/DeletedBy，未登录或种子场景使用）
+    /// </summary>
+    private const string SeedUserName = "Takt365";
+
+    /// <summary>
+    /// 获取当前用户（从用户上下文获取，只解析一次同时返回用户名与ID）
+    /// </summary>
+    /// <returns>(UserName 未登录时为 "Takt365", UserId 未登录时为 TaktAppConstants.SeedOrSystemUserId 即 999)</returns>
+    protected (string UserName, long UserId) GetCurrentUserOrNull()
     {
-        string? userName = null;
-        string source = string.Empty;
-
-        // 优先级1：从 TaktUserContext.CurrentUser 获取（由中间件设置，最可靠）
-        // 这是最可靠的方式，因为：
-        // - 由 TaktUserMiddleware 中间件在请求开始时设置
-        // - 使用 AsyncLocal，确保在同一个请求上下文中可用
-        // - 不依赖依赖注入，避免循环依赖
         if (TaktUserContext.CurrentUser != null)
+            return (TaktUserContext.CurrentUser.UserName ?? SeedUserName, TaktUserContext.CurrentUser.Id);
+        if (_userContext != null)
         {
-            userName = TaktUserContext.CurrentUser.UserName;
-            source = "TaktUserContext.CurrentUser";
+            var name = _userContext.GetCurrentUserName();
+            var id = _userContext.GetCurrentUserId();
+            return (string.IsNullOrEmpty(name) ? SeedUserName : name, id ?? SeedUserId);
         }
-        // 优先级2：从 ITaktUserContext 获取（如果已注入）
-        // 注意：对于 TaktRepository<TaktUser> 和 TaktRepository<TaktTenant>，_userContext 为 null，
-        // 不会执行这个分支，避免了循环依赖
-        else if (_userContext != null)
+        if (_httpContextAccessor?.HttpContext?.User?.Identity?.IsAuthenticated == true)
         {
-            userName = _userContext.GetCurrentUserName();
-            if (!string.IsNullOrEmpty(userName))
-            {
-                source = "ITaktUserContext.GetCurrentUserName()";
-            }
+            var ctx = _httpContextAccessor.HttpContext;
+            var name = ctx.User.FindFirst(ClaimTypes.Name)?.Value
+                ?? ctx.User.FindFirst(OpenIddictConstants.Claims.Name)?.Value
+                ?? ctx.User.FindFirst(OpenIddictConstants.Claims.PreferredUsername)?.Value
+                ?? ctx.User.Identity?.Name;
+            var sub = ctx.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                ?? ctx.User.FindFirst(OpenIddictConstants.Claims.Subject)?.Value;
+            var id = !string.IsNullOrEmpty(sub) && long.TryParse(sub, out var uid) ? uid : SeedUserId;
+            return (string.IsNullOrEmpty(name) ? SeedUserName : name, id);
         }
-        // 优先级3：直接从 HTTP 上下文的 Claims 获取（如果 _httpContextAccessor 已注入）
-        // 这样可以确保即使 _userContext 为 null，也能从 HTTP 上下文获取用户信息
-        else if (_httpContextAccessor?.HttpContext?.User?.Identity?.IsAuthenticated == true)
-        {
-            var httpContext = _httpContextAccessor.HttpContext;
-            userName = httpContext.User.FindFirst(ClaimTypes.Name)?.Value
-                ?? httpContext.User.FindFirst(OpenIddictConstants.Claims.Name)?.Value
-                ?? httpContext.User.FindFirst(OpenIddictConstants.Claims.PreferredUsername)?.Value
-                ?? httpContext.User.Identity?.Name;
-            
-            if (!string.IsNullOrEmpty(userName))
-            {
-                source = "HTTP Context Claims";
-            }
-        }
+        return (SeedUserName, SeedUserId);
+    }
 
-        // 如果所有方式都失败，使用固定值 "Takt365"（用于种子数据等特殊场景）
-        if (string.IsNullOrEmpty(userName))
+    /// <summary>是否为日志实体（避免循环写日志）</summary>
+    protected static bool IsLoggingEntity => typeof(TEntity) == typeof(TaktAopLog) || typeof(TEntity) == typeof(TaktOperLog);
+
+    /// <summary>填充创建审计字段（单实体）</summary>
+    protected void FillCreateAudit(TEntity entity)
+    {
+        var (userName, userId) = GetCurrentUserOrNull();
+        entity.ConfigId = CurrentConfigId;
+        if (entity.CreateTime == default) entity.CreateTime = DateTime.Now;
+        if (string.IsNullOrEmpty(entity.CreateBy)) entity.CreateBy = userName;
+        if (entity.CreateId == 0) entity.CreateId = userId;
+        entity.IsDeleted = 0;
+    }
+
+    /// <summary>填充创建审计字段（批量，传入已取好的用户名和用户ID）</summary>
+    protected void FillCreateAudit(IEnumerable<TEntity> entities, string currentUserName, long currentUserId)
+    {
+        foreach (var entity in entities)
         {
-            userName = "Takt365";
-            source = "Default (Takt365)";
+            entity.ConfigId = CurrentConfigId;
+            if (entity.CreateTime == default) entity.CreateTime = DateTime.Now;
+            if (string.IsNullOrEmpty(entity.CreateBy)) entity.CreateBy = currentUserName;
+            if (entity.CreateId == 0) entity.CreateId = currentUserId;
+            entity.IsDeleted = 0;
         }
+    }
 
-        // 输出日志：记录获取用户名的过程和结果
-        var entityTypeName = typeof(TEntity).Name;
-        var tenantInfo = TaktTenantContext.CurrentTenant != null
-            ? $"TenantId: {TaktTenantContext.CurrentTenant.Id}, TenantCode: {TaktTenantContext.CurrentTenant.TenantCode}, ConfigId: {TaktTenantContext.CurrentConfigId}"
-            : $"ConfigId: {TaktTenantContext.CurrentConfigId ?? "null"}";
-        
-        TaktLogger.Debug("获取当前用户名: EntityType: {EntityType}, UserName: {UserName}, Source: {Source}, {TenantInfo}",
-            entityTypeName, userName, source, tenantInfo);
+    /// <summary>填充更新审计字段（单实体）</summary>
+    protected void FillUpdateAudit(TEntity entity)
+    {
+        var (userName, userId) = GetCurrentUserOrNull();
+        entity.UpdateTime = DateTime.Now;
+        entity.UpdateBy = userName;
+        entity.UpdateId = userId;
+    }
 
-        return userName;
+    /// <summary>填充更新审计字段（批量）</summary>
+    protected void FillUpdateAudit(IEnumerable<TEntity> entities, string currentUserName, long? currentUserId)
+    {
+        var now = DateTime.Now;
+        foreach (var entity in entities)
+        {
+            entity.UpdateTime = now;
+            entity.UpdateBy = currentUserName;
+            entity.UpdateId = currentUserId;
+        }
     }
 
     /// <summary>
@@ -578,71 +379,35 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     public virtual async Task DeleteAsync(long id)
     {
         var deletedTime = DateTime.Now;
-        // 从用户上下文获取删除人（如果无法获取，则使用 "Takt365" 用于种子数据场景）
-        var deletedBy = GetCurrentUserName();
-        
-        // 排除日志实体自身，避免循环日志记录
-        var entityType = typeof(TEntity);
-        var isLoggingEntity = entityType == typeof(TaktAopLog) || 
-                              entityType == typeof(TaktOperLog);
-        
-        // 输出审计日志：记录删除操作的用户和租户信息（排除日志实体自身）
-        if (!isLoggingEntity)
+        var (deletedBy, deletedById) = GetCurrentUserOrNull();
+
+        if (!IsLoggingEntity)
         {
             var tenantInfo = TaktTenantContext.CurrentTenant != null
                 ? $"TenantId: {TaktTenantContext.CurrentTenant.Id}, TenantCode: {TaktTenantContext.CurrentTenant.TenantCode}, ConfigId: {CurrentConfigId}"
                 : $"ConfigId: {CurrentConfigId}";
             TaktLogger.Information("删除实体: EntityType: {EntityType}, EntityId: {EntityId}, DeletedBy: {DeletedBy}, DeletedTime: {DeletedTime}, {TenantInfo}",
-                entityType.Name, id, deletedBy, deletedTime, tenantInfo);
+                typeof(TEntity).Name, id, deletedBy, deletedTime, tenantInfo);
         }
-        
+
         var updateable = Db.Updateable<TEntity>()
-            .SetColumns(e => new TEntity 
-            { 
-                IsDeleted = 1, 
-                UpdateTime = deletedTime,
-                DeletedTime = deletedTime,
-                DeletedBy = deletedBy
-            })
+            .SetColumns(e => new TEntity { IsDeleted = 1, UpdateTime = deletedTime, DeletedTime = deletedTime, DeletedBy = deletedBy, DeleteId = deletedById })
             .Where(e => e.Id == id);
-        
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            updateable = updateable.Where(e => e.ConfigId == CurrentConfigId);
-        }
-        
-        // 检查是否启用差异日志
-        var aopLogEnabled = _configuration.GetValue<bool>("Logging:AopLog", true);
-        // 如果启用差异日志且不是日志实体，则启用差异日志事件
-        if (aopLogEnabled && !isLoggingEntity)
-        {
-            updateable = updateable.EnableDiffLogEvent();
-        }
-        
+        if (TaktTenantContext.IsTenantEnabled) updateable = updateable.Where(e => e.ConfigId == CurrentConfigId);
+        if (_configuration.GetValue<bool>("TaktLogging:AopLog", true) && !IsLoggingEntity) updateable = updateable.EnableDiffLogEvent();
+
         var rowsAffected = await updateable.ExecuteCommandAsync();
-        
-        if (rowsAffected == 0)
+        if (rowsAffected == 0 && !IsLoggingEntity)
         {
-            if (!isLoggingEntity)
-            {
-                var tenantInfo = TaktTenantContext.CurrentTenant != null
-                    ? $"TenantId: {TaktTenantContext.CurrentTenant.Id}, TenantCode: {TaktTenantContext.CurrentTenant.TenantCode}, ConfigId: {CurrentConfigId}"
-                    : $"ConfigId: {CurrentConfigId}";
-                TaktLogger.Warning("删除实体失败（未找到匹配记录）: EntityType: {EntityType}, EntityId: {EntityId}, DeletedBy: {DeletedBy}, {TenantInfo}",
-                    entityType.Name, id, deletedBy, tenantInfo);
-            }
+            var tenantInfo = TaktTenantContext.CurrentTenant != null
+                ? $"TenantId: {TaktTenantContext.CurrentTenant.Id}, TenantCode: {TaktTenantContext.CurrentTenant.TenantCode}, ConfigId: {CurrentConfigId}"
+                : $"ConfigId: {CurrentConfigId}";
+            TaktLogger.Warning("删除实体失败（未找到匹配记录）: EntityType: {EntityType}, EntityId: {EntityId}, DeletedBy: {DeletedBy}, {TenantInfo}",
+                typeof(TEntity).Name, id, deletedBy, tenantInfo);
         }
-        else
-        {
-            if (!isLoggingEntity)
-            {
-                TaktLogger.Debug("删除实体成功: EntityType: {EntityType}, EntityId: {EntityId}, RowsAffected: {RowsAffected}, DeletedBy: {DeletedBy}",
-                    entityType.Name, id, rowsAffected, deletedBy);
-            }
-        }
+        else if (rowsAffected > 0 && !IsLoggingEntity)
+            TaktLogger.Debug("删除实体成功: EntityType: {EntityType}, EntityId: {EntityId}, RowsAffected: {RowsAffected}, DeletedBy: {DeletedBy}",
+                typeof(TEntity).Name, id, rowsAffected, deletedBy);
     }
 
     /// <summary>
@@ -653,30 +418,14 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     public virtual async Task DeleteAsync(IEnumerable<long> ids)
     {
         var idList = ids?.ToList();
-        if (idList == null || !idList.Any())
-            return;
+        if (idList == null || !idList.Any()) return;
 
         var deletedTime = DateTime.Now;
-        // 从用户上下文获取删除人（如果无法获取，则使用 "Takt365" 用于种子数据场景）
-        var deletedBy = GetCurrentUserName();
+        var (deletedBy, deletedById) = GetCurrentUserOrNull();
         var updateable = Db.Updateable<TEntity>()
-            .SetColumns(e => new TEntity 
-            { 
-                IsDeleted = 1, 
-                UpdateTime = deletedTime,
-                DeletedTime = deletedTime,
-                DeletedBy = deletedBy
-            })
+            .SetColumns(e => new TEntity { IsDeleted = 1, UpdateTime = deletedTime, DeletedTime = deletedTime, DeletedBy = deletedBy, DeleteId = deletedById })
             .Where(e => idList.Contains(e.Id));
-        
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            updateable = updateable.Where(e => e.ConfigId == CurrentConfigId);
-        }
-        
+        if (TaktTenantContext.IsTenantEnabled) updateable = updateable.Where(e => e.ConfigId == CurrentConfigId);
         await updateable.ExecuteCommandAsync();
     }
 
@@ -687,17 +436,8 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>任务</returns>
     public virtual async Task DeleteHardAsync(long id)
     {
-        var deleteable = Db.Deleteable<TEntity>()
-            .Where(e => e.Id == id);
-        
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            deleteable = deleteable.Where(e => e.ConfigId == CurrentConfigId);
-        }
-        
+        var deleteable = Db.Deleteable<TEntity>().Where(e => e.Id == id);
+        if (TaktTenantContext.IsTenantEnabled) deleteable = deleteable.Where(e => e.ConfigId == CurrentConfigId);
         await deleteable.ExecuteCommandAsync();
     }
 
@@ -709,20 +449,9 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     public virtual async Task DeleteHardAsync(IEnumerable<long> ids)
     {
         var idList = ids?.ToList();
-        if (idList == null || !idList.Any())
-            return;
-
-        var deleteable = Db.Deleteable<TEntity>()
-            .Where(e => idList.Contains(e.Id));
-        
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            deleteable = deleteable.Where(e => e.ConfigId == CurrentConfigId);
-        }
-        
+        if (idList == null || !idList.Any()) return;
+        var deleteable = Db.Deleteable<TEntity>().Where(e => idList.Contains(e.Id));
+        if (TaktTenantContext.IsTenantEnabled) deleteable = deleteable.Where(e => e.ConfigId == CurrentConfigId);
         await deleteable.ExecuteCommandAsync();
     }
 
@@ -733,18 +462,9 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>是否存在</returns>
     public virtual async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate)
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.IsDeleted == 0);
-        
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            query = query.Where(e => e.ConfigId == CurrentConfigId);
-        }
-        
-        return await query.Where(predicate).AnyAsync();
+        return await Db.Queryable<TEntity>()
+            .Where(predicate)
+            .AnyAsync();
     }
 
     /// <summary>
@@ -754,22 +474,11 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>数量</returns>
     public virtual async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null)
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.IsDeleted == 0);
-
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            query = query.Where(e => e.ConfigId == CurrentConfigId);
-        }
-
+        var query = Db.Queryable<TEntity>();
         if (predicate != null)
         {
             query = query.Where(predicate);
         }
-
         return await query.CountAsync();
     }
 
@@ -782,22 +491,11 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>最大值</returns>
     public virtual async Task<TResult?> MaxAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null) where TResult : struct
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.IsDeleted == 0);
-
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            query = query.Where(e => e.ConfigId == CurrentConfigId);
-        }
-
+        var query = Db.Queryable<TEntity>();
         if (predicate != null)
         {
             query = query.Where(predicate);
         }
-
         return await query.MaxAsync(selector);
     }
 
@@ -810,14 +508,11 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>最小值</returns>
     public virtual async Task<TResult?> MinAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null) where TResult : struct
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.IsDeleted == 0);
-
+        var query = Db.Queryable<TEntity>();
         if (predicate != null)
         {
             query = query.Where(predicate);
         }
-
         return await query.MinAsync(selector);
     }
 
@@ -830,14 +525,11 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>求和结果</returns>
     public virtual async Task<TResult?> SumAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null) where TResult : struct
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.IsDeleted == 0);
-
+        var query = Db.Queryable<TEntity>();
         if (predicate != null)
         {
             query = query.Where(predicate);
         }
-
         return await query.SumAsync(selector);
     }
 
@@ -850,14 +542,11 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>平均值</returns>
     public virtual async Task<TResult?> AverageAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null) where TResult : struct
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.IsDeleted == 0);
-
+        var query = Db.Queryable<TEntity>();
         if (predicate != null)
         {
             query = query.Where(predicate);
         }
-
         return await query.AvgAsync(selector);
     }
 
@@ -869,9 +558,7 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>第一条实体</returns>
     public virtual async Task<TEntity?> FirstAsync(Expression<Func<TEntity, bool>>? predicate = null, Expression<Func<TEntity, object>>? orderBy = null)
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.IsDeleted == 0);
-
+        var query = Db.Queryable<TEntity>();
         if (predicate != null)
         {
             query = query.Where(predicate);
@@ -898,17 +585,7 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>最后一条实体</returns>
     public virtual async Task<TEntity?> LastAsync(Expression<Func<TEntity, bool>>? predicate = null, Expression<Func<TEntity, object>>? orderBy = null)
     {
-        var query = Db.Queryable<TEntity>()
-            .Where(e => e.IsDeleted == 0);
-
-        // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
-        if (TaktTenantContext.IsTenantEnabled)
-        {
-            query = query.Where(e => e.ConfigId == CurrentConfigId);
-        }
-
+        var query = Db.Queryable<TEntity>();
         if (predicate != null)
         {
             query = query.Where(predicate);

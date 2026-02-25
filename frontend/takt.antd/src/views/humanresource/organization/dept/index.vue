@@ -33,6 +33,7 @@
         update-permission="humanresource:organization:dept:update"
         delete-permission="humanresource:organization:dept:delete"
         import-permission="humanresource:organization:dept:import"
+        template-permission="humanresource:organization:dept:template"
         export-permission="humanresource:organization:dept:export"
         :show-create="true"
         :show-update="true"
@@ -162,6 +163,8 @@
     >
       <TaktImportFile
         file-type="xlsx"
+        template-permission="humanresource:organization:dept:template"
+        import-permission="humanresource:organization:dept:import"
         sheet-name="部门导入模板"
         template-file-name="部门导入模板"
         :download-template="handleDownloadTemplate"
@@ -246,7 +249,9 @@ const visibleColumnKeys = ref<string[]>([])
 
 /** 将 tree-options 接口数据转为 a-tree 的 TreeDataItem */
 function mapOptionsToTreeData(opts: any[]): TreeDataItem[] {
-  if (!opts?.length) return []
+  if (!opts?.length) {
+    return []
+  }
   return opts.map((o: any) => ({
     title: o.dictLabel ?? o.title ?? '',
     key: String(o.dictValue ?? o.value ?? o.deptId ?? ''),
@@ -274,7 +279,9 @@ function getSubtree(nodes: any[], key: string | number): any[] {
     if (String(node.key ?? node.deptId ?? node.id) === k) return [node]
     if (node.children?.length) {
       const found = getSubtree(node.children, key)
-      if (found.length) return found
+      if (found.length) {
+        return found
+      }
     }
   }
   return []
@@ -282,11 +289,15 @@ function getSubtree(nodes: any[], key: string | number): any[] {
 
 /** 从树数据中收集所有有子节点的 key（用于左侧树展开全部） */
 function collectTreeExpandableKeys(nodes: any[]): (string | number)[] {
-  if (!nodes?.length) return []
+  if (!nodes?.length) {
+    return []
+  }
   const keys: (string | number)[] = []
   for (const node of nodes) {
     const key = node.key ?? node.deptId ?? node.id
-    if (key == null) continue
+    if (key == null) {
+      continue
+    }
     const children = node.children ?? []
     if (children.length > 0) {
       keys.push(key)
@@ -298,11 +309,15 @@ function collectTreeExpandableKeys(nodes: any[]): (string | number)[] {
 
 /** 从表格树数据中收集所有有子节点的行 key（用于右侧表展开全部） */
 function collectTableExpandableRowKeys(rows: any[], getKey: (record: any) => string): (string | number)[] {
-  if (!rows?.length) return []
+  if (!rows?.length) {
+    return []
+  }
   const keys: (string | number)[] = []
   for (const row of rows) {
     const key = getKey(row)
-    if (!key) continue
+    if (!key) {
+      continue
+    }
     const children = row.children ?? []
     if (children.length > 0) {
       keys.push(key)
@@ -314,7 +329,9 @@ function collectTableExpandableRowKeys(rows: any[], getKey: (record: any) => str
 
 const tableTreeData = computed(() => {
   const tree = fullTableTree.value
-  if (!tree?.length) return []
+  if (!tree?.length) {
+    return []
+  }
   const keys = selectedTreeKeys.value
   if (keys.length === 1) {
     const sub = getSubtree(tree, keys[0])
@@ -358,7 +375,9 @@ function findParentAndOrderNum(
     const children = node?.children ?? []
     if (children.length) {
       const found = findParentAndOrderNum(children, targetKey, k)
-      if (found) return found
+      if (found) {
+        return found
+      }
     }
   }
   return null
@@ -367,7 +386,9 @@ function findParentAndOrderNum(
 const handleTreeDrop = async (payload: TreeDropPayload) => {
   const { newTreeData, dragKey } = payload
   const pos = findParentAndOrderNum(newTreeData, dragKey)
-  if (!pos) return
+  if (!pos) {
+    return
+  }
   try {
     loading.value = true
     deptTreeData.value = newTreeData
@@ -504,7 +525,9 @@ const mergedColumns = computed((): any => mergeDefaultColumns(columns.value as a
 const displayColumns = computed(() => {
   const keys = visibleColumnKeys.value || []
   const merged = mergedColumns.value || []
-  if (keys.length === 0) return columns.value
+  if (keys.length === 0) {
+    return columns.value
+  }
   const getColumnKey = (col: any): string => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
   const keysSet = new Set(keys.map(k => String(k)))
   return merged.filter((col: any) => {
@@ -650,7 +673,9 @@ const handleDelete = () => {
 
 const handleFormSubmit = async () => {
   try {
-    if (!formRef.value) return
+    if (!formRef.value) {
+      return
+    }
     await formRef.value.validate()
     const formValues = formRef.value.getValues()
     formLoading.value = true
@@ -666,7 +691,9 @@ const handleFormSubmit = async () => {
     formVisible.value = false
     loadData()
   } catch (error: any) {
-    if (error?.errorFields) return
+    if (error?.errorFields) {
+      return
+    }
     message.error(error?.message || '操作失败')
   } finally {
     formLoading.value = false

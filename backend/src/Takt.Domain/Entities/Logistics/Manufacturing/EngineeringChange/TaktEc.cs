@@ -1,6 +1,6 @@
 // ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
-// 命名空间：Takt.Domain.Entities.Logistics.Manufacturing.Ecn
+// 命名空间：Takt.Domain.Entities.Logistics.Manufacturing.EngineeringChange
 // 文件名称：TaktEc.cs
 // 创建时间：2025-02-02
 // 创建人：Takt365(Cursor AI)
@@ -16,41 +16,41 @@ using Takt.Domain.Entities;
 namespace Takt.Domain.Entities.Logistics.Manufacturing.EngineeringChange;
 
 /// <summary>
-/// 设变（ECN）主表实体。参照 Ec_ 项目（统一 ecn 前缀）：发行日期、设变单号、状态、标题、详情、负责人、损失金额、区分、设变PDF文档、联络编号/联络文档、EPP/TCJ 联络编号/联络文档、录入日期等。
+/// 设变（ECN）主表实体。参照 Ec_ 项目（统一 ec 前缀）：发行日期、设变单号、状态、标题、详情、负责人、损失金额、区分、设变PDF文档、联络文档JSON（EcDocs）、录入日期等。
 /// </summary>
-[SugarTable("takt_logistics_manufacturing_ecn", "设变主表")]
-[SugarIndex("ix_takt_logistics_manufacturing_ecn_ecn_no", nameof(EcnNo), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_manufacturing_ecn_plant_code", nameof(PlantCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_manufacturing_ecn_ecn_issue_date", nameof(EcnIssueDate), OrderByType.Desc)]
-[SugarIndex("ix_takt_logistics_manufacturing_ecn_ecn_entry_date", nameof(EcnEntryDate), OrderByType.Desc)]
-[SugarIndex("ix_takt_logistics_manufacturing_ecn_approval_status", nameof(ApprovalStatus), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_manufacturing_ecn_status", nameof(Status), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_manufacturing_ecn_config_id", nameof(ConfigId), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_manufacturing_ecn_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
+[SugarTable("takt_logistics_manufacturing_ec", "设变主表")]
+[SugarIndex("ix_takt_logistics_manufacturing_ec_ec_no", nameof(EcNo), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_manufacturing_ec_plant_code", nameof(PlantCode), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_manufacturing_ec_ec_issue_date", nameof(EcIssueDate), OrderByType.Desc)]
+[SugarIndex("ix_takt_logistics_manufacturing_ec_ec_entry_date", nameof(EcEntryDate), OrderByType.Desc)]
+[SugarIndex("ix_takt_logistics_manufacturing_ec_approval_status", nameof(ApprovalStatus), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_manufacturing_ec_status", nameof(Status), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_manufacturing_ec_config_id", nameof(ConfigId), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_manufacturing_ec_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktEc : TaktEntityBase
 {
     /// <summary>
     /// 工厂代码
     /// </summary>
-    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", Length = 8, ColumnDataType = "nvarchar", IsNullable = false)]
+    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", Length = 4, ColumnDataType = "nvarchar", IsNullable = false)]
     public string PlantCode { get; set; } = string.Empty;
 
     /// <summary>
   /// 设变单号（唯一）
   /// </summary>
-  [SugarColumn(ColumnName = "ecn_no", ColumnDescription = "设变单号", Length = 50, ColumnDataType = "nvarchar", IsNullable = false)]
-    public string EcnNo { get; set; } = string.Empty;
+  [SugarColumn(ColumnName = "ec_no", ColumnDescription = "设变单号", Length = 50, ColumnDataType = "nvarchar", IsNullable = false)]
+    public string EcNo { get; set; } = string.Empty;
 
     /// <summary>
     /// 设变PDF文档
     /// </summary>
-    [SugarColumn(ColumnName = "ecn_pdf_document", ColumnDescription = "设变PDF文档", Length = 500, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnPdfDocument { get; set; }
+    [SugarColumn(ColumnName = "ec_pdf", ColumnDescription = "设变文档", Length = 500, ColumnDataType = "nvarchar", IsNullable = true)]
+    public string? EcPdf { get; set; }
   /// <summary>
   /// 发行日期
   /// </summary>
-  [SugarColumn(ColumnName = "ecn_issue_date", ColumnDescription = "发行日期", ColumnDataType = "date", IsNullable = true)]
-    public DateTime? EcnIssueDate { get; set; }
+  [SugarColumn(ColumnName = "ec_issue_date", ColumnDescription = "发行日期", ColumnDataType = "date", IsNullable = true)]
+    public DateTime? EcIssueDate { get; set; }
 
     /// <summary>
     /// 状态(0=正常 1=停用)
@@ -61,83 +61,39 @@ public class TaktEc : TaktEntityBase
     /// <summary>
     /// 设变主题/标题
     /// </summary>
-    [SugarColumn(ColumnName = "ecn_title", ColumnDescription = "设变主题", Length = 200, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnTitle { get; set; }
+    [SugarColumn(ColumnName = "ec_title", ColumnDescription = "设变主题", Length = 200, ColumnDataType = "nvarchar", IsNullable = true)]
+    public string? EcTitle { get; set; }
 
     /// <summary>
     /// 设变详情/详细说明
     /// </summary>
-    [SugarColumn(ColumnName = "ecn_details", ColumnDescription = "设变详情", Length = 2000, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnDetailText { get; set; }
+    [SugarColumn(ColumnName = "ec_details", ColumnDescription = "设变详情", Length = 2000, ColumnDataType = "nvarchar", IsNullable = true)]
+    public string? EcDetailText { get; set; }
 
     /// <summary>
     /// 负责人
     /// </summary>
-    [SugarColumn(ColumnName = "ecn_leader", ColumnDescription = "负责人", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnLeader { get; set; }
+    [SugarColumn(ColumnName = "ec_leader", ColumnDescription = "负责人", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
+    public string? EcLeader { get; set; }
 
     /// <summary>
     /// 损失金额
     /// </summary>
-    [SugarColumn(ColumnName = "ecn_loss_amount", ColumnDescription = "损失金额", ColumnDataType = "decimal(18,4)", IsNullable = true)]
-    public decimal? EcnLossAmount { get; set; }
+    [SugarColumn(ColumnName = "ec_loss_amount", ColumnDescription = "损失金额", ColumnDataType = "decimal(18,4)", IsNullable = true)]
+    public decimal? EcLossAmount { get; set; }
 
     /// <summary>
     /// 区分/类别
     /// 1:全仕向，2：部管，3：内部，4：技术
     /// </summary>
-    [SugarColumn(ColumnName = "ecn_distinction", ColumnDescription = "区分", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnDistinction { get; set; }
-
-
+    [SugarColumn(ColumnName = "ec_distinction", ColumnDescription = "区分", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
+    public string? EcDistinction { get; set; }
 
     /// <summary>
-    /// 联络编号
+    /// 联络文档集合（JSON）。格式示例：{"联络":{"编号":"...","文档":"..."},"EPP":{"编号":"...","文档":"..."},"TCJ":{"编号":"...","文档":"..."},"外部":{"编号":"...","文档":"..."}}
     /// </summary>
-    [SugarColumn(ColumnName = "ecn_liaison_no", ColumnDescription = "联络编号", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnLiaisonNo { get; set; }
-
-    /// <summary>
-    /// 联络文档
-    /// </summary>
-    [SugarColumn(ColumnName = "ecn_liaison_doc", ColumnDescription = "联络文档", Length = 500, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnLiaisonDoc { get; set; }
-
-    /// <summary>
-    /// EPP 联络编号
-    /// </summary>
-    [SugarColumn(ColumnName = "ecn_epp_liaison_no", ColumnDescription = "EPP联络编号", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnEppLiaisonNo { get; set; }
-
-    /// <summary>
-    /// EPP 联络文档
-    /// </summary>
-    [SugarColumn(ColumnName = "ecn_epp_liaison_doc", ColumnDescription = "EPP联络文档", Length = 500, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnEppLiaisonDoc { get; set; }
-
-    /// <summary>
-    /// TCJ联络编号
-    /// </summary>
-    [SugarColumn(ColumnName = "ecn_headquarters_liaison_no", ColumnDescription = "TCJ联络编号", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnHeadquartersLiaisonNo { get; set; }
-
-    /// <summary>
-    /// TCJ联络文档
-    /// </summary>
-    [SugarColumn(ColumnName = "ecn_headquarters_liaison_doc", ColumnDescription = "TCJ联络文档", Length = 500, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnHeadquartersLiaisonDoc { get; set; }
-
-    /// <summary>
-    /// 外部联络编号
-    /// </summary>
-    [SugarColumn(ColumnName = "ecn_external_liaison_no", ColumnDescription = "外部联络编号", Length = 50, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnExternalLiaisonNo { get; set; }
-
-    /// <summary>
-    /// 外部联络文档
-    /// </summary>
-    [SugarColumn(ColumnName = "ecn_external_liaison_doc", ColumnDescription = "外部联络文档", Length = 500, ColumnDataType = "nvarchar", IsNullable = true)]
-    public string? EcnExternalLiaisonDoc { get; set; }
+    [SugarColumn(ColumnName = "ec_docs", ColumnDescription = "联络文档JSON", ColumnDataType = "nvarchar(max)", IsNullable = true)]
+    public string? EcDocs { get; set; }
 
     /// <summary>
     /// 生效日期
@@ -149,8 +105,8 @@ public class TaktEc : TaktEntityBase
   /// <summary>
   /// 录入日期
   /// </summary>
-  [SugarColumn(ColumnName = "ecn_entry_date", ColumnDescription = "录入日期", ColumnDataType = "date", IsNullable = true)]
-    public DateTime? EcnEntryDate { get; set; }
+  [SugarColumn(ColumnName = "ec_entry_date", ColumnDescription = "录入日期", ColumnDataType = "date", IsNullable = true)]
+    public DateTime? EcEntryDate { get; set; }
 
   /// <summary>
   /// 申请人（用户名）
@@ -175,6 +131,6 @@ public class TaktEc : TaktEntityBase
     /// <summary>
     /// 设变明细列表
     /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktEcDetail.EcnId))]
-    public List<TaktEcDetail>? EcnDetails { get; set; }
+    [Navigate(NavigateType.OneToMany, nameof(TaktEcDetail.EcId))]
+    public List<TaktEcDetail>? EcDetails { get; set; }
 }

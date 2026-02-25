@@ -416,8 +416,10 @@ export class RegexHelper {
    * @returns 是否符合帕斯卡命名规范
    */
   private static isPascalCase(text: string): boolean {
-    if (!text) return false
-    
+    if (!text) {
+      return false
+    }
+
     // 如果包含中文字符，不需要验证帕斯卡命名
     if (/[\u4e00-\u9fa5]/.test(text)) {
       return true
@@ -425,9 +427,11 @@ export class RegexHelper {
     
     // 按点、横线、空格、单引号、下划线分割成单词部分
     const parts = text.split(/[.\s\-'_]+/).filter(part => part.length > 0)
-    
-    if (parts.length === 0) return false
-    
+
+    if (parts.length === 0) {
+      return false
+    }
+
     // 检查每个单词部分的首字母是否大写
     for (const part of parts) {
       // 找到第一个字母的位置
@@ -452,8 +456,10 @@ export class RegexHelper {
    * @returns 转换后的帕斯卡命名文本
    */
   static toPascalCase(text: string): string {
-    if (!text) return ''
-    
+    if (!text) {
+      return ''
+    }
+
     // 如果包含中文字符，不转换
     if (/[\u4e00-\u9fa5]/.test(text)) {
       return text
@@ -466,7 +472,9 @@ export class RegexHelper {
     
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i]
-      if (!part) continue
+      if (!part) {
+        continue
+      }
       
       // 如果是分隔符，直接添加
       if (separatorPattern.test(part)) {

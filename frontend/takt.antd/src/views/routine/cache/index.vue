@@ -137,7 +137,9 @@ async function loadCacheInfo() {
 
 async function handleCheckExists() {
   const key = keyForm.value.key?.trim()
-  if (!key) return
+  if (!key) {
+    return
+  }
   existsLoading.value = true
   existsResult.value = null
   try {
@@ -157,7 +159,9 @@ async function handleCheckExists() {
 
 async function handleRemove() {
   const key = keyForm.value.key?.trim()
-  if (!key) return
+  if (!key) {
+    return
+  }
   removeLoading.value = true
   existsResult.value = null
   try {

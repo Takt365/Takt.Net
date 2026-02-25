@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 const SHORTCUT_STORAGE_KEY = 'takt-workspace-shortcuts'
-const MAX_SHORTCUTS = 8
+const MAX_SHORTCUTS = 16
 
 function loadFromStorage(): string[] {
   try {
@@ -45,7 +45,7 @@ export const useWorkspaceShortcutStore = defineStore('workspaceShortcut', () => 
     if (current.length < MAX_SHORTCUTS) {
       current.push(path)
     } else {
-      // 已满 8 个时，替换最后一个
+      // 已满 16 个时，替换最后一个
       current.splice(MAX_SHORTCUTS - 1, 1, path)
     }
     setPaths(current)
@@ -58,4 +58,3 @@ export const useWorkspaceShortcutStore = defineStore('workspaceShortcut', () => 
     addOrReplace
   }
 })
-

@@ -10,7 +10,7 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using Takt.Domain.Entities.Tenant;
+using Takt.Domain.Entities.Identity;
 
 namespace Takt.Domain.Interfaces;
 

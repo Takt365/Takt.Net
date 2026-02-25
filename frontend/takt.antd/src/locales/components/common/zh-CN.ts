@@ -60,7 +60,6 @@ export default {
     avatar: '头像上传',
     avatarUpload: '上传头像',
     avatarUploading: '上传中...',
-    cancel: '取消',
     confirm: '确定',
     confirmDeleteAvatar: '确认删除',
     confirmDeleteAvatarContent: '确定要删除当前头像吗？',

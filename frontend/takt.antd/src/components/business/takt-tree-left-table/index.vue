@@ -93,7 +93,9 @@ const containerRef = ref<HTMLElement | null>(null)
 const measuredHeight = ref(0)
 
 const computedVirtualHeight = computed(() => {
-  if (!props.virtual) return undefined
+  if (!props.virtual) {
+    return undefined
+  }
   const h = measuredHeight.value > 0 ? measuredHeight.value : (props.height ?? 400)
   return h > 0 ? h : 400
 })
@@ -101,7 +103,9 @@ const computedVirtualHeight = computed(() => {
 /** 按视口动态计算：从本组件内容区顶部到视口底部的距离作为虚拟列表高度，不依赖父级或树内容高度 */
 function doUpdateHeight() {
   const el = containerRef.value
-  if (!el) return
+  if (!el) {
+    return
+  }
   const rect = el.getBoundingClientRect()
   const style = getComputedStyle(el)
   const marginTop = parseFloat(style.marginTop) || 0
@@ -128,7 +132,9 @@ function doUpdateHeight() {
 /** 节流：将多次 updateHeight 合并到下一帧执行，避免 HMR/ResizeObserver 风暴 */
 let rafId: number | null = null
 function updateHeight() {
-  if (rafId !== null) return
+  if (rafId !== null) {
+    return
+  }
   rafId = requestAnimationFrame(() => {
     rafId = null
     doUpdateHeight()
@@ -213,7 +219,9 @@ const handleSelect = (keys: (string | number)[], e: any) => {
 
 /** 深拷贝树节点（保留 key/title/children 等字段） */
 function deepCloneTree(arr: any[]): any[] {
-  if (!arr?.length) return []
+  if (!arr?.length) {
+    return []
+  }
   return arr.map(item => {
     const next: any = { ...item }
     const ch = fieldNames.value.children
@@ -256,7 +264,9 @@ function onDrop(info: {
   dropPosition: number
   dropToGap?: boolean
 }) {
-  if (!props.draggable) return
+  if (!props.draggable) {
+    return
+  }
   const dropKey = info.node.key
   const dragKey = info.dragNode.key
   const posStr = info.node.pos ?? ''
@@ -272,7 +282,9 @@ function onDrop(info: {
     dragObj = item
   })
 
-  if (dragObj == null) return
+  if (dragObj == null) {
+    return
+  }
 
   if (!info.dropToGap) {
     loop(data, dropKey, (item: any) => {

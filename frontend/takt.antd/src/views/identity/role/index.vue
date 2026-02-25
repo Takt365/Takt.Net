@@ -7,6 +7,7 @@
 
 <template>
   <div class="identity-role">
+    <!-- 查询栏 -->
     <TaktQueryBar
       v-model="queryKeyword"
       :placeholder="t('common.form.placeholder.search', { keyword: t('entity.role.name') + t('common.action.or') + t('entity.role.code') })"
@@ -15,11 +16,13 @@
       @reset="handleReset"
     />
 
+    <!-- 工具栏 -->
     <TaktToolsBar
       create-permission="identity:role:create"
       update-permission="identity:role:update"
       delete-permission="identity:role:delete"
       import-permission="identity:role:import"
+      template-permission="identity:role:template"
       export-permission="identity:role:export"
       :show-create="true"
       :show-update="true"
@@ -46,6 +49,7 @@
       @refresh="handleRefresh"
     />
 
+    <!-- 表格 -->
     <TaktSingleTable
       ref="tableRef"
       :columns="displayColumns"
@@ -60,6 +64,7 @@
       @change="handleTableChange"
       @resize-column="handleResizeColumn"
     >
+      <!-- 自定义列渲染 -->
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'roleStatus'">
           <TaktDictTag
@@ -73,6 +78,7 @@
       </template>
     </TaktSingleTable>
 
+    <!-- 分页组件 -->
     <TaktPagination
       v-model:current="currentPage"
       v-model:page-size="pageSize"
@@ -81,6 +87,7 @@
       @show-size-change="handlePaginationSizeChange"
     />
 
+    <!-- 新增/编辑对话框 -->
     <TaktModal
       v-model:open="formVisible"
       :title="formTitle"
@@ -97,6 +104,7 @@
       />
     </TaktModal>
 
+    <!-- 高级查询抽屉 -->
     <TaktQueryDrawer
       v-model:open="advancedQueryVisible"
       :form-model="advancedQueryForm"
@@ -120,29 +128,33 @@
       </a-form-item>
     </TaktQueryDrawer>
 
+    <!-- 导入对话框 -->
     <TaktModal
       v-model:open="importVisible"
-      title="导入角色"
+      :title="t('common.button.import') + t('entity.role._self')"
       :width="600"
       :footer="null"
-      cancel-text="关闭"
+      :cancel-text="t('common.button.close')"
       @cancel="handleImportCancel"
     >
       <TaktImportFile
         file-type="xlsx"
-        sheet-name="角色导入模板"
-        template-file-name="角色导入模板"
+        :sheet-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.role._self') })"
+        :template-file-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.role._self') })"
+        template-permission="identity:role:template"
+        import-permission="identity:role:import"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        template-text="下载角色导入模板"
-        upload-text="点击或拖拽Excel文件到此区域上传"
-        hint="支持Excel文件（.xlsx）导入。单次导入最多1000条记录（不限制数据表总条数）。"
+        :template-text="t('common.action.import.templateText', { entity: t('entity.role._self') })"
+        :upload-text="t('common.action.import.uploadText')"
+        :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
         @success="handleImportSuccess"
       />
     </TaktModal>
 
+    <!-- 列设置抽屉 -->
     <TaktColumnDrawer
       v-model:open="columnSettingVisible"
       :columns="columns"
@@ -185,6 +197,7 @@ const formData = ref<Partial<Role>>({})
 const formLoading = ref(false)
 const formRef = ref()
 const tableRef = ref()
+defineExpose({ tableRef })
 const advancedQueryVisible = ref(false)
 const advancedQueryForm = ref<{ roleName: string; roleCode: string; roleStatus?: number }>({
   roleName: '',
@@ -265,13 +278,6 @@ const columns = computed<TableColumnsType>(() => [
     key: 'roleStatus',
     width: 90
   },
-  {
-    title: t('common.entity.remark'),
-    dataIndex: 'remark',
-    key: 'remark',
-    width: 160,
-    ellipsis: true
-  },
   CreateActionColumn({
     actions: [
       { key: 'update', label: t('common.button.edit'), shape: 'plain', icon: RiEditLine, permission: 'identity:role:update', onClick: (record: Role) => handleEdit(record) },
@@ -284,7 +290,9 @@ const mergedColumns = computed((): any => mergeDefaultColumns(columns.value as a
 const displayColumns = computed(() => {
   const keys = visibleColumnKeys.value || []
   const merged = mergedColumns.value || []
-  if (keys.length === 0) return columns.value as any
+  if (keys.length === 0) {
+    return columns.value as any
+  }
   const getColumnKey = (col: any): string => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
   const keysSet = new Set(keys.map(k => String(k)))
   return merged.filter((col: any) => {
@@ -409,10 +417,10 @@ const handleDeleteOne = (record: Role) => {
       try {
         loading.value = true
         await remove(getRoleId(record))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deleteSuccess', { target: t('entity.role._self') }))
         loadData()
       } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+        message.error(error?.message || t('common.msg.deleteFail', { target: t('entity.role._self') }))
       } finally {
         loading.value = false
       }
@@ -434,13 +442,13 @@ const handleDelete = () => {
       try {
         loading.value = true
         await Promise.all(selectedRows.value.map(record => remove(getRoleId(record))))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deleteSuccess', { target: t('entity.role._self') }))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+        message.error(error?.message || t('common.msg.deleteFail', { target: t('entity.role._self') }))
       } finally {
         loading.value = false
       }
@@ -450,24 +458,28 @@ const handleDelete = () => {
 
 const handleFormSubmit = async () => {
   try {
-    if (!formRef.value) return
+    if (!formRef.value) {
+      return
+    }
     await formRef.value.validate()
     const formValues = formRef.value.getValues()
     formLoading.value = true
     if (formData.value?.roleId) {
       await update(formData.value.roleId, { ...formValues, roleId: formData.value.roleId })
-      message.success(t('common.msg.updateSuccess'))
+      message.success(t('common.msg.updateSuccess', { target: t('entity.role._self') }))
     } else {
     await create(formValues)
-    message.success(t('common.msg.createSuccess'))
+    message.success(t('common.msg.createSuccess', { target: t('entity.role._self') }))
     }
     formRef.value?.resetFields()
     formData.value = {}
     formVisible.value = false
     loadData()
   } catch (error: any) {
-    if (error?.errorFields) return
-    message.error(error?.message || t('common.msg.operateFail'))
+    if (error?.errorFields) {
+      return
+    }
+    message.error(error?.message || t('common.msg.operateFail', { action: t('common.action.operation') }))
   } finally {
     formLoading.value = false
   }
@@ -518,9 +530,9 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess'))
+    message.success(t('common.msg.exportSuccess', { target: t('entity.role._self') }))
   } catch (error: any) {
-    message.error(error?.message || t('common.msg.exportFail'))
+    message.error(error?.message || t('common.msg.exportFail', { target: t('entity.role._self') }))
   } finally {
     loading.value = false
   }

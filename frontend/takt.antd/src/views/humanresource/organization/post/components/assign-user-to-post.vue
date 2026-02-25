@@ -89,7 +89,9 @@ watch(visible, (val) => {
 })
 
 const loadPostUsers = async () => {
-  if (!props.post) return
+  if (!props.post) {
+    return
+  }
 
   try {
     loading.value = true

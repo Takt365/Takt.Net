@@ -20,7 +20,8 @@ using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using System.Security.Claims;
 using Takt.Application.Dtos.Identity;
-using Takt.Application.Identity;
+using Takt.Application.Services.HumanResource.AttendanceLeave;
+using Takt.Application.Services.Identity;
 using Takt.Domain.Entities.Identity;
 using Takt.Domain.Interfaces;
 using Takt.Domain.Repositories;
@@ -48,6 +49,7 @@ public class TaktAuthController : TaktControllerBase
     private readonly IOpenIddictApplicationManager _applicationManager;
     private readonly IOpenIddictScopeManager _scopeManager;
     private readonly IOpenIddictTokenManager _tokenManager;
+    private readonly ITaktHolidayService _holidayService;
 
     /// <summary>
     /// 构造函数
@@ -57,6 +59,7 @@ public class TaktAuthController : TaktControllerBase
     /// <param name="applicationManager">OpenIddict应用管理器</param>
     /// <param name="scopeManager">OpenIddict作用域管理器</param>
     /// <param name="tokenManager">OpenIddict令牌管理器</param>
+    /// <param name="holidayService">假日服务（用于登录时返回今日是否假期）</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
@@ -66,6 +69,7 @@ public class TaktAuthController : TaktControllerBase
         IOpenIddictApplicationManager applicationManager,
         IOpenIddictScopeManager scopeManager,
         IOpenIddictTokenManager tokenManager,
+        ITaktHolidayService holidayService,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
@@ -76,6 +80,7 @@ public class TaktAuthController : TaktControllerBase
         _applicationManager = applicationManager;
         _scopeManager = scopeManager;
         _tokenManager = tokenManager;
+        _holidayService = holidayService;
     }
 
     /// <summary>
@@ -174,6 +179,21 @@ public class TaktAuthController : TaktControllerBase
                     }));
             }
 
+            // 设备数限制：先尝试记录登录（不强制则可能返回已在别处登录）
+            var forceLoginParam = HttpContext.Request.HasFormContentType ? HttpContext.Request.Form["force_login"].ToString() : null;
+            var forceLogin = string.Equals(forceLoginParam, "true", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(forceLoginParam, "1", StringComparison.OrdinalIgnoreCase);
+            var tryRecordResult = await _authService.TryRecordLoginSuccessAsync(user, user.UserName!, forceLogin);
+            if (!tryRecordResult.Success)
+            {
+                return Ok(new
+                {
+                    error = "already_logged_in_elsewhere",
+                    error_description = "当前用户已在其他位置登录，需要发送通知吗？",
+                    existing_sessions = tryRecordResult.ExistingSessions
+                });
+            }
+
             // 创建Claims Principal
             var identity = new ClaimsIdentity(
                 authenticationType: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
@@ -209,6 +229,21 @@ public class TaktAuthController : TaktControllerBase
                 identity.AddClaim(new Claim("permission", permission));
             }
 
+            // 根据当前请求语言和日期查询今日是否假期，写入 token 供前端展示（由认证服务统一获取并输出调试日志）
+            var requestCulture = HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture?.UICulture?.Name
+                ?? CultureInfo.CurrentUICulture.Name
+                ?? "zh-CN";
+            var region = MapCultureToCountryCode(requestCulture);
+            TaktLogger.Information("登录颁发 token 前获取当前假日: RequestCulture={RequestCulture}, Region={Region}", requestCulture, region);
+            var holidayToday = await _authService.GetCurrentHolidayForLoginAsync(DateTime.Now, region);
+            identity.AddClaim(new Claim("holiday_today", holidayToday != null ? "1" : "0"));
+            if (holidayToday != null)
+            {
+                identity.AddClaim(new Claim("holiday_name", (holidayToday.HolidayName ?? string.Empty).Trim()));
+                identity.AddClaim(new Claim("holiday_greeting", (holidayToday.HolidayGreeting ?? string.Empty).Trim()));
+                identity.AddClaim(new Claim("holiday_theme", (holidayToday.HolidayTheme ?? string.Empty).Trim()));
+            }
+
             claimsPrincipal = new ClaimsPrincipal(identity);
 
             // 设置作用域
@@ -229,20 +264,13 @@ public class TaktAuthController : TaktControllerBase
             }
             claimsPrincipal.SetResources(resources);
 
-            // 更新登录次数
+            // 更新登录次数（登录日志与在线记录已由 TryRecordLoginSuccessAsync 写入）
             user.LoginCount++;
             user.UpdateTime = DateTime.Now;
             await _userRepository.UpdateAsync(user);
 
-            // 记录登录日志和在线记录
-            await _authService.RecordLoginSuccessAsync(user, user.UserName);
-
-            var requestCulture = HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture?.UICulture?.Name
-                ?? CultureInfo.CurrentUICulture.Name
-                ?? "zh-CN";
-            var loginTime = DateTime.Now;
             TaktLogger.Information("登录成功，用户: {UserName}，语言: {Culture}，时间: {LoginTime:yyyy-MM-dd HH:mm:ss}",
-                user.UserName, requestCulture, loginTime);
+                user.UserName, requestCulture, DateTime.Now);
         }
         // 处理刷新令牌流程
         else if (request.IsRefreshTokenGrantType())
@@ -388,5 +416,22 @@ public class TaktAuthController : TaktControllerBase
         {
             return BadRequest(TaktApiResult<TaktUserInfoDto>.Fail(ex.Message));
         }
+    }
+
+    /// <summary>
+    /// 将请求文化（如 zh-CN、en-US）映射为假日表使用的国别码（CN、JP、US）
+    /// </summary>
+    private static string MapCultureToCountryCode(string? culture)
+    {
+        if (string.IsNullOrWhiteSpace(culture))
+            return "CN";
+        var c = culture.Trim();
+        if (c.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
+            return "CN";
+        if (c.StartsWith("ja", StringComparison.OrdinalIgnoreCase))
+            return "JP";
+        if (c.StartsWith("en", StringComparison.OrdinalIgnoreCase))
+            return "US";
+        return "CN";
     }
 }

@@ -20,6 +20,7 @@
       update-permission="code:generator:update"
       delete-permission="code:generator:delete"
       import-permission="code:generator:import"
+      template-permission="code:generator:template"
       export-permission="code:generator:export"
       :show-create="true"
       :show-update="true"
@@ -171,13 +172,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+/**
+ * 代码生成表配置页：列表、查询、增删改、导入表、生成代码（下载/写盘）、预览、同步、初始化、克隆。
+ * 依赖 @/api/generator/table、@/types/generator/table。
+ */
+import { ref, computed, onMounted, onUnmounted, nextTick, inject } from 'vue'
+import type { Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { message, Modal } from 'ant-design-vue'
 import type { TableColumnsType } from 'ant-design-vue'
 
 const { t } = useI18n()
 const tableConfig = () => t('code.generator.tableConfig')
+
+/** 布局 provide 的刷新句柄，本页注册 loadData，供标签栏“刷新当前标签”调用（不整页刷新）。 */
+const currentRefreshFn = inject<Ref<(() => void) | null>>('taktTabCurrentRefresh')
+
+// ---------- 状态：列表与分页 ----------
 import { CreateActionColumn } from '@/components/business/takt-action-column/index'
 import {
   getGenTableList,
@@ -212,6 +223,8 @@ const total = ref(0)
 const selectedRow = ref<GenTable | null>(null)
 const selectedRows = ref<GenTable[]>([])
 const selectedRowKeys = ref<(string | number)[]>([])
+
+// ---------- 状态：表单与弹窗 ----------
 const formVisible = ref(false)
 const formTitle = ref('')
 const formLoading = ref(false)
@@ -227,11 +240,12 @@ const previewFiles = ref<PreviewFile[]>([])
 const advancedQueryVisible = ref(false)
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
-/** 另存为弹窗：生成路径覆盖 */
+/** 另存为弹窗：生成路径覆盖（GenMethod=1 时使用） */
 const saveAsVisible = ref(false)
 const saveAsPath = ref('')
 const saveAsRecord = ref<GenTable | null>(null)
 
+// ---------- 表格列定义与显示列、行选择 ----------
 const columns = computed(() => [
   { title: t('code.generator.tableName'), dataIndex: 'tableName', key: 'tableName', width: 180, ellipsis: true },
   { title: t('code.generator.tableComment'), dataIndex: 'tableComment', key: 'tableComment', width: 140, ellipsis: true },
@@ -302,10 +316,13 @@ const columns = computed(() => [
   })
 ])
 
+/** 根据列设置抽屉的可见 key 过滤出当前展示的列。 */
 const displayColumns = computed<TableColumnsType>(() => {
   const keys = visibleColumnKeys.value || []
   const cols = (columns.value || []) as any[]
-  if (keys.length === 0) return cols as TableColumnsType
+  if (keys.length === 0) {
+    return cols as TableColumnsType
+  }
   const keySet = new Set(keys)
   return cols.filter((c: any) => keySet.has(String(c.key))) as TableColumnsType
 })
@@ -330,6 +347,7 @@ const onClickRow = (record: GenTable) => ({
   }
 })
 
+/** 拉取当前页的生成表列表，支持关键词；结果写入 dataSource、total。 */
 async function loadData() {
   try {
     loading.value = true
@@ -353,11 +371,13 @@ async function loadData() {
   }
 }
 
+/** 搜索：重置到第一页并加载。 */
 function handleSearch() {
   currentPage.value = 1
   loadData()
 }
 
+/** 重置查询条件并加载第一页。 */
 function handleReset() {
   queryKeyword.value = ''
   currentPage.value = 1
@@ -366,24 +386,28 @@ function handleReset() {
 
 function handleTableChange(_pagination: any, _filters: any, _sorter: any) {}
 
+/** 分页切换。 */
 function handlePaginationChange(page: number, size: number) {
   currentPage.value = page
   pageSize.value = size
   loadData()
 }
 
+/** 每页条数变更。 */
 function handlePaginationSizeChange(current: number, size: number) {
   currentPage.value = current
   pageSize.value = size
   loadData()
 }
 
+/** 打开新增表单弹窗。 */
 function handleCreate() {
   formTitle.value = t('common.button.create') + t('code.generator.tableConfig')
   formData.value = null
   formVisible.value = true
 }
 
+/** 拉取详情并打开编辑表单弹窗。 */
 async function handleEdit(record: GenTable) {
   formTitle.value = t('common.button.edit') + t('code.generator.tableConfig')
   const id = record.tableId ?? (record as any).id
@@ -409,6 +433,7 @@ function handleUpdate() {
   else message.warning(t('common.action.warnSelectToAction', { action: t('common.button.edit'), entity: tableConfig() }))
 }
 
+/** 单条删除确认后调用接口并刷新列表。 */
 function handleDeleteOne(record: GenTable) {
   Modal.confirm({
     title: t('common.action.confirmDelete'),
@@ -417,10 +442,10 @@ function handleDeleteOne(record: GenTable) {
       try {
         loading.value = true
         await deleteGenTable(String(record.tableId))
-        message.success(t('common.msg.deleteSuccess'))
-        loadData()
+        message.success(t('common.msg.deleteSuccess', { target: t('entity.gentable._self') }))
+        await loadData()
       } catch (e: any) {
-        message.error(e?.message || t('common.msg.deleteFail'))
+        message.error(e?.message || t('common.msg.deleteFail', { target: t('entity.gentable._self') }))
       } finally {
         loading.value = false
       }
@@ -428,6 +453,7 @@ function handleDeleteOne(record: GenTable) {
   })
 }
 
+/** 批量删除：确认后逐个删除并刷新列表。 */
 function handleDelete() {
   if (selectedRows.value.length === 0) {
     message.warning(t('common.action.warnSelectToAction', { action: t('common.button.delete'), entity: tableConfig() }))
@@ -440,13 +466,13 @@ function handleDelete() {
       try {
         loading.value = true
         await Promise.all(selectedRows.value.map((r: GenTable) => deleteGenTable(String(r.tableId))))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deleteSuccess', { target: t('entity.gentable._self') }))
         selectedRowKeys.value = []
         selectedRows.value = []
         selectedRow.value = null
-        loadData()
+        await loadData()
       } catch (e: any) {
-        message.error(e?.message || t('common.msg.deleteFail'))
+        message.error(e?.message || t('common.msg.deleteFail', { target: t('entity.gentable._self') }))
       } finally {
         loading.value = false
       }
@@ -454,13 +480,20 @@ function handleDelete() {
   })
 }
 
+/**
+ * 执行代码生成：GenMethod 0 返回 ZIP 并触发下载，1/2 返回 JSON（写盘）。表配置不变，不刷新列表。
+ * @param genPathOverride 仅 GenMethod=1 时“另存为”传入的自定义路径
+ */
 async function doGenerateCode(record: GenTable, genPathOverride?: string) {
   const id = String(record.tableId)
   const genMethod = record.genMethod != null ? Number(record.genMethod) : 0
+  logger.debug('[GenCode] doGenerateCode 开始，tableId=', id, 'genMethod=', genMethod)
   const result = await generateCode(id, genMethod, genPathOverride)
+  logger.debug('[GenCode] doGenerateCode 接口返回，resultType=', typeof result, 'isJson=', typeof (result as any).message === 'string')
   if (typeof (result as any).message === 'string' && typeof (result as any).count === 'number') {
     const res = result as { message: string; count: number; files: string[] }
     message.success(res.message + (res.files?.length ? t('code.generator.genSuccessCount', { count: res.count }) : ''))
+    logger.debug('[GenCode] doGenerateCode 写盘完成，返回')
     return
   }
   const blob = result as Blob
@@ -475,14 +508,17 @@ async function doGenerateCode(record: GenTable, genPathOverride?: string) {
   document.body.removeChild(link)
   setTimeout(() => window.URL.revokeObjectURL(url), 100)
   message.success(t('code.generator.codeGeneratedDownload'))
+  logger.debug('[GenCode] doGenerateCode 下载完成，返回')
 }
 
+/** 打开“另存为”弹窗，用于 GenMethod=1 时指定生成路径。 */
 function showSaveAsPathModal(record: GenTable) {
   saveAsRecord.value = record
   saveAsPath.value = (record.genPath ?? '').trim() || '/'
   saveAsVisible.value = true
 }
 
+/** 另存为弹窗确认：使用输入的路径调用生成并关闭弹窗。 */
 async function handleSaveAsOk() {
   const record = saveAsRecord.value
   const newPath = saveAsPath.value?.trim() || ''
@@ -505,6 +541,9 @@ async function handleSaveAsOk() {
   }
 }
 
+/**
+ * 单表生成：GenMethod 0 直接生成；1/2 先预览是否存在文件，有则确认覆盖或另存为，无则直接生成。
+ */
 async function handleGenerateOne(record: GenTable) {
   const genMethod = record.genMethod != null ? Number(record.genMethod) : 0
   if (genMethod !== 1 && genMethod !== 2) {
@@ -526,20 +565,26 @@ async function handleGenerateOne(record: GenTable) {
     const existingFiles = preview?.existingFiles ?? []
     loading.value = false
     if (existingFiles.length > 0) {
+      logger.debug('[GenCode] 展示覆盖确认弹窗，existingFiles=', existingFiles.length)
       const fileList = existingFiles.slice(0, 20).join('\n') + (existingFiles.length > 20 ? '\n... ' + t('code.generator.existingFilesSuffix', { count: existingFiles.length }) : '')
       Modal.confirm({
         title: t('code.generator.overwriteConfirmTitle'),
         content: t('code.generator.overwriteConfirmContent') + '\n\n' + fileList,
         okText: t('code.generator.overwrite'),
         cancelText: genMethod === 2 ? t('common.button.cancel') : t('code.generator.saveAsCancel'),
+        okButtonProps: { htmlType: 'button' },
         onOk: async () => {
+          logger.debug('[GenCode] 点击覆盖 onOk 开始，tableId=', record.tableId)
           try {
             loading.value = true
             await doGenerateCode(record)
+            logger.debug('[GenCode] 点击覆盖 doGenerateCode 完成')
           } catch (e: any) {
+            logger.debug('[GenCode] 点击覆盖 doGenerateCode 异常:', e?.message)
             message.error(e?.message || t('common.msg.actionFail', { action: t('code.generator.generate') }))
           } finally {
             loading.value = false
+            logger.debug('[GenCode] 点击覆盖 onOk 结束（finally）')
           }
         },
         onCancel: () => {
@@ -560,6 +605,7 @@ async function handleGenerateOne(record: GenTable) {
   }
 }
 
+/** 同步：拉取最新表配置并打开编辑表单，用于从数据库同步字段等。 */
 async function handleSync(record: GenTable) {
   const id = record.tableId ?? (record as any).id
   if (!id) {
@@ -580,6 +626,7 @@ async function handleSync(record: GenTable) {
   }
 }
 
+/** 初始化表配置（仅 inDatabase=1 显示），成功后刷新列表。 */
 async function handleInitialize(record: GenTable) {
   const id = record.tableId ?? (record as any).id
   if (!id) {
@@ -598,6 +645,7 @@ async function handleInitialize(record: GenTable) {
   }
 }
 
+/** 克隆：无 id 时用当前行打开表单；有 id 时拉取详情并去掉 id/columnId 后打开表单。 */
 async function handleClone(record: GenTable) {
   const id = record.tableId ?? (record as any).id
   if (!id) {
@@ -631,10 +679,12 @@ async function handleClone(record: GenTable) {
   }
 }
 
+/** 工具栏刷新：重新拉取当前页列表。 */
 function handleRefresh() {
   loadData()
 }
 
+/** 导出当前列表为 CSV 并下载。 */
 function handleExport() {
   if (dataSource.value.length === 0) {
     message.warning(t('code.generator.noDataToExport'))
@@ -656,9 +706,9 @@ function handleExport() {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-    message.success(t('common.msg.exportSuccess'))
+    message.success(t('common.msg.exportSuccess', { target: t('entity.gentable._self') }))
   } catch (e: any) {
-    message.error(e?.message || t('common.msg.exportFail'))
+    message.error(e?.message || t('common.msg.exportFail', { target: t('entity.gentable._self') }))
   }
 }
 
@@ -689,46 +739,96 @@ function handleColumnSettingReset() {
   visibleColumnKeys.value = []
 }
 
+/** 表单提交：校验后根据是否有 tableId 调用新增或更新，成功后关闭弹窗并刷新列表。 */
 async function handleFormSubmit() {
   try {
     await genFormRef.value?.validate()
     const values = genFormRef.value?.getValues()
-    if (!values) return
+    if (!values) {
+      return
+    }
     formLoading.value = true
     if (values.tableId) {
       await updateGenTable(values.tableId, values as GenTableUpdate)
-      message.success(t('common.msg.updateSuccess'))
+      message.success(t('common.msg.updateSuccess', { target: t('entity.gentable._self') }))
     } else {
       await createGenTable(values as GenTableCreate)
-      message.success(t('common.msg.createSuccess'))
+      message.success(t('common.msg.createSuccess', { target: t('entity.gentable._self') }))
     }
     genFormRef.value?.reset()
     formVisible.value = false
     formData.value = null
     loadData()
   } catch (e: any) {
-    if (e?.errorFields) return
-    message.error(e?.message || t('common.msg.operateFail'))
+    if (e?.errorFields) {
+      return
+    }
+    message.error(e?.message || t('common.msg.operateFail', { action: t('common.action.operation') }))
   } finally {
     formLoading.value = false
   }
 }
 
+/** 关闭表单弹窗并清空表单数据。 */
 function handleFormCancel() {
   genFormRef.value?.reset()
   formVisible.value = false
   formData.value = null
 }
 
-function handlePreviewOne(record: GenTable) {
+/** 请求生成预览接口，将文件列表写入 previewFiles 并打开预览弹窗。 */
+async function handlePreviewOne(record: GenTable) {
+  const id = record.tableId ?? (record as GenTable & { id?: string }).id
+  logger.debug('[CodePreview] 点击预览: tableId=', id, 'record=', record)
+  if (!id) {
+    message.warning(t('code.generator.noTableIdPreview'))
+    return
+  }
   selectedRow.value = record
   previewFiles.value = []
-  previewVisible.value = true
+  try {
+    loading.value = true
+    logger.debug('[CodePreview] 请求 generate-preview: id=', String(id))
+    const res = await generateCodePreview(String(id), (record.genPath ?? '').trim() || undefined)
+    const list = res?.previewFiles ?? []
+    logger.debug('[CodePreview] 接口返回: previewFiles 数量=', list.length, 'rawRes=', res)
+    if (list.length) {
+      list.forEach((f: { name: string; content?: string }, i: number) => {
+        const raw = f.content ?? (f as any).Content ?? ''
+        const len = raw.length
+        const preview = typeof raw === 'string' ? raw.slice(0, 120).replace(/\n/g, '↵') : '(非字符串)'
+        logger.debug(`[CodePreview] [${i}] name=${f.name} contentLength=${len} 内容预览=${preview}${len > 120 ? '...' : ''}`)
+      })
+    }
+    if (!list.length) {
+      message.warning(t('code.generator.noPreviewData'))
+      return
+    }
+    previewFiles.value = list.map((f: { name: string; content?: string; Content?: string }) => ({
+      name: String(f.name ?? ''),
+      content: String(f.content ?? (f as any).Content ?? '')
+    }))
+    logger.debug('[CodePreview] 已赋值 previewFiles, 数量=', previewFiles.value.length, '首项 content 长度=', previewFiles.value[0]?.content?.length ?? 0)
+    previewFiles.value.forEach((f, i) => {
+      const preview = (f.content ?? '').slice(0, 80).replace(/\n/g, '↵')
+      logger.debug(`[CodePreview] 赋值后[${i}] name=${f.name} contentLen=${(f.content ?? '').length} 内容前80字=${preview}${(f.content ?? '').length > 80 ? '...' : ''}`)
+    })
+    await nextTick()
+    previewVisible.value = true
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message ?? t('common.msg.actionFail', { action: t('common.button.preview') }))
+  } finally {
+    loading.value = false
+  }
 }
 
+/** 导入弹窗内切换数据源配置时，拉取该配置下的表列表。 */
 async function handleImportConfigChange(configId: string) {
   databaseTables.value = []
-  if (!configId) return
+  if (!configId) {
+    return
+  }
   try {
     databaseTablesLoading.value = true
     const list = await getDatabaseTables(configId)
@@ -741,11 +841,12 @@ async function handleImportConfigChange(configId: string) {
   }
 }
 
+/** 从数据库导入表：调用 importTable 后关闭弹窗、刷新列表并选中新导入行。 */
 async function handleImportSubmit(payload: { configId: string; tableName: string }) {
   try {
     importLoading.value = true
     const imported = await importTable({ configId: payload.configId, tableName: payload.tableName })
-    message.success(t('common.msg.createSuccess'))
+    message.success(t('common.msg.createSuccess', { target: t('entity.gentable._self') }))
     importVisible.value = false
     databaseTables.value = []
     await loadData()
@@ -764,13 +865,19 @@ async function handleImportSubmit(payload: { configId: string; tableName: string
   }
 }
 
+// ---------- 挂载：首屏拉列表与数据库配置，并向布局注册刷新函数 ----------
 onMounted(() => {
+  if (currentRefreshFn) currentRefreshFn.value = loadData
   loadData()
   getDatabaseConfigs().then(list => {
     databaseConfigs.value = list ?? []
   }).catch(() => {
     databaseConfigs.value = []
   })
+})
+
+onUnmounted(() => {
+  if (currentRefreshFn) currentRefreshFn.value = null
 })
 </script>
 

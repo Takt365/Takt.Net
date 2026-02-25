@@ -14,17 +14,23 @@ export default {
 
   /** <summary>2. settings</summary> */
   settings: {
+    /** Dix couleurs célèbres, correspond à color-base.less */
     color: {
-      blue: 'Bleu',
-      cyan: 'Cyan',
+      blue: 'Bleu Klein',
+      brown: 'Brun Van Dyck',
+      cyan: 'Bleu Tiffany',
       gold: 'Or',
-      green: 'Vert',
-      orange: 'Orange',
-      pink: 'Rose',
-      purple: 'Violet',
-      red: 'Rouge',
+      gray: 'Gris Memorial',
+      green: 'Vert Mars',
+      indigo: 'Bleu de Prusse',
+      orange: 'Rouge Titien',
+      pink: 'Bordeaux',
+      purple: 'Bourgogne',
+      red: 'Rouge Chinois',
+      yellow: 'Jaune Sennelier',
       switch: 'Changer de couleur',
-      title: 'Couleur'
+      title: 'Couleur',
+      locked: 'La couleur du thème d\'aujourd\'hui est fixe et ne peut pas être modifiée'
     },
     locale: {
       'ar-SA': 'Arabe',
@@ -108,6 +114,7 @@ export default {
     more: 'Plus',
     no: 'Non',
     ok: 'OK',
+    open: 'Ouvrir',
     password: 'Mot de passe',
     permission: 'Permissions',
     personalSettings: 'Paramètres personnels',
@@ -158,18 +165,21 @@ export default {
     yes: 'Oui'
   },
 
-  /** <summary>4. entity</summary> */
+  /** <summary>4. entity</summary> 审计字段顺序与 TaktEntityBase 一致 */
   entity: {
     configId: 'ID de configuration',
+    extFieldJson: 'Champ étendu JSON',
+    remark: 'Remarque',
+    createId: 'ID du créateur',
     createBy: 'Créé par',
     createTime: 'Date de création',
-    deletedBy: 'Supprimé par',
-    deletedTime: 'Date de suppression',
-    extFieldJson: 'Champ étendu JSON',
-    isDeleted: 'Supprimé',
-    remark: 'Remarque',
+    updateId: 'ID du modificateur',
     updateBy: 'Mis à jour par',
-    updateTime: 'Date de mise à jour'
+    updateTime: 'Date de mise à jour',
+    isDeleted: 'Supprimé',
+    deleteId: 'ID du suppresseur',
+    deletedBy: 'Supprimé par',
+    deletedTime: 'Date de suppression'
   },
 
   /** <summary>5. msg</summary> */
@@ -178,23 +188,25 @@ export default {
     actionSuccess: '{action} avec succès',
     assignFail: "Échec de l'attribution de {target}",
     assignSuccess: '{target} attribué avec succès',
-    createSuccess: 'Créé avec succès',
-    deleteFail: 'Échec de la suppression',
-    deleteSuccess: 'Supprimé avec succès',
+    createSuccess: '{target} créé avec succès',
+    deleteFail: 'Échec de la suppression de {target}',
+    deleteSuccess: '{target} supprimé avec succès',
     entityIdRequired: 'ID {entity} requis',
     entityNotFound: '{entity} introuvable',
-    exportFail: "Échec de l'export",
-    exportSuccess: 'Export réussi',
+    exportFail: "Échec de l'export de {target}",
+    exportSuccess: '{target} exporté avec succès',
     loadFail: 'Échec du chargement des données',
-    loadOptionsFail: "Échec du chargement des options, réessayez plus tard",
+    loadOptionsFail: "Échec du chargement des options {target}, réessayez plus tard",
+    loadListFail: "Échec du chargement de la liste {target}.\nVérifiez le serveur et réessayez.",
     loadTargetFail: 'Échec du chargement de {target}',
     noSearchResult: 'Aucun résultat',
-    operateFail: "Échec de l'opération",
-    updateSuccess: 'Mis à jour avec succès'
+    operateFail: 'Échec de {action}',
+    updateSuccess: '{target} mis à jour avec succès'
   },
 
   /** <summary>6. action</summary> */
   action: {
+    cancel: 'Annuler',
     confirmAction: 'Confirmer {action}',
     confirmDelete: 'Confirmer la suppression',
     etc: 'etc.',
@@ -252,6 +264,14 @@ export default {
     resetPwdContent: 'Êtes-vous sûr de réinitialiser le mot de passe de {entity} "{name}" par défaut ?',
     unlockContent: 'Êtes-vous sûr de déverrouiller {entity} "{name}" ?'
   },
+  /** PWA notification de mise à jour */
+  pwa: {
+    offlineReady: "L'application est prête à fonctionner hors ligne",
+    needRefresh: 'Nouveau contenu disponible, cliquez sur actualiser pour mettre à jour',
+    reload: 'Actualiser',
+    close: 'Fermer'
+  },
+
   api: {
     loginExpired: 'Session expirée, veuillez vous reconnecter',
     tokenRefreshFail: 'Échec du rafraîchissement du jeton',

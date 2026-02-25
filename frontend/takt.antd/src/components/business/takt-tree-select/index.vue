@@ -366,7 +366,9 @@ const handleDropdownVisibleChange = (open: boolean) => {
 const findDropdownElement = (): Element | null => {
   // 方式1: 通过自定义类名查找
   let element = document.querySelector('.takt-tree-select-dropdown')
-  if (element) return element
+  if (element) {
+    return element
+  }
   
   // 方式2: 通过 TreeSelect 组件的 ref 查找
   if (treeSelectRef.value) {
@@ -374,7 +376,9 @@ const findDropdownElement = (): Element | null => {
       const selectElement = (treeSelectRef.value as any).$el || (treeSelectRef.value as any).$el?.parentElement
       if (selectElement) {
         element = selectElement.closest('.ant-select-dropdown')
-        if (element) return element
+        if (element) {
+    return element
+  }
       }
     } catch (e) {
       // 忽略错误
@@ -483,7 +487,9 @@ function collectAllKeys(nodes: any[], valueField: string = 'value'): (string | n
  * 全部展开
  */
 const handleExpandAll = () => {
-  if (!treeData.value?.length) return
+  if (!treeData.value?.length) {
+    return
+  }
   expandedKeys.value = collectAllKeys(treeData.value, treeFieldNames.value.value)
 }
 
@@ -524,8 +530,10 @@ function collectAllValues(nodes: any[], valueField: string = 'value'): (string |
 // 尝试通过 ref 直接更新 TreeSelect 的值（可选，主要依赖 emit）
 const tryUpdateTreeSelectValue = (values: (string | number)[]) => {
   nextTick(() => {
-    if (!treeSelectRef.value) return
-    
+    if (!treeSelectRef.value) {
+      return
+    }
+
     try {
       const instance = treeSelectRef.value as any
       if (instance.$?.exposed?.setValue) {

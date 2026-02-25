@@ -13,10 +13,11 @@
 using System.Net;
 using Newtonsoft.Json;
 using Serilog.Events;
+using SqlSugar;
+using Takt.Infrastructure.Localization;
 using Takt.Shared.Enums;
 using Takt.Shared.Exceptions;
 using Takt.Shared.Helpers;
-using Takt.Infrastructure.Localization;
 using Takt.Shared.Models;
 
 namespace Takt.Infrastructure.Middleware;
@@ -46,27 +47,7 @@ public class TaktExceptionHandlerMiddleware
     {
         try
         {
-            // 记录 SignalR negotiate 请求（用于调试）
-            var path = context.Request.Path.Value ?? string.Empty;
-            var method = context.Request.Method;
-            
-            // 记录所有 SignalR 相关请求（包括 negotiate）
-            if (path.Contains("/hubs/", StringComparison.OrdinalIgnoreCase) || 
-                path.Contains("/negotiate", StringComparison.OrdinalIgnoreCase))
-            {
-                TaktLogger.Information("SignalR 请求到达异常处理中间件: {Path}, Method: {Method}, QueryString: {QueryString}", 
-                    path, method, context.Request.QueryString.Value ?? string.Empty);
-            }
-            
             await _next(context);
-            
-            // 记录 SignalR negotiate 响应状态（用于调试）
-            if (path.Contains("/hubs/", StringComparison.OrdinalIgnoreCase) || 
-                path.Contains("/negotiate", StringComparison.OrdinalIgnoreCase))
-            {
-                TaktLogger.Information("SignalR 请求处理完成: {Path}, Method: {Method}, StatusCode: {StatusCode}, ResponseStarted: {ResponseStarted}", 
-                    path, method, context.Response.StatusCode, context.Response.HasStarted);
-            }
         }
         catch (Exception ex)
         {
@@ -120,6 +101,18 @@ public class TaktExceptionHandlerMiddleware
                 logLevel = LogEventLevel.Warning;
                 break;
 
+            case SqlSugarException sqlEx when IsConnectionError(sqlEx.Message):
+                result = TaktApiResult<object>.Fail("数据库连接异常，请稍后重试", TaktResultCode.ServiceUnavailable);
+                logMessage = "数据库连接异常";
+                logLevel = LogEventLevel.Error;
+                break;
+
+            case InvalidOperationException invEx when IsConnectionError(invEx.Message):
+                result = TaktApiResult<object>.Fail("数据库连接异常，请稍后重试", TaktResultCode.ServiceUnavailable);
+                logMessage = "数据库连接异常";
+                logLevel = LogEventLevel.Error;
+                break;
+
             default:
                 // 其他未预期异常（系统错误，记录错误级别）
                 result = TaktApiResult<object>.Fail("系统内部错误，请稍后重试", TaktResultCode.SystemError);
@@ -156,5 +149,17 @@ public class TaktExceptionHandlerMiddleware
 
         var json = JsonConvert.SerializeObject(result, settings);
         await context.Response.WriteAsync(json);
+    }
+
+    /// <summary>
+    /// 判断是否为数据库连接相关异常（用于返回 503 友好提示）
+    /// </summary>
+    private static bool IsConnectionError(string? message)
+    {
+        if (string.IsNullOrEmpty(message)) return false;
+        var m = message.ToLowerInvariant();
+        return m.Contains("连接被关闭") || m.Contains("连接已关闭") || m.Contains("连接的当前状态")
+            || m.Contains("beginexecutereader") || m.Contains("connection open error")
+            || m.Contains("unable to cast object") || m.Contains("内部连接致命错误");
     }
 }

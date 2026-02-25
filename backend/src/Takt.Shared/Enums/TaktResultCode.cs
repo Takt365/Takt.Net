@@ -48,6 +48,11 @@ public enum TaktResultCode
     ServerError = 500,
 
     /// <summary>
+    /// 服务暂不可用（如数据库连接异常）
+    /// </summary>
+    ServiceUnavailable = 503,
+
+    /// <summary>
     /// 业务错误
     /// </summary>
     BusinessError = 1000,

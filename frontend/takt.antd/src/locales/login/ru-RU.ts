@@ -70,7 +70,9 @@ export default {
     rememberMe: 'Запомнить меня',
     login: 'Войти',
     logout: 'Выйти',
-    noAccountRegister: 'Впервые в Takt365? {register}'
+    noAccountRegister: 'Впервые в Takt365? {register}',
+    success: 'Вход выполнен успешно',
+    fail: 'Ошибка входа'
   },
 
   /** Забыли пароль */

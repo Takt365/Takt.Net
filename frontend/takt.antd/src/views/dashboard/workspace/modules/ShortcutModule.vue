@@ -16,13 +16,13 @@
       @cancel="handleManageCancel"
       :width="520"
     >
-      <p class="shortcut-tip">最多选择 8 个菜单作为快捷入口。</p>
+      <p class="shortcut-tip">最多选择 16 个菜单作为快捷入口（两行，每行 8 个）。</p>
       <a-checkbox-group v-model:value="editingPaths">
         <a-row :gutter="[8, 8]">
           <a-col v-for="item in availableShortcuts" :key="item.path" :span="6">
             <a-checkbox
               :value="item.path"
-              :disabled="editingPaths.length >= 8 && !editingPaths.includes(item.path)"
+              :disabled="editingPaths.length >= 16 && !editingPaths.includes(item.path)"
             >
               {{ item.title }}
             </a-checkbox>
@@ -75,7 +75,7 @@ const shortcuts = computed(() => {
   const selected = shortcutStore.selectedPaths
   return list
     .filter(x => selected.includes(x.path))
-    .slice(0, 8)
+    .slice(0, 16)
     .map((x: { path: string; title: string; iconName?: string }) => ({
       path: x.path,
       title: x.title,
@@ -94,7 +94,7 @@ function openManage() {
 
 function handleManageOk() {
   const unique = Array.from(new Set(editingPaths.value))
-  const finalList = unique.slice(0, 8)
+  const finalList = unique.slice(0, 16)
   shortcutStore.setPaths(finalList)
   manageVisible.value = false
 }
@@ -113,7 +113,7 @@ defineExpose({ openManage })
 <style scoped lang="less">
 .shortcut-module {
   padding: 16px 0;
-  min-height: 128px;
+  min-height: 140px;
 }
 .shortcut-item {
   display: inline-flex;

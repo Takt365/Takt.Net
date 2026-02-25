@@ -39,7 +39,9 @@ const selectedKeys = ref<string[]>([])
 const menuItems = computed(() => menuStore.menuItems)
 
 const theme = computed(() => {
-  if (props.theme === 'dark') return 'dark'
+  if (props.theme === 'dark') {
+    return 'dark'
+  }
   return themeStore.themeMode === 'dark' ? 'dark' : 'light'
 })
 

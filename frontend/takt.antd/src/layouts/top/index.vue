@@ -51,9 +51,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, provide } from 'vue'
 import { storeToRefs } from 'pinia'
 import { defaultSetting, useSettingStore } from '@/stores/setting'
+
+/** 当前内容页注册的刷新函数，供标签栏“刷新当前标签”调用，避免整页 router.go(0)。 */
+const currentRefreshFn = ref<(() => void) | null>(null)
+provide('taktTabCurrentRefresh', currentRefreshFn)
 
 const { setting } = storeToRefs(useSettingStore())
 const settingSafe = computed(() => setting.value ?? defaultSetting)

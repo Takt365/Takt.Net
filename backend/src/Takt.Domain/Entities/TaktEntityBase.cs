@@ -4,7 +4,7 @@
 // 文件名称：TaktEntityBase.cs
 // 创建时间：2025-01-20
 // 创建人：Takt365(Cursor AI)
-// 功能描述：Takt实体基类，包含通用字段（ID、租户ID、扩展字段JSON、备注、创建人、创建时间、更新人、更新时间、软删除标记、删除人、删除时间）
+// 功能描述：Takt实体基类，包含通用字段（ID、租户ID、扩展字段JSON、备注、创建人/创建人ID/创建时间、更新人/更新人ID/更新时间、软删除标记、删除人/删除人ID/删除时间）
 // 
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -45,6 +45,13 @@ public abstract class TaktEntityBase
     public string? Remark { get; set; }
 
     /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [SugarColumn(ColumnName = "create_id", ColumnDescription = "创建人ID", ColumnDataType = "bigint", IsNullable = false)]
+    [JsonConverter(typeof(ValueToStringConverter))]
+    public long CreateId { get; set; }
+
+    /// <summary>
     /// 创建人（用户名）
     /// </summary>
     [SugarColumn(ColumnName = "create_by", ColumnDescription = "创建人", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
@@ -55,6 +62,13 @@ public abstract class TaktEntityBase
     /// </summary>
     [SugarColumn(ColumnName = "create_time", ColumnDescription = "创建时间", ColumnDataType = "datetime", IsNullable = false)]
     public DateTime CreateTime { get; set; } = DateTime.Now;
+
+    /// <summary>
+    /// 更新人ID
+    /// </summary>
+    [SugarColumn(ColumnName = "update_id", ColumnDescription = "更新人ID", ColumnDataType = "bigint", IsNullable = true)]
+    [JsonConverter(typeof(ValueToStringConverter))]
+    public long? UpdateId { get; set; }
 
     /// <summary>
     /// 更新人（用户名）
@@ -73,6 +87,13 @@ public abstract class TaktEntityBase
     /// </summary>
     [SugarColumn(ColumnName = "is_deleted", ColumnDescription = "是否删除", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int IsDeleted { get; set; } = 0;
+
+    /// <summary>
+    /// 删除人ID
+    /// </summary>
+    [SugarColumn(ColumnName = "deleted_id", ColumnDescription = "删除人ID", ColumnDataType = "bigint", IsNullable = true)]
+    [JsonConverter(typeof(ValueToStringConverter))]
+    public long? DeleteId { get; set; }
 
     /// <summary>
     /// 删除人（用户名）

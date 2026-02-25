@@ -14,8 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Takt.Application.Dtos.HumanResource.Organization;
 using Takt.Application.Dtos.Identity;
-using Takt.Application.Dtos.Tenant;
-using Takt.Application.Identity;
+using Takt.Application.Services.Identity;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
@@ -403,7 +402,7 @@ public class TaktUsersController : TaktControllerBase
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件</returns>
     [HttpGet("template")]
-    [TaktPermission("identity:user:import", "获取导入模板")]
+    [TaktPermission("identity:user:template", "获取导入模板")]
     public async Task<IActionResult> GetTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try

@@ -51,7 +51,7 @@
 import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { message } from 'ant-design-vue'
-import { getOptions } from '@/api/tenant/tenant'
+import { getOptions } from '@/api/identity/tenant'
 import { getUserTenantIds, assignUserTenants } from '@/api/identity/user'
 import type { User } from '@/types/identity/user'
 import type { TaktSelectOption } from '@/types/common'
@@ -107,7 +107,9 @@ watch(visible, (val) => {
 
 // 加载所有租户和用户已分配的租户
 const loadUserTenants = async () => {
-  if (!props.user) return
+  if (!props.user) {
+    return
+  }
 
   try {
     loading.value = true
@@ -149,7 +151,7 @@ const loadUserTenants = async () => {
 }
 
 // Transfer 变化处理
-const handleTransferChange = (keys: string[], direction: string, moveKeys: string[]) => {
+const handleTransferChange = (keys: string[], _direction: string, _moveKeys: string[]) => {
   targetKeys.value = keys
 }
 

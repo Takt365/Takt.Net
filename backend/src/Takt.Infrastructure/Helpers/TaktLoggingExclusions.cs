@@ -71,6 +71,13 @@ public static class TaktLoggingExclusions
         if (string.IsNullOrEmpty(path))
             return false;
 
+        // 健康检查接口一律不记录操作日志（优先判断，避免每次探活都产生记录）
+        if (path.StartsWith("/api/TaktHealth", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWith("/health", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
         // 检查是否包含或匹配排除的路径
         foreach (var excludedPath in ExcludedOperLogPaths)
         {

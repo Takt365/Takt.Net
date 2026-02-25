@@ -6,8 +6,12 @@ import { message } from 'ant-design-vue'
 
 // 应用入口和路由
 import App from './App.vue'
-import router from './router'
+import router, { clearDynamicRoutes, setGuardContext, registerDynamicRoutes } from './router'
+import type { GuardContext } from './router'
+import type { RouteRecordRaw } from 'vue-router'
+import { unref } from 'vue'
 import { logger } from '@/utils/logger'
+import { eventBus, AuthEvents } from '@/utils/eventBus'
 import { DateTimeHelper, formatDateTime, formatDate, formatTime, formatDateTimeShort, formatDateCN, formatDateTimeCN, formatRelative, formatFriendly, getTimestamp, getTimestampSeconds, isToday, isYesterday, isThisWeek, isThisYear, diffDateTime, addDateTime, startOfDay, endOfDay } from '@/utils/datetime'
 import { MaskHelper } from '@/utils/mask'
 import { TaktPasswordHelper } from '@/utils/password'
@@ -16,14 +20,21 @@ import { UploadHelper } from '@/utils/upload'
 import { getDefaultEntityColumns, mergeDefaultColumns } from '@/utils/table-columns'
 import { applySettings, watchSettings, notifySettingsChanged } from '@/utils/apply-settings'
 import { TaktSignalRManager, signalRManager } from '@/utils/signalr'
+import { setTokenGetter, setRefreshTokenGetter, setTokenSetter, setExpiresAtGetter, startTokenRefreshTimer } from '@/api/request'
+import { useUserStore } from '@/stores/identity/user'
+import { usePermissionStore } from '@/stores/identity/permission'
+import { useMenuStore } from '@/stores/identity/menu'
 import { useDictDataStore } from '@/stores/routine/dict/dictdata'
 import { useTranslationStore } from '@/stores/routine/localization/translation'
+import { useLocaleStore } from '@/stores/routine/localization/locale'
+import { useSignalRStore } from '@/stores/identity/signalr'
+import { loadTranslationsFromBackend } from '@/locales'
 
 // 插件配置
 import { setupI18n } from './locales'
 import i18n from './locales'
 // Ant Design Vue 全局注册（保留以兼容性更好）
-import Antd from 'ant-design-vue'
+import Antd, { notification } from 'ant-design-vue'
 import 'ant-design-vue/dist/reset.css'
 // Font Awesome 免费版
 import '@fortawesome/fontawesome-free/css/all.css'
@@ -65,8 +76,111 @@ if (import.meta.env.DEV) {
 const pinia = createPinia()
 app.use(pinia)
 
+// 1.1 认证解耦：注入 token / refreshToken / 守卫上下文，订阅 eventBus（request、router、stores 互不依赖，由此处串联）
+;(() => {
+  // 请求拦截器在 axios 调用时同步执行、不在 Vue 上下文，故从 localStorage 读 token（由 user store 写入的持久化备份）
+  const getToken = (): string | null => {
+    if (typeof localStorage === 'undefined') return null
+    const t = localStorage.getItem('token')
+    return typeof t === 'string' && t ? t : null
+  }
+  const getRefreshToken = (): string | null => {
+    if (typeof localStorage === 'undefined') return null
+    const r = localStorage.getItem('refreshToken')
+    return typeof r === 'string' && r ? r : null
+  }
+  setTokenGetter(getToken)
+  setRefreshTokenGetter(getRefreshToken)
+  setTokenSetter((token: string, refreshToken?: string, expiresIn?: number) => {
+    useUserStore().setAuth(token, { refreshToken, expiresIn })
+  })
+  setExpiresAtGetter(() => {
+    const s = typeof localStorage !== 'undefined' ? localStorage.getItem('tokenExpiresAt') : null
+    if (!s) return null
+    const n = parseInt(s, 10)
+    return Number.isNaN(n) ? null : n
+  })
+
+  const getRootRoute = () => router.getRoutes().find((r: any) => r.path === '/' && (r.name === 'Root' || !r.name))
+  const ctx: GuardContext = {
+    hasToken: () => !!useUserStore().token,
+    hasUserInfo: () => !!useUserStore().userInfo,
+    loadUserInfo: () => useUserStore().getUserInfo(),
+    getUserInfo: () => useUserStore().userInfo ?? null,
+    setPermissions: (p: string[]) => usePermissionStore().setPermissions(p),
+    hasPermission: (perm: string) => usePermissionStore().hasPermission(perm),
+    loadBackendTranslations: async () => {
+      const locale = unref(i18n.global.locale as any) || 'zh-CN'
+      await loadTranslationsFromBackend(locale, 'Frontend')
+    },
+    loadDictData: () => useDictDataStore().loadAllDictData(),
+    connectSignalR: async () => {
+      const s = useSignalRStore()
+      if (!s.isConnected) await s.connect()
+    },
+    generateRoutes: async () => {
+      await useMenuStore().generateRoutes()
+      return useMenuStore().routes
+    },
+    getIsRoutesLoaded: () => useMenuStore().isRoutesLoaded,
+    getHasDynamicRoutes: () => !!(getRootRoute()?.children?.length),
+    getRoutes: () => useMenuStore().routes,
+    getMenuListLength: () => useMenuStore().menuList?.length ?? 0,
+    syncRoutesStateFromRouter: () => {
+      const root = getRootRoute()
+      const menuStore = useMenuStore()
+      menuStore.isRoutesLoaded = true
+      if (root?.children) menuStore.routes = root.children as RouteRecordRaw[]
+    },
+    resetMenuAndRegenerateRoutes: async () => {
+      const root = getRootRoute()
+      if (root?.name) {
+        router.removeRoute(root.name)
+        router.addRoute({
+          path: '/',
+          name: 'Root',
+          component: () => import('@/layouts/index.vue'),
+          meta: { requiresAuth: true },
+          children: []
+        })
+      }
+      const menuStore = useMenuStore()
+      menuStore.isRoutesLoaded = false
+      await menuStore.generateRoutes()
+      registerDynamicRoutes(menuStore.routes)
+    },
+    logout: () => useUserStore().logout()
+  }
+  setGuardContext(ctx)
+
+  eventBus.$on(AuthEvents.RedirectToLogin, () => {
+    useUserStore().logout().then(() => router.replace('/login')).catch(() => router.replace('/login'))
+  })
+  eventBus.$on(AuthEvents.DidLogout, () => clearDynamicRoutes())
+  eventBus.$on(AuthEvents.LoginSuccess, () => startTokenRefreshTimer())
+  eventBus.$on(AuthEvents.TokenRefreshed, () => {
+    setTimeout(async () => {
+      try {
+        const s = useSignalRStore()
+        if (s.isConnected) {
+          await s.disconnect().catch(() => {})
+          await new Promise(r => setTimeout(r, 500))
+          await s.connect().catch(() => {})
+        }
+      } catch { /* ignore */ }
+    }, 100)
+  })
+})()
+
 // 2. Ant Design Vue（UI 组件库）
 app.use(Antd)
+// 静态 Notification 尽早配置，保证 request 拦截器里 notification.error 能正确展示（placement 等）
+notification.config({ placement: 'topRight' })
+
+// 2.1 表单设计器 FcDesigner（@form-create/antd-designer 开源版，与 form-create.com/v3/antd/designer 一致；挂载顺序：FcDesigner → formCreate）
+import FcDesigner from '@form-create/antd-designer'
+app.use(FcDesigner)
+app.use(FcDesigner.formCreate)
 
 // ========================================
 // 全局工具类和函数注册
@@ -114,6 +228,11 @@ Object.assign(app.config.globalProperties, {
 // i18n
 setupI18n(app)
 
+// 挂载前将 localeStore 与 i18n 同步，避免首屏 t() 使用错误 locale（刷新才正常的问题）
+const localeStore = useLocaleStore()
+const i18nLocaleRef = i18n.global.locale as { value: string }
+i18nLocaleRef.value = localeStore.locale
+
 // 动态更新页面标题
 watchEffect(() => {
   // 使用类型断言，因为在实际运行时 locale 总是 WritableComputedRef
@@ -159,27 +278,32 @@ app.config.errorHandler = (err: unknown, instance, info) => {
 /**
  * 全局未捕获的 Promise 拒绝处理器
  * 捕获未处理的 Promise 拒绝（async/await 未捕获的错误）
+ * 注意：请求层网络错误（无响应）已在 request 拦截器用 Notification 提示并跳转登录，此处不再用 Message 重复提示
  */
 window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+  const reason = event.reason
+  // 请求层已处理的网络错误：已用 Notification 提示并跳转登录，不再用 Message 重复
+  const isAxiosNetworkError =
+    reason?.isAxiosError === true && reason?.request != null && reason?.response == null
+  if (isAxiosNetworkError) {
+    event.preventDefault()
+    return
+  }
+
   // 记录错误日志
   logger.error('[Unhandled Promise Rejection] 未处理的 Promise 拒绝:', {
-    reason: event.reason,
+    reason,
     promise: event.promise,
-    stack: event.reason instanceof Error ? event.reason.stack : undefined
+    stack: reason instanceof Error ? reason.stack : undefined
   })
 
   // 显示用户友好的错误提示
-  const errorMessage = event.reason instanceof Error 
-    ? event.reason.message 
-    : String(event.reason || '未知错误')
-  
+  const errorMessage = reason instanceof Error ? reason.message : String(reason || '未知错误')
   message.error({
     content: `操作失败: ${errorMessage}`,
     duration: 5
   })
 
-  // 阻止默认行为（在控制台显示错误）
-  // 注意：开发环境保留默认行为以便调试
   if (!import.meta.env.DEV) {
     event.preventDefault()
   }

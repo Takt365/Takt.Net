@@ -14,17 +14,23 @@ export default {
 
   /** <summary>2. settings</summary> */
   settings: {
+    /** Десять знаменитых цветов, соответствует color-base.less */
     color: {
-      blue: 'Синий',
-      cyan: 'Бирюзовый',
+      blue: 'Краин-блю',
+      brown: 'Ван Дейк браун',
+      cyan: 'Тиффани-блю',
       gold: 'Золотой',
-      green: 'Зелёный',
-      orange: 'Оранжевый',
-      pink: 'Розовый',
-      purple: 'Фиолетовый',
-      red: 'Красный',
+      gray: 'Мемориал-грей',
+      green: 'Марс-грин',
+      indigo: 'Прусский синий',
+      orange: 'Красно-тициановский',
+      pink: 'Бордо',
+      purple: 'Бургундский',
+      red: 'Китайский красный',
+      yellow: 'Жёлтый Сеннелье',
       switch: 'Сменить цвет',
-      title: 'Цвет'
+      title: 'Цвет',
+      locked: 'Цвет темы на сегодня зафиксирован и не может быть изменён'
     },
     locale: {
       'ar-SA': 'العربية',
@@ -108,6 +114,7 @@ export default {
     more: 'Ещё',
     no: 'Нет',
     ok: 'OK',
+    open: 'Открыть',
     password: 'Пароль',
     permission: 'Права доступа',
     personalSettings: 'Личные настройки',
@@ -158,18 +165,21 @@ export default {
     yes: 'Да'
   },
 
-  /** <summary>4. entity</summary> */
+  /** <summary>4. entity</summary> 审计字段顺序与 TaktEntityBase 一致 */
   entity: {
     configId: 'ID конфигурации',
+    extFieldJson: 'Расширенное поле JSON',
+    remark: 'Примечание',
+    createId: 'ID создателя',
     createBy: 'Создано',
     createTime: 'Время создания',
-    deletedBy: 'Удалено пользователем',
-    deletedTime: 'Время удаления',
-    extFieldJson: 'Расширенное поле JSON',
-    isDeleted: 'Удалено',
-    remark: 'Примечание',
+    updateId: 'ID обновившего',
     updateBy: 'Обновлено',
-    updateTime: 'Время обновления'
+    updateTime: 'Время обновления',
+    isDeleted: 'Удалено',
+    deleteId: 'ID удалившего',
+    deletedBy: 'Удалено пользователем',
+    deletedTime: 'Время удаления'
   },
 
   /** <summary>5. msg</summary> */
@@ -178,23 +188,25 @@ export default {
     actionSuccess: '{action} выполнено',
     assignFail: 'Ошибка назначения {target}',
     assignSuccess: '{target} назначен(о)',
-    createSuccess: 'Создано',
-    deleteFail: 'Ошибка удаления',
-    deleteSuccess: 'Удалено',
+    createSuccess: '{target} создано',
+    deleteFail: 'Ошибка удаления {target}',
+    deleteSuccess: '{target} удалено',
     entityIdRequired: 'Требуется ID {entity}',
     entityNotFound: '{entity} не найден(о)',
-    exportFail: 'Ошибка экспорта',
-    exportSuccess: 'Экспорт выполнен',
+    exportFail: 'Ошибка экспорта {target}',
+    exportSuccess: '{target} экспортировано',
     loadFail: 'Не удалось загрузить данные',
-    loadOptionsFail: 'Не удалось загрузить опции, попробуйте позже',
+    loadOptionsFail: 'Не удалось загрузить опции {target}. Попробуйте позже',
+    loadListFail: 'Не удалось загрузить список {target}.\nПроверьте сервер и повторите попытку.',
     loadTargetFail: 'Не удалось загрузить {target}',
     noSearchResult: 'Нет результатов поиска',
-    operateFail: 'Ошибка операции',
-    updateSuccess: 'Обновлено'
+    operateFail: 'Ошибка {action}',
+    updateSuccess: '{target} обновлено'
   },
 
   /** <summary>6. action</summary> */
   action: {
+    cancel: 'Отмена',
     confirmAction: 'Подтвердить {action}',
     confirmDelete: 'Подтвердить удаление',
     etc: 'и т.д.',
@@ -252,6 +264,14 @@ export default {
     resetPwdContent: 'Сбросить пароль {entity} «{name}» на пароль по умолчанию?',
     unlockContent: 'Разблокировать {entity} «{name}»?'
   },
+  /** PWA уведомление об обновлении */
+  pwa: {
+    offlineReady: 'Приложение готово к работе в автономном режиме',
+    needRefresh: 'Доступно новое содержимое, нажмите «Обновить» для обновления',
+    reload: 'Обновить',
+    close: 'Закрыть'
+  },
+
   api: {
     loginExpired: 'Сессия истекла, войдите снова',
     tokenRefreshFail: 'Не удалось обновить токен',

@@ -59,7 +59,6 @@ export default {
     avatar: 'Загрузка аватара',
     avatarUpload: 'Загрузить аватар',
     avatarUploading: 'Загрузка...',
-    cancel: 'Отмена',
     confirm: 'OK',
     confirmDeleteAvatar: 'Подтвердить удаление',
     confirmDeleteAvatarContent: 'Удалить текущий аватар?',

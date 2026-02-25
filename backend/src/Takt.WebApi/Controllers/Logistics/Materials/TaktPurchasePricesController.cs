@@ -1,6 +1,6 @@
 // ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.WebApi.Controllers.Logistics.Material
+// 命名空间：Takt.WebApi.Controllers.Logistics.Materials
 // 文件名称：TaktPurchasePricesController.cs
 // 创建时间：2025-01-20
 // 创建人：Takt365(Cursor AI)
@@ -12,7 +12,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Takt.Application.Dtos.Logistics.Materials;
-using Takt.Application.Logistics.Materials;
+using Takt.Application.Services.Logistics.Materials;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
@@ -166,7 +166,7 @@ public class TaktPurchasePricesController : TaktControllerBase
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件</returns>
     [HttpGet("template")]
-    [TaktPermission("logistics:purchaseprice:import", "获取导入模板")]
+    [TaktPermission("logistics:purchaseprice:template", "获取导入模板")]
     public async Task<IActionResult> GetTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try

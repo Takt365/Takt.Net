@@ -11,11 +11,15 @@
 // ========================================
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
+using System.Globalization;
 using OpenIddict.Abstractions;
 using System.Security.Claims;
+using Takt.Application.Dtos.HumanResource.AttendanceLeave;
 using Takt.Application.Dtos.Identity;
 using Takt.Application.Services;
+using Takt.Application.Services.HumanResource.AttendanceLeave;
 using Takt.Domain.Entities.Identity;
 using Takt.Domain.Entities.Routine.SignalR;
 using Takt.Domain.Entities.Statistics.Logging;
@@ -23,7 +27,7 @@ using Takt.Domain.Interfaces;
 using Takt.Shared.Exceptions;
 using Takt.Shared.Helpers;
 
-namespace Takt.Application.Identity;
+namespace Takt.Application.Services.Identity;
 
 /// <summary>
 /// Takt认证服务实现
@@ -36,10 +40,13 @@ public class TaktAuthService : TaktServiceBase, ITaktAuthService
     private readonly ITaktRepository<TaktRole> _roleRepository;
     private readonly ITaktRepository<TaktUserRole> _userRoleRepository;
     private readonly ITaktRepository<TaktRoleMenu> _roleMenuRepository;
-    private readonly ITaktRepository<TaktMenu> _menuRepository;
+    private readonly ITaktRepository<TaktRolePermission> _rolePermissionRepository;
+    private readonly ITaktRepository<TaktPermission> _permissionRepository;
     private readonly IOpenIddictTokenManager _tokenManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IConfiguration _configuration;
+    private readonly ITaktHolidayService _holidayService;
+    private readonly ITaktLoginElsewhereNotifier? _loginElsewhereNotifier;
 
     /// <summary>
     /// 构造函数
@@ -50,10 +57,13 @@ public class TaktAuthService : TaktServiceBase, ITaktAuthService
     /// <param name="roleRepository">角色仓储</param>
     /// <param name="userRoleRepository">用户角色关联仓储</param>
     /// <param name="roleMenuRepository">角色菜单关联仓储</param>
-    /// <param name="menuRepository">菜单仓储</param>
+    /// <param name="rolePermissionRepository">角色权限关联仓储</param>
+    /// <param name="permissionRepository">权限仓储</param>
     /// <param name="tokenManager">OpenIddict令牌管理器</param>
     /// <param name="httpContextAccessor">HTTP上下文访问器</param>
     /// <param name="configuration">配置</param>
+    /// <param name="holidayService">假日服务（用于登录时获取当前假日）</param>
+    /// <param name="loginElsewhereNotifier">在别处请求登录时的通知器（可选，用于向旧会话推送）</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
@@ -64,10 +74,13 @@ public class TaktAuthService : TaktServiceBase, ITaktAuthService
         ITaktRepository<TaktRole> roleRepository,
         ITaktRepository<TaktUserRole> userRoleRepository,
         ITaktRepository<TaktRoleMenu> roleMenuRepository,
-        ITaktRepository<TaktMenu> menuRepository,
+        ITaktRepository<TaktRolePermission> rolePermissionRepository,
+        ITaktRepository<TaktPermission> permissionRepository,
         IOpenIddictTokenManager tokenManager,
         IHttpContextAccessor httpContextAccessor,
         IConfiguration configuration,
+        ITaktHolidayService holidayService,
+        ITaktLoginElsewhereNotifier? loginElsewhereNotifier = null,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
@@ -79,10 +92,13 @@ public class TaktAuthService : TaktServiceBase, ITaktAuthService
         _roleRepository = roleRepository;
         _userRoleRepository = userRoleRepository;
         _roleMenuRepository = roleMenuRepository;
-        _menuRepository = menuRepository;
+        _rolePermissionRepository = rolePermissionRepository;
+        _permissionRepository = permissionRepository;
         _tokenManager = tokenManager;
         _httpContextAccessor = httpContextAccessor;
         _configuration = configuration;
+        _holidayService = holidayService;
+        _loginElsewhereNotifier = loginElsewhereNotifier;
     }
 
     /// <summary>
@@ -222,42 +238,8 @@ public class TaktAuthService : TaktServiceBase, ITaktAuthService
             }
         }
 
-        // 2. 更新在线记录状态为离线
-        if (userId.HasValue)
-        {
-            try
-            {
-                // 查找该用户的在线记录（在线的）
-                var onlineRecords = await _onlineRepository.FindAsync(
-                    o => o.UserId == userId.Value &&
-                         o.OnlineStatus == 0 &&
-                         o.IsDeleted == 0);
-
-                foreach (var online in onlineRecords)
-                {
-                    online.OnlineStatus = 1; // 1=离线
-                    online.DisconnectTime = logoutTime;
-                    // ConnectTime 是 DateTime 类型（不可为null，有默认值），直接使用
-                    online.ConnectionDuration = (int)(logoutTime - online.ConnectTime).TotalSeconds;
-                    online.UpdateTime = logoutTime;
-                    online.UpdateBy = userName ?? "Takt365"; // 设置更新人
-
-                    await _onlineRepository.UpdateAsync(online);
-                }
-
-                if (onlineRecords.Count > 0)
-                {
-                    TaktLogger.Information("在线记录已更新为离线: UserName: {UserName}, UserId: {UserId}, 记录数: {Count}",
-                        userName ?? string.Empty, userId, onlineRecords.Count);
-                }
-            }
-            catch (Exception ex)
-            {
-                // 如果更新在线记录失败，记录警告但不影响退出登录流程
-                TaktLogger.Warning(ex, "更新在线记录失败，用户: {UserName}, UserId: {UserId}, 错误: {ErrorMessage}",
-                    userName ?? string.Empty, userId, ex.Message);
-            }
-        }
+        // 2. 不在此处更新在线记录：单设备登录时，若被踢设备调用 logout，不应把新登录设备的在线记录置为离线。
+        //    当前设备退出后，SignalR OnDisconnected 会将该连接对应的在线记录置为离线。
 
         // 3. 查找并删除刷新令牌
         var tokenToDelete = await _tokenManager.FindByReferenceIdAsync(refreshToken);
@@ -352,42 +334,47 @@ public class TaktAuthService : TaktServiceBase, ITaktAuthService
             return new List<string>();
         }
 
-        // 超级管理员拥有所有权限
+        // 超级管理员：返回所有启用的权限标识（来自 TaktPermission 表）
         if (user.UserType == 2)
         {
-            // 获取所有启用的菜单权限
-            var allMenus = await _menuRepository.FindAsync(m => m.MenuStatus == 0 && m.IsDeleted == 0 && !string.IsNullOrEmpty(m.Permission));
-            return allMenus.Select(m => m.Permission!).Distinct().ToList();
+            var allPermissions = await _permissionRepository.FindAsync(p => p.PermissionStatus == 0 && p.IsDeleted == 0);
+            return allPermissions.Select(p => p.PermissionCode).Distinct().ToList();
         }
 
-        // 获取用户的角色关联
+        // 普通用户：通过角色权限关联表获取权限标识
         var userRoles = await _userRoleRepository.FindAsync(ur => ur.UserId == userId && ur.IsDeleted == 0);
         if (userRoles.Count == 0)
-        {
             return new List<string>();
-        }
 
-        // 获取角色ID列表
         var roleIds = userRoles.Select(ur => ur.RoleId).Distinct().ToList();
-
-        // 获取角色菜单关联
-        var roleMenus = await _roleMenuRepository.FindAsync(rm => roleIds.Contains(rm.RoleId) && rm.IsDeleted == 0);
-        if (roleMenus.Count == 0)
-        {
+        var rolePermissions = await _rolePermissionRepository.FindAsync(rp => roleIds.Contains(rp.RoleId) && rp.IsDeleted == 0);
+        if (rolePermissions.Count == 0)
             return new List<string>();
-        }
 
-        // 获取菜单ID列表
-        var menuIds = roleMenus.Select(rm => rm.MenuId).Distinct().ToList();
-
-        // 获取菜单实体（只获取启用的菜单，且有权限标识的）
-        var menus = await _menuRepository.FindAsync(m => menuIds.Contains(m.Id) && m.MenuStatus == 0 && m.IsDeleted == 0 && !string.IsNullOrEmpty(m.Permission));
-
-        // 返回权限标识列表
-        return menus.Select(m => m.Permission!).Distinct().ToList();
+        var permissionIds = rolePermissions.Select(rp => rp.PermissionId).Distinct().ToList();
+        var permissions = await _permissionRepository.FindAsync(p => permissionIds.Contains(p.Id) && p.PermissionStatus == 0 && p.IsDeleted == 0);
+        return permissions.Select(p => p.PermissionCode).Distinct().ToList();
     }
 
+    /// <summary>
+    /// 获取当前假日（用于登录 token 写入今日是否假期，供前端问候语/主题色）
+    /// </summary>
+    public async Task<TaktHolidayDto?> GetCurrentHolidayForLoginAsync(DateTime date, string? region)
+    {
+        TaktLogger.Information("获取当前假日: Date={Date:yyyy-MM-dd}, Region={Region}", date, region ?? "(null)");
+        var result = await _holidayService.GetHolidayThemeAsync(date, region);
+        if (result != null)
+        {
+            TaktLogger.Information("当前假日已命中: HolidayName={HolidayName}, HolidayGreeting={HolidayGreeting}, HolidayTheme={HolidayTheme}",
+                result.HolidayName ?? "", result.HolidayGreeting ?? "", result.HolidayTheme ?? "");
+        }
+        else
+        {
+            TaktLogger.Information("当前日期未命中假日: Date={Date:yyyy-MM-dd}, Region={Region}", date, region ?? "(null)");
+        }
 
+        return result;
+    }
 
     /// <summary>
     /// 记录登录成功（登录日志和在线记录）
@@ -403,111 +390,154 @@ public class TaktAuthService : TaktServiceBase, ITaktAuthService
             return;
         }
 
-        // 获取客户端IP地址
+        // 登录日志与在线记录由 TryRecordLoginSuccessAsync(forceLogin: true) 内统一写入
+        var result = await TryRecordLoginSuccessAsync(user, userName, forceLogin: true);
+        if (!result.Success)
+        {
+            throw new InvalidOperationException("RecordLoginSuccessAsync 应使用 forceLogin 或未达设备上限");
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<RecordLoginSuccessResult> TryRecordLoginSuccessAsync(TaktUser user, string userName, bool forceLogin)
+    {
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext == null)
+        {
+            return new RecordLoginSuccessResult { Success = true };
+        }
+
         var clientIp = GetClientIpAddress(httpContext);
-
-        // 获取User-Agent
         var userAgent = httpContext.Request.Headers["User-Agent"].ToString();
-
-        // 解析设备信息（简化版）
         var deviceType = ParseDeviceType(userAgent);
         var browserType = ParseBrowserType(userAgent);
         var operatingSystem = ParseOperatingSystem(userAgent);
-
         var loginTime = DateTime.Now;
         var configId = _tenantContext?.GetCurrentConfigId() ?? "0";
 
-        // 1. 记录登录日志（TaktLoginLog 属于 Identity 数据库，ConfigId="0"）
-        // 注意：登录请求时，用户还没有认证（还没有 token），所以中间件不会设置用户上下文
-        // 因此需要手动设置 CreateBy 和 CreateTime，而不是依赖 TaktUserContext
-        var loginLog = new TaktLoginLog
+        var singleDeviceLogin = _configuration.GetValue<bool>("SingleDeviceLogin", false);
+        var maxDevices = singleDeviceLogin ? 3 : 1;
+
+        var onlines = (await _onlineRepository.FindAsync(o =>
+            o.UserId == user.Id && o.OnlineStatus == 0 && o.IsDeleted == 0))
+            .OrderBy(o => o.ConnectTime)
+            .ToList();
+
+        if (onlines.Count >= maxDevices && !forceLogin)
+        {
+            var loginLogReject = new TaktLoginLog
+            {
+                UserName = userName,
+                LoginIp = clientIp,
+                LoginLocation = null,
+                LoginType = "Password",
+                UserAgent = userAgent,
+                LoginStatus = 1,
+                LoginMsg = "已达设备上限，未强制登录",
+                LoginTime = loginTime,
+                ConfigId = configId,
+                CreateBy = userName,
+                CreateTime = loginTime
+            };
+            FillIpLocationInfo(loginLogReject.LoginIp,
+                location => loginLogReject.LoginLocation = location,
+                country => loginLogReject.LoginCountry = country,
+                province => loginLogReject.LoginProvince = province,
+                city => loginLogReject.LoginCity = city,
+                isp => loginLogReject.LoginIsp = isp);
+            await _loginLogRepository.CreateAsync(loginLogReject);
+
+            var existingSessions = onlines.Select(o => new TaktExistingSessionDto
+            {
+                ConnectLocation = o.ConnectLocation,
+                ConnectIp = o.ConnectIp,
+                DeviceType = o.DeviceType,
+                BrowserType = o.BrowserType,
+                ConnectTime = o.ConnectTime
+            }).ToList();
+            return new RecordLoginSuccessResult { Success = false, ExistingSessions = existingSessions };
+        }
+
+        var loginLogSuccess = new TaktLoginLog
         {
             UserName = userName,
             LoginIp = clientIp,
-            LoginLocation = null, // 将通过IP定位填充
-            LoginType = "Password", // 账号密码登录
+            LoginLocation = null,
+            LoginType = "Password",
             UserAgent = userAgent,
-            LoginStatus = 0, // 0=成功
+            LoginStatus = 0,
             LoginMsg = "登录成功",
             LoginTime = loginTime,
             ConfigId = configId,
-            CreateBy = userName, // 手动设置创建人（登录用户自己）
-            CreateTime = loginTime // 手动设置创建时间
+            CreateBy = userName,
+            CreateTime = loginTime
         };
-        
-        // 填充IP定位信息
-        FillIpLocationInfo(loginLog.LoginIp, 
-            location => loginLog.LoginLocation = location,
-            country => loginLog.LoginCountry = country,
-            province => loginLog.LoginProvince = province,
-            city => loginLog.LoginCity = city,
-            isp => loginLog.LoginIsp = isp);
-        
-        await _loginLogRepository.CreateAsync(loginLog);
+        FillIpLocationInfo(loginLogSuccess.LoginIp,
+            location => loginLogSuccess.LoginLocation = location,
+            country => loginLogSuccess.LoginCountry = country,
+            province => loginLogSuccess.LoginProvince = province,
+            city => loginLogSuccess.LoginCity = city,
+            isp => loginLogSuccess.LoginIsp = isp);
+        await _loginLogRepository.CreateAsync(loginLogSuccess);
 
-        // 3. 创建或更新在线记录（仓储工厂会自动根据 TaktOnline 实体类型切换到 Routine 数据库）
-        // 注意：CreateBy 和 CreateTime 会在仓储的 CreateAsync 中自动从 TaktUserContext 获取
-        // 先检查是否已存在该用户的在线记录（同一用户可能多个设备登录）
-        var existingOnline = await _onlineRepository.GetAsync(
-            o => o.UserId == user.Id &&
-                 o.OnlineStatus == 0 &&
-                 o.IsDeleted == 0);
+        var toKick = onlines.Count >= maxDevices ? onlines.Count - maxDevices + 1 : 0;
+        var requestLocation = loginLogSuccess.LoginLocation ?? clientIp ?? "未知位置";
+        var toNotifyConnectionIds = onlines.Take(toKick)
+            .Where(o => !string.IsNullOrEmpty(o.ConnectionId) && !o.ConnectionId.StartsWith("Login_", StringComparison.Ordinal))
+            .Select(o => o.ConnectionId)
+            .ToList();
 
-        if (existingOnline != null)
+        for (var i = 0; i < toKick; i++)
         {
-            // 更新现有记录的最后活动时间
-            existingOnline.LastActiveTime = loginTime;
-            existingOnline.ConnectIp = clientIp;
-            existingOnline.UserAgent = userAgent;
-            existingOnline.DeviceType = deviceType;
-            existingOnline.BrowserType = browserType;
-            existingOnline.OperatingSystem = operatingSystem;
-            
-            // 更新IP定位信息
-            FillIpLocationInfo(existingOnline.ConnectIp,
-                location => existingOnline.ConnectLocation = location,
-                country => existingOnline.ConnectCountry = country,
-                province => existingOnline.ConnectProvince = province,
-                city => existingOnline.ConnectCity = city,
-                isp => existingOnline.ConnectIsp = isp);
-            
-            // 注意：UpdateBy 和 UpdateTime 会在仓储的 UpdateAsync 中自动从 TaktUserContext 获取
-            await _onlineRepository.UpdateAsync(existingOnline);
+            onlines[i].OnlineStatus = 1;
+            onlines[i].DisconnectTime = loginTime;
+            await _onlineRepository.UpdateAsync(onlines[i]);
         }
-        else
+
+        if (_loginElsewhereNotifier != null && toNotifyConnectionIds.Count > 0)
         {
-            // 创建新的在线记录（使用用户名作为连接ID，实际SignalR连接时会更新）
-            // 注意：登录请求时，用户还没有认证（还没有 token），所以中间件不会设置用户上下文
-            // 因此需要手动设置 CreateBy 和 CreateTime，而不是依赖 TaktUserContext
-            var online = new TaktOnline
-            {
-                ConnectionId = $"Login_{user.Id}_{loginTime:yyyyMMddHHmmss}", // 临时连接ID，SignalR连接时会更新
-                UserName = userName,
-                UserId = user.Id,
-                OnlineStatus = 0, // 0=在线
-                ConnectIp = clientIp,
-                ConnectLocation = null, // 将通过IP定位填充
-                UserAgent = userAgent,
-                DeviceType = deviceType,
-                BrowserType = browserType,
-                OperatingSystem = operatingSystem,
-                ConnectTime = loginTime,
-                LastActiveTime = loginTime,
-                ConfigId = configId, // 使用当前租户的 ConfigId
-                CreateBy = userName, // 手动设置创建人（登录用户自己）
-                CreateTime = loginTime // 手动设置创建时间
-            };
-            
-            // 填充IP定位信息
-            FillIpLocationInfo(online.ConnectIp,
-                location => online.ConnectLocation = location,
-                country => online.ConnectCountry = country,
-                province => online.ConnectProvince = province,
-                city => online.ConnectCity = city,
-                isp => online.ConnectIsp = isp);
-            
-            await _onlineRepository.CreateAsync(online);
+            await _loginElsewhereNotifier.NotifyLoginRequestElsewhereAsync(toNotifyConnectionIds, requestLocation);
         }
+
+        var online = new TaktOnline
+        {
+            ConnectionId = $"Login_{user.Id}_{loginTime:yyyyMMddHHmmss}",
+            UserName = userName,
+            UserId = user.Id,
+            OnlineStatus = 0,
+            ConnectIp = clientIp,
+            ConnectLocation = null,
+            UserAgent = userAgent,
+            DeviceType = deviceType,
+            BrowserType = browserType,
+            OperatingSystem = operatingSystem,
+            ConnectTime = loginTime,
+            LastActiveTime = loginTime,
+            ConfigId = configId,
+            CreateBy = userName,
+            CreateTime = loginTime
+        };
+        FillIpLocationInfo(online.ConnectIp,
+            location => online.ConnectLocation = location,
+            country => online.ConnectCountry = country,
+            province => online.ConnectProvince = province,
+            city => online.ConnectCity = city,
+            isp => online.ConnectIsp = isp);
+        await _onlineRepository.CreateAsync(online);
+        return new RecordLoginSuccessResult { Success = true };
+    }
+
+    /// <inheritdoc />
+    public async Task<int> RevokeRefreshTokensByUserIdAsync(long userId, CancellationToken cancellationToken = default)
+    {
+        var subject = userId.ToString();
+        var count = 0;
+        await foreach (var token in _tokenManager.FindBySubjectAsync(subject, cancellationToken))
+        {
+            await _tokenManager.DeleteAsync(token, cancellationToken);
+            count++;
+        }
+        return count;
     }
 
     /// <summary>
@@ -748,6 +778,22 @@ public class TaktAuthService : TaktServiceBase, ITaktAuthService
     }
 
     /// <summary>
+    /// 从当前请求获取国别码（用于查询假日）
+    /// </summary>
+    private static string GetCountryCodeFromRequest(IHttpContextAccessor httpContextAccessor)
+    {
+        var culture = httpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>()?.RequestCulture?.UICulture?.Name
+            ?? CultureInfo.CurrentUICulture.Name
+            ?? "zh-CN";
+        if (string.IsNullOrWhiteSpace(culture)) return "CN";
+        var c = culture.Trim();
+        if (c.StartsWith("zh", StringComparison.OrdinalIgnoreCase)) return "CN";
+        if (c.StartsWith("ja", StringComparison.OrdinalIgnoreCase)) return "JP";
+        if (c.StartsWith("en", StringComparison.OrdinalIgnoreCase)) return "US";
+        return "CN";
+    }
+
+    /// <summary>
     /// 构建用户信息
     /// </summary>
     private async Task<TaktUserInfoDto> BuildUserInfoAsync(TaktUser user)
@@ -756,14 +802,24 @@ public class TaktAuthService : TaktServiceBase, ITaktAuthService
         var roles = await GetUserRolesAsync(user.Id);
         var permissions = await GetUserPermissionsAsync(user.Id);
 
+        var region = GetCountryCodeFromRequest(_httpContextAccessor);
+        var holiday = await GetCurrentHolidayForLoginAsync(DateTime.Now, region);
+
         var userInfo = new TaktUserInfoDto
         {
             UserId = user.Id.ToString(),
             UserName = user.UserName,
             RealName = user.RealName,
+            EnglishName = user.EnglishName ?? string.Empty,
+            NickName = user.NickName ?? string.Empty,
             Avatar = user.Avatar ?? string.Empty,
             Roles = roles,
-            Permissions = permissions
+            Permissions = permissions,
+            HolidayToday = holiday != null,
+            HolidayName = holiday?.HolidayName,
+            HolidayGreeting = holiday?.HolidayGreeting,
+            HolidayQuote = holiday?.HolidayQuote,
+            HolidayTheme = holiday?.HolidayTheme?.Trim()
         };
 
         return userInfo;

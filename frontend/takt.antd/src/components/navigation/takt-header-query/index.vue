@@ -55,7 +55,7 @@ const shortcutStore = useWorkspaceShortcutStore()
 const visible = ref(false)
 const selectedPath = ref<string | undefined>(undefined)
 
-// 仅 menuType=1 的扁平列表，转为 TaktSelect 的 options（label / value）
+// 可访问页面的扁平菜单列表，转为 TaktSelect 的 options（label / value）
 const selectOptions = computed(() =>
   (menuStore.leafMenuItems || []).map((x: { path: string; title: string }) => ({
     label: x.title,

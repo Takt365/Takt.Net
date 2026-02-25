@@ -306,6 +306,8 @@ interface Props {
   deletePermission?: string
   /** 导入权限标识（如：identity:user:import） */
   importPermission?: string
+  /** 模板权限标识（如：identity:user:template，用于下载导入模板） */
+  templatePermission?: string
   /** 导出权限标识（如：identity:user:export） */
   exportPermission?: string
   /** 新增行权限标识（与 canImport/canExport 一致：必须显式传入才做权限校验并显示） */
@@ -463,8 +465,12 @@ const isTransposed = ref(false)
 
 // 权限检查（严格检查：必须同时满足 show-* 和权限）
 const canCreate = computed(() => {
-  if (!props.showCreate) return false
-  if (!props.createPermission) return false
+  if (!props.showCreate) {
+    return false
+  }
+  if (!props.createPermission) {
+    return false
+  }
   const hasPerm = permissionStore.hasPermission(props.createPermission)
   if (import.meta.env.DEV && !hasPerm) {
     logger.debug('[TaktToolsBar] 创建按钮权限检查失败:', {
@@ -477,45 +483,72 @@ const canCreate = computed(() => {
 })
 
 const canUpdate = computed(() => {
-  if (!props.showUpdate) return false
-  if (!props.updatePermission) return false
+  if (!props.showUpdate) {
+    return false
+  }
+  if (!props.updatePermission) {
+    return false
+  }
   return permissionStore.hasPermission(props.updatePermission)
 })
 
 const canDelete = computed(() => {
-  if (!props.showDelete) return false
-  if (!props.deletePermission) return false
+  if (!props.showDelete) {
+    return false
+  }
+  if (!props.deletePermission) {
+    return false
+  }
   return permissionStore.hasPermission(props.deletePermission)
 })
 
 const canImport = computed(() => {
-  if (!props.showImport) return false
-  if (!props.importPermission) return false
-  return permissionStore.hasPermission(props.importPermission)
+  if (!props.showImport) {
+    return false
+  }
+  const hasImport = props.importPermission && permissionStore.hasPermission(props.importPermission)
+  const hasTemplate = props.templatePermission && permissionStore.hasPermission(props.templatePermission)
+  return !!hasImport || !!hasTemplate
 })
 
 const canExport = computed(() => {
-  if (!props.showExport) return false
-  if (!props.exportPermission) return false
+  if (!props.showExport) {
+    return false
+  }
+  if (!props.exportPermission) {
+    return false
+  }
   return permissionStore.hasPermission(props.exportPermission)
 })
 
 // 与 canImport/canExport 一致：仅当显式传入对应 permission 时才校验并显示
 const canCreateRow = computed(() => {
-  if (!props.showCreateRow) return false
-  if (!props.createRowPermission) return false
+  if (!props.showCreateRow) {
+    return false
+  }
+  if (!props.createRowPermission) {
+    return false
+  }
   return permissionStore.hasPermission(props.createRowPermission)
 })
 
 const canDeleteRow = computed(() => {
-  if (!props.showDeleteRow) return false
-  if (!props.deleteRowPermission) return false
+  if (!props.showDeleteRow) {
+    return false
+  }
+  if (!props.deleteRowPermission) {
+    return false
+  }
   return permissionStore.hasPermission(props.deleteRowPermission)
 })
 
 const canEmpty = computed(() => {
-  if (!props.showEmpty) return false
-  if (!props.emptyPermission) return false
+  if (!props.showEmpty) {
+    return false
+  }
+  if (!props.emptyPermission) {
+    return false
+  }
   return permissionStore.hasPermission(props.emptyPermission)
 })
 
@@ -637,9 +670,13 @@ const handleDeleteRow = () => {
 
 const handleEmptyMenuClick = (info: { key: string | number }) => {
   const key = String(info.key)
-  if (key === '7d') emit('empty-7d')
-  else if (key === '30d') emit('empty-30d')
-  else if (key === 'all') emit('empty-all')
+  if (key === '7d') {
+    emit('empty-7d')
+  } else if (key === '30d') {
+    emit('empty-30d')
+  } else if (key === 'all') {
+    emit('empty-all')
+  }
 }
 
 // 自定义按钮处理

@@ -27,6 +27,8 @@ export enum TaktResultCode {
   NotFound = 404,
   /** 服务器错误 */
   ServerError = 500,
+  /** 服务暂不可用（如数据库连接异常） */
+  ServiceUnavailable = 503,
   /** 业务错误 */
   BusinessError = 1000,
   /** 参数错误 */

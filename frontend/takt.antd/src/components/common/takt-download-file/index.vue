@@ -28,7 +28,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DownloadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
 

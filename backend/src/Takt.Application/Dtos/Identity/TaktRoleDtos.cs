@@ -67,7 +67,29 @@ public class TaktRoleDto
     public int RoleStatus { get; set; }
 
     /// <summary>
-    /// 租户配置ID（ConfigId）
+    /// 菜单ID列表
+    /// </summary>
+    public List<long>? MenuIds { get; set; }
+
+    /// <summary>
+    /// 用户ID列表
+    /// </summary>
+    public List<long>? UserIds { get; set; }
+
+    /// <summary>
+    /// 部门ID列表
+    /// </summary>
+    public List<long>? DeptIds { get; set; }
+
+    /// <summary>
+    /// 权限ID列表
+    /// </summary>
+    public List<long>? PermissionIds { get; set; }
+
+    // ----- 审计字段（与 TaktEntityBase 一致，统一放在最后） -----
+
+    /// <summary>
+    /// 租户配置ID
     /// </summary>
     public string ConfigId { get; set; } = "0";
 
@@ -82,6 +104,12 @@ public class TaktRoleDto
     public string? Remark { get; set; }
 
     /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long CreateId { get; set; }
+
+    /// <summary>
     /// 创建人（用户名）
     /// </summary>
     public string? CreateBy { get; set; }
@@ -90,6 +118,12 @@ public class TaktRoleDto
     /// 创建时间
     /// </summary>
     public DateTime CreateTime { get; set; }
+
+    /// <summary>
+    /// 更新人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? UpdateId { get; set; }
 
     /// <summary>
     /// 更新人（用户名）
@@ -107,6 +141,12 @@ public class TaktRoleDto
     public int IsDeleted { get; set; }
 
     /// <summary>
+    /// 删除人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? DeleteId { get; set; }
+
+    /// <summary>
     /// 删除人（用户名）
     /// </summary>
     public string? DeletedBy { get; set; }
@@ -115,21 +155,6 @@ public class TaktRoleDto
     /// 删除时间
     /// </summary>
     public DateTime? DeletedTime { get; set; }
-
-    /// <summary>
-    /// 菜单ID列表
-    /// </summary>
-    public List<long>? MenuIds { get; set; }
-
-    /// <summary>
-    /// 用户ID列表
-    /// </summary>
-    public List<long>? UserIds { get; set; }
-
-    /// <summary>
-    /// 部门ID列表
-    /// </summary>
-    public List<long>? DeptIds { get; set; }
 }
 
 /// <summary>
@@ -220,6 +245,11 @@ public class TaktRoleCreateDto
     /// 部门ID列表
     /// </summary>
     public List<long>? DeptIds { get; set; }
+
+    /// <summary>
+    /// 权限ID列表
+    /// </summary>
+    public List<long>? PermissionIds { get; set; }
 }
 
 /// <summary>

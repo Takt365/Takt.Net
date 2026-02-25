@@ -60,7 +60,6 @@ export default {
     avatar: 'Avatar upload',
     avatarUpload: 'Upload avatar',
     avatarUploading: 'Uploading...',
-    cancel: 'Cancel',
     confirm: 'OK',
     confirmDeleteAvatar: 'Confirm delete',
     confirmDeleteAvatarContent: 'Are you sure to delete the current avatar?',

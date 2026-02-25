@@ -7,10 +7,10 @@
 
 <template>
   <a-form :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
-    <a-form-item label="数据源">
+    <a-form-item :label="t('entity.gentable.datasource')">
       <a-select
         v-model:value="configId"
-        placeholder="请选择数据源"
+        :placeholder="t('common.form.placeholder.select', { field: t('entity.gentable.datasource') })"
         allow-clear
         style="width: 100%"
         @change="handleConfigChange"
@@ -20,10 +20,10 @@
         </a-select-option>
       </a-select>
     </a-form-item>
-    <a-form-item label="数据表">
+    <a-form-item :label="t('entity.gentable.tablename')">
       <a-select
         v-model:value="tableName"
-        placeholder="请先选择数据源"
+        :placeholder="t('common.form.placeholder.selectFirst', { field: t('entity.gentable.datasource') })"
         :disabled="!configId"
         :loading="databaseTablesLoading"
         allow-clear
@@ -36,7 +36,7 @@
     </a-form-item>
     <a-form-item :wrapper-col="{ offset: 6, span: 16 }">
       <a-button type="primary" :loading="importLoading" :disabled="!configId || !tableName" @click="handleSubmit">
-        导入
+        {{ t('common.button.import') }}
       </a-button>
     </a-form-item>
   </a-form>
@@ -44,6 +44,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { DatabaseConfig, DatabaseTableInfo } from '@/api/generator/table'
 
 const props = withDefaults(
@@ -53,9 +54,11 @@ const props = withDefaults(
     databaseTables: DatabaseTableInfo[]
     databaseTablesLoading?: boolean
     importLoading?: boolean
-  }>(),
+}>(),
   { open: false, databaseTablesLoading: false, importLoading: false }
 )
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
   (e: 'config-change', configId: string): void
@@ -74,11 +77,15 @@ watch(
 
 function handleConfigChange() {
   tableName.value = undefined
-  if (configId.value) emit('config-change', configId.value)
+  if (configId.value) {
+    emit('config-change', configId.value)
+  }
 }
 
 function handleSubmit() {
-  if (!configId.value || !tableName.value) return
+  if (!configId.value || !tableName.value) {
+    return
+  }
   emit('submit', { configId: configId.value, tableName: tableName.value })
 }
 

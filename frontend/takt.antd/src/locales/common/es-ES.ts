@@ -14,17 +14,23 @@ export default {
 
   /** <summary>2. settings</summary> */
   settings: {
+    /** Diez colores famosos, coinciden con color-base.less */
     color: {
-      blue: 'Azul',
-      cyan: 'Cian',
+      blue: 'Azul Klein',
+      brown: 'Marrón Van Dyke',
+      cyan: 'Azul Tiffany',
       gold: 'Dorado',
-      green: 'Verde',
-      orange: 'Naranja',
-      pink: 'Rosa',
-      purple: 'Púrpura',
-      red: 'Rojo',
+      gray: 'Gris Memorial',
+      green: 'Verde Marte',
+      indigo: 'Azul Prusia',
+      orange: 'Rojo Tiziano',
+      pink: 'Burdeos',
+      purple: 'Borgoña',
+      red: 'Rojo Chino',
+      yellow: 'Amarillo Sennelier',
       switch: 'Cambiar color',
-      title: 'Color'
+      title: 'Color',
+      locked: 'El color del tema de hoy está fijo y no se puede cambiar'
     },
     locale: {
       'ar-SA': 'Árabe',
@@ -108,6 +114,7 @@ export default {
     more: 'Más',
     no: 'No',
     ok: 'Aceptar',
+    open: 'Abrir',
     password: 'Contraseña',
     permission: 'Permisos',
     personalSettings: 'Ajustes personales',
@@ -158,18 +165,21 @@ export default {
     yes: 'Sí'
   },
 
-  /** <summary>4. entity</summary> */
+  /** <summary>4. entity</summary> 审计字段顺序与 TaktEntityBase 一致 */
   entity: {
     configId: 'ID de configuración',
+    extFieldJson: 'Campo extendido JSON',
+    remark: 'Observación',
+    createId: 'ID del creador',
     createBy: 'Creado por',
     createTime: 'Fecha de creación',
-    deletedBy: 'Eliminado por',
-    deletedTime: 'Fecha de eliminación',
-    extFieldJson: 'Campo extendido JSON',
-    isDeleted: 'Eliminado',
-    remark: 'Observación',
+    updateId: 'ID del actualizador',
     updateBy: 'Actualizado por',
-    updateTime: 'Fecha de actualización'
+    updateTime: 'Fecha de actualización',
+    isDeleted: 'Eliminado',
+    deleteId: 'ID del eliminador',
+    deletedBy: 'Eliminado por',
+    deletedTime: 'Fecha de eliminación'
   },
 
   /** <summary>5. msg</summary> */
@@ -178,23 +188,25 @@ export default {
     actionSuccess: '{action} correctamente',
     assignFail: 'Error al asignar {target}',
     assignSuccess: '{target} asignado correctamente',
-    createSuccess: 'Creado correctamente',
-    deleteFail: 'Error al eliminar',
-    deleteSuccess: 'Eliminado correctamente',
+    createSuccess: '{target} creado correctamente',
+    deleteFail: 'Error al eliminar {target}',
+    deleteSuccess: '{target} eliminado correctamente',
     entityIdRequired: 'ID de {entity} requerido',
     entityNotFound: '{entity} no encontrado',
-    exportFail: 'Error al exportar',
-    exportSuccess: 'Exportado correctamente',
+    exportFail: 'Error al exportar {target}',
+    exportSuccess: '{target} exportado correctamente',
     loadFail: 'Error al cargar datos',
-    loadOptionsFail: 'Error al cargar opciones, intente más tarde',
+    loadOptionsFail: 'Error al cargar opciones de {target}. Intente más tarde.',
+    loadListFail: 'Error al cargar la lista de {target}.\nCompruebe el servidor e inténtelo de nuevo.',
     loadTargetFail: 'Error al cargar {target}',
     noSearchResult: 'Sin resultados de búsqueda',
-    operateFail: 'Error en la operación',
-    updateSuccess: 'Actualizado correctamente'
+    operateFail: '{action} fallido',
+    updateSuccess: '{target} actualizado correctamente'
   },
 
   /** <summary>6. action</summary> */
   action: {
+    cancel: 'Cancelar',
     confirmAction: 'Confirmar {action}',
     confirmDelete: 'Confirmar eliminación',
     etc: 'etc.',
@@ -252,6 +264,14 @@ export default {
     resetPwdContent: '¿Está seguro de restablecer la contraseña de {entity} "{name}" por defecto?',
     unlockContent: '¿Está seguro de desbloquear {entity} "{name}"?'
   },
+  /** PWA aviso de actualización */
+  pwa: {
+    offlineReady: 'La aplicación está lista para trabajar sin conexión',
+    needRefresh: 'Nuevo contenido disponible, haga clic en recargar para actualizar',
+    reload: 'Recargar',
+    close: 'Cerrar'
+  },
+
   api: {
     loginExpired: 'Sesión expirada, inicie sesión de nuevo',
     tokenRefreshFail: 'Error al actualizar el token',

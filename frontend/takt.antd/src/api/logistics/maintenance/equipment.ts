@@ -1,4 +1,4 @@
-import request from '../../../request'
+import request from '@/api/request'
 
 // 设备管理相关 API
 // 注意：需要确认后端控制器名称，暂时使用 TaktEquipments

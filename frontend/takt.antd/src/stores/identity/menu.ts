@@ -59,15 +59,7 @@ export const useMenuStore = defineStore('menu', () => {
       
       menuList.value = menus
 
-      // 从菜单树中提取权限并更新权限 store
-      const { usePermissionStore } = await import('./permission')
-      const permissionStore = usePermissionStore()
-      const extractedPermissions = permissionStore.extractPermissionsFromMenuTree(menus)
-      // 获取用户信息中的权限（如果有）
-      const { useUserStore } = await import('./user')
-      const userStore = useUserStore()
-      const userPermissions = userStore.userInfo?.permissions || []
-      permissionStore.setPermissions(extractedPermissions, userPermissions)
+      // 权限列表由后端根据用户角色（TaktRole -> TaktRolePermission -> TaktPermission）在登录/用户信息中返回，已在路由守卫中写入 permissionStore，此处不再从菜单树提取
 
       // 将菜单树转换为 Vue Router 路由
       const generatedRoutes = generateRoutesFromMenuTree(menus)
@@ -204,11 +196,8 @@ export const useMenuStore = defineStore('menu', () => {
       //   })
       // }
       
-      // 只处理目录（0）和菜单（1），忽略按钮（2）
-      if (menuType === 2) {
-        // if (import.meta.env.DEV) {
-        //   logger.debug(`[Menu Processing] 跳过按钮类型菜单: ${menuName || menuCode}`)
-        // }
+      // 只处理目录（0）和菜单（1）；其他类型（如原按钮类型）不生成路由
+      if (menuType !== 0 && menuType !== 1) {
         return
       }
 
@@ -376,11 +365,11 @@ export const useMenuStore = defineStore('menu', () => {
       //   logger.warn(`[Component Loader] 组件未在预加载模块中找到: ${importPath}，文件可能不存在，使用 404 组件`)
       // }
       // 返回 404 组件作为降级方案
-      return () => import('@/views/error/404.vue')
+      return () => import('@/views/error/not-found/index.vue')
     } catch (error) {
       logger.error(`[Menu Store] 加载组件失败: ${componentPath}`, error)
       // 返回一个默认的错误组件
-      return () => import('@/views/error/404.vue')
+      return () => import('@/views/error/not-found/index.vue')
     }
   }
 
@@ -388,18 +377,26 @@ export const useMenuStore = defineStore('menu', () => {
   const getTranslatedLabelForMenu = (menu: any): string => {
     const menuName = menu.menuName || menu.dictLabel || ''
     const menuL10nKey = menu.menuL10nKey || menu.transKey
-    if (!menuL10nKey) return menuName
+    if (!menuL10nKey) {
+      return menuName
+    }
     const locale = (i18n.global.locale as any).value || i18n.global.locale
     const messages = (i18n.global.messages as any).value || i18n.global.messages
     const localeMessages = messages?.[locale]
     const checkKeyExists = (obj: any, keyPath: string): boolean => {
-      if (!obj || !keyPath) return false
+      if (!obj || !keyPath) {
+        return false
+      }
       try {
         const keys = keyPath.split('.')
         let current = obj
         for (const key of keys) {
-          if (current === null || current === undefined || typeof current !== 'object' || Array.isArray(current)) return false
-          if (!(key in current)) return false
+          if (current === null || current === undefined || typeof current !== 'object' || Array.isArray(current)) {
+            return false
+          }
+          if (!(key in current)) {
+            return false
+          }
           current = current[key]
         }
         return typeof current === 'string'
@@ -410,34 +407,36 @@ export const useMenuStore = defineStore('menu', () => {
     if (localeMessages && checkKeyExists(localeMessages, menuL10nKey)) {
       const translate = (i18n.global as any).t as (key: string, ...args: any[]) => string
       const translated = translate(menuL10nKey)
-      if (translated && translated !== menuL10nKey) return translated
+      if (translated && translated !== menuL10nKey) {
+        return translated
+      }
     }
     return menuName
   }
 
-  // 扁平化菜单树，仅保留 menuType=1（叶子菜单），供 header-query 下拉与工作台快捷入口使用
+  // 扁平化菜单树，仅保留 menuType=1（可访问页面），供 header-query 下拉与工作台快捷入口使用
   const flattenLeafMenus = (menus: MenuTree[]): { path: string; title: string; iconName?: string }[] => {
-    if (!menus || !Array.isArray(menus)) return []
+    if (!menus || !Array.isArray(menus)) {
+      return []
+    }
     const result: { path: string; title: string; iconName?: string }[] = []
     const walk = (items: MenuTree[]) => {
       items.forEach((menu: any) => {
         const menuType = menu.menuType ?? 0
         const menuStatus = menu.menuStatus ?? 0
         const isVisible = menu.isVisible ?? 0
-        if (menuType !== 2 && menuStatus === 0 && isVisible === 0) {
-          if (menuType === 1) {
-            const path = menu.path || menu.extValue || ''
-            if (path) {
-              result.push({
-                path: path.startsWith('/') ? path : `/${path}`,
-                title: getTranslatedLabelForMenu(menu),
-                iconName: menu.menuIcon
-              })
-            }
+        if (menuStatus === 0 && isVisible === 0 && menuType === 1) {
+          const path = menu.path || menu.extValue || ''
+          if (path) {
+            result.push({
+              path: path.startsWith('/') ? path : `/${path}`,
+              title: getTranslatedLabelForMenu(menu),
+              iconName: menu.menuIcon
+            })
           }
-          if (menu.children && menu.children.length > 0) {
-            walk(menu.children)
-          }
+        }
+        if (menu.children && menu.children.length > 0) {
+          walk(menu.children)
         }
       })
     }
@@ -494,11 +493,11 @@ export const useMenuStore = defineStore('menu', () => {
     }
     return menus
       .filter((menu: any) => {
-        // 过滤掉不可见和禁用的菜单（后端已统一转换为 camelCase）
+        // 仅保留目录(0)与菜单(1)、启用且可见的项（后端已统一转换为 camelCase）
         const isVisible = menu.isVisible ?? 0
         const menuStatus = menu.menuStatus ?? 0
         const menuType = menu.menuType ?? 0
-        return menuType !== 2 && menuStatus === 0 && isVisible === 0
+        return (menuType === 0 || menuType === 1) && menuStatus === 0 && isVisible === 0
       })
       .map((menu: any) => {
         // 提取菜单字段（后端已统一转换为 camelCase）
@@ -548,7 +547,7 @@ export const useMenuStore = defineStore('menu', () => {
     return formatMenuItems(menuList.value)
   })
 
-  // 仅 menuType=1 的扁平菜单列表（供 header-query 下拉与工作台快捷入口使用）
+  // 可访问页面（menuType=1）的扁平菜单列表（供 header-query 下拉与工作台快捷入口使用）
   const leafMenuItems = computed(() => {
     void iconCache.value
     void (i18n.global.locale as any).value

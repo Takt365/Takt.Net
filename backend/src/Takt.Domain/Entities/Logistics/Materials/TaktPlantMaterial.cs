@@ -30,44 +30,37 @@ public class TaktPlantMaterial : TaktEntityBase
     /// <summary>
     /// 工厂代码
     /// </summary>
-    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 4, IsNullable = false)]
     public string PlantCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 物料编码（唯一索引）
     /// </summary>
-    [SugarColumn(ColumnName = "material_code", ColumnDescription = "物料编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    [SugarColumn(ColumnName = "material_code", ColumnDescription = "物料编码", ColumnDataType = "nvarchar", Length = 20, IsNullable = false)]
     public string MaterialCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 物料名称
     /// </summary>
-    [SugarColumn(ColumnName = "material_name", ColumnDescription = "物料名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
+    [SugarColumn(ColumnName = "material_name", ColumnDescription = "物料名称", ColumnDataType = "nvarchar", Length = 40, IsNullable = false)]
     public string MaterialName { get; set; } = string.Empty;
 
     /// <summary>
     /// 行业领域
     /// </summary>
-    [SugarColumn(ColumnName = "industry_sector", ColumnDescription = "行业领域", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
+    [SugarColumn(ColumnName = "industry_sector", ColumnDescription = "行业领域", ColumnDataType = "nvarchar", Length = 1, IsNullable = true)]
     public string? IndustrySector { get; set; }
 
     /// <summary>
-    /// 品目阶层ID（序列化为string以避免Javascript精度问题）
+    /// 品目阶层
     /// </summary>
-    [SugarColumn(ColumnName = "material_hierarchy_id", ColumnDescription = "品目阶层ID", ColumnDataType = "bigint", IsNullable = true)]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long? MaterialHierarchyId { get; set; }
-
-    /// <summary>
-    /// 品目阶层名称
-    /// </summary>
-    [SugarColumn(ColumnName = "material_hierarchy_name", ColumnDescription = "品目阶层名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
-    public string? MaterialHierarchyName { get; set; }
+    [SugarColumn(ColumnName = "material_hierarchy", ColumnDescription = "品目阶层", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
+    public string? MaterialHierarchy { get; set; }
 
     /// <summary>
     /// 品目组代码
     /// </summary>
-    [SugarColumn(ColumnName = "material_group_code", ColumnDescription = "品目组代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
+    [SugarColumn(ColumnName = "material_group_code", ColumnDescription = "品目组代码", ColumnDataType = "nvarchar", Length = 3, IsNullable = true)]
     public string? MaterialGroupCode { get; set; }
 
     /// <summary>
@@ -89,31 +82,31 @@ public class TaktPlantMaterial : TaktEntityBase
     public string? MaterialModel { get; set; }
 
     /// <summary>
-    /// 物料品牌
+    /// 物料品牌。从字典 material_brand 选择，DictValue 存入本字段；不允许自由文本。
     /// </summary>
     [SugarColumn(ColumnName = "material_brand", ColumnDescription = "物料品牌", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
     public string? MaterialBrand { get; set; }
 
     /// <summary>
-    /// 基本单位（主单位）
+    /// 基本单位（主单位）。从字典 sys_base_unit（国际标准单位）选择，DictValue 存入本字段（如 PCE、KGM、MTR）；不允许自由文本。
     /// </summary>
-    [SugarColumn(ColumnName = "base_unit", ColumnDescription = "基本单位", ColumnDataType = "nvarchar", Length = 20, IsNullable = false, DefaultValue = "个")]
-    public string BaseUnit { get; set; } = "个";
+    [SugarColumn(ColumnName = "base_unit", ColumnDescription = "基本单位", ColumnDataType = "nvarchar", Length = 4, IsNullable = false, DefaultValue = "PCE")]
+    public string BaseUnit { get; set; } = "PCE";
 
     /// <summary>
     /// 采购组
     /// </summary>
-    [SugarColumn(ColumnName = "purchase_group", ColumnDescription = "采购组", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
+    [SugarColumn(ColumnName = "purchase_group", ColumnDescription = "采购组", ColumnDataType = "nvarchar", Length = 4, IsNullable = true)]
     public string? PurchaseGroup { get; set; }
 
     /// <summary>
-    /// 采购类型（0=内部采购，1=外部采购，2=委外加工，3=其他）
+    /// 采购类型。从字典 material_purchase_type 选择，DictValue（0/1/2/3）对应 int 存本字段。
     /// </summary>
     [SugarColumn(ColumnName = "purchase_type", ColumnDescription = "采购类型", ColumnDataType = "int", IsNullable = false, DefaultValue = "1")]
     public int PurchaseType { get; set; } = 1;
 
     /// <summary>
-    /// 特殊采购（0=标准采购，1=寄售，2=库存转移，3=其他）
+    /// 特殊采购。从字典 material_special_procurement 选择，DictValue（0/1/2/3）对应 int 存本字段。
     /// </summary>
     [SugarColumn(ColumnName = "special_procurement", ColumnDescription = "特殊采购", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int SpecialProcurement { get; set; } = 0;
@@ -131,7 +124,7 @@ public class TaktPlantMaterial : TaktEntityBase
     public decimal MinOrderQuantity { get; set; } = 0;
 
     /// <summary>
-    /// 舍入值（基本单位数量，用于数量舍入）
+    /// 舍入值（基本单位数量，用于数量舍入，允许小数）
     /// </summary>
     [SugarColumn(ColumnName = "rounding_value", ColumnDescription = "舍入值", ColumnDataType = "decimal", Length = 18, DecimalDigits = 4, IsNullable = false, DefaultValue = "0")]
     public decimal RoundingValue { get; set; } = 0;
@@ -151,13 +144,13 @@ public class TaktPlantMaterial : TaktEntityBase
     /// <summary>
     /// 供应商名称
     /// </summary>
-    [SugarColumn(ColumnName = "supplier_name", ColumnDescription = "供应商名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
+    [SugarColumn(ColumnName = "supplier_name", ColumnDescription = "供应商名称", ColumnDataType = "nvarchar", Length = 40, IsNullable = true)]
     public string? SupplierName { get; set; }
 
     /// <summary>
     /// 制造商
     /// </summary>
-    [SugarColumn(ColumnName = "manufacturer", ColumnDescription = "制造商", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
+    [SugarColumn(ColumnName = "manufacturer", ColumnDescription = "制造商", ColumnDataType = "nvarchar", Length = 40, IsNullable = true)]
     public string? Manufacturer { get; set; }
 
     /// <summary>
@@ -167,70 +160,46 @@ public class TaktPlantMaterial : TaktEntityBase
     public string? ManufacturerPartNumber { get; set; }
 
     /// <summary>
-    /// 币种代码
+    /// 原产地（国家代码）。ISO 3166-1 alpha-2，如 CN、US；不由字典维护。
     /// </summary>
-    [SugarColumn(ColumnName = "currency_code", ColumnDescription = "币种代码", ColumnDataType = "nvarchar", Length = 10, IsNullable = true, DefaultValue = "CNY")]
+    [SugarColumn(ColumnName = "country_of_origin", ColumnDescription = "原产地", ColumnDataType = "nvarchar", Length = 4, IsNullable = true)]
+    public string? CountryOfOrigin { get; set; }
+
+    /// <summary>
+    /// 币种代码。ISO 4217，如 CNY、USD；不由字典维护。
+    /// </summary>
+    [SugarColumn(ColumnName = "currency_code", ColumnDescription = "币种代码", ColumnDataType = "nvarchar", Length = 3, IsNullable = true, DefaultValue = "CNY")]
     public string CurrencyCode { get; set; } = "CNY";
 
     /// <summary>
-    /// 价格控制（0=标准价格，1=移动平均价格，2=其他）
+    /// 价格控制。从字典 material_price_control 选择，DictValue（0/1/2）对应 int 存本字段。
     /// </summary>
     [SugarColumn(ColumnName = "price_control", ColumnDescription = "价格控制", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int PriceControl { get; set; } = 0;
 
     /// <summary>
-    /// 价格单位（价格对应的单位数量，如：1表示每1个，10表示每10个）
+    /// 价格单位（价格对应的单位数量，如：1表示每1个，1000表示每1000个）
     /// </summary>
-    [SugarColumn(ColumnName = "price_unit", ColumnDescription = "价格单位", ColumnDataType = "decimal", Length = 18, DecimalDigits = 4, IsNullable = false, DefaultValue = "1")]
-    public decimal PriceUnit { get; set; } = 1;
+    [SugarColumn(ColumnName = "price_unit", ColumnDescription = "价格单位", ColumnDataType = "int", IsNullable = false, DefaultValue = "1000")]
+    public int PriceUnit { get; set; } = 1000;
 
     /// <summary>
-    /// 评估类别代码
+    /// 评估类别代码。从字典 material_valuation_category 选择，DictValue 存本字段。
     /// </summary>
-    [SugarColumn(ColumnName = "valuation_category", ColumnDescription = "评估类别代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
+    [SugarColumn(ColumnName = "valuation_category", ColumnDescription = "评估类别代码", ColumnDataType = "nvarchar", Length = 4, IsNullable = true)]
     public string? ValuationCategory { get; set; }
 
     /// <summary>
     /// 差异码
     /// </summary>
-    [SugarColumn(ColumnName = "difference_code", ColumnDescription = "差异码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
+    [SugarColumn(ColumnName = "difference_code", ColumnDescription = "差异码", ColumnDataType = "nvarchar", Length = 10, IsNullable = true)]
     public string? DifferenceCode { get; set; }
 
     /// <summary>
     /// 利润中心
     /// </summary>
-    [SugarColumn(ColumnName = "profit_center", ColumnDescription = "利润中心", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
+    [SugarColumn(ColumnName = "profit_center", ColumnDescription = "利润中心", ColumnDataType = "nvarchar", Length = 4, IsNullable = true)]
     public string? ProfitCenter { get; set; }
-
-    /// <summary>
-    /// 最新采购价（精确到分，存储为整数，单位为分）
-    /// </summary>
-    [SugarColumn(ColumnName = "latest_purchase_price", ColumnDescription = "最新采购价", ColumnDataType = "decimal", Length = 18, DecimalDigits = 2, IsNullable = false, DefaultValue = "0")]
-    public decimal LatestPurchasePrice { get; set; } = 0;
-
-    /// <summary>
-    /// 销售价格（精确到分，存储为整数，单位为分）
-    /// </summary>
-    [SugarColumn(ColumnName = "sales_price", ColumnDescription = "销售价格", ColumnDataType = "decimal", Length = 18, DecimalDigits = 2, IsNullable = false, DefaultValue = "0")]
-    public decimal SalesPrice { get; set; } = 0;
-
-    /// <summary>
-    /// 安全库存（基本单位数量）
-    /// </summary>
-    [SugarColumn(ColumnName = "safety_stock", ColumnDescription = "安全库存", ColumnDataType = "decimal", Length = 18, DecimalDigits = 4, IsNullable = false, DefaultValue = "0")]
-    public decimal SafetyStock { get; set; } = 0;
-
-    /// <summary>
-    /// 最大库存（基本单位数量）
-    /// </summary>
-    [SugarColumn(ColumnName = "max_stock", ColumnDescription = "最大库存", ColumnDataType = "decimal", Length = 18, DecimalDigits = 4, IsNullable = false, DefaultValue = "0")]
-    public decimal MaxStock { get; set; } = 0;
-
-    /// <summary>
-    /// 最小库存（基本单位数量）
-    /// </summary>
-    [SugarColumn(ColumnName = "min_stock", ColumnDescription = "最小库存", ColumnDataType = "decimal", Length = 18, DecimalDigits = 4, IsNullable = false, DefaultValue = "0")]
-    public decimal MinStock { get; set; } = 0;
 
     /// <summary>
     /// 当前库存（基本单位数量）
@@ -239,16 +208,16 @@ public class TaktPlantMaterial : TaktEntityBase
     public decimal CurrentStock { get; set; } = 0;
 
     /// <summary>
-    /// 生产地点
+    /// 生产库存地点（仓库名称）。从字典 material_stock_location 选择，DictValue 存本字段；可后台按实际仓库名称扩展。
     /// </summary>
-    [SugarColumn(ColumnName = "production_location", ColumnDescription = "生产地点", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? ProductionLocation { get; set; }
+    [SugarColumn(ColumnName = "production_stock_location", ColumnDescription = "生产库存地点", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
+    public string? ProductionStockLocation { get; set; }
 
     /// <summary>
-    /// 采购地点
+    /// 采购库存地点（仓库名称）。从字典 material_stock_location 选择，DictValue 存本字段；可后台按实际仓库名称扩展。
     /// </summary>
-    [SugarColumn(ColumnName = "purchasing_location", ColumnDescription = "采购地点", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? PurchasingLocation { get; set; }
+    [SugarColumn(ColumnName = "purchasing_stock_location", ColumnDescription = "采购库存地点", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
+    public string? PurchasingStockLocation { get; set; }
 
     /// <summary>
     /// 是否检验（0=否，1=是）
@@ -281,10 +250,10 @@ public class TaktPlantMaterial : TaktEntityBase
     public int MaterialStatus { get; set; } = 0;
 
     /// <summary>
-    /// 物料属性（JSON格式，存储物料自定义属性）
+    /// 物料属性。从字典 material_attributes 选择，DictValue（0/1/2/3）对应 int 存本字段。
     /// </summary>
-    [SugarColumn(ColumnName = "material_attributes", ColumnDescription = "物料属性", ColumnDataType = "nvarchar", Length = 4000, IsNullable = true)]
-    public string? MaterialAttributes { get; set; }
+    [SugarColumn(ColumnName = "material_attributes", ColumnDescription = "物料属性", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int MaterialAttributes { get; set; } = 0;
 
     /// <summary>
     /// 物料描述
@@ -293,7 +262,7 @@ public class TaktPlantMaterial : TaktEntityBase
     public string? MaterialDescription { get; set; }
 
     /// <summary>
-    /// 停产状态（EOL，End Of Life）（01=采购/仓库已锁定，02=任务清单/BOM已锁定，Z0=计划物料，ZM=当前库存需确认，ZP=制造中止，ZQ=生产结束（产品），ZW=PC MRP对象外，ZX=PC 中介专用品，ZY=PC 断开连接(MRP对象外)，ZZ=PC 有替代物料）
+    /// 停产状态（EOL）。从字典 material_is_end_of_life 选择，DictValue（01/02/Z0/ZM/ZP/ZQ/ZW/ZX/ZY/ZZ）存本字段。
     /// </summary>
     [SugarColumn(ColumnName = "is_end_of_life", ColumnDescription = "停产状态", ColumnDataType = "nvarchar", Length = 10, IsNullable = true)]
     public string? IsEndOfLife { get; set; }

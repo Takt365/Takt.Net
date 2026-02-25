@@ -23,7 +23,7 @@ using Takt.Shared.Exceptions;
 using Takt.Shared.Helpers;
 using Takt.Shared.Models;
 
-namespace Takt.Application.Organization;
+namespace Takt.Application.Services.HumanResource.Organization;
 
 /// <summary>
 /// Takt部门应用服务

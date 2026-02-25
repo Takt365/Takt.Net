@@ -503,7 +503,9 @@ const translationRowSelection = computed(() => ({
 const translationDisplayColumns = computed((): any[] => {
   const keys = translationVisibleColumnKeys.value || []
   const cols: any[] = translationListColumns
-  if (keys.length === 0) return cols
+  if (keys.length === 0) {
+    return cols
+  }
   const getColumnKey = (col: any): string => {
     const k = col.key || col.dataIndex || col.title
     return k ? String(k) : ''
@@ -897,7 +899,9 @@ const handleTranslationExport = async () => {
 }
 
 const handleTranslationFormSubmit = async () => {
-  if (!translationFormRef.value) return
+  if (!translationFormRef.value) {
+    return
+  }
   try {
     await translationFormRef.value.validate()
     translationFormLoading.value = true
@@ -929,7 +933,9 @@ const handleTranslationFormCancel = () => {
 }
 
 const handleTranslationTransposedFormSubmit = async () => {
-  if (!translationTransposedFormRef.value) return
+  if (!translationTransposedFormRef.value) {
+    return
+  }
   try {
     await translationTransposedFormRef.value.validate()
     translationTransposedFormLoading.value = true
@@ -938,7 +944,9 @@ const handleTranslationTransposedFormSubmit = async () => {
     // 遍历所有语言，逐个创建/更新
     const results: { success: number; fail: number } = { success: 0, fail: 0 }
     for (const [cultureCode, translationValue] of Object.entries(translations)) {
-      if (!translationValue) continue // 跳过空值
+      if (!translationValue) {
+        continue
+      } // 跳过空值
       const existingId = translationIds[cultureCode]
       const languageId = languageIds[cultureCode]
       const payload = {
@@ -989,7 +997,9 @@ const handleTranslationTransposedFormCancel = () => {
 type TransposedRow = { resourceKey: string; resourceType: string; resourceGroup?: string }
 
 const handleTransposedEdit = async (row: TransposedRow) => {
-  if (!row?.resourceKey) return
+  if (!row?.resourceKey) {
+    return
+  }
   try {
     translationLoading.value = true
     // 获取该资源键下的所有翻译
@@ -1017,7 +1027,9 @@ const handleTransposedEdit = async (row: TransposedRow) => {
 }
 
 const handleTransposedDelete = async (row: TransposedRow) => {
-  if (!row?.resourceKey) return
+  if (!row?.resourceKey) {
+    return
+  }
   try {
     translationLoading.value = true
     const { data } = await getTranslationList({
@@ -1045,7 +1057,9 @@ const handleTransposedDelete = async (row: TransposedRow) => {
 
 // 加载翻译数据 - 根据 languageId 动态获取
 const loadTranslationData = async (record: Language) => {
-  if (!record.languageId) return
+  if (!record.languageId) {
+    return
+  }
   
   try {
     // 使用 getTranslationList 根据 languageId 查询翻译数据
@@ -1270,7 +1284,9 @@ const handleRefresh = () => {
 
 // 表单提交
 const handleFormSubmit = async () => {
-  if (!formRef.value) return
+  if (!formRef.value) {
+    return
+  }
   
   try {
     await formRef.value.validate()

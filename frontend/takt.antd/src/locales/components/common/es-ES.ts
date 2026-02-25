@@ -59,7 +59,6 @@ export default {
     avatar: 'Subir avatar',
     avatarUpload: 'Subir avatar',
     avatarUploading: 'Subiendo...',
-    cancel: 'Cancelar',
     confirm: 'Aceptar',
     confirmDeleteAvatar: 'Confirmar borrado',
     confirmDeleteAvatarContent: '¿Eliminar el avatar actual?',

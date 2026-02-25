@@ -70,7 +70,9 @@ export default {
     rememberMe: 'Se souvenir de moi',
     login: 'Se connecter',
     logout: 'Se déconnecter',
-    noAccountRegister: 'Nouveau sur Takt365 ? {register}'
+    noAccountRegister: 'Nouveau sur Takt365 ? {register}',
+    success: 'Connexion réussie',
+    fail: 'Échec de connexion'
   },
 
   /** Mot de passe oublié */

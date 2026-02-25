@@ -80,7 +80,7 @@ const searchResults = computed(() => {
     })
   }
   
-  searchInMenu(menuStore.menuItems)
+  searchInMenu(menuStore.menuItems ?? [])
   
   return results.slice(0, 10) // 限制最多显示10个结果
 })
@@ -89,7 +89,7 @@ watch(searchResults, (results) => {
   dropdownVisible.value = results.length > 0 && query.value.trim() !== ''
 })
 
-const handleSearch = (value: string) => {
+const handleSearch = (_value: string) => {
   if (searchResults.value.length > 0) {
     handleSelect(searchResults.value[0].path)
   }

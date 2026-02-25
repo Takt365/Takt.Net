@@ -14,17 +14,23 @@ export default {
 
   /** <summary>2. settings</summary> */
   settings: {
+    /** 10가지 유명 색상, color-base.less와 일치 */
     color: {
-      blue: '파랑',
-      cyan: '청록',
-      gold: '금색',
-      green: '초록',
-      orange: '주황',
-      pink: '분홍',
-      purple: '보라',
-      red: '빨강',
+      blue: '클라인 블루',
+      brown: '반 다이크 브라운',
+      cyan: '티파니 블루',
+      gold: '골드',
+      gray: '메모리얼 그레이',
+      green: '마스 그린',
+      indigo: '프러시안 블루',
+      orange: '티치아노 레드',
+      pink: '보르도',
+      purple: '부르고뉴',
+      red: '차이니즈 레드',
+      yellow: '세넬리에 옐로우',
       switch: '색상 전환',
-      title: '색상'
+      title: '색상',
+      locked: '오늘의 테마 색상이 고정되어 변경할 수 없습니다'
     },
     locale: {
       'ar-SA': 'العربية',
@@ -108,6 +114,7 @@ export default {
     more: '더보기',
     no: '아니오',
     ok: '확인',
+    open: '열기',
     password: '비밀번호',
     permission: '권한 설정',
     personalSettings: '개인 설정',
@@ -158,18 +165,21 @@ export default {
     yes: '예'
   },
 
-  /** <summary>4. entity</summary> */
+  /** <summary>4. entity</summary> 审计字段顺序与 TaktEntityBase 一致 */
   entity: {
     configId: '설정 ID',
+    extFieldJson: '확장 필드 JSON',
+    remark: '비고',
+    createId: '생성자 ID',
     createBy: '생성자',
     createTime: '생성 일시',
-    deletedBy: '삭제자',
-    deletedTime: '삭제 일시',
-    extFieldJson: '확장 필드 JSON',
-    isDeleted: '삭제됨',
-    remark: '비고',
+    updateId: '수정자 ID',
     updateBy: '수정자',
-    updateTime: '수정 일시'
+    updateTime: '수정 일시',
+    isDeleted: '삭제됨',
+    deleteId: '삭제자 ID',
+    deletedBy: '삭제자',
+    deletedTime: '삭제 일시'
   },
 
   /** <summary>5. msg</summary> */
@@ -178,23 +188,25 @@ export default {
     actionSuccess: '{action}되었습니다',
     assignFail: '{target} 할당에 실패했습니다',
     assignSuccess: '{target}이(가) 할당되었습니다',
-    createSuccess: '생성되었습니다',
-    deleteFail: '삭제에 실패했습니다',
-    deleteSuccess: '삭제되었습니다',
+    createSuccess: '{target} 생성되었습니다',
+    deleteFail: '{target} 삭제에 실패했습니다',
+    deleteSuccess: '{target} 삭제되었습니다',
     entityIdRequired: '{entity} ID가 필요합니다',
     entityNotFound: '{entity}을(를) 찾을 수 없습니다',
-    exportFail: '내보내기에 실패했습니다',
-    exportSuccess: '내보내기되었습니다',
+    exportFail: '{target} 내보내기에 실패했습니다',
+    exportSuccess: '{target} 내보내기되었습니다',
     loadFail: '데이터를 불러오지 못했습니다',
-    loadOptionsFail: '옵션을 불러오지 못했습니다. 나중에 다시 시도하세요',
+    loadOptionsFail: '{target} 옵션을 불러오지 못했습니다. 나중에 다시 시도하세요',
+    loadListFail: '{target} 목록을 불러오지 못했습니다.\n서버를 확인하고 다시 시도하세요.',
     loadTargetFail: '{target}을(를) 불러오지 못했습니다',
     noSearchResult: '검색 결과가 없습니다',
-    operateFail: '작업에 실패했습니다',
-    updateSuccess: '수정되었습니다'
+    operateFail: '{action} 실패했습니다',
+    updateSuccess: '{target} 수정되었습니다'
   },
 
   /** <summary>6. action</summary> */
   action: {
+    cancel: '취소',
     confirmAction: '{action} 확인',
     confirmDelete: '삭제 확인',
     etc: '등',
@@ -237,7 +249,8 @@ export default {
       selectFirst: '먼저 {field}을(를) 선택하세요',
       selectOnly: '선택하세요',
       treeKeyword: '트리 키워드',
-      watermark: '워터마크 내용 입력'
+      watermark: '워터마크 내용 입력',
+      lengthExact: '{field}은(는) {length}자여야 합니다'
     },
     validation: {
       enterValid: '올바른 {field}을(를) 입력하세요',
@@ -252,6 +265,14 @@ export default {
     resetPwdContent: '{entity} "{name}"의 비밀번호를 기본값으로 재설정하시겠습니까?',
     unlockContent: '{entity} "{name}"의 잠금을 해제하시겠습니까?'
   },
+  /** PWA 업데이트 알림 */
+  pwa: {
+    offlineReady: '앱이 오프라인에서 사용할 준비가 되었습니다',
+    needRefresh: '새 버전을 사용할 수 있습니다. 새로고침을 클릭하여 업데이트하세요',
+    reload: '새로고침',
+    close: '닫기'
+  },
+
   api: {
     loginExpired: '로그인이 만료되었습니다. 다시 로그인해 주세요',
     tokenRefreshFail: '토큰 새로 고침 실패',

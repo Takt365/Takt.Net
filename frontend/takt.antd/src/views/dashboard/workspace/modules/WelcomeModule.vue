@@ -8,29 +8,52 @@
         </a-tooltip>
       </a-col>
     </a-row>
-    <div class="welcome-quote">{{ quoteText }}</div>
+    <div class="welcome-quote">
+      <span class="welcome-quote-icon">
+        <RiLightbulbLine />
+      </span>
+      <span>{{ quoteText }}</span>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import dayOfYear from 'dayjs/plugin/dayOfYear'
 import weekOfYear from 'dayjs/plugin/weekOfYear'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
+import { RiLightbulbLine } from '@remixicon/vue'
+import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/stores/identity/user'
+import { useLocaleStore } from '@/stores/routine/localization/locale'
+import { logger } from '@/utils/logger'
 
+dayjs.extend(localizedFormat)
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(dayOfYear)
 dayjs.extend(weekOfYear)
 dayjs.extend(quarterOfYear)
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const userStore = useUserStore()
+const { holidayFromToken, userInfo } = storeToRefs(userStore)
+const { locale: currentLocale } = storeToRefs(useLocaleStore())
+
+// 切换语言时重新获取用户信息（含节假日），保证工作台问候语/引用随语言更新
+watch(
+  currentLocale,
+  (newVal, oldVal) => {
+    if (oldVal !== undefined && newVal !== oldVal && userStore.token) {
+      userStore.getUserInfo().catch(() => {})
+    }
+  }
+)
 
 const now = ref(new Date())
 let timer: number | null = null
@@ -63,9 +86,7 @@ const localeTimeZoneMap: Record<string, string> = {
   'ar-SA': 'Asia/Riyadh'
 }
 
-const timeZone = computed(() => {
-  return localeTimeZoneMap[locale.value] || dayjs.tz.guess()
-})
+const timeZone = computed(() => localeTimeZoneMap[currentLocale.value] || dayjs.tz.guess())
 
 const dateText = computed(() =>
   dayjs(now.value).tz(timeZone.value).format('YYYY-MM-DD HH:mm:ss')
@@ -73,22 +94,27 @@ const dateText = computed(() =>
 
 const dateTooltip = computed(() => {
   const d = dayjs(now.value).tz(timeZone.value)
-  const year = d.year()
-  const month = d.month() + 1
-  const day = d.date()
-  const dayOfYearValue = d.dayOfYear()
-  const quarter = d.quarter()
-  const week = d.week()
-  const weekdayName = d.format('dddd')
-
-  if (locale.value.startsWith('zh')) {
-    return `今天是${year}年${month}月${day}日，第${dayOfYearValue}天，第${quarter}季度，第${week}周，${weekdayName}`
-  }
-
-  return `Today is ${d.format('YYYY-MM-DD')}, day ${dayOfYearValue} of the year, Q${quarter}, week ${week}, ${weekdayName}`
+  const dayOfYearLabel = t('dashboard.workspace.dayOfYearLabel', { n: d.dayOfYear() })
+  return d.format('LL') + ' · ' + d.format('dddd') + ' · Q' + d.quarter() + ' · W' + d.week() + ' · ' + dayOfYearLabel
 })
 
+// 问候语：假日时为「简短问候(holidayGreeting)或假日名，用户名」，非假日为时段问候 + 用户名
+// 显式依赖 currentLocale，切换语言时重新计算（与 dateText 一致，不单靠 t() 的响应式）
+// 显示名：zh-CN/zh-TW 优先 nickname，否则 userName；非 cn/tw 优先 englishName，否则 userName（不使用 realName/fullName）
 const greetingText = computed(() => {
+  void currentLocale.value
+  const holiday = holidayFromToken.value
+  const locale = currentLocale.value
+  const isZh = locale === 'zh-CN' || locale === 'zh-TW'
+  const name = isZh
+    ? (userInfo.value?.nickname?.trim() || userInfo.value?.userName || '')
+    : (userInfo.value?.englishName?.trim() || userInfo.value?.userName || '')
+  if (holiday?.isHolidayToday && (holiday.holidayGreeting || holiday.holidayName)) {
+    const greeting = holiday.holidayGreeting || holiday.holidayName
+    const text = name ? `${greeting}，${name}` : greeting
+    logger.info('[工作台问候语] 使用假日: HolidayGreeting=', holiday.holidayGreeting, ', HolidayName=', holiday.holidayName, ', 展示=', text)
+    return text
+  }
   const hour = now.value.getHours()
   let key: string
   if (hour < 9) key = 'common.greeting.morning'
@@ -97,11 +123,15 @@ const greetingText = computed(() => {
   else if (hour < 18) key = 'common.greeting.afternoon'
   else key = 'common.greeting.night'
   const greeting = t(key)
-  const name = userStore.userInfo?.realName || userStore.userInfo?.userName || ''
   return name ? `${greeting}${name}` : greeting
 })
 
+// 引用区：假日时显示假日引用/诗句（holidayQuote 优先，否则 holidayGreeting），非假日显示按日轮换的 common.quote
+// 显式依赖 currentLocale，切换语言时重新计算
 const quoteText = computed(() => {
+  void currentLocale.value
+  const holiday = holidayFromToken.value
+  if (holiday?.isHolidayToday && (holiday.holidayQuote ?? holiday.holidayGreeting)) return (holiday.holidayQuote ?? holiday.holidayGreeting)!
   const letters = 'abcdefghijklmnopqrstuvwxyz'
   const idx = now.value.getDate() % 26
   const key = `common.quote.${letters[idx]}`
@@ -126,9 +156,20 @@ const quoteText = computed(() => {
     text-align: right;
   }
   .welcome-quote {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     color: var(--ant-color-text-secondary);
-    font-size: 14px;
+    font-size: 22px;
+    font-weight: bold;
     line-height: 1.6;
+    .welcome-quote-icon {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      font-size: 22px;
+      animation: fa-shake 1s linear infinite;
+    }
   }
 }
 </style>

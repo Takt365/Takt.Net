@@ -28,7 +28,6 @@ export interface GenTable extends TaktEntityBase {
   entityClassName?: string
   dtoNamespace?: string
   dtoClassName?: string
-  dtoCategory?: string
   serviceNamespace?: string
   iServiceClassName?: string
   serviceClassName?: string
@@ -92,7 +91,6 @@ export interface GenTableCreate {
   entityClassName?: string
   dtoNamespace?: string
   dtoClassName?: string
-  dtoCategory?: string
   serviceNamespace?: string
   iServiceClassName?: string
   serviceClassName?: string

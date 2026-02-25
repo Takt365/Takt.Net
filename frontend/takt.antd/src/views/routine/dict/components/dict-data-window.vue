@@ -553,7 +553,9 @@ const handleVisibleChange = (value: boolean) => {
 
 // 初始化窗口
 const initWindow = () => {
-  if (!props.dictType?.dictTypeId) return
+  if (!props.dictType?.dictTypeId) {
+    return
+  }
   
   // 重置查询条件
   queryKeyword.value = ''
@@ -580,7 +582,9 @@ const initWindow = () => {
 
 // 加载数据
 const loadData = async () => {
-  if (!props.dictType?.dictTypeId) return
+  if (!props.dictType?.dictTypeId) {
+    return
+  }
   
   try {
     loading.value = true
@@ -711,7 +715,9 @@ const handleDeleteOne = async (record: DictData) => {
 
 // 导出
 const handleExport = async () => {
-  if (!props.dictType?.dictTypeId) return
+  if (!props.dictType?.dictTypeId) {
+    return
+  }
   
   try {
     loading.value = true
@@ -782,8 +788,10 @@ const handleRefresh = () => {
 
 // 表单提交
 const handleFormSubmit = async () => {
-  if (!formRef.value) return
-  
+  if (!formRef.value) {
+    return
+  }
+
   try {
     await formRef.value.validate()
     formLoading.value = true
@@ -860,8 +868,10 @@ const handleStartEdit = (record: DictData, field: keyof DictData) => {
 // 保存单元格
 const handleSaveCell = async (record: DictData, field: keyof DictData) => {
   const key = `${record.dictDataId}-${field}`
-  if (editingKey.value !== key) return
-  
+  if (editingKey.value !== key) {
+    return
+  }
+
   const newValue = editingRecord.value[field]
   const oldValue = originalRecord.value[field]
   

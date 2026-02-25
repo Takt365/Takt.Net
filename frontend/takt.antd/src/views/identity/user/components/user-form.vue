@@ -26,10 +26,10 @@
       >
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.user.username')" name="userName">
+            <a-form-item :label="t('entity.user.name')" name="userName">
               <a-input
                 v-model:value="formState.userName"
-                :placeholder="t('common.form.placeholder.required', { field: t('entity.user.username') })"
+                :placeholder="t('common.form.placeholder.required', { field: t('entity.user.name') })"
                 :disabled="!!formData?.userId"
                 show-count
                 :maxlength="20"
@@ -94,31 +94,31 @@
         </a-row>
         <a-row :gutter="24">
           <a-col :span="24">
-            <a-form-item :label="t('entity.user.usertype')" name="userType" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
+            <a-form-item :label="t('entity.user.type')" name="userType" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
               <TaktSelect
                 v-model:value="formState.userType"
                 dict-type="sys_user_type"
-                :placeholder="t('common.form.placeholder.select', { field: t('entity.user.usertype') })"
+                :placeholder="t('common.form.placeholder.select', { field: t('entity.user.type') })"
               />
             </a-form-item>
           </a-col>
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.user.useremail')" name="userEmail">
+            <a-form-item :label="t('entity.user.email')" name="userEmail">
               <a-input
                 v-model:value="formState.userEmail"
-                :placeholder="t('common.form.placeholder.required', { field: t('entity.user.useremail') })"
+                :placeholder="t('common.form.placeholder.required', { field: t('entity.user.email') })"
                 show-count
                 :maxlength="100"
               />
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.user.userphone')" name="userPhone">
+            <a-form-item :label="t('entity.user.phone')" name="userPhone">
               <a-input
                 v-model:value="formState.userPhone"
-                :placeholder="t('common.form.placeholder.required', { field: t('entity.user.userphone') })"
+                :placeholder="t('common.form.placeholder.required', { field: t('entity.user.phone') })"
                 show-count
                 :maxlength="20"
               />
@@ -137,11 +137,11 @@
             </a-form-item>
           </a-col>
           <a-col :span="24">
-            <a-form-item :label="t('entity.user.userstatus')" name="userStatus" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
+            <a-form-item :label="t('entity.user.status')" name="userStatus" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
               <TaktSelect
                 v-model:value="formState.userStatus"
                 dict-type="sys_normal_disable"
-                :placeholder="t('common.form.placeholder.select', { field: t('entity.user.userstatus') })"
+                :placeholder="t('common.form.placeholder.select', { field: t('entity.user.status') })"
               />
             </a-form-item>
           </a-col>
@@ -262,7 +262,7 @@ import type { User } from '@/types/identity/user'
 import type { TaktSelectOption } from '@/types/common'
 import { getOptions as getRoleOptions } from '@/api/identity/role'
 import { getOptions as getPostOptions } from '@/api/humanresource/organization/post'
-import { getOptions as getTenantOptions } from '@/api/tenant/tenant'
+import { getOptions as getTenantOptions } from '@/api/identity/tenant'
 import DeptTreeTransfer from './dept-tree-transfer.vue'
 import { logger } from '@/utils/logger'
 import { 
@@ -366,14 +366,15 @@ const loadBusinessOptions = async () => {
     tenantOptions.value = tenants
   } catch (error: any) {
     // 记录错误日志
+    const optionsFailText = t('common.msg.loadOptionsFail', { target: t('entity.user._self') })
     logger.error('[User Form] 加载业务选项数据失败:', {
       error,
-      message: error?.message || t('common.msg.loadOptionsFail'),
+      message: error?.message || optionsFailText,
       stack: error?.stack
     })
     
     // 显示用户友好的错误提示
-    const errorMessage = error?.response?.data?.message || error?.message || t('common.msg.loadOptionsFail')
+    const errorMessage = error?.response?.data?.message || error?.message || optionsFailText
     message.error({
       content: errorMessage,
       duration: 5
@@ -388,7 +389,7 @@ onMounted(() => {
 
 const rules: Record<string, Rule[]> = {
   userName: [
-    { required: true, message: t('common.form.placeholder.required', { field: t('entity.user.username') }), trigger: 'blur' },
+    { required: true, message: t('common.form.placeholder.required', { field: t('entity.user.name') }), trigger: 'blur' },
     { 
       validator: (_rule: any, value: string) => {
         if (!value) {
@@ -485,7 +486,7 @@ const rules: Record<string, Rule[]> = {
     }
   ],
   userEmail: [
-    { required: true, message: t('common.form.placeholder.required', { field: t('entity.user.useremail') }), trigger: 'blur' },
+    { required: true, message: t('common.form.placeholder.required', { field: t('entity.user.email') }), trigger: 'blur' },
     {
       validator: (_rule: any, value: string) => {
         if (!value) {
@@ -500,7 +501,7 @@ const rules: Record<string, Rule[]> = {
     }
   ],
   userPhone: [
-    { required: true, message: t('common.form.placeholder.required', { field: t('entity.user.userphone') }), trigger: 'blur' },
+    { required: true, message: t('common.form.placeholder.required', { field: t('entity.user.phone') }), trigger: 'blur' },
     {
       validator: (_rule: any, value: string) => {
         if (!value) {
@@ -533,10 +534,10 @@ const rules: Record<string, Rule[]> = {
     { required: true, message: t('common.form.placeholder.select', { field: t('entity.user.gender') }), trigger: 'change' }
   ],
   userType: [
-    { required: true, message: t('common.form.placeholder.select', { field: t('entity.user.usertype') }), trigger: 'change' }
+    { required: true, message: t('common.form.placeholder.select', { field: t('entity.user.type') }), trigger: 'change' }
   ],
   userStatus: [
-    { required: true, message: t('common.form.placeholder.select', { field: t('entity.user.userstatus') }), trigger: 'change' }
+    { required: true, message: t('common.form.placeholder.select', { field: t('entity.user.status') }), trigger: 'change' }
   ]
 }
 

@@ -395,9 +395,7 @@ import type {
   HighlightWordsDto,
   HighlightWordsResultDto,
   AddWordsDto,
-  RemoveWordsResultDto,
   WordFilterStatsDto,
-  IllegalWordDetailDto,
   WordLibraryFileDto
 } from '@/types/routine/wordfilter'
 import { logger } from '@/utils/logger'
@@ -601,7 +599,7 @@ const wordsRowSelection = computed(() => ({
   onChange: (keys: (string | number)[]) => {
     selectedWords.value = keys as string[]
   },
-  onSelectAll: (selected: boolean, selectedRows: string[], changeRows: string[]) => {
+  onSelectAll: (selected: boolean, _selectedRows: string[], changeRows: string[]) => {
     if (selected) {
       selectedWords.value = [...selectedWords.value, ...changeRows]
     } else {

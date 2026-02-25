@@ -71,7 +71,7 @@ export const useDictDataStore = defineStore('dictData', () => {
       // 按字典类型编码分组（ExtValue = DictTypeCode）
       const groupedDictData: Record<string, TaktSelectOption[]> = {}
       
-      allDictData.forEach((option: any) => {
+      allDictData.forEach((option: TaktSelectOption) => {
         // 兼容 PascalCase 和 camelCase
         // 后端已统一转换为 camelCase
         // 批量加载时：DictTypeCode 用于分组，ExtLabel 和 ExtValue 保持原始值

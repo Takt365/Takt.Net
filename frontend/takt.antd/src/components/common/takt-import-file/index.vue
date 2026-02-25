@@ -14,7 +14,7 @@
   <div class="takt-import-file">
     <!-- 下载模板按钮 -->
     <a-button
-      v-if="showTemplate"
+      v-if="showTemplateButton"
       :loading="templateLoading"
       :disabled="disabled"
       @click="handleDownloadTemplate"
@@ -28,6 +28,7 @@
 
     <!-- 上传区域 -->
     <a-upload-dragger
+      v-if="showUploadArea"
       v-model:fileList="fileList"
       :name="name"
       :accept="accept"
@@ -114,8 +115,10 @@ import { InboxOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import type { UploadChangeParam, UploadFile, UploadProps } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
+import { usePermissionStore } from '@/stores/identity/permission'
 
 const { t } = useI18n()
+const permissionStore = usePermissionStore()
 
 type FileType = 'txt' | 'csv' | 'xlsx'
 
@@ -148,6 +151,10 @@ interface Props {
   maxSize?: number
   /** 最大记录数限制（默认 1000 条） */
   maxRows?: number
+  /** 模板权限标识（如：identity:user:template；传入时仅在有该权限时显示下载模板按钮） */
+  templatePermission?: string
+  /** 导入权限标识（如：identity:user:import；传入时仅在有该权限时显示上传区域） */
+  importPermission?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -170,6 +177,18 @@ const props = withDefaults(defineProps<Props>(), {
 const templateTextDisplay = computed(() => props.templateText ?? t('components.common.import.downloadTemplate'))
 const uploadTextDisplay = computed(() => props.uploadText ?? t('components.common.import.uploadText'))
 const hintDisplay = computed(() => props.hint ?? t('components.common.import.hint'))
+
+/** 是否显示下载模板按钮：未传 templatePermission 时按 showTemplate；传入则需同时有权限 */
+const showTemplateButton = computed(() => {
+  if (!props.showTemplate) return false
+  if (!props.templatePermission) return true
+  return permissionStore.hasPermission(props.templatePermission)
+})
+/** 是否显示上传区域：未传 importPermission 时显示；传入则需有权限 */
+const showUploadArea = computed(() => {
+  if (!props.importPermission) return true
+  return permissionStore.hasPermission(props.importPermission)
+})
 
 // 根据文件类型获取 accept 属性
 const accept = computed(() => {
@@ -207,7 +226,9 @@ const previewFileType = ref('')
 
 // 预览文件类型
 const previewType = computed(() => {
-  if (!previewFile.value) return ''
+  if (!previewFile.value) {
+    return ''
+  }
   const fileName = previewFile.value.name || ''
   if (fileName.endsWith('.xlsx')) {
     return 'xlsx'
@@ -237,7 +258,9 @@ const getPreviewDescription = (): string => {
 
 // 格式化文件大小
 const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 B'
+  if (bytes === 0) {
+    return '0 B'
+  }
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
@@ -555,7 +578,9 @@ const handleCloseResult = () => {
 
 // 获取结果消息
 const getResultMessage = (): string => {
-  if (!importResult.value) return ''
+  if (!importResult.value) {
+    return ''
+  }
   const { success, fail } = importResult.value
   if (fail > 0) {
     return t('components.common.import.importDoneSummary', { success, fail })

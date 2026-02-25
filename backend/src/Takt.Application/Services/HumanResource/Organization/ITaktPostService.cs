@@ -13,7 +13,7 @@
 using Takt.Application.Dtos.HumanResource.Organization;
 using Takt.Shared.Models;
 
-namespace Takt.Application.Organization;
+namespace Takt.Application.Services.HumanResource.Organization;
 
 /// <summary>
 /// Takt岗位应用服务接口

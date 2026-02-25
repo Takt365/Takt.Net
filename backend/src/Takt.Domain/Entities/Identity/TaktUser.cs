@@ -134,4 +134,5 @@ public class TaktUser : TaktEntityBase
     /// </summary>
     [SugarColumn(ColumnName = "user_status", ColumnDescription = "用户状态", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int UserStatus { get; set; } = 0;
+
 }

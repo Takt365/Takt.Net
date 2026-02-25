@@ -34,26 +34,28 @@ public class TaktSqlSugarDbContext
     }
 
     /// <summary>
-    /// 获取数据库客户端（根据实体类型自动切换数据库）
+    /// 获取数据库客户端（按实体类型选择库，租户禁用/启用均为多库）
     /// </summary>
     /// <param name="entityType">实体类型（可选，用于自动路由到对应的数据库）</param>
     /// <returns>SqlSugar客户端</returns>
+    /// <remarks>
+    /// 租户禁用与启用均使用多库（0～5 按实体命名空间映射）。有 entityType 时按映射取 ConfigId，否则用 CurrentConfigId 或主库。
+    /// 租户启用时由中间件/仓储设置 CurrentConfigId 并做按租户过滤；禁用时不按租户过滤。
+    /// </remarks>
     public ISqlSugarClient GetClient(Type? entityType = null)
     {
         string configId;
-        
-        // 如果提供了实体类型，根据实体类型自动获取对应的 ConfigId（多库自动切换）
+
         if (entityType != null)
         {
             var entityNamespace = entityType.Namespace ?? string.Empty;
             configId = TaktEntityDatabaseMapping.GetConfigIdByEntityNamespace(entityNamespace);
         }
-        // 否则使用租户上下文中的 ConfigId（多租户模式）
         else
         {
             configId = TaktTenantContext.CurrentConfigId ?? TaktAppConstants.DefaultConfigId;
         }
-        
+
         return GetClientByConfigId(configId);
     }
 

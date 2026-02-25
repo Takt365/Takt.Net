@@ -14,7 +14,7 @@ using Takt.Application.Dtos.HumanResource.Organization;
 using Takt.Application.Dtos.Identity;
 using Takt.Shared.Models;
 
-namespace Takt.Application.Identity;
+namespace Takt.Application.Services.Identity;
 
 /// <summary>
 /// Takt角色应用服务接口
@@ -92,12 +92,27 @@ public interface ITaktRoleService
     Task<List<TaktRoleMenuDto>> GetRoleMenuIdsAsync(long roleId);
 
     /// <summary>
+    /// 获取角色权限列表
+    /// </summary>
+    /// <param name="roleId">角色ID</param>
+    /// <returns>角色权限列表（含角色名、权限标识等展示字段）</returns>
+    Task<List<TaktRolePermissionDto>> GetRolePermissionIdsAsync(long roleId);
+
+    /// <summary>
     /// 分配角色菜单
     /// </summary>
     /// <param name="roleId">角色ID</param>
     /// <param name="menuIds">菜单ID列表</param>
     /// <returns>是否成功</returns>
     Task<bool> AssignRoleMenusAsync(long roleId, long[] menuIds);
+
+    /// <summary>
+    /// 分配角色权限
+    /// </summary>
+    /// <param name="roleId">角色ID</param>
+    /// <param name="permissionIds">权限ID列表</param>
+    /// <returns>是否成功</returns>
+    Task<bool> AssignRolePermissionsAsync(long roleId, long[] permissionIds);
 
     /// <summary>
     /// 分配角色用户

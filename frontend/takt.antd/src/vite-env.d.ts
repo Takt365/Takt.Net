@@ -35,3 +35,31 @@ declare module 'virtual:app-info' {
   const s: string
   export default s
 }
+
+declare module 'virtual:pwa-register/vue' {
+  import type { Ref } from 'vue'
+
+  export function useRegisterSW(options?: {
+    immediate?: boolean
+    onNeedRefresh?: () => void
+    onOfflineReady?: () => void
+    onRegisteredSW?: (swScriptUrl: string, registration: ServiceWorkerRegistration | undefined) => void
+    onRegisterError?: (error: unknown) => void
+  }): {
+    needRefresh: Ref<boolean>
+    offlineReady: Ref<boolean>
+    updateServiceWorker: (reloadPage?: boolean) => Promise<void>
+  }
+}
+
+/** @form-create/antd-designer 设计器语言包（locale 属性） */
+declare module '@form-create/antd-designer/locale/zh-cn' {
+  const locale: { name: string; [key: string]: unknown }
+  export default locale
+}
+
+declare module '@form-create/antd-designer/locale/en' {
+  const locale: { name: string; [key: string]: unknown }
+  export default locale
+}
+

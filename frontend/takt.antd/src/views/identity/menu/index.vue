@@ -35,6 +35,7 @@
         update-permission="identity:menu:update"
         delete-permission="identity:menu:delete"
         import-permission="identity:menu:import"
+        template-permission="identity:menu:template"
         export-permission="identity:menu:export"
         :show-create="true"
         :show-update="true"
@@ -169,6 +170,8 @@
         file-type="xlsx"
         :sheet-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.menu._self') })"
         :template-file-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.menu._self') })"
+        template-permission="identity:menu:template"
+        import-permission="identity:menu:import"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
         :template-text="t('common.action.import.templateText', { entity: t('entity.menu._self') })"
@@ -224,7 +227,6 @@ const dataSource = ref<Menu[]>([])
 const fullTableTree = ref<any[]>([])
 const selectedTreeKeys = ref<(string | number)[]>([])
 const currentPage = ref(1)
-const pageSize = ref(20)
 const total = ref(0)
 const selectedRow = ref<Menu | null>(null)
 const selectedRows = ref<Menu[]>([])
@@ -248,23 +250,15 @@ const visibleColumnKeys = ref<string[]>([])
 
 const menuTypeOptions = computed(() => [
   { label: t('identity.menu.menuType.dir'), value: 0 },
-  { label: t('identity.menu.menuType.menu'), value: 1 },
-  { label: t('identity.menu.menuType.button'), value: 2 }
+  { label: t('identity.menu.menuType.menu'), value: 1 }
 ])
 
-/** 菜单类型：0=目录，1=菜单，2=按钮；TreeDataItem 排除类型为 2 的节点 */
-const MENU_TYPE_BUTTON = 2
-function isMenuTypeButton(n: any): boolean {
-  const typeVal = n?.menuType ?? n?.type ?? n?.MenuType
-  return typeVal === MENU_TYPE_BUTTON || Number(typeVal) === MENU_TYPE_BUTTON
-}
-
-/** 将 fullTableTree 转为左侧 a-tree 的 TreeDataItem（title, key, children）；排除类型为 2（按钮） */
+/** 将 fullTableTree 转为左侧 a-tree 的 TreeDataItem（title, key, children） */
 function mapFullTableTreeToTreeData(nodes: any[]): TreeDataItem[] {
-  if (!nodes?.length) return []
-  return nodes
-    .filter((n: any) => !isMenuTypeButton(n))
-    .map((n: any) => ({
+  if (!nodes?.length) {
+    return []
+  }
+  return nodes.map((n: any) => ({
       title: n.menuName ?? n.title ?? '',
       key: String(n.menuId ?? n.key ?? n.id ?? ''),
       children: n.children?.length ? mapFullTableTreeToTreeData(n.children) : undefined
@@ -288,10 +282,14 @@ function flatToTree(list: Menu[], parentId: string | number = '0'): any[] {
 function getSubtree(nodes: any[], key: string | number): any[] {
   const k = String(key)
   for (const node of nodes) {
-    if (String(node.key ?? node.menuId ?? node.id) === k) return [node]
+    if (String(node.key ?? node.menuId ?? node.id) === k) {
+      return [node]
+    }
     if (node.children?.length) {
       const found = getSubtree(node.children, key)
-      if (found.length) return found
+      if (found.length) {
+        return found
+      }
     }
   }
   return []
@@ -300,9 +298,13 @@ function getSubtree(nodes: any[], key: string | number): any[] {
 /** 按关键字过滤树：保留 title 包含关键字的节点及其祖先、子孙 */
 function filterTreeByKeyword(nodes: TreeDataItem[], keyword: string): TreeDataItem[] {
   const k = (keyword ?? '').trim().toLowerCase()
-  if (!k) return nodes
+  if (!k) {
+    return nodes
+  }
   function filter(nodes: TreeDataItem[]): TreeDataItem[] {
-    if (!nodes?.length) return []
+    if (!nodes?.length) {
+      return []
+    }
     return nodes
       .map(node => {
         const title = String(node.title ?? '').toLowerCase()
@@ -331,7 +333,9 @@ const filteredMenuTreeData = computed(() =>
 function getAllParentKeys(nodes: TreeDataItem[]): (string | number)[] {
   const keys: (string | number)[] = []
   function walk(list: TreeDataItem[]) {
-    if (!list?.length) return
+    if (!list?.length) {
+      return
+    }
     for (const node of list) {
       if (node.children?.length) {
         keys.push(node.key as string | number)
@@ -360,7 +364,9 @@ function getRowKeysWithChildren(
 ): (string | number)[] {
   const keys: (string | number)[] = []
   function walk(list: any[]) {
-    if (!list?.length) return
+    if (!list?.length) {
+      return
+    }
     for (const row of list) {
       if (row.children?.length) {
         keys.push(getKey(row))
@@ -379,9 +385,13 @@ const getMenuField = (record: any, field: string): any => record?.[field]
 /** 右侧树表数据：仅当左侧选中一项时显示该节点子树，否则为空 */
 const tableTreeData = computed(() => {
   const tree = fullTableTree.value
-  if (!tree?.length) return []
+  if (!tree?.length) {
+    return []
+  }
   const keys = selectedTreeKeys.value
-  if (keys.length !== 1) return []
+  if (keys.length !== 1) {
+    return []
+  }
   const sub = getSubtree(tree, keys[0])
   return sub.length ? sub : []
 })
@@ -416,7 +426,9 @@ function findParentAndOrderNum(
     const children = node?.children ?? []
     if (children.length) {
       const found = findParentAndOrderNum(children, targetKey, k)
-      if (found) return found
+      if (found) {
+        return found
+      }
     }
   }
   return null
@@ -425,14 +437,16 @@ function findParentAndOrderNum(
 const handleMenuTreeDrop = async (payload: TreeDropPayload) => {
   const { newTreeData, dragKey } = payload
   const pos = findParentAndOrderNum(newTreeData, dragKey)
-  if (!pos) return
+  if (!pos) {
+    return
+  }
   try {
     loading.value = true
     await update(String(dragKey), { parentId: pos.parentId, orderNum: pos.orderNum } as Partial<MenuUpdate>)
     message.success(t('identity.menu.msg.orderUpdated'))
     loadData()
   } catch (error: any) {
-    message.error(error?.message ?? t('common.msg.operateFail'))
+    message.error(error?.message ?? t('common.msg.operateFail', { action: t('common.action.operation') }))
     loadData()
   } finally {
     loading.value = false
@@ -448,15 +462,27 @@ onMounted(() => {
 })
 
 function getMenuTypeLabel(v: number | undefined): string {
-  if (v === 0) return t('identity.menu.menuType.dir')
-  if (v === 1) return t('identity.menu.menuType.menu')
-  if (v === 2) return t('identity.menu.menuType.button')
+  if (v === 0) {
+    return t('identity.menu.menuType.dir')
+  }
+  if (v === 1) {
+    return t('identity.menu.menuType.menu')
+  }
+  if (v === 2) {
+    return t('identity.menu.menuType.button')
+  }
   return '-'
 }
 function getMenuTypeColor(v: number | undefined): string {
-  if (v === 0) return 'blue'
-  if (v === 1) return 'green'
-  if (v === 2) return 'orange'
+  if (v === 0) {
+    return 'blue'
+  }
+  if (v === 1) {
+    return 'green'
+  }
+  if (v === 2) {
+    return 'orange'
+  }
   return 'default'
 }
 
@@ -560,7 +586,9 @@ const mergedColumns = computed((): any => mergeDefaultColumns(columns.value as a
 const displayColumns = computed(() => {
   const keys = visibleColumnKeys.value || []
   const merged = mergedColumns.value || []
-  if (keys.length === 0) return columns.value as any
+  if (keys.length === 0) {
+    return columns.value as any
+  }
   const getColumnKey = (col: any): string => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
   const keysSet = new Set(keys.map(k => String(k)))
   return merged.filter((col: any) => {
@@ -669,10 +697,10 @@ const handleDeleteOne = (record: Menu) => {
       try {
         loading.value = true
         await remove(getMenuId(record))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deleteSuccess', { target: t('entity.menu._self') }))
         loadData()
       } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+        message.error(error?.message || t('common.msg.deleteFail', { target: t('entity.menu._self') }))
       } finally {
         loading.value = false
       }
@@ -694,13 +722,13 @@ const handleDelete = () => {
       try {
         loading.value = true
         await Promise.all(selectedRows.value.map(record => remove(getMenuId(record))))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deleteSuccess', { target: t('entity.menu._self') }))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+        message.error(error?.message || t('common.msg.deleteFail', { target: t('entity.menu._self') }))
       } finally {
         loading.value = false
       }
@@ -710,24 +738,28 @@ const handleDelete = () => {
 
 const handleFormSubmit = async () => {
   try {
-    if (!formRef.value) return
+    if (!formRef.value) {
+      return
+    }
     await formRef.value.validate()
     const formValues = formRef.value.getValues()
     formLoading.value = true
     if (formData.value?.menuId) {
       await update(formData.value.menuId, { ...formValues, menuId: formData.value.menuId })
-      message.success(t('common.msg.updateSuccess'))
+      message.success(t('common.msg.updateSuccess', { target: t('entity.menu._self') }))
     } else {
       await create(formValues)
-      message.success(t('common.msg.createSuccess'))
+      message.success(t('common.msg.createSuccess', { target: t('entity.menu._self') }))
     }
     formRef.value?.resetFields()
     formData.value = {}
     formVisible.value = false
     loadData()
   } catch (error: any) {
-    if (error?.errorFields) return
-    message.error(error?.message || t('common.msg.operateFail'))
+    if (error?.errorFields) {
+      return
+    }
+    message.error(error?.message || t('common.msg.operateFail', { action: t('common.action.operation') }))
   } finally {
     formLoading.value = false
   }
@@ -774,9 +806,9 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess'))
+    message.success(t('common.msg.exportSuccess', { target: t('entity.menu._self') }))
   } catch (error: any) {
-    message.error(error?.message || t('common.msg.exportFail'))
+    message.error(error?.message || t('common.msg.exportFail', { target: t('entity.menu._self') }))
   } finally {
     loading.value = false
   }
@@ -797,6 +829,7 @@ const handleColumnKeysChange = (keys: (string | number)[]) => {
   visibleColumnKeys.value = keys.map(k => String(k))
 }
 const handleColumnSettingReset = () => { visibleColumnKeys.value = [] }
+defineExpose({ tableRef })
 
 const handleRefresh = () => { loadData() }
 </script>

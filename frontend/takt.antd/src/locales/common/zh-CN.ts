@@ -15,20 +15,22 @@ export default {
 
   /** <summary>2. 设置类</summary> 主题、语言、颜色 */
   settings: {
+    /** 十大著名色彩，与 color-base.less 一致 */
     color: {
-      blue: '蓝色',
-      brown: '棕色',
-      cyan: '青色',
-      gray: '灰色',
-      green: '绿色',
-      indigo: '靛蓝',
-      orange: '橙色',
-      pink: '粉色',
-      purple: '紫色',
-      red: '红色',
-      yellow: '黄色',
+      blue: '克莱因蓝',
+      brown: '凡戴克棕',
+      cyan: '蒂芙尼蓝',
+      gray: '纪念灰',
+      green: '马尔斯绿',
+      indigo: '普鲁士蓝',
+      orange: '提香红',
+      pink: '波尔多红',
+      purple: '勃艮第红',
+      red: '中国红',
+      yellow: '申布伦黄',
       switch: '切换颜色',
-      title: '颜色'
+      title: '颜色',
+      locked: '今日主题色固定，不可变更'
     },
     locale: {
       'ar-SA': 'العربية',
@@ -112,6 +114,7 @@ export default {
     more: '更多',
     no: '否',
     ok: '确定',
+    open: '打开',
     password: '密码',
     permission: '权限设置',
     personalSettings: '个人设置',
@@ -162,18 +165,21 @@ export default {
     yes: '是'
   },
 
-  /** <summary>4. 实体基类</summary> 租户、审计等通用字段 */
+  /** <summary>4. 实体基类</summary> 租户、审计等通用字段，顺序与 TaktEntityBase 一致 */
   entity: {
     configId: '租户配置ID',
+    extFieldJson: '扩展字段JSON',
+    remark: '备注',
+    createId: '创建人ID',
     createBy: '创建人',
     createTime: '创建时间',
-    deletedBy: '删除人',
-    deletedTime: '删除时间',
-    extFieldJson: '扩展字段JSON',
-    isDeleted: '是否删除',
-    remark: '备注',
+    updateId: '更新人ID',
     updateBy: '更新人',
-    updateTime: '更新时间'
+    updateTime: '更新时间',
+    isDeleted: '是否删除',
+    deleteId: '删除人ID',
+    deletedBy: '删除人',
+    deletedTime: '删除时间'
   },
 
   /** <summary>5. 消息类</summary> 加载/删除/操作结果等提示 */
@@ -182,23 +188,26 @@ export default {
     actionSuccess: '{action}成功',
     assignFail: '分配{target}失败',
     assignSuccess: '分配{target}成功',
-    createSuccess: '创建成功',
-    deleteFail: '删除失败',
-    deleteSuccess: '删除成功',
+    createSuccess: '创建{target}成功',
+    deleteFail: '删除{target}失败',
+    deleteSuccess: '删除{target}成功',
     entityIdRequired: '{entity}ID不存在',
     entityNotFound: '{entity}信息不存在',
-    exportFail: '导出失败',
-    exportSuccess: '导出成功',
+    exportFail: '导出{target}失败',
+    exportSuccess: '导出{target}成功',
     loadFail: '加载数据失败',
-    loadOptionsFail: '加载选项数据失败，请稍后重试',
+    loadOptionsFail: '加载{target}选项失败，请稍后重试',
+    loadListFail: '加载{target}列表数据失败，\n请检查服务器并重试',
     loadTargetFail: '加载{target}失败',
     noSearchResult: '暂无搜索结果',
-    operateFail: '操作失败',
-    updateSuccess: '更新成功'
+    operateFail: '{action}失败',
+    updateSuccess: '更新{target}成功'
   },
 
   /** <summary>6. 操作类</summary> 弹窗、页面标题、穿梭框、导入、分配/警告等 */
   action: {
+    /** 取消（与 button.cancel 同义，避免误引用 common.action.cancel 时缺 key） */
+    cancel: '取消',
     confirmAction: '确认{action}',
     confirmDelete: '确认删除',
     etc: '等',
@@ -241,7 +250,8 @@ export default {
       selectFirst: '请先选择{field}',
       selectOnly: '请选择',
       treeKeyword: '树关键字',
-      watermark: '请输入水印内容'
+      watermark: '请输入水印内容',
+      lengthExact: '{field}必须为{length}位'
     },
     validation: {
       enterValid: '请输入正确的{field}',
@@ -257,7 +267,15 @@ export default {
     unlockContent: '确定要解除锁定{entity} "{name}" 吗？'
   },
 
-  /** <summary>9. API 请求类</summary> request 拦截器/401/网络错误等提示（request.ts） */
+  /** <summary>9. PWA 更新提示</summary> Service Worker 检测到新版本时的文案 */
+  pwa: {
+    offlineReady: '应用已就绪，可离线使用',
+    needRefresh: '发现新版本，点击刷新以更新',
+    reload: '刷新',
+    close: '关闭'
+  },
+
+  /** <summary>10. API 请求类</summary> request 拦截器/401/网络错误等提示（request.ts） */
   api: {
     loginExpired: '登录已过期，请重新登录',
     tokenRefreshFail: 'Token 刷新失败',

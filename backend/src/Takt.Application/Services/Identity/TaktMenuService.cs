@@ -21,7 +21,7 @@ using Takt.Shared.Exceptions;
 using Takt.Shared.Helpers;
 using Takt.Shared.Models;
 
-namespace Takt.Application.Identity;
+namespace Takt.Application.Services.Identity;
 
 /// <summary>
 /// Takt菜单应用服务
@@ -29,22 +29,30 @@ namespace Takt.Application.Identity;
 public class TaktMenuService : TaktServiceBase, ITaktMenuService
 {
     private readonly ITaktRepository<TaktMenu> _menuRepository;
+    private readonly ITaktRepository<TaktUserRole> _userRoleRepository;
+    private readonly ITaktRepository<TaktRoleMenu> _roleMenuRepository;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="menuRepository">菜单仓储</param>
+    /// <param name="userRoleRepository">用户角色关联仓储（用于当前用户菜单按角色过滤）</param>
+    /// <param name="roleMenuRepository">角色菜单关联仓储（用于当前用户菜单按角色过滤）</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktMenuService(
         ITaktRepository<TaktMenu> menuRepository,
+        ITaktRepository<TaktUserRole> userRoleRepository,
+        ITaktRepository<TaktRoleMenu> roleMenuRepository,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _menuRepository = menuRepository;
+        _userRoleRepository = userRoleRepository;
+        _roleMenuRepository = roleMenuRepository;
     }
 
     /// <summary>
@@ -241,7 +249,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     }
 
     /// <summary>
-    /// 获取当前用户的菜单树形列表（根据用户权限过滤）
+    /// 获取当前用户的菜单树形列表（根据用户角色-菜单 TaktRoleMenu 过滤，与权限 TaktRolePermission 分离）
     /// </summary>
     /// <returns>当前用户的菜单树形列表</returns>
     public async Task<List<TaktMenuTreeDto>> GetCurrentTreeMenuAsync()
@@ -301,37 +309,58 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
             return rootNodes;
         }
 
-        // 4. 普通用户：根据权限过滤菜单
-        // TODO: 实现权限过滤逻辑
-        // 这里先返回所有可见的菜单，后续需要根据用户角色和权限进行过滤
-        var menuDtosFiltered = allMenus
+        // 4. 普通用户：根据角色-菜单（TaktRoleMenu）过滤，与权限（TaktRolePermission）分离
+        var userRoles = await _userRoleRepository.FindAsync(ur => ur.UserId == currentUser.Id && ur.IsDeleted == 0);
+        if (userRoles.Count == 0)
+        {
+            return new List<TaktMenuTreeDto>();
+        }
+
+        var roleIds = userRoles.Select(ur => ur.RoleId).Distinct().ToList();
+        var roleMenus = await _roleMenuRepository.FindAsync(rm => roleIds.Contains(rm.RoleId) && rm.IsDeleted == 0);
+        var allowedMenuIds = roleMenus.Select(rm => rm.MenuId).Distinct().ToHashSet();
+
+        if (allowedMenuIds.Count == 0)
+        {
+            return new List<TaktMenuTreeDto>();
+        }
+
+        // 菜单树需包含被分配菜单及其所有祖先节点
+        var menuById = allMenus.ToDictionary(m => m.Id);
+        var includeIds = new HashSet<long>(allowedMenuIds);
+        foreach (var mid in allowedMenuIds)
+        {
+            var currentId = mid;
+            while (currentId != 0 && menuById.TryGetValue(currentId, out var entity))
+            {
+                includeIds.Add(currentId);
+                currentId = entity.ParentId;
+            }
+        }
+
+        var filteredMenus = allMenus.Where(m => includeIds.Contains(m.Id))
             .OrderBy(m => m.OrderNum)
             .ThenBy(m => m.CreateTime)
             .Select(m => m.Adapt<TaktMenuTreeDto>())
             .ToList();
 
-        // 构建树形结构
-        var menuDictFiltered = menuDtosFiltered.ToDictionary(m => m.MenuId, m => m);
+        var menuDictFiltered = filteredMenus.ToDictionary(m => m.MenuId, m => m);
         var rootNodesFiltered = new List<TaktMenuTreeDto>();
 
-        foreach (var menu in menuDtosFiltered)
+        foreach (var menu in filteredMenus)
         {
             if (menu.ParentId == 0)
             {
-                // 根节点（ParentId = 0）
                 rootNodesFiltered.Add(menu);
             }
-            else if (menuDictFiltered.ContainsKey(menu.ParentId))
+            else if (menuDictFiltered.TryGetValue(menu.ParentId, out var parent))
             {
-                // 父节点存在，添加到父节点的 Children 中
-                var parent = menuDictFiltered[menu.ParentId];
                 if (parent.Children == null)
                 {
                     parent.Children = new List<TaktMenuTreeDto>();
                 }
                 parent.Children.Add(menu);
             }
-            // 如果父节点不存在（已被过滤或删除），跳过该节点，不添加到树中
         }
 
         return rootNodesFiltered;
@@ -557,7 +586,6 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
                         MenuIcon = string.IsNullOrWhiteSpace(item.MenuIcon) ? null : item.MenuIcon,
                         OrderNum = item.OrderNum,
                         MenuType = item.MenuType,
-                        Permission = string.IsNullOrWhiteSpace(item.Permission) ? null : item.Permission,
                         IsVisible = item.IsVisible >= 0 ? item.IsVisible : 0,
                         IsCache = item.IsCache >= 0 ? item.IsCache : 1,
                         IsExternal = item.IsExternal >= 0 ? item.IsExternal : 1,

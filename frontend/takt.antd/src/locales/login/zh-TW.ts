@@ -70,7 +70,9 @@ export default {
     rememberMe: '記住我',
     login: '登入',
     logout: '登出',
-    noAccountRegister: '初次使用 Takt365？立即{register}'
+    noAccountRegister: '初次使用 Takt365？立即{register}',
+    success: '登入成功',
+    fail: '登入失敗'
   },
 
   /** 忘記密碼頁 */

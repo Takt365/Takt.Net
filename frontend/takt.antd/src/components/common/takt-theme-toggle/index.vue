@@ -26,7 +26,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { MenuInfo } from 'ant-design-vue/es/menu/src/interface'
 import { useThemeStore, type ThemeMode } from '@/stores/theme'
 import { RiSunLine, RiMoonLine } from '@remixicon/vue'

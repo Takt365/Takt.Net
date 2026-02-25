@@ -70,7 +70,15 @@ export default {
     rememberMe: '记住我',
     login: '登录',
     logout: '登出',
-    noAccountRegister: '初次使用 Takt365？立即{register}'
+    noAccountRegister: '初次使用 Takt365？立即{register}',
+    success: '登录成功',
+    fail: '登录失败',
+    /** 已在其他位置登录时的弹窗标题 */
+    alreadyElsewhereTitle: '已在其他位置登录',
+    /** 已在其他位置登录时的弹窗内容；强制登录将通知对方并使其下线 */
+    alreadyElsewhereContent: '当前用户已在其他位置登录。是否强制登录？强制登录将通知对方并使其下线。',
+    /** 强制登录按钮 */
+    forceLogin: '强制登录'
   },
 
   /** 忘记密码页 */

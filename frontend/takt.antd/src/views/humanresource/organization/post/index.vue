@@ -5,6 +5,7 @@
 
 <template>
   <div class="organization-post">
+    <!-- 查询栏 -->
     <TaktQueryBar
       v-model="queryKeyword"
       :placeholder="t('common.form.placeholder.search', { keyword: t('entity.post.keyword') })"
@@ -13,11 +14,13 @@
       @reset="handleReset"
     />
 
+    <!-- 工具栏 -->
     <TaktToolsBar
       create-permission="humanresource:organization:post:create"
       update-permission="humanresource:organization:post:update"
       delete-permission="humanresource:organization:post:delete"
       import-permission="humanresource:organization:post:import"
+      template-permission="humanresource:organization:post:template"
       export-permission="humanresource:organization:post:export"
       :show-create="true"
       :show-update="true"
@@ -44,6 +47,7 @@
       @refresh="handleRefresh"
     />
 
+    <!-- 表格 -->
     <TaktSingleTable
       ref="tableRef"
       :columns="displayColumns"
@@ -58,6 +62,7 @@
       @change="handleTableChange"
       @resize-column="handleResizeColumn"
     >
+      <!-- 自定义列渲染 -->
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'postStatus'">
           <TaktDictTag
@@ -71,6 +76,7 @@
       </template>
     </TaktSingleTable>
 
+    <!-- 分页组件 -->
     <TaktPagination
       v-model:current="currentPage"
       v-model:page-size="pageSize"
@@ -79,6 +85,7 @@
       @show-size-change="handlePaginationSizeChange"
     />
 
+    <!-- 新增/编辑对话框 -->
     <TaktModal
       v-model:open="formVisible"
       :title="formTitle"
@@ -95,23 +102,24 @@
       />
     </TaktModal>
 
+    <!-- 高级查询抽屉 -->
     <TaktQueryDrawer
       v-model:open="advancedQueryVisible"
       :form-model="advancedQueryForm"
       @submit="handleAdvancedQuerySubmit"
       @reset="handleAdvancedQueryReset"
     >
-      <a-form-item label="岗位名称">
+      <a-form-item :label="t('entity.post.name')">
         <a-input v-model:value="advancedQueryForm.postName" />
       </a-form-item>
-      <a-form-item label="岗位编码">
+      <a-form-item :label="t('entity.post.code')">
         <a-input v-model:value="advancedQueryForm.postCode" />
       </a-form-item>
-      <a-form-item label="岗位状态">
+      <a-form-item :label="t('entity.post.status')">
         <TaktSelect
           v-model:value="advancedQueryForm.postStatus"
           api-url="/api/TaktDictDatas/options?dictTypeCode=sys_normal_disable"
-          placeholder="请选择状态"
+          :placeholder="t('common.form.placeholder.select', { field: t('entity.post.status') })"
           allow-clear
           :field-names="{ label: 'dictLabel', value: 'extLabel' }"
         />
@@ -128,6 +136,8 @@
     >
       <TaktImportFile
         file-type="xlsx"
+        template-permission="humanresource:organization:post:template"
+        import-permission="humanresource:organization:post:import"
         sheet-name="岗位导入模板"
         template-file-name="岗位导入模板"
         :download-template="handleDownloadTemplate"
@@ -286,13 +296,6 @@ const columns = ref<TableColumnsType>([
     key: 'postStatus',
     width: 90
   },
-  {
-    title: '备注',
-    dataIndex: 'remark',
-    key: 'remark',
-    width: 160,
-    ellipsis: true
-  },
   CreateActionColumn({
     actions: [
       { key: 'update', label: '编辑', shape: 'plain', icon: RiEditLine, permission: 'humanresource:organization:post:update', onClick: (record: Post) => handleEdit(record) },
@@ -306,7 +309,9 @@ const mergedColumns = computed((): any => mergeDefaultColumns(columns.value as a
 const displayColumns = computed(() => {
   const keys = visibleColumnKeys.value || []
   const merged = mergedColumns.value || []
-  if (keys.length === 0) return columns.value
+  if (keys.length === 0) {
+    return columns.value
+  }
   const getColumnKey = (col: any): string => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
   const keysSet = new Set(keys.map(k => String(k)))
   return merged.filter((col: any) => {
@@ -481,7 +486,9 @@ const handleDelete = () => {
 
 const handleFormSubmit = async () => {
   try {
-    if (!formRef.value) return
+    if (!formRef.value) {
+      return
+    }
     await formRef.value.validate()
     const formValues = formRef.value.getValues()
     formLoading.value = true
@@ -497,7 +504,9 @@ const handleFormSubmit = async () => {
     formVisible.value = false
     loadData()
   } catch (error: any) {
-    if (error?.errorFields) return
+    if (error?.errorFields) {
+      return
+    }
     message.error(error?.message || '操作失败')
   } finally {
     formLoading.value = false
@@ -574,6 +583,7 @@ const handleColumnKeysChange = (keys: (string | number)[]) => {
 const handleColumnSettingReset = () => { visibleColumnKeys.value = [] }
 
 const handleRefresh = () => { loadData() }
+defineExpose({ tableRef })
 </script>
 
 <style scoped lang="less">

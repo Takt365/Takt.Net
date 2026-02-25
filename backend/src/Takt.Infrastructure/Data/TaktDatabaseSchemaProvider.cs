@@ -37,7 +37,10 @@ public class TaktDatabaseSchemaProvider : ITaktDatabaseSchemaProvider
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// 获取所有数据库配置列表（对应 appsettings 中 dbConfigs 的每一项，用于选中数据库）
+    /// </summary>
+    /// <returns>数据库信息列表（ConfigId、显示名等）</returns>
     public Task<IReadOnlyList<TaktDatabaseInfo>> GetDatabasesAsync()
     {
         var list = new List<TaktDatabaseInfo>();
@@ -90,7 +93,11 @@ public class TaktDatabaseSchemaProvider : ITaktDatabaseSchemaProvider
         return null;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// 根据选中的数据库（ConfigId）获取该库下的所有数据表列表
+    /// </summary>
+    /// <param name="configId">数据库配置 ID（对应 dbConfigs 中的 ConfigId）</param>
+    /// <returns>该库下的表名与表描述列表</returns>
     public async Task<IReadOnlyList<TaktDatabaseTableInfo>> GetTablesAsync(string configId)
     {
         if (string.IsNullOrWhiteSpace(configId))
@@ -228,8 +235,11 @@ public class TaktDatabaseSchemaProvider : ITaktDatabaseSchemaProvider
         await Task.CompletedTask.ConfigureAwait(false);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// 获取当前已加载、可用于按实体初始化表的实体类型全名列表（继承 TaktEntityBase 的 Takt.* 程序集类型）
+    /// </summary>
     /// <remarks>扫描已加载的 Takt.* 程序集中继承 TaktEntityBase 的类型，返回 FullName 列表（与 TaktTableInitializer 一致）。</remarks>
+    /// <returns>实体类型全名列表（如 Takt.Domain.Entities.Generator.TaktGenTable）</returns>
     public Task<IReadOnlyList<string>> GetAvailableEntityTypeFullNamesAsync()
     {
         var fullNames = GetAllEntityTypes().Select(t => t.FullName).Where(s => !string.IsNullOrEmpty(s)).Cast<string>().ToList();

@@ -1,3 +1,10 @@
+<!-- ======================================== -->
+<!-- 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)  -->
+<!-- 命名空间：@/views/identity/role/components -->
+<!-- 文件名称：role-form.vue -->
+<!-- 功能描述：角色表单组件，包含基本信息 -->
+<!-- ======================================== -->
+
 <template>
   <a-tabs v-model:activeKey="activeTab">
     <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
@@ -6,8 +13,8 @@
           ref="formRef"
           :model="formState"
           :rules="rules"
-          :label-col="{ span: 6 }"
-          :wrapper-col="{ span: 18 }"
+          :label-col="{ span: 8 }"
+          :wrapper-col="{ span: 16 }"
           layout="horizontal"
           label-align="right"
         >

@@ -91,10 +91,10 @@
         />
       </a-form-item>
 
-      <a-form-item label="备注" name="remark">
+      <a-form-item :label="t('common.entity.remark')" name="remark">
         <a-textarea
           v-model:value="formState.remark"
-          placeholder="请输入备注"
+          :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"
           :rows="3"
         />
       </a-form-item>
@@ -104,6 +104,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Rule } from 'ant-design-vue/es/form'
 import type { DictData, DictDataCreate, DictDataUpdate } from '@/types/routine/dict/dictdata'
 
@@ -124,6 +125,8 @@ const props = withDefaults(defineProps<Props>(), {
   dictTypeId: '',
   loading: false
 })
+
+const { t } = useI18n()
 
 // ========================================
 // 数据定义

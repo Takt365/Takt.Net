@@ -59,7 +59,6 @@ export default {
     avatar: 'Téléverser l\'avatar',
     avatarUpload: 'Téléverser l\'avatar',
     avatarUploading: 'Téléversement...',
-    cancel: 'Annuler',
     confirm: 'OK',
     confirmDeleteAvatar: 'Confirmer la suppression',
     confirmDeleteAvatarContent: 'Supprimer l\'avatar actuel ?',

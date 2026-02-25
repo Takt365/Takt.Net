@@ -137,6 +137,16 @@ public class TaktUserInfoDto
     public string RealName { get; set; }
 
     /// <summary>
+    /// 英文名（非 zh-CN/zh-TW 时优先展示）
+    /// </summary>
+    public string EnglishName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 昵称（zh-CN/zh-TW 时优先展示）
+    /// </summary>
+    public string NickName { get; set; } = string.Empty;
+
+    /// <summary>
     /// 头像
     /// </summary>
     public string Avatar { get; set; }
@@ -150,4 +160,57 @@ public class TaktUserInfoDto
     /// 权限列表
     /// </summary>
     public List<string> Permissions { get; set; } = new();
+
+    /// <summary>
+    /// 今日是否为假日（与 token 中 holiday_today 一致；access_token 为 JWE 时由 userinfo 返回供前端使用）
+    /// </summary>
+    public bool HolidayToday { get; set; }
+
+    /// <summary>
+    /// 假日名称
+    /// </summary>
+    public string? HolidayName { get; set; }
+
+    /// <summary>
+    /// 假日问候语（简短，用于问候语行）
+    /// </summary>
+    public string? HolidayGreeting { get; set; }
+
+    /// <summary>
+    /// 假日引用/诗句（用于引用区展示）
+    /// </summary>
+    public string? HolidayQuote { get; set; }
+
+    /// <summary>
+    /// 假日主题（对应前端 themeColorMap 的 key）
+    /// </summary>
+    public string? HolidayTheme { get; set; }
+}
+
+/// <summary>
+/// 已有登录会话信息（用于「当前用户已在xxx位置登录，需要发送通知吗？」提示）
+/// </summary>
+public class TaktExistingSessionDto
+{
+    /// <summary>连接地点（IP 定位或空）</summary>
+    public string? ConnectLocation { get; set; }
+    /// <summary>连接 IP</summary>
+    public string? ConnectIp { get; set; }
+    /// <summary>设备类型（PC/Mobile 等）</summary>
+    public string? DeviceType { get; set; }
+    /// <summary>浏览器类型</summary>
+    public string? BrowserType { get; set; }
+    /// <summary>连接时间</summary>
+    public DateTime ConnectTime { get; set; }
+}
+
+/// <summary>
+/// 记录登录成功结果：成功 或 已在别处登录（含已有会话列表，供前端提示）
+/// </summary>
+public class RecordLoginSuccessResult
+{
+    /// <summary>是否已写入在线记录并允许发 token</summary>
+    public bool Success { get; set; }
+    /// <summary>已有会话列表（Success 为 false 时返回，用于提示「当前用户已在xxx位置登录」）</summary>
+    public List<TaktExistingSessionDto>? ExistingSessions { get; set; }
 }

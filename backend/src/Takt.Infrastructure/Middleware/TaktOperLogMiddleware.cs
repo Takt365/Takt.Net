@@ -11,6 +11,7 @@
 // ========================================
 
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using OpenIddict.Abstractions;
 using System.Diagnostics;
@@ -32,16 +33,19 @@ public class TaktOperLogMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly IConfiguration _configuration;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="next">下一个中间件</param>
     /// <param name="configuration">配置</param>
-    public TaktOperLogMiddleware(RequestDelegate next, IConfiguration configuration)
+    /// <param name="serviceScopeFactory">用于在后台任务中创建新作用域（避免请求结束后 DbContext 被释放）</param>
+    public TaktOperLogMiddleware(RequestDelegate next, IConfiguration configuration, IServiceScopeFactory serviceScopeFactory)
     {
         _next = next;
         _configuration = configuration;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
     /// <summary>
@@ -51,10 +55,10 @@ public class TaktOperLogMiddleware
     /// <param name="operLogService">操作日志服务</param>
     /// <param name="userContext">用户上下文</param>
     /// <returns>任务</returns>
-    public async Task InvokeAsync(HttpContext context, ITaktOperLogService operLogService, ITaktUserContext userContext)
+    public async Task InvokeAsync(HttpContext context, ITaktUserContext userContext)
     {
         // 检查是否启用操作日志
-        var operLogEnabled = _configuration.GetValue<bool>("Logging:OperLog", true);
+        var operLogEnabled = _configuration.GetValue<bool>("TaktLogging:OperLog", true);
         if (!operLogEnabled)
         {
             await _next(context);
@@ -147,11 +151,14 @@ public class TaktOperLogMiddleware
                 jsonResult = responseText.Substring(0, 5000) + "...(已截断)";
             }
 
-            // 异步保存操作日志（不阻塞请求）
+            // 异步保存操作日志（不阻塞请求；使用新 scope 避免请求结束后 DbContext 被释放）
             _ = Task.Run(async () =>
             {
                 try
                 {
+                    using var scope = _serviceScopeFactory.CreateScope();
+                    var scopedOperLogService = scope.ServiceProvider.GetRequiredService<ITaktOperLogService>();
+
                     var createDto = new TaktCreateOperLogDto
                     {
                         UserName = userName,
@@ -170,7 +177,7 @@ public class TaktOperLogMiddleware
                         CostTime = costTime
                     };
 
-                    await operLogService.CreateAsync(createDto);
+                    await scopedOperLogService.CreateAsync(createDto);
                 }
                 catch (Exception ex)
                 {
@@ -194,11 +201,14 @@ public class TaktOperLogMiddleware
                 throw;
             }
 
-            // 异步保存操作日志（不阻塞请求）
+            // 异步保存操作日志（不阻塞请求；使用新 scope 避免请求结束后 DbContext 被释放）
             _ = Task.Run(async () =>
             {
                 try
                 {
+                    using var scope = _serviceScopeFactory.CreateScope();
+                    var scopedOperLogService = scope.ServiceProvider.GetRequiredService<ITaktOperLogService>();
+
                     var createDto = new TaktCreateOperLogDto
                     {
                         UserName = userName,
@@ -217,7 +227,7 @@ public class TaktOperLogMiddleware
                         CostTime = costTime
                     };
 
-                    await operLogService.CreateAsync(createDto);
+                    await scopedOperLogService.CreateAsync(createDto);
                 }
                 catch (Exception logEx)
                 {

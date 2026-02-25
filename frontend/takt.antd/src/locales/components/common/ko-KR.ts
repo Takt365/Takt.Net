@@ -59,7 +59,6 @@ export default {
     avatar: '아바타 업로드',
     avatarUpload: '아바타 업로드',
     avatarUploading: '업로드 중...',
-    cancel: '취소',
     confirm: '확인',
     confirmDeleteAvatar: '삭제 확인',
     confirmDeleteAvatarContent: '현재 아바타를 삭제하시겠습니까?',

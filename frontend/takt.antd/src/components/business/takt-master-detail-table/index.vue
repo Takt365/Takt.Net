@@ -20,7 +20,7 @@
       @resizeColumn="handleMasterResizeColumn"
       v-bind="$attrs"
     >
-      <template v-for="(_, name) in $slots" #[name]="slotData">
+      <template v-for="(_, name) in $slots" :key="name" #[name]="slotData">
         <slot :name="name" v-bind="slotData" />
       </template>
       <!-- 主表总结栏插槽
@@ -390,7 +390,7 @@ const computedShowTotal = computed(() => {
   }
   if (props.showTotal === true) {
     // 默认显示总数函数
-    return (total: number, range: [number, number]) => t('components.navigation.systemSetting.totalCount', { total })
+    return (total: number, _range: [number, number]) => t('components.navigation.systemSetting.totalCount', { total })
   }
   // showTotal 为 false 或 undefined 时，返回 undefined（不显示总数）
   return undefined
@@ -790,7 +790,7 @@ const handleExpand = async (expanded: boolean, record: any) => {
     // 如果有加载函数，调用加载从表数据
     if (props.loadDetailData) {
       try {
-        const data = await props.loadDetailData(record, detailCurrentPage.value, detailPageSize.value)
+        await props.loadDetailData(record, detailCurrentPage.value, detailPageSize.value)
         // 这里需要父组件处理数据更新
       } catch (error) {
         logger.error('[TaktMasterDetailTable] 加载从表数据失败:', error)
@@ -832,7 +832,7 @@ const handleDetailPaginationChange = async (page: number, size: number) => {
   // 如果展开状态且有加载函数，重新加载数据
   if (detailDrawerVisible.value && currentMasterRecord.value && props.loadDetailData) {
     try {
-      const data = await props.loadDetailData(currentMasterRecord.value, page, size)
+      await props.loadDetailData(currentMasterRecord.value, page, size)
       // 这里需要父组件处理数据更新
     } catch (error) {
       logger.error('[TaktMasterDetailTable] 加载从表数据失败:', error)
@@ -850,7 +850,7 @@ const handleDetailPaginationSizeChange = async (current: number, size: number) =
   // 如果展开状态且有加载函数，重新加载数据
   if (detailDrawerVisible.value && currentMasterRecord.value && props.loadDetailData) {
     try {
-      const data = await props.loadDetailData(currentMasterRecord.value, current, size)
+      await props.loadDetailData(currentMasterRecord.value, current, size)
       // 这里需要父组件处理数据更新
     } catch (error) {
       logger.error('[TaktMasterDetailTable] 加载从表数据失败:', error)

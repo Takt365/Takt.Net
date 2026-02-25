@@ -10,7 +10,7 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-import request, { type BlobDownloadResult } from '../../request'
+import request from '../../request'
 import type { TaktPagedResult, TaktSelectOption } from '@/types/common'
 import type {
   Post,

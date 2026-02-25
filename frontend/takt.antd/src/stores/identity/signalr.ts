@@ -23,10 +23,19 @@ import type {
   MessageSentEvent,
   MessageReadEvent,
   SignalRErrorEvent,
-  OnlineMessageEvent
+  OnlineMessageEvent,
+  LoginRequestElsewhereEvent
 } from '@/types/routine/signalr/signalr'
-import { message, notification } from 'ant-design-vue'
+import dayjs from 'dayjs'
+import { message, Modal } from 'ant-design-vue'
+import router from '@/router'
 import i18n from '@/locales'
+import { logger } from '@/utils/logger'
+import { showSignalrConnectFail, showOnlineNotify, showNewMessage } from '@/utils/notification'
+import { useUserStore } from '@/stores/identity/user'
+
+const t = (key: string, params?: Record<string, unknown>) =>
+  String(params ? (i18n.global.t as (k: string, p?: object) => unknown)(key, params) : (i18n.global.t as (k: string) => unknown)(key))
 
 export const useSignalRStore = defineStore('signalr', () => {
   // 状态
@@ -61,18 +70,18 @@ export const useSignalRStore = defineStore('signalr', () => {
     if (msg.readStatus === 0) {
       unreadCount.value++
     }
-    // 显示通知
-    message.info({
-      content: `${msg.fromUserName}: ${msg.messageContent}`,
+    showNewMessage({
+      message: t('stores.signalr.newMessage'),
+      description: `${msg.fromUserName}: ${msg.messageContent}`,
       duration: 3
     })
   }
 
   const handleReceiveBroadcast = (msg: BroadcastMessage) => {
     broadcastMessages.value.push(msg)
-    // 显示通知
-    message.info({
-      content: `[${i18n.global.t('stores.signalr.broadcastLabel')}] ${msg.messageContent}`,
+    showNewMessage({
+      message: t('stores.signalr.newMessage'),
+      description: `[${t('stores.signalr.broadcastLabel')}] ${msg.messageContent}`,
       duration: 5
     })
   }
@@ -94,17 +103,43 @@ export const useSignalRStore = defineStore('signalr', () => {
 
   const handleError = (error: SignalRErrorEvent) => {
     logger.error('[SignalR Store] SignalR 错误:', error)
-    message.error(error.message || i18n.global.t('stores.signalr.error'))
+    message.error(error.message || t('stores.signalr.error'))
   }
 
   const handleOnlineMessage = (event: OnlineMessageEvent) => {
-    logger.info('[SignalR Store] 收到上线消息:', event.message)
-    // 显示上线通知（使用 Notification，位置在右上角）
-    notification.success({
-      message: i18n.global.t('stores.signalr.onlineNotify'),
-      description: event.message,
-      placement: 'topRight',
-      duration: 10
+    const name = event.realName || event.userName || ''
+    const time = event.connectTime ? dayjs(event.connectTime).format('YYYY-MM-DD HH:mm:ss') : ''
+    const description = t('stores.signalr.onlineWelcome', { name, time })
+    logger.info('[SignalR Store] 收到上线消息:', description)
+    showOnlineNotify({ description })
+  }
+
+  const handleLoginRequestElsewhere = (event: LoginRequestElsewhereEvent) => {
+    const location = event.requestLocation || '其他位置'
+    const title = t('stores.signalr.loginRequestElsewhereTitle')
+    const content = t('stores.signalr.loginRequestElsewhereContent', { location })
+    Modal.confirm({
+      title,
+      content,
+      okText: t('stores.signalr.exitCurrentLogin'),
+      cancelText: t('common.button.cancel'),
+      onOk: async () => {
+        try {
+          const userStore = useUserStore()
+          await userStore.logout()
+          try {
+            await router.push('/login')
+          } catch (pushErr) {
+            logger.error('[SignalR Store] 跳转登录页失败，使用 location 兜底:', pushErr)
+            window.location.href = '/login'
+          }
+        } catch (err) {
+          const msg = (err as Error)?.message
+          logger.error('[SignalR Store] 退出当前登录失败:', msg ?? err)
+          message.error(t('stores.signalr.exitCurrentLoginFail'))
+          throw err
+        }
+      }
     })
   }
 
@@ -127,7 +162,8 @@ export const useSignalRStore = defineStore('signalr', () => {
         onMessageSent: handleMessageSent,
         onMessageRead: handleMessageRead,
         onError: handleError,
-        onOnlineMessage: handleOnlineMessage
+        onOnlineMessage: handleOnlineMessage,
+        onLoginRequestElsewhere: handleLoginRequestElsewhere
       })
       updateConnectionState()
       logger.info('[SignalR Store] SignalR 连接成功')
@@ -149,7 +185,7 @@ export const useSignalRStore = defineStore('signalr', () => {
       }
     } catch (error: any) {
       logger.error('[SignalR Store] SignalR 连接失败，错误:', error.message || error)
-      message.error(i18n.global.t('stores.signalr.connectFail'))
+      showSignalrConnectFail()
       throw error
     }
   }
@@ -204,7 +240,7 @@ export const useSignalRStore = defineStore('signalr', () => {
       await signalRManager.sendMessage(toUserName, messageContent, messageTitle, messageType, messageGroup, messageExtData)
     } catch (error) {
       logger.error('[SignalR Store] 发送消息失败:', error)
-      message.error(i18n.global.t('stores.signalr.sendFail'))
+      message.error(t('stores.signalr.sendFail'))
       throw error
     }
   }
@@ -220,7 +256,7 @@ export const useSignalRStore = defineStore('signalr', () => {
       await signalRManager.broadcastMessage(messageContent, messageTitle, messageType, messageGroup)
     } catch (error) {
       logger.error('[SignalR Store] 发送广播消息失败:', error)
-      message.error(i18n.global.t('stores.signalr.broadcastFail'))
+      message.error(t('stores.signalr.broadcastFail'))
       throw error
     }
   }

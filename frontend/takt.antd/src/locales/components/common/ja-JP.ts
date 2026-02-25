@@ -59,7 +59,6 @@ export default {
     avatar: 'アバターアップロード',
     avatarUpload: 'アバターをアップロード',
     avatarUploading: 'アップロード中...',
-    cancel: 'キャンセル',
     confirm: 'OK',
     confirmDeleteAvatar: '削除の確認',
     confirmDeleteAvatarContent: '現在のアバターを削除しますか？',

@@ -20,7 +20,8 @@ import type {
   MessageSentEvent,
   MessageReadEvent,
   SignalRErrorEvent,
-  OnlineMessageEvent
+  OnlineMessageEvent,
+  LoginRequestElsewhereEvent
 } from '@/types/routine/signalr/signalr'
 import { logger } from './logger'
 
@@ -193,9 +194,18 @@ export class TaktSignalRManager {
   private registerConnectHubEvents(
     onUserConnected?: (event: UserConnectedEvent) => void,
     onUserDisconnected?: (event: UserDisconnectedEvent) => void,
-    onOnlineMessage?: (event: OnlineMessageEvent) => void
+    onOnlineMessage?: (event: OnlineMessageEvent) => void,
+    onLoginRequestElsewhere?: (event: LoginRequestElsewhereEvent) => void
   ): void {
-    if (!this.connectHub) return
+    if (!this.connectHub) {
+      return
+    }
+
+    // 在别处请求登录（推送给旧会话，弹窗：是否退出当前登录）
+    this.connectHub.on('LoginRequestElsewhere', (event: LoginRequestElsewhereEvent) => {
+      logger.info('[SignalR] 收到在别处请求登录通知:', event)
+      onLoginRequestElsewhere?.(event)
+    })
 
     // 上线消息事件
     this.connectHub.on('OnlineMessage', (event: OnlineMessageEvent) => {
@@ -279,7 +289,9 @@ export class TaktSignalRManager {
     onError?: (error: SignalRErrorEvent) => void,
     onOnlineMessage?: (event: OnlineMessageEvent) => void
   ): void {
-    if (!this.notificationHub) return
+    if (!this.notificationHub) {
+      return
+    }
 
     // 上线消息事件
     this.notificationHub.on('OnlineMessage', (event: OnlineMessageEvent) => {
@@ -381,6 +393,7 @@ export class TaktSignalRManager {
       onMessageRead?: (event: MessageReadEvent) => void
       onError?: (error: SignalRErrorEvent) => void
       onOnlineMessage?: (event: OnlineMessageEvent) => void
+      onLoginRequestElsewhere?: (event: LoginRequestElsewhereEvent) => void
     }
   ): Promise<void> {
     const baseUrl = this.getBaseUrl()
@@ -397,7 +410,8 @@ export class TaktSignalRManager {
       this.registerConnectHubEvents(
         callbacks?.onUserConnected,
         callbacks?.onUserDisconnected,
-        callbacks?.onOnlineMessage
+        callbacks?.onOnlineMessage,
+        callbacks?.onLoginRequestElsewhere
       )
 
       // 创建通知 Hub

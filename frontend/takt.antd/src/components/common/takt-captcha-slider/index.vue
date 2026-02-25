@@ -146,7 +146,7 @@ import { RiCheckLine, RiArrowRightDoubleLine } from '@remixicon/vue'
 import { generateCaptcha, verifyCaptcha, type CaptchaGenerateResult, type CaptchaVerifyRequest } from '@/api/identity/captcha'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import { useSettingStore, getThemeColorValue } from '@/stores/setting'
+import { useSettingStore, getEffectiveThemeColorValue } from '@/stores/setting'
 import { logger } from '@/utils/logger'
 
 interface Props {
@@ -181,7 +181,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 const { t } = useI18n()
 const { setting } = storeToRefs(useSettingStore())
-const themeColor = computed(() => getThemeColorValue(setting.value?.themeColor ?? { type: 'blue' }))
+const themeColor = computed(() => getEffectiveThemeColorValue(setting.value?.themeColor ?? { type: 'blue' }))
 
 // 状态
 const loading = ref(false)
@@ -234,7 +234,9 @@ const trackScaledStyle = computed(() => ({
 
 // 计算滑块图片在背景图片中的位置
 const sliderLeft = computed(() => {
-  if (!imageRef.value || maxLeft.value === 0) return 0
+  if (!imageRef.value || maxLeft.value === 0) {
+    return 0
+  }
   const imageWidth = props.width
   const sliderWidth = 48
   return Math.round((thumbLeft.value / maxLeft.value) * (imageWidth - sliderWidth))
@@ -242,7 +244,9 @@ const sliderLeft = computed(() => {
 
 // 计算验证通过文本的位置（根据手柄位置动态调整，避免被遮挡）
 const successTextPosition = computed(() => {
-  if (!verified.value || maxLeft.value === 0) return 'center'
+  if (!verified.value || maxLeft.value === 0) {
+    return 'center'
+  }
   const thumbWidth = 48
   const thumbRight = thumbLeft.value + thumbWidth
   const trackWidth = props.width
@@ -330,15 +334,23 @@ const resetDragState = () => {
 
 // 获取事件X坐标
 const getEventX = (e: MouseEvent | TouchEvent): number => {
-  if ('clientX' in e) return e.clientX
-  if ('touches' in e && e.touches[0]) return e.touches[0].clientX
+  if ('clientX' in e) {
+    return e.clientX
+  }
+  if ('touches' in e && e.touches[0]) {
+    return e.touches[0].clientX
+  }
   return 0
 }
 
 // 获取事件Y坐标
 const getEventY = (e: MouseEvent | TouchEvent): number => {
-  if ('clientY' in e) return e.clientY
-  if ('touches' in e && e.touches[0]) return e.touches[0].clientY
+  if ('clientY' in e) {
+    return e.clientY
+  }
+  if ('touches' in e && e.touches[0]) {
+    return e.touches[0].clientY
+  }
   return 0
 }
 
@@ -373,8 +385,10 @@ const handleDragStart = (e: MouseEvent | TouchEvent) => {
   }
 
   const move = (ev: MouseEvent | TouchEvent) => {
-    if (!isDragging.value) return
-    
+    if (!isDragging.value) {
+      return
+    }
+
     ev.preventDefault()
     const moveX = getEventX(ev)
     let left = startThumbLeft + (moveX - dragStartX.value)
@@ -395,8 +409,10 @@ const handleDragStart = (e: MouseEvent | TouchEvent) => {
   }
 
   const up = async () => {
-    if (!isDragging.value) return
-    
+    if (!isDragging.value) {
+      return
+    }
+
     isDragging.value = false
     document.removeEventListener('mousemove', move)
     document.removeEventListener('mouseup', up)
@@ -435,7 +451,9 @@ const handleDragStart = (e: MouseEvent | TouchEvent) => {
 
 // 验证验证码
 const verify = async (position: number, timeSpent: number) => {
-  if (!captchaData.value) return
+  if (!captchaData.value) {
+    return
+  }
 
   try {
     loading.value = true
@@ -538,7 +556,9 @@ const reset = () => {
 // 根据容器宽度缩放（参照登录页表单输入框宽度）
 function updateScale() {
   const el = containerRef.value
-  if (!el) return
+  if (!el) {
+    return
+  }
   const w = el.offsetWidth || el.clientWidth
   if (w > 0) {
     scale.value = Math.min(1, w / DESIGN_WIDTH)
@@ -554,7 +574,9 @@ let refreshTimer: ReturnType<typeof setInterval> | null = null
 // 使用外部传入的预填数据（不请求接口），并初始化轨道 maxLeft
 async function applyInitialData() {
   const data = props.initialData
-  if (!data) return false
+  if (!data) {
+    return false
+  }
   loading.value = false
   if (data.enabled === false || data.enabled === undefined) {
     verified.value = true

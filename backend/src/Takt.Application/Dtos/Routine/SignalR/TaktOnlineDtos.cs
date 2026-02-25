@@ -10,6 +10,7 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
+using SqlSugar;
 using Takt.Shared.Models;
 
 namespace Takt.Application.Dtos.Routine.SignalR;
@@ -35,11 +36,6 @@ public class TaktOnlineDto
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long OnlineId { get; set; }
-
-    /// <summary>
-    /// 租户配置ID
-    /// </summary>
-    public string ConfigId { get; set; }
 
     /// <summary>
     /// SignalR连接ID（唯一索引）
@@ -112,10 +108,75 @@ public class TaktOnlineDto
     /// </summary>
     public int? ConnectionDuration { get; set; }
 
+    // ----- 审计字段（与 TaktEntityBase 一致，统一放在最后） -----
+
+    /// <summary>
+    /// 租户配置ID
+    /// </summary>
+    public string ConfigId { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long CreateId { get; set; }
+
+    /// <summary>
+    /// 创建人（用户名）
+    /// </summary>
+    public string? CreateBy { get; set; }
+
     /// <summary>
     /// 创建时间
     /// </summary>
     public DateTime CreateTime { get; set; }
+
+    /// <summary>
+    /// 更新人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? UpdateId { get; set; }
+
+    /// <summary>
+    /// 更新人（用户名）
+    /// </summary>
+    public string? UpdateBy { get; set; }
+
+    /// <summary>
+    /// 更新时间
+    /// </summary>
+    public DateTime? UpdateTime { get; set; }
+
+    /// <summary>
+    /// 是否删除（软删除标记，0=未删除，1=已删除）
+    /// </summary>
+    public int IsDeleted { get; set; } = 0;
+
+    /// <summary>
+    /// 删除人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? DeleteId { get; set; }
+
+    /// <summary>
+    /// 删除人（用户名）
+    /// </summary>
+    public string? DeletedBy { get; set; }
+
+    /// <summary>
+    /// 删除时间
+    /// </summary>
+    public DateTime? DeletedTime { get; set; }
 }
 
 /// <summary>

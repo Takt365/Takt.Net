@@ -13,14 +13,21 @@
 import type { TableColumnsType } from 'ant-design-vue'
 
 /**
- * 审计字段列表（如果 includeAuditFields 为 false，这些字段会被过滤掉）
+ * 审计字段列表（与 TaktEntityBase 一致；若 includeAuditFields 为 false，这些字段会被过滤掉）
+ * 顺序：configId → extFieldJson → remark → createId → createBy → createTime → updateId → updateBy → updateTime → isDeleted → deleteId → deletedBy → deletedTime
  */
 const AUDIT_FIELDS = [
+  'configId',
+  'extFieldJson',
+  'remark',
+  'createId',
   'createBy',
   'createTime',
+  'updateId',
   'updateBy',
   'updateTime',
   'isDeleted',
+  'deleteId',
   'deletedBy',
   'deletedTime'
 ] as const
@@ -55,6 +62,13 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
       ellipsis: true
     },
     {
+      key: 'createId',
+      dataIndex: 'createId',
+      title: t('common.entity.createId'),
+      width: 120,
+      ellipsis: true
+    },
+    {
       key: 'createBy',
       dataIndex: 'createBy',
       title: t('common.entity.createBy'),
@@ -72,6 +86,13 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
         const bTime = b.createTime ? new Date(b.createTime).getTime() : 0
         return aTime - bTime
       }
+    },
+    {
+      key: 'updateId',
+      dataIndex: 'updateId',
+      title: t('common.entity.updateId'),
+      width: 120,
+      ellipsis: true
     },
     {
       key: 'updateBy',
@@ -103,6 +124,13 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
         const bValue = b.isDeleted ?? 0
         return aValue - bValue
       }
+    },
+    {
+      key: 'deleteId',
+      dataIndex: 'deleteId',
+      title: t('common.entity.deleteId'),
+      width: 120,
+      ellipsis: true
     },
     {
       key: 'deletedBy',

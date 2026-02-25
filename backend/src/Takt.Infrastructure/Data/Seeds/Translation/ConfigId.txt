@@ -1,0 +1,1 @@
+翻译种子：统一 ConfigId=4（Routine 库 Takt_Routine_Dev，TaktTranslation/TaktLanguage 在此）。

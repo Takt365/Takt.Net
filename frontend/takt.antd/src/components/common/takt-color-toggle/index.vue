@@ -1,7 +1,23 @@
 <template>
   <!-- 按钮样式 -->
+  <a-tooltip v-if="type === 'button' && themeColorLocked" :title="$t('common.settings.color.locked')" placement="top">
+    <span>
+      <a-button
+        v-if="type === 'button'"
+        :type="buttonType"
+        :size="size"
+        disabled
+        v-bind="$attrs"
+      >
+        <template #icon>
+          <RiPaletteLine style="margin-right: 8px;" />
+        </template>
+        <slot>{{ $t('common.settings.color.switch') }}</slot>
+      </a-button>
+    </span>
+  </a-tooltip>
   <a-button
-    v-if="type === 'button'"
+    v-else-if="type === 'button'"
     :type="buttonType"
     :size="size"
     @click="handleToggle"
@@ -44,7 +60,20 @@
         </div>
       </a-tooltip>
     </div>
+    <a-tooltip v-if="themeColorLocked" :title="$t('common.settings.color.locked')" placement="top">
+      <a-button
+        type="text"
+        :size="size"
+        class="color-palette-button"
+        v-bind="$attrs"
+      >
+        <template #icon>
+          <RiPaletteLine :style="{ color: themeColorValue }" />
+        </template>
+      </a-button>
+    </a-tooltip>
     <a-button
+      v-else
       type="text"
       :size="size"
       class="color-palette-button"
@@ -57,6 +86,39 @@
   </div>
 
   <!-- 下拉菜单样式 -->
+  <a-tooltip v-if="type === 'dropdown' && themeColorLocked" :title="$t('common.settings.color.locked')" placement="top">
+    <span>
+      <a-dropdown
+        v-if="type === 'dropdown'"
+        :trigger="['click']"
+        :disabled="themeColorLocked"
+        v-bind="$attrs"
+      >
+        <a-button type="text" :size="size">
+          <template #icon>
+            <RiPaletteLine style="margin-right: 8px;" />
+          </template>
+          <slot>{{ $t('common.settings.color.title') }}</slot>
+        </a-button>
+        <template #overlay>
+      <a-menu :selected-keys="[currentThemeType]" @click="handleMenuClick">
+        <a-menu-item
+          v-for="(value, key) in themeColorMap"
+          :key="key"
+        >
+          <span class="color-item">
+            <span
+              class="color-dot"
+              :style="{ backgroundColor: value }"
+            ></span>
+            {{ $t(`common.settings.color.${key}`) }}
+          </span>
+        </a-menu-item>
+      </a-menu>
+        </template>
+      </a-dropdown>
+    </span>
+  </a-tooltip>
   <a-dropdown
     v-else-if="type === 'dropdown'"
     :trigger="['click']"
@@ -87,6 +149,31 @@
   </a-dropdown>
 
   <!-- 单选按钮组样式 -->
+  <a-tooltip v-else-if="type === 'radio' && themeColorLocked" :title="$t('common.settings.color.locked')" placement="top">
+    <span>
+      <a-radio-group
+        v-if="type === 'radio'"
+        :value="currentThemeType"
+        :size="radioSize"
+        disabled
+        v-bind="$attrs"
+      >
+        <a-radio-button
+          v-for="(value, key) in themeColorMap"
+          :key="key"
+          :value="key"
+        >
+          <span class="color-item">
+            <span
+              class="color-dot"
+              :style="{ backgroundColor: value }"
+            ></span>
+            {{ $t(`common.settings.color.${key}`) }}
+          </span>
+        </a-radio-button>
+      </a-radio-group>
+    </span>
+  </a-tooltip>
   <a-radio-group
     v-else-if="type === 'radio'"
     :value="currentThemeType"
@@ -111,10 +198,14 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * 颜色切换组件，引用 @/stores/setting 的 themeColorMap（与 @/assets/styles/color-base.less 十大著名色彩 完全一致）
+ * Less → themeColorMap key: @mars-green→green, @tiffany-blue→cyan, @chinese-red→red, @titian-red→orange, @burgundy→purple, @bordeaux→pink, @klein-blue→blue, @van-dyke-brown→brown, @prussian-blue→indigo, @sennelier-yellow→yellow, @memorial-gray→gray 纪念灰
+ */
 import { ref, computed, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import type { RadioChangeEvent } from 'ant-design-vue'
-import { useSettingStore, themeColorMap, getThemeColorValue, type ThemeColor } from '@/stores/setting'
+import { useSettingStore, themeColorMap, getEffectiveThemeColorValue, getFixedThemeForDate, isThemeColorLocked, type ThemeColor } from '@/stores/setting'
 import { applySettings } from '@/utils/apply-settings'
 import { RiPaletteLine, RiCheckLine } from '@remixicon/vue'
 
@@ -142,6 +233,7 @@ const leaveTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const COLLAPSE_DELAY_MS = 200
 
 function onGroupEnter() {
+  if (themeColorLocked.value) return
   if (leaveTimer.value != null) {
     clearTimeout(leaveTimer.value)
     leaveTimer.value = null
@@ -165,17 +257,22 @@ onUnmounted(() => {
   }
 })
 
+const themeColorLocked = computed(() => isThemeColorLocked())
+
 const currentThemeType = computed(() => {
+  const fixed = getFixedThemeForDate()
+  if (fixed != null) return fixed
   const type = setting.value?.themeColor?.type
   return type && type !== 'custom' && type in themeColorMap ? type : 'blue'
 })
-const themeColorValue = computed(() => getThemeColorValue(setting.value?.themeColor ?? { type: 'blue' }))
+const themeColorValue = computed(() => getEffectiveThemeColorValue(setting.value?.themeColor ?? { type: 'blue' }))
 
 const radioSize = computed<'default' | 'small' | 'large' | undefined>(() =>
   props.size === 'middle' ? 'default' : props.size
 )
 
 function setThemeColor(type: ThemePreset) {
+  if (themeColorLocked.value) return
   store.setSetting({ themeColor: { type } })
   applySettings()
 }
@@ -224,14 +321,14 @@ const handleColorSelect = (color: ThemePreset) => {
   align-items: center;
 }
 
-/* 展开时向左延伸感应区，使鼠标从按钮移入颜色圈时仍算在组内，可选中颜色 */
+/* 展开时向左延伸感应区，使鼠标从按钮移入颜色圈时仍算在组内，可选中颜色；11 色 24px+8px 需约 360px */
 .color-toggle-group.expanded::before {
   content: '';
   position: absolute;
   right: 100%;
   top: 0;
   bottom: 0;
-  width: 320px;
+  width: 360px;
   margin-right: 8px;
   z-index: 0;
 }
@@ -254,7 +351,7 @@ const handleColorSelect = (color: ThemePreset) => {
 }
 
 .color-circles-container.expanded {
-  max-width: 320px;
+  max-width: 360px;
   opacity: 1;
   pointer-events: auto;
 }

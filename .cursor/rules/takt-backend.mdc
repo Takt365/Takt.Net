@@ -6,13 +6,55 @@ alwaysApply: false
 
 # Takt 后端规则
 
+## 架构分层说明
+
+| 层级     | 对应项目          | 职责 | 关注点 | 技术依赖 |
+|----------|-------------------|------|--------|----------|
+| **领域层** | Takt.Domain       | 定义业务模型与契约 | 实体、仓储接口、领域接口、扩展与验证 | 不依赖 Web 框架与具体持久化 |
+| **应用层** | Takt.Application  | 实现用例与业务规则 | DTO、服务接口与实现；编排领域与数据访问；事务与业务校验 | 依赖领域层、Shared |
+| **基础层** | Takt.Infrastructure | 提供技术实现 | 仓储实现、数据映射与种子、中间件、租户/用户、DI、SignalR 等 | 依赖领域层、Shared |
+| **控制层** | Takt.WebApi       | 处理 HTTP 与调度 | 控制器、路由、参数绑定、权限校验、调用应用层并返回响应 | 依赖 Web 框架、应用层 |
+
+## 控制层与应用层核心分工（Controller vs Service）
+
+| 维度   | 控制器 (Controller) | 服务实现 (Service Implementation) |
+|--------|----------------------|------------------------------------|
+| **职责** | 协调与调度           | 业务逻辑执行                       |
+| **关注点** | 处理 HTTP 请求/响应、参数校验、权限控制 | 实现具体业务规则、数据操作、事务管理 |
+| **技术栈** | 依赖 Web 框架（ASP.NET Core） | 依赖业务模型、仓储/数据访问层       |
+| **比喻** | 餐厅服务员：接收点单、上菜、处理客户反馈 | 后厨厨师：按菜谱烹饪、控制火候、保证菜品 |
+
+- 控制器：只做“接收请求 → 调用服务 → 封装响应”；不实现业务规则，不直接操作仓储（除简单查询场景可由项目约定例外）。
+- 服务层：承载“是否允许、如何计算、如何持久化”等逻辑；可依赖多个仓储与其他应用服务。
+
 ## 解决方案与项目
 
-- **Takt.Domain**：实体(Entities)、仓储接口(Repositories)、领域接口(Interfaces)、扩展(Extensions)、验证(Validation)。实体继承 `TaktEntityBase`，使用 SqlSugar 的 `[SugarTable]`、`[SugarColumn]`、`[SugarIndex]`；主键/外键 long 使用 `[JsonConverter(typeof(ValueToStringConverter))]`。
-- **Takt.Application**：DTO(Dtos)、服务接口与实现(Services)。服务继承 `TaktServiceBase`，接口以 `ITaktXxxService` 命名；DTO 命名：`TaktXxxDto`、`TaktXxxQueryDto`(继承 `TaktPagedQuery`)、`TaktCreateXxxDto`、`TaktUpdateXxxDto`、`TaktXxxExportDto`、`TaktXxxStatusDto` 等。
-- **Takt.Infrastructure**：数据(Data)、仓储实现(Repositories)、中间件(Middleware)、依赖注入(DependencyInjection)、扩展(Extensions)、SignalR、租户(Tenant)、用户(User)等；实体表映射与种子在 Data 中，新增实体需在 `TaktEntityDatabaseMapping` 中符合 ConfigId 映射。
+- **Takt.Domain（领域层）**：实体(Entities)、仓储接口(Repositories)、领域接口(Interfaces)、扩展(Extensions)、验证(Validation)。实体继承 `TaktEntityBase`，使用 SqlSugar 的 `[SugarTable]`、`[SugarColumn]`、`[SugarIndex]`；主键/外键 long 使用 `[JsonConverter(typeof(ValueToStringConverter))]`。
+- **Takt.Application（应用层）**：DTO(Dtos)、服务接口与实现(Services)。服务继承 `TaktServiceBase`，接口以 `ITaktXxxService` 命名；DTO 命名：`TaktXxxDto`、`TaktXxxQueryDto`(继承 `TaktPagedQuery`)、`TaktCreateXxxDto`、`TaktUpdateXxxDto`、`TaktXxxExportDto`、`TaktXxxStatusDto` 等。
+- **Takt.Infrastructure（基础层）**：数据(Data)、仓储实现(Repositories)、中间件(Middleware)、依赖注入(DependencyInjection)、扩展(Extensions)、SignalR、租户(Tenant)、用户(User)等；实体表映射与种子在 Data 中，新增实体需在 `TaktEntityDatabaseMapping` 中符合 ConfigId 映射。
 - **Takt.Shared**：模型(Models)、异常(Exceptions)、帮助类(Helpers)等；分页使用 `TaktPagedQuery`、`TaktPagedResult<T>`。
-- **Takt.WebApi**：控制器(Controllers)、Program/配置；控制器继承 `TaktControllerBase`，使用 `[Route("api/[controller]")]`、`[TaktPermission]`、`[ApiModule]`。
+- **Takt.WebApi（控制层）**：控制器(Controllers)、Program/配置；控制器继承 `TaktControllerBase`，使用 `[Route("api/[controller]")]`、`[TaktPermission]`、`[ApiModule]`。
+
+## 文件头与 XML 注释（必须，不得省略）
+
+- **每个 .cs 文件顶部必须包含以下格式的文件头**（新增文件必加，修改时若缺失必补）：
+
+```csharp
+// ========================================
+// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
+// 命名空间：{本文件的命名空间}
+// 文件名称：{本文件.cs}
+// 创建时间：{YYYY-MM-DD}
+// 创建人：Takt365(Cursor AI)
+// 功能描述：{本文件职责一句话说明}
+//
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+```
+
+- **公开类型（类、接口、枚举、记录）必须有 `<summary>`**；公开方法/属性必须有 `/// <summary>`，方法还需 `/// <param name="...">`、`/// <returns>`。不得省略 XML 注释。
+- 参照：`Takt.Application.Dtos.Accounting.Financial.TaktCompanyDtos.cs`、`Takt.Application.Services.Accounting.Financial.ITaktCompanyService.cs`。
 
 ## 命名空间与文件
 

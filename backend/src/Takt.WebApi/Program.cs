@@ -26,18 +26,21 @@ using System.IO;
 using Takt.Shared.Helpers;
 using Takt.Shared.Models;
 
-// 配置 Serilog（从配置文件读取Environment，不允许硬编码）
+// 配置 Serilog（标准配置，仅从 appsettings 读取）
 var tempConfig = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables()
     .Build();
 var environmentName = tempConfig["Environment"] ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+
+var configForSerilog = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environmentName}.json", optional: true)
+    .AddEnvironmentVariables()
+    .Build();
+
 Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(new ConfigurationBuilder()
-        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .AddJsonFile($"appsettings.{environmentName}.json", optional: true)
-        .AddEnvironmentVariables()
-        .Build())
+    .ReadFrom.Configuration(configForSerilog)
     .Enrich.FromLogContext()
     .Enrich.WithMachineName()
     .Enrich.WithThreadId()
@@ -75,19 +78,19 @@ try
         builder.Configuration["Email:TemplatesPath"] = Path.Combine(wwwrootPath, "Email", "Templates");
     }
 
-    // 输出日志系统配置信息（从配置文件读取，不允许硬编码）
+    // 输出日志系统配置信息（从配置文件读取）
     var serilogSection = builder.Configuration.GetSection("Serilog");
     var minimumLevelSection = serilogSection.GetSection("MinimumLevel");
     var defaultLevel = minimumLevelSection.GetValue<string>("Default") ?? "未配置";
     var microsoftLevel = minimumLevelSection.GetSection("Override").GetValue<string>("Microsoft") ?? "未配置";
     var aspNetCoreLevel = minimumLevelSection.GetSection("Override").GetValue<string>("Microsoft.AspNetCore") ?? "未配置";
+    var taktLevel = minimumLevelSection.GetSection("Override").GetValue<string>("Takt") ?? "未配置";
     var systemLevel = minimumLevelSection.GetSection("Override").GetValue<string>("Takt365") ?? "未配置";
 
     var writeToSection = serilogSection.GetSection("WriteTo");
     var enrichSection = serilogSection.GetSection("Enrich");
     var enrichments = enrichSection.GetChildren().Select(c => c.Value ?? "").Where(v => !string.IsNullOrEmpty(v)).ToList();
 
-    // 检查日志输出目标
     var hasConsole = writeToSection.GetChildren().Any(w => w.GetSection("Args:configure").GetChildren().Any(c => c.GetValue<string>("Name") == "Console"));
     var hasFile = writeToSection.GetChildren().Any(w => w.GetSection("Args:configure").GetChildren().Any(c => c.GetValue<string>("Name") == "File"));
 
@@ -109,8 +112,8 @@ try
         .Select(c => c.GetSection("Args").GetValue<int?>("retainedFileCountLimit"))
         .FirstOrDefault();
 
-    Log.Information("日志系统: Serilog, 默认级别: {DefaultLevel}, Microsoft: {MicrosoftLevel}, Microsoft.AspNetCore: {AspNetCoreLevel}, System: {SystemLevel}",
-        defaultLevel, microsoftLevel, aspNetCoreLevel, systemLevel);
+    Log.Information("日志系统: Serilog, 默认级别: {DefaultLevel}, Override(Microsoft: {MicrosoftLevel}, Microsoft.AspNetCore: {AspNetCoreLevel}, Takt: {TaktLevel}, Takt365: {SystemLevel})",
+        defaultLevel, microsoftLevel, aspNetCoreLevel, taktLevel, systemLevel);
     Log.Information("日志输出: 控制台: {Console}, 文件: {File}, 文件路径: {FilePath}, 滚动间隔: {RollingInterval}, 保留文件数: {RetainedFileCount}, 增强器: {Enrichments}",
         hasConsole ? "启用" : "禁用", hasFile ? "启用" : "禁用", filePath, rollingInterval, retainedFileCount > 0 ? retainedFileCount.ToString() : "未配置", string.Join(", ", enrichments));
 
@@ -367,8 +370,8 @@ try
         if (path.Contains("/hubs/", StringComparison.OrdinalIgnoreCase) ||
             path.Contains("/negotiate", StringComparison.OrdinalIgnoreCase))
         {
-            Log.Information("诊断：SignalR 请求到达静态文件中间件之后: {Path}, Method: {Method}, QueryString: {QueryString}",
-                path, context.Request.Method, context.Request.QueryString.Value ?? string.Empty);
+            //Log.Information("诊断：SignalR 请求到达静态文件中间件之后: {Path}, Method: {Method}, QueryString: {QueryString}",
+            //    path, context.Request.Method, context.Request.QueryString.Value ?? string.Empty);
         }
         await next();
     });
@@ -514,10 +517,10 @@ try
         showDbLog.HasValue ? (showDbLog.Value ? "启用" : "禁用") : "未配置");
 
     // 输出日志记录配置信息（从配置文件读取，不允许硬编码）
-    var loggingSection = app.Configuration.GetSection("Logging");
-    var operLog = loggingSection.GetValue<bool?>("OperLog");
-    var aopLog = loggingSection.GetValue<bool?>("AopLog");
-    Log.Information("Logging - 操作日志: {OperLog}, 差异日志: {AopLog}",
+    var taktLoggingSection = app.Configuration.GetSection("TaktLogging");
+    var operLog = taktLoggingSection.GetValue<bool?>("OperLog");
+    var aopLog = taktLoggingSection.GetValue<bool?>("AopLog");
+    Log.Information("TaktLogging - 操作日志: {OperLog}, 差异日志: {AopLog}",
         operLog.HasValue ? (operLog.Value ? "启用" : "禁用") : "未配置",
         aopLog.HasValue ? (aopLog.Value ? "启用" : "禁用") : "未配置");
 

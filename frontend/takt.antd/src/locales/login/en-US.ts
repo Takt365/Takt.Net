@@ -70,7 +70,12 @@ export default {
     rememberMe: 'Remember Me',
     login: 'Sign In',
     logout: 'Sign Out',
-    noAccountRegister: 'New to Takt365? {register}'
+    noAccountRegister: 'New to Takt365? {register}',
+    success: 'Sign in successful',
+    fail: 'Sign in failed',
+    alreadyElsewhereTitle: 'Already logged in elsewhere',
+    alreadyElsewhereContent: 'This account is already logged in elsewhere. Force sign in? The other session will be notified and signed out.',
+    forceLogin: 'Force sign in'
   },
 
   /** Forgot password */

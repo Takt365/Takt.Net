@@ -49,7 +49,7 @@ public class {{ if table.controller_class_name != null && table.controller_class
         _{{ table.entity_name_camel }}Service = {{ table.entity_name_camel }}Service;
     }
 {{~ for cat in table.dto_category_descriptors ~}}
-{{ type = cat.Name }}
+{{~ type = cat.name ~}}
 {{~ if type == "QueryDto" ~}}
     /// <summary>
     /// 获取{{ table.comment }}列表（分页）
@@ -72,6 +72,17 @@ public class {{ if table.controller_class_name != null && table.controller_class
         var dto = await _{{ table.entity_name_camel }}Service.GetByIdAsync(id);
         if (dto == null) return NotFound();
         return Ok(dto);
+    }
+
+    /// <summary>
+    /// 获取{{ table.comment }}选项列表（用于下拉框等）
+    /// </summary>
+    [HttpGet("options")]
+    [TaktPermission("{{ if table.perms_prefix != null && table.perms_prefix != ""; table.perms_prefix; else; "app"; end }}:query", "获取{{ table.comment }}选项")]
+    public async Task<ActionResult<List<TaktSelectOption>>> GetOptionsAsync()
+    {
+        var result = await _{{ table.entity_name_camel }}Service.GetOptionsAsync();
+        return Ok(result);
     }
 {{~ else if type == "CreateDto" ~}}
     /// <summary>
@@ -102,7 +113,7 @@ public class {{ if table.controller_class_name != null && table.controller_class
             return BadRequest(ex.Message);
         }
     }
-{{ if table.is_delete == 1 }}
+{{ if table.gen_delete == 1 }}
     /// <summary>
     /// 删除{{ table.comment }}
     /// </summary>

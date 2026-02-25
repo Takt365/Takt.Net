@@ -1,12 +1,5 @@
 <template>
   <div class="dashboard-workspace">
-    <div class="workspace-toolbar">
-      <a-button type="primary" @click="openAddModal">
-        <template #icon><RiAddLine /></template>
-        {{ t('dashboard.workspace.addModule') }}
-      </a-button>
-    </div>
-
     <a-row ref="rowRef" :gutter="[16, 16]">
       <a-col
         v-for="item in modules"
@@ -14,16 +7,23 @@
         :data-id="item.id"
         :span="item.span ?? 24"
       >
-        <WorkspaceModuleCard :module="item" @remove="removeModule(item.id)">
+        <a-dropdown trigger="contextmenu">
+          <div class="workspace-module-context-target">
+            <WorkspaceModuleCard
+          :module="item"
+          @remove="removeModule(item.id)"
+          @change-span="updateModuleSpan"
+        >
           <template #headActions>
-            <a-button
-              v-if="item.moduleKey === 'shortcut'"
-              type="link"
-              size="small"
-              @click="shortcutRefs[item.id]?.openManage?.()"
-            >
-              {{ t('dashboard.workspace.manageShortcuts') }}
-            </a-button>
+            <a-tooltip v-if="item.moduleKey === 'shortcut'" :title="t('dashboard.workspace.manageShortcuts')" placement="right">
+              <a-button
+                type="text"
+                size="small"
+                @click="shortcutRefs[item.id]?.openManage?.()"
+              >
+                <template #icon><RiSettings3Line /></template>
+              </a-button>
+            </a-tooltip>
           </template>
           <component
             :is="moduleComponents[item.moduleKey]"
@@ -31,6 +31,24 @@
             :ref="(el: any) => setShortcutRef(item.id, item.moduleKey, el)"
           />
         </WorkspaceModuleCard>
+          </div>
+          <template #overlay>
+            <a-menu @click="onModuleContextMenuClick(item, $event)">
+              <a-menu-item key="add">
+                <template #icon><RiAddLine /></template>
+                {{ t('dashboard.workspace.addModule') }}
+              </a-menu-item>
+              <a-menu-item
+                v-if="item.moduleKey !== 'welcome' && item.moduleKey !== 'shortcut'"
+                key="remove"
+                danger
+              >
+                <template #icon><RiDeleteBinLine /></template>
+                {{ t('dashboard.workspace.removeModule') }}
+              </a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
       </a-col>
     </a-row>
 
@@ -61,7 +79,8 @@
 import { ref, computed, markRaw, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { message } from 'ant-design-vue'
-import { RiAddLine } from '@remixicon/vue'
+import { RiAddLine, RiDeleteBinLine, RiSettings3Line } from '@remixicon/vue'
+import type { MenuInfo } from 'ant-design-vue/es/menu/src/interface'
 import Sortable from 'sortablejs'
 import WorkspaceModuleCard from './components/WorkspaceModuleCard.vue'
 import WelcomeModule from './modules/WelcomeModule.vue'
@@ -116,7 +135,7 @@ function setShortcutRef(id: string, moduleKey: WorkspaceModuleKey, el: any) {
 }
 
 const showAddModal = ref(false)
-/** 勾选要添加的模块类型（与「管理快捷入口」一致：多选 + 已添加的禁用） */
+/** 勾选要添加的模块类型（多选 + 已添加的禁用） */
 const addingKeys = ref<WorkspaceModuleKey[]>([])
 
 /** 已添加的 moduleKey 集合（custom 允许多个，其余每种仅允许一个） */
@@ -190,6 +209,15 @@ function removeModule(id: string) {
   message.success(t('dashboard.workspace.removeSuccess'))
 }
 
+/** 切换模块占位：独占一行(24) 或 半行/一行两列(12) */
+function updateModuleSpan(id: string, span: number) {
+  const item = modules.value.find(m => m.id === id)
+  if (item && (span === 24 || span === 12)) {
+    item.span = span
+    saveModules(modules.value)
+  }
+}
+
 function onAddModule() {
   const added = addedModuleKeys.value
   for (const key of addingKeys.value) {
@@ -199,14 +227,22 @@ function onAddModule() {
   showAddModal.value = false
   addingKeys.value = []
 }
+
+function onModuleContextMenuClick(
+  item: WorkspaceModuleItem,
+  ev: MenuInfo
+) {
+  if (ev.key === 'add') openAddModal()
+  else if (ev.key === 'remove') removeModule(item.id)
+}
 </script>
 
 <style scoped lang="less">
 .dashboard-workspace {
   padding: 0;
-  .workspace-toolbar {
-    margin-bottom: 16px;
-  }
+}
+.workspace-module-context-target {
+  height: 100%;
 }
 .workspace-add-tip {
   margin-bottom: 8px;

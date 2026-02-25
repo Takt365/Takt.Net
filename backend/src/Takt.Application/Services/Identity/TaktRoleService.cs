@@ -23,7 +23,7 @@ using Takt.Shared.Exceptions;
 using Takt.Shared.Helpers;
 using Takt.Shared.Models;
 
-namespace Takt.Application.Identity;
+namespace Takt.Application.Services.Identity;
 
 /// <summary>
 /// Takt角色应用服务
@@ -33,6 +33,8 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
     private readonly ITaktRepository<TaktRole> _roleRepository;
     private readonly ITaktRepository<TaktRoleDept> _deptRoleRepository;
     private readonly ITaktRepository<TaktRoleMenu> _roleMenuRepository;
+    private readonly ITaktRepository<TaktRolePermission> _rolePermissionRepository;
+    private readonly ITaktRepository<TaktPermission> _permissionRepository;
     private readonly ITaktRepository<TaktUserRole> _userRoleRepository;
     private readonly ITaktRepository<TaktDept> _deptRepository;
     private readonly ITaktRepository<TaktMenu> _menuRepository;
@@ -44,6 +46,8 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
     /// <param name="roleRepository">角色仓储</param>
     /// <param name="deptRoleRepository">部门角色关联仓储</param>
     /// <param name="roleMenuRepository">角色菜单关联仓储</param>
+    /// <param name="rolePermissionRepository">角色权限关联仓储</param>
+    /// <param name="permissionRepository">权限仓储</param>
     /// <param name="userRoleRepository">用户角色关联仓储</param>
     /// <param name="deptRepository">部门仓储</param>
     /// <param name="menuRepository">菜单仓储</param>
@@ -55,6 +59,8 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
         ITaktRepository<TaktRole> roleRepository,
         ITaktRepository<TaktRoleDept> deptRoleRepository,
         ITaktRepository<TaktRoleMenu> roleMenuRepository,
+        ITaktRepository<TaktRolePermission> rolePermissionRepository,
+        ITaktRepository<TaktPermission> permissionRepository,
         ITaktRepository<TaktUserRole> userRoleRepository,
         ITaktRepository<TaktDept> deptRepository,
         ITaktRepository<TaktMenu> menuRepository,
@@ -67,6 +73,8 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
         _roleRepository = roleRepository;
         _deptRoleRepository = deptRoleRepository;
         _roleMenuRepository = roleMenuRepository;
+        _rolePermissionRepository = rolePermissionRepository;
+        _permissionRepository = permissionRepository;
         _userRoleRepository = userRoleRepository;
         _deptRepository = deptRepository;
         _menuRepository = menuRepository;
@@ -114,6 +122,10 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
         // 获取角色部门
         var deptRoles = await _deptRoleRepository.FindAsync(dr => dr.RoleId == id && dr.IsDeleted == 0);
         roleDto.DeptIds = deptRoles.Select(dr => dr.DeptId).ToList();
+
+        // 获取角色权限
+        var rolePermissions = await _rolePermissionRepository.FindAsync(rp => rp.RoleId == id && rp.IsDeleted == 0);
+        roleDto.PermissionIds = rolePermissions.Select(rp => rp.PermissionId).ToList();
 
         return roleDto;
     }
@@ -206,6 +218,22 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
             await _deptRoleRepository.CreateRangeAsync(deptRoles);
         }
 
+        // 添加角色权限关联
+        if (dto.PermissionIds != null && dto.PermissionIds.Any())
+        {
+            var permissions = await _permissionRepository.FindAsync(p => dto.PermissionIds.Contains(p.Id) && p.IsDeleted == 0);
+            if (permissions.Count != dto.PermissionIds.Count)
+                throw new TaktBusinessException("部分权限不存在");
+
+            var rolePerms = dto.PermissionIds.Select(permissionId => new TaktRolePermission
+            {
+                RoleId = role.Id,
+                PermissionId = permissionId
+            }).ToList();
+
+            await _rolePermissionRepository.CreateRangeAsync(rolePerms);
+        }
+
         return await GetByIdAsync(role.Id) ?? role.Adapt<TaktRoleDto>();
     }
 
@@ -262,6 +290,12 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
         if (dto.DeptIds != null)
         {
             await AssignRoleDeptsAsync(id, dto.DeptIds.ToArray());
+        }
+
+        // 更新角色权限关联
+        if (dto.PermissionIds != null)
+        {
+            await AssignRolePermissionsAsync(id, dto.PermissionIds.ToArray());
         }
 
         return await GetByIdAsync(id) ?? role.Adapt<TaktRoleDto>();
@@ -493,6 +527,55 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
     }
 
     /// <summary>
+    /// 获取角色权限列表
+    /// </summary>
+    /// <param name="roleId">角色ID</param>
+    /// <returns>角色权限列表（含角色名、权限标识等展示字段）</returns>
+    public async Task<List<TaktRolePermissionDto>> GetRolePermissionIdsAsync(long roleId)
+    {
+        var rolePermissions = await _rolePermissionRepository.FindAsync(rp => rp.RoleId == roleId && rp.IsDeleted == 0);
+        if (rolePermissions == null || rolePermissions.Count == 0)
+            return new List<TaktRolePermissionDto>();
+
+        var role = await _roleRepository.GetByIdAsync(roleId);
+        if (role == null)
+            return new List<TaktRolePermissionDto>();
+
+        var permissionIds = rolePermissions.Select(rp => rp.PermissionId).Distinct().ToList();
+        var permissions = await _permissionRepository.FindAsync(p => permissionIds.Contains(p.Id) && p.IsDeleted == 0);
+        var permissionDict = permissions.ToDictionary(p => p.Id, p => p);
+
+        var result = new List<TaktRolePermissionDto>();
+        foreach (var rp in rolePermissions)
+        {
+            if (permissionDict.TryGetValue(rp.PermissionId, out var perm))
+            {
+                result.Add(new TaktRolePermissionDto
+                {
+                    RolePermissionId = rp.Id,
+                    RoleId = role.Id,
+                    RoleName = role.RoleName ?? string.Empty,
+                    RoleCode = role.RoleCode ?? string.Empty,
+                    PermissionId = perm.Id,
+                    PermissionCode = perm.PermissionCode,
+                    PermissionName = perm.PermissionName ?? string.Empty,
+                    Module = perm.Module,
+                    ConfigId = rp.ConfigId,
+                    CreateId = rp.CreateId,
+                    CreateBy = rp.CreateBy,
+                    CreateTime = rp.CreateTime,
+                    UpdateId = rp.UpdateId,
+                    UpdateBy = rp.UpdateBy,
+                    UpdateTime = rp.UpdateTime,
+                    IsDeleted = rp.IsDeleted
+                });
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// 分配角色菜单
     /// </summary>
     /// <param name="roleId">角色ID</param>
@@ -553,6 +636,58 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
         {
             await _roleMenuRepository.CreateRangeAsync(menusToAdd);
         }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 分配角色权限
+    /// </summary>
+    /// <param name="roleId">角色ID</param>
+    /// <param name="permissionIds">权限ID列表</param>
+    /// <returns>是否成功</returns>
+    public async Task<bool> AssignRolePermissionsAsync(long roleId, long[] permissionIds)
+    {
+        var role = await _roleRepository.GetByIdAsync(roleId);
+        if (role == null)
+            throw new TaktBusinessException("角色不存在");
+
+        if (IsProtectedRole(role.RoleCode))
+            throw new TaktBusinessException("管理员角色不允许进行权限分配！");
+
+        if (permissionIds != null && permissionIds.Length > 0)
+        {
+            var permissions = await _permissionRepository.FindAsync(p => permissionIds.Contains(p.Id) && p.IsDeleted == 0);
+            if (permissions.Count != permissionIds.Length)
+                throw new TaktBusinessException("部分权限不存在");
+        }
+
+        var existingRolePermissions = await _rolePermissionRepository.FindAsync(rp => rp.RoleId == roleId);
+        var permissionIdsArray = permissionIds ?? Array.Empty<long>();
+
+        var toDelete = existingRolePermissions.Where(rp => !permissionIdsArray.Contains(rp.PermissionId) && rp.IsDeleted == 0).ToList();
+        if (toDelete.Any())
+            await _rolePermissionRepository.DeleteAsync(toDelete.Select(rp => rp.Id));
+
+        var toRestore = existingRolePermissions.Where(rp => permissionIdsArray.Contains(rp.PermissionId) && rp.IsDeleted == 1).ToList();
+        if (toRestore.Any())
+        {
+            foreach (var rp in toRestore)
+            {
+                rp.IsDeleted = 0;
+                rp.UpdateTime = DateTime.Now;
+                await _rolePermissionRepository.UpdateAsync(rp);
+            }
+        }
+
+        var existingPermissionIds = existingRolePermissions.Select(rp => rp.PermissionId).ToList();
+        var toAdd = permissionIdsArray
+            .Where(pid => !existingPermissionIds.Contains(pid))
+            .Select(pid => new TaktRolePermission { RoleId = roleId, PermissionId = pid })
+            .ToList();
+
+        if (toAdd.Any())
+            await _rolePermissionRepository.CreateRangeAsync(toAdd);
 
         return true;
     }

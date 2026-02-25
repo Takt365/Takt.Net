@@ -1,95 +1,32 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { MenuTree } from '@/types/identity/menu'
 
+/**
+ * 权限 Store
+ * 权限来源：后端根据用户角色与 TaktRolePermission + TaktPermission 返回的权限标识列表（登录/拉取用户信息时写入），
+ * 不再从菜单树（TaktMenu）提取。TaktMenu 仅用于路由与侧栏展示。
+ */
 export const usePermissionStore = defineStore('permission', () => {
   const permissions = ref<string[]>([])
 
-  // 从菜单树中提取所有权限（递归提取，包括按钮类型的菜单）
-  const extractPermissionsFromMenuTree = (menus: MenuTree[]): string[] => {
-    const result: string[] = []
-    
-    const traverse = (menuList: MenuTree[]) => {
-      menuList.forEach((menu: any) => {
-        const { permission, children, menuType, menuName, menuCode } = extractMenuFields(menu)
-        
-        // 如果菜单有权限标识，添加到结果中（包括按钮类型）
-        if (permission && typeof permission === 'string' && permission.trim()) {
-          result.push(permission.trim())
-          // if (import.meta.env.DEV) {
-          //   logger.debug(`[Permission Extract] 提取权限: ${permission.trim()}, MenuType: ${menuType}, MenuName: ${menuName || menuCode}`)
-          // }
-        } else if (import.meta.env.DEV && menuType === 2) {
-          // 按钮类型但没有权限标识，记录警告
-          // logger.warn(`[Permission Extract] 按钮类型菜单没有权限标识: MenuName=${menuName || menuCode}, MenuType=${menuType}`)
-        }
-        
-        // 递归处理子菜单
-        if (children && Array.isArray(children) && children.length > 0) {
-          traverse(children)
-        }
-      })
-    }
-    
-    traverse(menus)
-    return result
+  /** 设置权限列表（仅由后端下发的用户权限列表，来自 TaktRole -> TaktRolePermission -> TaktPermission） */
+  const setPermissions = (list: string[]) => {
+    permissions.value = Array.isArray(list) ? [...list] : []
   }
 
-  // 辅助函数：从菜单对象提取字段（后端已统一转换为 camelCase）
-  const extractMenuFields = (menu: any) => ({
-    menuId: menu.menuId || menu.dictValue,
-    menuName: menu.menuName || menu.dictLabel || '',
-    menuCode: menu.menuCode || menu.extLabel || '',
-    menuL10nKey: menu.menuL10nKey || menu.transKey,
-    menuIcon: menu.menuIcon,
-    path: menu.path || menu.extValue || '',
-    component: menu.component,
-    menuType: menu.menuType ?? 0,
-    menuStatus: menu.menuStatus ?? 0,
-    isVisible: menu.isVisible ?? 0,
-    permission: menu.permission,
-    children: menu.children
-  })
-
-  // 设置权限列表（从菜单树或用户信息中提取）
-  const setPermissions = (menuPermissions: string[], userPermissions: string[] = []) => {
-    // 合并从菜单提取的权限和用户信息中的权限（去重）
-    const allPermissions = [...new Set([...userPermissions, ...menuPermissions])]
-    permissions.value = allPermissions
-    // if (import.meta.env.DEV) {
-    //   logger.debug('[Permission Store] 用户信息中的权限:', userPermissions)
-    //   logger.debug('[Permission Store] 从菜单树提取的权限:', menuPermissions)
-    //   logger.debug('[Permission Store] 合并后的权限列表:', allPermissions)
-    //   logger.debug('[Permission Store] 权限数量:', allPermissions.length)
-    // }
-  }
-
-  // 检查权限
+  /** 检查是否拥有某权限标识 */
   const hasPermission = (permission: string): boolean => {
-    if (!permission) {
-      return true
-    }
-    const hasPerm = permissions.value.includes(permission)
-    // if (import.meta.env.DEV && !hasPerm) {
-    //   logger.debug('[Permission Store] 权限检查失败:', {
-    //     permission,
-    //     permissionsList: permissions.value,
-    //     permissionsCount: permissions.value.length,
-    //     hasPermission: hasPerm
-    //   })
-    // }
-    return hasPerm
+    if (!permission) return true
+    return permissions.value.includes(permission)
   }
 
-  // 重置（退出登录时调用）
+  /** 重置（退出登录时调用） */
   const reset = async () => {
-    // 清除权限状态
     permissions.value = []
   }
 
   return {
     permissions,
-    extractPermissionsFromMenuTree,
     setPermissions,
     hasPermission,
     reset

@@ -108,7 +108,9 @@ watch(visible, (val) => {
 
 // 加载所有角色和用户已分配的角色
 const loadUserRoles = async () => {
-  if (!props.user) return
+  if (!props.user) {
+    return
+  }
 
   try {
     loading.value = true
@@ -156,7 +158,7 @@ const loadUserRoles = async () => {
 }
 
 // Transfer 变化处理
-const handleTransferChange = (keys: string[], direction: string, moveKeys: string[]) => {
+const handleTransferChange = (keys: string[], _direction: string, _moveKeys: string[]) => {
   targetKeys.value = keys
 }
 

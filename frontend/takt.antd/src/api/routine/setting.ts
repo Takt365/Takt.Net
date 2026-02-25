@@ -136,7 +136,9 @@ export function importSettings(
 ): Promise<{ success: number; fail: number; errors?: string[] }> {
   const formData = new FormData()
   formData.append('file', file)
-  if (sheetName) formData.append('sheetName', sheetName)
+  if (sheetName) {
+    formData.append('sheetName', sheetName)
+  }
   return request({
     url: `${BASE}/import`,
     method: 'post',

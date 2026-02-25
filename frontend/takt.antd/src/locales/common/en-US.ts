@@ -14,20 +14,22 @@ export default {
 
   /** <summary>2. settings</summary> */
   settings: {
+    /** Ten famous colors, matches color-base.less */
     color: {
-      blue: 'Blue',
-      brown: 'Brown',
-      cyan: 'Cyan',
-      gray: 'Gray',
-      green: 'Green',
-      indigo: 'Indigo',
-      orange: 'Orange',
-      pink: 'Pink',
-      purple: 'Purple',
-      red: 'Red',
-      yellow: 'Yellow',
+      blue: 'Klein Blue',
+      brown: 'Van Dyke Brown',
+      cyan: 'Tiffany Blue',
+      gray: 'Memorial Gray',
+      green: 'Mars Green',
+      indigo: 'Prussian Blue',
+      orange: 'Titian Red',
+      pink: 'Bordeaux',
+      purple: 'Burgundy',
+      red: 'Chinese Red',
+      yellow: 'Sennelier Yellow',
       switch: 'Switch Color',
-      title: 'Color'
+      title: 'Color',
+      locked: 'Today\'s theme color is fixed and cannot be changed'
     },
     locale: {
       'ar-SA': 'العربية',
@@ -111,6 +113,7 @@ export default {
     more: 'More',
     no: 'No',
     ok: 'OK',
+    open: 'Open',
     password: 'Password',
     permission: 'Permission Settings',
     personalSettings: 'Personal Settings',
@@ -161,18 +164,21 @@ export default {
     yes: 'Yes'
   },
 
-  /** <summary>4. entity</summary> */
+  /** <summary>4. entity</summary> 审计字段顺序与 TaktEntityBase 一致 */
   entity: {
     configId: 'Config ID',
+    extFieldJson: 'Extended Field JSON',
+    remark: 'Remark',
+    createId: 'Created By ID',
     createBy: 'Created By',
     createTime: 'Create Time',
-    deletedBy: 'Deleted By',
-    deletedTime: 'Deleted Time',
-    extFieldJson: 'Extended Field JSON',
-    isDeleted: 'Is Deleted',
-    remark: 'Remark',
+    updateId: 'Updated By ID',
     updateBy: 'Updated By',
-    updateTime: 'Update Time'
+    updateTime: 'Update Time',
+    isDeleted: 'Is Deleted',
+    deleteId: 'Deleted By ID',
+    deletedBy: 'Deleted By',
+    deletedTime: 'Deleted Time'
   },
 
   /** <summary>5. msg</summary> */
@@ -181,23 +187,25 @@ export default {
     actionSuccess: '{action} successfully',
     assignFail: 'Assign {target} failed',
     assignSuccess: '{target} assigned successfully',
-    createSuccess: 'Created successfully',
-    deleteFail: 'Delete failed',
-    deleteSuccess: 'Deleted successfully',
+    createSuccess: '{target} created successfully',
+    deleteFail: 'Failed to delete {target}',
+    deleteSuccess: '{target} deleted successfully',
     entityIdRequired: '{entity} ID is required',
     entityNotFound: '{entity} not found',
-    exportFail: 'Export failed',
-    exportSuccess: 'Export successful',
+    exportFail: 'Failed to export {target}',
+    exportSuccess: '{target} exported successfully',
     loadFail: 'Failed to load data',
-    loadOptionsFail: 'Failed to load options, please try again later',
+    loadOptionsFail: 'Failed to load {target} options. Please try again later.',
+    loadListFail: 'Failed to load {target} list.\nPlease check the server and try again.',
     loadTargetFail: 'Failed to load {target}',
     noSearchResult: 'No search results',
-    operateFail: 'Operation failed',
-    updateSuccess: 'Updated successfully'
+    operateFail: '{action} failed',
+    updateSuccess: '{target} updated successfully'
   },
 
   /** <summary>6. action</summary> */
   action: {
+    cancel: 'Cancel',
     confirmAction: 'Confirm {action}',
     confirmDelete: 'Confirm Delete',
     etc: 'etc.',
@@ -240,7 +248,8 @@ export default {
       selectFirst: 'Please select {field} first',
       selectOnly: 'Please select',
       treeKeyword: 'Tree keyword',
-      watermark: 'Enter watermark content'
+      watermark: 'Enter watermark content',
+      lengthExact: '{field} must be exactly {length} characters'
     },
     validation: {
       enterValid: 'Please enter a valid {field}',
@@ -256,7 +265,15 @@ export default {
     unlockContent: 'Are you sure to unlock {entity} "{name}"?'
   },
 
-  /** <summary>9. API request</summary> request interceptor / 401 / network errors (request.ts) */
+  /** <summary>9. PWA update prompt</summary> when Service Worker detects new version */
+  pwa: {
+    offlineReady: 'App ready to work offline',
+    needRefresh: 'New content available, click reload to update',
+    reload: 'Reload',
+    close: 'Close'
+  },
+
+  /** <summary>10. API request</summary> request interceptor / 401 / network errors (request.ts) */
   api: {
     loginExpired: 'Login expired, please sign in again',
     tokenRefreshFail: 'Token refresh failed',

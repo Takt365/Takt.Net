@@ -14,7 +14,7 @@ import { useThemeStore } from '@/stores/theme'
 export function applySettings() {
   const store = useSettingStore()
   const themeStore = useThemeStore()
-  const settingRef = store.setting as Ref<AppSetting> | undefined
+  const settingRef = store.setting as unknown as Ref<AppSetting> | undefined
   const s = settingRef?.value ?? getSetting()
   if (s.theme !== themeStore.themeMode) {
     themeStore.setTheme(s.theme)
@@ -31,7 +31,9 @@ export function applySettings() {
 export function watchSettings() {
   if (typeof window !== 'undefined') {
     window.addEventListener('storage', (e) => {
-      if (e.key === 'app-setting') applySettings()
+      if (e.key === 'app-setting') {
+        applySettings()
+      }
     })
   }
 }

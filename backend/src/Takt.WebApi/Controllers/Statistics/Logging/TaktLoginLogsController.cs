@@ -1,6 +1,6 @@
 // ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.WebApi.Controllers.Logging
+// 命名空间：Takt.WebApi.Controllers.Statistics.Logging
 // 文件名称：TaktLoginLogsController.cs
 // 创建时间：2025-01-20
 // 创建人：Takt365(Cursor AI)
@@ -31,7 +31,7 @@ namespace Takt.WebApi.Controllers.Statistics.Logging;
 [Route("api/[controller]", Name = "登录日志")]
 [ApiModule("Logging", "日志管理")]
 [Authorize]
-[TaktPermission("logging:loginlog", "登录日志管理")]
+[TaktPermission("statistics:logging:loginlog", "登录日志管理")]
 public class TaktLoginLogsController : TaktControllerBase
 {
     private readonly ITaktLoginLogService _loginLogService;
@@ -59,7 +59,7 @@ public class TaktLoginLogsController : TaktControllerBase
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
     [HttpGet("list")]
-    [TaktPermission("logging:loginlog:list", "查询登录日志列表")]
+    [TaktPermission("statistics:logging:loginlog:list", "查询登录日志列表")]
     public async Task<ActionResult<TaktPagedResult<TaktLoginLogDto>>> GetListAsync([FromQuery] TaktLoginLogQueryDto queryDto)
     {
         try
@@ -79,7 +79,7 @@ public class TaktLoginLogsController : TaktControllerBase
     /// <param name="id">日志ID</param>
     /// <returns>登录日志DTO</returns>
     [HttpGet("{id}")]
-    [TaktPermission("logging:loginlog:query", "查询登录日志详情")]
+    [TaktPermission("statistics:logging:loginlog:query", "查询登录日志详情")]
     public async Task<ActionResult<TaktLoginLogDto>> GetByIdAsync(long id)
     {
         try
@@ -101,7 +101,7 @@ public class TaktLoginLogsController : TaktControllerBase
     /// <param name="dto">创建登录日志DTO</param>
     /// <returns>登录日志DTO</returns>
     [HttpPost]
-    [TaktPermission("logging:loginlog:create", "创建登录日志")]
+    [TaktPermission("statistics:logging:loginlog:create", "创建登录日志")]
     public async Task<ActionResult<TaktLoginLogDto>> CreateAsync([FromBody] TaktCreateLoginLogDto dto)
     {
         try
@@ -121,7 +121,7 @@ public class TaktLoginLogsController : TaktControllerBase
     /// <param name="id">日志ID</param>
     /// <returns>任务</returns>
     [HttpDelete("{id}")]
-    [TaktPermission("logging:loginlog:delete", "删除登录日志")]
+    [TaktPermission("statistics:logging:loginlog:delete", "删除登录日志")]
     public async Task<ActionResult> DeleteAsync(long id)
     {
         try
@@ -141,7 +141,7 @@ public class TaktLoginLogsController : TaktControllerBase
     /// <param name="ids">日志ID列表</param>
     /// <returns>任务</returns>
     [HttpDelete("batch")]
-    [TaktPermission("logging:loginlog:delete", "批量删除登录日志")]
+    [TaktPermission("statistics:logging:loginlog:delete", "批量删除登录日志")]
     public async Task<ActionResult> DeleteBatchAsync([FromBody] List<long> ids)
     {
         try
@@ -163,7 +163,7 @@ public class TaktLoginLogsController : TaktControllerBase
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件</returns>
     [HttpGet("export")]
-    [TaktPermission("logging:loginlog:export", "导出登录日志")]
+    [TaktPermission("statistics:logging:loginlog:export", "导出登录日志")]
     public async Task<ActionResult> ExportAsync(
         [FromQuery] TaktLoginLogQueryDto queryDto,
         [FromQuery] string? sheetName = null,

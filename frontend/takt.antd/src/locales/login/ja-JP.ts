@@ -70,7 +70,9 @@ export default {
     rememberMe: 'ログイン状態を保持',
     login: 'サインイン',
     logout: 'サインアウト',
-    noAccountRegister: 'Takt365は初めてですか？{register}'
+    noAccountRegister: 'Takt365は初めてですか？{register}',
+    success: 'ログイン成功',
+    fail: 'ログイン失敗'
   },
 
   /** パスワードリセット */

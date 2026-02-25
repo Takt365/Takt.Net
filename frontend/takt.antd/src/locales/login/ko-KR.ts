@@ -70,7 +70,9 @@ export default {
     rememberMe: '로그인 상태 유지',
     login: '로그인',
     logout: '로그아웃',
-    noAccountRegister: 'Takt365가 처음이신가요? {register}'
+    noAccountRegister: 'Takt365가 처음이신가요? {register}',
+    success: '로그인 성공',
+    fail: '로그인 실패'
   },
 
   /** 비밀번호 찾기 */

@@ -1,6 +1,6 @@
 // ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.Application.Routine.I18n
+// 命名空间：Takt.Application.Services.Routine.I18n
 // 文件名称：TaktLanguageService.cs
 // 创建时间：2025-01-20
 // 创建人：Takt365(Cursor AI)
@@ -17,7 +17,7 @@ using Takt.Domain.Interfaces;
 using Takt.Domain.Validation;
 using Takt.Shared.Exceptions;
 
-namespace Takt.Application.Routine.I18n;
+namespace Takt.Application.Services.Routine.I18n;
 
 /// <summary>
 /// Takt语言应用服务

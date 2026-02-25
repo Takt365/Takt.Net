@@ -14,7 +14,7 @@ export const WORKSPACE_AVAILABLE_MODULES: WorkspaceModuleMeta[] = [
   { key: 'custom', titleKey: 'dashboard.workspace.modules.custom', defaultSpan: 24 }
 ]
 
-/** 默认工作台模块（首次进入或未持久化时）：欢迎与快捷入口一行两列 */
+/** 默认工作台模块（首次进入或未持久化时）：欢迎问候 + 快捷入口 */
 export function getDefaultWorkspaceModules(): WorkspaceModuleItem[] {
   return [
     { id: 'welcome-1', moduleKey: 'welcome', span: 12 },

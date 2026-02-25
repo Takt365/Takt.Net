@@ -119,22 +119,27 @@ export function useUserActivity(config: UserActivityConfig = {}) {
   }
 
   /**
-   * 自动登出
+   * 自动登出：先停止检测、清理状态并跳转登录页，带 redirect 以便重新登录后回到原页面
    */
   const handleAutoLogout = async () => {
     if (warningModal) {
       warningModal.destroy()
       warningModal = null
     }
-    
     hasWarningShown.value = false
-    
+    stopActivityDetection()
+
+    const currentPath = router.currentRoute.value?.fullPath
+    const redirectPath =
+      currentPath && currentPath !== '/login' ? currentPath : '/dashboard/workspace'
+
     try {
       message.warning(t('layouts.session.autoLogout'))
       await userStore.logout()
-      router.push('/login')
-    } catch (error: any) {
+      await router.push({ path: '/login', query: { redirect: redirectPath } })
+    } catch (error: unknown) {
       logger.error('[User Activity] 自动登出失败:', error)
+      await router.push({ path: '/login', query: { redirect: redirectPath } })
     }
   }
 

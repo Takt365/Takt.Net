@@ -79,8 +79,8 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item label="备注" name="remark">
-                <a-textarea v-model:value="formState.remark" placeholder="请输入备注" :rows="2" show-count :maxlength="500" />
+              <a-form-item :label="t('common.entity.remark')" name="remark">
+                <a-textarea v-model:value="formState.remark" :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })" :rows="2" show-count :maxlength="500" />
               </a-form-item>
             </a-col>
           </a-row>

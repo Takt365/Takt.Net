@@ -24,7 +24,7 @@
       @resizeColumn="handleResizeColumn"
       v-bind="$attrs"
     >
-      <template v-for="(_, name) in $slots" #[name]="slotData">
+      <template v-for="(_, name) in $slots" :key="name" #[name]="slotData">
         <slot :name="name" v-bind="slotData" />
       </template>
       <template v-if="$slots.summary" #summary>
@@ -91,12 +91,16 @@ const emit = defineEmits<{
 
 /** 行选择：默认显示选择列（showRowSelection 为 true 且未传 rowSelection 时用空对象） */
 const effectiveRowSelection = computed(() => {
-  if (!props.showRowSelection) return undefined
+  if (!props.showRowSelection) {
+    return undefined
+  }
   return props.rowSelection !== undefined && props.rowSelection !== null ? props.rowSelection : {}
 })
 
 const rowClassName = computed(() => {
-  if (props.rowClassName) return props.rowClassName
+  if (props.rowClassName) {
+    return props.rowClassName
+  }
   if (props.stripe) {
     return (_record: any, index: number) => (index % 2 === 1 ? 'table-striped' : '') as string
   }

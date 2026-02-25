@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Abstractions;
 using System.Security.Claims;
 using Takt.Domain.Entities.Identity;
-using Takt.Domain.Entities.Tenant;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Tenant;
 using Takt.Infrastructure.User;

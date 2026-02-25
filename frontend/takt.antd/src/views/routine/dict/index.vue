@@ -660,7 +660,9 @@ const handleRefresh = () => {
 
 // 表单提交
 const handleFormSubmit = async () => {
-  if (!formRef.value) return
+  if (!formRef.value) {
+    return
+  }
   
   try {
     await formRef.value.validate()
@@ -790,7 +792,9 @@ const handleExpand = async (expanded: boolean, record: DictType) => {
 
 // 加载字典数据 - 根据 dictTypeId 动态获取
 const loadDictData = async (record: DictType) => {
-  if (!record.dictTypeId) return
+  if (!record.dictTypeId) {
+    return
+  }
   
   try {
     // 使用 dictDataApi.getList 根据 dictTypeId 查询字典数据（dictTypeId 是唯一标识）

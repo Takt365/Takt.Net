@@ -20,7 +20,7 @@
       :accept="accept"
       :maxCount="maxCount"
       :disabled="disabled"
-      :listType="listType"
+      :listType="listType as 'text' | 'picture' | 'picture-card'"
       :beforeUpload="handleBeforeUpload"
       :customRequest="customRequest"
       :showUploadList="showUploadList"
@@ -42,7 +42,7 @@
       :title="t('components.common.upload.cropImage')"
       :width="900"
       :okText="t('components.common.upload.ok')"
-      :cancelText="t('components.common.upload.cancel')"
+      :cancelText="t('common.button.cancel')"
       @ok="handleCropConfirm"
       @cancel="handleCropCancel"
       class="takt-upload-images-cropper"
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onUnmounted, nextTick, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import type { UploadChangeParam, UploadFile, UploadProps } from 'ant-design-vue'
@@ -223,7 +223,7 @@ const handleBeforeUpload = (file: UploadFile | File) => {
 }
 
 // 裁剪器裁剪事件
-const handleCropperCrop = (blob: Blob, dataUrl: string) => {
+const handleCropperCrop = (_blob: Blob, _dataUrl: string) => {
   // 裁剪完成事件（可选，用于预览）
 }
 

@@ -10,15 +10,19 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Takt.Application.Dtos.Statistics.Logging;
 using Takt.Application.Services.Logging;
+using Takt.Domain.Entities;
 using Takt.Infrastructure.Data;
 using Takt.Infrastructure.Data.Seeds;
 using Takt.Infrastructure.Extensions;
 using Takt.Infrastructure.Helpers;
+using Takt.Infrastructure.Tenant;
 using Takt.Infrastructure.User;
+using Takt.Shared.Constants;
 
 namespace Takt.Infrastructure.DependencyInjection;
 
@@ -58,7 +62,8 @@ public class TaktAutofacModule : Module
                     var conn = dbConfig["Conn"];
                     var dbType = dbConfig.GetValue<int>("DbType", 1);
                     var configId = dbConfig["ConfigId"];
-                    var isAutoCloseConnection = dbConfig.GetValue<bool>("IsAutoCloseConnection", true);
+                    // 多库同请求内会切换连接（如先写业务库再写操作日志），设为 false 避免连接被提前关闭导致「连接被关闭」
+                    var isAutoCloseConnection = dbConfig.GetValue<bool>("IsAutoCloseConnection", false);
 
                     if (string.IsNullOrEmpty(conn) || string.IsNullOrEmpty(configId))
                         continue;
@@ -105,7 +110,7 @@ public class TaktAutofacModule : Module
 
             // 读取配置
             var showDbLog = _configuration.GetValue<bool>("ShowDbLog", false);
-            var aopLogEnabled = _configuration.GetValue<bool>("Logging:AopLog", true);
+            var aopLogEnabled = _configuration.GetValue<bool>("TaktLogging:AopLog", true);
 
             // 创建支持多租户的 SqlSugarScope（按照官方Demo）
             // 注意：AOP一定要设置在你操作语句之前，多库情况下使用 GetConnectionScope
@@ -152,6 +157,13 @@ public class TaktAutofacModule : Module
                         {
                             // 忽略初始化错误，让后续操作自然失败并抛出更明确的错误
                         }
+
+                        // 配置查询过滤器：软删除过滤 + 租户数据隔离
+                        connection.QueryFilter.AddTableFilter<TaktEntityBase>(it => it.IsDeleted == 0);
+                        connection.QueryFilter.AddTableFilter<TaktEntityBase>(it =>
+                            !TaktTenantContext.IsTenantEnabled ||
+                            it.ConfigId == (TaktTenantContext.CurrentConfigId ?? TaktAppConstants.DefaultConfigId));
+
                         // SQL执行前事件
                         connection.Aop.OnLogExecuting = (sql, pars) =>
                         {
@@ -324,50 +336,49 @@ public class TaktAutofacModule : Module
                                     // 获取执行耗时（毫秒，如果没有则使用0）
                                     var costTime = 0; // SqlSugar的DiffLogModel可能不包含ElapsedMilliseconds，使用0
 
-                                    // 异步保存差异日志（不阻塞SQL执行）
-                                    // 注意：这里不能直接使用 c.Resolve，因为事件回调在运行时执行，需要使用全局服务提供者
-                                    // 使用静态服务提供者或通过其他方式获取服务
-                                    _ = Task.Run(async () =>
+                                    // 同步保存差异日志（必须在当前请求作用域内完成，避免 Task.Run 导致：
+                                    // 1. 线程池线程无请求作用域引发「连接被关闭」
+                                    // 2. 与主线程并发访问 SqlSugar 映射信息引发「Collection was modified」）
+                                    try
                                     {
-                                        try
+                                        var serviceProvider = TaktServiceProvider.ServiceProvider;
+                                        if (serviceProvider == null)
                                         {
-                                            // 使用全局服务提供者（需要在Program.cs中设置）
-                                            var serviceProvider = TaktServiceProvider.ServiceProvider;
-                                            if (serviceProvider == null)
-                                            {
-                                                Serilog.Log.Warning("无法获取 ServiceProvider，跳过差异日志记录");
-                                                return;
-                                            }
-
-                                            var aopLogService = serviceProvider.GetService<ITaktAopLogService>();
-                                            if (aopLogService == null)
-                                            {
-                                                Serilog.Log.Warning("无法获取 ITaktAopLogService，跳过差异日志记录");
-                                                return;
-                                            }
-
-                                            var createDto = new TaktCreateAopLogDto
-                                            {
-                                                UserName = userName,
-                                                OperType = operType,
-                                                TableName = tableName,
-                                                PrimaryKeyId = primaryKeyId,
-                                                BeforeData = beforeData,
-                                                AfterData = afterData,
-                                                DiffData = diffData,
-                                                SqlStatement = sqlStatement,
-                                                OperTime = DateTime.Now,
-                                                CostTime = costTime
-                                            };
-
-                                            await aopLogService.CreateAsync(createDto);
+                                            Serilog.Log.Warning("无法获取 ServiceProvider，跳过差异日志记录");
+                                            return;
                                         }
-                                        catch (Exception ex)
+
+                                        // 优先使用当前请求的 RequestServices，保证与当前 INSERT 同一作用域和连接生命周期
+                                        var httpAccessor = serviceProvider.GetService<IHttpContextAccessor>();
+                                        var requestServices = httpAccessor?.HttpContext?.RequestServices ?? serviceProvider;
+                                        var aopLogService = requestServices.GetService<ITaktAopLogService>();
+                                        if (aopLogService == null)
                                         {
-                                            Serilog.Log.Error(ex, "保存差异日志失败: TableName: {TableName}, OperType: {OperType}",
-                                                tableName, operType);
+                                            Serilog.Log.Warning("无法获取 ITaktAopLogService，跳过差异日志记录");
+                                            return;
                                         }
-                                    });
+
+                                        var createDto = new TaktCreateAopLogDto
+                                        {
+                                            UserName = userName,
+                                            OperType = operType,
+                                            TableName = tableName,
+                                            PrimaryKeyId = primaryKeyId,
+                                            BeforeData = beforeData,
+                                            AfterData = afterData,
+                                            DiffData = diffData,
+                                            SqlStatement = sqlStatement,
+                                            OperTime = DateTime.Now,
+                                            CostTime = costTime
+                                        };
+
+                                        aopLogService.CreateAsync(createDto).GetAwaiter().GetResult();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Serilog.Log.Error(ex, "保存差异日志失败: TableName: {TableName}, OperType: {OperType}",
+                                            tableName, operType);
+                                    }
                                 }
                                 catch (Exception ex)
                                 {

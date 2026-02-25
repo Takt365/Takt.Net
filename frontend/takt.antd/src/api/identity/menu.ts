@@ -114,7 +114,9 @@ export function getTemplate(sheetName?: string, fileName?: string): Promise<Blob
 export function importMenus(file: File, sheetName?: string): Promise<{ success: number; fail: number; errors: string[] }> {
   const formData = new FormData()
   formData.append('file', file)
-  if (sheetName) formData.append('sheetName', sheetName)
+  if (sheetName) {
+    formData.append('sheetName', sheetName)
+  }
   return request({
     url: '/api/TaktMenus/import',
     method: 'post',

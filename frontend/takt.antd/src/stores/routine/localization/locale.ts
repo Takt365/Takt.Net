@@ -3,6 +3,8 @@ import { ref, watch, computed, nextTick } from 'vue'
 import i18n from '@/locales'
 import { getOptions } from '@/api/routine/i18n/language'
 import { getSetting } from '@/stores/setting'
+import { showApiError } from '@/utils/notification'
+import type { TaktSelectOption } from '@/types/common'
 
 export type Locale = string
 
@@ -17,7 +19,7 @@ export interface Language {
   enabled?: boolean
   /** 排序 */
   order?: number
-  [key: string]: any
+  [key: string]: unknown
 }
 
 /**
@@ -64,7 +66,9 @@ export const useLocaleStore = defineStore('locale', () => {
 
   // 加载语言列表
   const loadLanguages = async () => {
-    if (loading.value) return
+    if (loading.value) {
+      return
+    }
     try {
       loading.value = true
       // 使用 getOptions 获取所有语言选项（不分页）
@@ -73,24 +77,22 @@ export const useLocaleStore = defineStore('locale', () => {
       // 将 TaktSelectOption 转换为 Language 格式
       // 后端映射：DictLabel=LanguageName(中文名称), DictValue=CultureCode(语言代码), ExtLabel=NativeName(本地化名称), ExtValue=Id(语言ID)
       // 后端已统一转换为 camelCase
-      languages.value = options.map((option: any) => {
+      languages.value = options.map((option: TaktSelectOption) => {
         // 后端已统一转换为 camelCase
         const dictValue = option.dictValue
         const dictLabel = option.dictLabel
         const extLabel = option.extLabel
-        const orderNum = option.orderNum
-        
-        const mapped = {
+        const orderNum = option.orderNum ?? 0
+
+        const mapped: Language = {
           code: String(dictValue), // 语言代码，如：'ar-SA'
           name: dictLabel, // 中文名称，如：'阿拉伯语'
-          displayName: extLabel || dictLabel, // 本地化名称，如：'العربية'，如果没有则使用中文名称
+          displayName: (extLabel as string | undefined) ?? dictLabel, // 本地化名称
           enabled: true, // getOptions 返回的都是启用的语言（LanguageStatus == 0）
-          order: orderNum || 0,
-          ...option
+          order: orderNum
         }
-        
         return mapped
-      }).sort((a, b) => (a.order || 0) - (b.order || 0))
+      }).sort((a, b) => a.code.localeCompare(b.code))
       
       // 如果当前语言不在列表中，使用设置中的默认语言，如果没有则优先使用中文（zh-CN），最后使用第一个启用的语言
       if (languages.value.length > 0 && !languages.value.find(lang => lang.code === locale.value)) {
@@ -184,14 +186,7 @@ export const useLocaleStore = defineStore('locale', () => {
         }
       }
     } catch (error) {
-      // logger.error('[Locale Store] 加载语言列表失败:', error)
-      // 如果加载失败，使用默认语言列表
-      if (languages.value.length === 0) {
-        languages.value = [
-          { code: 'zh-CN', name: '中文', displayName: '中文', enabled: true, order: 1 },
-          { code: 'en-US', name: 'English', displayName: 'English', enabled: true, order: 2 }
-        ]
-      }
+      showApiError((i18n.global.t as (k: string, values?: object) => string)('common.msg.loadListFail', { target: (i18n.global.t as (k: string) => string)('common.settings.locale.title') }))
     } finally {
       loading.value = false
     }
@@ -202,30 +197,36 @@ export const useLocaleStore = defineStore('locale', () => {
     locale,
     async (newLocale, oldLocale) => {
       // 如果语言没有变化，跳过
-      if (newLocale === oldLocale) return
-      
+      if (newLocale === oldLocale) {
+        return
+      }
+
       localStorage.setItem('locale', newLocale)
-      
-      // 先同步更新 i18n 的 locale，确保立即生效
       const localeRef = i18n.global.locale as { value: string }
       localeRef.value = newLocale
-      
-      // 等待 Vue 的响应式更新完成
       await nextTick()
-      
-      // 然后异步加载后端翻译数据
-      // 注意：在翻译数据加载完成之前，vue-i18n 会回退到 fallbackLocale，这是正常的
+
+      // 切换语言后立即重新获取用户信息（含节假日），与加载翻译并行，请求会带新 Accept-Language
+      const userInfoPromise = (async () => {
+        try {
+          const { useUserStore } = await import('@/stores/identity/user')
+          const userStore = useUserStore()
+          if (userStore.token) await userStore.getUserInfo()
+        } catch (_) {
+          // 未登录或接口失败时忽略
+        }
+      })()
+
       try {
         const { loadTranslationsFromBackend } = await import('@/locales')
         await loadTranslationsFromBackend(newLocale, 'Frontend')
-        
-        // 翻译数据加载完成后，再次确保 locale 正确设置
-        // 因为某些组件可能在数据加载期间已经渲染
         localeRef.value = newLocale
         await nextTick()
       } catch (error) {
-        // logger.error('[Locale Store] 加载后端翻译数据失败:', error)
+        // 翻译加载失败不影响语言切换
       }
+
+      await userInfoPromise
     },
     { immediate: true }
   )
@@ -239,8 +240,10 @@ export const useLocaleStore = defineStore('locale', () => {
   // 切换语言（在支持的语言之间切换）
   const toggleLocale = () => {
     const enabled = enabledLanguages.value
-    if (enabled.length < 2) return
-    
+    if (enabled.length < 2) {
+      return
+    }
+
     const currentIndex = enabled.findIndex(lang => lang.code === locale.value)
     const nextIndex = (currentIndex + 1) % enabled.length
     locale.value = enabled[nextIndex].code

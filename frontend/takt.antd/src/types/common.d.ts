@@ -14,6 +14,7 @@ import type { TaktResultCode } from '@/utils/enum'
 
 /**
  * Takt 实体基类（对应后端 Takt.Domain.Entities.TaktEntityBase，不包含 ID）
+ * 审计字段顺序与后端一致：configId → extFieldJson → remark → createId → createBy → createTime → updateId → updateBy → updateTime → isDeleted → deleteId → deletedBy → deletedTime
  */
 export interface TaktEntityBase {
   /** 租户配置ID（ConfigId，用于多租户数据隔离和数据库切换） */
@@ -22,16 +23,22 @@ export interface TaktEntityBase {
   extFieldJson?: string
   /** 备注 */
   remark?: string
+  /** 创建人ID（后端 long 序列化为 string） */
+  createId?: string
   /** 创建人（用户名） */
   createBy?: string
   /** 创建时间 */
   createTime: string
+  /** 更新人ID（后端 long 序列化为 string） */
+  updateId?: string
   /** 更新人（用户名） */
   updateBy?: string
   /** 更新时间 */
   updateTime?: string
-  /** 是否删除（软删除标记，0=是（未删除），1=否（已删除）） */
+  /** 是否删除（软删除标记，0=未删除，1=已删除） */
   isDeleted: number
+  /** 删除人ID（后端 long 序列化为 string） */
+  deleteId?: string
   /** 删除人（用户名） */
   deletedBy?: string
   /** 删除时间 */

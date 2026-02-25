@@ -1,0 +1,20 @@
+export default {
+  title: 'Accounting Title',
+  titleCode: 'Title Code',
+  titleName: 'Title Name',
+  titleType: 'Title Type',
+  titleStatus: 'Title Status',
+  balanceDirection: 'Balance Direction',
+  orderNum: 'Order No.',
+  effectiveDate: 'Effective Date',
+  expiryDate: 'Expiry Date',
+  isReconciliationAccount: 'Reconciliation Account',
+  _self: 'Accounting Title',
+  exportFileName: 'Accounting Titles',
+  name: 'Title Name',
+  code: 'Title Code',
+  type: 'Title Type',
+  status: 'Status',
+  debit: 'Debit',
+  credit: 'Credit'
+}

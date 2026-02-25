@@ -27,7 +27,7 @@ import type {
 import type { UserRole } from '@/types/identity/user-role'
 import type { UserDept } from '@/types/humanresource/organization/user-dept'
 import type { UserPost } from '@/types/humanresource/organization/user-post'
-import type { UserTenant } from '@/types/tenant/user-tenant'
+import type { UserTenant } from '@/types/identity/user-tenant'
 
 // ========================================
 // 用户相关 API（按后端控制器顺序）

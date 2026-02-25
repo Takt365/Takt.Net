@@ -11,7 +11,7 @@
   <div class="{{ table.frontend_module_path | string.replace "/" "-" }}-{{ table.entity_name_kebab }}">
     <TaktQueryBar
       v-model="queryKeyword"
-      placeholder="请输入关键词"
+      :placeholder="t('common.form.placeholder.searchKeyword')"
       :loading="loading"
       @search="handleSearch"
       @reset="handleReset"
@@ -21,9 +21,13 @@
       create-permission="{{ table.perms_prefix }}:create"
       update-permission="{{ table.perms_prefix }}:update"
       delete-permission="{{ table.perms_prefix }}:delete"
-      :show-create="true"
-      :show-update="true"
-      :show-delete="true"
+      import-permission="{{ table.perms_prefix }}:import"
+      export-permission="{{ table.perms_prefix }}:export"
+      :show-create="{{ if table.gen_create == 1 }}true{{ else }}false{{ end }}"
+      :show-update="{{ if table.gen_update == 1 }}true{{ else }}false{{ end }}"
+      :show-delete="{{ if table.gen_delete == 1 }}true{{ else }}false{{ end }}"
+      :show-import="{{ if table.gen_import == 1 }}true{{ else }}false{{ end }}"
+      :show-export="{{ if table.gen_export == 1 }}true{{ else }}false{{ end }}"
       :show-advanced-query="true"
       :show-column-setting="true"
       :show-refresh="true"
@@ -36,6 +40,8 @@
       @create="handleCreate"
       @update="handleUpdate"
       @delete="handleDelete"
+      @import="handleImport"
+      @export="handleExport"
       @advanced-query="handleAdvancedQuery"
       @column-setting="handleColumnSetting"
       @refresh="handleRefresh"
@@ -66,7 +72,8 @@
     <TaktModal
       v-model:open="formVisible"
       :title="formTitle"
-      :width="'33.333vw'"
+      width="50%"
+      wrap-class-name="takt-form-modal-resizable"
       :confirm-loading="formLoading"
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
@@ -85,17 +92,17 @@
       @reset="handleAdvancedQueryReset"
     >
 {{~ for col in columns ~}}
-{{~ if col.is_query == 0 ~}}
+{{~ if col.is_query == 1 ~}}
       <a-form-item label="{{ col.comment }}">
 {{~ if col.html_type == "select" && col.dict_type ~}}
         <TaktSelect
           v-model:value="advancedQueryForm.{{ col.ts_column_name }}"
           dict-type="{{ col.dict_type }}"
-          placeholder="请选择"
+          :placeholder="t('common.form.placeholder.select', { field: '{{ col.comment }}' })"
           allow-clear
         />
 {{ else }}
-        <a-input v-model:value="advancedQueryForm.{{ col.ts_column_name }}" />
+        <a-input v-model:value="advancedQueryForm.{{ col.ts_column_name }}" :placeholder="t('common.form.placeholder.searchKeyword')" />
 {{~ end ~}}
       </a-form-item>
 {{~ end ~}}
@@ -119,7 +126,7 @@
  * {{ table.comment }}管理页 · 列表、查询、增删改由 GenFunction/ControllerActions 驱动
  * @module views/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}
  */
-{{ has_get_list = false; has_create = false; has_update = false; has_remove = false; has_delete_batch = false; for a in table.controller_actions; if a.FrontendMethodName == "getList"; has_get_list = true; end; if a.FrontendMethodName == "create"; has_create = true; end; if a.FrontendMethodName == "update"; has_update = true; end; if a.FrontendMethodName == "remove"; has_remove = true; end; if a.FrontendMethodName == "deleteBatch"; has_delete_batch = true; end; end }}
+{{ has_get_list = false; has_create = false; has_update = false; has_delete = false; has_delete_batch = false; for a in table.controller_actions; fn = a["frontend_method_name"]; if fn == "getList"; has_get_list = true; end; if fn == "create"; has_create = true; end; if fn == "update"; has_update = true; end; if fn == "delete"; has_delete = true; end; if fn == "deleteBatch"; has_delete_batch = true; end; end }}
 import { ref, computed, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import type { TableColumnsType } from 'ant-design-vue'
@@ -127,8 +134,15 @@ import { CreateActionColumn } from '@/components/business/takt-action-column/ind
 import { mergeDefaultColumns } from '@/utils/table-columns'
 import { useI18n } from 'vue-i18n'
 import {{ table.entity_name_pascal }}Form from './components/{{ table.entity_name_kebab }}-form.vue'
-import { {{ for action in table.controller_actions }}{{ action.FrontendMethodName }}{{ if !for.last }}, {{ end }}{{ end }} } from '@/api/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
-import type { {{ for cat in table.dto_category_descriptors }}{{ cat.TsInterfaceName }}{{ if !for.last }}, {{ end }}{{ end }} } from '@/types/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
+import { {{ for action in table.controller_actions ~}}
+{{~ fn_name = action["frontend_method_name"] ~}}
+{{~ if fn_name == "create"; fn_name = "create" + table.entity_name_pascal; else if fn_name == "update"; fn_name = "update" + table.entity_name_pascal; else if fn_name == "delete"; fn_name = "delete" + table.entity_name_pascal; else if fn_name == "import"; fn_name = "import" + table.entity_name_pascal_plural; else if fn_name == "export"; fn_name = "export" + table.entity_name_pascal_plural; end ~}}
+{{ fn_name }}{{ if !for.last }}, {{ end }}{{ end }} } from '@/api/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
+import type { {{ for cat in table.dto_category_descriptors ~}}
+{{~ cat_name = cat["name"] ~}}
+{{~ if cat_name != "TemplateDto" && cat_name != "ImportDto" && cat_name != "ExportDto" ~}}
+{{ cat["ts_interface_name"] }}{{ if !for.last }}, {{ end }}
+{{~ end ~}}{{ end }} } from '@/types/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
 import { RiEditLine, RiDeleteBinLine } from '@remixicon/vue'
 
 const { t } = useI18n()
@@ -166,7 +180,7 @@ const advancedQueryVisible = ref(false)
 /** 高级查询表单模型（IsQuery 列） */
 const advancedQueryForm = ref({
 {{~ for col in columns ~}}
-{{~ if col.is_query == 0 ~}}
+{{~ if col.is_query == 1 ~}}
   {{ col.ts_column_name }}: {{ if col.ts_data_type == "number" }}undefined as number | undefined{{ else }}''{{ end }},
 {{~ end ~}}
 {{~ end ~}}
@@ -200,7 +214,7 @@ const columns = ref<TableColumnsType>([
     customRender: ({ record }: { record: any }) => get{{ table.entity_name_pascal }}Field(record, '{{ table.entity_name_camel }}Id') ?? ''
   },
 {{~ for col in columns ~}}
-{{~ if col.is_list == 0 ~}}
+{{~ if col.is_list == 1 ~}}
   {
     title: '{{ col.comment }}',
     dataIndex: '{{ col.ts_column_name }}',
@@ -217,17 +231,17 @@ const columns = ref<TableColumnsType>([
 {{~ if has_update ~}}
       {
         key: 'update',
-        label: '编辑',
+        label: t('common.button.edit'),
         shape: '{{ table.btn_style == 0 ? "plain" : "default" }}',
         icon: RiEditLine,
         permission: '{{ table.perms_prefix }}:update',
         onClick: (record: {{ table.entity_name_pascal }}) => handleEdit(record)
       },
 {{~ end ~}}
-{{~ if has_remove ~}}
+{{~ if has_delete ~}}
       {
         key: 'delete',
-        label: '删除',
+        label: t('common.button.delete'),
         shape: '{{ table.btn_style == 0 ? "plain" : "default" }}',
         icon: RiDeleteBinLine,
         permission: '{{ table.perms_prefix }}:delete',
@@ -303,7 +317,7 @@ function handleReset() {
   queryKeyword.value = ''
   advancedQueryForm.value = {
 {{~ for col in columns ~}}
-{{~ if col.is_query == 0 ~}}
+{{~ if col.is_query == 1 ~}}
     {{ col.ts_column_name }}: {{ if col.ts_data_type == "number" }}undefined as number | undefined{{ else }}''{{ end }},
 {{~ end ~}}
 {{~ end ~}}
@@ -314,14 +328,14 @@ function handleReset() {
 
 /** 打开新增表单 */
 function handleCreate() {
-  formTitle.value = '新增{{ table.comment }}'
+  formTitle.value = t('common.button.create') + '{{ table.comment }}'
   formData.value = {}
   formVisible.value = true
 }
 
 /** 打开编辑表单并回填当前行 */
 function handleEdit(record: {{ table.entity_name_pascal }}) {
-  formTitle.value = '编辑{{ table.comment }}'
+  formTitle.value = t('common.button.edit') + '{{ table.comment }}'
   formData.value = { ...record }
   formVisible.value = true
 }
@@ -342,20 +356,26 @@ async function handleFormSubmit() {
   }
   formLoading.value = true
   try {
-    const id = (formData.value as any)?.[entityIdName]
+    const formValues = ref.getValues()
+    const id = (formValues as any)?.[entityIdName]
     if (id) {
 {{~ if has_update ~}}
-      await update(id, formData.value as any)
-      message.success('更新成功')
+      await update(id, formValues as any)
+      message.success(t('common.msg.updateSuccess'))
 {{~ end ~}}
     } else {
 {{~ if has_create ~}}
-      await create(formData.value as any)
-      message.success('新增成功')
+      await create(formValues as any)
+      message.success(t('common.msg.createSuccess'))
 {{~ end ~}}
     }
+    ref.resetFields()
+    formData.value = {}
     formVisible.value = false
     loadData()
+  } catch (error: any) {
+    if (error?.errorFields) return
+    message.error(error?.message || t('common.msg.operateFail'))
   } finally {
     formLoading.value = false
   }
@@ -364,17 +384,22 @@ async function handleFormSubmit() {
 /** 关闭表单弹窗 */
 function handleFormCancel() {
   formVisible.value = false
+  formData.value = {}
+  formRef.value?.resetFields()
 }
 
-/** 单条删除（有 remove 时确认后调用接口） */
+/** 单条删除（有 delete 时确认后调用接口） */
 async function handleDeleteOne(record: {{ table.entity_name_pascal }}) {
-{{~ if has_remove ~}}
+{{~ if has_delete ~}}
+  const name = (record as any)?.[entityIdName] ?? t('common.action.thisTarget', { target: '{{ table.comment }}' })
   Modal.confirm({
-    title: '确认删除',
-    content: '确定要删除该条记录吗？',
+    title: t('common.action.confirmDelete'),
+    content: t('common.confirm.deleteEntity', { entity: '{{ table.comment }}', name }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
-      await remove((record as any)[entityIdName])
-      message.success('删除成功')
+      await delete{{ table.entity_name_pascal }}((record as any)[entityIdName])
+      message.success(t('common.msg.deleteSuccess'))
       loadData()
     }
   })
@@ -384,14 +409,19 @@ async function handleDeleteOne(record: {{ table.entity_name_pascal }}) {
 /** 批量删除（有 deleteBatch 时确认后调用接口） */
 async function handleDelete() {
 {{~ if has_delete_batch ~}}
-  if (selectedRows.value.length === 0) return
+  if (selectedRows.value.length === 0) {
+    message.warning(t('common.action.warnSelectToAction', { action: t('common.button.delete'), entity: '{{ table.comment }}' }))
+    return
+  }
   Modal.confirm({
-    title: '确认批量删除',
-    content: `确定要删除选中的 ${selectedRows.value.length} 条记录吗？`,
+    title: t('common.action.confirmDelete'),
+    content: t('common.confirm.deleteCountEntity', { entity: '{{ table.comment }}', count: selectedRows.value.length }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
       const ids = selectedRows.value.map((r: any) => r[entityIdName]).filter(Boolean)
       await deleteBatch(ids)
-      message.success('删除成功')
+      message.success(t('common.msg.deleteSuccess'))
       loadData()
     }
   })
@@ -414,7 +444,7 @@ function handleAdvancedQuerySubmit() {
 function handleAdvancedQueryReset() {
   advancedQueryForm.value = {
 {{~ for col in columns ~}}
-{{~ if col.is_query == 0 ~}}
+{{~ if col.is_query == 1 ~}}
     {{ col.ts_column_name }}: {{ if col.ts_data_type == "number" }}undefined as number | undefined{{ else }}''{{ end }},
 {{~ end ~}}
 {{~ end ~}}
@@ -456,10 +486,45 @@ function handlePaginationSizeChange(_current: number, size: number) {
   currentPage.value = 1
   loadData()
 }
+
+/** 导入（有 import 时显示） */
+function handleImport() {
+  message.info(t('common.button.import') + '{{ table.comment }} ' + t('common.action.management'))
+}
+
+/** 导出（有 export 时调用接口） */
+async function handleExport() {
+{{~ if table.gen_export == 1 ~}}
+  try {
+    loading.value = true
+    const params = { keyWords: queryKeyword.value || undefined, sortOrder: sortOrder.value, sortField: sortField.value, ...advancedQueryForm.value }
+    const blob = await export{{ table.entity_name_pascal_plural }}(params, undefined, '{{ table.comment }}' + t('common.action.exportDataSuffix'))
+    const ts = new Date()
+    const pad = (n: number, w = 2) => String(n).padStart(w, '0')
+    const fileName = `{{ table.comment }}${t('common.action.exportDataSuffix')}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    setTimeout(() => window.URL.revokeObjectURL(url), 100)
+    message.success(t('common.msg.exportSuccess'))
+  } catch (error: any) {
+    message.error(error?.message || t('common.msg.exportFail'))
+  } finally {
+    loading.value = false
+  }
+{{~ else ~}}
+  message.info(t('common.button.export') + '{{ table.comment }} ' + t('common.action.management'))
+{{~ end ~}}
+}
 </script>
 
 <style scoped lang="less">
 .{{ table.frontend_module_path | string.replace "/" "-" }}-{{ table.entity_name_kebab }} {
-  padding: 0;
+  padding: 16px;
 }
 </style>

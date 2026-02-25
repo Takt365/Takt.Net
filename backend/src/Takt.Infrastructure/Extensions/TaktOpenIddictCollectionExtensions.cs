@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Data.SqlClient;
 using OpenIddict.EntityFrameworkCore;
 using OpenIddict.Validation.AspNetCore;
 using OpenIddict.Server.AspNetCore;
@@ -50,9 +51,15 @@ public static class TaktOpenIddictCollectionExtensions
         var refreshTokenReuseLeewayMinutes = configuration.GetValue<int>("Authentication:RefreshTokenReuseLeewayMinutes", 5);
 
         // 注册OpenIddict数据库上下文（使用专门的数据库）
+        // 初始化时 EF 会执行 HasTablesAsync 等查询，库内对象多或网络慢时易超时，故将命令超时设为 120 秒（可在配置中覆盖）
+        var openIddictCommandTimeoutSeconds = configuration.GetValue<int>("OpenIddict:CommandTimeoutSeconds", 120);
         services.AddDbContext<TaktOpenIddictDbContext>(options =>
         {
-            options.UseSqlServer(openIddictConnectionString);
+            options.UseSqlServer(openIddictConnectionString, sqlOptions =>
+            {
+                sqlOptions.CommandTimeout(openIddictCommandTimeoutSeconds);
+                sqlOptions.EnableRetryOnFailure(maxRetryCount: 3, maxRetryDelay: TimeSpan.FromSeconds(5), errorNumbersToAdd: null);
+            });
             // 使用OpenIddict的EF Core集成
             options.UseOpenIddict();
         });
@@ -112,123 +119,95 @@ public static class TaktOpenIddictCollectionExtensions
     }
 
     /// <summary>
-    /// 初始化OpenIddict数据库
+    /// OpenIddict 官方初始化：有迁移用 MigrateAsync，无迁移用 EnsureCreatedAsync（建库+建表由 EF 一次完成，无需单独建库）；应用/Scope 用 Manager.CreateAsync。
     /// </summary>
-    /// <param name="app">应用程序构建器</param>
-    /// <returns>任务</returns>
-    public static async Task InitializeOpenIddictDatabaseAsync(this WebApplication app)
+    public static async Task<bool> InitializeOpenIddictDatabaseAsync(this WebApplication app)
     {
-        // 参考: https://documentation.openiddict.com/guides/getting-started/creating-your-own-server-instance
-        // 官方文档建议: Before running the application, make sure the database is updated 
-        // with OpenIddict tables by running Add-Migration and Update-Database.
-        // 这里使用 MigrateAsync() 自动应用迁移，如果没有迁移则使用 EnsureCreatedAsync() 作为开发环境的回退
         var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger(string.Empty); // 使用空字符串作为类别名称，不显示类别
-        
+        var logger = loggerFactory.CreateLogger(string.Empty);
+        using var scope = app.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<TaktOpenIddictDbContext>();
+
+        IReadOnlyList<string>? pending = null;
+        IReadOnlyList<string>? applied = null;
         try
         {
-            logger.LogInformation("开始初始化OpenIddict数据库...");
-            using var openIddictScope = app.Services.CreateScope();
-            var openIddictDbContext = openIddictScope.ServiceProvider.GetRequiredService<TaktOpenIddictDbContext>();
-            
+            logger.LogInformation("[OpenIddict] 检查数据库连接与迁移状态...");
+            pending = (await dbContext.Database.GetPendingMigrationsAsync()).ToList();
+            applied = (await dbContext.Database.GetAppliedMigrationsAsync()).ToList();
+            logger.LogInformation("[OpenIddict] 数据库已连接，迁移状态：待应用 {Pending} 个，已应用 {Applied} 个。", pending.Count, applied.Count);
+        }
+        catch (SqlException ex) when (ex.Number == 4060)
+        {
+            // 数据库不存在：不单独建库，直接交给 EnsureCreatedAsync 建库+建表
+            logger.LogInformation("[OpenIddict] 数据库不存在（4060），使用 EnsureCreatedAsync 建库并建表...");
             try
             {
-                // 优先使用迁移方式（官方推荐）
-                var pendingMigrations = await openIddictDbContext.Database.GetPendingMigrationsAsync();
-                if (pendingMigrations.Any())
-                {
-                    logger.LogInformation("检测到待应用的迁移，正在应用迁移...");
-                    await openIddictDbContext.Database.MigrateAsync();
-                    logger.LogInformation("OpenIddict数据库迁移完成");
-                }
-                else
-                {
-                    var appliedMigrations = await openIddictDbContext.Database.GetAppliedMigrationsAsync();
-                    if (appliedMigrations.Any())
-                    {
-                        logger.LogInformation("OpenIddict数据库迁移已是最新版本");
-                    }
-                    else
-                    {
-                        // 没有迁移，使用 EnsureCreatedAsync 作为开发环境的回退方案
-                        // 生产环境应该创建迁移: dotnet ef migrations add InitialOpenIddict --project Takt.Infrastructure
-                        logger.LogWarning("未找到OpenIddict迁移，使用EnsureCreatedAsync作为回退方案");
-                        logger.LogWarning("建议运行以下命令创建迁移: dotnet ef migrations add InitialOpenIddict --project Takt.Infrastructure");
-                        
-                        await openIddictDbContext.Database.EnsureCreatedAsync();
-                        
-                        // 验证表是否真的被创建了
-                        var connection = openIddictDbContext.Database.GetDbConnection();
-                        await connection.OpenAsync();
-                        try
-                        {
-                            using var command = connection.CreateCommand();
-                            command.CommandText = @"
-                                SELECT COUNT(*) 
-                                FROM INFORMATION_SCHEMA.TABLES 
-                                WHERE TABLE_NAME = 'OpenIddictScopes'";
-                            var result = await command.ExecuteScalarAsync();
-                            var tableExists = result != null && Convert.ToInt32(result) > 0;
-                            
-                            if (!tableExists)
-                            {
-                                // 表不存在，删除数据库后重新创建
-                                logger.LogWarning("检测到表不存在，正在重新创建数据库...");
-                                await connection.CloseAsync();
-                                await openIddictDbContext.Database.EnsureDeletedAsync();
-                                await openIddictDbContext.Database.EnsureCreatedAsync();
-                                
-                                // 再次验证表是否被创建
-                                await connection.OpenAsync();
-                                using var verifyCommand = connection.CreateCommand();
-                                verifyCommand.CommandText = @"
-                                    SELECT COUNT(*) 
-                                    FROM INFORMATION_SCHEMA.TABLES 
-                                    WHERE TABLE_NAME = 'OpenIddictScopes'";
-                                var verifyResult = await verifyCommand.ExecuteScalarAsync();
-                                var verifyTableExists = verifyResult != null && Convert.ToInt32(verifyResult) > 0;
-                                
-                                if (verifyTableExists)
-                                {
-                                    logger.LogInformation("OpenIddict数据库和表已重新创建");
-                                }
-                                else
-                                {
-                                    logger.LogError("OpenIddict表创建失败，请手动创建迁移");
-                                    throw new InvalidOperationException("OpenIddict表创建失败");
-                                }
-                            }
-                            else
-                            {
-                                logger.LogInformation("OpenIddict数据库和表已存在");
-                            }
-                        }
-                        finally
-                        {
-                            if (connection.State == System.Data.ConnectionState.Open)
-                            {
-                                await connection.CloseAsync();
-                            }
-                        }
-                    }
-                }
+                await dbContext.Database.EnsureCreatedAsync();
+                logger.LogInformation("[OpenIddict] EnsureCreatedAsync 完成，数据库与表已就绪。");
+                return true;
             }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("No migrations"))
+            catch (Exception exEnsure)
             {
-                // 如果没有迁移配置，使用 EnsureCreatedAsync 作为开发环境的回退
-                logger.LogWarning("无法获取迁移信息，使用EnsureCreatedAsync作为回退方案");
-                await openIddictDbContext.Database.EnsureCreatedAsync();
-                logger.LogInformation("OpenIddict数据库和表已创建（使用EnsureCreatedAsync）");
+                logger.LogError(exEnsure, "[OpenIddict] EnsureCreatedAsync 失败: {Message}", exEnsure.Message);
+                return false;
             }
-            
-            logger.LogInformation("OpenIddict数据库初始化完成");
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("No migrations", StringComparison.OrdinalIgnoreCase))
+        {
+            logger.LogInformation("[OpenIddict] 无迁移文件，使用 EnsureCreatedAsync 建库并建表...");
+            try
+            {
+                await dbContext.Database.EnsureCreatedAsync();
+                logger.LogInformation("[OpenIddict] EnsureCreatedAsync 完成，数据库与表已就绪。");
+                return true;
+            }
+            catch (Exception exEnsure)
+            {
+                logger.LogError(exEnsure, "[OpenIddict] EnsureCreatedAsync 失败: {Message}", exEnsure.Message);
+                return false;
+            }
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "OpenIddict数据库初始化失败: {Message}", ex.Message);
-            logger.LogWarning("应用程序将继续启动，但OpenIddict功能可能不可用");
-            logger.LogWarning("如果表不存在，请运行: dotnet ef migrations add InitialOpenIddict --project Takt.Infrastructure");
-            logger.LogWarning("然后运行: dotnet ef database update --project Takt.Infrastructure");
+            logger.LogError(ex, "[OpenIddict] 连接数据库或获取迁移状态失败: {Message}", ex.Message);
+            return false;
+        }
+
+        if (pending.Count > 0)
+        {
+            var isCreate = applied.Count == 0;
+            logger.LogInformation("[OpenIddict] {Action}：应用 {Count} 个迁移...", isCreate ? "建表" : "迁移更新", pending.Count);
+            try
+            {
+                await dbContext.Database.MigrateAsync();
+                logger.LogInformation("[OpenIddict] {Action}完成。", isCreate ? "建表" : "迁移更新");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "[OpenIddict] 应用迁移失败: {Message}", ex.Message);
+                return false;
+            }
+        }
+
+        if (applied.Count > 0)
+        {
+            logger.LogInformation("[OpenIddict] 数据库与表已存在，迁移已是最新（已应用 {Count} 个迁移）。", applied.Count);
+            return true;
+        }
+
+        logger.LogInformation("[OpenIddict] 无迁移文件，使用 EnsureCreatedAsync 建库并建表...");
+        try
+        {
+            await dbContext.Database.EnsureCreatedAsync();
+            logger.LogInformation("[OpenIddict] EnsureCreatedAsync 完成，数据库与表已就绪。");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "[OpenIddict] EnsureCreatedAsync 失败: {Message}", ex.Message);
+            return false;
         }
     }
 }

@@ -24,7 +24,7 @@
         <a-input
           v-model:value="formState.resourceKey"
           placeholder="如：UserNotFound、menu.home._self"
-          :disabled="isEdit"
+          :disabled="isEdit ?? false"
         />
       </a-form-item>
       <a-form-item label="资源类型" name="resourceType">
@@ -63,10 +63,10 @@
           :placeholder="`${lang.label} 翻译值`"
         />
       </a-form-item>
-      <a-form-item label="备注" name="remark">
+      <a-form-item :label="t('common.entity.remark')" name="remark">
         <a-textarea
           v-model:value="formState.remark"
-          placeholder="可选"
+          :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"
           :rows="2"
         />
       </a-form-item>
@@ -76,6 +76,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Rule } from 'ant-design-vue/es/form'
 import * as languageApi from '@/api/routine/i18n/language'
 import type { Translation } from '@/types/routine/i18n/translation'
@@ -110,6 +111,7 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false
 })
 
+const { t } = useI18n()
 const formRef = ref()
 const languageList = ref<LanguageItem[]>([])
 const languageListLoading = ref(false)

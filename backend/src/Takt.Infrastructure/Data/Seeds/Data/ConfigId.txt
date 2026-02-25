@@ -1,0 +1,6 @@
+数据种子：ConfigId 处处不同，按 TaktEntityDatabaseMapping 映射。
+0: Tenant, User, Menu, Role
+1: Company
+2: Dept, Post, Holiday
+3: Plant
+5: DictData, DictType, Language 等 Routine 主数据

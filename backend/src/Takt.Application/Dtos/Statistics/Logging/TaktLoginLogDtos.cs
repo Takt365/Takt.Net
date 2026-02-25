@@ -41,6 +41,11 @@ public class TaktLoginLogDto
     public string ConfigId { get; set; }
 
     /// <summary>
+    /// 扩展字段JSON（与实体基类一致）
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
     /// 用户名
     /// </summary>
     public string UserName { get; set; }

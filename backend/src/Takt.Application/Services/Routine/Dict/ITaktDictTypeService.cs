@@ -1,6 +1,6 @@
 // ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.Application.Routine.Dict
+// 命名空间：Takt.Application.Services.Routine.Dict
 // 文件名称：ITaktDictTypeService.cs
 // 创建时间：2025-01-20
 // 创建人：Takt365(Cursor AI)
@@ -13,7 +13,7 @@
 using Takt.Application.Dtos.Routine.Dict;
 using Takt.Shared.Models;
 
-namespace Takt.Application.Routine.Dict;
+namespace Takt.Application.Services.Routine.Dict;
 
 /// <summary>
 /// Takt字典类型应用服务接口

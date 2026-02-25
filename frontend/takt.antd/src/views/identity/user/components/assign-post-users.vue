@@ -108,7 +108,9 @@ watch(visible, (val) => {
 
 // 加载所有岗位和用户已分配的岗位
 const loadUserPosts = async () => {
-  if (!props.user) return
+  if (!props.user) {
+    return
+  }
 
   try {
     loading.value = true
@@ -156,7 +158,7 @@ const loadUserPosts = async () => {
 }
 
 // Transfer 变化处理
-const handleTransferChange = (keys: string[], direction: string, moveKeys: string[]) => {
+const handleTransferChange = (keys: string[], _direction: string, _moveKeys: string[]) => {
   targetKeys.value = keys
 }
 

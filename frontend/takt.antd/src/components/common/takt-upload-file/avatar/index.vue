@@ -48,7 +48,7 @@
       :title="t('components.common.upload.cropAvatar')"
       :width="700"
       :okText="t('components.common.upload.ok')"
-      :cancelText="t('components.common.upload.cancel')"
+      :cancelText="t('common.button.cancel')"
       :confirmLoading="cropping"
       @ok="handleCropConfirm"
       @cancel="handleCropCancel"
@@ -70,10 +70,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { UserOutlined, UploadOutlined, DeleteOutlined } from '@ant-design/icons-vue'
-import { Avatar, Button, Upload, Modal, message } from 'ant-design-vue'
-import type { UploadChangeParam, UploadFile, UploadProps } from 'ant-design-vue'
+import { Modal, message } from 'ant-design-vue'
+import type { UploadFile, UploadProps } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
 import TaktCropper from '../cropper/index.vue'
 
@@ -168,7 +168,7 @@ const handleBeforeUpload = (file: UploadFile | File) => {
 }
 
 // 裁剪器裁剪事件
-const handleCropperCrop = (blob: Blob, dataUrl: string) => {
+const handleCropperCrop = (_blob: Blob, _dataUrl: string) => {
   // 裁剪完成，这里可以预览裁剪后的图片
   // dataUrl 可以用于预览，blob 用于实际上传
 }
@@ -302,7 +302,7 @@ const handleRemove = () => {
     title: t('components.common.upload.confirmDeleteAvatar'),
     content: t('components.common.upload.confirmDeleteAvatarContent'),
     okText: t('components.common.upload.ok'),
-    cancelText: t('components.common.upload.cancel'),
+    cancelText: t('common.button.cancel'),
     onOk: () => {
       avatarUrl.value = ''
       message.success(t('components.common.upload.deleteSuccess'))

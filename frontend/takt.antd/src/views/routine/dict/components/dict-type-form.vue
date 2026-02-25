@@ -94,10 +94,10 @@
             />
           </a-form-item>
 
-          <a-form-item label="备注" name="remark">
+          <a-form-item :label="t('common.entity.remark')" name="remark">
             <a-textarea
               v-model:value="mainFormState.remark"
-              placeholder="请输入备注"
+              :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"
               :rows="3"
             />
           </a-form-item>
@@ -299,6 +299,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import type { TableColumnsType } from 'ant-design-vue'
@@ -318,6 +319,8 @@ const props = withDefaults(defineProps<Props>(), {
   formData: null,
   loading: false
 })
+
+const { t } = useI18n()
 
 // ========================================
 // 数据定义
@@ -574,7 +577,9 @@ const handleStartEdit = (record: any, index: number, field: keyof DictData) => {
 // 保存单元格（表单中的子表，直接更新本地数据，不需要调用API）
 const handleSaveCell = (record: any, index: number, field: keyof DictData) => {
   const key = `${record.dictDataId || index}-${field}`
-  if (editingKey.value !== key) return
+  if (editingKey.value !== key) {
+    return
+  }
   
   const newValue = editingRecord.value[field]
   

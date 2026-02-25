@@ -132,7 +132,7 @@ defineExpose({
   validate: () => formRef.value?.validate(),
   validateFields: (nameList?: string[]) => formRef.value?.validateFields(nameList),
   getFieldsValue: () => formRef.value?.getFieldsValue(),
-  setFieldsValue: (values: Record<string, any>) => formRef.value?.setFieldsValue(values)
+  setFieldsValue: (values: Record<string, any>) => (formRef.value as { setFieldsValue?: (v: Record<string, any>) => void })?.setFieldsValue?.(values)
 })
 </script>
 

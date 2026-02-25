@@ -83,12 +83,6 @@ public class TaktMenu : TaktEntityBase
     public int MenuType { get; set; } = 0;
 
     /// <summary>
-    /// 权限标识
-    /// </summary>
-    [SugarColumn(ColumnName = "permission", ColumnDescription = "权限标识", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
-    public string? Permission { get; set; }
-
-    /// <summary>
     /// 是否可见（0=是，1=否）
     /// </summary>
     [SugarColumn(ColumnName = "is_visible", ColumnDescription = "是否可见", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]

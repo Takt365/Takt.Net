@@ -7,7 +7,17 @@ import { readSettingFromStorage, normalizeSetting, defaultSetting, STORAGE_KEY }
 import type { AppSetting } from '@/types/setting'
 
 export type { ThemeColor, ThemeColorConfig, AppSetting } from '@/types/setting'
-export { defaultSetting, getSetting, themeColorMap, getThemeColorValue, validateFontSize } from '@/setting'
+export {
+  defaultSetting,
+  getSetting,
+  themeColorMap,
+  getThemeColorValue,
+  getEffectiveThemeColorValue,
+  getFixedThemeForDate,
+  isThemeColorLocked,
+  specialDateThemeMap,
+  validateFontSize
+} from '@/setting'
 
 export const useSettingStore = defineStore('setting', () => {
   const initial = readSettingFromStorage()

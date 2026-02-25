@@ -13,7 +13,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Takt.Application.Dtos.Routine.SignalR;
-using Takt.Application.Routine.SignalR;
+using Takt.Application.Services.Routine.SignalR;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;

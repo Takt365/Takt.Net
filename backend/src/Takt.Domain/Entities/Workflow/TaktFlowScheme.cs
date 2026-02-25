@@ -16,8 +16,12 @@ using Takt.Domain.Entities;
 namespace Takt.Domain.Entities.Workflow;
 
 /// <summary>
-/// Takt流程方案实体
+/// 流程方案实体（一条流程模板记录，存流程定义与配置）
 /// </summary>
+/// <remarks>
+/// 术语：流程方案 = 本实体/表记录；流程定义 = BPMN 2.0 XML（仅存于 BpmnXml 字段）。执行引擎只根据 BpmnXml 解析构建图，无 BpmnXml 时用内置默认图；ProcessJson 为历史遗留字段，不参与执行。
+/// ProcessKey 对应 BPM definition key，ProcessVersion 对应 version。ProcessStatus：0=草稿，1=已发布，2=已停用。
+/// </remarks>
 [SugarTable("takt_workflow_scheme", "流程方案表")]
 [SugarIndex("ix_takt_workflow_scheme_process_key", nameof(ProcessKey), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_workflow_scheme_process_category", nameof(ProcessCategory), OrderByType.Asc)]
@@ -27,25 +31,25 @@ namespace Takt.Domain.Entities.Workflow;
 public class TaktFlowScheme : TaktEntityBase
 {
     /// <summary>
-    /// 流程Key（唯一索引，用于标识流程类型）
+    /// 流程Key（BPM Process Definition Key；唯一索引，用于标识流程类型）
     /// </summary>
     [SugarColumn(ColumnName = "process_key", ColumnDescription = "流程Key", ColumnDataType = "nvarchar", Length = 100, IsNullable = false)]
     public string ProcessKey { get; set; } = string.Empty;
 
     /// <summary>
-    /// 流程名称
+    /// 流程名称（BPM Process Definition Name）
     /// </summary>
     [SugarColumn(ColumnName = "process_name", ColumnDescription = "流程名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
     public string ProcessName { get; set; } = string.Empty;
 
     /// <summary>
-    /// 流程分类（0=通用流程，1=业务流程，2=系统流程）
+    /// 流程分类（BPM 分类；0=通用流程，1=业务流程，2=系统流程）
     /// </summary>
     [SugarColumn(ColumnName = "process_category", ColumnDescription = "流程分类", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int ProcessCategory { get; set; } = 0;
 
     /// <summary>
-    /// 流程版本号
+    /// 流程版本号（BPM Process Definition Version）
     /// </summary>
     [SugarColumn(ColumnName = "process_version", ColumnDescription = "流程版本号", ColumnDataType = "int", IsNullable = false, DefaultValue = "1")]
     public int ProcessVersion { get; set; } = 1;
@@ -57,28 +61,28 @@ public class TaktFlowScheme : TaktEntityBase
     public string? ProcessDescription { get; set; }
 
     /// <summary>
-    /// 流程表单ID（序列化为string以避免Javascript精度问题）
+    /// 流程表单ID（BPM 启动/任务表单引用；序列化为 string 以避免前端精度问题）
     /// </summary>
     [SugarColumn(ColumnName = "form_id", ColumnDescription = "流程表单ID", ColumnDataType = "bigint", IsNullable = true)]
     [JsonConverter(typeof(ValueToStringConverter))]
     public long? FormId { get; set; }
 
     /// <summary>
-    /// 流程表单编码
+    /// 流程表单编码（BPM Form Key）
     /// </summary>
     [SugarColumn(ColumnName = "form_code", ColumnDescription = "流程表单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
     public string? FormCode { get; set; }
 
     /// <summary>
-    /// BPMN流程定义（XML格式，存储BPMN 2.0流程定义）
+    /// 流程定义（BPMN 2.0 XML，设计期唯一标准；引擎仅解析本字段构建可执行图，符合 BPM 规范）
     /// </summary>
     [SugarColumn(ColumnName = "bpmn_xml", ColumnDescription = "BPMN流程定义", ColumnDataType = "nvarchar", Length = -1, IsNullable = true)]
     public string? BpmnXml { get; set; }
 
     /// <summary>
-    /// 流程JSON定义（JSON格式，存储流程节点、连线等配置）
+    /// 流程图缓存（JSON，遗留/可选；不作为 BPM 规范定义，引擎不以本字段构建流程）
     /// </summary>
-    [SugarColumn(ColumnName = "process_json", ColumnDescription = "流程JSON定义", ColumnDataType = "nvarchar", Length = -1, IsNullable = true)]
+    [SugarColumn(ColumnName = "process_json", ColumnDescription = "流程JSON缓存", ColumnDataType = "nvarchar", Length = -1, IsNullable = true)]
     public string? ProcessJson { get; set; }
 
     /// <summary>
@@ -148,7 +152,7 @@ public class TaktFlowScheme : TaktEntityBase
     public int OrderNum { get; set; } = 0;
 
     /// <summary>
-    /// 流程状态（0=草稿，1=已发布，2=已停用）
+    /// 流程状态（BPM 部署状态：0=Draft 草稿，1=Deployed 已发布，2=Retired 已停用）
     /// </summary>
     [SugarColumn(ColumnName = "process_status", ColumnDescription = "流程状态", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int ProcessStatus { get; set; } = 0;

@@ -11,6 +11,16 @@ alwaysApply: true
 - **后端**：`backend/`，.NET 8，C#，解决方案 `Takt.Net.sln`，项目：Takt.Domain、Takt.Application、Takt.Infrastructure、Takt.Shared、Takt.WebApi
 - **前端**：`frontend/takt.antd/`，Vue 3 + TypeScript + Vite + Ant Design Vue
 
+## 架构分层（后端）
+
+| 层级     | 对应项目          | 职责概要 |
+|----------|-------------------|----------|
+| **领域层** | Takt.Domain       | 实体、仓储接口、领域接口、扩展与验证；不依赖 Web 与具体持久化实现。 |
+| **应用层** | Takt.Application  | DTO、服务接口与实现；编排领域与数据访问，实现业务规则与用例。 |
+| **基础层** | Takt.Infrastructure | 仓储实现、数据映射与种子、中间件、租户/用户等横切实现。 |
+| **控制层** | Takt.WebApi       | 控制器、HTTP 入口与配置；协调请求、调用应用层服务、返回响应。 |
+| 共享      | Takt.Shared       | 分页模型、异常、帮助类等跨层共用类型。 |
+
 ## 通用约定
 
 - **结论必须基于真实代码**：禁止“推测”“可能”“预测”等模糊表述；修改前需亲自核对代码。
@@ -24,9 +34,12 @@ alwaysApply: true
 - **后端**：公开类型（类、接口、枚举）统一使用 **Takt** 前缀；命名空间与文件夹按领域划分（如 Identity、HumanResource.Organization、Statistics.Logging、Routine.Dict）。
 - **前端**：API 路径与后端控制器一致（如 `/api/TaktDepts`）；类型与接口与后端 DTO 对应，使用 camelCase；目录与后端模块对应（api/、types/、views/、locales/ 按模块分）。
 
-## 文件头（可选但推荐）
+## 文件头与注释（必须，上下文必须使用）
 
-C# 与 TS/Vue 文件可保留项目统一文件头格式（项目名称、命名空间/路径、文件名称、功能描述、版权与免责声明）。
+- **所有新增或修改的 C#、TS、Vue 文件必须包含项目统一文件头**，不得省略。编辑时若文件无文件头，必须补全。
+- **C#**：文件头格式见 `takt-backend.mdc`；公开类型与成员必须使用 **XML 文档注释**（`/// <summary>`、`/// <param>`、`/// <returns>` 等），不得省略。
+- **前端**：文件头格式见 `takt-frontend.mdc`；对外 API、类型、组件须有 JSDoc/文件头。
+- 参照实现：后端见 `Takt.Application.Dtos.Accounting.Financial.TaktCompanyDtos`、`ITaktCompanyService`；前端见 `types/accounting/financial/company.d.ts`、`api/accounting/financial/company.ts`、`views/accounting/financial/company/index.vue`。
 
 ## 多租户与数据库
 

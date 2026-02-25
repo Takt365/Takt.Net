@@ -243,7 +243,9 @@ watch(visible, (val) => {
 
 // 加载所有部门和用户已分配的部门
 const loadUserDepts = async () => {
-  if (!props.user) return
+  if (!props.user) {
+    return
+  }
 
   try {
     loading.value = true

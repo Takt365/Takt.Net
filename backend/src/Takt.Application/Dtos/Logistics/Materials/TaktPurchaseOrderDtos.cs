@@ -187,7 +187,14 @@ public class TaktPurchaseOrderDto
     public string? DeliveryAddress { get; set; }
 
     /// <summary>
-    /// 租户配置ID（ConfigId）
+    /// 订单明细列表（主子表关系）
+    /// </summary>
+    public List<TaktPurchaseOrderItemDto> Items { get; set; }
+
+    // ----- 审计字段（与 TaktEntityBase 一致，统一放在最后） -----
+
+    /// <summary>
+    /// 租户配置ID
     /// </summary>
     public string ConfigId { get; set; } = "0";
 
@@ -202,6 +209,12 @@ public class TaktPurchaseOrderDto
     public string? Remark { get; set; }
 
     /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long CreateId { get; set; }
+
+    /// <summary>
     /// 创建人（用户名）
     /// </summary>
     public string? CreateBy { get; set; }
@@ -210,6 +223,12 @@ public class TaktPurchaseOrderDto
     /// 创建时间
     /// </summary>
     public DateTime CreateTime { get; set; }
+
+    /// <summary>
+    /// 更新人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? UpdateId { get; set; }
 
     /// <summary>
     /// 更新人（用户名）
@@ -227,6 +246,12 @@ public class TaktPurchaseOrderDto
     public int IsDeleted { get; set; }
 
     /// <summary>
+    /// 删除人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? DeleteId { get; set; }
+
+    /// <summary>
     /// 删除人（用户名）
     /// </summary>
     public string? DeletedBy { get; set; }
@@ -235,11 +260,6 @@ public class TaktPurchaseOrderDto
     /// 删除时间
     /// </summary>
     public DateTime? DeletedTime { get; set; }
-
-    /// <summary>
-    /// 订单明细列表（主子表关系）
-    /// </summary>
-    public List<TaktPurchaseOrderItemDto> Items { get; set; }
 }
 
 /// <summary>

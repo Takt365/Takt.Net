@@ -46,31 +46,69 @@ export const defaultSetting: AppSetting = {
 export const STORAGE_KEY = 'app-setting'
 
 /**
- * 主题色预设映射（与 @/assets/styles/color-base.less 十大著名色彩 保持一致）
- * Less: mars-green, tiffany-blue, chinese-red, titian-red, burgundy, bordeaux, klein-blue, van-dyke-brown, prussian-blue, sennelier-yellow, memorial-gray
+ * 主题色预设映射（与 @/assets/styles/color-base.less 十大著名色彩 完全一致，顺序同步）
+ * Less 顺序: mars-green, tiffany-blue, chinese-red, titian-red, burgundy, bordeaux, klein-blue, van-dyke-brown, prussian-blue, sennelier-yellow, memorial-gray
  */
 export const themeColorMap: Record<Exclude<ThemeColor, 'custom'>, string> = {
-  blue: '#002FA7',   // 克莱因蓝 @klein-blue
-  green: '#2e8b57',  // 马尔斯绿 @mars-green
-  red: '#FF0000',    // 中国红 @chinese-red
-  orange: '#FF6347', // 提香红 @titian-red
-  purple: '#990033', // 勃艮第红 @burgundy
-  cyan: '#00a0b0',   // 蒂芙尼蓝 @tiffany-blue
-  pink: '#8c1515',   // 波尔多红 @bordeaux
-  yellow: '#F9DC24', // 申布伦黄 @sennelier-yellow
-  indigo: '#003153', // 普鲁士蓝 @prussian-blue
-  brown: '#4c2b18',  // 凡戴克棕 @van-dyke-brown
-  gray: '#808080'    // 纪念灰 @memorial-gray
+  green: '#2e8b57',  // @mars-green 马尔斯绿
+  cyan: '#00a0b0',   // @tiffany-blue 蒂芙尼蓝
+  red: '#FF0000',    // @chinese-red 中国红
+  orange: '#FF6347', // @titian-red 提香红
+  purple: '#990033', // @burgundy 勃艮第红
+  pink: '#8c1515',   // @bordeaux 波尔多红
+  blue: '#002FA7',   // @klein-blue 克莱因蓝
+  brown: '#4c2b18',  // @van-dyke-brown 凡戴克棕
+  indigo: '#003153', // @prussian-blue 普鲁士蓝
+  yellow: '#F9DC24', // @sennelier-yellow 申布伦黄
+  gray: '#808080'    // @memorial-gray 纪念灰
 }
 
 export function getThemeColorValue(config: ThemeColorConfig): string {
-  if (config.type === 'custom' && config.customColor) return config.customColor
+  if (config.type === 'custom' && config.customColor) {
+    return config.customColor
+  }
   return themeColorMap[config.type as Exclude<ThemeColor, 'custom'>] || themeColorMap.blue
 }
 
+/**
+ * 特定日期固定主色（如 10-01 国庆固定中国红，不可变更）
+ * 格式：MM-DD -> ThemeColor
+ */
+export const specialDateThemeMap: Record<string, Exclude<ThemeColor, 'custom'>> = {
+  '10-01': 'red' // 国庆节：中国红 @chinese-red
+}
+
+/** 获取今日是否为特定日期，若是则返回固定的 ThemeColor */
+export function getFixedThemeForDate(): Exclude<ThemeColor, 'custom'> | null {
+  if (typeof window === 'undefined') return null
+  const now = new Date()
+  const key = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  return specialDateThemeMap[key] ?? null
+}
+
+/** 是否今日为特定日期（主题色被锁定） */
+export function isThemeColorLocked(): boolean {
+  return getFixedThemeForDate() != null
+}
+
+/**
+ * 获取实际生效的主题色（特定日期优先于用户设置）
+ */
+export function getEffectiveThemeColorValue(config: ThemeColorConfig): string {
+  const fixed = getFixedThemeForDate()
+  if (fixed != null) {
+    return themeColorMap[fixed]
+  }
+  return getThemeColorValue(config)
+}
+
 export function validateFontSize(size: number): number {
-  if (size < 15) return 15
-  if (size > 22) return 22
+  if (size < 15) {
+    return 15
+  }
+  if (size > 22) {
+    return 22
+  }
   return size
 }
 
@@ -95,10 +133,14 @@ function normalizeSetting(raw: Partial<AppSetting>): AppSetting {
 
 /** 从 localStorage 读取并合并为有效 AppSetting */
 export function readSettingFromStorage(): AppSetting {
-  if (typeof window === 'undefined' || !localStorage) return defaultSetting
+  if (typeof window === 'undefined' || !localStorage) {
+    return defaultSetting
+  }
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (!stored) return defaultSetting
+    if (!stored) {
+      return defaultSetting
+    }
     const parsed = JSON.parse(stored) as Record<string, unknown>
     const merged = { ...defaultSetting, ...parsed }
     if (parsed.themeColor && typeof parsed.themeColor === 'object') {
