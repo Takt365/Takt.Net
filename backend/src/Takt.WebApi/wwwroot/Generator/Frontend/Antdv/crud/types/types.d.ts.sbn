@@ -1,0 +1,68 @@
+// ========================================
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：@/types/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}
+// 文件名称：{{ table.entity_name_kebab }}.d.ts
+// 创建时间：2025-02-02
+// 创建人：{{ table.gen_author }}
+// 功能描述：{{ table.comment }}相关类型定义，对应后端 {{ table.dto_namespace }}.{{ table.entity_class_name }}Dtos
+// 规则：主类型 extends TaktEntityBase；查询 extends TaktPagedQuery；更新 extends Create；其它类型不继承。
+// 字段名均为小驼峰（与后端 Dto 属性一一对应，后端 PascalCase 对应前端 camelCase）。不生成模板/导入/导出类型。
+//
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+import type { TaktEntityBase, TaktPagedQuery } from '@/types/common'
+
+{{ entity_id_ts = table.entity_name_camel + "Id" }}
+{{ entity_id_pascal = table.entity_name_pascal + "Id" }}
+{{~ for cat in table.dto_category_descriptors ~}}
+{{~ if cat.Name != "TemplateDto" && cat.Name != "ImportDto" && cat.Name != "ExportDto" ~}}
+{{ cat_name_lower = string.downcase cat.Name }}
+{{ body_kind_raw = cat.BodyKind }}
+{{~ if body_kind_raw == null || body_kind_raw == "" ~}}
+{{ body_kind_raw = cat.body_kind }}
+{{~ end ~}}
+{{~ if body_kind_raw == null || body_kind_raw == "" ~}}
+{{ body_kind_raw = "NoId" }}
+{{~ end ~}}
+{{ body_kind = string.downcase (string.strip body_kind_raw) }}
+/**
+ * {{ table.comment }}{{ cat.Name }}类型（对应后端 {{ table.dto_namespace }}.{{ table.entity_class_name }}{{ cat.Name }}）
+ */
+export interface {{ cat.TsInterfaceName }}{{ if cat.TsExtendsName != null && cat.TsExtendsName != "" }} extends {{ cat.TsExtendsName }}{{ end }} {
+{{~ if cat_name_lower == "dto" || body_kind == "full" ~}}
+  /** {{ table.comment }}ID（对应后端 {{ entity_id_pascal }}，序列化为string以避免Javascript精度问题） */
+  {{ entity_id_ts }}: string
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" ~}}
+  /** {{ col.comment }} */
+  {{ col.ts_column_name }}{{ if col.is_required == 0 }}?{{ end }}: {{ col.ts_data_type }}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ if cat_name_lower == "querydto" || body_kind == "query" ~}}
+  /** 关键词（模糊查询） */
+  keyWords?: string
+{{~ for col in columns ~}}
+{{~ if col.is_query == 1 ~}}
+  /** {{ col.comment }} */
+  {{ col.ts_column_name }}?: {{ col.ts_data_type }}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ if cat_name_lower == "createdto" || (body_kind == "noid" && cat_name_lower == "createdto") ~}}
+{{~ for col in columns ~}}
+{{~ if col.is_create == 1 ~}}
+  /** {{ col.comment }} */
+  {{ col.ts_column_name }}{{ if col.is_required == 0 }}?{{ end }}: {{ col.ts_data_type }}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ if cat_name_lower == "updatedto" || body_kind == "onlyid" ~}}
+  /** {{ table.comment }}ID（对应后端 {{ entity_id_pascal }}，序列化为string以避免Javascript精度问题） */
+  {{ entity_id_ts }}: string
+{{~ end ~}}
+}
+{{~ end ~}}
+{{~ end ~}}

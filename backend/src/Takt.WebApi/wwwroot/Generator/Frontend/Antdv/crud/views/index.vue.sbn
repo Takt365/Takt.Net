@@ -1,0 +1,571 @@
+<!-- ======================================== -->
+<!-- 项目名称：节拍数字工厂 · Takt Digital Factory (TDF) -->
+<!-- 命名空间：@/views/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }} -->
+<!-- 文件名称：index.vue -->
+<!-- 功能描述：{{ table.comment }}管理页面，含查询、增删改，由 GenFunction/ControllerActions 驱动 -->
+<!-- 版权信息：Copyright (c) 2025 Takt  All rights reserved. -->
+<!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->
+<!-- ======================================== -->
+
+<template>
+  <div class="{{ table.frontend_module_path | string.replace "/" "-" }}-{{ table.entity_name_kebab }}">
+    <TaktQueryBar
+      v-model="queryKeyword"
+      placeholder="请输入关键词"
+      :loading="loading"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
+
+    <TaktToolsBar
+      create-permission="{{ table.perms_prefix }}:create"
+      update-permission="{{ table.perms_prefix }}:update"
+      delete-permission="{{ table.perms_prefix }}:delete"
+{{~ if has_import_data ~}}
+      import-permission="{{ table.perms_prefix }}:import"
+{{~ end ~}}
+{{~ if has_export_data ~}}
+      export-permission="{{ table.perms_prefix }}:export"
+{{~ end ~}}
+      :show-create="true"
+      :show-update="true"
+      :show-delete="true"
+      :show-import="{{ has_import_data ? "true" : "false" }}"
+      :show-export="{{ has_export_data ? "true" : "false" }}"
+      :show-advanced-query="true"
+      :show-column-setting="true"
+      :show-refresh="true"
+      :update-disabled="!selectedRow"
+      :delete-disabled="!selectedRow && selectedRows.length === 0"
+      :create-loading="loading"
+      :update-loading="loading"
+      :delete-loading="loading"
+      :refresh-loading="loading"
+      @create="handleCreate"
+      @update="handleUpdate"
+      @delete="handleDelete"
+{{~ if has_import_data ~}}
+      @import="handleImport"
+{{~ end ~}}
+{{~ if has_export_data ~}}
+      @export="handleExport"
+{{~ end ~}}
+      @advanced-query="handleAdvancedQuery"
+      @column-setting="handleColumnSetting"
+      @refresh="handleRefresh"
+    />
+
+    <TaktSingleTable
+      ref="tableRef"
+      :columns="displayColumns"
+      :data-source="dataSource"
+      :loading="loading"
+      :stripe="true"
+      :row-key="get{{ table.entity_name_pascal }}Id"
+      :row-selection="rowSelection"
+      :large-screen-column-count="{{ table.front_style == 12 ? 5 : 9 }}"
+      :small-screen-column-count="{{ table.front_style == 12 ? 3 : 5 }}"
+      @change="handleTableChange"
+      @resize-column="handleResizeColumn"
+    />
+
+    <TaktPagination
+      v-model:current="currentPage"
+      v-model:page-size="pageSize"
+      :total="total"
+      @change="handlePaginationChange"
+      @show-size-change="handlePaginationSizeChange"
+    />
+
+    <TaktModal
+      v-model:open="formVisible"
+      :title="formTitle"
+      :width="'33.333vw'"
+      :confirm-loading="formLoading"
+      @ok="handleFormSubmit"
+      @cancel="handleFormCancel"
+    >
+      <{{ table.entity_name_pascal }}Form
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
+    </TaktModal>
+
+    <TaktQueryDrawer
+      v-model:open="advancedQueryVisible"
+      :form-model="advancedQueryForm"
+      @submit="handleAdvancedQuerySubmit"
+      @reset="handleAdvancedQueryReset"
+    >
+{{~ for col in columns ~}}
+{{~ if col.is_query == 1 ~}}
+      <a-form-item label="{{ col.comment }}">
+{{~ if col.html_type == "select" && col.dict_type ~}}
+        <TaktSelect
+          v-model:value="advancedQueryForm.{{ col.ts_column_name }}"
+          dict-type="{{ col.dict_type }}"
+          placeholder="请选择"
+          allow-clear
+        />
+{{ else }}
+        <a-input v-model:value="advancedQueryForm.{{ col.ts_column_name }}" />
+{{~ end ~}}
+      </a-form-item>
+{{~ end ~}}
+{{~ end ~}}
+    </TaktQueryDrawer>
+{{~ if has_import_data && has_get_template ~}}
+
+    <TaktModal
+      v-model:open="importVisible"
+      title="导入{{ table.comment }}"
+      :width="600"
+      :footer="null"
+      cancel-text="关闭"
+      @cancel="handleImportCancel"
+    >
+      <TaktImportFile
+        file-type="xlsx"
+        sheet-name="{{ table.comment }}导入模板"
+        template-file-name="{{ table.comment }}导入模板"
+        :download-template="handleDownloadTemplate"
+        :import-file="handleImportFile"
+        template-text="下载{{ table.comment }}导入模板"
+        upload-text="点击或拖拽Excel文件到此区域上传"
+        hint="支持Excel文件（.xlsx）导入。"
+        :max-size="10"
+        :max-rows="1000"
+        @success="handleImportSuccess"
+      />
+    </TaktModal>
+{{~ end ~}}
+
+    <TaktColumnDrawer
+      v-model:open="columnSettingVisible"
+      :columns="columns"
+      :checked-keys="visibleColumnKeys"
+      :id-column-key="'{{ table.entity_name_camel }}Id'"
+      :action-column-key="'action'"
+      @update:checked-keys="handleColumnKeysChange"
+      @reset="handleColumnSettingReset"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+/**
+ * {{ table.comment }}管理页 · 列表、查询、增删改由 GenFunction/ControllerActions 驱动
+ * @module views/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}
+ */
+{{ has_get_list = false; has_create = false; has_update = false; has_remove = false; has_delete_batch = false; has_get_template = false; has_import_data = false; has_export_data = false; api_get_list = ""; api_create = ""; api_update = ""; api_remove = ""; api_delete_batch = ""; api_get_template = ""; api_import_data = ""; api_export_data = ""; for a in table.controller_actions; if a.HttpMethod == "HttpGet" && a.Route == "list"; has_get_list = true; api_get_list = a.FrontendMethodName; end; if a.HttpMethod == "HttpPost" && a.Route == ""; has_create = true; api_create = a.FrontendMethodName; end; if a.HttpMethod == "HttpPut" && a.Route == "{id}"; has_update = true; api_update = a.FrontendMethodName; end; if a.HttpMethod == "HttpDelete" && a.Route == "{id}"; has_remove = true; api_remove = a.FrontendMethodName; end; if a.HttpMethod == "HttpDelete" && a.Route == "batch"; has_delete_batch = true; api_delete_batch = a.FrontendMethodName; end; if a.HttpMethod == "HttpGet" && a.Route == "template"; has_get_template = true; api_get_template = a.FrontendMethodName; end; if a.HttpMethod == "HttpPost" && a.Route == "import"; has_import_data = true; api_import_data = a.FrontendMethodName; end; if a.HttpMethod == "HttpPost" && a.Route == "export"; has_export_data = true; api_export_data = a.FrontendMethodName; end; end }}
+import { ref, computed, onMounted } from 'vue'
+import { message, Modal } from 'ant-design-vue'
+import type { TableColumnsType } from 'ant-design-vue'
+import { CreateActionColumn } from '@/components/business/takt-action-column/index'
+import { mergeDefaultColumns } from '@/utils/table-columns'
+import { useI18n } from 'vue-i18n'
+import {{ table.entity_name_pascal }}Form from './components/{{ table.entity_name_kebab }}-form.vue'
+import { {{ api_import_count = 0 }}{{ if has_get_list; api_import_count = api_import_count + 1; end }}{{ if has_create; api_import_count = api_import_count + 1; end }}{{ if has_update; api_import_count = api_import_count + 1; end }}{{ if has_remove; api_import_count = api_import_count + 1; end }}{{ if has_delete_batch; api_import_count = api_import_count + 1; end }}{{ if has_get_template; api_import_count = api_import_count + 1; end }}{{ if has_import_data; api_import_count = api_import_count + 1; end }}{{ if has_export_data; api_import_count = api_import_count + 1; end }}{{ api_import_index = 0 }}{{ if has_get_list; api_import_index = api_import_index + 1; }}{{ api_get_list }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_create; api_import_index = api_import_index + 1; }}{{ api_create }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_update; api_import_index = api_import_index + 1; }}{{ api_update }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_remove; api_import_index = api_import_index + 1; }}{{ api_remove }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_delete_batch; api_import_index = api_import_index + 1; }}{{ api_delete_batch }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_get_template; api_import_index = api_import_index + 1; }}{{ api_get_template }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_import_data; api_import_index = api_import_index + 1; }}{{ api_import_data }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_export_data; api_import_index = api_import_index + 1; }}{{ api_export_data }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }} } from '@/api/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
+import type { {{ type_count = 0 }}{{~ for cat in table.dto_category_descriptors ~}}{{~ if cat.Name != "TemplateDto" && cat.Name != "ImportDto" && cat.Name != "ExportDto" ~}}{{ type_count = type_count + 1 }}{{~ end ~}}{{~ end ~}}{{ type_index = 0 }}{{~ for cat in table.dto_category_descriptors ~}}{{~ if cat.Name != "TemplateDto" && cat.Name != "ImportDto" && cat.Name != "ExportDto" ~}}{{ type_index = type_index + 1 }}{{ cat.TsInterfaceName }}{{ if type_index < type_count }}, {{ end }}{{~ end ~}}{{~ end ~}} } from '@/types/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
+import { RiEditLine, RiDeleteBinLine } from '@remixicon/vue'
+
+const { t } = useI18n()
+
+/** 关键词（查询栏） */
+const queryKeyword = ref('')
+/** 列表/表单加载中 */
+const loading = ref(false)
+/** 表格数据源 */
+const dataSource = ref<{{ table.entity_name_pascal }}[]>([])
+/** 当前页码 */
+const currentPage = ref(1)
+/** 每页条数 */
+const pageSize = ref(20)
+/** 总记录数 */
+const total = ref(0)
+/** 当前选中行（单行） */
+const selectedRow = ref<{{ table.entity_name_pascal }} | null>(null)
+/** 当前选中行列表（多选） */
+const selectedRows = ref<{{ table.entity_name_pascal }}[]>([])
+/** 当前选中行主键列表 */
+const selectedRowKeys = ref<(string | number)[]>([])
+/** 表单弹窗是否显示 */
+const formVisible = ref(false)
+/** 表单弹窗标题（新增/编辑） */
+const formTitle = ref('')
+/** 表单数据（新增为空对象，编辑为当前行） */
+const formData = ref<Partial<{{ table.entity_name_pascal }}>>({})
+/** 表单提交中 */
+const formLoading = ref(false)
+const formRef = ref()
+const tableRef = ref()
+/** 高级查询抽屉是否显示 */
+const advancedQueryVisible = ref(false)
+/** 高级查询表单模型（IsQuery 列） */
+const advancedQueryForm = ref({
+{{~ for col in columns ~}}
+{{~ if col.is_query == 1 ~}}
+  {{ col.ts_column_name }}: {{ if col.ts_data_type == "number" }}undefined as number | undefined{{ else }}''{{ end }},
+{{~ end ~}}
+{{~ end ~}}
+})
+/** 列设置抽屉是否显示 */
+const columnSettingVisible = ref(false)
+{{~ if has_import_data && has_get_template ~}}
+/** 导入弹窗是否显示 */
+const importVisible = ref(false)
+{{~ end ~}}
+/** 当前可见列 key 列表（列设置勾选） */
+const visibleColumnKeys = ref<string[]>([])
+/** 排序方向（由表配置 SortType 驱动） */
+const sortOrder = ref<'asc' | 'desc'>('{{ if table.sort_type == "desc" }}desc{{ else }}asc{{ end }}')
+/** 排序字段（由表配置 SortField 驱动，驼峰） */
+const sortField = ref('{{ table.ts_sort_field }}')
+
+/** 主键字段名（与 types 一致，用于 getXxxId / 提交） */
+const entityIdName = '{{ table.entity_name_camel }}Id'
+
+onMounted(() => {
+  loadData()
+})
+
+/** 表格列配置（ID + IsList 列 + 操作列） */
+const columns = ref<TableColumnsType>([
+  {
+    title: 'ID',
+    dataIndex: '{{ table.entity_name_camel }}Id',
+    key: '{{ table.entity_name_camel }}Id',
+    width: 80,
+    resizable: true,
+    ellipsis: true,
+    fixed: 'left',
+    customRender: ({ record }: { record: any }) => get{{ table.entity_name_pascal }}Field(record, '{{ table.entity_name_camel }}Id') ?? ''
+  },
+{{~ for col in columns ~}}
+{{~ if col.is_list == 1 ~}}
+  {
+    title: '{{ col.comment }}',
+    dataIndex: '{{ col.ts_column_name }}',
+    key: '{{ col.ts_column_name }}',
+    width: 120,
+    resizable: true,
+    ellipsis: true,
+    customRender: ({ record }: { record: any }) => get{{ table.entity_name_pascal }}Field(record, '{{ col.ts_column_name }}') ?? ''
+  },
+{{~ end ~}}
+{{~ end ~}}
+  CreateActionColumn({
+    actions: [
+{{~ if has_update ~}}
+      {
+        key: 'update',
+        label: '编辑',
+        shape: '{{ table.btn_style == 0 ? "plain" : "default" }}',
+        icon: RiEditLine,
+        permission: '{{ table.perms_prefix }}:update',
+        onClick: (record: {{ table.entity_name_pascal }}) => handleEdit(record)
+      },
+{{~ end ~}}
+{{~ if has_remove ~}}
+      {
+        key: 'delete',
+        label: '删除',
+        shape: '{{ table.btn_style == 0 ? "plain" : "default" }}',
+        icon: RiDeleteBinLine,
+        permission: '{{ table.perms_prefix }}:delete',
+        onClick: (record: {{ table.entity_name_pascal }}) => handleDeleteOne(record)
+      }
+{{~ end ~}}
+    ]
+  })
+])
+
+/** 取当前行主键 ID（{{ table.entity_name_camel }}Id） */
+/** 取当前行主键 ID（{{ table.entity_name_camel }}Id） */
+const get{{ table.entity_name_pascal }}Id = (record: any): string => record?.[entityIdName] ?? ''
+/** 取当前行指定字段值 */
+const get{{ table.entity_name_pascal }}Field = (record: any, field: string): any => record?.[field]
+
+/** 合并默认列（含审计列等） */
+const mergedColumns = computed((): any => mergeDefaultColumns(columns.value as any, t, true))
+/** 根据列设置过滤后的显示列 */
+const displayColumns = computed(() => {
+  const keys = visibleColumnKeys.value || []
+  const merged = mergedColumns.value || []
+  if (keys.length === 0) return columns.value
+  const keysSet = new Set(keys.map((k: any) => String(k)))
+  return merged.filter((col: any) => {
+    const colKey = col.key || col.dataIndex || col.title
+    return colKey && keysSet.has(String(colKey))
+  })
+})
+
+/** 行选择配置（单选/多选联动 selectedRow、selectedRows） */
+const rowSelection = computed(() => ({
+  selectedRowKeys: selectedRowKeys.value,
+  onChange: (keys: (string | number)[], rows: {{ table.entity_name_pascal }}[]) => {
+    selectedRowKeys.value = keys
+    selectedRows.value = rows
+    selectedRow.value = rows.length === 1 ? rows[0] : null
+  }
+}))
+
+/** 加载列表数据（有列表接口时请求分页，否则清空） */
+async function loadData() {
+  loading.value = true
+  try {
+{{~ if has_get_list ~}}
+    const res = await {{ api_get_list }}({
+      pageIndex: currentPage.value,
+      pageSize: pageSize.value,
+      keyWords: queryKeyword.value || undefined,
+      sortOrder: sortOrder.value || undefined,
+      sortField: sortField.value || undefined,
+      ...advancedQueryForm.value
+    })
+    dataSource.value = res.data ?? []
+    total.value = res.total ?? 0
+{{~ else ~}}
+    dataSource.value = []
+    total.value = 0
+{{~ end ~}}
+  } finally {
+    loading.value = false
+  }
+}
+
+/** 查询：重置页码并重新加载 */
+function handleSearch() {
+  currentPage.value = 1
+  loadData()
+}
+
+/** 重置：清空关键词与高级查询条件并重新加载 */
+function handleReset() {
+  queryKeyword.value = ''
+  advancedQueryForm.value = {
+{{~ for col in columns ~}}
+{{~ if col.is_query == 1 ~}}
+    {{ col.ts_column_name }}: {{ if col.ts_data_type == "number" }}undefined as number | undefined{{ else }}''{{ end }},
+{{~ end ~}}
+{{~ end ~}}
+  }
+  currentPage.value = 1
+  loadData()
+}
+
+/** 打开新增表单 */
+function handleCreate() {
+  formTitle.value = '新增{{ table.comment }}'
+  formData.value = {}
+  formVisible.value = true
+}
+
+/** 打开编辑表单并回填当前行 */
+function handleEdit(record: {{ table.entity_name_pascal }}) {
+  formTitle.value = '编辑{{ table.comment }}'
+  formData.value = { ...record }
+  formVisible.value = true
+}
+
+/** 编辑当前选中行 */
+function handleUpdate() {
+  if (selectedRow.value) handleEdit(selectedRow.value)
+}
+
+/** 提交表单：有 ID 则更新，否则新增 */
+async function handleFormSubmit() {
+  const ref = formRef.value
+  if (!ref?.validate) return
+  try {
+    await ref.validate()
+  } catch {
+    return
+  }
+  formLoading.value = true
+  try {
+    const id = (formData.value as any)?.[entityIdName]
+    if (id) {
+{{~ if has_update ~}}
+      await {{ api_update }}(id, formData.value as any)
+      message.success('更新成功')
+{{~ end ~}}
+    } else {
+{{~ if has_create ~}}
+      await {{ api_create }}(formData.value as any)
+      message.success('新增成功')
+{{~ end ~}}
+    }
+    formVisible.value = false
+    loadData()
+  } finally {
+    formLoading.value = false
+  }
+}
+
+/** 关闭表单弹窗 */
+function handleFormCancel() {
+  formVisible.value = false
+}
+
+{{~ if has_import_data && has_get_template ~}}
+/** 打开导入弹窗 */
+function handleImport() {
+  importVisible.value = true
+}
+
+/** 下载导入模板 */
+async function handleDownloadTemplate(sheetName?: string, fileName?: string): Promise<Blob> {
+  const res = await {{ api_get_template }}(sheetName, fileName)
+  return (res as any)?.data ?? res
+}
+
+/** 执行导入 */
+async function handleImportFile(file: File, sheetName?: string): Promise<{ success: number; fail: number; errors: string[] }> {
+  return await {{ api_import_data }}(file, sheetName)
+}
+
+/** 导入成功回调 */
+function handleImportSuccess(result: { success: number; fail: number; errors: string[] }) {
+  loadData()
+  if (result.fail === 0) setTimeout(() => { importVisible.value = false }, 2000)
+}
+
+/** 关闭导入弹窗 */
+function handleImportCancel() {
+  importVisible.value = false
+}
+{{~ end ~}}
+
+{{~ if has_export_data ~}}
+/** 导出数据 */
+async function handleExport() {
+  try {
+    loading.value = true
+    const blob = await {{ api_export_data }}({
+      pageIndex: currentPage.value,
+      pageSize: pageSize.value,
+      keyWords: queryKeyword.value || undefined,
+      sortOrder: sortOrder.value || undefined,
+      sortField: sortField.value || undefined,
+      ...advancedQueryForm.value
+    }, undefined, '{{ table.comment }}导出')
+    const ts = new Date()
+    const pad = (n: number, w = 2) => String(n).padStart(w, '0')
+    const fileName = `{{ table.comment }}导出_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+    link.style.display = 'none'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    setTimeout(() => window.URL.revokeObjectURL(url), 100)
+    message.success('导出成功')
+  } catch (error: any) {
+    message.error(error?.message || '导出失败')
+  } finally {
+    loading.value = false
+  }
+}
+{{~ end ~}}
+
+/** 单条删除（有 remove 时确认后调用接口） */
+async function handleDeleteOne(record: {{ table.entity_name_pascal }}) {
+{{~ if has_remove ~}}
+  Modal.confirm({
+    title: '确认删除',
+    content: '确定要删除该条记录吗？',
+    onOk: async () => {
+      await {{ api_remove }}((record as any)[entityIdName])
+      message.success('删除成功')
+      loadData()
+    }
+  })
+{{~ end ~}}
+}
+
+/** 批量删除（有批量删除接口时确认后调用） */
+async function handleDelete() {
+{{~ if has_delete_batch ~}}
+  if (selectedRows.value.length === 0) return
+  Modal.confirm({
+    title: '确认批量删除',
+    content: `确定要删除选中的 ${selectedRows.value.length} 条记录吗？`,
+    onOk: async () => {
+      const ids = selectedRows.value.map((r: any) => r[entityIdName]).filter(Boolean)
+      await {{ api_delete_batch }}(ids)
+      message.success('删除成功')
+      loadData()
+    }
+  })
+{{~ end ~}}
+}
+
+/** 打开高级查询抽屉 */
+function handleAdvancedQuery() {
+  advancedQueryVisible.value = true
+}
+
+/** 高级查询提交：关闭抽屉并重新加载 */
+function handleAdvancedQuerySubmit() {
+  advancedQueryVisible.value = false
+  currentPage.value = 1
+  loadData()
+}
+
+/** 高级查询重置：清空表单 */
+function handleAdvancedQueryReset() {
+  advancedQueryForm.value = {
+{{~ for col in columns ~}}
+{{~ if col.is_query == 1 ~}}
+    {{ col.ts_column_name }}: {{ if col.ts_data_type == "number" }}undefined as number | undefined{{ else }}''{{ end }},
+{{~ end ~}}
+{{~ end ~}}
+  }
+}
+
+/** 打开列设置抽屉 */
+function handleColumnSetting() {
+  columnSettingVisible.value = true
+}
+
+/** 列显示勾选变化 */
+function handleColumnKeysChange(keys: string[]) {
+  visibleColumnKeys.value = keys
+}
+
+/** 列设置重置为全部显示 */
+function handleColumnSettingReset() {
+  visibleColumnKeys.value = columns.value.map((c: any) => c.key || c.dataIndex).filter(Boolean)
+}
+
+/** 刷新列表 */
+function handleRefresh() {
+  loadData()
+}
+
+/** 表格 change 占位 */
+function handleTableChange() {}
+/** 列宽拖拽占位 */
+function handleResizeColumn() {}
+/** 分页页码变化 */
+function handlePaginationChange(page: number) {
+  currentPage.value = page
+  loadData()
+}
+/** 分页每页条数变化 */
+function handlePaginationSizeChange(_current: number, size: number) {
+  pageSize.value = size
+  currentPage.value = 1
+  loadData()
+}
+</script>
+
+<style scoped lang="less">
+.{{ table.frontend_module_path | string.replace "/" "-" }}-{{ table.entity_name_kebab }} {
+  padding: 0;
+}
+</style>

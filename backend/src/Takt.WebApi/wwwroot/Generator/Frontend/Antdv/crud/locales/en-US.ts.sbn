@@ -1,0 +1,8 @@
+export default {
+  /** Validation messages for required fields only (driven by IsRequired) */
+{{~ for col in columns ~}}
+{{~ if col.is_required == 1 ~}}
+  required_{{ col.ts_column_name }}: '{{ if col.html_type == "select" && col.dict_type }}Please select {{ col.comment }}{{ else }}Please enter {{ col.comment }}{{ end }}',
+{{~ end ~}}
+{{~ end ~}}
+}

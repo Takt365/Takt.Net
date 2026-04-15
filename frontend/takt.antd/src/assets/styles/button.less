@@ -1,0 +1,614 @@
+// ========================================
+// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
+// 命名空间：@/assets/styles/button
+// 文件名称：button.less
+// 创建时间：2025-01-20
+// 创建人：Takt365(Cursor AI)
+// 功能描述：按钮样式定义，对应后端 TaktMenuButtonSeedData.cs 中的按钮（含会计、代码生成等 102 种）
+// 颜色：使用中国传统色系和日本传统色系，79种颜色不重复
+// 
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+@import './color-base.less';
+
+// 禁用状态颜色（与 Ant Design Vue genDisabledStyle token 一致，便于统一维护与主题扩展）
+@takt-btn-disabled-border: rgba(0, 0, 0, 0.15);
+@takt-btn-disabled-color: rgba(0, 0, 0, 0.25);
+@takt-btn-disabled-bg: rgba(0, 0, 0, 0.04);
+@takt-btn-disabled-border-dark: rgba(255, 255, 255, 0.15);
+@takt-btn-disabled-color-dark: rgba(255, 255, 255, 0.25);
+@takt-btn-disabled-bg-dark: rgba(255, 255, 255, 0.08);
+
+// 按钮基础样式
+.takt-button {
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+// ========================================
+// 按钮状态样式 Mixin（与 Ant Design Vue 标准一致）
+// ========================================
+
+// 生成按钮状态样式（Normal, Hover, Active, Focus）
+// 与 Ant Design Vue 标准按钮样式一致，只通过颜色明亮度变化
+// @bgColor: 背景色
+// @borderColor: 边框色（通常与背景色相同）
+// @textColor: 文字颜色
+.button-state-mixin(@bgColor, @borderColor, @textColor) {
+  // Normal 状态（基础颜色）
+  background-color: @bgColor;
+  border-color: @borderColor;
+  color: @textColor;
+  
+  // Hover 状态（背景色和边框色变暗 5%，与 Ant Design Vue 标准一致）
+  &:hover:not(:disabled):not(.ant-btn-disabled):not(.ant-btn-loading) {
+    background-color: darken(@bgColor, 5%);
+    border-color: darken(@borderColor, 5%);
+    color: @textColor;
+  }
+  
+  // Focus 状态（与 Hover 相同颜色，点击不显示焦点框）
+  &:focus:not(:disabled):not(.ant-btn-disabled):not(.ant-btn-loading),
+  &:focus-visible:not(:disabled):not(.ant-btn-disabled):not(.ant-btn-loading) {
+    background-color: darken(@bgColor, 5%);
+    border-color: darken(@borderColor, 5%);
+    color: @textColor;
+    outline: none;
+    box-shadow: none;
+  }
+  
+  // Active 状态（背景色和边框色变暗 10%，与 Ant Design Vue 标准一致）
+  &:active:not(:disabled):not(.ant-btn-disabled):not(.ant-btn-loading) {
+    background-color: darken(@bgColor, 10%);
+    border-color: darken(@borderColor, 10%);
+    color: @textColor;
+  }
+}
+
+// 通用按钮变体 Mixin：根据名称与颜色生成实心 + Plain/Text/Link/Ghost 样式
+// 第三参数 @textColor：不传时默认 #fff（白字）；背景为浅色时传 #1a1a1a（深字）以保证对比度
+// 规则：背景深 → 不写第三参数；背景浅（如鹅黄、鸭黄、浅青、浅紫等）→ 写 , #1a1a1a
+// 实心样式仅作用于非 Plain 按钮，避免 Plain 时被实心背景覆盖
+.takt-btn-variant(@name, @bgColor, @textColor: #fff) {
+  .takt-button-@{name}:not(.takt-button-plain):not(.takt-button-plain-borderless):not(.ant-btn-text):not(.ant-btn-link):not(.ant-btn-ghost),
+  .takt-button-@{name}.ant-btn-primary:not(.takt-button-plain):not(.takt-button-plain-borderless):not(.ant-btn-text):not(.ant-btn-link):not(.ant-btn-ghost) {
+    .button-state-mixin(@bgColor, @bgColor, @textColor);
+  }
+  // 情况1：有边框 + 图标 + 文本（takt-button-plain / text / link / ghost）：默认有主题色边框，hover/active 背景填充、边框透明
+  .takt-button-@{name}.takt-button-plain,
+  .takt-button-@{name}.ant-btn-text,
+  .takt-button-@{name}.ant-btn-link,
+  .takt-button-@{name}.ant-btn-ghost {
+    color: @bgColor !important;
+    border-color: @bgColor !important;
+    background-color: transparent !important;
+    .plain-state-mixin(@bgColor);
+  }
+  // 情况2：只图标无边框（takt-button-plain-borderless）：默认无边框，hover/active 时显示白边（与 plain 同状态逻辑）
+  .takt-button-@{name}.takt-button-plain-borderless {
+    color: @bgColor !important;
+    border-color: transparent !important;
+    background-color: transparent !important;
+    .plain-state-mixin(@bgColor);
+  }
+}
+
+// 按钮颜色样式（对应 common.button.* 权限标识，中国传统色系 + 日本传统色系）
+.takt-btn-variant(query, @qunqing);
+.takt-btn-variant(create, @baolan);
+.takt-btn-variant(update, @chengqian);
+.takt-btn-variant(delete, @shoujou);
+.takt-btn-variant(detail, @qingse);
+.takt-btn-variant(unlock, @zhusha);
+.takt-btn-variant(preview, @weilan, #1a1a1a);
+.takt-btn-variant(print, @chengqian);
+.takt-btn-variant(import, @qinglian);
+.takt-btn-variant(export, @iroha);
+.takt-btn-variant(template, @lanqing);
+.takt-btn-variant(approve, @zhusha);
+.takt-btn-variant(revoke, @fenhong);
+.takt-btn-variant(copy, @gunjyo);
+.takt-btn-variant(insert, @gunjyo);
+.takt-btn-variant(clone, @murasaki);
+.takt-btn-variant(suspend, @zhujiao);
+.takt-btn-variant(resume, @lvse);
+.takt-btn-variant(submit, @zhusha);
+.takt-btn-variant(withdraw, @juhong);
+.takt-btn-variant(transfer, @feise);
+.takt-btn-variant(delegate, @taohong);
+.takt-btn-variant(return, @momo);
+.takt-btn-variant(urge, @beni);
+.takt-btn-variant(addsign, @momoji);
+.takt-btn-variant(subsign, @kurenai);
+.takt-btn-variant(progress, @dianqing);
+.takt-btn-variant(history, @qingbi);
+.takt-btn-variant(publish, @zangqing);
+.takt-btn-variant(disable, @haiiro);
+.takt-btn-variant(enable, @lvse);
+.takt-btn-variant(version, @zitan);
+.takt-btn-variant(design, @qingse);
+.takt-btn-variant(config, @zijiang);
+.takt-btn-variant(validate, @qinglian);
+.takt-btn-variant(start, @qunqing);
+.takt-btn-variant(terminate, @jiangzi);
+.takt-btn-variant(field, @xueqing, #1a1a1a);
+.takt-btn-variant(permission, @murasaki, #1a1a1a);
+.takt-btn-variant(datasource, @usumurasaki, #1a1a1a);
+.takt-btn-variant(theme, @wakamurasaki, #1a1a1a);
+.takt-btn-variant(data, @huohong);
+.takt-btn-variant(archive, @jujube);
+.takt-btn-variant(clean, @zhujiao);
+.takt-btn-variant(draft, @mikan);
+.takt-btn-variant(deletedraft, @youkan);
+.takt-btn-variant(send, @honggan);
+.takt-btn-variant(forward, @hong);
+.takt-btn-variant(reply, @fujimurasaki);
+.takt-btn-variant(read, @kuri);
+.takt-btn-variant(unread, @chairo);
+.takt-btn-variant(circulate, @sakura);
+.takt-btn-variant(sign, @jujube);
+.takt-btn-variant(confirm, @kurenai);
+.takt-btn-variant(like, @shoujou);
+.takt-btn-variant(unlike, @beni);
+.takt-btn-variant(favorite, @kurenai);
+.takt-btn-variant(unfavorite, @lvse);
+.takt-btn-variant(share, @shoubuiro);
+.takt-btn-variant(unshare, @kikyou, #1a1a1a);
+.takt-btn-variant(comment, @qiuhuang, #1a1a1a);
+.takt-btn-variant(uncomment, @nenlv, #1a1a1a);
+.takt-btn-variant(flagging, @liulv, #1a1a1a);
+.takt-btn-variant(unflagging, @shengqi, #1a1a1a);
+.takt-btn-variant(follow, @conglv, #1a1a1a);
+.takt-btn-variant(unfollow, @caolv, #1a1a1a);
+.takt-btn-variant(upload, @cuiqing, #1a1a1a);
+.takt-btn-variant(download, @youlv);
+.takt-btn-variant(destroy, @chengqian);
+.takt-btn-variant(run, @qingbi);
+.takt-btn-variant(stop, @bise);
+.takt-btn-variant(restart, @songbeilv);
+.takt-btn-variant(refresh, @midori);
+.takt-btn-variant(reset, @nezumi);
+.takt-btn-variant(empty, @wakakusa, #1a1a1a);
+.takt-btn-variant(authorize, @koubai);
+.takt-btn-variant(allocate, @fujimurasaki);
+.takt-btn-variant(allocate-user-role, @chengqian);
+.takt-btn-variant(allocate-role-menu, @qingbi);
+.takt-btn-variant(allocate-dept-role, @bise);
+.takt-btn-variant(allocate-dept-user, @songbeilv);
+.takt-btn-variant(allocate-post-user, @midori);
+.takt-btn-variant(allocate-tenant-user, @moegi);
+.takt-btn-variant(resetpwd, @juhong);
+.takt-btn-variant(changepwd, @kiku, #1a1a1a);
+.takt-btn-variant(truncate, @warabi);
+.takt-btn-variant(calculate, @kurenai);
+.takt-btn-variant(fullscreen, @gunjyo);
+.takt-btn-variant(expand, @kon);
+.takt-btn-variant(more, @gunjyo);
+.takt-btn-variant(transpose, @sora, #1a1a1a);
+.takt-btn-variant(create-row, @moegi);
+.takt-btn-variant(delete-row, @feise);
+.takt-btn-variant(book, @chengse);
+.takt-btn-variant(closing, @juhuang, #1a1a1a);
+.takt-btn-variant(reconcile, @tangerine, #1a1a1a);
+.takt-btn-variant(payment, @huangse, #1a1a1a);
+.takt-btn-variant(depreciation, @yahuang, #1a1a1a);
+.takt-btn-variant(reimburse, @xinghuang, #1a1a1a);
+.takt-btn-variant(reversal, @jianghuang, #1a1a1a);
+.takt-btn-variant(accrual, @kuxiang);
+.takt-btn-variant(period, @feicui);
+.takt-btn-variant(carryforward, @yunu, #1a1a1a);
+.takt-btn-variant(cancel, @haikese);
+.takt-btn-variant(generate, @klein-blue);
+.takt-btn-variant(sync, @jujube);
+.takt-btn-variant(columns, @zise);
+.takt-btn-variant(tables, @kaki);
+.takt-btn-variant(databases, @mame);
+.takt-btn-variant(initialize, @haiiro);
+
+// 清空按钮内联箭头图标（非颜色变体）
+.takt-button-empty-arrow {
+  margin-left: 2px;
+  font-size: 12px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.85;
+}
+
+// ========================================
+// 按钮通用状态样式（Disabled 和 Loading）
+// ========================================
+// 所有按钮类型：点击/聚焦/激活不显示焦点框，避免闪烁
+// 所有按钮类型均有禁用样式：未选中行等场景应设 disabled，显示为灰色
+
+// 全局：点击、聚焦、激活均不显示焦点框（覆盖 Ant Design 默认，消除闪烁）
+[class^="takt-button-"]:focus,
+[class^="takt-button-"]:focus-visible,
+[class^="takt-button-"]:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+// Disabled 状态：与 Ant Design Vue 按钮禁用一致（genDisabledStyle），并支持黑暗主题（色值见顶部变量）
+.ant-btn[class*="takt-button-"]:disabled,
+.ant-btn[class*="takt-button-"].ant-btn-disabled {
+  cursor: not-allowed !important;
+  border-color: @takt-btn-disabled-border !important;
+  color: @takt-btn-disabled-color !important;
+  background-color: @takt-btn-disabled-bg !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  outline: none !important;
+}
+
+[data-doc-theme='dark'] .ant-btn[class*="takt-button-"]:disabled,
+[data-doc-theme='dark'] .ant-btn[class*="takt-button-"].ant-btn-disabled {
+  border-color: @takt-btn-disabled-border-dark !important;
+  color: @takt-btn-disabled-color-dark !important;
+  background-color: @takt-btn-disabled-bg-dark !important;
+}
+
+// Loading 状态（通用，适用于所有按钮）
+[class^="takt-button-"].ant-btn-loading {
+  cursor: wait;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+// Plain 状态 Mixin（有边框 / 无边框共用）：hover、focus、active 时背景为主题色、无边框
+.plain-state-mixin(@textColor) {
+  &:hover:not(:disabled):not(.ant-btn-disabled):not(.ant-btn-loading) {
+    background-color: @textColor !important;
+    color: #fff !important;
+    border-color: transparent !important;
+    border-width: 0 !important;
+  }
+  &:focus:not(:disabled):not(.ant-btn-disabled):not(.ant-btn-loading),
+  &:focus-visible:not(:disabled):not(.ant-btn-disabled):not(.ant-btn-loading) {
+    background-color: @textColor !important;
+    color: #fff !important;
+    border-color: transparent !important;
+    border-width: 0 !important;
+    outline: none;
+    box-shadow: none;
+  }
+  &:active:not(:disabled):not(.ant-btn-disabled):not(.ant-btn-loading) {
+    background-color: @textColor !important;
+    color: #fff !important;
+    border-color: transparent !important;
+    border-width: 0 !important;
+  }
+}
+
+// Plain 禁用/Loading 共用 Mixin（透明底、弱化显示）
+.plain-disabled-mixin(@borderless: false) {
+  &:disabled,
+  &.ant-btn-disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    filter: grayscale(0.3);
+    pointer-events: none;
+    background-color: transparent !important;
+    & when (@borderless = true) {
+      border: none !important;
+      border-width: 0 !important;
+    }
+  }
+}
+.plain-loading-mixin() {
+  &.ant-btn-loading {
+    cursor: wait;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+}
+
+// Plain 样式（透明背景，使用主题色作为文字颜色）- 纯粹自定义，不依赖 type 属性
+.takt-button-plain,
+[class^="takt-button-"].takt-button-plain {
+  background-color: transparent !important;
+  border: 1px solid currentColor !important;
+  color: inherit;
+  .plain-disabled-mixin(false);
+  .plain-loading-mixin();
+}
+
+// Plain/Text/Ghost 状态（兼容 Ant Design 的 type 属性，但推荐使用 takt-button-plain）
+[class^="takt-button-"].ant-btn-text,
+[class^="takt-button-"].ant-btn-link,
+[class^="takt-button-"].ant-btn-ghost {
+  background-color: transparent !important;
+  border: 1px solid currentColor !important;
+  color: inherit;
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  .plain-disabled-mixin(false);
+  .plain-loading-mixin();
+}
+
+// Circle 状态（圆形按钮）
+[class^="takt-button-"].ant-btn-circle {
+  border-radius: 50%;
+  min-width: 32px;
+  padding: 0;
+  
+  &.ant-btn-lg {
+    min-width: 40px;
+  }
+  
+  &.ant-btn-sm {
+    min-width: 24px;
+  }
+}
+
+// Round 状态（圆角按钮）
+[class^="takt-button-"].ant-btn-round {
+  border-radius: 32px;
+}
+
+// ========================================
+// 按钮三种形状模式
+// ========================================
+
+// 1. 标准模式（默认）：显示图标+文本
+[class^="takt-button-"] {
+  display: inline-flex;
+  align-items: center; // 确保所有子元素垂直居中在同一基线上
+  justify-content: center;
+  gap: 8px; // 图标和文本之间的间距
+  
+  // Ant Design Vue 按钮的图标插槽容器（直接子元素）- 使用 Flex 布局确保对齐
+  > .anticon,
+  > span.anticon,
+  > span:has(svg):not(.anticon),
+  > i[class^="ri-"], // remixicon CSS 类
+  > i[class*=" ri-"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin: 0;
+    line-height: 1;
+    // 确保容器本身与文本对齐
+    vertical-align: middle;
+  }
+  
+  // Ant Design Icons 样式
+  .anticon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+    margin: 0;
+    vertical-align: middle;
+    // Ant Design Icons 通过 font-size 控制大小，确保与 RemixIcon 一致
+    font-size: inherit;
+  }
+  
+  // remixicon CSS 类样式 - 使用字体图标，通过 font-size 控制大小
+  // remixicon CSS 类（如 ri-refresh-line）使用字体图标，与 Ant Design Icons 一致
+  i[class^="ri-"],
+  i[class*=" ri-"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+    margin: 0;
+    vertical-align: middle;
+    // remixicon 字体图标通过 font-size 控制大小，与 Ant Design Icons 一致
+    font-size: inherit;
+  }
+  
+  // RemixIcon Vue 组件的 SVG - 需要特殊处理以确保大小和对齐（保留以兼容现有代码）
+  // @remixicon/vue 库有大小问题，建议迁移到 remixicon CSS 类
+  svg:not(.anticon svg) {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    // 使用负值微调 RemixIcon SVG 的垂直位置，确保与文本对齐
+    vertical-align: -0.125em !important;
+    // 关键：统一使用 font-size 控制大小，与 Ant Design Icons 一致
+    font-size: inherit !important;
+    width: 1em !important;
+    height: 1em !important;
+    max-width: 1em !important;
+    max-height: 1em !important;
+  }
+  
+  // 其他图标类选择器
+  [class*="icon"]:not(.anticon),
+  [class*="Icon"]:not(.anticon) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+    margin: 0;
+    vertical-align: middle;
+  }
+  
+  // 确保文本正确对齐 - 与图标在同一水平线上
+  > span:not(:empty):not(.anticon) {
+    display: inline-flex;
+    align-items: center; // 使用 flex 确保文本垂直居中
+    line-height: 1; // 统一行高，确保与图标对齐
+    margin: 0;
+  }
+}
+
+// 2. Plain 模式：透明背景，支持只显示图标或图标+文本
+[class^="takt-button-"].takt-button-plain {
+  background-color: transparent !important;
+  border: 1px solid currentColor !important;
+  color: inherit;
+  
+  // Plain 模式支持图标+文本或只有图标
+  gap: 8px; // 如果有文本，保持间距
+  
+  // Plain 模式纯图标样式（当没有文本时，通过 JavaScript 添加 takt-button-plain-icon-only 类）
+  &.takt-button-plain-icon-only {
+    padding: 0;
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
+    gap: 0;
+    background-color: transparent !important;
+    border: 1px solid currentColor !important;
+    
+    &.ant-btn-lg {
+      min-width: 40px;
+      width: 40px;
+      height: 40px;
+    }
+    
+    &.ant-btn-sm {
+      min-width: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+  
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  .plain-disabled-mixin(false);
+  .plain-loading-mixin();
+}
+
+// 2.1. Plain 无边框模式：透明背景，无边框，用于操作列
+// 默认状态：完全透明（无背景，无边框），只显示图标（主题色）
+// 激活/滑过：主题色背景，无边框，图标白色
+[class^="takt-button-"].takt-button-plain-borderless {
+  // 覆盖基础样式的默认状态
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+  border-width: 0 !important; // 确保没有边框
+  color: inherit !important; // 继承按钮类的主题色
+  
+  // 覆盖基础样式的所有 type 变体
+  &,
+  &.ant-btn-primary,
+  &.ant-btn-default,
+  &.ant-btn-dashed,
+  &.ant-btn-link,
+  &.ant-btn-text {
+    background-color: transparent !important;
+    border: none !important;
+    border-width: 0 !important;
+    color: inherit !important;
+  }
+  
+  // hover/active 时的边框由各 variant 的 .plain-state-mixin 控制（滑过激活有白边）
+
+  // Plain 无边框模式支持图标+文本或只有图标
+  gap: 8px; // 如果有文本，保持间距
+  
+  // Plain 无边框模式纯图标样式
+  &.takt-button-plain-icon-only {
+    padding: 0;
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
+    gap: 0;
+    background-color: transparent !important;
+    border: none !important;
+    border-width: 0 !important;
+    color: inherit !important;
+    
+    &,
+    &.ant-btn-primary,
+    &.ant-btn-default,
+    &.ant-btn-dashed,
+    &.ant-btn-link,
+    &.ant-btn-text {
+      background-color: transparent !important;
+      border: none !important;
+      border-width: 0 !important;
+      color: inherit !important;
+    }
+    
+    &.ant-btn-lg {
+      min-width: 40px;
+      width: 40px;
+      height: 40px;
+    }
+    
+    &.ant-btn-sm {
+      min-width: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+  
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  .plain-disabled-mixin(true);
+  .plain-loading-mixin();
+}
+
+// 3. Circle 模式：圆形按钮，只显示图标
+[class^="takt-button-"].takt-button-circle {
+  padding: 0;
+  min-width: 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  gap: 0;
+  
+  &.ant-btn-lg {
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+  }
+  
+  &.ant-btn-sm {
+    min-width: 24px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  // 图标居中
+  .anticon,
+  svg,
+  [class*="icon"],
+  [class*="Icon"] {
+    margin: 0;
+  }
+  
+  // 隐藏文本（Circle 模式只显示图标）
+  > span {
+    display: none !important;
+  }
+}
+
+// ========================================
+// Plain 无边框模式：确保默认状态完全透明（覆盖所有基础样式）
+// ========================================
+[class^="takt-button-"].takt-button-plain-borderless {
+  &,
+  &:not(:hover):not(:active):not(:focus):not(:focus-visible),
+  &.ant-btn-primary:not(:hover):not(:active):not(:focus):not(:focus-visible),
+  &.ant-btn-default:not(:hover):not(:active):not(:focus):not(:focus-visible),
+  &.ant-btn-dashed:not(:hover):not(:active):not(:focus):not(:focus-visible) {
+    background-color: transparent !important;
+    border: none !important;
+    border-width: 0 !important;
+    border-color: transparent !important;
+  }
+}
+

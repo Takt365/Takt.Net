@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- 生成 XML 文档，供 Excel 模板/导出读取 DTO 的 summary 作为表头说明 -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DynamicExpresso.Core" Version="2.19.3" />
+    <PackageReference Include="Mapster" Version="7.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
+    <PackageReference Include="OpenIddict.Abstractions" Version="7.4.0" />
+    <PackageReference Include="Scriban" Version="7.0.6" />
+    <PackageReference Include="SqlSugarCore" Version="5.1.4.214" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
+    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Takt.Domain\Takt.Domain.csproj" />
+    <ProjectReference Include="..\Takt.Shared\Takt.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dtos\HumanResource\AttendanceLeave\" />
+    <Folder Include="Dtos\HumanResource\CompensationBenefits\" />
+    <Folder Include="Dtos\HumanResource\Performance\" />
+    <Folder Include="Dtos\HumanResource\Personnel\" />
+    <Folder Include="Dtos\HumanResource\Talent\" />
+    <Folder Include="Dtos\HumanResource\TrainingDevelopment\" />
+    <Folder Include="Dtos\Statistics\Report\" />
+    <Folder Include="Dtos\Statistics\Kanban\" />
+    <Folder Include="Services\HumanResource\AttendanceLeave\" />
+    <Folder Include="Services\HumanResource\CompensationBenefits\" />
+    <Folder Include="Services\HumanResource\Performance\" />
+    <Folder Include="Services\HumanResource\Personnel\" />
+    <Folder Include="Services\HumanResource\Talent\" />
+    <Folder Include="Services\HumanResource\TrainingDevelopment\" />
+    <Folder Include="Services\Statistics\Kanban\" />
+    <Folder Include="Services\Statistics\Report\" />
+  </ItemGroup>
+
+</Project>

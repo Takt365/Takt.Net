@@ -1,0 +1,931 @@
+// ========================================
+// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
+// 命名空间：@/assets/styles/dict-tag
+// 文件名称：dict-tag.less
+// 创建时间：2025-01-20
+// 创建人：Takt365(Cursor AI)
+// 功能描述：字典标签样式定义，全场景70个标签样式，70种颜色不重复
+// 颜色：使用中国传统色系和日本传统色系
+// 
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+@import './color-base.less';
+
+// 字典标签基础样式
+.takt-dict-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  transition: all 0.3s ease;
+  border: none !important; // 移除边框
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// 70种字典标签颜色样式（对应 CssClass 或 ListClass 值 0-69）
+// 使用中国传统色系和日本传统色系
+
+// 0. default - 默认（使用传统色系：苍苍）
+.takt-dict-tag-0,
+.ant-tag.takt-dict-tag-0 {
+  background-color: lighten(@kon, 30%);
+  border: none;
+  color: darken(@kon, 20%);
+}
+
+// 1. success - 成功（使用传统色系：青葱）
+.takt-dict-tag-1,
+.ant-tag.takt-dict-tag-1 {
+  background-color: lighten(@qingbi, 25%);
+  border: none;
+  color: darken(@qingbi, 15%);
+}
+
+// 2. error - 错误（使用传统色系：檆丹）
+.takt-dict-tag-2,
+.ant-tag.takt-dict-tag-2 {
+  background-color: lighten(@shoujou, 20%);
+  border: none;
+  color: darken(@shoujou, 15%);
+}
+
+// 3. warning - 警告（使用传统色系：黄栗留）
+.takt-dict-tag-3,
+.ant-tag.takt-dict-tag-3 {
+  background-color: lighten(@qiuhuang, 15%);
+  border: none;
+  color: darken(@qiuhuang, 25%);
+}
+
+// 4. processing - 处理中（使用传统色系：群青）
+.takt-dict-tag-4,
+.ant-tag.takt-dict-tag-4 {
+  background-color: lighten(@qunqing, 20%);
+  border: none;
+  color: darken(@qunqing, 10%);
+}
+
+// 5. info - 信息（使用传统色系：宝蓝）
+.takt-dict-tag-5,
+.ant-tag.takt-dict-tag-5 {
+  background-color: lighten(@baolan, 20%);
+  border: none;
+  color: darken(@baolan, 10%);
+}
+
+// 6. blue - 蓝色（使用传统色系：石青）
+.takt-dict-tag-6,
+.ant-tag.takt-dict-tag-6 {
+  background-color: lighten(@qingse, 20%);
+  border: none;
+  color: darken(@qingse, 10%);
+}
+
+// 7. cyan - 青色（使用传统色系：蔚蓝）
+.takt-dict-tag-7,
+.ant-tag.takt-dict-tag-7 {
+  background-color: lighten(@weilan, 15%);
+  border: none;
+  color: darken(@weilan, 30%);
+}
+
+// 8. green - 绿色（使用传统色系：油绿）
+.takt-dict-tag-8,
+.ant-tag.takt-dict-tag-8 {
+  background-color: lighten(@youlv, 20%);
+  border: none;
+  color: darken(@youlv, 15%);
+}
+
+// 9. orange - 橙色（使用传统色系：朱膘）
+.takt-dict-tag-9,
+.ant-tag.takt-dict-tag-9 {
+  background-color: lighten(@zhujiao, 15%);
+  border: none;
+  color: darken(@zhujiao, 20%);
+}
+
+// 10. red - 红色（使用传统色系：大红）
+.takt-dict-tag-10,
+.ant-tag.takt-dict-tag-10 {
+  background-color: lighten(@hong, 20%);
+  border: none;
+  color: darken(@hong, 10%);
+}
+
+// 11. purple - 紫色（使用传统色系：青莲）
+.takt-dict-tag-11,
+.ant-tag.takt-dict-tag-11 {
+  background-color: lighten(@qinglian, 20%);
+  border: none;
+  color: darken(@qinglian, 10%);
+}
+
+// 12. pink - 粉色（使用传统色系：桃红）
+.takt-dict-tag-12,
+.ant-tag.takt-dict-tag-12 {
+  background-color: lighten(@taohong, 15%);
+  border: none;
+  color: darken(@taohong, 20%);
+}
+
+// 13. gold - 金色（使用传统色系：栀子）
+.takt-dict-tag-13,
+.ant-tag.takt-dict-tag-13 {
+  background-color: lighten(@kogane, 10%);
+  border: none;
+  color: darken(@kogane, 30%);
+}
+
+// 14-69. 其他颜色（使用传统色系）
+.takt-dict-tag-14,
+.ant-tag.takt-dict-tag-14 {
+  background-color: lighten(@yuebai, 5%);
+  border: none;
+  color: darken(@yuebai, 30%);
+}
+
+.takt-dict-tag-15,
+.ant-tag.takt-dict-tag-15 {
+  background-color: lighten(@chengse, 15%);
+  border: none;
+  color: darken(@chengse, 25%);
+}
+
+.takt-dict-tag-16,
+.ant-tag.takt-dict-tag-16 {
+  background-color: lighten(@qiuhuang, 10%);
+  border: none;
+  color: darken(@qiuhuang, 30%);
+}
+
+.takt-dict-tag-17,
+.ant-tag.takt-dict-tag-17 {
+  background-color: lighten(@kogane, 8%);
+  border: none;
+  color: darken(@kogane, 30%);
+}
+
+.takt-dict-tag-18,
+.ant-tag.takt-dict-tag-18 {
+  background-color: lighten(@juhuang, 8%);
+  border: none;
+  color: darken(@juhuang, 30%);
+}
+
+.takt-dict-tag-19,
+.ant-tag.takt-dict-tag-19 {
+  background-color: lighten(@lanqing, 10%);
+  border: none;
+  color: darken(@lanqing, 20%);
+}
+
+.takt-dict-tag-20,
+.ant-tag.takt-dict-tag-20 {
+  background-color: lighten(@gunjyo, 10%);
+  border: none;
+  color: darken(@gunjyo, 20%);
+}
+
+.takt-dict-tag-21,
+.ant-tag.takt-dict-tag-21 {
+  background-color: lighten(@kon, 10%);
+  border: none;
+  color: darken(@kon, 20%);
+}
+
+.takt-dict-tag-22,
+.ant-tag.takt-dict-tag-22 {
+  background-color: lighten(@weilan, 5%);
+  border: none;
+  color: darken(@weilan, 40%);
+}
+
+.takt-dict-tag-23,
+.ant-tag.takt-dict-tag-23 {
+  background-color: lighten(@qingse, 10%);
+  border: none;
+  color: darken(@qingse, 15%);
+}
+
+.takt-dict-tag-24,
+.ant-tag.takt-dict-tag-24 {
+  background-color: lighten(@dianqing, 10%);
+  border: none;
+  color: darken(@dianqing, 15%);
+}
+
+.takt-dict-tag-25,
+.ant-tag.takt-dict-tag-25 {
+  background-color: lighten(@qingbi, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-26,
+.ant-tag.takt-dict-tag-26 {
+  background-color: lighten(@baolan, 10%);
+  border: none;
+  color: darken(@baolan, 15%);
+}
+
+.takt-dict-tag-27,
+.ant-tag.takt-dict-tag-27 {
+  background-color: lighten(@zangqing, 10%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-28,
+.ant-tag.takt-dict-tag-28 {
+  background-color: lighten(@haiiro, 10%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-29,
+.ant-tag.takt-dict-tag-29 {
+  background-color: lighten(@zitan, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-30,
+.ant-tag.takt-dict-tag-30 {
+  background-color: lighten(@qingse, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-31,
+.ant-tag.takt-dict-tag-31 {
+  background-color: lighten(@zijiang, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-32,
+.ant-tag.takt-dict-tag-32 {
+  background-color: lighten(@qinglian, 10%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-33,
+.ant-tag.takt-dict-tag-33 {
+  background-color: lighten(@qunqing, 10%);
+  border: none;
+  color: darken(@qunqing, 15%);
+}
+
+.takt-dict-tag-34,
+.ant-tag.takt-dict-tag-34 {
+  background-color: lighten(@xueqing, 5%);
+  border: none;
+  color: darken(@xueqing, 30%);
+}
+
+.takt-dict-tag-35,
+.ant-tag.takt-dict-tag-35 {
+  background-color: lighten(@murasaki, 5%);
+  border: none;
+  color: darken(@murasaki, 30%);
+}
+
+.takt-dict-tag-36,
+.ant-tag.takt-dict-tag-36 {
+  background-color: lighten(@usumurasaki, 3%);
+  border: none;
+  color: darken(@usumurasaki, 30%);
+}
+
+.takt-dict-tag-37,
+.ant-tag.takt-dict-tag-37 {
+  background-color: lighten(@wakamurasaki, 3%);
+  border: none;
+  color: darken(@wakamurasaki, 30%);
+}
+
+.takt-dict-tag-38,
+.ant-tag.takt-dict-tag-38 {
+  background-color: lighten(@zhusha, 8%);
+  border: none;
+  color: darken(@zhusha, 15%);
+}
+
+.takt-dict-tag-39,
+.ant-tag.takt-dict-tag-39 {
+  background-color: lighten(@huohong, 8%);
+  border: none;
+  color: darken(@huohong, 15%);
+}
+
+.takt-dict-tag-40,
+.ant-tag.takt-dict-tag-40 {
+  background-color: lighten(@zhujiao, 8%);
+  border: none;
+  color: darken(@zhujiao, 15%);
+}
+
+.takt-dict-tag-41,
+.ant-tag.takt-dict-tag-41 {
+  background-color: lighten(@feise, 8%);
+  border: none;
+  color: darken(@feise, 15%);
+}
+
+.takt-dict-tag-42,
+.ant-tag.takt-dict-tag-42 {
+  background-color: lighten(@taohong, 5%);
+  border: none;
+  color: darken(@taohong, 20%);
+}
+
+.takt-dict-tag-43,
+.ant-tag.takt-dict-tag-43 {
+  background-color: lighten(@momo, 5%);
+  border: none;
+  color: darken(@momo, 20%);
+}
+
+.takt-dict-tag-44,
+.ant-tag.takt-dict-tag-44 {
+  background-color: lighten(@beni, 5%);
+  border: none;
+  color: darken(@beni, 20%);
+}
+
+.takt-dict-tag-45,
+.ant-tag.takt-dict-tag-45 {
+  background-color: lighten(@momoji, 5%);
+  border: none;
+  color: darken(@momoji, 20%);
+}
+
+.takt-dict-tag-46,
+.ant-tag.takt-dict-tag-46 {
+  background-color: lighten(@kurenai, 5%);
+  border: none;
+  color: darken(@kurenai, 20%);
+}
+
+.takt-dict-tag-47,
+.ant-tag.takt-dict-tag-47 {
+  background-color: lighten(@hong, 5%);
+  border: none;
+  color: darken(@hong, 15%);
+}
+
+.takt-dict-tag-48,
+.ant-tag.takt-dict-tag-48 {
+  background-color: lighten(@juhong, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-49,
+.ant-tag.takt-dict-tag-49 {
+  background-color: lighten(@jiangzi, 8%);
+  border: none;
+  color: darken(@jiangzi, 15%);
+}
+
+.takt-dict-tag-50,
+.ant-tag.takt-dict-tag-50 {
+  background-color: lighten(@fenhong, 5%);
+  border: none;
+  color: darken(@fenhong, 15%);
+}
+
+.takt-dict-tag-51,
+.ant-tag.takt-dict-tag-51 {
+  background-color: lighten(@jujube, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-52,
+.ant-tag.takt-dict-tag-52 {
+  background-color: lighten(@zhujiao, 5%);
+  border: none;
+  color: darken(@zhujiao, 15%);
+}
+
+.takt-dict-tag-53,
+.ant-tag.takt-dict-tag-53 {
+  background-color: lighten(@mikan, 5%);
+  border: none;
+  color: darken(@mikan, 15%);
+}
+
+.takt-dict-tag-54,
+.ant-tag.takt-dict-tag-54 {
+  background-color: lighten(@youkan, 5%);
+  border: none;
+  color: darken(@youkan, 15%);
+}
+
+.takt-dict-tag-55,
+.ant-tag.takt-dict-tag-55 {
+  background-color: lighten(@honggan, 5%);
+  border: none;
+  color: darken(@honggan, 15%);
+}
+
+.takt-dict-tag-56,
+.ant-tag.takt-dict-tag-56 {
+  background-color: lighten(@hong, 5%);
+  border: none;
+  color: darken(@hong, 15%);
+}
+
+.takt-dict-tag-57,
+.ant-tag.takt-dict-tag-57 {
+  background-color: lighten(@fujimurasaki, 5%);
+  border: none;
+  color: darken(@fujimurasaki, 15%);
+}
+
+.takt-dict-tag-58,
+.ant-tag.takt-dict-tag-58 {
+  background-color: lighten(@kuri, 8%);
+  border: none;
+  color: darken(@kuri, 25%);
+}
+
+.takt-dict-tag-59,
+.ant-tag.takt-dict-tag-59 {
+  background-color: lighten(@chairo, 8%);
+  border: none;
+  color: darken(@chairo, 25%);
+}
+
+.takt-dict-tag-60,
+.ant-tag.takt-dict-tag-60 {
+  background-color: lighten(@sakura, 5%);
+  border: none;
+  color: darken(@sakura, 20%);
+}
+
+.takt-dict-tag-61,
+.ant-tag.takt-dict-tag-61 {
+  background-color: lighten(@jujube, 5%);
+  border: none;
+  color: darken(@jujube, 15%);
+}
+
+.takt-dict-tag-62,
+.ant-tag.takt-dict-tag-62 {
+  background-color: lighten(@kurenai, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-63,
+.ant-tag.takt-dict-tag-63 {
+  background-color: lighten(@shoujou, 5%);
+  border: none;
+  color: darken(@shoujou, 15%);
+}
+
+.takt-dict-tag-64,
+.ant-tag.takt-dict-tag-64 {
+  background-color: lighten(@beni, 5%);
+  border: none;
+  color: darken(@beni, 15%);
+}
+
+.takt-dict-tag-65,
+.ant-tag.takt-dict-tag-65 {
+  background-color: lighten(@kurenai, 5%);
+  border: none;
+  color: darken(@kurenai, 15%);
+}
+
+.takt-dict-tag-66,
+.ant-tag.takt-dict-tag-66 {
+  background-color: lighten(@lvse, 8%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-67,
+.ant-tag.takt-dict-tag-67 {
+  background-color: lighten(@shoubuiro, 8%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-68,
+.ant-tag.takt-dict-tag-68 {
+  background-color: lighten(@kikyou, 5%);
+  border: none;
+  color: darken(@kikyou, 30%);
+}
+
+.takt-dict-tag-69,
+.ant-tag.takt-dict-tag-69 {
+  background-color: lighten(@qiuhuang, 5%);
+  border: none;
+  color: darken(@qiuhuang, 30%);
+}
+
+// 补充使用日本传统色系
+.takt-dict-tag-14,
+.ant-tag.takt-dict-tag-14 {
+  background-color: lighten(@wakakusa, 5%);
+  border: none;
+  color: darken(@wakakusa, 25%);
+}
+
+.takt-dict-tag-15,
+.ant-tag.takt-dict-tag-15 {
+  background-color: lighten(@koubai, 5%);
+  border: none;
+  color: darken(@koubai, 20%);
+}
+
+.takt-dict-tag-16,
+.ant-tag.takt-dict-tag-16 {
+  background-color: lighten(@fujimurasaki, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-17,
+.ant-tag.takt-dict-tag-17 {
+  background-color: lighten(@hiwamochi, 3%);
+  border: none;
+  color: darken(@hiwamochi, 30%);
+}
+
+.takt-dict-tag-18,
+.ant-tag.takt-dict-tag-18 {
+  background-color: lighten(@kiku, 3%);
+  border: none;
+  color: darken(@kiku, 30%);
+}
+
+.takt-dict-tag-19,
+.ant-tag.takt-dict-tag-19 {
+  background-color: lighten(@warabi, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-20,
+.ant-tag.takt-dict-tag-20 {
+  background-color: lighten(@kurenai, 5%);
+  border: none;
+  color: darken(@kurenai, 20%);
+}
+
+.takt-dict-tag-21,
+.ant-tag.takt-dict-tag-21 {
+  background-color: lighten(@kouji, 3%);
+  border: none;
+  color: darken(@kouji, 30%);
+}
+
+.takt-dict-tag-22,
+.ant-tag.takt-dict-tag-22 {
+  background-color: lighten(@iroha, 5%);
+  border: none;
+  color: darken(@iroha, 20%);
+}
+
+.takt-dict-tag-23,
+.ant-tag.takt-dict-tag-23 {
+  background-color: lighten(@beni, 5%);
+  border: none;
+  color: darken(@beni, 20%);
+}
+
+.takt-dict-tag-24,
+.ant-tag.takt-dict-tag-24 {
+  background-color: lighten(@sakura, 2%);
+  border: none;
+  color: darken(@sakura, 30%);
+}
+
+.takt-dict-tag-25,
+.ant-tag.takt-dict-tag-25 {
+  background-color: lighten(@murasaki, 8%);
+  border: none;
+  color: darken(@murasaki, 25%);
+}
+
+.takt-dict-tag-26,
+.ant-tag.takt-dict-tag-26 {
+  background-color: lighten(@kurenai, 5%);
+  border: none;
+  color: darken(@kurenai, 20%);
+}
+
+.takt-dict-tag-27,
+.ant-tag.takt-dict-tag-27 {
+  background-color: lighten(@shoujou, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-28,
+.ant-tag.takt-dict-tag-28 {
+  background-color: lighten(@beni, 5%);
+  border: none;
+  color: darken(@beni, 15%);
+}
+
+.takt-dict-tag-29,
+.ant-tag.takt-dict-tag-29 {
+  background-color: lighten(@uji, 5%);
+  border: none;
+  color: darken(@uji, 25%);
+}
+
+.takt-dict-tag-30,
+.ant-tag.takt-dict-tag-30 {
+  background-color: lighten(@wakamurasaki, 5%);
+  border: none;
+  color: darken(@wakamurasaki, 20%);
+}
+
+.takt-dict-tag-31,
+.ant-tag.takt-dict-tag-31 {
+  background-color: lighten(@kurenai, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-32,
+.ant-tag.takt-dict-tag-32 {
+  background-color: lighten(@sakura, 5%);
+  border: none;
+  color: darken(@sakura, 25%);
+}
+
+.takt-dict-tag-33,
+.ant-tag.takt-dict-tag-33 {
+  background-color: lighten(@iroha, 5%);
+  border: none;
+  color: darken(@iroha, 20%);
+}
+
+.takt-dict-tag-34,
+.ant-tag.takt-dict-tag-34 {
+  background-color: lighten(@beni, 5%);
+  border: none;
+  color: darken(@beni, 20%);
+}
+
+.takt-dict-tag-35,
+.ant-tag.takt-dict-tag-35 {
+  background-color: lighten(@fujimurasaki, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-36,
+.ant-tag.takt-dict-tag-36 {
+  background-color: lighten(@kurenai, 5%);
+  border: none;
+  color: darken(@kurenai, 15%);
+}
+
+.takt-dict-tag-37,
+.ant-tag.takt-dict-tag-37 {
+  background-color: lighten(@shoujou, 5%);
+  border: none;
+  color: darken(@shoujou, 15%);
+}
+
+.takt-dict-tag-38,
+.ant-tag.takt-dict-tag-38 {
+  background-color: lighten(@sakura, 5%);
+  border: none;
+  color: darken(@sakura, 25%);
+}
+
+.takt-dict-tag-39,
+.ant-tag.takt-dict-tag-39 {
+  background-color: lighten(@kuri, 8%);
+  border: none;
+  color: darken(@kuri, 25%);
+}
+
+.takt-dict-tag-40,
+.ant-tag.takt-dict-tag-40 {
+  background-color: lighten(@kaki, 8%);
+  border: none;
+  color: darken(@kaki, 25%);
+}
+
+.takt-dict-tag-41,
+.ant-tag.takt-dict-tag-41 {
+  background-color: lighten(@youkan, 5%);
+  border: none;
+  color: darken(@youkan, 15%);
+}
+
+.takt-dict-tag-42,
+.ant-tag.takt-dict-tag-42 {
+  background-color: lighten(@kon, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-43,
+.ant-tag.takt-dict-tag-43 {
+  background-color: lighten(@kurenai, 5%);
+  border: none;
+  color: darken(@kurenai, 20%);
+}
+
+.takt-dict-tag-44,
+.ant-tag.takt-dict-tag-44 {
+  background-color: lighten(@koubai, 8%);
+  border: none;
+  color: darken(@koubai, 25%);
+}
+
+.takt-dict-tag-45,
+.ant-tag.takt-dict-tag-45 {
+  background-color: lighten(@beni, 8%);
+  border: none;
+  color: darken(@beni, 25%);
+}
+
+.takt-dict-tag-46,
+.ant-tag.takt-dict-tag-46 {
+  background-color: lighten(@mizu, 8%);
+  border: none;
+  color: darken(@mizu, 25%);
+}
+
+.takt-dict-tag-47,
+.ant-tag.takt-dict-tag-47 {
+  background-color: lighten(@iroha, 5%);
+  border: none;
+  color: darken(@iroha, 25%);
+}
+
+.takt-dict-tag-48,
+.ant-tag.takt-dict-tag-48 {
+  background-color: lighten(@youkan, 8%);
+  border: none;
+  color: darken(@youkan, 25%);
+}
+
+.takt-dict-tag-49,
+.ant-tag.takt-dict-tag-49 {
+  background-color: lighten(@shoujou, 5%);
+  border: none;
+  color: darken(@shoujou, 15%);
+}
+
+.takt-dict-tag-50,
+.ant-tag.takt-dict-tag-50 {
+  background-color: lighten(@iroha, 5%);
+  border: none;
+  color: darken(@iroha, 15%);
+}
+
+.takt-dict-tag-51,
+.ant-tag.takt-dict-tag-51 {
+  background-color: lighten(@chairo, 8%);
+  border: none;
+  color: darken(@chairo, 25%);
+}
+
+.takt-dict-tag-52,
+.ant-tag.takt-dict-tag-52 {
+  background-color: lighten(@kogecha, 8%);
+  border: none;
+  color: darken(@kogecha, 25%);
+}
+
+.takt-dict-tag-53,
+.ant-tag.takt-dict-tag-53 {
+  background-color: lighten(@kaki, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-54,
+.ant-tag.takt-dict-tag-54 {
+  background-color: lighten(@hiwamochi, 5%);
+  border: none;
+  color: darken(@hiwamochi, 20%);
+}
+
+.takt-dict-tag-55,
+.ant-tag.takt-dict-tag-55 {
+  background-color: lighten(@yamaume, 8%);
+  border: none;
+  color: darken(@yamaume, 25%);
+}
+
+.takt-dict-tag-56,
+.ant-tag.takt-dict-tag-56 {
+  background-color: lighten(@beni, 5%);
+  border: none;
+  color: darken(@beni, 20%);
+}
+
+.takt-dict-tag-57,
+.ant-tag.takt-dict-tag-57 {
+  background-color: lighten(@kuri, 5%);
+  border: none;
+  color: #fff;
+}
+
+.takt-dict-tag-58,
+.ant-tag.takt-dict-tag-58 {
+  background-color: lighten(@juhong, 5%);
+  border: none;
+  color: darken(@juhong, 20%);
+}
+
+.takt-dict-tag-59,
+.ant-tag.takt-dict-tag-59 {
+  background-color: lighten(@iroha, 8%);
+  border: none;
+  color: darken(@iroha, 25%);
+}
+
+.takt-dict-tag-60,
+.ant-tag.takt-dict-tag-60 {
+  background-color: lighten(@koubai, 5%);
+  border: none;
+  color: darken(@koubai, 25%);
+}
+
+.takt-dict-tag-61,
+.ant-tag.takt-dict-tag-61 {
+  background-color: lighten(@momo, 5%);
+  border: none;
+  color: darken(@momo, 25%);
+}
+
+.takt-dict-tag-62,
+.ant-tag.takt-dict-tag-62 {
+  background-color: lighten(@kaki, 5%);
+  border: none;
+  color: darken(@kaki, 25%);
+}
+
+.takt-dict-tag-63,
+.ant-tag.takt-dict-tag-63 {
+  background-color: lighten(@kouji, 5%);
+  border: none;
+  color: darken(@kouji, 30%);
+}
+
+.takt-dict-tag-64,
+.ant-tag.takt-dict-tag-64 {
+  background-color: lighten(@mikan, 5%);
+  border: none;
+  color: darken(@mikan, 30%);
+}
+
+.takt-dict-tag-65,
+.ant-tag.takt-dict-tag-65 {
+  background-color: lighten(@moegi, 5%);
+  border: none;
+  color: darken(@moegi, 30%);
+}
+
+.takt-dict-tag-66,
+.ant-tag.takt-dict-tag-66 {
+  background-color: lighten(@koubai, 5%);
+  border: none;
+  color: darken(@koubai, 25%);
+}
+
+.takt-dict-tag-67,
+.ant-tag.takt-dict-tag-67 {
+  background-color: lighten(@yamaume, 5%);
+  border: none;
+  color: darken(@yamaume, 30%);
+}
+
+.takt-dict-tag-68,
+.ant-tag.takt-dict-tag-68 {
+  background-color: lighten(@midori, 5%);
+  border: none;
+  color: darken(@midori, 30%);
+}
+
+.takt-dict-tag-69,
+.ant-tag.takt-dict-tag-69 {
+  background-color: lighten(@gunjyo, 10%);
+  border: none;
+  color: darken(@gunjyo, 15%);
+}

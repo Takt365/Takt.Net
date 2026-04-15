@@ -1,0 +1,301 @@
+// ========================================
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：{{ table.service_namespace }}
+// 文件名称：{{ if table.service_class_name != null && table.service_class_name != ""; table.service_class_name; else; table.entity_class_name + "Service"; end }}.cs
+// 创建时间：2025-02-02
+// 创建人：{{ table.gen_author }}
+// 功能描述：{{ table.comment }}应用服务，由 DtoCategory 配置驱动，按 type 判断输出
+//
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+using Mapster;
+using SqlSugar;
+using {{ table.dto_namespace }};
+using {{ table.entity_namespace }};
+using Takt.Application.Services;
+using Takt.Domain.Interfaces;
+using Takt.Domain.Repositories;
+using Takt.Domain.Validation;
+using Takt.Shared.Exceptions;
+using Takt.Shared.Helpers;
+using Takt.Shared.Models;
+
+namespace {{ table.service_namespace }};
+
+/// <summary>
+/// {{ table.comment }}应用服务
+/// </summary>
+public class {{ if table.service_class_name != null && table.service_class_name != ""; table.service_class_name; else; table.entity_class_name + "Service"; end }} : TaktServiceBase, {{ if table.i_service_class_name != null && table.i_service_class_name != ""; table.i_service_class_name; else; "I" + table.entity_class_name + "Service"; end }}
+{
+    private readonly ITaktRepository<{{ table.entity_class_name }}> _repository;
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="repository">仓储</param>
+    /// <param name="userContext">用户上下文（可选）</param>
+    /// <param name="tenantContext">租户上下文（可选）</param>
+    /// <param name="localizer">本地化器（可选）</param>
+    public {{ if table.service_class_name != null && table.service_class_name != ""; table.service_class_name; else; table.entity_class_name + "Service"; end }}(
+        ITaktRepository<{{ table.entity_class_name }}> repository,
+        ITaktUserContext? userContext = null,
+        ITaktTenantContext? tenantContext = null,
+        ITaktLocalizer? localizer = null)
+        : base(userContext, tenantContext, localizer)
+    {
+        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+    }
+{{ has_query = false }}
+{{~ for cat in table.dto_category_descriptors ~}}
+{{ type = cat.Name }}
+{{~ if type == "QueryDto" ~}}
+{{ has_query = true }}
+    /// <summary>
+    /// 获取{{ table.comment }}列表（分页）
+    /// </summary>
+    /// <param name="queryDto">查询DTO</param>
+    /// <returns>分页结果</returns>
+    public async Task<TaktPagedResult<{{ table.entity_class_name }}Dto>> Get{{ table.entity_name_pascal }}ListAsync({{ table.entity_class_name }}QueryDto queryDto)
+    {
+        var predicate = QueryExpression(queryDto);
+        var (data, total) = await _repository.GetPagedAsync(queryDto.PageIndex, queryDto.PageSize, predicate);
+        return TaktPagedResult<{{ table.entity_class_name }}Dto>.Create(
+            data.Adapt<List<{{ table.entity_class_name }}Dto>>(),
+            total,
+            queryDto.PageIndex,
+            queryDto.PageSize);
+    }
+
+    /// <summary>
+    /// 根据ID获取{{ table.comment }}
+    /// </summary>
+    /// <param name="id">{{ table.comment }}ID</param>
+    /// <returns>{{ table.comment }}DTO</returns>
+    public async Task<{{ table.entity_class_name }}Dto?> Get{{ table.entity_name_pascal }}ByIdAsync(long id)
+    {
+        var entity = await _repository.GetByIdAsync(id);
+        return entity?.Adapt<{{ table.entity_class_name }}Dto>();
+    }
+
+{{~ else if type == "CreateDto" ~}}
+    /// <summary>
+    /// 创建{{ table.comment }}
+    /// </summary>
+    /// <param name="dto">创建{{ table.comment }}DTO</param>
+    /// <returns>{{ table.comment }}DTO</returns>
+    public async Task<{{ table.entity_class_name }}Dto> Create{{ table.entity_name_pascal }}Async({{ table.entity_class_name }}CreateDto dto)
+    {
+{{ unique_create_count = 0 }}
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_unique == 1 && col.is_create == 1 ~}}{{ unique_create_count = unique_create_count + 1 }}{{~ end ~}}
+{{~ end ~}}
+{{ if unique_create_count > 0 }}
+        // 查重：唯一字段组合校验
+        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(
+            _repository,
+            x =>
+{{ first_unique_create = true }}
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_unique == 1 && col.is_create == 1 ~}}
+{{~ if first_unique_create ~}}{{ first_unique_create = false }}                x.{{ col.csharp_column_name }} == dto.{{ col.csharp_column_name }}
+{{~ else ~}}                && x.{{ col.csharp_column_name }} == dto.{{ col.csharp_column_name }}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}},
+            null,
+            "{{ table.comment }}唯一字段组合已存在");
+{{ end }}
+        var entity = dto.Adapt<{{ table.entity_class_name }}>();
+        entity = await _repository.CreateAsync(entity);
+        return entity.Adapt<{{ table.entity_class_name }}Dto>();
+    }
+{{~ else if type == "UpdateDto" ~}}
+    /// <summary>
+    /// 更新{{ table.comment }}
+    /// </summary>
+    /// <param name="id">{{ table.comment }}ID</param>
+    /// <param name="dto">更新{{ table.comment }}DTO</param>
+    /// <returns>{{ table.comment }}DTO</returns>
+    public async Task<{{ table.entity_class_name }}Dto> Update{{ table.entity_name_pascal }}Async(long id, {{ table.entity_class_name }}UpdateDto dto)
+    {
+        var entity = await _repository.GetByIdAsync(id);
+        if (entity == null)
+            throw new TaktBusinessException("{{ table.comment }}不存在");
+{{ unique_update_count = 0 }}
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_unique == 1 && col.is_create == 1 ~}}{{ unique_update_count = unique_update_count + 1 }}{{~ end ~}}
+{{~ end ~}}
+{{ if unique_update_count > 0 }}
+        // 查重（排除当前记录）：唯一字段组合校验
+        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(
+            _repository,
+            x =>
+{{ first_unique_update = true }}
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_unique == 1 && col.is_create == 1 ~}}
+{{~ if first_unique_update ~}}{{ first_unique_update = false }}                x.{{ col.csharp_column_name }} == dto.{{ col.csharp_column_name }}
+{{~ else ~}}                && x.{{ col.csharp_column_name }} == dto.{{ col.csharp_column_name }}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}},
+            id,
+            "{{ table.comment }}唯一字段组合已存在");
+{{ end }}
+        dto.Adapt(entity, typeof({{ table.entity_class_name }}UpdateDto), typeof({{ table.entity_class_name }}));
+        await _repository.UpdateAsync(entity);
+        return entity.Adapt<{{ table.entity_class_name }}Dto>();
+    }
+{{ if table.is_delete == 1 }}
+    /// <summary>
+    /// 删除{{ table.comment }}
+    /// </summary>
+    /// <param name="id">{{ table.comment }}ID</param>
+    /// <returns>任务</returns>
+    public async Task Delete{{ table.entity_name_pascal }}ByIdAsync(long id)
+    {
+        await _repository.DeleteAsync(id);
+    }
+
+    /// <summary>
+    /// 批量删除{{ table.comment }}
+    /// </summary>
+    /// <param name="ids">{{ table.comment }}ID列表</param>
+    /// <returns>任务</returns>
+    public async Task Delete{{ table.entity_name_pascal }}BatchAsync(IEnumerable<long> ids)
+    {
+        var idList = ids.ToList();
+        if (idList.Count == 0) return;
+        await _repository.DeleteAsync(idList);
+    }
+{{ end }}
+{{~ else if type == "TemplateDto" ~}}
+    /// <summary>
+    /// 获取导入模板
+    /// </summary>
+    /// <param name="sheetName">工作表名称</param>
+    /// <param name="fileName">文件名</param>
+    /// <returns>Excel模板文件信息（文件名和内容）</returns>
+    public async Task<(string fileName, byte[] content)> Get{{ table.entity_name_pascal }}TemplateAsync(string? sheetName, string? fileName)
+    {
+        return await TaktExcelHelper.GenerateTemplateAsync<{{ table.entity_class_name }}TemplateDto>(
+            sheetName: string.IsNullOrWhiteSpace(sheetName) ? "{{ table.comment }}导入模板" : sheetName,
+            fileName: string.IsNullOrWhiteSpace(fileName) ? "{{ table.comment }}导入模板" : fileName
+        );
+    }
+{{~ else if type == "ImportDto" ~}}
+    /// <summary>
+    /// 导入{{ table.comment }}
+    /// </summary>
+    /// <param name="fileStream">Excel文件流</param>
+    /// <param name="sheetName">工作表名称</param>
+    /// <returns>导入结果（成功数量、失败数量、错误信息列表）</returns>
+    public async Task<(int success, int fail, List<string> errors)> Import{{ table.entity_name_pascal }}Async(Stream fileStream, string? sheetName)
+    {
+        var errors = new List<string>();
+        int success = 0;
+        int fail = 0;
+        var importData = await TaktExcelHelper.ImportAsync<{{ table.entity_class_name }}ImportDto>(fileStream, string.IsNullOrWhiteSpace(sheetName) ? "{{ table.comment }}导入模板" : sheetName);
+        if (importData == null || importData.Count == 0)
+        {
+            errors.Add("Excel文件中没有数据");
+            return (0, 0, errors);
+        }
+        foreach (var item in importData)
+        {
+            try
+            {
+{{ unique_import_count = 0 }}
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_unique == 1 && col.is_create == 1 ~}}{{ unique_import_count = unique_import_count + 1 }}{{~ end ~}}
+{{~ end ~}}
+{{ if unique_import_count > 0 }}
+                // 导入查重：唯一字段组合校验
+                await TaktUniqueValidatorExtensions.ValidateUniqueAsync(
+                    _repository,
+                    x =>
+{{ first_unique_import = true }}
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_unique == 1 && col.is_create == 1 ~}}
+{{~ if first_unique_import ~}}{{ first_unique_import = false }}                        x.{{ col.csharp_column_name }} == item.{{ col.csharp_column_name }}
+{{~ else ~}}                        && x.{{ col.csharp_column_name }} == item.{{ col.csharp_column_name }}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}},
+                    null,
+                    "{{ table.comment }}唯一字段组合已存在");
+{{ end }}
+                var e = item.Adapt<{{ table.entity_class_name }}>();
+                await _repository.CreateAsync(e);
+                success++;
+            }
+            catch (Exception ex)
+            {
+                fail++;
+                errors.Add(ex.Message);
+            }
+        }
+        return (success, fail, errors);
+    }
+{{~ else if type == "ExportDto" ~}}
+    /// <summary>
+    /// 导出{{ table.comment }}
+    /// </summary>
+    /// <param name="query">{{ table.comment }}查询DTO（包含查询条件）</param>
+    /// <param name="sheetName">工作表名称</param>
+    /// <param name="fileName">文件名</param>
+    /// <returns>Excel文件信息（文件名和内容）</returns>
+    public async Task<(string fileName, byte[] content)> Export{{ table.entity_name_pascal }}Async({{ table.entity_class_name }}QueryDto query, string? sheetName, string? fileName)
+    {
+        var predicate = QueryExpression(query);
+        var data = predicate != null ? await _repository.FindAsync(predicate) : await _repository.GetAllAsync();
+        var dtos = data?.Adapt<List<{{ table.entity_class_name }}ExportDto>>() ?? new List<{{ table.entity_class_name }}ExportDto>();
+        return await TaktExcelHelper.ExportAsync(dtos,
+            string.IsNullOrWhiteSpace(sheetName) ? "{{ table.comment }}数据" : sheetName,
+            string.IsNullOrWhiteSpace(fileName) ? "{{ table.comment }}导出" : fileName);
+    }
+{{~ end ~}}
+{{~ end ~}}
+{{ if has_query }}
+    /// <summary>
+    /// 构建查询表达式
+    /// </summary>
+    /// <param name="queryDto">查询DTO</param>
+    /// <returns>查询表达式</returns>
+    private static System.Linq.Expressions.Expression<Func<{{ table.entity_class_name }}, bool>> QueryExpression({{ table.entity_class_name }}QueryDto queryDto)
+    {
+        var exp = Expressionable.Create<{{ table.entity_class_name }}>();
+
+        // 关键词查询（在可查询的字符串字段中模糊匹配）
+        if (!string.IsNullOrEmpty(queryDto?.KeyWords))
+        {
+            exp = exp.And(x =>
+{{ first_keyword = true }}
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_query == 1 && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+{{~ if first_keyword ~}}{{ first_keyword = false }}                x.{{ col.csharp_column_name }}.Contains(queryDto.KeyWords)
+{{~ else ~}}                || x.{{ col.csharp_column_name }}.Contains(queryDto.KeyWords)
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{ if first_keyword }}                x.Remark != null && x.Remark.Contains(queryDto.KeyWords){{ end }}
+            );
+        }
+
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_query == 1 ~}}
+{{~ if col.csharp_data_type == "string" || col.csharp_data_type == "String" ~}}
+        // {{ col.comment }}
+        exp = exp.AndIF(!string.IsNullOrEmpty(queryDto?.{{ col.csharp_column_name }}), x => x.{{ col.csharp_column_name }}.Contains(queryDto!.{{ col.csharp_column_name }}!));
+{{~ else if col.csharp_data_type | string.downcase != "bool" && col.is_required == 0 ~}}
+        // {{ col.comment }}
+        exp = exp.AndIF(queryDto?.{{ col.csharp_column_name }}.HasValue == true, x => x.{{ col.csharp_column_name }} == queryDto!.{{ col.csharp_column_name }}!.Value);
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+
+        return exp.ToExpression();
+    }
+{{ end }}
+}

@@ -1,0 +1,325 @@
+---
+description: Takt 后端 C# / .NET 开发规范（分层、服务、实体、租户/种子、文档注释）
+globs: backend/**/*.cs
+alwaysApply: false
+---
+
+# 后端开发规范
+
+本文档已合并原 **`tenant-init.mdc`**（多租户与种子初始化）、**`04-backend-docs.mdc`**（后端文档与注释入口；实质规范以本文件及 `TaktUserService` 为准）。
+
+## 解决方案与项目
+
+- **Takt.Domain**：实体(Entities)、仓储接口(Repositories)、领域接口(Interfaces)、扩展(Extensions)、验证(Validation)。  
+  实体继承 `TaktEntityBase`，使用 SqlSugar 的 `[SugarTable]`、`[SugarColumn]`、`[SugarIndex]`；主键/外键 long 使用 `[JsonConverter(typeof(ValueToStringConverter))]`。
+- **Takt.Application**：DTO(Dtos)、服务接口与实现(Services)。  
+  服务继承 `TaktServiceBase`，接口命名 `ITaktXxxService`；DTO 命名示例：`TaktXxxDto`、`TaktXxxQueryDto`(继承 `TaktPagedQuery`)、`TaktCreateXxxDto`、`TaktUpdateXxxDto`、`TaktXxxExportDto`、`TaktXxxStatusDto` 等。
+- **Takt.Infrastructure**：数据(Data)、仓储实现(Repositories)、中间件(Middleware)、依赖注入(DependencyInjection)、扩展(Extensions)、SignalR、租户(Tenant)、用户(User)等。  
+  实体表映射与种子在 Data 中维护，新实体需在 `TaktEntityDatabaseMapping` 中映射 ConfigId，并参与 `TaktTableInitializer`/种子初始化。
+- **Takt.Shared**：模型(Models)、异常(Exceptions)、帮助类(Helpers) 等；分页使用 `TaktPagedQuery`、`TaktPagedResult<T>`。
+- **Takt.WebApi**：控制器(Controllers)、Program/配置；控制器继承 `TaktControllerBase`，使用 `[Route("api/[controller]")]`、`[TaktPermission]`、`[ApiModule]`。
+
+## 分层与依赖
+
+- Domain 不依赖 Application / Infrastructure / WebApi。  
+- Application 仅依赖 Domain 与 Shared；Infrastructure 不依赖 WebApi。  
+- 控制器只依赖应用服务接口（`ITaktXxxService`），**禁止** 直接依赖仓储或 SqlSugar 客户端。
+
+## 命名空间与文件
+
+- 命名空间与文件夹一致：
+  - 实体：`Takt.Domain.Entities.{领域}`（如 `HumanResource.Organization`、`Statistics.Logging`）
+  - DTO：`Takt.Application.Dtos.{领域}`
+  - 服务接口/实现：
+    - `Takt.Application.{领域}`（如 Organization、Identity、Tenant、Accounting、Routine.Dict、Routine.I18n、Routine.Setting、Routine.SignalR、Logistics.Material、Logistics.Maintenance）
+    - 或 `Takt.Application.Services.{领域}`（如 Captcha、Generator、Logging、Routine.Files）
+  - 控制器：`Takt.WebApi.Controllers.{领域}`
+- 公开类型统一 **Takt** 前缀；实体文件单实体（如 `TaktDept.cs`），DTO 允许多类一文件（如 `TaktDeptDtos.cs`）。
+
+## 控制器规范
+
+- 继承 `TaktControllerBase`，异常统一通过 `HandleException(ex)` 处理。
+- 分页列表统一返回 `TaktPagedResult<T>`，与前端分页组件对齐。
+- 需要权限控制的方法必须加 `[TaktPermission("module:resource:action", "描述")]`；公共接口使用 `[AllowAnonymous]`。
+- **控制器方法命名（强制）**：必须使用“实体前缀 + 语义”的唯一命名，禁止 `GetList` / `GetById` / `Create` / `Update` / `Delete` 这类无实体前缀命名。示例：`GetUserListAsync`、`GetUserByIdAsync`、`CreateUserAsync`、`UpdateUserAsync`、`DeleteUserByIdAsync`、`DeleteUserBatchAsync`、`GetUserTemplateAsync`、`ImportUserAsync`、`ExportUserAsync`、`UpdateUserStatusAsync`。
+- REST 约定：
+  - `[HttpGet("list")]`：分页列表
+  - `[HttpGet("{id}")]`：详情
+  - `[HttpPost]`：创建
+  - `[HttpPut("{id}")]`：更新
+  - `[HttpDelete("{id}")]`：删除
+  - 导入/导出使用 `responseType: blob` 与 FormData/Query。
+
+## 服务实现与异常
+
+- 所有应用服务继承 `TaktServiceBase`，通过基类获取当前用户、ConfigId、本地化与日志等上下文。
+- 业务校验失败统一使用：
+  - `ThrowBusinessException(message)` 或
+  - `ThrowBusinessExceptionLocalized(key, resourceType, args)`。
+- 实体存在性检查使用 `EnsureEntityExists` / `EnsureEntityExistsLocalized`，避免到处手写 `if (entity == null)`。
+- **禁止** 直接返回魔法字符串或抛出通用 `Exception`。
+- **基础功能强制**：所有标准业务模块必须提供完整基础能力：`CRUD + GetTemplateAsync + ImportAsync + ExportAsync`。若某模块因业务边界不支持其中某项，需在模块注释与评审记录中明确说明。
+
+## 应用服务 CRUD 与代码风格标准（唯一参照：TaktUserService）
+
+- **唯一参照文件**：`backend/src/Takt.Application/Services/Identity/TaktUserService.cs`。所有应用服务的 CRUD 及相关方法必须与该文件在**命名、参数与返回值约定、XML 注释风格、方法体结构、异常与空值处理**上保持一致，禁止出现“一个服务一种写法”。
+- **命名总规则（强制）**：应用服务函数必须使用“`动词 + 实体名 + 语义 + Async`”或“`实体名 + 动词 + Async`”的固定模式，且包含实体前缀，禁止无实体前缀命名。
+- **标准映射（强制）**：
+  - 列表：`GetXxxListAsync`
+  - 详情：`GetXxxByIdAsync`
+  - 新增：`CreateXxxAsync`
+  - 更新：`UpdateXxxAsync`
+  - 单删：`DeleteXxxByIdAsync`
+  - 批删：`DeleteXxxBatchAsync`
+  - 模板：`GetXxxTemplateAsync`
+  - 导入：`ImportXxxAsync`
+  - 导出：`ExportXxxAsync`
+  - 状态：`UpdateXxxStatusAsync`
+  - 其中 `Xxx` 必须为实体 PascalCase 名（如 `User`、`Role`、`Dept`、`EmployeeTransfer`）。
+
+### 文件头与类结构
+
+- **文件头**：每个 `.cs` 源文件顶部使用 `//` 块，**首尾**为 `// ========================================`；**中间**依次为：项目名称、命名空间、文件名称、创建时间、创建人、功能描述；**功能描述与版权信息之间必须有一行仅含 `// ` 的空注释行**（与 `TaktUserService.cs` 第 1～11 行一致，**强制**）；再接版权信息、免责声明。**项目名称**行中 `·` 与 `Takt` 之间**必须空一格**（与 `.cursor/rules/03-frontend.mdc` 对齐）。**文件头与下文 XML 注释均不得省略**。
+- **类**：类上方必须有 `/// <summary>` 单行说明（如「Takt用户应用服务」）。
+- **字段**：私有只读，命名 `_repository` 或 `_xxxRepository`，与构造函数参数一一对应。
+- **构造函数**：必须为构造函数及**每一个参数**书写完整 XML（`<summary>`、`<param name="...">...</param>`）；若有基类则 `: base(userContext, tenantContext, localizer)`。
+
+### GetXxxListAsync
+
+- **XML**：`<summary>获取xxx列表（分页）</summary>`、`<param name="queryDto">查询DTO</param>`、`<returns>分页结果</returns>`。
+- **方法体**：`var predicate = QueryExpression(queryDto);` → `var (data, total) = await _repository.GetPagedAsync(queryDto.PageIndex, queryDto.PageSize, predicate);` → 将 `data` 转为 DTO 列表（含必要关联填充）→ `return TaktPagedResult<TDto>.Create(dtos, total, queryDto.PageIndex, queryDto.PageSize);`。
+
+### GetXxxByIdAsync
+
+- **XML**：`<summary>根据ID获取xxx</summary>`、`<param name="id">xxx ID</param>`、`<returns>xxx DTO</returns>`。
+- **方法体**：`var entity = await _repository.GetByIdAsync(id);` → `if (entity == null) return null;` → 映射并补充关联数据 → `return dto;`。
+
+### CreateXxxAsync
+
+- **XML**：`<summary>创建xxx</summary>`、`<param name="dto">创建xxx DTO</param>`、`<returns>xxx DTO</returns>`。
+- **方法体**：先业务校验（必填、唯一性等，校验失败 `throw new TaktBusinessException(...)`）→ `var entity = dto.Adapt<TEntity>();` → `entity = await _repository.CreateAsync(entity);` → 若有子表/关联则按 User 模式先校验再 `CreateRangeAsync` → 最后 `return await GetByIdAsync(entity.Id) ?? entity.Adapt<TDto>();`。
+
+### UpdateXxxAsync
+
+- **XML**：`<summary>更新xxx</summary>`、`<param name="id">xxx ID</param>`、`<param name="dto">更新xxx DTO</param>`、`<returns>xxx DTO</returns>`。
+- **方法体**：`var entity = await _repository.GetByIdAsync(id);` → `if (entity == null) throw new TaktBusinessException("xxx不存在");` → 业务规则校验 → `dto.Adapt(entity, typeof(TUpdateDto), typeof(TEntity));` → 若有不参与更新的字段（如密码）需单独保留原值 → `entity.UpdatedAt = DateTime.Now;` → `await _repository.UpdateAsync(entity);` → 若有子表/关联则按 User 的“软删+恢复+新增”策略更新 → `return await GetByIdAsync(id) ?? entity.Adapt<TDto>();`。
+
+### DeleteXxxByIdAsync（单条）
+
+- **XML**：`<summary>删除xxx</summary>`、`<param name="id">xxx ID</param>`、`<returns>任务</returns>`。
+- **方法体**：`var entity = await _repository.GetByIdAsync(id);` → `if (entity == null) throw new TaktBusinessException("xxx不存在");` → 若有保护规则（如管理员不可删）先校验 → 若有子表/关联先删除关联再软删主表 → `await _repository.DeleteAsync(id);`。
+
+### DeleteXxxBatchAsync（批量）
+
+- **XML**：`<summary>批量删除xxx</summary>`、`<param name="ids">xxx ID 列表</param>`、`<returns>任务</returns>`。
+- **方法体**：`var idList = ids.ToList();` → `if (idList.Count == 0) return;` → 批量取实体、做保护规则校验（若有）→ 若有子表先批量删关联再批量软删主表 → `await _repository.DeleteAsync(idList);`。
+
+### UpdateXxxStatusAsync（若存在）
+
+- **XML**：`<summary>更新xxx状态</summary>`、`<param name="dto">状态 DTO</param>`、`<returns>xxx DTO</returns>`。
+- **方法体**：`var entity = await _repository.GetByIdAsync(dto.XxxId);` → `if (entity == null) throw new TaktBusinessException("xxx不存在");` → 业务规则（如禁止手动锁定）→ 设置状态与 `entity.UpdatedAt = DateTime.Now;` → `await _repository.UpdateAsync(entity);` → `return await GetByIdAsync(entity.Id) ?? entity.Adapt<TDto>();`。
+
+### GetXxxTemplateAsync
+
+- **XML**：`<summary>获取导入模板</summary>`、`<param name="sheetName">工作表名（可选）</param>`、`<param name="fileName">文件名（可选）</param>`、`<returns>Excel 文件信息</returns>`。
+- **方法体**：使用 `TaktExcelHelper.GenerateTemplateAsync<TTemplateDto>`，缺省时用实体中文名（如「用户导入模板」）作为 sheetName/fileName。
+
+### ImportXxxAsync
+
+- **XML**：`<summary>导入xxx</summary>`、`<param name="stream">Excel 流</param>`、`<returns>成功数、失败数、错误信息列表</returns>`。
+- **方法体**：`var errors = new List<string>();`，`int success = 0, fail = 0;` → `try { var importData = await TaktExcelHelper.ImportAsync<TImportRowDto>(stream);` → `if (importData == null || importData.Count == 0) { errors.Add("Excel文件中没有数据"); return (0, 0, errors); }` → 单次导入行数上限校验（如 1000）→ 按行 try/catch，业务校验失败或异常时 `errors.Add($"第{行号}行：..."); fail++; continue;` → 合法行加入待插入列表 → 分批 `CreateRangeBulkAsync` 统计 success/fail → `} catch (Exception ex) { errors.Add($"导入过程发生错误：{ex.Message}"); fail++; }` → `return (success, fail, errors);`。
+
+### ExportXxxAsync
+
+- **XML**：`<summary>导出xxx</summary>`、`<param name="query">查询 DTO（可为 null）</param>`、`<param name="sheetName">工作表名（可选）</param>`、`<param name="fileName">文件名（可选）</param>`、`<returns>Excel 文件信息（文件名与内容）</returns>`。
+- **方法体**：`var predicate = QueryExpression(query ?? new XxxQueryDto());` → 使用 `predicate != null ? FindAsync(predicate) : GetAllAsync()` 得到列表 → `if (list == null || list.Count == 0)` 则 `return await TaktExcelHelper.ExportAsync(new List<TExportDto>(), sheetName ?? "xxx数据", fileName ?? "xxx导出");` → 否则将 list 转为 `List<TExportDto>` → `return await TaktExcelHelper.ExportAsync(exportData, sheetName ?? "xxx数据", fileName ?? "xxx导出");`。
+
+### 其他约定
+
+- 私有方法（如 QueryExpression、FillXxxDto、UpdateXxxRelationsAsync）均需完整 `<summary>` 及 `<param>`/`<returns>`，风格与 TaktUserService 一致。
+- 异常：业务错误统一 `throw new TaktBusinessException("中文描述");`，不抛裸 `Exception`。
+- 空集合：批量删除、关联表处理时用 `if (list.Any()) { await _repository.DeleteAsync(list); }`，避免传空集合给仓储。
+
+## 实体与数据库
+
+- 表名：小写下划线，如 `takt_humanresource_organization_dept`；列名小写下划线。
+- 索引：在实体上用 `[SugarIndex]` 声明，命名规则见 `01-data-design.mdc`。
+- 新增实体必须：
+  - 继承 `TaktEntityBase`；
+  - 在 `TaktEntityDatabaseMapping` 中按命名空间映射到正确 ConfigId；
+  - 视情况加入 `TaktTableInitializer` 与种子/翻译初始化；
+  - **同步**新增 **`Takt{Xxx}EntitiesSeedData`**（见下文「实体翻译种子」），并在 `TaktSeedsCollectionExtensions.AddTaktSeeds`（Autofac 与 `IServiceCollection` 两处）注册为 `ITaktSeedData`。
+
+### 导航属性与实体结构
+
+- 导航属性统一放在实体文件 **末尾区域**，使用明显分隔注释块，避免掺杂在普通字段中影响维护。
+- 仅在确实需要 ORM 级联 / `Include` 时增加 `[Navigate]`，纯 ID 映射场景保持轻量。
+
+## 租户与种子初始化
+
+适用范围：`backend/src/Takt.Infrastructure/Data/Seeds/**/*.cs`。
+
+- **ConfigId 映射**
+  - 所有种子类通过 `TaktEntityDatabaseMapping.GetConfigIdsForSeedDataClassName` 选择要执行的 ConfigId 集合，禁止在种子中硬编码连接字符串。
+  - RBAC 关联种子（如 `TaktRbacSeedData`）可同时在 ConfigId 0 与 2 执行，其余种子应严格归属对应领域库。
+
+- **种子幂等性**
+  - 种子逻辑必须按「查是否存在 → 插入或更新」模式实现，返回 `(InsertCount, UpdateCount)`，保证多次执行不会产生重复数据。
+
+- **实体翻译种子（本地化强制 1:1）**
+  - 每个业务持久化实体（`public class TaktXxx : TaktEntityBase`，**单文件单实体**）**必须**有且仅有 **一个** 对应的 **`TaktXxxEntitiesSeedData`**，用于向 `TaktTranslation` 写入前端可用的 `ResourceKey`（如 `entity.xxx._self`、`entity.xxx.字段名`，段名与字段名与前端 `t('entity.xxx')` 约定一致，一般为小写连续段）。
+  - **禁止**在一个 `*EntitiesSeedData` 中混入多个无关实体的键；**禁止**多个实体合并为一个翻译种子类（关联桥实体如 `TaktRoleMenu` 仍使用 **`TaktRoleMenuEntitiesSeedData`**，与实体名一一对应）。
+  - 实现体例以 `Takt.Infrastructure/Data/Seeds/SeedI18nData/TaktRoleDeptEntitiesSeedData.cs`、`TaktPostDelegateEntitiesSeedData.cs` 为准：**类内完整 `SeedAsync`** + **内联** 各文化 `new TaktTranslation { ... }`；**不得**用集中式 Executor/行工厂替代「一实体一种子类」的可读结构与独立维护边界。
+  - 每个 `TaktXxxEntitiesSeedData` **必须**出现在 `Takt.Infrastructure/Extensions/TaktSeedsCollectionExtensions.cs` 的 **`AddTaktSeeds`** 中（**Autofac `RegisterType` 与 `IServiceCollection.AddScoped` 两处都要**），否则初始化不会写入翻译表。
+  - 各实现的 `Order` 与仓库内已有 `ITaktSeedData` 错开，避免同序执行冲突。
+
+- **默认账号与密码**
+  - 默认密码从配置 `PasswordPolicy:DefaultPassword` 读取，禁止在代码中硬编码明文密码。
+  - 初始化用户时仅填登录相关字段，展示名/头像等交由员工档案 `TaktEmployee` 维护。
+
+- **人事与 RBAC 数据初始化**
+  - 人事库（ConfigId 2）先初始化员工档案/部门/岗位等，再初始化与之关联的用户/角色/部门/岗位映射。
+  - 严格区分人事关系种子（`TaktEmployeeDept`/`TaktEmployeePost`）与 RBAC 关系种子（`TaktUserDept`/`TaktUserPost`/`TaktUserRole` 等）。
+
+## 注释与 XML 文档（强制）
+
+### 总则与参照
+
+- **应用服务**：文件头、`///` XML、类结构、`QueryExpression` 与各 CRUD 方法体例以 **`Takt.Application.Services.Identity.TaktUserService`** 及本文件「应用服务 CRUD 与代码风格标准」为**唯一参照**。
+- **前端对齐**：C# 文件头字段含义与 `.cursor/rules/03-frontend.mdc` 中 `*.ts` 文件头**一一对应**（项目名称～免责声明）；便于全栈同构维护。
+- **项目总则**：与 `.cursor/rules/00-project.mdc` 不冲突时同时遵循。
+- **强制**：文件头块与各类 `///` 注释**不得省略**；不得以「可选」「暂略」「后续补」等理由留空（本文件 XML 参数说明里「可选参数」指 API 语义，**不**表示注释可省略）。
+
+### 文件头（所有 `*.cs`）
+
+- 格式见上文「### 文件头与类结构」及 `TaktUserService.cs` 顶部。
+- **禁止**删除版权与免责声明行；**禁止**用 XML 文档注释 `///` 替代文件头块（文件头仍为 `//`）。
+
+### 公共 API 的 XML（`///`）
+
+- **所有 `public` / `protected` 类型与成员**（含应用服务、仓储接口、DTO、枚举、控制器 Action）：必须有 `/// <summary>…</summary>`。
+- **方法**：除 `<summary>` 外，**每个参数**写 `<param name="…">…</param>`；有返回值写 `<returns>…</returns>`；异步方法在摘要或 `<returns>` 中体现 `Task` / `Task<T>` 语义。
+- **构造函数**：类上已有说明时，构造函数仍须 **`/// <summary>` + 每个参数的 `<param>`**（与 `TaktUserService` 一致）。
+- **控制器 Action**：每个公开 Action 须有 `<summary>`；与 `[TaktPermission("module:resource:action", "说明")]` 中的文字**互补不矛盾**（XML 偏技术语义，特性偏权限粒度）。
+
+### 应用服务与私有成员
+
+- **公开方法**：CRUD 及业务方法的 `<summary>`/`<param>`/`<returns>` 句式与本文件各小节「**XML**：」模板一致。
+- **私有方法**（如 `QueryExpression`、`FillXxxDto`、`UpdateXxxRelationsAsync`）：同样须有完整 `///`（`<summary>` 及必要时的 `<param>`、`<returns>`），禁止无注释的大段私有逻辑。
+- **方法体内**：复杂条件分支前可用单行 `//` 说明意图（与 `QueryExpression` 内「`// 未删除`」风格一致）。
+
+### DTO、实体、枚举、种子
+
+- **DTO / 视图模型**（`Takt.Application.Dtos.*`）：**对外序列化**的 `public` 属性须有 `/// <summary>`，说明含义、单位、与前端字段或 OpenAPI 的对应关系（必要时注明「仅创建可写」等）。
+- **领域实体**（`Takt.Domain.Entities.*`）：类上 `/// <summary>`；**业务含义非显而易见**的 `public` 属性须有 `/// <summary>`（可与 `[SugarColumn]` 列说明互补）。
+- **枚举**：类型与关键枚举值须有 `/// <summary>` 或 `/// <remarks>`，避免魔法数字歧义。
+- **种子与 Infrastructure 工具类**：类级 `/// <summary>` 说明职责与执行范围（如 ConfigId、幂等策略）；`public` 方法同样遵循「方法 XML」规则。
+
+### 禁止项
+
+- **禁止**用无含义占位注释（如「构造函数」「获取数据」）替代具体语义。
+- **禁止**在对外 API 上省略 `///` 仅靠命名自解释；**禁止**在应用服务中复制粘贴与实现不符的 XML（修改代码时同步改注释）。
+
+## 异步与仓储使用
+
+- 与数据库/外部服务交互一律使用 `async/await`，调用仓储 `ITaktRepository<T>` 的异步方法。
+- 查询单条：`GetByIdAsync` / `GetAsync` / `FirstOrDefaultAsync` 等。
+- 批量/分页：使用仓储或已有分页封装，不在控制器中直接拼装 SQL。
+- **I/O 黄金法则（强制）**：只要涉及外部资源（数据库、网络、文件、缓存、消息队列等），必须使用异步；仅 CPU 纯内存计算可使用同步。
+- **Web 层（强制全异步）**：Controller/Filter/Middleware 中凡涉及 I/O 必须 `await`；禁止同步阻塞异步（如 `.Result`、`.Wait()`、`GetAwaiter().GetResult()`）。
+- **数据层（强制全异步）**：Repository/DbContext/外部客户端访问统一异步 API；禁止以 `Task.Run` 包装同步 I/O 作为“伪异步”替代。
+- **业务层（按需透传）**：应用服务中的 I/O 调用必须沿调用链透传为 `async`；纯内存业务编排（字符串处理、集合计算、DTO 映射等）可保持同步实现。
+- **目录与文件 API 约束**：`File.ReadAllText/ReadAllLines/WriteAllText/Copy/Move/Delete` 等同步 API 不得直接用于 I/O 业务链路；优先使用对应 `*Async`，若无原生异步 API，需在规则评审中明确说明原因与边界。
+
+## C# .NET + SqlSugar 异步/同步开发规范（强制）
+
+### 一、核心原则
+
+- 数据库操作必须异步，内存计算必须同步。
+
+### 二、SqlSugar 数据库操作规范
+
+- 所有数据库访问必须使用 SqlSugar 的 `Async` 后缀方法。
+- 查询方法优先：`GetListAsync`、`GetSingleAsync`、`Queryable().ToListAsync`。
+- 写入方法优先：`InsertAsync`、`UpdateAsync`、`DeleteAsync`。
+- 事务处理优先：`BeginTranAsync`、`CommitTranAsync`、`RollbackTranAsync`。
+- 批量操作优先：`InsertRangeAsync`、`UpdateRangeAsync`。
+- 存储过程优先：`SqlQueryable().ExecuteStoredProcedureAsync`。
+- 分页查询必须使用 `ToPageListAsync`。
+
+### 三、强制异步场景
+
+- SqlSugar 所有数据库操作。
+- 外部 API 调用：HTTP 请求、第三方服务。
+- 文件处理：文件读写、Excel 导入导出。
+- 消息队列：RabbitMQ、Kafka 生产消费。
+- 缓存服务：Redis 读写操作。
+- 邮件短信：SMTP 发送、短信 API。
+- 定时任务：后台作业执行。
+
+### 四、强制同步场景
+
+- 业务逻辑计算：数据验证、规则计算。
+- DTO 映射转换：对象属性拷贝。
+- 加密解密操作：密码哈希、JWT 生成。
+- 配置读取：从 `IConfiguration` 读取。
+- 内存缓存：`MemoryCache` 读取。
+- 序列化：JSON/XML 序列化反序列化。
+
+### 五、架构分层规范
+
+- Controller 层：全部异步，返回 `Task<IActionResult>` 或 `Task<ActionResult<T>>`。
+- Application Service 层：业务服务全部异步（I/O 链路透传）。
+- Domain Service 层：领域服务按需选择，同步优先。
+- Repository 层：数据访问全部异步。
+- Domain 层：领域模型、值对象全部同步。
+- Infrastructure 层：基础设施组件按功能区分，同步/异步遵循 I/O 原则。
+
+### 六、命名规范
+
+- 异步方法必须以 `Async` 结尾。
+- 同步方法不加后缀。
+- 需要显式区分的异步仓储接口可使用 `IAsyncRepository` 风格命名（新建模块执行）。
+- 需要显式区分的异步服务可使用 `AsyncService` 风格命名（新建模块执行）。
+
+### 七、性能规范
+
+- 分页查询必须使用数据库分页。
+- 批量操作必须分批提交。
+- 连表查询优先使用 Mapper/投影，避免无界加载。
+- 复杂查询必须设置超时时间。
+- 高频查询必须加缓存。
+
+### 八、错误处理
+
+- 异步操作必须接入全局异常处理。
+- 数据库异常必须记录日志。
+- 事务失败必须完整回滚。
+- 外部服务调用必须具备重试机制。
+- 超时配置必须合理设置且可配置。
+
+### 九、监控指标
+
+- 异步操作必须记录耗时。
+- 数据库连接数必须监控。
+- 线程池使用率必须监控。
+- 异常率必须设置告警。
+
+## 构建查询表达式（QueryExpression）
+
+- **统一参照** `Takt.Application.Services.Identity.TaktUserService` 中的 `QueryExpression` 方法与风格。
+- **签名**：`private static Expression<Func<TEntity, bool>> QueryExpression(XxxQueryDto queryDto)`，参数与返回值均非可空；若 Export 等调用处可能传入 null，则使用 `QueryExpression(query ?? new XxxQueryDto())`。
+- **XML 注释**：必须包含 `<summary>构建查询表达式</summary>`、`<param name="queryDto">查询DTO</param>`、`<returns>查询表达式</returns>`。
+- **实现**：
+  - 首行：`var exp = Expressionable.Create<TEntity>();`
+  - 按字段/条件分组，每组前加单行注释（如 `// 未删除`、`// 关键词`、`// 某某字段`）
+  - 条件使用 `exp = exp.And(x => ...)` 或 `exp = exp.AndIF(条件, x => ...)`，每行一个条件
+  - 结尾：`return exp.ToExpression();`
+- 软删除实体需先加 `exp = exp.And(x => x.IsDeleted == 0);`（注释 `// 未删除`）。
+
+## 映射与 DTO
+
+- 实体 ↔ DTO 映射优先使用 Mapster 配置与 `Adapt<T>()`。
+- 复杂场景可在应用服务内部封装私有映射方法（如 `FillXxxDtoFromEntity`），保持控制器干净。
+- **禁止** 在控制器内手写大段映射逻辑。
+

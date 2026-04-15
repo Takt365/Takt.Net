@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <Compile Remove="Entities\HumanResources\**" />
+    <EmbeddedResource Remove="Entities\HumanResources\**" />
+    <None Remove="Entities\HumanResources\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Takt.Shared\Takt.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="SqlSugarCore" Version="5.1.4.214" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Entities\HumanResource\Talent\" />
+    <Folder Include="Entities\HumanResource\AttendanceLeave\" />
+    <Folder Include="Entities\HumanResource\CompensationBenefits\" />
+    <Folder Include="Entities\HumanResource\Performance\" />
+    <Folder Include="Entities\HumanResource\TrainingDevelopment\" />
+    <Folder Include="Entities\Statistics\Kanban\" />
+    <Folder Include="Entities\Statistics\Report\" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,262 @@
+// ========================================
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：{{ table.dto_namespace }}
+// 文件名称：{{ table.entity_class_name }}Dtos.cs
+// 创建时间：2025-02-02
+// 创建人：{{ table.gen_author }}
+// 功能描述：{{ table.comment }}DTO，由 DtoCategory 配置驱动，按 type 判断输出
+//
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+using SqlSugar;
+using Takt.Application.Dtos;
+using Takt.Shared.Models;
+
+namespace {{ table.dto_namespace }};
+
+{{~ for cat in table.dto_category_descriptors ~}}
+{{ type = cat.Name }}
+{{~ if type == "Dto" ~}}
+/// <summary>
+/// {{ table.comment }}Dto
+/// </summary>
+public class {{ table.entity_class_name }}Dto : TaktDtoBase
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public {{ table.entity_class_name }}Dto()
+    {
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+        {{ col.csharp_column_name }} = string.Empty;
+{{~ end ~}}
+{{~ end ~}}
+    }
+
+    /// <summary>
+    /// {{ table.comment }}ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")][JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long {{ table.entity_class_name | string.replace "Takt" "" }}Id { get; set; }
+
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" ~}}
+    /// <summary>
+    /// {{ col.comment }}
+    /// </summary>
+    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 0 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }
+{{~ end ~}}
+{{~ end ~}}
+}
+
+{{~ else if type == "QueryDto" ~}}
+/// <summary>
+/// {{ table.comment }}QueryDto
+/// </summary>
+public class {{ table.entity_class_name }}QueryDto : TaktPagedQuery
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public {{ table.entity_class_name }}QueryDto()
+    {
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_query == 1 && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+        {{ col.csharp_column_name }} = string.Empty;
+{{~ end ~}}
+{{~ end ~}}
+    }
+
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_query == 1 ~}}
+    /// <summary>
+    /// {{ col.comment }}
+    /// </summary>
+    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 0 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }
+{{~ end ~}}
+{{~ end ~}}
+}
+
+{{~ else if type == "CreateDto" ~}}
+/// <summary>
+/// {{ table.comment }}CreateDto
+/// </summary>
+public class {{ table.entity_class_name }}CreateDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public {{ table.entity_class_name }}CreateDto()
+    {
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_create == 1 && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+        {{ col.csharp_column_name }} = string.Empty;
+{{~ end ~}}
+{{~ end ~}}
+    }
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_create == 1 ~}}
+    /// <summary>
+    /// {{ col.comment }}
+    /// </summary>
+    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 0 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }
+{{~ end ~}}
+{{~ end ~}}
+}
+
+{{~ else if type == "UpdateDto" ~}}
+/// <summary>
+/// {{ table.comment }}UpdateDto
+/// </summary>
+public class {{ table.entity_class_name }}UpdateDto : {{ table.entity_class_name }}CreateDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public {{ table.entity_class_name }}UpdateDto()
+    {
+    }
+
+    /// <summary>
+    /// {{ table.comment }}ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")][JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long {{ table.entity_class_name | string.replace "Takt" "" }}Id { get; set; }
+}
+
+{{~ else if type == "TemplateDto" ~}}
+/// <summary>
+/// {{ table.comment }}TemplateDto
+/// </summary>
+public class {{ table.entity_class_name }}TemplateDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public {{ table.entity_class_name }}TemplateDto()
+    {
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_create == 1 && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+        {{ col.csharp_column_name }} = string.Empty;
+{{~ end ~}}
+{{~ end ~}}
+    }
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_create == 1 ~}}
+    /// <summary>
+    /// {{ col.comment }}
+    /// </summary>
+    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 0 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }
+{{~ end ~}}
+{{~ end ~}}
+}
+
+{{~ else if type == "ImportDto" ~}}
+/// <summary>
+/// {{ table.comment }}ImportDto
+/// </summary>
+public class {{ table.entity_class_name }}ImportDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public {{ table.entity_class_name }}ImportDto()
+    {
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_create == 1 && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+        {{ col.csharp_column_name }} = string.Empty;
+{{~ end ~}}
+{{~ end ~}}
+    }
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_create == 1 ~}}
+    /// <summary>
+    /// {{ col.comment }}
+    /// </summary>
+    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 0 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }
+{{~ end ~}}
+{{~ end ~}}
+}
+
+{{~ else if type == "ExportDto" ~}}
+/// <summary>
+/// {{ table.comment }}ExportDto
+/// </summary>
+public class {{ table.entity_class_name }}ExportDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public {{ table.entity_class_name }}ExportDto()
+    {
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_export == 1 && (col.csharp_data_type == "string" || col.csharp_data_type == "String") ~}}
+        {{ col.csharp_column_name }} = string.Empty;
+{{~ end ~}}
+{{~ end ~}}
+    }
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_export == 1 ~}}
+    /// <summary>
+    /// {{ col.comment }}
+    /// </summary>
+    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 0 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }
+{{~ end ~}}
+{{~ end ~}}
+}
+
+{{~ else if type == "StatusDto" ~}}
+/// <summary>
+/// {{ table.comment }}状态Dto
+/// </summary>
+public class {{ table.entity_class_name }}StatusDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public {{ table.entity_class_name }}StatusDto()
+    {
+    }
+
+    /// <summary>
+    /// {{ table.comment }}ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")][JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long {{ table.entity_class_name | string.replace "Takt" "" }}Id { get; set; }
+
+    /// <summary>
+    /// 状态
+    /// </summary>
+    public int Status { get; set; }
+}
+
+{{~ else if type == "SortDto" ~}}
+/// <summary>
+/// {{ table.comment }}排序Dto
+/// </summary>
+public class {{ table.entity_class_name }}SortDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public {{ table.entity_class_name }}SortDto()
+    {
+    }
+
+    /// <summary>
+    /// {{ table.comment }}ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")][JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long {{ table.entity_class_name | string.replace "Takt" "" }}Id { get; set; }
+
+    /// <summary>
+    /// 排序号
+    /// </summary>
+    public int OrderNum { get; set; }
+}
+{{~ end ~}}
+{{~ end ~}}

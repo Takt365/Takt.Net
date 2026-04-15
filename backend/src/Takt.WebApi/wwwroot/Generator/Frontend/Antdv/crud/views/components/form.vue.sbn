@@ -1,0 +1,106 @@
+<!-- ======================================== -->
+<!-- 项目名称：节拍数字工厂 · Takt Digital Factory (TDF) -->
+<!-- 命名空间：@/views/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}/components -->
+<!-- 文件名称：{{ table.entity_name_kebab }}-form.vue -->
+<!-- 功能描述：{{ table.comment }}表单组件，由 DtoCategory/IsCreate 列驱动 -->
+<!-- 版权信息：Copyright (c) 2025 Takt  All rights reserved. -->
+<!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->
+<!-- ======================================== -->
+
+<template>
+  <a-form
+    ref="formRef"
+    :model="formState"
+    :rules="rules"
+    :label-col="{ span: 6 }"
+    :wrapper-col="{ span: 18 }"
+    layout="horizontal"
+  >
+    <a-row :gutter="24">
+{{~ for col in columns ~}}
+{{~ if col.is_create == 1 ~}}
+      <a-col :span="12">
+        <a-form-item label="{{ col.comment }}" name="{{ col.ts_column_name }}">
+{{~ if col.html_type == "select" && col.dict_type ~}}
+          <TaktSelect
+            v-model:value="formState.{{ col.ts_column_name }}"
+            dict-type="{{ col.dict_type }}"
+            placeholder="请选择{{ col.comment }}"
+          />
+{{~ else if col.html_type == "textarea" ~}}
+          <a-textarea
+            v-model:value="formState.{{ col.ts_column_name }}"
+            placeholder="请输入{{ col.comment }}"
+            :rows="3"
+          />
+{{~ else if col.csharp_data_type == "bool" || col.csharp_data_type == "Boolean" ~}}
+          <a-switch v-model:checked="formState.{{ col.ts_column_name }}" />
+{{~ else ~}}
+          <a-input
+            v-model:value="formState.{{ col.ts_column_name }}"
+            placeholder="请输入{{ col.comment }}"
+            {{ if col.length > 0 }}:maxlength="{{ col.length }}"{{ end }}
+          />
+{{~ end ~}}
+        </a-form-item>
+      </a-col>
+{{~ end ~}}
+{{~ end ~}}
+    </a-row>
+  </a-form>
+</template>
+
+<script setup lang="ts">
+/**
+ * {{ table.comment }}表单组件 · 表单项由 DtoCategory/IsCreate 列驱动
+ * @module views/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}/components
+ */
+import { ref, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import type { FormInstance } from 'ant-design-vue'
+import type { {{ table.entity_name_pascal }} } from '@/types/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
+
+const { t } = useI18n()
+/** 当前模块 locale 命名空间，用于校验文案 t(localeNs + '.required_xxx') */
+const localeNs = '{{ table.frontend_module_path | string.replace "/" "." }}.{{ table.entity_name_kebab }}'
+
+/**
+ * @param formData 表单数据（新增为空对象，编辑为当前行）
+ * @param loading 提交中状态
+ */
+const props = defineProps<{
+  formData?: Partial<{{ table.entity_name_pascal }}> | null
+  loading?: boolean
+}>()
+
+/** 表单实例（用于校验与提交） */
+const formRef = ref<FormInstance>()
+/** 表单数据（双向同步自 formData，用于 v-model 绑定） */
+const formState = ref<Record<string, any>>({})
+
+/** 监听 formData 变化，同步到 formState */
+watch(() => props.formData, (val) => {
+  formState.value = val ? { ...val } : {}
+}, { immediate: true, deep: true })
+
+/** 校验规则：IsCreate 且 IsRequired 的列必填，提示文案来自 locale 的 required_xxx */
+const rules = computed(() => ({
+{{~ for col in columns ~}}
+{{~ if col.is_create == 1 && col.is_required == 1 ~}}
+  {{ col.ts_column_name }}: [{ required: true, message: t(`${localeNs}.required_{{ col.ts_column_name }}`), trigger: '{{ if col.html_type == "select" && col.dict_type }}change{{ else }}blur{{ end }}' }],
+{{~ end ~}}
+{{~ end ~}}
+}))
+
+/**
+ * 校验表单并返回当前表单值
+ * @returns 校验通过后返回 formState
+ */
+async function validate() {
+  await formRef.value?.validate()
+  return formState.value
+}
+
+/** 暴露给父组件：validate、formState */
+defineExpose({ validate, formState })
+</script>

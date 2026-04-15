@@ -1,0 +1,43 @@
+# Build / IDE
+.vs/
+*.user
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+bin/
+obj/
+out/
+.idea/
+
+# Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Frontend env（仅提交 .env.example）
+frontend/takt.antd/.env
+frontend/takt.antd/.env.development
+frontend/takt.antd/.env.production
+
+# Logs
+logs/
+*.log
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+
+# Backend appsettings（敏感，参考 appsettings.example.json）
+backend/src/Takt.WebApi/appsettings.json
+backend/src/Takt.WebApi/appsettings.Development.json
+backend/src/Takt.WebApi/appsettings.Production.json

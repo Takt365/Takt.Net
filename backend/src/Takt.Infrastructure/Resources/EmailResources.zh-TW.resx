@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="Common_Greeting" xml:space="preserve">
+    <value>尊敬的 {0}({1})：</value>
+  </data>
+  <data name="Common_Date" xml:space="preserve">
+    <value>日期：</value>
+  </data>
+  <data name="Common_Footer" xml:space="preserve">
+    <value>此郵件由系統自動發送，請勿回覆。</value>
+  </data>
+  <data name="Common_Copyright" xml:space="preserve">
+    <value>© 2025 節拍數字工廠 · Takt Digital Factory (TDF)</value>
+  </data>
+  <data name="Common_SecurityTip" xml:space="preserve">
+    <value>【安全提示】</value>
+  </data>
+  <data name="Common_SecurityTip1" xml:space="preserve">
+    <value>請盡快登入系統並修改密碼</value>
+  </data>
+  <data name="Common_SecurityTip2" xml:space="preserve">
+    <value>建議使用強密碼（包含字母、數字和特殊字元）</value>
+  </data>
+  <data name="Common_SecurityTip3" xml:space="preserve">
+    <value>不要將密碼告知他人</value>
+  </data>
+  <data name="InitialPassword_Subject" xml:space="preserve">
+    <value>使用者註冊成功通知</value>
+  </data>
+  <data name="InitialPassword_Title" xml:space="preserve">
+    <value>【使用者註冊成功通知】</value>
+  </data>
+  <data name="InitialPassword_UserSuffix" xml:space="preserve">
+    <value>使用者</value>
+  </data>
+  <data name="InitialPassword_MsgRegSuccess" xml:space="preserve">
+    <value>您已註冊成功，系統已為您產生初始密碼。</value>
+  </data>
+  <data name="InitialPassword_LabelPassword" xml:space="preserve">
+    <value>【初始密碼】</value>
+  </data>
+  <data name="ForgotPassword_Subject" xml:space="preserve">
+    <value>密碼重設通知</value>
+  </data>
+  <data name="ForgotPassword_Title" xml:space="preserve">
+    <value>【密碼重設通知】</value>
+  </data>
+  <data name="ForgotPassword_MsgResetIntro" xml:space="preserve">
+    <value>我們收到了您的帳戶 {0} 的密碼重設請求。&#10;現已透過 {1} 郵件發出。</value>
+  </data>
+  <data name="ForgotPassword_LabelNewPassword" xml:space="preserve">
+    <value>【新密碼】</value>
+  </data>
+  <data name="ForgotPassword_MsgNotYou" xml:space="preserve">
+    <value>若這不是您本人的操作，請立即聯絡系統管理員。</value>
+  </data>
+  <data name="ProcessNotify_LabelProcessName" xml:space="preserve">
+    <value>【流程名稱】</value>
+  </data>
+  <data name="ProcessNotify_LabelApplicant" xml:space="preserve">
+    <value>【申請人】</value>
+  </data>
+  <data name="ProcessNotify_LabelApplyTime" xml:space="preserve">
+    <value>【申請時間】</value>
+  </data>
+  <data name="ProcessNotify_LabelCurrentNode" xml:space="preserve">
+    <value>【目前節點】</value>
+  </data>
+  <data name="ProcessNotify_LabelActionHint" xml:space="preserve">
+    <value>【操作提示】</value>
+  </data>
+</root>

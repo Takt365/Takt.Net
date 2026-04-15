@@ -1,0 +1,62 @@
+---
+description: 数据建模与多库配置约定（实体/数据库设计）
+globs: backend/**/*.cs
+alwaysApply: false
+---
+
+# 数据设计
+
+## 核心表结构
+
+| 表名 | 说明 |
+|------|------|
+| takt_identity_user | 用户（登录账号） |
+| takt_identity_role | 角色 |
+| takt_identity_menu | 菜单/权限(树形) |
+| takt_identity_role_menu | 角色-菜单 多对多 |
+| takt_identity_user_tenant | 用户-租户 多对多 |
+| takt_humanresource_organization_dept | 部门(树形) |
+| takt_humanresource_organization_post | 岗位 |
+| takt_humanresource_employee | 员工档案 |
+| takt_humanresource_organization_userdept | 用户-部门(RBAC) |
+| takt_humanresource_organization_userpost | 用户-岗位(RBAC) |
+| takt_humanresource_organization_employeedept | 员工-部门(人事) |
+| takt_humanresource_organization_employeepost | 员工-岗位(人事) |
+| takt_humanresource_organization_roledept | 角色-部门 数据权限 |
+| takt_routine_dict_type / takt_routine_dict_data | 字典类型/字典项 |
+| takt_routine_setting | 系统参数配置 |
+| takt_routine_files_file | 文件存储 |
+| takt_statistics_logging_login_log / takt_statistics_logging_oper_log | 登录/操作日志 |
+
+## RBAC 权限模型
+
+- **User → Role → Menu(Permission)**：用户通过角色关联菜单权限。
+- **TaktMenu**：目录/菜单/按钮（树形）；权限标识格式：`module:resource:action`，如 `workflow:scheme:list`、`workflow:scheme:create`。
+
+### 权限动作约定
+
+- `list`：列表页访问
+- `query` / `info`：详情/查询
+- `create`：新增
+- `update`：修改
+- `delete`：删除
+
+### 后端权限标注
+
+```csharp
+[TaktPermission("workflow:scheme:list", "流程方案列表")]   // 需此权限
+[AllowAnonymous]                                          // 无需登录
+// 无标注且非 AllowAnonymous 时需登录，权限由菜单/角色控制
+```
+
+## 实体与命名约定
+
+- **实体基类与主键**：所有持久化实体继承 `TaktEntityBase`，包含 `Id(long)`、`ConfigId`、审计与软删除字段。对外暴露的 long 型主键/外键统一使用 `[JsonConverter(typeof(ValueToStringConverter))]`，前端用 `string` 承接。
+- **表/列命名**：表名小写+下划线，前缀 `takt_{领域}`；列名小写+下划线，实体属性 PascalCase。索引用 `[SugarIndex]`，命名：`ix_{表名}_{列名...}`。
+- **人事与 RBAC 分离**：登录账号与员工档案分离（`TaktUser.EmployeeId → TaktEmployee`）；人事组织关系用 `TaktEmployeeDept`/`TaktEmployeePost`，RBAC 组织关系用 `TaktUserDept`/`TaktUserPost`。
+
+## 多租户与多库
+
+- **多库(ConfigId)**：通过 `TaktEntityDatabaseMapping.GetConfigIdByEntityNamespace` 按实体命名空间映射 ConfigId（0–5）。新增实体命名空间须落在既有规则下（Identity/Accounting/HumanResource/Logistics/Generator-Workflow/Routine），否则默认主库 ConfigId=0。
+- **表与种子**：`TaktTableInitializer` 基于 `TaktEntityBase` 自动建表；种子/翻译类通过 `GetConfigIdsForSeedDataClassName` 路由到对应 ConfigId。
+- 租户与种子初始化见 `02-backend.mdc`（「租户与种子初始化」小节）。

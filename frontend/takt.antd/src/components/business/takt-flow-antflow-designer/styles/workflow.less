@@ -1,0 +1,988 @@
+// ========================================
+// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
+// 命名空间：@/components/business/takt-flow-antflow-designer/styles
+// 文件名称：workflow.less
+// 创建时间：2026-04-07
+// 创建人：Takt365(Cursor AI)
+// 功能描述：AntFlow 风格流程设计器画布样式（由 AntFlow-Designer workflow.css 迁移，LESS 变量 + color-base 统一色板）
+//
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+@import '@/assets/styles/color-base.less';
+
+// ---------------------------------------------------------------------------
+// 语义变量（与 Ant Design Vue 主色、button.less 中「新建」宝蓝体系对齐）
+// ---------------------------------------------------------------------------
+@takt-workflow-primary: @baolan;
+@takt-workflow-primary-hover: darken(@baolan, 5%);
+@takt-workflow-line: #cacaca;
+// 与 AntFlow workflow.css .dingflow-design / .box-scale / 遮罩一致（非 #fafafa 网格底）
+@takt-workflow-canvas-bg: #f5f5f7;
+@takt-workflow-branch-bg: #f5f5f7;
+@takt-workflow-text: rgba(0, 0, 0, 0.88);
+@takt-workflow-text-secondary: rgba(0, 0, 0, 0.45);
+@takt-workflow-border: #f0f0f0;
+@takt-workflow-cover-bg: @takt-workflow-branch-bg;
+@takt-workflow-condition-tint-bg: #f6ffed;
+@takt-workflow-condition-tint-border: #b7eb8f;
+@takt-workflow-condition-title-border: #d9f7be;
+@takt-workflow-end-bar: #409eff;
+
+// 根级包裹：所有规则在此命名空间下，避免污染全局（对齐 AntFlow .dingflow-design 子树）
+.takt-flow-antflow-designer {
+  min-height: 400px;
+  background: @takt-workflow-branch-bg;
+  border-radius: 4px;
+  position: relative;
+
+  // ----- 画布区域（与 AntFlow workflow.css .dingflow-design 一致：纯色底，无网格） -----
+  .dingflow-design {
+    width: 100%;
+    min-height: 400px;
+    overflow: hidden;
+    position: relative;
+    background-color: @takt-workflow-canvas-bg;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .zoom-bar {
+    position: absolute;
+    top: 16px;
+    right: 24px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .zoom-bar__validate {
+    padding: 0 4px;
+    height: auto;
+    line-height: 22px;
+  }
+
+  .zoom-bar__sep {
+    width: 1px;
+    height: 16px;
+    margin: 0 4px;
+    background: #d9d9d9;
+    flex-shrink: 0;
+  }
+
+  .zoom-out,
+  .zoom-in,
+  .zoom-reset {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #666;
+    user-select: none;
+  }
+
+  .zoom-out::before {
+    content: '−';
+    font-size: 18px;
+  }
+
+  .zoom-in::before {
+    content: '+';
+    font-size: 18px;
+  }
+
+  .zoom-out:hover,
+  .zoom-in:hover,
+  .zoom-reset:hover {
+    background: #f0f0f0;
+    color: @takt-workflow-primary-hover;
+  }
+
+  .zoom-val {
+    min-width: 40px;
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+  }
+
+  // 与 AntFlow .dingflow-design .box-scale 一致（workflow.css 816–835）
+  .box-scale {
+    transform: scale(1);
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding: 54.5px 0;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+    min-width: min-content;
+    background-color: @takt-workflow-canvas-bg;
+    transform-origin: 0 0;
+  }
+
+  .flow-canvas-chain {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .flow-canvas-chain .node-wrap,
+  .flow-canvas-chain .branch-wrap,
+  .flow-canvas-chain .end-node {
+    position: relative;
+    z-index: 1;
+  }
+
+  .end-connector {
+    width: 2px;
+    min-height: 20px;
+    flex-shrink: 0;
+    background-color: @takt-workflow-line;
+    z-index: 0;
+  }
+
+  .start-empty {
+    padding: 40px;
+    text-align: center;
+  }
+
+  .end-node {
+    padding: 12px 0 16px;
+    margin-top: 0;
+  }
+
+  .end-node-block {
+    min-width: 220px;
+    padding: 10px 16px;
+    background: @takt-workflow-end-bar;
+    border-radius: 4px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .end-node-text {
+    font-size: 14px;
+    color: #fff;
+    font-weight: 500;
+  }
+
+  // ----- 节点主轴（对齐 AntFlow .dingflow-design .node-wrap） -----
+  .node-wrap {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 50px;
+    box-sizing: border-box;
+  }
+
+  // 网关列内子链：与 AntFlow 一致，列内 node-wrap 左右无 50px（由 .dingflow-design .node-wrap 的 padding 仅作用于非 col 场景时 AntFlow 用 col-box 子树拉满）
+  .col-box > .node-wrap {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    box-sizing: border-box;
+  }
+
+  // 主轴竖线：AntFlow 在 addNode.vue 用 .add-node-btn-box::before 画线段，workflow.css 无 .node-wrap::before
+
+  // workflow.css 626–666：卡片壳 + 悬停描边（非单层 box-shadow）
+  .node-wrap-box {
+    display: inline-flex;
+    flex-direction: column;
+    position: relative;
+    width: 220px;
+    min-height: 72px;
+    flex-shrink: 0;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  .node-wrap-box::after {
+    pointer-events: none;
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    transition: all 0.1s cubic-bezier(0.645, 0.045, 0.355, 1);
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .node-wrap-box.active::after,
+  .node-wrap-box:active::after,
+  .node-wrap-box:hover::after {
+    border: 1px solid #3296fa;
+    box-shadow: 0 0 6px 0 rgba(50, 150, 250, 0.3);
+  }
+
+  .node-wrap-box.error::after {
+    border: 1px solid #f25643;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  // workflow.css 666–715：删除在标题栏右侧垂直居中，默认隐藏，悬停/激活卡片时显示
+  .node-wrap-box.active .close,
+  .node-wrap-box:active .close,
+  .node-wrap-box:hover .close {
+    display: block;
+  }
+
+  .node-wrap-box .close {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    color: #fff;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 20px;
+    cursor: pointer;
+    font-style: normal;
+  }
+
+  // 与父级竖线衔接的三角（workflow.css 749–762）
+  .node-wrap-box::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 4px;
+    border-style: solid;
+    border-width: 8px 6px 4px;
+    border-color: @takt-workflow-line transparent transparent;
+    background: @takt-workflow-canvas-bg;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .node-wrap-box.start-node::before {
+    content: none;
+  }
+
+  .branch-box .node-wrap-box::before {
+    background: @takt-workflow-branch-bg;
+  }
+
+  .parallel-col-box {
+    min-height: 64px;
+  }
+
+  .node-wrap-box.start-node .title {
+    color: #fff;
+    font-weight: 500;
+  }
+
+  // workflow.css 677–691（标题区高度与 AntFlow 卡片一致）
+  .node-wrap-box .title {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
+    padding-right: 30px;
+    width: 100%;
+    height: 24px;
+    line-height: 24px;
+    font-size: 12px;
+    color: #fff;
+    text-align: left;
+    border-radius: 4px 4px 0 0;
+  }
+
+  // workflow.css 693–696：标题前图标（本项目用 Remix 组件，不用 img/svg 文件）
+  .node-wrap-box .title .iconfont {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 5px;
+    font-size: 12px;
+    color: #fff;
+
+    svg {
+      display: block;
+    }
+  }
+
+  .title {
+    padding: 8px 12px;
+    color: #fff;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .title-label {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .node-wrap-box .content {
+    position: relative;
+    font-size: 14px;
+    padding: 16px;
+    padding-right: 30px;
+    border-top: 1px solid @takt-workflow-border;
+  }
+
+  .content {
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    font-size: 12px;
+    color: @takt-workflow-text-secondary;
+    border-top: 1px solid @takt-workflow-border;
+  }
+
+  .node-wrap-box .content:hover,
+  .content:hover {
+    background: #fafafa;
+  }
+
+  .content .text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .placeholder {
+    color: #bbb;
+  }
+
+  .arrow {
+    margin-left: 8px;
+    color: #979797;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+
+    svg {
+      display: block;
+    }
+  }
+
+  // ----- 分支 / 网关（与 AntFlow nodeWrap：branch-box 横向 flex，col-box 为直接子节点） -----
+  .branch-wrap {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .branch-box-wrap {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 270px;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  // workflow.css 876–885（与 AntFlow 一致，勿改为 inline-flex）
+  .branch-box {
+    display: flex;
+    overflow: visible;
+    min-height: 180px;
+    height: auto;
+    border-bottom: 2px solid #ccc;
+    border-top: 2px solid #ccc;
+    position: relative;
+    margin-top: 15px;
+    z-index: 1;
+  }
+
+  .add-branch {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    transform-origin: center center;
+    z-index: 2;
+    margin: 0;
+    border: none;
+    outline: none;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    padding: 0 10px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 15px;
+    color: @takt-workflow-primary;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+
+  .add-branch:hover {
+    transform: translateX(-50%) scale(1.1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .add-branch:active {
+    transform: translateX(-50%);
+    box-shadow: none;
+  }
+
+  .col-box {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+    min-width: 0;
+    background: @takt-workflow-branch-bg;
+  }
+
+  // 整列贯穿竖线（AntFlow .branch-box .col-box:before）
+  .branch-box > .col-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    margin: auto;
+    width: 2px;
+    height: 100%;
+    background-color: @takt-workflow-line;
+  }
+
+  .col-box > .condition-node,
+  .col-box > .node-wrap {
+    position: relative;
+    z-index: 1;
+  }
+
+  .col-box > .top-left-cover-line,
+  .col-box > .top-right-cover-line,
+  .col-box > .bottom-left-cover-line,
+  .col-box > .bottom-right-cover-line {
+    z-index: 2;
+  }
+
+  .condition-node {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 220px;
+  }
+
+  .condition-node-box {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    position: relative;
+    z-index: 1;
+    padding-top: 30px;
+    padding-right: 50px;
+    padding-left: 50px;
+    box-sizing: border-box;
+  }
+
+  // workflow.css 976–987（与 .branch-box > .col-box::before 同轴叠加，AntFlow 原生即双线层）
+  .condition-node-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 2px;
+    height: 100%;
+    background-color: @takt-workflow-line;
+  }
+
+  // workflow.css 989–1030
+  .auto-judge {
+    position: relative;
+    z-index: 1;
+    width: 220px;
+    min-height: 72px;
+    background: #fff;
+    border-radius: 4px;
+    padding: 14px 19px;
+    cursor: pointer;
+  }
+
+  .auto-judge::after {
+    pointer-events: none;
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    transition: all 0.1s cubic-bezier(0.645, 0.045, 0.355, 1);
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .auto-judge.active::after,
+  .auto-judge:active::after,
+  .auto-judge:hover::after {
+    border: 1px solid #3296fa;
+    box-shadow: 0 0 6px 0 rgba(50, 150, 250, 0.3);
+  }
+
+  .auto-judge.error::after {
+    border: 1px solid #f25643;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  // workflow.css 1021–1071：条件卡片删除在 title-wrapper 外角，默认隐藏，悬停时显示
+  .auto-judge.active .close,
+  .auto-judge:active .close,
+  .auto-judge:hover .close {
+    display: block;
+  }
+
+  .auto-judge .close {
+    display: none;
+    position: absolute;
+    right: -10px;
+    top: -10px;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.25);
+    border-radius: 50%;
+    text-align: center;
+    line-height: 20px;
+    z-index: 2;
+    cursor: pointer;
+    font-style: normal;
+  }
+
+  .title-wrapper {
+    position: relative;
+    font-size: 12px;
+    color: #15bc83;
+    text-align: left;
+    line-height: 16px;
+    padding: 0;
+    display: block;
+  }
+
+  .auto-judge .title-wrapper > .iconfont {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 5px;
+    vertical-align: middle;
+    color: #15bc83;
+
+    svg {
+      display: block;
+    }
+  }
+
+  .auto-judge .title-wrapper .editable-title {
+    display: inline-block;
+    max-width: 120px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .priority-title {
+    float: right;
+    margin-right: 10px;
+    color: rgba(25, 31, 37, 0.56);
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  // workflow.css 1073–1084
+  .auto-judge .content,
+  .auto-judge .condition-content {
+    font-size: 14px;
+    color: #191f25;
+    text-align: left;
+    margin-top: 6px;
+    padding: 0;
+    border-top: none;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  .condition-content {
+    font-size: 14px;
+    color: #191f25;
+  }
+
+  .top-left-cover-line {
+    left: -1px;
+  }
+
+  .top-left-cover-line,
+  .top-right-cover-line {
+    position: absolute;
+    height: 8px;
+    width: 50%;
+    background-color: @takt-workflow-cover-bg;
+    top: -4px;
+  }
+
+  .top-right-cover-line {
+    right: -1px;
+  }
+
+  .bottom-left-cover-line {
+    left: -1px;
+  }
+
+  .bottom-left-cover-line,
+  .bottom-right-cover-line {
+    position: absolute;
+    height: 8px;
+    width: 50%;
+    background-color: @takt-workflow-cover-bg;
+    bottom: -4px;
+  }
+
+  .bottom-right-cover-line {
+    right: -1px;
+  }
+
+  // ----- 添加节点：竖线段来自 AntFlow addNode.vue scoped 的 .add-node-btn-box::before（workflow.css 不含） -----
+  .add-node-btn-box {
+    width: 240px;
+    display: inline-flex;
+    flex-shrink: 0;
+    flex-grow: 1;
+    position: relative;
+    z-index: 1;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      margin: auto;
+      width: 2px;
+      height: 100%;
+      background-color: @takt-workflow-line;
+    }
+  }
+
+  .add-node-btn {
+    user-select: none;
+    width: 240px;
+    padding: 20px 0 32px;
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+    flex-grow: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  .add-node-popover-trigger {
+    flex-shrink: 0;
+
+    .anticon,
+    svg {
+      font-size: 18px;
+    }
+  }
+
+  .add-node-popover-body {
+    display: flex;
+    gap: 8px;
+    padding: 4px;
+  }
+
+  .add-node-popover-item {
+    cursor: pointer;
+    text-align: center;
+    color: @takt-workflow-text;
+    text-decoration: none;
+  }
+
+  .item-wrapper {
+    display: inline-block;
+    width: 72px;
+    padding: 12px 8px;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+
+  .add-node-popover-item:hover .item-wrapper {
+    border-color: @takt-workflow-primary;
+    background: #e6f7ff;
+  }
+
+  .item-wrapper .iconfont {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    color: #fff;
+    margin-bottom: 4px;
+
+    svg {
+      display: block;
+    }
+  }
+
+  .approver-icon {
+    background: @chengse;
+  }
+
+  .parallel-icon {
+    background: #d46b08;
+  }
+
+  .copyer-icon {
+    background: @takt-workflow-primary;
+  }
+
+  .condition-icon {
+    background: @lvse;
+  }
+
+  .dynamic-icon {
+    background: #13c2c2;
+  }
+
+  .parallel-cond-icon {
+    background: #722ed1;
+  }
+
+  .item-wrapper p {
+    margin: 0;
+    font-size: 12px;
+  }
+
+  // ----- 可编辑标题虚线（AntFlow workflow.css .editable-title 交互） -----
+  .editable-title {
+    line-height: 15px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    border-bottom: 1px dashed transparent;
+  }
+
+  .auto-judge:hover .editable-title,
+  .node-wrap-box:hover .editable-title {
+    border-bottom: 1px dashed #fff;
+  }
+
+  .auto-judge:hover .editable-title {
+    border-color: @qingse;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 深色主题（与 index 原 --dark 块一致，挂在根修饰类上）
+// ---------------------------------------------------------------------------
+.takt-flow-antflow-designer--dark.takt-flow-antflow-designer {
+  background: #1f1f1f;
+
+  .dingflow-design {
+    background-color: #141414;
+  }
+
+  .box-scale {
+    background-color: #141414;
+  }
+
+  .zoom-bar {
+    background: #2d2d2d;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  .zoom-out,
+  .zoom-in,
+  .zoom-reset {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .zoom-out:hover,
+  .zoom-in:hover,
+  .zoom-reset:hover {
+    background: #434343;
+    color: #1890ff;
+  }
+
+  .zoom-val {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .zoom-bar__sep {
+    background: #434343;
+  }
+
+  .end-node-block {
+    background: #177ddc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  }
+
+  .node-wrap-box {
+    background: #2d2d2d;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  }
+
+  .content,
+  .condition-content {
+    border-color: #434343;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .content:hover,
+  .condition-content:hover {
+    background: #434343;
+  }
+
+  .placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .arrow {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .branch-box {
+    border-top-color: #434343;
+    border-bottom-color: #434343;
+  }
+
+  .col-box {
+    background: #262626;
+  }
+
+  .add-branch:hover {
+    transform: translateX(-50%) scale(1.05);
+  }
+
+  .auto-judge {
+    background: #162312;
+    border-color: #274916;
+  }
+
+  .title-wrapper {
+    border-color: #274916;
+  }
+
+  .end-connector {
+    background-color: #434343;
+  }
+
+  .add-node-btn-box::before,
+  .branch-box > .col-box::before,
+  .condition-node-box::before {
+    background-color: #434343;
+  }
+
+  .node-wrap-box::before {
+    background: #141414;
+    border-color: #434343 transparent transparent;
+  }
+
+  .branch-box .node-wrap-box::before {
+    background: #262626;
+  }
+
+  .item-wrapper {
+    background: #2d2d2d;
+    border-color: #434343;
+  }
+
+  .add-node-popover-item:hover .item-wrapper {
+    border-color: #177ddc;
+    background: #111d2c;
+  }
+
+  .add-node-popover-item {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .item-wrapper p {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .node-wrap-box .close {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .auto-judge .close {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .priority-title {
+    color: #3c9ae8;
+  }
+
+  .editable-title {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .top-left-cover-line,
+  .top-right-cover-line,
+  .bottom-left-cover-line,
+  .bottom-right-cover-line {
+    background-color: #262626;
+  }
+
+  .add-branch {
+    background: #2d2d2d;
+    color: #69b1ff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  }
+}

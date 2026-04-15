@@ -1,0 +1,92 @@
+-- ========================================
+-- 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+-- 文件名称：menu_and_translation.sql
+-- 功能描述：根据 IsGenMenu、IsGenTranslation 生成菜单与翻译 SQL（IsGenMenu=0 生成菜单，IsGenTranslation=0 生成翻译）
+-- 翻译表 language_id 从 takt_routine_i18n_language 按 culture_code 查询，顺序与 TaktLanguageSeedData 一致：阿拉伯语、英语、西班牙语、法语、日语、韩语、俄语、简体中文、繁體中文
+-- ========================================
+
+{{ identity_db = "Takt_Identity_Dev" }}
+{{ routine_db = "Takt_Routine_Dev" }}
+{{ routine_config_id = "5" }}
+{{ menu_code = (table.table_name | string.replace "takt_" "") | string.upcase }}
+{{ menu_l10n_key = "menu." + (table.gen_module_name | string.downcase | string.replace "_" ".") + "." + (table.entity_name_camel | string.downcase) }}
+{{ menu_path = "/" + table.frontend_module_path + "/" + table.entity_name_kebab }}
+{{ menu_component = table.frontend_module_path + "/" + table.entity_name_kebab + "/index" }}
+{{ permission = table.perms_prefix + ":list" }}
+{{ res_prefix = table.gen_module_name | string.downcase + "." + table.entity_name_camel }}
+
+{{ if table.is_gen_menu == 0 }}
+-- ---------- 菜单 SQL（IsGenMenu = 0 时生成） ----------
+-- 表：Identity 库 takt_identity_menu（ConfigId=0 对应 identity_db）；id 为 SnowFlakeSingle.Instance.NextId() 生成
+-- parent_id 来自表配置 ParentMenuId；create_by 为当前登录用户名（生成时传入，如 admin、user01）；create_time 为当前时间
+INSERT INTO {{ identity_db }}.dbo.takt_identity_menu (
+  id,
+  config_id,
+  menu_name,
+  menu_code,
+  menu_l10n_key,
+  parent_id,
+  path,
+  component,
+  menu_icon,
+  order_num,
+  menu_type,
+  permission,
+  is_visible,
+  is_cache,
+  is_external,
+  link_url,
+  menu_status,
+  create_by,
+  create_time,
+  is_deleted
+) VALUES (
+  {{ table.sql_menu_id }},
+  '0',
+  N'{{ table.comment | string.replace "'" "''" }}',
+  '{{ menu_code }}',
+  '{{ menu_l10n_key }}',
+  {{ table.parent_menu_id }},
+  N'{{ menu_path }}',
+  N'{{ menu_component }}',
+  NULL,
+  0,
+  1,
+  N'{{ permission }}',
+  0,
+  1,
+  1,
+  NULL,
+  0,
+  N'{{ table.sql_create_by | string.replace "'" "''" }}',
+  GETDATE(),
+  0
+);
+
+{{ end }}
+{{ if table.is_gen_translation == 0 }}
+-- ---------- 翻译 SQL（IsGenTranslation = 0 时生成） ----------
+-- 表：Routine 库 takt_routine_i18n_translation（ConfigId=5 对应 routine_db）；id 为 SnowFlakeSingle.Instance.NextId() 生成，language_id 从 takt_routine_i18n_language 按 culture_code 查询
+INSERT INTO {{ routine_db }}.dbo.takt_routine_i18n_translation (
+  id,
+  config_id,
+  language_id,
+  culture_code,
+  resource_key,
+  translation_value,
+  resource_type,
+  resource_group,
+  order_num,
+  create_by,
+  create_time,
+  is_deleted
+) VALUES
+{{~ for row in table.sql_translation_rows ~}}
+{{~ if for.first ~}}
+  ({{ row.id }}, '{{ routine_config_id }}', (SELECT TOP 1 id FROM {{ routine_db }}.dbo.takt_routine_i18n_language WHERE culture_code = N'{{ row.culture }}' AND is_deleted = 0 AND config_id = N'{{ routine_config_id }}'), N'{{ row.culture }}', N'{{ row.resource_key | string.replace "'" "''" }}', N'{{ row.translation_value | string.replace "'" "''" }}', N'Frontend', N'{{ row.resource_group }}', {{ row.order_num }}, N'{{ table.sql_create_by | string.replace "'" "''" }}', GETDATE(), 0)
+{{~ else ~}}
+  ,({{ row.id }}, '{{ routine_config_id }}', (SELECT TOP 1 id FROM {{ routine_db }}.dbo.takt_routine_i18n_language WHERE culture_code = N'{{ row.culture }}' AND is_deleted = 0 AND config_id = N'{{ routine_config_id }}'), N'{{ row.culture }}', N'{{ row.resource_key | string.replace "'" "''" }}', N'{{ row.translation_value | string.replace "'" "''" }}', N'Frontend', N'{{ row.resource_group }}', {{ row.order_num }}, N'{{ table.sql_create_by | string.replace "'" "''" }}', GETDATE(), 0)
+{{~ end ~}}
+{{~ end ~}}
+;
+{{ end }}

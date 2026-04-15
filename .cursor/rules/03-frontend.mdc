@@ -1,0 +1,384 @@
+---
+description: Takt 前端 Vue/TypeScript 规范（目录结构、API 命名、代码风格、视图实践）
+globs: frontend/**/*.ts, frontend/**/*.vue
+alwaysApply: false
+---
+
+# Takt 前端规则
+
+本文档已合并原 `01-frontend-api.mdc`（API 命名）、`01-frontend-style.mdc`（代码风格与 UI 细节）。
+
+## 语言与运行时
+
+- **JavaScript/TypeScript 须符合 ES2020 规范**：与 `tsconfig.json` 的 `target: "ES2020"`、`lib: ["ES2020", "DOM", "DOM.Iterable"]` 一致。
+- 可使用的 ES2020 特性包括但不限于：可选链 `?.`、空值合并 `??`、`Promise.allSettled`、`String.prototype.matchAll`、`BigInt`、动态 `import()`、`globalThis`、`Object.fromEntries`、`Array.prototype.flat`/`flatMap`、`Symbol.prototype.description` 等。  
+  非必要不使用 ES2021+ 专属语法（如 `?.=`、`numeric separators`、`Promise.any`、`String.replaceAll`、`WeakRef` 等），除非项目显式升级。
+
+## 同步与异步场景规范（强制）
+
+- **总原则**：I/O 等外部资源访问使用异步；CPU 纯内存计算使用同步。
+- **分层要求**：
+  - Web 层（`views/`、`api/`、路由守卫、组件事件中的请求逻辑）涉及 I/O 一律异步，禁止阻塞式等待。
+  - 业务逻辑层按需透传异步链路，纯计算逻辑保持同步，避免无意义 `async/await`。
+  - UI 渲染与样式切换优先同步执行，保证交互即时反馈。
+
+| 场景 | 推荐方式 | 原因 |
+|---|---|---|
+| 获取后端数据 | 异步 | 网络 I/O，避免界面冻结 |
+| 计算合计金额 | 同步 | 纯内存计算，立即完成 |
+| 表单字段验证 | 同步 | 规则简单，无需等待 |
+| 提交到服务器 | 异步 | 网络请求，需要等待响应 |
+| 路由权限检查 | 异步 | 可能需要 API 验证权限 |
+| 显示当前时间 | 同步 | 本地时间，无需异步 |
+| 上传大文件 | 异步 | 文件 I/O，耗时操作 |
+| 切换主题样式 | 同步 | CSS 操作，立即生效 |
+
+## Vue 3 + Ant Design Vue 异步/同步开发规范（强制）
+
+### 一、核心原则
+
+- 网络请求异步，UI 响应同步。
+
+### 二、Ant Design Vue 组件使用规范
+
+- 表格组件：数据加载必须异步，本地筛选可以同步。
+- 表单组件：提交必须异步，字段验证可以同步。
+- 上传组件：文件上传必须异步。
+- 选择器组件：远程搜索必须异步，本地过滤可以同步。
+- 树形组件：动态加载必须异步。
+- 模态框组件：确认操作必须异步。
+- 分页组件：数据获取必须异步。
+
+### 三、强制异步场景
+
+- API 数据获取：页面初始化、表格加载、下拉选项。
+- 文件操作：上传、下载、预览。
+- 用户操作：表单提交、搜索请求、导出数据。
+- 组件交互：远程搜索、动态加载、级联选择。
+- 路由导航：路由守卫权限验证。
+- 第三方服务：地图、支付、OSS 上传。
+
+### 四、强制同步场景
+
+- UI 状态更新：显示隐藏、禁用启用、选中状态。
+- 数据转换：日期格式化、金额计算、文本处理。
+- 表单验证：必填验证、格式验证、长度限制。
+- 事件处理：点击响应、输入监听、选择变更。
+- 样式计算：动态类名、内联样式、动画状态。
+- 本地存储：`localStorage` 小数据读写。
+
+### 五、Vue 3 组合式函数规范
+
+- `useAsyncData`：异步数据获取。
+- `useAsyncState`：异步状态管理。
+- `useAsyncTable`：异步表格操作。
+- `useAsyncForm`：异步表单处理。
+- `useSyncUI`：同步 UI 状态。
+- `useSyncValidator`：同步验证器。
+
+### 六、Store 状态管理规范
+
+- Actions：调用 API 必须异步。
+- Mutations/State 更新：修改 state 必须同步。
+- Getters：计算属性必须同步。
+- Modules：模块间通信按需选择。
+
+### 七、性能优化规范
+
+- 请求合并：同屏多个请求合并发送。
+- 懒加载：路由组件、第三方组件必须懒加载。
+- 防抖节流：搜索输入、滚动加载必须加控制。
+- 缓存策略：频繁数据必须缓存。
+- 取消请求：页面切换必须取消未完成请求。
+- 虚拟滚动：大数据列表必须虚拟滚动。
+
+### 八、用户体验规范
+
+- 加载状态：异步操作必须显示 loading。
+- 即时反馈：用户操作必须立即响应。
+- 进度提示：长时间操作必须显示进度。
+- 错误提示：异步失败必须有明确提示。
+- 空状态：数据为空必须有空状态提示。
+- 骨架屏：首屏加载必须显示骨架屏。
+
+### 九、错误处理规范
+
+- 全局拦截：Axios 拦截器统一处理。
+- 错误边界：组件错误必须捕获。
+- 重试机制：网络失败必须重试。
+- 降级方案：接口失败必须有降级显示。
+- 监控上报：前端错误必须监控上报。
+
+### 十、代码质量规范
+
+- 单一职责：异步函数只做异步操作。
+- 明确命名：异步函数名体现异步特征。
+- 合理拆分：过长异步链必须拆分。
+- 注释说明：复杂异步逻辑必须注释。
+- 类型安全：TypeScript 类型必须完整。
+
+### 十一、测试规范
+
+- 异步测试：异步方法必须单元测试。
+- 竞态测试：并发场景必须测试。
+- 错误测试：错误路径必须覆盖。
+- UI 测试：异步 UI 状态必须测试。
+- 集成测试：前后端集成必须测试。
+
+## 通用质量要求（强制）
+
+### 代码可读性
+
+- 异步操作必须有明确注释说明。
+- 函数职责必须单一清晰。
+- 错误处理路径必须明确。
+- 日志记录必须完整。
+
+### 可维护性
+
+- 配置参数必须可配置。
+- 异步超时必须可调整。
+- 错误消息必须可配置。
+- 监控指标必须可查看。
+
+### 安全性
+
+- 用户输入必须同步验证。
+- 敏感操作必须同步确认。
+- 权限验证必须异步检查。
+- 日志记录必须包含上下文。
+
+### 扩展性
+
+- 异步策略必须可替换。
+- 缓存机制必须可扩展。
+- 监控系统必须可集成。
+- 错误处理必须可定制。
+
+## 代码风格与 UI 细节
+
+- **语言与格式**
+  - 使用 TypeScript + Vue 3 Composition API；统一 ESLint/Prettier 规则（遵循项目现有配置），禁止在同一文件中混用不同风格。
+
+- **命名与可读性**
+  - 变量/函数使用小驼峰；组件名/类型使用大驼峰；布尔变量以 `is/has/should` 开头。
+  - 避免魔法字符串/数字，公共常量抽到 `@/utils` 或专门的常量文件。
+
+- **UI 与交互**
+  - 所有用户可见文案走 i18n（`t('...')`），禁止硬编码中文。
+  - **实体文案键**：管理端表格列、查询项、表单标签等与后端实体翻译种子的 `ResourceKey` 一致，使用 `t('entity.{实体段}.{字段}')`（全小写段名与种子一致，如 `entity.workshift.shiftcode`、`entity.attendancepunch._self`）。**禁止**在 `src/locales/entity` 中与种子重复定义同一 `ResourceKey`；仅当后端种子尚未提供该键时，才允许在 `src/locales/entity/<段名>/<语言>.ts` 增补；登录加载后端翻译后，与后端同键的以后端为准。
+  - **列表关键字检索占位**：`TaktQueryBar` 等与 `t('common.form.placeholder.search', { keyword: … })` 拼接时，`keyword` **必须**为 `t('entity.{实体段}.keyword')`（后端种子提供 `entity.xxx.keyword` 文案，概括检索范围）。禁止用其它字段键拼接、`+ '/' +`、多字段 `t(...)+t(...)` 等替代 `keyword`。
+  - **`TaktSelect` 的 `dict-type`**：与后端 `TaktDictType.DictTypeCode`（种子 `TaktDictTypeSeedData`）一致，使用**小写蛇形**字符串；固定类型在模板中写 **`dict-type="sys_normal_disable"`** 形式（静态属性，与 `identity/user/components/user-form.vue` 等一致）。**仅当**字典类型编码来自运行时变量（如字典维护页当前选中类型）时使用 `:dict-type="someRef"`。禁止为固定编码再包一层全大写 `DICT_TYPE_*` 常量，避免与全项目风格不一致。
+  - 新增表单/按钮时使用项目统一的样式类与布局约定（如 `takt-form-content-*`、树表布局类等）。
+
+## 注释与文件头（强制）
+
+### 总则与参照
+
+- 不得低于仓库既有参照：`frontend/takt.antd/src/views/human-resource/attendance-leave/leave/components/leave-form.vue`（`.vue` 文件头 + `<script setup>` 内分区注释）、同目录 `holiday-form.vue`；`api/**/*.ts` 中导出函数的 JSDoc。
+- 注释面向维护者，可使用中文；**用户可见文案**仍须全部走 i18n，不得在 UI 中硬编码中文。
+- **文件头与下文所列脚本注释均为强制**；不得以「可选」「暂不写」等理由省略。规则正文中的「可选」仅表示 API 参数语义（如「可选参数」）或 ECMAScript「可选链」语法，**不**表示注释可省略。
+
+### 文件头（按文件类型区分）
+
+**A. `*.ts` / `*.tsx`（不含纯数据的 `locales/**` 语言包、不含 `*.d.ts`）**
+
+- 使用 `//` 块，首尾行为 `// ========================================`。
+- **必含行**（在首尾分隔线之间，自上而下依次为）：
+  1. `// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)`（`·` 与 `Takt` 之间**空一格**）
+  2. `// 命名空间：@/...`（与文件实际路径别名一致，如 `@/api/identity/user`）
+  3. `// 文件名称：xxx.ts`
+  4. `// 创建时间：YYYY-MM-DD`
+  5. `// 创建人：Takt365(Cursor AI)`
+  6. `// 功能描述：`一句话说明职责
+  7. `// 版权信息：Copyright (c) 2025 Takt  All rights reserved.`
+  8. `// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。`
+- **强制**：在第 6 行「功能描述」与第 7 行「版权信息」之间**必须**保留一行仅含 `// ` 的空注释行（与 `TaktUserService.cs` 第 8 行体例一致）。
+
+**B. `*.vue` 单文件组件**
+
+- 在文件**最顶部**、**首个 `<template>` 之前**，使用 **HTML 注释** 块，**固定 8 行**（与 `leave-form.vue`、`holiday-form.vue` 一致），依次为：
+  1. `<!-- ======================================== -->`
+  2. `<!-- 项目名称：节拍数字工厂 · Takt Digital Factory (TDF) -->`
+  3. `<!-- 命名空间：@/views/...`（该 `.vue` 所在目录，与别名一致）`-->`
+  4. `<!-- 文件名称：xxx.vue -->`
+  5. `<!-- 功能描述：`**单行**写清要点：引用页、`defineExpose` 暴露的方法、主要 Tab/结构、复用的 `@/types` 类型名、与父组件约定的特殊字段（如明文 `password` 映射 `UserCreate.passwordHash`）等`-->`
+  6. `<!-- 版权信息：Copyright (c) 2025 Takt  All rights reserved. -->`
+  7. `<!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->`
+  8. `<!-- ======================================== -->`
+- **禁止**在 `.vue` 文件头书写「创建时间」「创建人」（与 `leave-form.vue` 等表单组件一致）；其余字段仍**全部强制**。
+- **禁止**用多条 `<!-- 功能描述：... -->` 把功能描述拆成列表；信息集中在**一条** `功能描述` 内。
+- **禁止**在 `.vue` 顶再用一套完整 `//` 文件头重复元数据；`<script setup>` 内仅保留**脚本级**简短块注释（见下）。
+
+**C. `*.d.ts`**
+
+- 文件顶部**必须**二选一：**（1）** 与 **A** 完全同款的 `//` 文件头；**（2）** 首行起连续块注释写清命名空间路径 + 文件职责（不少于两行有效说明）。**接口/类型每个公开字段**的注释要求见下节「类型与导出」。
+
+### `<template>` / `<style>` 注释
+
+- **模板**：对 **Tab 分区**、**编辑/新增分支**、**仅某状态展示的表单项**等结构分界写 `<!-- … -->`；**禁止**为每个栅格列写无信息重复注释。
+- **样式**：凡有**非显而易见**的 `:deep`、`min-height`、`!important` 等，在规则块前用 `/* … */` 一行说明意图；无局部样式时可保留与参照表单一致的占位注释。
+
+### `<script setup>` 内注释
+
+- **`Props` 与对外契约**：`interface Props` 上须有块级 `/** … */`；每个 prop 字段**强制**多行或单行 JSDoc（与 `leave-form.vue` 一致），禁止裸字段。
+- **`ref` / `computed` / 非 export 的业务函数、事件处理函数**：**每个**声明上一行须有 `/** … */`（至少一行摘要）；**复杂**异步或算法另须完整 `@param` / `@returns`。
+- **每一个 `watch(`**：**紧邻其上一行**须有 `/** … */`，写清监听源、同步到哪些 state、是否 `immediate`/`deep` 及原因。
+- **`defineExpose`**：**紧邻调用上一行**须有 `/** … */`，列清暴露的标识符及父组件 ref 调用方式（与文件头功能描述互补，不可整段留空）。
+- **父组件通过 ref 调用的方法**（如 `validate`、`getValues`、`resetFields`、`setServerValidationErrors`）：**每个** `const xxx = async ()` / `function` 定义**上一行**须有独立 `/** … */`，不得仅依赖 `defineExpose` 上方一条总述而省略各方法。
+- **`computed` 返回对象内**若声明**具名片段常量**（如 `const employeeIdRules: Rule[]`、`const userNameRules: Rule[]`）：**每个**常量声明**上一行**须有 `/** … */`，说明对应 `a-form-item` 的 `name`、编辑/新增差异及校验要点。
+- **区块划分**可用单行 `//`，**不得**替代上述强制 `/** */`。
+
+### 类型与导出（JSDoc 强制）
+
+- **所有 `export function` / 对外导出的工厂函数**：完整 JSDoc：首行摘要；每个参数 `@param {Type} name - 描述`；返回值 `@returns {Type} 描述`；有泛型时 `@template T`。禁止无类型、无 `@returns` 的导出函数。
+- **`types/**/*.d.ts` 中接口/类型的每个公开字段**：字段上方使用**多行**块注释，说明含义及与后端 DTO 的对应关系，例如：
+  ```ts
+  /**
+   * 说明（对应后端 XxxDto.Yyy）
+   */
+  fieldName: string
+  ```
+  **禁止**对关键业务字段仅用单行 `/** 说明 */` 敷衍。
+- **模块级常量**（URL、魔法数字替代、枚举分组等）：必须注释用途或约束。
+
+### 与后端规则对齐
+
+- 前端 `.ts` 文件头字段顺序与含义与后端 C# 文件头**一一对应**（项目名称～免责声明）；`.vue` 仅省略创建时间、创建人，其余语义一致。
+
+## 导入路径与耦合（禁止多重耦合）
+
+- **API 请求**：所有调用后端的地方**必须**使用 `@/api/request` 导出的 axios 实例；**禁止**在 `api/` 下使用相对路径引用 request（如 `../request`、`../../../request`），违者视为多重耦合。
+- **禁止循环依赖**：模块之间不得形成 A → B → C → A 或 A → B → A 的依赖环；若 store 与 api 互相依赖或 router 与 store 形成环，必须通过事件、依赖注入或拆分模块消除。
+- **模块边界**：页面只通过 `api/`、`stores/`、`types/` 访问能力，不跨层直接依赖内部实现；stores 之间如确需联动，仅通过明确的事件或只读的 store 引用，避免双向强依赖。
+
+## 目录与模块
+
+- **api/**：按后端模块划分（identity、humanresource/organization、logging、tenant 等）。  
+  `routine` 与后端一致区分 **business** 与 **tasks**：  
+  `api/routine/business/`（公告等）、`api/routine/tasks/`（字典、i18n、文件、缓存、设置、敏感词、编码规则、SignalR 等）；请求统一使用 `request.ts` 封装的 axios 实例。
+- **types/**：与 api 模块一一对应；`routine` 同样分 `types/routine/business/` 与 `types/routine/tasks/`。  
+  主实体接口继承或对齐 `TaktEntityBase`（`@/types/common`）；分页查询继承 `TaktPagedQuery`，分页结果使用 `TaktPagedResult<T>`；所有与后端 long 对应的 ID 字段统一用 `string`。
+- **views/**：页面按模块划分，与路由、菜单一致；`routine` 区分 `views/routine/business/` 与 `views/routine/tasks/`；子组件放在对应 `components/` 子目录。
+- **locales/**：按模块划分 zh-CN、en-US 等，路径与 `views` 对齐（如 `identity/user`、`routine/dict/type`）。
+- **stores/**：Pinia，按模块（identity、routine、theme 等）组织；不要在单一全局 store 中堆积所有状态。
+- **utils/**、**composables/**、**layouts/**、**router/**、**assets/**：按现有结构使用。
+
+## 标准实现参照：Identity「用户」模块（强制）
+
+新增或重构**标准管理端 CRUD 列表页、配套 API、类型定义、弹窗/表单子组件**时，须以 **Identity 用户（User）** 模块为蓝本，**先打开下列仓库内真实文件对照**，再编写或修改代码；禁止凭记忆臆造目录、区块顺序或命名习惯。
+
+| 层级 | 参照路径（别名以 `@/` 为准） |
+|---|---|
+| 用户 API | `frontend/takt.antd/src/api/identity/user.ts` |
+| 用户类型 | `frontend/takt.antd/src/types/identity/user.d.ts` |
+| 用户列表视图 | `frontend/takt.antd/src/views/identity/user/index.vue` |
+| 用户子组件 | `frontend/takt.antd/src/views/identity/user/components/` 下各 `.vue`（如 `user-form.vue`） |
+
+### 三条必须同时满足（强制）
+
+1. **结构同步**：与参照保持相同的**文件内分区**与 **`<template>` 区域划分**（如查询栏、工具栏、表格、分页、表单区、高级查询、导入、列设置等）；目标模块若无某能力（如分配角色）可省略对应块，但**不得**打乱与参照一致的相对顺序与注释位置。
+2. **逻辑映射**：将用户侧的 **API 方法名**、**类型/DTO 字段**、**权限码**、**行主键/列表加载/导入导出/列设置** 等模式，**映射**为目标实体与后端契约；行为与参照一致，仅实体与接口路径不同。
+3. **风格一致**：与参照保持相同的 **代码缩进**、**注释风格**（含 HTML 模板分区注释、`<script setup>` 内 `ref`/分组单行 `//` 说明、与 `user/index.vue` 同级的函数分段注释）、**Composition API** 写法（`ref` / `computed` / `onMounted` 及事件处理器的组织方式）。
+
+上述三条与本文件「注释与文件头」「代码风格与 UI 细节」等章节**同时生效**。若因业务差异无法与参照逐字对齐，须在实现处用**简短注释**写明原因，且不得降低类型安全与 API 命名规范。
+
+## API 模块命名规范
+
+### 原则
+
+- **禁止使用无前缀的通用方法名**：如 `getList`、`getById`、`create`、`update`、`remove`、`getOptions`、`getTemplate`、`importData`、`exportData` 等会造成全局命名污染，且多模块同时导入时易混淆。
+- **所有导出方法必须带实体前缀**：与模块对应的实体名（如 User、Role、Dept、Leave）采用 PascalCase 作为前缀，方法名使用「前缀 + 动词/名词」形式，例如 `getUserList`、`getRoleById`、`createDept`、`exportLeaveData`。
+
+### 标准方法命名映射
+
+| 含义           | 禁止（旧）        | 规范（新）              | 示例（User）        |
+|----------------|-------------------|-------------------------|---------------------|
+| 分页列表       | getList           | get**Xxx**List          | getUserList         |
+| 按 ID 查询     | getById           | get**Xxx**ById          | getUserById         |
+| 选项/下拉      | getOptions        | get**Xxx**Options       | getUserOptions      |
+| 新增           | create            | create**Xxx**           | createUser          |
+| 更新           | update            | update**Xxx**           | updateUser          |
+| 单条删除       | remove / deleteById | delete**Xxx**ById     | deleteUserById      |
+| 批量删除       | removeBatch / deleteBatch | delete**Xxx**Batch | deleteUserBatch     |
+| 状态更新       | updateStatus      | update**Xxx**Status     | updateUserStatus    |
+| 导入模板       | getTemplate       | get**Xxx**Template      | getUserTemplate     |
+| 导入数据       | importData / importXxx | import**Xxx**Data   | importUserData      |
+| 导出数据       | exportData / exportXxx | export**Xxx**Data   | exportUserData      |
+
+- **Xxx**：与当前 API 文件所对应实体一致，如 `api/identity/user.ts` 对应 **User**，`api/human-resource/organization/dept.ts` 对应 **Dept**，`api/human-resource/attendance-leave/leave.ts` 对应 **Leave**。
+- 非标准能力（如「重置密码」「分配角色」）可继续使用语义化命名，但建议带实体前缀，例如 `resetUserPassword`、`assignUserRoles`。
+
+### 多词实体命名
+
+- 实体名由多个单词组成时，前缀采用 PascalCase 连写，如：
+  - 员工附件：**EmployeeAttachment** → getEmployeeAttachmentList、deleteEmployeeAttachmentById
+  - 员工职业：**EmployeeCareer** → getEmployeeCareerList、importEmployeeCareerData
+  - 员工调动：**EmployeeTransfer** → getEmployeeTransferList、updateEmployeeTransferStatus
+  - 请假：**Leave** → getLeaveList、exportLeaveData
+  - 假日：**Holiday** → getHolidayList、importHolidayData
+  - 流程方案：**FlowScheme** → getFlowSchemeList、exportFlowSchemeData
+  - 字典类型/字典数据：**DictType** / **DictData** → getDictTypeList、getDictDataOptions
+
+### 例外
+
+- **非实体类 API**（如 `api/identity/auth.ts` 的 login、logout、refreshToken，`api/identity/captcha.ts` 的 generateCaptcha、verifyCaptcha，`api/request.ts`）可不强制前缀，保持语义化即可。
+- **工具类/缓存类**（如 `api/routine/tasks/cache.ts`）按业务语义命名，避免与实体 CRUD 混淆。
+
+### 调用处
+
+- 所有引用 `api/**/*.ts` 的视图、组件、store 必须使用上述规范后的方法名；禁止在调用处使用 `getList`、`getById`、`create`、`update`、`remove`、`getOptions`、`getTemplate`、`importData`、`exportData` 等无前缀导入（可临时用 `as` 别名过渡，但最终应改为规范方法名并直接导入）。
+- **前端函数命名强制（与后端一致）**：
+  - `api/`、`stores/`、`composables/` 中涉及实体请求的方法，必须使用实体前缀命名，禁止无前缀命名。
+  - 推荐映射：`getXxxList`、`getXxxById`、`createXxx`、`updateXxx`、`deleteXxxById`、`deleteXxxBatch`、`getXxxTemplate`、`importXxxData`、`exportXxxData`、`updateXxxStatus`。
+  - 若函数本身声明为异步特征命名风格，可使用 `Async` 后缀：`getXxxListAsync`、`getXxxByIdAsync` 等；同一模块内必须统一风格，不允许混用。
+  - 页面层事件函数（如按钮处理器）若直接承载实体请求，也必须带实体前缀（如 `handleUserExport`、`handleDeptImport`）。
+
+## API 与类型配对、URL 与类型命名
+
+- 每个后端控制器对应一个 `api/` 模块和一个 `types/` 类型文件，命名与后端 DTO 保持一一对应。
+- URL 与后端一致：`/api/TaktXxx/list`、`/api/TaktXxx/{id}`、`/api/TaktXxx`(POST)、`/api/TaktXxx/{id}`(PUT/DELETE)。
+- 类型命名：主实体如 `Dept`、`User`；查询 `DeptQuery`、`UserQuery`；创建/更新 `DeptCreate`、`DeptUpdate`、`DeptStatus` 等，属性使用 camelCase，ID 字段用 `string`。
+- **页面(`views/`) 禁止直接使用 axios**，统一通过 `api/xxx` 模块访问后端。
+- **基础功能强制**：所有标准业务模块前端必须提供并接通基础能力：`列表/详情/新增/更新/删除（CRUD）+ 模板下载 + 导入 + 导出`，并与后端接口一一对应（方法命名遵循本规则中的实体前缀规范）。
+
+## 通用类型（common.d.ts）
+
+- `TaktEntityBase`：不含 id 的审计/租户字段，具体实体类型在各自文件中扩展并增加 `xxxId: string` 等。
+- `TaktPagedQuery`：包含 `pageIndex`、`pageSize`。
+- `TaktPagedResult<T>`：`data`、`total`、`pageIndex`、`pageSize`、`totalPages`、`hasPreviousPage`、`hasNextPage`。
+- `TaktTreeSelectOption`、`TaktSelectOption`：树形/下拉选项。
+- `TaktApiResult<T>`：与后端统一返回结构一致，配合 `@/utils/enum` 的 `TaktResultCode`。
+
+## 请求与错误
+
+- 所有请求使用 `api/request.ts` 的 axios 实例，统一处理 CSRF、withCredentials、错误提示与 token 刷新。
+- 导入/导出等大请求如有需要可设置更长超时时间或使用项目已有常量（如 `IMPORT_TIMEOUT`）。
+
+## 视图与状态管理（补充）
+
+- **状态管理**
+  - 跨页面共享状态放在 Pinia `stores/`；单页面局部状态放在组件内部。
+  - 不要在全局 store 中堆积与业务无关的临时状态。
+
+- **组件划分**
+  - 列表/表单页面按“页面壳 + 业务子组件”拆分：页面负责查询、权限、路由；表单/弹窗组件只关心表单本身。
+  - 通用业务组件（如部门树、用户选择器）放在 `components/business/` 下，命名以 `Takt` 前缀（如 `TaktDeptTreeSelect`）。
+
+- **表单与校验**
+  - 所有必填字段使用 i18n 占位符：  
+    `t('common.form.placeholder.required', { field: t('entity.xxx') })`。
+  - ID 字段在表单/请求数据中统一为 `string`；如确需 `number`，由页面或 api 层转换。
+
+## Vue 与样式
+
+- 使用 Vue 3 Composition API，组件与页面与后端功能模块一一对应。
+- 样式统一使用项目现有的 Less/主题文件（`assets/styles`、`theme`），避免在组件内硬编码颜色与间距常量。
+- 路由、权限与后端菜单/权限码保持一致，按钮显隐统一使用权限指令/封装组件。
+
+## 树表布局（takt-tree-left-* / takt-tree-right-*）
+
+- **边距与尺寸在组件内设置**：  
+  `takt-tree-left-query-bar`、`takt-tree-left-tools-bar`、`takt-tree-left-table`、`takt-tree-right-query-bar`、`takt-tree-right-tools-bar`、`takt-tree-right-table` 的 `margin`、`padding`、`width` 等均在组件内部定义，引用页不重复设置。
+- **引用页只做行布局**：菜单、部门等使用树表布局的页面只负责 flex 行结构（`query-row`、`toolbar-row`、`tree-table-wrap`），不再设置与组件尺寸/边距相关的样式。
+

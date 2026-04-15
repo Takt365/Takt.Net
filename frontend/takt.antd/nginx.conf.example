@@ -1,0 +1,38 @@
+# Nginx 配置示例 - 支持 Vue Router History 模式
+# 将此文件复制到 Nginx 配置目录，或将其内容合并到现有配置中
+# 
+# 重要：生产环境必须配置 history fallback，否则刷新页面会出现 404 错误
+# 所有非静态资源的请求都应该重定向到 index.html
+
+server {
+    listen 80;
+    server_name localhost;
+    root /path/to/dist;  # 修改为实际的构建产物目录
+    index index.html;
+
+    # 静态资源缓存
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # API 请求代理到后端
+    location /api {
+        proxy_pass http://backend-server;  # 修改为实际的后端服务器地址
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # History fallback：所有其他请求都重定向到 index.html
+    # 这是 Vue Router History 模式的关键配置
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # 安全头
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+}
