@@ -89,7 +89,11 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <SkillForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <SkillForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
 
     <!-- 高级查询抽屉 -->
@@ -103,7 +107,11 @@
         <a-input v-model:value="advancedQueryForm.employeeId" />
       </a-form-item>
       <a-form-item :label="t('entity.employeeskill.skillLevel')">
-        <a-input-number v-model:value="advancedQueryForm.skillLevel" :min="0" style="width: 100%" />
+        <a-input-number
+          v-model:value="advancedQueryForm.skillLevel"
+          :min="0"
+          style="width: 100%"
+        />
       </a-form-item>
     </TaktQueryDrawer>
 

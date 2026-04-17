@@ -18,7 +18,10 @@
   >
     <a-row :gutter="24">
       <a-col :span="12">
-        <a-form-item label="工厂代码" name="plantCode">
+        <a-form-item
+          label="工厂代码"
+          name="plantCode"
+        >
           <a-input
             v-model:value="formState.plantCode"
             placeholder="请输入工厂代码"
@@ -27,7 +30,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="工厂名称" name="plantName">
+        <a-form-item
+          label="工厂名称"
+          name="plantName"
+        >
           <a-input
             v-model:value="formState.plantName"
             placeholder="请输入工厂名称"
@@ -36,7 +42,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="工厂简称" name="plantShortName">
+        <a-form-item
+          label="工厂简称"
+          name="plantShortName"
+        >
           <a-input
             v-model:value="formState.plantShortName"
             placeholder="请输入工厂简称"
@@ -45,7 +54,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="注册地址" name="registrationAddress">
+        <a-form-item
+          label="注册地址"
+          name="registrationAddress"
+        >
           <a-input
             v-model:value="formState.registrationAddress"
             placeholder="请输入注册地址"
@@ -54,7 +66,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="注册地区-国家" name="registrationRegion">
+        <a-form-item
+          label="注册地区-国家"
+          name="registrationRegion"
+        >
           <a-input
             v-model:value="formState.registrationRegion"
             placeholder="请输入注册地区-国家"
@@ -63,7 +78,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="注册地区-省" name="registrationProvince">
+        <a-form-item
+          label="注册地区-省"
+          name="registrationProvince"
+        >
           <a-input
             v-model:value="formState.registrationProvince"
             placeholder="请输入注册地区-省"
@@ -72,7 +90,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="注册地区-市" name="registrationCity">
+        <a-form-item
+          label="注册地区-市"
+          name="registrationCity"
+        >
           <a-input
             v-model:value="formState.registrationCity"
             placeholder="请输入注册地区-市"
@@ -81,7 +102,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="经营地区-国家" name="businessRegion">
+        <a-form-item
+          label="经营地区-国家"
+          name="businessRegion"
+        >
           <a-input
             v-model:value="formState.businessRegion"
             placeholder="请输入经营地区-国家"
@@ -90,7 +114,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="经营地区-省" name="businessProvince">
+        <a-form-item
+          label="经营地区-省"
+          name="businessProvince"
+        >
           <a-input
             v-model:value="formState.businessProvince"
             placeholder="请输入经营地区-省"
@@ -99,7 +126,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="经营地区-市" name="businessCity">
+        <a-form-item
+          label="经营地区-市"
+          name="businessCity"
+        >
           <a-input
             v-model:value="formState.businessCity"
             placeholder="请输入经营地区-市"
@@ -108,7 +138,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="经营地址" name="businessAddress">
+        <a-form-item
+          label="经营地址"
+          name="businessAddress"
+        >
           <a-input
             v-model:value="formState.businessAddress"
             placeholder="请输入经营地址"
@@ -117,7 +150,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="工厂地址" name="plantAddress">
+        <a-form-item
+          label="工厂地址"
+          name="plantAddress"
+        >
           <a-input
             v-model:value="formState.plantAddress"
             placeholder="请输入工厂地址"
@@ -126,7 +162,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="工厂电话" name="plantPhone">
+        <a-form-item
+          label="工厂电话"
+          name="plantPhone"
+        >
           <a-input
             v-model:value="formState.plantPhone"
             placeholder="请输入工厂电话"
@@ -135,7 +174,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="工厂邮箱" name="plantEmail">
+        <a-form-item
+          label="工厂邮箱"
+          name="plantEmail"
+        >
           <a-input
             v-model:value="formState.plantEmail"
             placeholder="请输入工厂邮箱"
@@ -144,7 +186,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="工厂负责人" name="plantManager">
+        <a-form-item
+          label="工厂负责人"
+          name="plantManager"
+        >
           <a-input
             v-model:value="formState.plantManager"
             placeholder="请输入工厂负责人"
@@ -153,7 +198,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="企业性质" name="enterpriseNature">
+        <a-form-item
+          label="企业性质"
+          name="enterpriseNature"
+        >
           <a-input
             v-model:value="formState.enterpriseNature"
             placeholder="请输入企业性质"
@@ -162,7 +210,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="行业属性" name="industryAttribute">
+        <a-form-item
+          label="行业属性"
+          name="industryAttribute"
+        >
           <a-input
             v-model:value="formState.industryAttribute"
             placeholder="请输入行业属性"
@@ -171,7 +222,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="企业规模" name="enterpriseScale">
+        <a-form-item
+          label="企业规模"
+          name="enterpriseScale"
+        >
           <a-input
             v-model:value="formState.enterpriseScale"
             placeholder="请输入企业规模"
@@ -180,7 +234,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="经营范围" name="businessScope">
+        <a-form-item
+          label="经营范围"
+          name="businessScope"
+        >
           <a-input
             v-model:value="formState.businessScope"
             placeholder="请输入经营范围"
@@ -189,7 +246,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="关联公司" name="relatedCompany">
+        <a-form-item
+          label="关联公司"
+          name="relatedCompany"
+        >
           <a-input
             v-model:value="formState.relatedCompany"
             placeholder="请输入关联公司"
@@ -198,7 +258,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="工厂状态" name="plantStatus">
+        <a-form-item
+          label="工厂状态"
+          name="plantStatus"
+        >
           <a-input
             v-model:value="formState.plantStatus"
             placeholder="请输入工厂状态"
@@ -207,7 +270,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="排序号" name="orderNum">
+        <a-form-item
+          label="排序号"
+          name="orderNum"
+        >
           <a-input
             v-model:value="formState.orderNum"
             placeholder="请输入排序号"
@@ -216,7 +282,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="扩展字段JSON" name="extFieldJson">
+        <a-form-item
+          label="扩展字段JSON"
+          name="extFieldJson"
+        >
           <a-input
             v-model:value="formState.extFieldJson"
             placeholder="请输入扩展字段JSON"
@@ -225,7 +294,10 @@
         </a-form-item>
       </a-col>
       <a-col :span="12">
-        <a-form-item label="备注" name="remark">
+        <a-form-item
+          label="备注"
+          name="remark"
+        >
           <a-input
             v-model:value="formState.remark"
             placeholder="请输入备注"

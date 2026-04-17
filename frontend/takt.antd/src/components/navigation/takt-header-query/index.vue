@@ -1,5 +1,9 @@
 <template>
-  <a-button type="text" class="takt-header-query" @click="handleClick">
+  <a-button
+    type="text"
+    class="takt-header-query"
+    @click="handleClick"
+  >
     <template #icon>
       <RiSearchLine />
     </template>
@@ -19,7 +23,11 @@
     <template #title>
       <div class="takt-query-header">
         <span class="takt-query-title">添加快捷入口</span>
-        <a-button type="text" class="takt-query-close" @click="handleClose">
+        <a-button
+          type="text"
+          class="takt-query-close"
+          @click="handleClose"
+        >
           <template #icon>
             <CloseOutlined />
           </template>

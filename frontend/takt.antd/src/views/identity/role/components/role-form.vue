@@ -1,6 +1,9 @@
 <template>
-  <a-tabs v-model:activeKey="activeTab">
-    <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
+  <a-tabs v-model:active-key="activeTab">
+    <a-tab-pane
+      key="basic"
+      :tab="t('common.form.tabs.basicInfo')"
+    >
       <div :class="formContentClass">
         <a-form
           ref="formRef"
@@ -13,41 +16,96 @@
         >
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.role.name')" name="roleName">
-                <a-input v-model:value="formState.roleName" :placeholder="t('common.form.placeholder.required', { field: t('entity.role.name') })" show-count :maxlength="50" />
+              <a-form-item
+                :label="t('entity.role.name')"
+                name="roleName"
+              >
+                <a-input
+                  v-model:value="formState.roleName"
+                  :placeholder="t('common.form.placeholder.required', { field: t('entity.role.name') })"
+                  show-count
+                  :maxlength="50"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.role.code')" name="roleCode">
-                <a-input v-model:value="formState.roleCode" :placeholder="t('common.form.placeholder.required', { field: t('entity.role.code') })" show-count :maxlength="50" :disabled="!!formData?.roleId" />
+              <a-form-item
+                :label="t('entity.role.code')"
+                name="roleCode"
+              >
+                <a-input
+                  v-model:value="formState.roleCode"
+                  :placeholder="t('common.form.placeholder.required', { field: t('entity.role.code') })"
+                  show-count
+                  :maxlength="50"
+                  :disabled="!!formData?.roleId"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.role.ordernum')" name="orderNum">
-                <a-input-number v-model:value="formState.orderNum" :placeholder="t('common.form.placeholder.orderNumHint')" :min="0" style="width: 100%" />
+              <a-form-item
+                :label="t('entity.role.ordernum')"
+                name="orderNum"
+              >
+                <a-input-number
+                  v-model:value="formState.orderNum"
+                  :placeholder="t('common.form.placeholder.orderNumHint')"
+                  :min="0"
+                  style="width: 100%"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('entity.role.datascope')" name="dataScope" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-                <a-select v-model:value="formState.dataScope" :placeholder="t('common.form.placeholder.select', { field: t('entity.role.datascope') })" :options="dataScopeOptions" />
+              <a-form-item
+                :label="t('entity.role.datascope')"
+                name="dataScope"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
+                <a-select
+                  v-model:value="formState.dataScope"
+                  :placeholder="t('common.form.placeholder.select', { field: t('entity.role.datascope') })"
+                  :options="dataScopeOptions"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('entity.role.customscope')" name="customScope" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-                <a-input v-model:value="formState.customScope" :placeholder="t('identity.role.placeholder.customScopeHint')" show-count :maxlength="500" />
+              <a-form-item
+                :label="t('entity.role.customscope')"
+                name="customScope"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
+                <a-input
+                  v-model:value="formState.customScope"
+                  :placeholder="t('identity.role.placeholder.customScopeHint')"
+                  show-count
+                  :maxlength="500"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('common.entity.remark')" name="remark" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-                <a-textarea v-model:value="formState.remark" :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })" :rows="3" show-count :maxlength="500" />
+              <a-form-item
+                :label="t('common.entity.remark')"
+                name="remark"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
+                <a-textarea
+                  v-model:value="formState.remark"
+                  :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"
+                  :rows="3"
+                  show-count
+                  :maxlength="500"
+                />
               </a-form-item>
             </a-col>
           </a-row>

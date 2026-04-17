@@ -17,8 +17,8 @@
       v-if="showTemplate"
       :loading="templateLoading"
       :disabled="disabled"
-      @click="handleDownloadTemplate"
       class="takt-import-file-template"
+      @click="handleDownloadTemplate"
     >
       <template #icon>
         <download-outlined />
@@ -28,19 +28,19 @@
 
     <!-- 上传区域 -->
     <a-upload-dragger
-      v-model:fileList="fileList"
+      v-model:file-list="fileList"
       :name="name"
       :accept="accept"
-      :maxCount="1"
+      :max-count="1"
       :disabled="disabled"
-      :beforeUpload="handleBeforeUpload"
-      :customRequest="handleCustomRequest"
-      :showUploadList="showUploadList"
+      :before-upload="handleBeforeUpload"
+      :custom-request="handleCustomRequest"
+      :show-upload-list="showUploadList"
+      v-bind="$attrs"
+      class="takt-import-file-upload"
       @change="handleChange"
       @preview="handlePreview"
       @drop="handleDrop"
-      v-bind="$attrs"
-      class="takt-import-file-upload"
     >
       <p class="ant-upload-drag-icon">
         <slot name="icon">
@@ -48,10 +48,17 @@
         </slot>
       </p>
       <p class="ant-upload-text">
-        <slot name="text">{{ uploadTextDisplay }}</slot>
+        <slot name="text">
+          {{ uploadTextDisplay }}
+        </slot>
       </p>
-      <p class="ant-upload-hint" v-if="hintDisplay">
-        <slot name="hint">{{ hintDisplay }}</slot>
+      <p
+        v-if="hintDisplay"
+        class="ant-upload-hint"
+      >
+        <slot name="hint">
+          {{ hintDisplay }}
+        </slot>
       </p>
     </a-upload-dragger>
 
@@ -62,10 +69,13 @@
       :footer="null"
       width="90%"
       centered
-      @cancel="handleCancelPreview"
       class="takt-import-file-preview"
+      @cancel="handleCancelPreview"
     >
-      <div v-if="previewType === 'xlsx' || previewType === 'csv' || previewType === 'txt'" class="takt-import-file-preview-file">
+      <div
+        v-if="previewType === 'xlsx' || previewType === 'csv' || previewType === 'txt'"
+        class="takt-import-file-preview-file"
+      >
         <a-alert
           :message="getFileTypeText() + ' ' + t('common.button.preview')"
           :description="getPreviewDescription()"
@@ -78,14 +88,21 @@
           <p><strong>{{ t('components.common.import.fileSize') }}</strong>{{ previewFileSize }}</p>
           <p><strong>{{ t('components.common.import.fileType') }}</strong>{{ previewFileType }}</p>
         </div>
-        <a-button type="primary" @click="handleDownloadPreviewFile" class="takt-import-file-preview-download">
+        <a-button
+          type="primary"
+          class="takt-import-file-preview-download"
+          @click="handleDownloadPreviewFile"
+        >
           <template #icon>
             <download-outlined />
           </template>
           {{ t('components.common.import.downloadPreviewFile') }}
         </a-button>
       </div>
-      <div v-else class="takt-import-file-preview-error">
+      <div
+        v-else
+        class="takt-import-file-preview-error"
+      >
         <a-result
           status="error"
           :title="t('components.common.import.cannotPreview')"
@@ -102,8 +119,8 @@
       :description="getResultDescription()"
       show-icon
       closable
-      @close="handleCloseResult"
       class="takt-import-file-result"
+      @close="handleCloseResult"
     />
   </div>
 </template>
@@ -124,10 +141,16 @@ function isBlobDownloadWithMeta(v: unknown): v is BlobDownloadWithMeta {
 }
 
 type FileType = 'txt' | 'csv' | 'xlsx'
+type UploadRequestOptions = {
+  file: File | Blob
+  onSuccess?: (response: unknown, file?: File | Blob) => void
+  onError?: (error: Error) => void
+  onProgress?: (event: { percent: number }) => void
+}
 
 interface Props {
   /** 文件类型（只能选择一种） */
-  fileType: FileType
+  fileType?: FileType
   /** 是否显示下载模板按钮 */
   showTemplate?: boolean
   /** 下载模板：返回 Blob；若 API 配置 blobWithHeaders 则返回 BlobDownloadWithMeta，下载名优先用服务端 Content-Disposition（与导出一致） */
@@ -296,10 +319,11 @@ const handleDownloadTemplate = async () => {
     window.URL.revokeObjectURL(url)
 
     message.success(t('components.common.import.templateDownloadSuccess'))
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[TaktImportFile] 下载模板失败:', error)
-    message.error(error?.message || t('components.common.import.templateDownloadFail'))
-    emit('error', error instanceof Error ? error : new Error(String(error)))
+    const err = error instanceof Error ? error : new Error(String(error))
+    message.error(err.message || t('components.common.import.templateDownloadFail'))
+    emit('error', err)
   } finally {
     templateLoading.value = false
   }
@@ -373,7 +397,7 @@ const validateFileRows = async (file: File): Promise<boolean> => {
     switch (props.fileType) {
       case 'txt':
         rowCount = await countTextFileRows(file)
-        if (rowCount > props.maxRows!) {
+        if (rowCount > props.maxRows) {
           message.error(t('components.common.import.rowCountExceed', { count: rowCount, max: props.maxRows }))
           return false
         }
@@ -384,7 +408,7 @@ const validateFileRows = async (file: File): Promise<boolean> => {
         break
       case 'csv':
         rowCount = await countCsvFileRows(file)
-        if (rowCount > props.maxRows!) {
+        if (rowCount > props.maxRows) {
           message.error(t('components.common.import.rowCountExceed', { count: rowCount, max: props.maxRows }))
           return false
         }
@@ -393,7 +417,7 @@ const validateFileRows = async (file: File): Promise<boolean> => {
           return false
         }
         break
-      case 'xlsx':
+      case 'xlsx': {
         // 对于 xlsx 文件，前端只做基本验证，详细的行数验证在服务端进行
         // 检查文件大小，如果文件太大可能超过限制
         const fileSizeKB = file.size / 1024
@@ -402,15 +426,17 @@ const validateFileRows = async (file: File): Promise<boolean> => {
         }
         // xlsx 文件的行数验证在服务端进行，这里只通过文件类型验证
         return true
+      }
       default:
         message.error(t('components.common.import.unsupportedFileType', { type: props.fileType }))
         return false
     }
 
     return true
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[TaktImportFile] 验证文件记录数失败:', error)
-    message.error(error?.message || t('components.common.import.validateRowCountFail'))
+    const err = error instanceof Error ? error : new Error(String(error))
+    message.error(err.message || t('components.common.import.validateRowCountFail'))
     return false
   }
 }
@@ -446,7 +472,7 @@ const handleBeforeUpload = async (file: UploadFile | File) => {
 }
 
 // 自定义上传请求
-const handleCustomRequest = async (options: any) => {
+const handleCustomRequest = async (options: UploadRequestOptions) => {
   const { file, onSuccess, onError, onProgress } = options
 
   if (!props.importFile) {
@@ -477,7 +503,7 @@ const handleCustomRequest = async (options: any) => {
     } else {
       message.success(t('components.common.import.importSuccessTotal', { success: result.success }))
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[TaktImportFile] 导入失败:', error)
     const err = error instanceof Error ? error : new Error(String(error))
     onError?.(err)
@@ -503,7 +529,7 @@ const handleChange = (info: UploadChangeParam) => {
 
 // 预览文件
 const handlePreview = (file: UploadFile) => {
-  const originFile = file.originFileObj || (file as any)
+  const originFile = file.originFileObj || file
   
   if (!originFile || !(originFile instanceof File)) {
     message.warning(t('components.common.import.cannotPreview'))

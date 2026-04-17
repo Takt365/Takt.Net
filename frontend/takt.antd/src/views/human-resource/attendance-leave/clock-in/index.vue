@@ -81,7 +81,11 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <AttendancePunchForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <AttendancePunchForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
 
     <TaktQueryDrawer
@@ -94,7 +98,12 @@
         <a-input v-model:value="advancedQueryForm.employeeId" />
       </a-form-item>
       <a-form-item :label="t('entity.attendancepunch.punchtype')">
-        <a-select v-model:value="advancedQueryForm.punchType" allow-clear style="width: 100%" :options="punchTypeOptions" />
+        <a-select
+          v-model:value="advancedQueryForm.punchType"
+          allow-clear
+          style="width: 100%"
+          :options="punchTypeOptions"
+        />
       </a-form-item>
       <a-form-item :label="t('entity.attendancepunch.punchtimefrom')">
         <a-date-picker
@@ -555,7 +564,7 @@ const handleExport = async () => {
     const resBlob =
       typeof blob === 'object' && blob !== null && 'data' in blob && blob.data instanceof Blob
         ? blob.data
-        : (blob as Blob)
+        : (blob)
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
     const fileName = `${punchExcelNames.fileBase}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`

@@ -31,7 +31,11 @@
               class="takt-flow-drawer-pick-row__select"
               :field-names="{ label: 'dictLabel', value: 'dictValue' }"
             />
-            <a-button type="primary" ghost @click="selectUserOpen = true">
+            <a-button
+              type="primary"
+              ghost
+              @click="selectUserOpen = true"
+            >
               {{ t('workflow.designer.openSelectUserList') }}
             </a-button>
           </div>
@@ -39,8 +43,18 @@
       </a-form>
     </template>
     <template #footer>
-      <a-button style="margin-right: 8px" @click="handleClose">取消</a-button>
-      <a-button type="primary" @click="handleSave">确定</a-button>
+      <a-button
+        style="margin-right: 8px"
+        @click="handleClose"
+      >
+        取消
+      </a-button>
+      <a-button
+        type="primary"
+        @click="handleSave"
+      >
+        确定
+      </a-button>
     </template>
     <TaktFlowSelectUserDialog
       v-model:open="selectUserOpen"

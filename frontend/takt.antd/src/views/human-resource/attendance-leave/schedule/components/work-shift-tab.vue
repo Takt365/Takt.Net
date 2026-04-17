@@ -83,11 +83,20 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <WorkShiftForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <WorkShiftForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
 
     <!-- 高级查询 -->
-    <TaktQueryDrawer v-model:open="advancedQueryVisible" :form-model="adv" @submit="handleAdvancedQuerySubmit" @reset="resetAdv">
+    <TaktQueryDrawer
+      v-model:open="advancedQueryVisible"
+      :form-model="adv"
+      @submit="handleAdvancedQuerySubmit"
+      @reset="resetAdv"
+    >
       <a-form-item :label="t('entity.workshift.shiftcode')">
         <a-input v-model:value="adv.shiftCode" />
       </a-form-item>
@@ -167,8 +176,8 @@ const entitySelf = computed(() => t('entity.workshift._self'))
 type WorkShiftTableColumn = TableColumnsType[number]
 
 interface TableSorterLike {
-  readonly field?: string | string[]
-  readonly order?: 'ascend' | 'descend' | null
+  readonly field?: string | number | readonly (string | number)[]
+  readonly order?: string | null
 }
 
 function getErrorMessage(err: unknown): string | undefined {
@@ -286,8 +295,9 @@ const handlePaginationSizeChange = (_current: number, size: number) => {
   void loadData()
 }
 
-const handleTableChange = (_pagination: unknown, _filters: unknown, sorter: TableSorterLike) => {
-  if (sorter?.order) logger.debug('[WorkShift] 排序:', sorter.field, sorter.order)
+const handleTableChange = (_pagination: unknown, _filters: unknown, sorter: TableSorterLike | TableSorterLike[]) => {
+  const currentSorter = Array.isArray(sorter) ? sorter[0] : sorter
+  if (currentSorter?.order) logger.debug('[WorkShift] 排序:', currentSorter.field, currentSorter.order)
 }
 
 const handleResizeColumn = (w: number, col: WorkShiftTableColumn) => {
@@ -370,10 +380,10 @@ const handleFormSubmit = async () => {
     const id = formData.value.shiftId
     if (id != null && String(id).length > 0) {
       const idStr = String(id)
-      await updateWorkShift(idStr, { ...formValues, shiftId: idStr } as any)
+      await updateWorkShift(idStr, { ...formValues, shiftId: idStr } as Record<string, unknown>)
       message.success(t('common.msg.updateSuccess', { target: entitySelf.value }))
     } else {
-      await createWorkShift(formValues as any)
+      await createWorkShift(formValues)
       message.success(t('common.msg.createSuccess', { target: entitySelf.value }))
     }
     formRef.value?.resetFields()

@@ -73,7 +73,11 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <NumberingRuleForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <NumberingRuleForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
     <TaktQueryDrawer
       v-model:open="advancedQueryVisible"
@@ -82,16 +86,32 @@
       @reset="handleAdvancedQueryReset"
     >
       <a-form-item label="规则编码">
-        <a-input v-model:value="advancedQueryForm.ruleCode" placeholder="规则编码" allow-clear />
+        <a-input
+          v-model:value="advancedQueryForm.ruleCode"
+          placeholder="规则编码"
+          allow-clear
+        />
       </a-form-item>
       <a-form-item label="规则名称">
-        <a-input v-model:value="advancedQueryForm.ruleName" placeholder="规则名称" allow-clear />
+        <a-input
+          v-model:value="advancedQueryForm.ruleName"
+          placeholder="规则名称"
+          allow-clear
+        />
       </a-form-item>
       <a-form-item label="公司编码">
-        <a-input v-model:value="advancedQueryForm.companyCode" placeholder="公司编码" allow-clear />
+        <a-input
+          v-model:value="advancedQueryForm.companyCode"
+          placeholder="公司编码"
+          allow-clear
+        />
       </a-form-item>
       <a-form-item label="部门编码">
-        <a-input v-model:value="advancedQueryForm.deptCode" placeholder="部门编码" allow-clear />
+        <a-input
+          v-model:value="advancedQueryForm.deptCode"
+          placeholder="部门编码"
+          allow-clear
+        />
       </a-form-item>
       <a-form-item label="规则状态">
         <a-select

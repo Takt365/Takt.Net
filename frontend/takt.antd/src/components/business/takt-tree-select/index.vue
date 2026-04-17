@@ -32,14 +32,17 @@
       :virtual="shouldUseVirtual"
       :list-height="listHeight"
       popup-class-name="takt-tree-select-dropdown"
+      v-bind="filteredAttrs"
       @update:value="handleUpdateValue"
       @change="handleChange"
       @search="handleSearch"
       @tree-expand="handleTreeExpand"
       @dropdown-visible-change="handleDropdownVisibleChange"
-      v-bind="filteredAttrs"
     >
-      <template v-if="$slots.default" #default>
+      <template
+        v-if="$slots.default"
+        #default
+      >
         <slot />
       </template>
     </a-tree-select>
@@ -55,6 +58,17 @@ import request from '@/api/request'
 import { logger } from '@/utils/logger'
 
 const { t } = useI18n()
+type TreeValue = string | number
+type TreeValueArray = TreeValue[]
+type TreeModelValue = TreeValue | TreeValueArray | undefined
+type TreeNodeLike = TaktTreeSelectOption & Record<string, unknown>
+type TreeSelectOptionLike = Record<string, unknown>
+type TreeSelectRefLike = {
+  $el?: Element
+  $?: { exposed?: { setValue?: (value: TreeValueArray) => void } }
+  $emit?: (event: string, ...args: unknown[]) => void
+  emit?: (event: string, ...args: unknown[]) => void
+}
 
 // 获取 attrs，排除冲突的事件处理器和已定义的 props
 const attrs = useAttrs()
@@ -66,10 +80,10 @@ const excludedProps = new Set([
   'treeData', 'value', 'modelValue'
 ])
 const filteredAttrs = computed(() => {
-  const result: any = {}
+  const result: Record<string, unknown> = {}
   for (const key in attrs) {
     if (!key.startsWith('onUpdate') && !excludedProps.has(key)) {
-      result[key] = (attrs as any)[key]
+      result[key] = (attrs as Record<string, unknown>)[key]
     }
   }
   return result
@@ -77,13 +91,13 @@ const filteredAttrs = computed(() => {
 
 interface Props {
   /** 绑定值（支持 v-model 和 v-model:value） */
-  modelValue?: string | number | (string | number)[]
+  modelValue?: TreeValue | TreeValueArray
   /** 绑定值（v-model:value 的别名） */
-  value?: string | number | (string | number)[]
+  value?: TreeValue | TreeValueArray
   /** API 端点（可选，如果提供了 treeData 或 dictType 则不需要） */
   apiUrl?: string
   /** 树形选项数据（可选，如果提供了则直接使用，不再通过 apiUrl 或 dictType 加载） */
-  treeData?: TaktTreeSelectOption[]
+  treeData?: TreeNodeLike[]
   /** 占位符 */
   placeholder?: string
   /** 是否显示清除按钮 */
@@ -121,6 +135,10 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  modelValue: undefined,
+  value: undefined,
+  apiUrl: undefined,
+  treeData: undefined,
   placeholder: undefined,
   allowClear: true,
   disabled: false,
@@ -143,16 +161,16 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string | number | (string | number)[] | undefined]
-  'update:value': [value: string | number | (string | number)[] | undefined]
-  'change': [value: string | number | (string | number)[] | undefined, option: any]
+  'update:modelValue': [value: TreeModelValue]
+  'update:value': [value: TreeModelValue]
+  'change': [value: TreeModelValue, option: TreeSelectOptionLike | null]
   'search': [value: string]
 }>()
 
 const loading = ref(false)
-const rawData = ref<TaktTreeSelectOption[]>([])
+const rawData = ref<TreeNodeLike[]>([])
 const expandedKeys = ref<(string | number)[]>([])
-const treeSelectRef = ref() // 预留供外部访问 TreeSelect 组件实例
+const treeSelectRef = ref<TreeSelectRefLike | null>(null) // 预留供外部访问 TreeSelect 组件实例
 const dropdownVisible = ref(false)
 const actionButtonsRef = ref<HTMLElement | null>(null)
 
@@ -162,7 +180,7 @@ const internalValue = computed(() => props.value ?? props.modelValue)
 const effectivePlaceholder = computed(() => props.placeholder ?? t('common.form.placeholder.selectOnly'))
 
 // 标记 treeSelectRef 已被使用（通过 defineExpose）
-void treeSelectRef
+void treeSelectRef.value
 
 // 计算 treeCheckable（多选模式下默认启用选中框）
 const effectiveTreeCheckable = computed(() => {
@@ -212,7 +230,7 @@ const treeFieldNames = computed(() => ({
  * @param modelValue 绑定值
  * @returns 期望的值类型：'number' | 'string'
  */
-function inferValueType(modelValue: string | number | (string | number)[] | undefined): 'number' | 'string' {
+function inferValueType(modelValue: TreeModelValue): 'number' | 'string' {
   if (modelValue === undefined || modelValue === null) {
     return 'string'
   }
@@ -262,23 +280,24 @@ function convertValueType(value: string | number, expectedType: 'number' | 'stri
 }
 
 // 将后端树形数据转换为 TreeSelect 组件需要的格式
-function convertToTreeData(tree: TaktTreeSelectOption[]): any[] {
+function convertToTreeData(tree: TreeNodeLike[]): TreeNodeLike[] {
   const { label: labelField, value: valueField, children: childrenField } = treeFieldNames.value
   const expectedValueType = inferValueType(props.modelValue)
   
-  function convertNode(node: TaktTreeSelectOption): any {
-    const label = (node as any).dictLabel || (node as any).title || ''
-    let value = (node as any).dictValue ?? (node as any).value
+  function convertNode(node: TreeNodeLike): TreeNodeLike {
+    const label = String(node.dictLabel ?? node.title ?? '')
+    let value = (node.dictValue ?? node.value ?? '') as string | number
     value = convertValueType(value, expectedValueType, `树节点 "${label}"`)
     
-    const result: any = {
+    const result: TreeNodeLike = {
       [labelField]: label,
       [valueField]: value,
       ...node
     }
     
-    if (node.children?.length) {
-      result[childrenField] = node.children.map(convertNode)
+    const children = node.children as TreeNodeLike[] | undefined
+    if (children?.length) {
+      result[childrenField] = children.map(convertNode)
     }
     
     return result
@@ -321,8 +340,8 @@ const loadData = async () => {
 }
 
 // 统一更新值的辅助函数（同时触发 update:value 与 update:modelValue，保证 v-model:value 与 v-model 都能收到选中值）
-const updateValue = (value: string | number | (string | number)[] | undefined) => {
-  emit('update:value' as any, value)
+const updateValue = (value: TreeModelValue) => {
+  emit('update:value', value)
   emit('update:modelValue', value)
 }
 
@@ -330,9 +349,9 @@ const updateValue = (value: string | number | (string | number)[] | undefined) =
 const handleUpdateValue = updateValue
 
 // 处理值变化
-const handleChange = (value: string | number | (string | number)[] | undefined, option: any) => {
+const handleChange = (value: TreeModelValue, _labelList: unknown[], _extra: unknown) => {
   updateValue(value)
-  emit('change', value, option)
+  emit('change', value, null)
 }
 
 // 处理搜索
@@ -371,12 +390,12 @@ const findDropdownElement = (): Element | null => {
   // 方式2: 通过 TreeSelect 组件的 ref 查找
   if (treeSelectRef.value) {
     try {
-      const selectElement = (treeSelectRef.value as any).$el || (treeSelectRef.value as any).$el?.parentElement
+      const selectElement = treeSelectRef.value?.$el || treeSelectRef.value?.$el?.parentElement
       if (selectElement) {
         element = selectElement.closest('.ant-select-dropdown')
         if (element) return element
       }
-    } catch (e) {
+    } catch {
       // 忽略错误
     }
   }
@@ -462,16 +481,18 @@ const removeActionButtons = () => {
 /**
  * 收集树中所有节点的 key（用于全部展开）
  */
-function collectAllKeys(nodes: any[], valueField: string = 'value'): (string | number)[] {
+function collectAllKeys(nodes: TreeNodeLike[], valueField: string = 'value'): (string | number)[] {
   const keys: (string | number)[] = []
   
-  function traverse(nodes: any[]) {
+  function traverse(nodes: TreeNodeLike[]) {
     for (const node of nodes) {
-      const key = node[valueField]
+      const key = node[valueField] as string | number | undefined
       if (key != null) {
         keys.push(key)
       }
-      node.children?.length && traverse(node.children)
+      if (node.children?.length) {
+        traverse(node.children as TreeNodeLike[])
+      }
     }
   }
   
@@ -497,23 +518,27 @@ const handleCollapseAll = () => {
 /**
  * 收集树中所有节点的值（用于全选）
  */
-function collectAllValues(nodes: any[], valueField: string = 'value'): (string | number)[] {
+function collectAllValues(nodes: TreeNodeLike[], valueField: string = 'value'): (string | number)[] {
   const values: (string | number)[] = []
   
-  function traverse(nodes: any[]) {
+  function traverse(nodes: TreeNodeLike[]) {
     for (const node of nodes) {
       // 跳过禁用的节点
       if (node.disabled || node.checkable === false) {
-        node.children?.length && traverse(node.children)
+        if (node.children?.length) {
+          traverse(node.children as TreeNodeLike[])
+        }
         continue
       }
       
-      const value = node[valueField]
+      const value = node[valueField] as string | number | undefined
       if (value != null) {
         values.push(value)
       }
       
-      node.children?.length && traverse(node.children)
+      if (node.children?.length) {
+        traverse(node.children as TreeNodeLike[])
+      }
     }
   }
   
@@ -527,7 +552,7 @@ const tryUpdateTreeSelectValue = (values: (string | number)[]) => {
     if (!treeSelectRef.value) return
     
     try {
-      const instance = treeSelectRef.value as any
+      const instance = treeSelectRef.value
       if (instance.$?.exposed?.setValue) {
         instance.$.exposed.setValue(values)
       } else if (instance.$emit) {
@@ -535,7 +560,7 @@ const tryUpdateTreeSelectValue = (values: (string | number)[]) => {
       } else if (instance.emit) {
         instance.emit('change', values, null)
       }
-    } catch (e) {
+    } catch {
       logger.debug('[TaktTreeSelect] 无法直接操作 TreeSelect，依赖 emit 更新')
     }
   })

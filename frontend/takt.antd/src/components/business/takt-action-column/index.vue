@@ -1,5 +1,5 @@
 <template>
-  <!-- 此文件仅用于样式定义，函数实现在 index.ts 中 -->
+  <div class="takt-action-column-style-host" />
 </template>
 
 <script setup lang="ts">

@@ -17,7 +17,7 @@
       v-model="queryKeyword"
       :placeholder="
         t('common.form.placeholder.required', {
-          field: [t('entity.employee.employeeCode'), t('entity.employee.realname'), t('entity.employee.phone')].join('、')
+          field: [t('entity.employee.code'), t('entity.employee.realname'), t('entity.employee.phone')].join('、')
         }) + t('common.button.query')
       "
       :loading="loading"
@@ -81,6 +81,18 @@
             dict-type="sys_user_gender"
           />
         </template>
+        <template v-else-if="column.key === 'politicalStatus'">
+          <TaktDictTag
+            :value="getEmployeeField(record, 'politicalStatus')"
+            dict-type="hr_political_status"
+          />
+        </template>
+        <template v-else-if="column.key === 'maritalStatus'">
+          <TaktDictTag
+            :value="getEmployeeField(record, 'maritalStatus')"
+            dict-type="hr_marital_status"
+          />
+        </template>
         <template v-else-if="column.key === 'employeeStatus'">
           <TaktDictTag
             :value="getEmployeeField(record, 'employeeStatus')"
@@ -124,7 +136,7 @@
       @submit="handleAdvancedQuerySubmit"
       @reset="handleAdvancedQueryReset"
     >
-      <a-form-item :label="t('entity.employee.employeeCode')">
+      <a-form-item :label="t('entity.employee.code')">
         <a-input v-model:value="advancedQueryForm.employeeCode" />
       </a-form-item>
       <a-form-item :label="t('entity.employee.realname')">
@@ -133,11 +145,11 @@
       <a-form-item :label="t('entity.employee.phone')">
         <a-input v-model:value="advancedQueryForm.phone" />
       </a-form-item>
-      <a-form-item :label="t('entity.employee.employeeStatus')">
+      <a-form-item :label="t('entity.employee.employeestatus')">
         <TaktSelect
           v-model:value="advancedQueryForm.employeeStatus"
           dict-type="hr_employee_status"
-          :placeholder="t('common.form.placeholder.select', { field: t('entity.employee.employeeStatus') })"
+          :placeholder="t('common.form.placeholder.select', { field: t('entity.employee.employeestatus') })"
           allow-clear
         />
       </a-form-item>
@@ -264,7 +276,7 @@ const columns = computed<TableColumnsType>(() => [
     }
   },
   {
-    title: t('entity.employee.employeeCode'),
+    title: t('entity.employee.code'),
     dataIndex: 'employeeCode',
     key: 'employeeCode',
     width: 120,
@@ -290,10 +302,66 @@ const columns = computed<TableColumnsType>(() => [
     }
   },
   {
+    title: t('entity.employee.formername'),
+    dataIndex: 'formerName',
+    key: 'formerName',
+    width: 120,
+    resizable: true,
+    ellipsis: true
+  },
+  {
+    title: t('entity.employee.fullname'),
+    dataIndex: 'fullName',
+    key: 'fullName',
+    width: 120,
+    resizable: true,
+    ellipsis: true
+  },
+  {
+    title: t('entity.employee.nativename'),
+    dataIndex: 'nativeName',
+    key: 'nativeName',
+    width: 120,
+    resizable: true,
+    ellipsis: true
+  },
+  {
+    title: t('entity.employee.displayname'),
+    dataIndex: 'displayName',
+    key: 'displayName',
+    width: 120,
+    resizable: true,
+    ellipsis: true
+  },
+  {
     title: t('entity.employee.gender'),
     dataIndex: 'gender',
     key: 'gender',
     width: 80
+  },
+  {
+    title: t('entity.employee.birthdate'),
+    dataIndex: 'birthDate',
+    key: 'birthDate',
+    width: 120,
+    resizable: true,
+    ellipsis: true
+  },
+  {
+    title: t('entity.employee.age'),
+    dataIndex: 'age',
+    key: 'age',
+    width: 80,
+    resizable: true,
+    ellipsis: true
+  },
+  {
+    title: t('entity.employee.idcard'),
+    dataIndex: 'idCard',
+    key: 'idCard',
+    width: 180,
+    resizable: true,
+    ellipsis: true
   },
   {
     title: t('entity.employee.phone'),
@@ -312,13 +380,65 @@ const columns = computed<TableColumnsType>(() => [
     ellipsis: true
   },
   {
-    title: t('entity.employee.employeeStatus'),
+    title: t('entity.employee.avatar'),
+    dataIndex: 'avatar',
+    key: 'avatar',
+    width: 180,
+    resizable: true,
+    ellipsis: true
+  },
+  {
+    title: t('entity.employee.nationality'),
+    dataIndex: 'nationality',
+    key: 'nationality',
+    width: 120,
+    resizable: true,
+    ellipsis: true
+  },
+  {
+    title: t('entity.employee.politicalstatus'),
+    dataIndex: 'politicalStatus',
+    key: 'politicalStatus',
+    width: 120
+  },
+  {
+    title: t('entity.employee.maritalstatus'),
+    dataIndex: 'maritalStatus',
+    key: 'maritalStatus',
+    width: 120
+  },
+  {
+    title: t('entity.employee.nativeplace'),
+    dataIndex: 'nativePlace',
+    key: 'nativePlace',
+    width: 120,
+    resizable: true,
+    ellipsis: true
+  },
+  {
+    title: t('entity.employee.currentaddress'),
+    dataIndex: 'currentAddress',
+    key: 'currentAddress',
+    width: 180,
+    resizable: true,
+    ellipsis: true
+  },
+  {
+    title: t('entity.employee.registeredaddress'),
+    dataIndex: 'registeredAddress',
+    key: 'registeredAddress',
+    width: 180,
+    resizable: true,
+    ellipsis: true
+  },
+  {
+    title: t('entity.employee.employeestatus'),
     dataIndex: 'employeeStatus',
     key: 'employeeStatus',
     width: 100
   },
   {
-    title: t('entity.employee.createdAt'),
+    title: t('common.entity.createTime'),
     dataIndex: 'createdAt',
     key: 'createdAt',
     width: 160,

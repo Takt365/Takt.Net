@@ -5,6 +5,8 @@ import type { LoginParams, UserInfo } from '@/types/identity/auth'
 import { decodeHolidayFromToken, type HolidayFromToken } from '@/utils/jwt'
 import { logger } from '@/utils/logger'
 import { eventBus, AuthEvents } from '@/utils/eventBus'
+const toErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error)
 
 /**
  * 认证状态约定：
@@ -75,15 +77,15 @@ export const useUserStore = defineStore('user', () => {
     try {
       logger.info('[User Store] 开始登录，用户名:', params.username)
       const data = await login(params)
-      setAuth(data.token, {
-        refreshToken: data.refreshToken,
-        expiresIn: data.expiresIn
-      })
+      const authExtra: { refreshToken?: string; expiresIn?: number } = {}
+      if (data.refreshToken != null) authExtra.refreshToken = data.refreshToken
+      if (data.expiresIn != null) authExtra.expiresIn = data.expiresIn
+      setAuth(data.token, Object.keys(authExtra).length > 0 ? authExtra : undefined)
       eventBus.$emit(AuthEvents.LoginSuccess)
       logger.info('[User Store] 登录成功，用户名:', params.username, '用户ID:', data.userInfo?.userId)
       return data
-    } catch (error: any) {
-      logger.error('[User Store] 登录失败，用户名:', params.username, '错误:', error.message || error)
+    } catch (error: unknown) {
+      logger.error('[User Store] 登录失败，用户名:', params.username, '错误:', toErrorMessage(error))
       throw error
     }
   }
@@ -97,13 +99,17 @@ export const useUserStore = defineStore('user', () => {
     userInfo.value = info
     if (info.holidayToday === true && (info.holidayName != null || info.holidayGreeting != null || info.holidayQuote != null || info.holidayTheme != null)) {
       const key = (info.holidayTheme ?? '').replace(/\s+/g, ' ').replace(/[\u3000-\u303f\uff00-\uffef]/g, '').trim().toLowerCase()
-      holidayFromToken.value = {
+      const fromUserInfo: HolidayFromToken = {
         isHolidayToday: true,
         holidayName: info.holidayName ?? '',
         holidayGreeting: info.holidayGreeting ?? '',
-        holidayQuote: info.holidayQuote ?? undefined,
         holidayTheme: key
       }
+      const quoteRaw = info.holidayQuote
+      if (typeof quoteRaw === 'string' && quoteRaw.trim() !== '') {
+        fromUserInfo.holidayQuote = quoteRaw.trim()
+      }
+      holidayFromToken.value = fromUserInfo
       logger.info('[User Store] 假日信息已从 userinfo 同步: ', info.holidayName, ', 主题 key=', key)
     } else {
       // 未返回假日或今日非假日时清空，避免切换语言/地区后仍显示旧假日（如 zh-CN 有假日、en-US 无假日）
@@ -133,15 +139,15 @@ export const useUserStore = defineStore('user', () => {
         try {
           await logoutApi(refreshToken.value)
           logger.info('[User Store] 退出登录成功，用户:', currentUser, '后端已处理登出请求')
-        } catch (error: any) {
-          logger.error('[User Store] 退出登录失败，用户:', currentUser, '后端登出失败:', error.message || error)
+        } catch (error: unknown) {
+          logger.error('[User Store] 退出登录失败，用户:', currentUser, '后端登出失败:', toErrorMessage(error))
           // 即使后端登出失败，也继续清理本地状态
         }
       } else {
         logger.warn('[User Store] 退出登录，用户:', currentUser, '没有 refreshToken，跳过后端登出')
       }
-    } catch (error: any) {
-      logger.error('[User Store] 退出登录异常，用户:', currentUser, '错误:', error.message || error)
+    } catch (error: unknown) {
+      logger.error('[User Store] 退出登录异常，用户:', currentUser, '错误:', toErrorMessage(error))
       // 即使后端登出失败，也继续清理本地状态
     } finally {
       eventBus.$emit(AuthEvents.DidLogout)
@@ -166,8 +172,8 @@ export const useUserStore = defineStore('user', () => {
           await signalRStore.disconnect()
           logger.info('[User Store] 退出登录：已断开 SignalR 连接')
         }
-      } catch (error: any) {
-        logger.error('[User Store] 断开 SignalR 连接失败:', error.message || error)
+      } catch (error: unknown) {
+        logger.error('[User Store] 断开 SignalR 连接失败:', toErrorMessage(error))
         // SignalR 断开失败不影响退出登录流程
       }
     }

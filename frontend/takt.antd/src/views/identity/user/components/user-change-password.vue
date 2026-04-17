@@ -23,7 +23,10 @@
         disabled
       />
     </a-form-item>
-    <a-form-item :label="t('identity.user.password.old.label')" name="oldPassword">
+    <a-form-item
+      :label="t('identity.user.password.old.label')"
+      name="oldPassword"
+    >
       <a-input-password
         v-model:value="formState.oldPassword"
         :placeholder="t('common.form.placeholder.required', { field: t('identity.user.password.old.label') })"
@@ -32,7 +35,10 @@
         :maxlength="20"
       />
     </a-form-item>
-    <a-form-item :label="t('identity.user.password.new.label')" name="newPassword">
+    <a-form-item
+      :label="t('identity.user.password.new.label')"
+      name="newPassword"
+    >
       <a-input-password
         v-model:value="formState.newPassword"
         :placeholder="t('common.form.placeholder.required', { field: t('identity.user.password.new.label') })"
@@ -41,7 +47,10 @@
         :maxlength="20"
       />
     </a-form-item>
-    <a-form-item :label="t('identity.user.password.confirm.label')" name="confirmPassword">
+    <a-form-item
+      :label="t('identity.user.password.confirm.label')"
+      name="confirmPassword"
+    >
       <a-input-password
         v-model:value="formState.confirmPassword"
         :placeholder="t('common.form.placeholder.requiredAgain', { field: t('identity.user.password.new.label') })"

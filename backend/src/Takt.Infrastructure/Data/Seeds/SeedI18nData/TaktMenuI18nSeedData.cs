@@ -624,6 +624,17 @@ public class TaktMenuI18nSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.accounting.financial.company", TranslationValue = "公司信息", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.accounting.financial.company", TranslationValue = "公司資訊", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },
 
+            // menu.accounting.financial.title
+            new TaktTranslation { CultureCode = "ar-SA", ResourceKey = "menu.accounting.financial.title", TranslationValue = "دليل الحسابات", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.accounting.financial.title", TranslationValue = "Chart of Accounts", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },
+            new TaktTranslation { CultureCode = "es-ES", ResourceKey = "menu.accounting.financial.title", TranslationValue = "Plan contable", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },
+            new TaktTranslation { CultureCode = "fr-FR", ResourceKey = "menu.accounting.financial.title", TranslationValue = "Plan comptable", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.accounting.financial.title", TranslationValue = "勘定科目", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.accounting.financial.title", TranslationValue = "회계 과목", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },
+            new TaktTranslation { CultureCode = "ru-RU", ResourceKey = "menu.accounting.financial.title", TranslationValue = "План счетов", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.accounting.financial.title", TranslationValue = "会计科目", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.accounting.financial.title", TranslationValue = "會計科目", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },
+
             // menu.accounting.controlling._self
             new TaktTranslation { CultureCode = "ar-SA", ResourceKey = "menu.accounting.controlling._self", TranslationValue = "التحكم", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },
             new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.accounting.controlling._self", TranslationValue = "Controlling", ResourceType = "Frontend", ResourceGroup = "Menu", OrderNum = 0 },

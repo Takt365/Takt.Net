@@ -9,13 +9,26 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" :model="formState" :rules="rules" layout="horizontal" label-align="right">
-    <a-tabs v-model:activeKey="activeTab">
-      <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')" force-render>
+  <a-form
+    ref="formRef"
+    :model="formState"
+    :rules="rules"
+    layout="horizontal"
+    label-align="right"
+  >
+    <a-tabs v-model:active-key="activeTab">
+      <a-tab-pane
+        key="basic"
+        :tab="t('common.form.tabs.basicInfo')"
+        force-render
+      >
         <div :class="formContentClass">
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.workshift.shiftcode')" name="shiftCode">
+              <a-form-item
+                :label="t('entity.workshift.shiftcode')"
+                name="shiftCode"
+              >
                 <a-input
                   v-model:value="formState.shiftCode"
                   show-count
@@ -25,7 +38,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.workshift.shiftname')" name="shiftName">
+              <a-form-item
+                :label="t('entity.workshift.shiftname')"
+                name="shiftName"
+              >
                 <a-input
                   v-model:value="formState.shiftName"
                   show-count
@@ -37,7 +53,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.workshift.starttime')" name="startTime">
+              <a-form-item
+                :label="t('entity.workshift.starttime')"
+                name="startTime"
+              >
                 <a-input
                   v-model:value="formState.startTime"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.workshift.starttime') })"
@@ -45,7 +64,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.workshift.endtime')" name="endTime">
+              <a-form-item
+                :label="t('entity.workshift.endtime')"
+                name="endTime"
+              >
                 <a-input
                   v-model:value="formState.endTime"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.workshift.endtime') })"
@@ -55,7 +77,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.workshift.crossmidnight')" name="crossMidnight">
+              <a-form-item
+                :label="t('entity.workshift.crossmidnight')"
+                name="crossMidnight"
+              >
                 <TaktSelect
                   v-model:value="formState.crossMidnight"
                   dict-type="sys_yes_no"
@@ -64,7 +89,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.workshift.ordernum')" name="orderNum">
+              <a-form-item
+                :label="t('entity.workshift.ordernum')"
+                name="orderNum"
+              >
                 <a-input-number
                   v-model:value="formState.orderNum"
                   :min="0"
@@ -76,7 +104,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('common.entity.remark')" name="remark">
+              <a-form-item
+                :label="t('common.entity.remark')"
+                name="remark"
+              >
                 <a-textarea
                   v-model:value="formState.remark"
                   :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"

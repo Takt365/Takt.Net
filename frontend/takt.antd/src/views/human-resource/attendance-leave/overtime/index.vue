@@ -124,10 +124,18 @@
         />
       </a-form-item>
       <a-form-item :label="t('entity.overtime.datefrom')">
-        <a-date-picker v-model:value="advancedQueryForm.from" value-format="YYYY-MM-DD" style="width: 100%" />
+        <a-date-picker
+          v-model:value="advancedQueryForm.from"
+          value-format="YYYY-MM-DD"
+          style="width: 100%"
+        />
       </a-form-item>
       <a-form-item :label="t('entity.overtime.dateto')">
-        <a-date-picker v-model:value="advancedQueryForm.to" value-format="YYYY-MM-DD" style="width: 100%" />
+        <a-date-picker
+          v-model:value="advancedQueryForm.to"
+          value-format="YYYY-MM-DD"
+          style="width: 100%"
+        />
       </a-form-item>
     </TaktQueryDrawer>
 
@@ -341,9 +349,9 @@ const getOvertimeId = (record: Overtime): string => {
  *
  * @param {Overtime} record - 列表行
  * @param {string} field - 字段名（与 DTO 字段一致）
- * @returns {any} 字段原始值
+ * @returns {unknown} 字段原始值
  */
-const getOvertimeField = (record: Overtime, field: string): any =>
+const getOvertimeField = (record: Overtime, field: string): unknown =>
   (record as unknown as Record<string, unknown>)[field]
 
 /**
@@ -826,7 +834,7 @@ const handleExport = async () => {
     const resBlob =
       typeof blob === 'object' && blob !== null && 'data' in blob && blob.data instanceof Blob
         ? blob.data
-        : (blob as Blob)
+        : (blob)
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
     const fileName = `${overtimeExcelNames.fileBase}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`

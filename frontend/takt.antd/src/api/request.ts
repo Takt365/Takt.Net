@@ -108,18 +108,41 @@ function showErrorOnce(msg: string): void {
   }
 }
 
+interface ApiResultLike {
+  code?: number
+  data?: unknown
+  message?: string
+  success?: boolean
+}
+
+interface ErrorResponseDataLike {
+  message?: string
+  error?: string
+  title?: string
+  detail?: string
+  Message?: string
+}
+
+interface BusinessError extends Error {
+  isBusinessError: true
+  businessCode?: number
+  validationErrors: unknown[]
+  response: AxiosResponse
+}
+
 /**
  * 从 HTTP 响应中解析错误消息（兼容多种后端格式）
  */
-function getHttpErrorMessage(response: { data?: any; statusText?: string } | undefined): string {
+function getHttpErrorMessage(response: { data?: unknown; statusText?: string } | undefined): string {
   const data = response?.data
+  const dataObj = (typeof data === 'object' && data !== null ? data : undefined) as ErrorResponseDataLike | undefined
   return (
     (typeof data === 'string' && data.trim() !== '' ? data.trim() : null) ??
-    data?.Message ??
-    data?.message ??
-    data?.title ??
-    data?.detail ??
-    data?.error ??
+    dataObj?.Message ??
+    dataObj?.message ??
+    dataObj?.title ??
+    dataObj?.detail ??
+    dataObj?.error ??
     response?.statusText ??
     t('common.api.requestFail')
   )
@@ -226,15 +249,15 @@ let isRedirectingToLogin = false
  * 待重试的请求队列
  */
 let failedQueue: Array<{
-  resolve: (value?: any) => void
-  reject: (error?: any) => void
+  resolve: (value?: unknown) => void
+  reject: (error?: unknown) => void
   config: InternalAxiosRequestConfig
 }> = []
 
 /**
  * 处理待重试的请求队列
  */
-function processQueue(error: any, token: string | null = null) {
+function processQueue(error: unknown, token: string | null = null) {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error)
@@ -262,8 +285,9 @@ export async function tryRefreshToken(): Promise<boolean> {
     logger.info('[Token Refresh] Token 刷新成功')
     eventBus.$emit(AuthEvents.TokenRefreshed)
     return true
-  } catch (error: any) {
-    logger.error('[Token Refresh] Token 刷新失败:', error.message || error)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.error('[Token Refresh] Token 刷新失败:', errorMessage)
     return false
   }
 }
@@ -280,7 +304,8 @@ const UNAUTHORIZED_USER_MESSAGE = () => t('common.api.loginExpired')
  * @param config 请求配置（可选，用于重试）
  * @returns 刷新成功且传入 config 时返回重试请求的 Promise，否则 resolve/reject
  */
-async function handleUnauthorized(errorMessage: string, config?: InternalAxiosRequestConfig): Promise<any> {
+async function handleUnauthorized(errorMessage: string, config?: InternalAxiosRequestConfig): Promise<unknown> {
+  logger.debug('[Auth] handleUnauthorized:', errorMessage)
   const configWithRetry = config as ConfigWithRetry | undefined
   if (isRedirectingToLogin) {
     return Promise.reject(new Error(t('common.api.redirectingToLogin')))
@@ -338,7 +363,7 @@ async function handleUnauthorized(errorMessage: string, config?: InternalAxiosRe
  * 统一处理 401：刷新 token 并可选重试原请求（业务 401 与 HTTP 401 共用）
  * 直接返回 handleUnauthorized 的 Promise，避免重复发起请求
  */
-function handle401AndRetry(config?: InternalAxiosRequestConfig): Promise<any> {
+function handle401AndRetry(config?: InternalAxiosRequestConfig): Promise<unknown> {
   return handleUnauthorized(t('common.api.loginExpired'), config)
 }
 
@@ -510,7 +535,7 @@ service.interceptors.response.use(
     }
 
     // 后端已统一转换为 camelCase，直接使用 camelCase 格式
-    const apiResult = res as any
+    const apiResult = (typeof res === 'object' && res !== null ? res : {}) as ApiResultLike
     const code = apiResult.code
     const data = apiResult.data
     const messageText = apiResult.message ?? ''
@@ -533,10 +558,11 @@ service.interceptors.response.use(
       const errorMessage = messageText || t('common.api.requestFail')
       logger.apiResponse(response.status, requestMethod, url || '', data, errorMessage)
       
-      const businessError: any = new Error(errorMessage)
+      const businessError = new Error(errorMessage) as BusinessError
       businessError.isBusinessError = true
       businessError.businessCode = code
-      businessError.validationErrors = Array.isArray(data?.validationErrors) ? data.validationErrors : []
+      const dataObj = (typeof data === 'object' && data !== null ? data : undefined) as { validationErrors?: unknown[] } | undefined
+      businessError.validationErrors = Array.isArray(dataObj?.validationErrors) ? dataObj.validationErrors : []
       businessError.response = response
       return Promise.reject(businessError)
     }
@@ -647,10 +673,11 @@ service.interceptors.response.use(
             showErrorOnce(t('common.api.serverError'))
             break
 
-          default:
+          default: {
             const apiErrorSummary = `${status} ${requestMethod} ${url || '(no url)'} - ${errorMessage}`
             logger.error('[API Error] 请求失败:', apiErrorSummary, { status, url, method: requestMethod, message: errorMessage })
             showErrorOnce(errorMessage)
+          }
         }
       }
     } else if (error.request || error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'ETIMEDOUT' || error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {

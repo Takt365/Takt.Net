@@ -7,42 +7,119 @@
     :wrapper-col="{ span: 20 }"
     layout="horizontal"
   >
-    <a-form-item label="规则编码" name="ruleCode">
+    <a-form-item
+      label="规则编码"
+      name="ruleCode"
+    >
       <a-input
         v-model:value="formState.ruleCode"
         placeholder="如 ANNOUNCEMENT、PO"
         :disabled="!!formData?.numberingRuleId"
       />
     </a-form-item>
-    <a-form-item label="规则名称" name="ruleName">
-      <a-input v-model:value="formState.ruleName" placeholder="请输入规则名称" allow-clear />
+    <a-form-item
+      label="规则名称"
+      name="ruleName"
+    >
+      <a-input
+        v-model:value="formState.ruleName"
+        placeholder="请输入规则名称"
+        allow-clear
+      />
     </a-form-item>
-    <a-form-item label="公司编码" name="companyCode">
-      <a-input v-model:value="formState.companyCode" placeholder="可选，用于匹配规则" allow-clear />
+    <a-form-item
+      label="公司编码"
+      name="companyCode"
+    >
+      <a-input
+        v-model:value="formState.companyCode"
+        placeholder="可选，用于匹配规则"
+        allow-clear
+      />
     </a-form-item>
-    <a-form-item label="部门编码" name="deptCode">
-      <a-input v-model:value="formState.deptCode" placeholder="可选，用于匹配规则" allow-clear />
+    <a-form-item
+      label="部门编码"
+      name="deptCode"
+    >
+      <a-input
+        v-model:value="formState.deptCode"
+        placeholder="可选，用于匹配规则"
+        allow-clear
+      />
     </a-form-item>
-    <a-form-item label="前缀" name="prefix">
-      <a-input v-model:value="formState.prefix" placeholder="如 ANN-" allow-clear />
+    <a-form-item
+      label="前缀"
+      name="prefix"
+    >
+      <a-input
+        v-model:value="formState.prefix"
+        placeholder="如 ANN-"
+        allow-clear
+      />
     </a-form-item>
-    <a-form-item label="日期格式" name="dateFormat">
-      <a-input v-model:value="formState.dateFormat" placeholder="如 yyyyMMdd" allow-clear />
+    <a-form-item
+      label="日期格式"
+      name="dateFormat"
+    >
+      <a-input
+        v-model:value="formState.dateFormat"
+        placeholder="如 yyyyMMdd"
+        allow-clear
+      />
     </a-form-item>
-    <a-form-item label="序号长度" name="numberLength">
-      <a-input-number v-model:value="formState.numberLength" :min="1" :max="20" placeholder="如 5" style="width: 100%" />
+    <a-form-item
+      label="序号长度"
+      name="numberLength"
+    >
+      <a-input-number
+        v-model:value="formState.numberLength"
+        :min="1"
+        :max="20"
+        placeholder="如 5"
+        style="width: 100%"
+      />
     </a-form-item>
-    <a-form-item label="后缀" name="suffix">
-      <a-input v-model:value="formState.suffix" placeholder="可选" allow-clear />
+    <a-form-item
+      label="后缀"
+      name="suffix"
+    >
+      <a-input
+        v-model:value="formState.suffix"
+        placeholder="可选"
+        allow-clear
+      />
     </a-form-item>
-    <a-form-item label="步长" name="step">
-      <a-input-number v-model:value="formState.step" :min="1" placeholder="如 1" style="width: 100%" />
+    <a-form-item
+      label="步长"
+      name="step"
+    >
+      <a-input-number
+        v-model:value="formState.step"
+        :min="1"
+        placeholder="如 1"
+        style="width: 100%"
+      />
     </a-form-item>
-    <a-form-item label="排序号" name="orderNum">
-      <a-input-number v-model:value="formState.orderNum" :min="0" style="width: 100%" />
+    <a-form-item
+      label="排序号"
+      name="orderNum"
+    >
+      <a-input-number
+        v-model:value="formState.orderNum"
+        :min="0"
+        style="width: 100%"
+      />
     </a-form-item>
-    <a-form-item label="备注" name="remark">
-      <a-textarea v-model:value="formState.remark" placeholder="请输入备注" :rows="2" allow-clear />
+    <a-form-item
+      label="备注"
+      name="remark"
+    >
+      <a-textarea
+        v-model:value="formState.remark"
+        placeholder="请输入备注"
+        :rows="2"
+        allow-clear
+      />
     </a-form-item>
   </a-form>
 </template>

@@ -1,5 +1,8 @@
 <template>
-  <div v-if="show" class="takt-tools-bar">
+  <div
+    v-if="show"
+    class="takt-tools-bar"
+  >
     <!-- 左侧：常用按钮 -->
     <div class="tools-bar-left">
       <slot name="left">
@@ -60,7 +63,7 @@
             @click="handleExport"
           >
             <template #icon>
-              <RiExportLine/>
+              <RiExportLine />
             </template>
             {{ t('common.button.export') }}
           </a-button>
@@ -109,9 +112,15 @@
             </a-button>
             <template #overlay>
               <a-menu @click="handleEmptyMenuClick">
-                <a-menu-item key="7d">{{ t('common.button.empty7d') }}</a-menu-item>
-                <a-menu-item key="30d">{{ t('common.button.empty30d') }}</a-menu-item>
-                <a-menu-item key="all">{{ t('common.button.emptyAll') }}</a-menu-item>
+                <a-menu-item key="7d">
+                  {{ t('common.button.empty7d') }}
+                </a-menu-item>
+                <a-menu-item key="30d">
+                  {{ t('common.button.empty30d') }}
+                </a-menu-item>
+                <a-menu-item key="all">
+                  {{ t('common.button.emptyAll') }}
+                </a-menu-item>
               </a-menu>
             </template>
           </a-dropdown>
@@ -129,9 +138,18 @@
             :loading="action.loading"
             @click="handleAction(action)"
           >
-            <template v-if="action.icon" #icon>
-              <i v-if="typeof action.icon === 'string'" :class="action.icon"></i>
-              <component v-else :is="action.icon" />
+            <template
+              v-if="action.icon"
+              #icon
+            >
+              <i
+                v-if="typeof action.icon === 'string'"
+                :class="action.icon"
+              />
+              <component
+                :is="action.icon"
+                v-else
+              />
             </template>
             <template v-if="action.shape !== 'circle' && action.label">
               {{ action.label }}
@@ -149,7 +167,10 @@
           class="takt-tools-bar-right-group"
         >
           <!-- 展开/收缩（右侧：通常表示表格区域展开/收缩，与左侧树展开/收缩为不同控制） -->
-          <a-tooltip v-if="showExpand" :title="expandedState ? t('common.button.collapse') : t('common.button.expand')">
+          <a-tooltip
+            v-if="showExpand"
+            :title="expandedState ? t('common.button.collapse') : t('common.button.expand')"
+          >
             <a-button
               class="takt-button-expand takt-button-plain takt-button-plain-icon-only"
               :disabled="expandDisabled"
@@ -162,27 +183,40 @@
             </a-button>
           </a-tooltip>
           <!-- 高级查询 -->
-          <a-tooltip v-if="showAdvancedQuery" :title="t('common.button.advancedQuery')">
+          <a-tooltip
+            v-if="showAdvancedQuery"
+            :title="t('common.button.advancedQuery')"
+          >
             <a-button
               class="takt-button-query takt-button-plain takt-button-plain-icon-only"
               :disabled="advancedQueryDisabled"
               @click="handleAdvancedQuery"
             >
-              <template #icon><RiFilterLine /></template>
+              <template #icon>
+                <RiFilterLine />
+              </template>
             </a-button>
           </a-tooltip>
           <!-- 列设置 -->
-          <a-tooltip v-if="showColumnSetting" :title="t('common.button.columnSetting')">
+          <a-tooltip
+            v-if="showColumnSetting"
+            :title="t('common.button.columnSetting')"
+          >
             <a-button
               class="takt-button-config takt-button-plain takt-button-plain-icon-only"
               :disabled="columnSettingDisabled"
               @click="handleColumnSetting"
             >
-              <template #icon><RiSettingsLine /></template>
+              <template #icon>
+                <RiSettingsLine />
+              </template>
             </a-button>
           </a-tooltip>
           <!-- 全屏 -->
-          <a-tooltip v-if="showFullscreen" :title="isFullscreen ? t('common.button.exitFullscreen') : t('common.button.fullscreen')">
+          <a-tooltip
+            v-if="showFullscreen"
+            :title="isFullscreen ? t('common.button.exitFullscreen') : t('common.button.fullscreen')"
+          >
             <a-button
               class="takt-button-fullscreen takt-button-plain takt-button-plain-icon-only"
               :disabled="fullscreenDisabled"
@@ -195,7 +229,10 @@
             </a-button>
           </a-tooltip>
           <!-- 转置 -->
-          <a-tooltip v-if="showTranspose" :title="isTransposed ? t('common.button.toList') : t('common.button.toTranspose')">
+          <a-tooltip
+            v-if="showTranspose"
+            :title="isTransposed ? t('common.button.toList') : t('common.button.toTranspose')"
+          >
             <a-button
               class="takt-button-transpose takt-button-plain takt-button-plain-icon-only"
               :disabled="transposeDisabled"
@@ -208,14 +245,19 @@
             </a-button>
           </a-tooltip>
           <!-- 刷新 -->
-          <a-tooltip v-if="showRefresh" :title="t('common.button.refresh')">
+          <a-tooltip
+            v-if="showRefresh"
+            :title="t('common.button.refresh')"
+          >
             <a-button
               class="takt-button-refresh takt-button-plain takt-button-plain-icon-only"
               :disabled="refreshDisabled"
               :loading="refreshLoading"
               @click="handleRefresh"
             >
-              <template #icon><RiRefreshLine /></template>
+              <template #icon>
+                <RiRefreshLine />
+              </template>
             </a-button>
           </a-tooltip>
           <!-- 自定义右侧按钮 -->
@@ -235,9 +277,18 @@
               :loading="action.loading"
               @click="handleAction(action)"
             >
-              <template v-if="action.icon" #icon>
-                <i v-if="typeof action.icon === 'string'" :class="action.icon"></i>
-                <component v-else :is="action.icon" />
+              <template
+                v-if="action.icon"
+                #icon
+              >
+                <i
+                  v-if="typeof action.icon === 'string'"
+                  :class="action.icon"
+                />
+                <component
+                  :is="action.icon"
+                  v-else
+                />
               </template>
               <template v-if="action.shape !== 'circle' && action.label">
                 {{ action.label }}
@@ -398,6 +449,14 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   show: true,
+  createPermission: undefined,
+  updatePermission: undefined,
+  deletePermission: undefined,
+  importPermission: undefined,
+  exportPermission: undefined,
+  createRowPermission: undefined,
+  deleteRowPermission: undefined,
+  emptyPermission: undefined,
   showCreate: false,
   showUpdate: false,
   showDelete: false,

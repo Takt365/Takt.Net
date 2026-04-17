@@ -13,30 +13,49 @@
 <template>
   <div class="flow-task-form-content">
     <template v-if="detail">
-      <div v-if="detail.processTitle" class="flow-task-form-content__title">
+      <div
+        v-if="detail.processTitle"
+        class="flow-task-form-content__title"
+      >
         <span class="flow-task-form-content__label">{{ t('entity.flowinstance.processtitle') }}：</span>
         <span>{{ detail.processTitle }}</span>
       </div>
       <div class="flow-task-form-content__body">
-        <div v-if="formConfigLoading" class="flow-task-form-content__loading">
+        <div
+          v-if="formConfigLoading"
+          class="flow-task-form-content__loading"
+        >
           <a-spin />
         </div>
         <template v-else-if="formConfigRule.length">
           <form-create
             :key="formCreateKey"
+            v-model:api="formCreateApi"
             name="flowTaskFrmDataReadonly"
             :rule="formConfigRule"
-            v-model:api="formCreateApi"
             :option="formCreateOption"
           />
         </template>
-        <div v-else-if="detail.frmData?.trim()" class="flow-task-form-content__raw">
+        <div
+          v-else-if="detail.frmData?.trim()"
+          class="flow-task-form-content__raw"
+        >
           <pre class="flow-task-form-content__pre">{{ detail.frmData }}</pre>
         </div>
-        <div v-else class="flow-task-form-content__empty">{{ t('workflow.instance.startFlowForm.formDataLabel') }}（空）</div>
+        <div
+          v-else
+          class="flow-task-form-content__empty"
+        >
+          {{ t('workflow.instance.startFlowForm.formDataLabel') }}（空）
+        </div>
       </div>
     </template>
-    <div v-else class="flow-task-form-content__empty">{{ t('workflow.instance.noData') }}</div>
+    <div
+      v-else
+      class="flow-task-form-content__empty"
+    >
+      {{ t('workflow.instance.noData') }}
+    </div>
   </div>
 </template>
 

@@ -11,197 +11,240 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" layout="vertical" :model="form" :rules="formRules">
-    <a-steps :current="currentStep" :items="stepItems" class="form-steps" />
+  <a-form
+    ref="formRef"
+    layout="vertical"
+    :model="form"
+    :rules="formRules"
+  >
+    <a-steps
+      :current="currentStep"
+      :items="stepItems"
+      class="form-steps"
+    />
     <div class="steps-content">
-    <!-- 第一步：表单信息 -->
-    <div v-show="currentStep === 0" class="step-content">
-      <a-row :gutter="16">
-        <a-col :span="12">
-          <a-form-item :label="t('entity.flowform.formcode')" name="formCode" required>
-            <a-input
-              v-model:value="form.formCode"
-              :placeholder="t('common.form.placeholder.required', { field: t('entity.flowform.formcode') })"
-              :disabled="!!form.formId"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item :label="t('entity.flowform.formname')" name="formName" required>
-            <a-input
-              v-model:value="form.formName"
-              :placeholder="t('common.form.placeholder.required', { field: t('entity.flowform.formname') })"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item :label="t('entity.flowform.formcategory')">
-            <TaktSelect
-              v-model="form.formCategory"
-              dict-type="sys_form_category"
-              style="width: 100%"
-              :placeholder="t('common.form.placeholder.select', { field: t('entity.flowform.formcategory') })"
-              allow-clear
-              :show-search="true"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item :label="t('entity.flowform.formtype')">
-            <TaktSelect
-              v-model="form.formType"
-              dict-type="sys_form_type"
-              style="width: 100%"
-              :placeholder="t('common.form.placeholder.select', { field: t('entity.flowform.formtype') })"
-              allow-clear
-              :show-search="true"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item :label="t('entity.flowform.formversion')">
-            <a-input
-              v-model:value="form.formVersion"
-              :placeholder="t('workflow.form.versionPlaceholder')"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item :label="t('entity.flowform.formstatus')">
-            <TaktSelect
-              v-model="form.formStatus"
-              dict-type="sys_scheme_status"
-              style="width: 100%"
-              :placeholder="t('common.form.placeholder.select', { field: t('entity.flowform.formstatus') })"
-              allow-clear
-              :show-search="true"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item :label="t('entity.flowform.ordernum')">
-            <a-input-number
-              v-model:value="form.orderNum"
-              :min="0"
-              :step="1"
-              style="width: 100%"
-            />
-          </a-form-item>
-        </a-col>
-      </a-row>
-    </div>
-    <!-- 第二步（新增/编辑一致）：数据源 + 数据表 + 字段网格 -->
-    <div v-show="currentStep === 1" class="step-content">
-      <a-row :gutter="8" class="form-form__ds-row">
-        <a-col :span="12">
-          <a-form-item :label="t('workflow.form.step.dataSource')">
-            <TaktSelect
-              v-model="form.relatedDataBaseName"
-              :options="databaseConfigOptions"
-              :placeholder="t('workflow.form.dataSourcePlaceholder')"
-              :allow-clear="true"
-              :show-search="true"
-              :filter-option="filterDataSourceOption"
-              :loading="databaseConfigLoading"
-              style="width: 100%"
-              @focus="loadDatabaseConfigs"
-              @change="onDataSourceChange"
-            />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item :label="t('workflow.form.step.dataTableList')">
-            <TaktSelect
-              v-model="form.relatedTableName"
-              :options="databaseTableOptions"
-              :placeholder="t('workflow.form.dataTablePlaceholder')"
-              :allow-clear="true"
-              :show-search="true"
-              :filter-option="filterDataTableOption"
-              :loading="databaseTableLoading"
-              :disabled="!form.relatedDataBaseName"
-              style="width: 100%"
-              @focus="loadDatabaseTables"
-              @change="onDataTableChange"
-            />
-          </a-form-item>
-        </a-col>
-      </a-row>
-      <TaktSingleTable
-        class="form-form__field-grid"
-        :columns="dataTableColumns"
-        :data-source="tableColumnList"
-        :pagination="false"
-        :stripe="true"
-        row-key="dbColumnName"
-        :large-screen-column-count="10"
-        :small-screen-column-count="5"
+      <!-- 第一步：表单信息 -->
+      <div
+        v-show="currentStep === 0"
+        class="step-content"
       >
-        <template #bodyCell="{ column, record }">
-          <!-- C#类型：只读显示（由 DB 类型自动映射） -->
-          <template v-if="column.key === 'csharpType'">
-            <span>{{ record.csharpType }}</span>
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.flowform.formcode')"
+              name="formCode"
+              required
+            >
+              <a-input
+                v-model:value="form.formCode"
+                :placeholder="t('common.form.placeholder.required', { field: t('entity.flowform.formcode') })"
+                :disabled="!!form.formId"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.flowform.formname')"
+              name="formName"
+              required
+            >
+              <a-input
+                v-model:value="form.formName"
+                :placeholder="t('common.form.placeholder.required', { field: t('entity.flowform.formname') })"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('entity.flowform.formcategory')">
+              <TaktSelect
+                v-model="form.formCategory"
+                dict-type="sys_form_category"
+                style="width: 100%"
+                :placeholder="t('common.form.placeholder.select', { field: t('entity.flowform.formcategory') })"
+                allow-clear
+                :show-search="true"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('entity.flowform.formtype')">
+              <TaktSelect
+                v-model="form.formType"
+                dict-type="sys_form_type"
+                style="width: 100%"
+                :placeholder="t('common.form.placeholder.select', { field: t('entity.flowform.formtype') })"
+                allow-clear
+                :show-search="true"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('entity.flowform.formversion')">
+              <a-input
+                v-model:value="form.formVersion"
+                :placeholder="t('workflow.form.versionPlaceholder')"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('entity.flowform.formstatus')">
+              <TaktSelect
+                v-model="form.formStatus"
+                dict-type="sys_scheme_status"
+                style="width: 100%"
+                :placeholder="t('common.form.placeholder.select', { field: t('entity.flowform.formstatus') })"
+                allow-clear
+                :show-search="true"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('entity.flowform.ordernum')">
+              <a-input-number
+                v-model:value="form.orderNum"
+                :min="0"
+                :step="1"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </div>
+      <!-- 第二步（新增/编辑一致）：数据源 + 数据表 + 字段网格 -->
+      <div
+        v-show="currentStep === 1"
+        class="step-content"
+      >
+        <a-row
+          :gutter="8"
+          class="form-form__ds-row"
+        >
+          <a-col :span="12">
+            <a-form-item :label="t('workflow.form.step.dataSource')">
+              <TaktSelect
+                v-model="form.relatedDataBaseName"
+                :options="databaseConfigOptions"
+                :placeholder="t('workflow.form.dataSourcePlaceholder')"
+                :allow-clear="true"
+                :show-search="true"
+                :filter-option="filterDataSourceOption"
+                :loading="databaseConfigLoading"
+                style="width: 100%"
+                @focus="loadDatabaseConfigs"
+                @change="onDataSourceChange"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item :label="t('workflow.form.step.dataTableList')">
+              <TaktSelect
+                v-model="form.relatedTableName"
+                :options="databaseTableOptions"
+                :placeholder="t('workflow.form.dataTablePlaceholder')"
+                :allow-clear="true"
+                :show-search="true"
+                :filter-option="filterDataTableOption"
+                :loading="databaseTableLoading"
+                :disabled="!form.relatedDataBaseName"
+                style="width: 100%"
+                @focus="loadDatabaseTables"
+                @change="onDataTableChange"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+        <TaktSingleTable
+          class="form-form__field-grid"
+          :columns="dataTableColumns"
+          :data-source="tableColumnList"
+          :pagination="false"
+          :stripe="true"
+          row-key="dbColumnName"
+          :large-screen-column-count="10"
+          :small-screen-column-count="5"
+        >
+          <template #bodyCell="{ column, record }">
+            <!-- C#类型：只读显示（由 DB 类型自动映射） -->
+            <template v-if="column.key === 'csharpType'">
+              <span>{{ record.csharpType }}</span>
+            </template>
+            <!-- C#列名：只读显示（由列名自动生成 Pascal 大驼峰） -->
+            <template v-else-if="column.key === 'csharpColumnName'">
+              <span>{{ record.csharpColumnName }}</span>
+            </template>
+            <!-- 必填：开关，1=是，0=否 -->
+            <template v-else-if="column.key === 'isRequired'">
+              <a-switch
+                :checked="record.isRequired === 0 || record.isRequired === '0'"
+                checked-children="是"
+                un-checked-children="否"
+                @change="(checked) => { record.isRequired = checked ? 0 : 1 }"
+              />
+            </template>
+            <!-- 显示类型：sys_display_type 字典 -->
+            <template v-else-if="column.key === 'displayType'">
+              <TaktSelect
+                v-model="record.displayType"
+                dict-type="sys_display_type"
+                placeholder="显示类型"
+                allow-clear
+                size="small"
+                style="width: 100%"
+                @change="(v: unknown) => { const t = Array.isArray(v) ? v[0] : v; if (!['select','checkbox','radio'].includes(String(t))) record.dictTypeCode = '' }"
+              />
+            </template>
+            <!-- 字典：选择绑定的字典类型编码 -->
+            <template v-else-if="column.key === 'dictTypeCode'">
+              <TaktSelect
+                v-model="record.dictTypeCode"
+                :options="dictTypeOptions"
+                :field-names="{ label: 'dictLabel', value: 'extLabel' }"
+                placeholder="选择字典类型"
+                allow-clear
+                size="small"
+                style="width: 100%"
+                :show-search="true"
+                :filter-option="filterDictTypeOption"
+              />
+            </template>
           </template>
-          <!-- C#列名：只读显示（由列名自动生成 Pascal 大驼峰） -->
-          <template v-else-if="column.key === 'csharpColumnName'">
-            <span>{{ record.csharpColumnName }}</span>
-          </template>
-          <!-- 必填：开关，1=是，0=否 -->
-          <template v-else-if="column.key === 'isRequired'">
-            <a-switch
-              :checked="record.isRequired === 0 || record.isRequired === '0'"
-              checked-children="是"
-              un-checked-children="否"
-              @change="(checked) => { record.isRequired = checked ? 0 : 1 }"
-            />
-          </template>
-          <!-- 显示类型：sys_display_type 字典 -->
-          <template v-else-if="column.key === 'displayType'">
-            <TaktSelect
-              v-model="record.displayType"
-              dict-type="sys_display_type"
-              placeholder="显示类型"
-              allow-clear
-              size="small"
-              style="width: 100%"
-              @change="(v: any) => { const t = Array.isArray(v) ? v[0] : v; if (!['select','checkbox','radio'].includes(String(t))) record.dictTypeCode = '' }"
-            />
-          </template>
-          <!-- 字典：选择绑定的字典类型编码 -->
-          <template v-else-if="column.key === 'dictTypeCode'">
-            <TaktSelect
-              v-model="record.dictTypeCode"
-              :options="dictTypeOptions"
-              :field-names="{ label: 'dictLabel', value: 'extLabel' }"
-              placeholder="选择字典类型"
-              allow-clear
-              size="small"
-              style="width: 100%"
-              :show-search="true"
-              :filter-option="filterDictTypeOption"
-            />
-          </template>
-        </template>
-      </TaktSingleTable>
-      <div class="form-form__entity-hint">{{ t('workflow.form.entityTableHint') }}</div>
-    </div>
-    <!-- 第三步（新增/编辑一致）：表单设计 -->
-    <div v-show="currentStep === 2" class="step-content">
-      <a-form-item :label="t('entity.flowform.formconfig')">
-        <TaktFormDesigner
-          :key="'form-designer-' + (form.formId ?? 'new')"
-          ref="designerRef"
-          v-model="form.formConfig"
-          height="480px"
-          :designer-config="formDesignerConfig"
-          :sfc-download-basename="sfcDownloadBasename"
-        />
-      </a-form-item>
-    </div>
+        </TaktSingleTable>
+        <div class="form-form__entity-hint">
+          {{ t('workflow.form.entityTableHint') }}
+        </div>
+      </div>
+      <!-- 第三步（新增/编辑一致）：表单设计 -->
+      <div
+        v-show="currentStep === 2"
+        class="step-content"
+      >
+        <a-form-item :label="t('entity.flowform.formconfig')">
+          <TaktFormDesigner
+            :key="'form-designer-' + (form.formId ?? 'new')"
+            ref="designerRef"
+            v-model="form.formConfig"
+            height="480px"
+            :designer-config="formDesignerConfig"
+            :sfc-download-basename="sfcDownloadBasename"
+          />
+        </a-form-item>
+      </div>
     </div>
     <div class="steps-action">
-      <a-button v-if="currentStep > 0" style="margin-right: 8px" @click="prev">{{ t('workflow.form.step.prev') }}</a-button>
-      <a-button v-if="currentStep < steps.length - 1" type="primary" @click="next">{{ t('workflow.form.step.next') }}</a-button>
+      <a-button
+        v-if="currentStep > 0"
+        style="margin-right: 8px"
+        @click="prev"
+      >
+        {{ t('workflow.form.step.prev') }}
+      </a-button>
+      <a-button
+        v-if="currentStep < steps.length - 1"
+        type="primary"
+        @click="next"
+      >
+        {{ t('workflow.form.step.next') }}
+      </a-button>
       <a-button
         v-if="currentStep === steps.length - 1"
         type="primary"
@@ -232,6 +275,24 @@ import {
 } from '@/api/workflow/form'
 import { getDictTypeOptions } from '@/api/routine/tasks/dict/dicttype'
 import type { FlowFormCreate } from '@/types/workflow/form'
+const getStringValue = (obj: unknown, key: string): string | undefined => {
+  if (!obj || typeof obj !== 'object') return undefined
+  const value = (obj as Record<string, unknown>)[key]
+  return value == null ? undefined : String(value)
+}
+const getBooleanValue = (obj: unknown, key: string): boolean | undefined => {
+  if (!obj || typeof obj !== 'object') return undefined
+  const value = (obj as Record<string, unknown>)[key]
+  return typeof value === 'boolean' ? value : undefined
+}
+const pickString = (obj: unknown, ...keys: string[]): string => {
+  for (const key of keys) {
+    const value = getStringValue(obj, key)
+    if (value != null && value !== '') return value
+  }
+  return ''
+}
+const toErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error))
 
 /** 将字符串转为下载文件名用 basename：全英文小写，仅保留 a-z0-9 与连字符 */
 function toSlug(s: string): string {
@@ -267,8 +328,8 @@ function loadDatabaseConfigs() {
   getDatabaseConfigs()
     .then((list) => {
       databaseConfigOptions.value = (list ?? []).map((item: DatabaseConfigItem) => {
-        const dbName = item.dataBaseName ?? (item as any).dataBaseName ?? item.configId ?? (item as any).ConfigId ?? ''
-        const display = item.displayName ?? (item as any).DisplayName ?? dbName
+        const dbName = pickString(item, 'dataBaseName', 'configId', 'ConfigId')
+        const display = pickString(item, 'displayName', 'DisplayName') || dbName
         return { value: dbName, label: display }
       })
     })
@@ -290,10 +351,10 @@ function loadDatabaseTables() {
   getDatabaseTables(configId, { requiredColumn: 'flow_instance_id' })
     .then((list) => {
       databaseTableOptions.value = (list ?? []).map((item: DatabaseTableItem) => ({
-        value: item.tableName ?? (item as any).TableName ?? '',
-        label: (item.tableComment ?? (item as any).TableComment)
-          ? `${item.tableName ?? (item as any).TableName} - ${item.tableComment ?? (item as any).TableComment}`
-          : (item.tableName ?? (item as any).TableName ?? '')
+        value: pickString(item, 'tableName', 'TableName'),
+        label: pickString(item, 'tableComment', 'TableComment')
+          ? `${pickString(item, 'tableName', 'TableName')} - ${pickString(item, 'tableComment', 'TableComment')}`
+          : pickString(item, 'tableName', 'TableName')
       }))
     })
     .catch(() => { databaseTableOptions.value = [] })
@@ -372,7 +433,7 @@ function loadTableColumns() {
         } catch { /* ignore */ }
       }
       const raw = (list ?? []).filter((item) => {
-        const name = (item.dbColumnName ?? (item as any).DbColumnName ?? '').toString().toLowerCase()
+        const name = pickString(item, 'dbColumnName', 'DbColumnName').toLowerCase()
         // 1) 显式排除的审计/实例字段
         if (AUDIT_DB_COLUMNS.has(name)) return false
         // 2) 所有状态字段（status / *_status）统一在网格中隐藏
@@ -380,13 +441,13 @@ function loadTableColumns() {
         return true
       })
       const cols = raw.map((item) => {
-        const dbType = (item.dataType ?? (item as any).DataType ?? '').toLowerCase()
+        const dbType = pickString(item, 'dataType', 'DataType').toLowerCase()
         const mappedCsharp = DB_TYPE_TO_CSHARP[dbType] ?? 'string'
-        const dbName = item.dbColumnName ?? (item as any).DbColumnName ?? ''
+        const dbName = pickString(item, 'dbColumnName', 'DbColumnName')
         const csharpName = item.csharpColumnName && item.csharpColumnName.trim()
           ? item.csharpColumnName
           : toPascalCase(dbName)
-        const notNullable = (item as any).isNullable === false
+        const notNullable = getBooleanValue(item, 'isNullable') === false
         const isRequired = notNullable ? 0 : 1
         return {
           ...item,
@@ -403,10 +464,10 @@ function loadTableColumns() {
       })
       tableColumnList.value = cols
       tableColumnOptions.value = cols.map((item: TableColumnItem) => ({
-        value: item.dbColumnName ?? (item as any).DbColumnName ?? '',
-        label: (item.columnDescription ?? (item as any).ColumnDescription)
-          ? `${item.dbColumnName ?? (item as any).DbColumnName} - ${item.columnDescription ?? (item as any).ColumnDescription}`
-          : (item.dbColumnName ?? (item as any).DbColumnName ?? '')
+        value: pickString(item, 'dbColumnName', 'DbColumnName'),
+        label: pickString(item, 'columnDescription', 'ColumnDescription')
+          ? `${pickString(item, 'dbColumnName', 'DbColumnName')} - ${pickString(item, 'columnDescription', 'ColumnDescription')}`
+          : pickString(item, 'dbColumnName', 'DbColumnName')
       }))
     })
     .catch(() => { tableColumnOptions.value = []; tableColumnList.value = [] })
@@ -477,10 +538,10 @@ watch(currentStep, (step) => {
     const list = parsed as TableColumnItem[]
     tableColumnList.value = list
     tableColumnOptions.value = list.map((item: TableColumnItem) => ({
-      value: item.dbColumnName ?? (item as any).DbColumnName ?? '',
-      label: (item.columnDescription ?? (item as any).ColumnDescription)
-        ? `${item.dbColumnName ?? (item as any).DbColumnName} - ${item.columnDescription ?? (item as any).ColumnDescription}`
-        : (item.dbColumnName ?? (item as any).DbColumnName ?? '')
+      value: pickString(item, 'dbColumnName', 'DbColumnName'),
+      label: pickString(item, 'columnDescription', 'ColumnDescription')
+        ? `${pickString(item, 'dbColumnName', 'DbColumnName')} - ${pickString(item, 'columnDescription', 'ColumnDescription')}`
+        : pickString(item, 'dbColumnName', 'DbColumnName')
     }))
   } catch {
     // 非字段元数据格式，保持由 form.relatedTableName watch 触发的 loadTableColumns 结果
@@ -513,13 +574,14 @@ async function onDataTableChange() {
     form.isDatasource = 1
     await loadTableColumns()
     message.success(t('workflow.form.step.dataTableList') + '：已获取所有数据列项，下一步可还原表单')
-  } catch (err: any) {
+  } catch (err: unknown) {
     const msg =
-      (typeof err?.response?.data === 'string' && err.response.data.trim() !== ''
-        ? err.response.data.trim()
+      (typeof (err as { response?: { data?: unknown } })?.response?.data === 'string' &&
+      ((err as { response?: { data?: string } }).response?.data?.trim() ?? '') !== ''
+        ? (err as { response?: { data?: string } }).response?.data?.trim()
         : null) ??
-      err?.response?.data?.message ??
-      err?.message ??
+      ((err as { response?: { data?: { message?: string } } }).response?.data?.message) ??
+      toErrorMessage(err) ??
       '获取表单配置失败'
     message.error(msg)
   }
@@ -577,9 +639,9 @@ function syncFieldsToFormModel() {
   if (!tableColumnList.value.length) return
   const fieldDefs = tableColumnList.value.map((col) => {
     return {
-      dbColumnName: col.dbColumnName ?? (col as any).DbColumnName ?? '',
-      columnDescription: col.columnDescription ?? (col as any).ColumnDescription ?? '',
-      dataType: col.dataType ?? (col as any).DataType ?? '',
+      dbColumnName: pickString(col, 'dbColumnName', 'DbColumnName'),
+      columnDescription: pickString(col, 'columnDescription', 'ColumnDescription'),
+      dataType: pickString(col, 'dataType', 'DataType'),
       length: col.length,
       decimalDigits: col.decimalDigits,
       isRequired: col.isRequired,

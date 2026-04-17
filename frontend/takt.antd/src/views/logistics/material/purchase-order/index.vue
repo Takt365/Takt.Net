@@ -1,8 +1,13 @@
 <template>
   <div class="logistics-material-purchase-order">
     <a-card>
-      <template #title>????</template>
-      <a-table :columns="columns" :data-source="dataSource" />
+      <template #title>
+        ????
+      </template>
+      <a-table
+        :columns="columns"
+        :data-source="dataSource"
+      />
     </a-card>
   </div>
 </template>

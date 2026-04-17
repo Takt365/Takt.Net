@@ -3,9 +3,9 @@
     v-model:value="query"
     :placeholder="$t('common.form.placeholder.searchMenu')"
     class="takt-query"
+    allow-clear
     @search="handleSearch"
     @change="handleChange"
-    allow-clear
   >
     <template #prefix>
       <RiSearchLine />
@@ -30,7 +30,10 @@
           </div>
         </a-menu-item>
       </a-menu>
-      <div v-else class="no-results">
+      <div
+        v-else
+        class="no-results"
+      >
         {{ $t('common.msg.noSearchResult') }}
       </div>
     </template>
@@ -47,6 +50,15 @@ interface SearchResult {
   title: string
   path: string
 }
+type MenuSearchItem = {
+  title?: string
+  label?: string
+  key?: string
+  children?: MenuSearchItem[]
+}
+function isMenuSearchItem(value: unknown): value is MenuSearchItem {
+  return !!value && typeof value === 'object'
+}
 
 const router = useRouter()
 const menuStore = useMenuStore()
@@ -62,8 +74,9 @@ const searchResults = computed(() => {
   const results: SearchResult[] = []
   const searchText = query.value.toLowerCase()
   
-  const searchInMenu = (items: any[]) => {
+  const searchInMenu = (items: unknown[]) => {
     items.forEach(item => {
+      if (!isMenuSearchItem(item)) return
       const title = item.title || item.label || ''
       const path = item.key || ''
       
@@ -80,7 +93,7 @@ const searchResults = computed(() => {
     })
   }
   
-  searchInMenu(menuStore.menuItems)
+  searchInMenu(menuStore.menuItems ?? [])
   
   return results.slice(0, 10) // 限制最多显示10个结果
 })
@@ -89,7 +102,7 @@ watch(searchResults, (results) => {
   dropdownVisible.value = results.length > 0 && query.value.trim() !== ''
 })
 
-const handleSearch = (value: string) => {
+const handleSearch = (_value: string) => {
   if (searchResults.value.length > 0) {
     handleSelect(searchResults.value[0].path)
   }

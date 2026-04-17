@@ -20,7 +20,10 @@
     <template v-if="config">
       <a-form layout="vertical">
         <a-form-item label="条件名称">
-          <a-input v-model:value="form.nodeName" placeholder="如：条件1" />
+          <a-input
+            v-model:value="form.nodeName"
+            placeholder="如：条件1"
+          />
         </a-form-item>
         <a-form-item :label="t('workflow.designer.edgeCondition')">
           <a-textarea
@@ -32,8 +35,18 @@
       </a-form>
     </template>
     <template #footer>
-      <a-button style="margin-right: 8px" @click="handleClose">取消</a-button>
-      <a-button type="primary" @click="handleSave">确定</a-button>
+      <a-button
+        style="margin-right: 8px"
+        @click="handleClose"
+      >
+        取消
+      </a-button>
+      <a-button
+        type="primary"
+        @click="handleSave"
+      >
+        确定
+      </a-button>
     </template>
   </a-drawer>
 </template>

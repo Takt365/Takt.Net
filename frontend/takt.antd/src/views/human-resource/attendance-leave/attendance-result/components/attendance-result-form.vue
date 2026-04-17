@@ -9,13 +9,26 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" :model="formState" :rules="rules" layout="horizontal" label-align="right">
-    <a-tabs v-model:activeKey="activeTab">
-      <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')" force-render>
+  <a-form
+    ref="formRef"
+    :model="formState"
+    :rules="rules"
+    layout="horizontal"
+    label-align="right"
+  >
+    <a-tabs v-model:active-key="activeTab">
+      <a-tab-pane
+        key="basic"
+        :tab="t('common.form.tabs.basicInfo')"
+        force-render
+      >
         <div :class="formContentClass">
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendanceresult.employeeid')" name="employeeId">
+              <a-form-item
+                :label="t('entity.attendanceresult.employeeid')"
+                name="employeeId"
+              >
                 <a-input
                   v-model:value="formState.employeeId"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendanceresult.employeeid') })"
@@ -24,7 +37,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendanceresult.attendancedate')" name="attendanceDate">
+              <a-form-item
+                :label="t('entity.attendanceresult.attendancedate')"
+                name="attendanceDate"
+              >
                 <a-date-picker
                   v-model:value="formState.attendanceDate"
                   value-format="YYYY-MM-DD"
@@ -36,12 +52,21 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendanceresult.shiftscheduleid')" name="shiftScheduleId">
-                <a-input v-model:value="formState.shiftScheduleId" allow-clear />
+              <a-form-item
+                :label="t('entity.attendanceresult.shiftscheduleid')"
+                name="shiftScheduleId"
+              >
+                <a-input
+                  v-model:value="formState.shiftScheduleId"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendanceresult.attendancestatus')" name="attendanceStatus">
+              <a-form-item
+                :label="t('entity.attendanceresult.attendancestatus')"
+                name="attendanceStatus"
+              >
                 <TaktSelect
                   v-model:value="formState.attendanceStatus"
                   dict-type="hr_attendance_result_status"
@@ -52,7 +77,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendanceresult.firstintime')" name="firstInTime">
+              <a-form-item
+                :label="t('entity.attendanceresult.firstintime')"
+                name="firstInTime"
+              >
                 <a-date-picker
                   v-model:value="formState.firstInTime"
                   show-time
@@ -64,7 +92,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendanceresult.lastouttime')" name="lastOutTime">
+              <a-form-item
+                :label="t('entity.attendanceresult.lastouttime')"
+                name="lastOutTime"
+              >
                 <a-date-picker
                   v-model:value="formState.lastOutTime"
                   show-time
@@ -78,7 +109,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendanceresult.workminutes')" name="workMinutes">
+              <a-form-item
+                :label="t('entity.attendanceresult.workminutes')"
+                name="workMinutes"
+              >
                 <a-input-number
                   v-model:value="formState.workMinutes"
                   :min="0"
@@ -88,7 +122,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendanceresult.calculatedat')" name="calculatedAt">
+              <a-form-item
+                :label="t('entity.attendanceresult.calculatedat')"
+                name="calculatedAt"
+              >
                 <a-date-picker
                   v-model:value="formState.calculatedAt"
                   show-time
@@ -102,7 +139,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('common.entity.remark')" name="remark">
+              <a-form-item
+                :label="t('common.entity.remark')"
+                name="remark"
+              >
                 <a-textarea
                   v-model:value="formState.remark"
                   :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"

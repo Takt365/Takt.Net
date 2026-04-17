@@ -9,8 +9,11 @@
 
 <template>
   <!-- 单 Tab 结构：预留 activeTab 便于后续扩展「其它」分页 -->
-  <a-tabs v-model:activeKey="activeTab">
-    <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
+  <a-tabs v-model:active-key="activeTab">
+    <a-tab-pane
+      key="basic"
+      :tab="t('common.form.tabs.basicInfo')"
+    >
       <div :class="formContentClass">
         <a-form
           ref="formRef"
@@ -24,7 +27,10 @@
           <!-- 地区、假日名称（与 TaktHoliday.region / holiday_name 对应） -->
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.holiday.region')" name="region">
+              <a-form-item
+                :label="t('entity.holiday.region')"
+                name="region"
+              >
                 <a-input
                   v-model:value="formState.region"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.holiday.region') })"
@@ -34,7 +40,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.holiday.holidayname')" name="holidayName">
+              <a-form-item
+                :label="t('entity.holiday.holidayname')"
+                name="holidayName"
+              >
                 <a-input
                   v-model:value="formState.holidayName"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.holiday.holidayname') })"
@@ -47,7 +56,10 @@
           <!-- 假日类型、是否工作日（字典与实体 holiday_type / is_working_day 一致） -->
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.holiday.holidaytype')" name="holidayType">
+              <a-form-item
+                :label="t('entity.holiday.holidaytype')"
+                name="holidayType"
+              >
                 <TaktSelect
                   v-model="formState.holidayType"
                   dict-type="hr_holiday_type"
@@ -57,7 +69,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.holiday.isworkingday')" name="isWorkingDay">
+              <a-form-item
+                :label="t('entity.holiday.isworkingday')"
+                name="isWorkingDay"
+              >
                 <TaktSelect
                   v-model="formState.isWorkingDay"
                   dict-type="hr_holiday_is_working_day"
@@ -70,7 +85,10 @@
           <!-- 开始/结束日期（date 列，value-format 与接口 YYYY-MM-DD 一致） -->
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.holiday.startdate')" name="startDate">
+              <a-form-item
+                :label="t('entity.holiday.startdate')"
+                name="startDate"
+              >
                 <a-date-picker
                   v-model:value="formState.startDate"
                   :placeholder="t('common.form.placeholder.select', { field: t('entity.holiday.startdate') })"
@@ -80,7 +98,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.holiday.enddate')" name="endDate">
+              <a-form-item
+                :label="t('entity.holiday.enddate')"
+                name="endDate"
+              >
                 <a-date-picker
                   v-model:value="formState.endDate"
                   :placeholder="t('common.form.placeholder.select', { field: t('entity.holiday.enddate') })"
@@ -151,7 +172,10 @@
                       :style="{ backgroundColor: color }"
                       @click="formState.holidayTheme = key"
                     >
-                      <RiCheckLine v-if="formState.holidayTheme === key" class="color-item-check" />
+                      <RiCheckLine
+                        v-if="formState.holidayTheme === key"
+                        class="color-item-check"
+                      />
                     </div>
                   </a-tooltip>
                 </div>
@@ -309,8 +333,8 @@ watch(
         region: newData.region ?? 'CN',
         holidayName: newData.holidayName ?? '',
         holidayType: newData.holidayType ?? 0,
-        startDate: newData.startDate ? toDateStr(newData.startDate as string) : '',
-        endDate: newData.endDate ? toDateStr(newData.endDate as string) : '',
+        startDate: newData.startDate ? toDateStr(newData.startDate) : '',
+        endDate: newData.endDate ? toDateStr(newData.endDate) : '',
         isWorkingDay: newData.isWorkingDay ?? 0,
         holidayGreeting: newData.holidayGreeting ?? '',
         holidayQuote: newData.holidayQuote ?? '',

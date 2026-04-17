@@ -1,5 +1,8 @@
 <template>
-  <a-dropdown :trigger="['click']" placement="bottomRight">
+  <a-dropdown
+    :trigger="['click']"
+    placement="bottomRight"
+  >
     <a-button type="text">
       <template #icon>
         <RiLayoutLeftLine v-if="currentPosition === 'left'" />
@@ -8,7 +11,10 @@
       </template>
     </a-button>
     <template #overlay>
-      <a-menu :selected-keys="[currentPosition]" @click="handleMenuClick">
+      <a-menu
+        :selected-keys="[currentPosition]"
+        @click="handleMenuClick"
+      >
         <a-menu-item key="left">
           <span style="display: inline-flex; align-items: center;">
             <RiLayoutLeftLine style="margin-right: 8px;" />

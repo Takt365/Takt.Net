@@ -11,14 +11,25 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" layout="vertical" :model="form" :rules="formRules">
-    <a-form-item :label="t('entity.flowinstance.processtitle')" name="processTitle">
+  <a-form
+    ref="formRef"
+    layout="vertical"
+    :model="form"
+    :rules="formRules"
+  >
+    <a-form-item
+      :label="t('entity.flowinstance.processtitle')"
+      name="processTitle"
+    >
       <a-input
         v-model:value="form.processTitle"
         :placeholder="t('common.form.placeholder.required', { field: t('entity.flowinstance.processtitle') })"
       />
     </a-form-item>
-    <a-form-item :label="t('entity.flowinstance.frmdata')" name="frmData">
+    <a-form-item
+      :label="t('entity.flowinstance.frmdata')"
+      name="frmData"
+    >
       <a-textarea
         v-model:value="form.frmData"
         :rows="6"
@@ -49,6 +60,7 @@ interface Props {
 const props = defineProps<Props>()
 const form = props.form
 const formRef = ref()
+const { t } = useI18n()
 
 const formRules = computed(() => ({
   processTitle: [],

@@ -4,8 +4,8 @@
     v-if="type === 'button'"
     :type="buttonType"
     :size="size"
-    @click="handleToggle"
     v-bind="$attrs"
+    @click="handleToggle"
   >
     <template #icon>
       <RiPaletteLine style="margin-right: 8px;" />
@@ -62,14 +62,20 @@
     :trigger="['click']"
     v-bind="$attrs"
   >
-    <a-button type="text" :size="size">
+    <a-button
+      type="text"
+      :size="size"
+    >
       <template #icon>
         <RiPaletteLine style="margin-right: 8px;" />
       </template>
       <slot>{{ $t('common.settings.color.title') }}</slot>
     </a-button>
     <template #overlay>
-      <a-menu :selected-keys="[currentThemeType]" @click="handleMenuClick">
+      <a-menu
+        :selected-keys="[currentThemeType]"
+        @click="handleMenuClick"
+      >
         <a-menu-item
           v-for="(value, key) in themeColorMap"
           :key="key"
@@ -78,7 +84,7 @@
             <span
               class="color-dot"
               :style="{ backgroundColor: value }"
-            ></span>
+            />
             {{ $t(`common.settings.color.${key}`) }}
           </span>
         </a-menu-item>
@@ -91,8 +97,8 @@
     v-else-if="type === 'radio'"
     :value="currentThemeType"
     :size="radioSize"
-    @change="handleRadioChange"
     v-bind="$attrs"
+    @change="handleRadioChange"
   >
     <a-radio-button
       v-for="(value, key) in themeColorMap"
@@ -103,7 +109,7 @@
         <span
           class="color-dot"
           :style="{ backgroundColor: value }"
-        ></span>
+        />
         {{ $t(`common.settings.color.${key}`) }}
       </span>
     </a-radio-button>

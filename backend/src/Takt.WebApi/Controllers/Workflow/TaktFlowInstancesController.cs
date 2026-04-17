@@ -24,7 +24,7 @@ namespace Takt.WebApi.Controllers.Workflow;
 /// 流程实例控制器。细粒度权限见各 Action；待办/我的/已办仍使用 workflow:todo / workflow:my / workflow:processed 菜单权限。
 /// </summary>
 [Route("api/[controller]")]
-[ApiModule("Workflow", "工作流")]
+[ApiModule("Workflow", "工作流程")]
 [TaktPermission("workflow:instance:list", "流程实例")]
 public class TaktFlowInstancesController : TaktControllerBase
 {

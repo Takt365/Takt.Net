@@ -7,17 +7,30 @@
     :wrapper-col="{ span: 20 }"
     layout="horizontal"
   >
-    <a-form-item label="公告编码" name="announcementCode">
+    <a-form-item
+      label="公告编码"
+      name="announcementCode"
+    >
       <a-input
         v-model:value="formState.announcementCode"
         placeholder="请输入公告编码（唯一）"
         :disabled="!!formData?.announcementId"
       />
     </a-form-item>
-    <a-form-item label="公告标题" name="announcementTitle">
-      <a-input v-model:value="formState.announcementTitle" placeholder="请输入公告标题" allow-clear />
+    <a-form-item
+      label="公告标题"
+      name="announcementTitle"
+    >
+      <a-input
+        v-model:value="formState.announcementTitle"
+        placeholder="请输入公告标题"
+        allow-clear
+      />
     </a-form-item>
-    <a-form-item label="公告内容" name="announcementContent">
+    <a-form-item
+      label="公告内容"
+      name="announcementContent"
+    >
       <a-textarea
         v-model:value="formState.announcementContent"
         placeholder="请输入公告内容"
@@ -25,7 +38,10 @@
         allow-clear
       />
     </a-form-item>
-    <a-form-item label="公告类型" name="announcementType">
+    <a-form-item
+      label="公告类型"
+      name="announcementType"
+    >
       <a-select
         v-model:value="formState.announcementType"
         placeholder="请选择公告类型"
@@ -37,7 +53,10 @@
         ]"
       />
     </a-form-item>
-    <a-form-item label="发布范围" name="publishScope">
+    <a-form-item
+      label="发布范围"
+      name="publishScope"
+    >
       <a-select
         v-model:value="formState.publishScope"
         placeholder="请选择发布范围"
@@ -49,20 +68,39 @@
         ]"
       />
     </a-form-item>
-    <a-form-item label="是否置顶" name="isTop">
+    <a-form-item
+      label="是否置顶"
+      name="isTop"
+    >
       <a-radio-group v-model:value="formState.isTop">
-        <a-radio :value="0">否</a-radio>
-        <a-radio :value="1">是</a-radio>
+        <a-radio :value="0">
+          否
+        </a-radio>
+        <a-radio :value="1">
+          是
+        </a-radio>
       </a-radio-group>
     </a-form-item>
-    <a-form-item label="是否紧急" name="isUrgent">
+    <a-form-item
+      label="是否紧急"
+      name="isUrgent"
+    >
       <a-radio-group v-model:value="formState.isUrgent">
-        <a-radio :value="0">一般</a-radio>
-        <a-radio :value="1">紧急</a-radio>
-        <a-radio :value="2">非常紧急</a-radio>
+        <a-radio :value="0">
+          一般
+        </a-radio>
+        <a-radio :value="1">
+          紧急
+        </a-radio>
+        <a-radio :value="2">
+          非常紧急
+        </a-radio>
       </a-radio-group>
     </a-form-item>
-    <a-form-item label="生效时间" name="effectiveTime">
+    <a-form-item
+      label="生效时间"
+      name="effectiveTime"
+    >
       <a-date-picker
         v-model:value="formState.effectiveTime"
         show-time
@@ -73,7 +111,10 @@
         allow-clear
       />
     </a-form-item>
-    <a-form-item label="失效时间" name="expireTime">
+    <a-form-item
+      label="失效时间"
+      name="expireTime"
+    >
       <a-date-picker
         v-model:value="formState.expireTime"
         show-time
@@ -84,11 +125,27 @@
         allow-clear
       />
     </a-form-item>
-    <a-form-item label="排序号" name="orderNum">
-      <a-input-number v-model:value="formState.orderNum" :min="0" placeholder="排序号" style="width: 100%" />
+    <a-form-item
+      label="排序号"
+      name="orderNum"
+    >
+      <a-input-number
+        v-model:value="formState.orderNum"
+        :min="0"
+        placeholder="排序号"
+        style="width: 100%"
+      />
     </a-form-item>
-    <a-form-item label="备注" name="remark">
-      <a-textarea v-model:value="formState.remark" placeholder="请输入备注" :rows="2" allow-clear />
+    <a-form-item
+      label="备注"
+      name="remark"
+    >
+      <a-textarea
+        v-model:value="formState.remark"
+        placeholder="请输入备注"
+        :rows="2"
+        allow-clear
+      />
     </a-form-item>
   </a-form>
 </template>

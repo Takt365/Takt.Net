@@ -50,6 +50,7 @@
         :update-loading="loading"
         :delete-loading="loading"
         :refresh-loading="loading"
+        :expanded="tableExpanded"
         @create="handleCreate"
         @update="handleUpdate"
         @delete="handleDelete"
@@ -58,18 +59,17 @@
         @advanced-query="handleAdvancedQuery"
         @column-setting="handleColumnSetting"
         @refresh="handleRefresh"
-        :expanded="tableExpanded"
         @update:expanded="(v: boolean) => (tableExpanded = v)"
       />
     </div>
 
     <div class="dept-tree-table-wrap">
       <TaktTreeLeftTable
+        v-model:expanded-keys="treeExpandedKeys"
+        v-model:selected-keys="selectedTreeKeys"
         :tree-data="deptTreeData"
         :tree-field-names="{ title: 'title', key: 'key', children: 'children' }"
         :tree-width-ratio="0.2"
-        v-model:expanded-keys="treeExpandedKeys"
-        v-model:selected-keys="selectedTreeKeys"
         :loading="loading"
         :virtual="false"
         :draggable="true"
@@ -77,12 +77,12 @@
         @tree-drop="handleTreeDrop"
       />
       <TaktTreeRightTable
+        v-model:expanded-row-keys="tableExpandedRowKeys"
         :columns="displayColumns"
         :data-source="tableTreeData"
         :loading="loading"
         :row-key="getDeptId"
         :stripe="true"
-        v-model:expanded-row-keys="tableExpandedRowKeys"
         :row-selection="rowSelection"
         @change="handleTableChange"
         @resize-column="handleResizeColumn"
@@ -224,7 +224,7 @@ const tableExpanded = ref(false)
 const tableExpandedRowKeys = ref<(string | number)[]>([])
 const loading = ref(false)
 const dataSource = ref<Dept[]>([])
-const fullTableTree = ref<any[]>([])
+const fullTableTree = ref<Record<string, unknown>[]>([])
 const deptTreeData = ref<TreeDataItem[]>([])
 const selectedTreeKeys = ref<(string | number)[]>([])
 const total = ref(0)
@@ -248,9 +248,9 @@ const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
 
 /** 将 tree-options 接口数据转为 a-tree 的 TreeDataItem */
-function mapOptionsToTreeData(opts: any[]): TreeDataItem[] {
+function mapOptionsToTreeData(opts: Array<Record<string, unknown>>): TreeDataItem[] {
   if (!opts?.length) return []
-  return opts.map((o: any) => ({
+  return opts.map((o) => ({
     title: o.dictLabel ?? o.title ?? '',
     key: String(o.dictValue ?? o.value ?? o.deptId ?? ''),
     children: o.children?.length ? mapOptionsToTreeData(o.children) : undefined
@@ -258,7 +258,7 @@ function mapOptionsToTreeData(opts: any[]): TreeDataItem[] {
 }
 
 /** 将平铺部门列表转为树（parentId 为根标识） */
-function flatToTree(list: Dept[], parentId: string | number = '0'): any[] {
+function flatToTree(list: Dept[], parentId: string | number = '0'): Array<Record<string, unknown>> {
   const pid = String(parentId)
   return list
     .filter(item => String(item.parentId) === pid)
@@ -271,7 +271,7 @@ function flatToTree(list: Dept[], parentId: string | number = '0'): any[] {
 }
 
 /** 从树中取以某 key 为根的子树 */
-function getSubtree(nodes: any[], key: string | number): any[] {
+function getSubtree(nodes: Array<Record<string, unknown>>, key: string | number): Array<Record<string, unknown>> {
   const k = String(key)
   for (const node of nodes) {
     if (String(node.key ?? node.deptId ?? node.id) === k) return [node]
@@ -284,7 +284,7 @@ function getSubtree(nodes: any[], key: string | number): any[] {
 }
 
 /** 从树数据中收集所有有子节点的 key（用于左侧树展开全部） */
-function collectTreeExpandableKeys(nodes: any[]): (string | number)[] {
+function collectTreeExpandableKeys(nodes: Array<Record<string, unknown>>): (string | number)[] {
   if (!nodes?.length) return []
   const keys: (string | number)[] = []
   for (const node of nodes) {
@@ -300,7 +300,10 @@ function collectTreeExpandableKeys(nodes: any[]): (string | number)[] {
 }
 
 /** 从表格树数据中收集所有有子节点的行 key（用于右侧表展开全部） */
-function collectTableExpandableRowKeys(rows: any[], getKey: (record: any) => string): (string | number)[] {
+function collectTableExpandableRowKeys(
+  rows: Array<Record<string, unknown>>,
+  getKey: (record: Record<string, unknown>) => string
+): (string | number)[] {
   if (!rows?.length) return []
   const keys: (string | number)[] = []
   for (const row of rows) {
@@ -329,13 +332,13 @@ const tableTreeData = computed(() => {
 const loadDeptTree = async () => {
   try {
     const res = await getDeptTreeOptions()
-    const raw = (res as any)?.data ?? res
+    const raw = (res as { data?: unknown })?.data ?? res
     const list = Array.isArray(raw) ? raw : []
     deptTreeData.value = mapOptionsToTreeData(list)
     if (treeExpanded.value) {
       treeExpandedKeys.value = collectTreeExpandableKeys(deptTreeData.value)
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     logger.error('[Dept] 加载部门树失败:', e)
     deptTreeData.value = []
   }
@@ -347,7 +350,7 @@ const handleTreeSelect = (selectedKeys: (string | number)[]) => {
 
 /** 从树结构中查找节点 key 的父级 key 与在同级中的序号（用于 parentId / orderNum） */
 function findParentAndOrderNum(
-  tree: any[],
+  tree: Array<Record<string, unknown>>,
   targetKey: string | number,
   parentKey: string = '0'
 ): { parentId: string; orderNum: number } | null {
@@ -375,7 +378,7 @@ const handleTreeDrop = async (payload: TreeDropPayload) => {
     loading.value = true
     deptTreeData.value = newTreeData
     const fullRes = await getDeptById(String(dragKey))
-    const full = (fullRes as any)?.data ?? fullRes
+    const full = (fullRes as { data?: unknown })?.data ?? fullRes
     await updateDept(String(dragKey), {
       ...full,
       parentId: pos.parentId,
@@ -384,7 +387,7 @@ const handleTreeDrop = async (payload: TreeDropPayload) => {
     })
     message.success('排序/父级已更新')
     loadData()
-  } catch (error: any) {
+  } catch (error: unknown) {
     message.error(error?.message ?? '更新失败')
     loadDeptTree()
   } finally {
@@ -427,8 +430,9 @@ onMounted(() => {
   loadData()
 })
 
-const getDeptId = (record: any): string => record?.deptId != null ? String(record.deptId) : (record?.id != null ? String(record.id) : '')
-const getDeptField = (record: any, field: string): any => record?.[field]
+const getDeptId = (record: Record<string, unknown>): string =>
+  record?.deptId != null ? String(record.deptId) : (record?.id != null ? String(record.id) : '')
+const getDeptField = (record: Record<string, unknown>, field: string): unknown => record?.[field]
 
 const columns = ref<TableColumnsType>([
   {
@@ -439,7 +443,8 @@ const columns = ref<TableColumnsType>([
     resizable: true,
     ellipsis: true,
     fixed: 'left',
-    customRender: ({ record }: { record: any }) => getDeptField(record, 'deptId') ?? getDeptField(record, 'id') ?? ''
+    customRender: ({ record }: { record: Record<string, unknown> }) =>
+      getDeptField(record, 'deptId') ?? getDeptField(record, 'id') ?? ''
   },
   {
     title: '部门名称',
@@ -510,14 +515,15 @@ const columns = ref<TableColumnsType>([
   })
 ])
 
-const mergedColumns = computed((): any => mergeDefaultColumns(columns.value as any, t, true))
+const mergedColumns = computed(() => mergeDefaultColumns(columns.value as unknown as TableColumnsType, t, true))
 const displayColumns = computed(() => {
   const keys = visibleColumnKeys.value || []
   const merged = mergedColumns.value || []
   if (keys.length === 0) return columns.value
-  const getColumnKey = (col: any): string => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
+  const getColumnKey = (col: { key?: unknown; dataIndex?: unknown; title?: unknown }): string =>
+    (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
   const keysSet = new Set(keys.map(k => String(k)))
-  return merged.filter((col: any) => {
+  return merged.filter((col: { key?: unknown; dataIndex?: unknown; title?: unknown }) => {
     const colKey = getColumnKey(col)
     return colKey && keysSet.has(colKey)
   })
@@ -542,7 +548,7 @@ const rowSelection = computed(() => ({
 const loadData = async () => {
   try {
     loading.value = true
-    const params: any = { PageIndex: 1, PageSize: 9999 }
+    const params: Record<string, unknown> = { PageIndex: 1, PageSize: 9999 }
     if (queryKeyword.value) params.KeyWords = queryKeyword.value
     if (advancedQueryForm.value.deptName) params.DeptName = advancedQueryForm.value.deptName
     if (advancedQueryForm.value.deptCode) params.DeptCode = advancedQueryForm.value.deptCode
@@ -550,7 +556,7 @@ const loadData = async () => {
     if (advancedQueryForm.value.deptStatus !== undefined) params.DeptStatus = advancedQueryForm.value.deptStatus
 
     const response = await getDeptList(params)
-    const responseAny = response as any
+    const responseAny = response as { Data?: Dept[]; Total?: number }
     const items = response?.data ?? responseAny?.Data ?? []
     const totalCount = response?.total ?? responseAny?.Total ?? 0
     dataSource.value = items
@@ -560,7 +566,7 @@ const loadData = async () => {
       tableExpandedRowKeys.value = collectTableExpandableRowKeys(tableTreeData.value, getDeptId)
     }
     await loadDeptTree()
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[Dept] 加载数据失败:', error)
     message.error(error?.message || '加载数据失败')
     dataSource.value = []
@@ -578,17 +584,17 @@ const handleReset = () => {
   loadData()
 }
 
-const handleTableChange = (_pagination: any, _filters: any, sorter: any) => {
+const handleTableChange = (_pagination: unknown, _filters: unknown, sorter: { field?: unknown; order?: unknown }) => {
   if (sorter?.order) logger.debug('[Dept] 排序:', sorter.field, sorter.order)
 }
 
-const handleResizeColumn = (w: number, col: any) => {
-  const column = columns.value.find((c: any) => {
+const handleResizeColumn = (w: number, col: { key?: unknown; dataIndex?: unknown; title?: unknown }) => {
+  const column = columns.value.find((c: { key?: unknown; dataIndex?: unknown; title?: unknown }) => {
     const colKey = col.key || col.dataIndex || col.title
     const cKey = c.key || c.dataIndex || c.title
     return colKey && cKey && String(colKey) === String(cKey)
   })
-  if (column) (column as any).width = w
+  if (column) (column as { width?: number }).width = w
 }
 
 const handleCreate = () => {
@@ -621,7 +627,7 @@ const handleDeleteOne = (record: Dept) => {
         await deleteDeptById(getDeptId(record))
         message.success('删除成功')
         loadData()
-      } catch (error: any) {
+      } catch (error: unknown) {
         message.error(error?.message || '删除失败')
       } finally {
         loading.value = false
@@ -649,7 +655,7 @@ const handleDelete = () => {
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
-      } catch (error: any) {
+      } catch (error: unknown) {
         message.error(error?.message || '删除失败')
       } finally {
         loading.value = false
@@ -675,7 +681,7 @@ const handleFormSubmit = async () => {
     formData.value = {}
     formVisible.value = false
     loadData()
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error?.errorFields) return
     message.error(error?.message || '操作失败')
   } finally {
@@ -705,7 +711,7 @@ const handleImportCancel = () => { importVisible.value = false }
 const handleExport = async () => {
   try {
     loading.value = true
-    const queryParams: any = {}
+    const queryParams: Record<string, unknown> = {}
     if (queryKeyword.value) queryParams.KeyWords = queryKeyword.value
     if (advancedQueryForm.value.deptName) queryParams.DeptName = advancedQueryForm.value.deptName
     if (advancedQueryForm.value.deptCode) queryParams.DeptCode = advancedQueryForm.value.deptCode
@@ -725,7 +731,7 @@ const handleExport = async () => {
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
     message.success('导出成功')
-  } catch (error: any) {
+  } catch (error: unknown) {
     message.error(error?.message || '导出失败')
   } finally {
     loading.value = false

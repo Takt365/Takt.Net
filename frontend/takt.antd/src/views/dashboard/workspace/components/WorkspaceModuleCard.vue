@@ -1,7 +1,13 @@
 <template>
-  <a-card class="workspace-module-card" :body-style="bodyStyle">
+  <a-card
+    class="workspace-module-card"
+    :body-style="bodyStyle"
+  >
     <template #title>
-      <a-tooltip :title="dragTooltip" placement="right">
+      <a-tooltip
+        :title="dragTooltip"
+        placement="right"
+      >
         <span class="workspace-module-card-drag-handle">
           <RiDraggable />
         </span>
@@ -9,34 +15,76 @@
     </template>
     <template #extra>
       <a-space>
-        <a-tooltip :title="displayTitle" placement="right">
-          <a-button type="text" size="small" class="workspace-module-card-title-trigger">
-            <template #icon><RiInformationLine /></template>
+        <a-tooltip
+          :title="displayTitle"
+          placement="right"
+        >
+          <a-button
+            type="text"
+            size="small"
+            class="workspace-module-card-title-trigger"
+          >
+            <template #icon>
+              <RiInformationLine />
+            </template>
           </a-button>
         </a-tooltip>
-        <a-tooltip v-if="showLayoutSwitch" :title="layoutTooltip" placement="right">
+        <a-tooltip
+          v-if="showLayoutSwitch"
+          :title="layoutTooltip"
+          placement="right"
+        >
           <a-dropdown trigger="click">
-            <a-button type="text" size="small">
-              <template #icon><RiLayoutGridLine /></template>
+            <a-button
+              type="text"
+              size="small"
+            >
+              <template #icon>
+                <RiLayoutGridLine />
+              </template>
             </a-button>
             <template #overlay>
-            <a-menu :selected-keys="currentLayoutKey ? [currentLayoutKey] : []" @click="onLayoutMenuClick">
-              <a-menu-item key="full" :disabled="moduleSpan === 24">
-                <template #icon><RiLayoutRowLine /></template>
-                {{ t('dashboard.workspace.layoutFullRow') }}
-              </a-menu-item>
-              <a-menu-item key="half" :disabled="moduleSpan === 12">
-                <template #icon><RiLayoutColumnLine /></template>
-                {{ t('dashboard.workspace.layoutHalfRow') }}
-              </a-menu-item>
-            </a-menu>
-          </template>
+              <a-menu
+                :selected-keys="currentLayoutKey ? [currentLayoutKey] : []"
+                @click="onLayoutMenuClick"
+              >
+                <a-menu-item
+                  key="full"
+                  :disabled="moduleSpan === 24"
+                >
+                  <template #icon>
+                    <RiLayoutRowLine />
+                  </template>
+                  {{ t('dashboard.workspace.layoutFullRow') }}
+                </a-menu-item>
+                <a-menu-item
+                  key="half"
+                  :disabled="moduleSpan === 12"
+                >
+                  <template #icon>
+                    <RiLayoutColumnLine />
+                  </template>
+                  {{ t('dashboard.workspace.layoutHalfRow') }}
+                </a-menu-item>
+              </a-menu>
+            </template>
           </a-dropdown>
         </a-tooltip>
         <slot name="headActions" />
-        <a-tooltip v-if="showRemoveButton" :title="t('dashboard.workspace.removeModule')" placement="right">
-          <a-button type="text" size="small" danger @click="onRemove">
-            <template #icon><RiDeleteBinLine /></template>
+        <a-tooltip
+          v-if="showRemoveButton"
+          :title="t('dashboard.workspace.removeModule')"
+          placement="right"
+        >
+          <a-button
+            type="text"
+            size="small"
+            danger
+            @click="onRemove"
+          >
+            <template #icon>
+              <RiDeleteBinLine />
+            </template>
           </a-button>
         </a-tooltip>
       </a-space>

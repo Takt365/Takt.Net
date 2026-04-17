@@ -18,21 +18,23 @@
       :multiple="multiple"
       :action="action"
       :accept="accept"
-      :maxCount="maxCount"
+      :max-count="maxCount"
       :disabled="disabled"
-      :listType="listType"
-      :beforeUpload="handleBeforeUpload"
-      :customRequest="customRequest"
-      :showUploadList="showUploadList"
+      :list-type="listType"
+      :before-upload="handleBeforeUpload"
+      :custom-request="customRequest"
+      :show-upload-list="showUploadList"
+      v-bind="$attrs"
+      class="takt-upload-images-upload"
       @change="handleChange"
       @preview="handlePreview"
       @remove="handleRemove"
-      v-bind="$attrs"
-      class="takt-upload-images-upload"
     >
       <div v-if="fileList.length < (maxCount || 8)">
         <plus-outlined />
-        <div style="margin-top: 8px">{{ uploadTextDisplay }}</div>
+        <div style="margin-top: 8px">
+          {{ uploadTextDisplay }}
+        </div>
       </div>
     </a-upload>
     
@@ -41,20 +43,20 @@
       v-model:open="cropperVisible"
       :title="t('components.common.upload.cropImage')"
       :width="900"
-      :okText="t('components.common.upload.ok')"
-      :cancelText="t('components.common.upload.cancel')"
+      :ok-text="t('components.common.upload.ok')"
+      :cancel-text="t('components.common.upload.cancel')"
+      class="takt-upload-images-cropper"
       @ok="handleCropConfirm"
       @cancel="handleCropCancel"
-      class="takt-upload-images-cropper"
     >
       <takt-cropper
         ref="cropperRef"
-        :imageSrc="cropperImage"
-        :aspectRatio="aspectRatio"
+        :image-src="cropperImage"
+        :aspect-ratio="aspectRatio"
         :width="800"
         :height="600"
-        :cropWidth="cropWidth"
-        :cropHeight="cropHeight"
+        :crop-width="cropWidth"
+        :crop-height="cropHeight"
         @crop="handleCropperCrop"
         @error="handleCropperError"
       />
@@ -65,16 +67,20 @@
       v-model:open="previewVisible"
       :title="previewTitle"
       :footer="null"
-      @cancel="handleCancel"
       class="takt-upload-images-preview"
+      @cancel="handleCancel"
     >
-      <img alt="preview" style="width: 100%" :src="previewImage" />
+      <img
+        alt="preview"
+        style="width: 100%"
+        :src="previewImage"
+      >
     </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onUnmounted, nextTick, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import type { UploadChangeParam, UploadFile, UploadProps } from 'ant-design-vue'
@@ -82,6 +88,10 @@ import { useI18n } from 'vue-i18n'
 import TaktCropper from '../cropper/index.vue'
 
 const { t } = useI18n()
+type BeforeUploadFn = NonNullable<UploadProps['beforeUpload']>
+type CustomRequestOptions = Parameters<NonNullable<UploadProps['customRequest']>>[0]
+type UploadResultLike = { url?: string; data?: { url?: string } }
+type UploadProgress = { percent?: number }
 
 interface Props {
   /** 文件列表 */
@@ -99,7 +109,7 @@ interface Props {
   /** 是否禁用 */
   disabled?: boolean
   /** 上传列表的内建样式 */
-  listType?: 'text' | 'picture' | 'picture-card' | 'picture-circle'
+  listType?: UploadProps['listType']
   /** 上传前的钩子 */
   beforeUpload?: UploadProps['beforeUpload']
   /** 自定义上传请求 */
@@ -121,6 +131,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  modelValue: undefined,
   name: 'file',
   multiple: true,
   action: '',
@@ -170,6 +181,15 @@ watch(fileList, (newValue) => {
   emit('update:modelValue', newValue)
 }, { deep: true })
 
+function getUploadUrl(result: unknown): string | undefined {
+  const data = result as UploadResultLike
+  return data?.url ?? data?.data?.url
+}
+
+function toError(error: unknown): Error {
+  return error instanceof Error ? error : new Error(String(error))
+}
+
 // 获取文件的 base64 预览
 function getBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -216,14 +236,18 @@ const handleBeforeUpload = (file: UploadFile | File) => {
   if (props.beforeUpload) {
     // 将 UploadFile 或 File 转换为 File 类型传给 beforeUpload
     const fileForUpload = (file as UploadFile).originFileObj || (file as File)
-    return props.beforeUpload(fileForUpload as any, fileList.value as any)
+    const beforeUpload = props.beforeUpload
+    return beforeUpload(
+      fileForUpload as Parameters<BeforeUploadFn>[0],
+      fileList.value as Parameters<BeforeUploadFn>[1]
+    )
   }
 
   return true
 }
 
 // 裁剪器裁剪事件
-const handleCropperCrop = (blob: Blob, dataUrl: string) => {
+const handleCropperCrop = (_blob: Blob, _dataUrl: string) => {
   // 裁剪完成事件（可选，用于预览）
 }
 
@@ -266,15 +290,18 @@ const handleCropConfirm = async () => {
       fileList.value.push(uploadFile)
 
       // 手动触发上传
-      props.customRequest({
+      const requestOptions: CustomRequestOptions = {
         file: croppedFile,
-        onSuccess: (result: any) => {
+        action: props.action || '',
+        method: 'post',
+        onSuccess: (result: unknown) => {
           const index = fileList.value.findIndex(f => f.uid === uploadFile.uid)
           if (index !== -1) {
             fileList.value[index].status = 'done'
             fileList.value[index].response = result
-            if (result?.url || result?.data?.url) {
-              fileList.value[index].url = result?.url || result?.data?.url
+            const uploadedUrl = getUploadUrl(result)
+            if (uploadedUrl) {
+              fileList.value[index].url = uploadedUrl
             }
           }
           handleChange({
@@ -282,22 +309,23 @@ const handleCropConfirm = async () => {
             fileList: fileList.value
           } as UploadChangeParam)
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           const index = fileList.value.findIndex(f => f.uid === uploadFile.uid)
           if (index !== -1) {
             fileList.value[index].status = 'error'
           }
-          const errorMessage = error instanceof Error ? error.message : t('components.common.upload.uploadFail')
+          const errorMessage = toError(error).message || t('components.common.upload.uploadFail')
           message.error(t('components.common.upload.uploadImageFail') + '：' + errorMessage)
         },
-        onProgress: (event: any) => {
+        onProgress: (event: UploadProgress) => {
           const index = fileList.value.findIndex(f => f.uid === uploadFile.uid)
           if (index !== -1) {
-            fileList.value[index].percent = event.percent || 0
+            fileList.value[index].percent = event.percent ?? 0
             fileList.value[index].status = 'uploading'
           }
         }
-      } as any)
+      }
+      props.customRequest(requestOptions)
     } else {
       // 如果没有自定义上传请求，直接添加到文件列表
       const uploadFile: UploadFile = {
@@ -319,9 +347,9 @@ const handleCropConfirm = async () => {
     cropperVisible.value = false
     cropperImage.value = ''
     currentCropFile.value = null
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[TaktUploadImages] 裁剪失败:', error)
-    message.error(error?.message || t('components.common.upload.cropFail'))
+    message.error(toError(error).message || t('components.common.upload.cropFail'))
   }
 }
 

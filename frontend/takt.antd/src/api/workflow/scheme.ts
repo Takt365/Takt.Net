@@ -167,8 +167,9 @@ export function exportFlowSchemeData(query: FlowSchemeQuery, sheetName?: string,
  * 对应后端：Create / Update
  */
 export function createOrUpdateScheme(data: FlowSchemeCreateOrUpdate): Promise<FlowScheme> {
-  if (data.schemeId) {
-    return updateFlowScheme(data.schemeId, data)
+  const sid = data.schemeId
+  if (sid !== undefined && sid !== null) {
+    return updateFlowScheme(String(sid), data)
   }
   return createFlowScheme(data)
 }

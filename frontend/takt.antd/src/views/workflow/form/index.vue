@@ -63,7 +63,9 @@
           <a-tag>{{ formatCategory(record.formCategory) }}</a-tag>
         </template>
         <template v-else-if="column.key === 'formType'">
-          <a-tag color="blue">{{ formatType(record.formType) }}</a-tag>
+          <a-tag color="blue">
+            {{ formatType(record.formType) }}
+          </a-tag>
         </template>
         <template v-else-if="column.key === 'isDatasource'">
           {{ record[column.key as keyof FlowForm] === 1 ? t('common.button.yes') : t('common.button.no') }}
@@ -92,7 +94,10 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <FormForm ref="formFormRef" :form="form" />
+      <FormForm
+        ref="formFormRef"
+        :form="form"
+      />
     </TaktModal>
 
     <!-- 高级查询抽屉 -->
@@ -109,10 +114,20 @@
         <a-input v-model:value="advancedQueryForm.formName" />
       </a-form-item>
       <a-form-item :label="t('entity.flowform.formstatus')">
-        <a-select v-model:value="advancedQueryForm.formStatus" :placeholder="t('common.form.placeholder.select', { field: t('entity.flowform.formstatus') })" allow-clear>
-          <a-select-option :value="0">{{ t('common.button.draft') }}</a-select-option>
-          <a-select-option :value="1">{{ t('common.button.publish') }}</a-select-option>
-          <a-select-option :value="2">{{ t('common.button.disable') }}</a-select-option>
+        <a-select
+          v-model:value="advancedQueryForm.formStatus"
+          :placeholder="t('common.form.placeholder.select', { field: t('entity.flowform.formstatus') })"
+          allow-clear
+        >
+          <a-select-option :value="0">
+            {{ t('common.button.draft') }}
+          </a-select-option>
+          <a-select-option :value="1">
+            {{ t('common.button.publish') }}
+          </a-select-option>
+          <a-select-option :value="2">
+            {{ t('common.button.disable') }}
+          </a-select-option>
         </a-select>
       </a-form-item>
     </TaktQueryDrawer>
@@ -177,6 +192,40 @@ const advancedQueryVisible = ref(false)
 const advancedQueryForm = ref<{ formCode?: string; formName?: string; formStatus?: number }>({ formCode: '', formName: '', formStatus: undefined })
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
+
+type FlowFormColumn = {
+  key?: string | number
+  dataIndex?: string | number
+  title?: string | number
+  width?: number
+}
+
+type TableSorterInfo = {
+  field?: string
+  order?: string
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = (error as { message?: unknown }).message
+    if (typeof message === 'string' && message.trim()) return message
+  }
+  return fallback
+}
+
+function getColumnKey(column: FlowFormColumn): string {
+  const key = column.key ?? column.dataIndex ?? column.title
+  return key != null ? String(key) : ''
+}
+
+function getSorterInfo(sorter: unknown): TableSorterInfo {
+  if (typeof sorter !== 'object' || sorter === null) return {}
+  const sorterObj = sorter as { field?: unknown; order?: unknown }
+  return {
+    field: typeof sorterObj.field === 'string' ? sorterObj.field : undefined,
+    order: typeof sorterObj.order === 'string' ? sorterObj.order : undefined
+  }
+}
 
 const form = reactive<FlowFormCreate & { formId?: string }>({
   formCode: '',
@@ -289,14 +338,16 @@ const columns = computed<TableColumnsType>(() => [
   })
 ])
 
-const mergedColumns = computed((): any => mergeDefaultColumns(columns.value as any, t, true))
-const displayColumns = computed(() => {
+const mergedColumns = computed<TableColumnsType>(() => mergeDefaultColumns(columns.value, t, true))
+const displayColumns = computed<TableColumnsType>(() => {
   const keys = visibleColumnKeys.value || []
   const merged = mergedColumns.value || []
   if (keys.length === 0) return columns.value
-  const getColumnKey = (col: any) => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
   const keysSet = new Set(keys.map(k => String(k)))
-  return merged.filter((col: any) => getColumnKey(col) && keysSet.has(getColumnKey(col)))
+  return merged.filter((col) => {
+    const colKey = getColumnKey(col as FlowFormColumn)
+    return colKey && keysSet.has(colKey)
+  })
 })
 
 const rowSelection = computed(() => ({
@@ -359,11 +410,11 @@ async function loadData() {
       formName: queryKeyword.value || advancedQueryForm.value.formName || undefined,
       formStatus: advancedQueryForm.value.formStatus
     }
-    const res = (await getFlowFormList(query)) as TaktPagedResult<FlowForm>
+    const res = (await getFlowFormList(query))
     dataSource.value = res.data ?? []
     total.value = res.total ?? 0
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.loadFail'))
+  } catch (error: unknown) {
+    message.error(getErrorMessage(error, t('common.msg.loadFail')))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -418,8 +469,9 @@ function handleColumnSettingReset() {
 }
 
 /** 表格变化（排序等），当前仅占位 */
-function handleTableChange(_pagination: any, _filters: any, sorter: any) {
-  if (sorter?.order) {
+function handleTableChange(_pagination: unknown, _filters: unknown, sorter: unknown) {
+  const sorterInfo = getSorterInfo(sorter)
+  if (sorterInfo.order) {
     // 如需服务端排序可在此处理
   }
 }
@@ -444,13 +496,9 @@ function handleRefresh() {
 }
 
 /** 列宽拖拽后更新对应列的 width */
-function handleResizeColumn(w: number, col: any) {
-  const column = columns.value.find((c: any) => {
-    const colKey = col.key || col.dataIndex
-    const cKey = c.key || c.dataIndex
-    return colKey && cKey && String(colKey) === String(cKey)
-  })
-  if (column) (column as any).width = w
+function handleResizeColumn(w: number, col: FlowFormColumn) {
+  const column = columns.value.find((c) => getColumnKey(c as FlowFormColumn) === getColumnKey(col))
+  if (column) (column as FlowFormColumn).width = w
 }
 
 /** 重置表单对象为初始值。仅用于「打开新增」前，不在关闭弹窗时调用。 */
@@ -534,8 +582,8 @@ function handleDeleteOne(record: FlowForm) {
         await deleteFlowFormById(record.formId)
         message.success(t('common.msg.deleteSuccess'))
         loadData()
-      } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+      } catch (error: unknown) {
+        message.error(getErrorMessage(error, t('common.msg.deleteFail')))
       } finally {
         loading.value = false
       }
@@ -564,8 +612,8 @@ function handleDelete() {
         selectedRows.value = []
         selectedRow.value = null
         loadData()
-      } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+      } catch (error: unknown) {
+        message.error(getErrorMessage(error, t('common.msg.deleteFail')))
       } finally {
         loading.value = false
       }
@@ -613,8 +661,8 @@ async function handleFormSubmit() {
     }
     formVisible.value = false
     loadData()
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.operateFail'))
+  } catch (error: unknown) {
+    message.error(getErrorMessage(error, t('common.msg.operateFail')))
   } finally {
     formLoading.value = false
   }

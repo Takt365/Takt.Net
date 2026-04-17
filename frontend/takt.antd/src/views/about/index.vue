@@ -7,15 +7,44 @@
 
 <template>
   <div class="about">
-    <a-descriptions :column="1" bordered>
-      <a-descriptions-item label="系统名称">{{ $t('common.app.name') }}</a-descriptions-item>
-      <a-descriptions-item label="系统版本">V{{ appInfo.pkg.version }}</a-descriptions-item>
-      <a-descriptions-item label="产品代码">{{ $t('common.app.productcode') }}</a-descriptions-item>
+    <a-descriptions
+      :column="1"
+      bordered
+    >
+      <a-descriptions-item label="系统名称">
+        {{ $t('common.app.name') }}
+      </a-descriptions-item>
+      <a-descriptions-item label="系统版本">
+        V{{ appInfo.pkg.version }}
+      </a-descriptions-item>
+      <a-descriptions-item label="产品代码">
+        {{ $t('common.app.productcode') }}
+      </a-descriptions-item>
       <a-descriptions-item label="项目文档">
-        <a :href="repoUrl" target="_blank" rel="noopener noreferrer" class="about-link"><span class="about-link-inner"><RiFileTextLine />项目文档</span></a>
-        <a :href="licenseUrl" target="_blank" rel="noopener noreferrer" class="about-link"><span class="about-link-inner"><RiCopyrightLine />开源许可</span></a>
-        <router-link to="/privacy" class="about-link"><span class="about-link-inner"><RiShieldLine />隐私政策</span></router-link>
-        <router-link to="/terms" class="about-link"><span class="about-link-inner"><RiFileList3Line />服务条款</span></router-link>
+        <a
+          :href="repoUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="about-link"
+        ><span class="about-link-inner"><RiFileTextLine />项目文档</span></a>
+        <a
+          :href="licenseUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="about-link"
+        ><span class="about-link-inner"><RiCopyrightLine />开源许可</span></a>
+        <router-link
+          to="/privacy"
+          class="about-link"
+        >
+          <span class="about-link-inner"><RiShieldLine />隐私政策</span>
+        </router-link>
+        <router-link
+          to="/terms"
+          class="about-link"
+        >
+          <span class="about-link-inner"><RiFileList3Line />服务条款</span>
+        </router-link>
       </a-descriptions-item>
     </a-descriptions>
 

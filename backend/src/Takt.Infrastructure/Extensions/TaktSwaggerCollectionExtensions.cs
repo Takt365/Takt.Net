@@ -4,26 +4,39 @@
 // 文件名称：TaktSwaggerCollectionExtensions.cs
 // 创建时间：2025-01-09
 // 创建人：Takt365(Cursor AI)
-// 功能描述：Takt Swagger配置扩展方法，用于配置Swagger文档分组
+// 功能描述：Takt OpenAPI/Scalar 配置扩展，用于按模块注册 OpenAPI 文档与 Scalar 端点
 // 
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 
 namespace Takt.Infrastructure.Extensions;
 
 /// <summary>
-/// Takt Swagger配置扩展方法
+/// Takt OpenAPI 与 Scalar 配置扩展方法
 /// </summary>
 public static class TaktSwaggerCollectionExtensions
 {
+    private static readonly (string Name, string Title, string Description)[] TaktSwaggerDocuments =
+    {
+        ("Accounting", "会计核算", "会计核算相关API"),
+        ("Generator", "代码管理", "代码管理相关API"),
+        ("HumanResource", "人力资源", "人力资源相关API"),
+        ("Identity", "身份认证", "身份认证等API"),
+        ("Logistics", "后勤管理", "后勤管理相关API"),
+        ("Routine", "日常事务", "日常事务相关API"),
+        ("Statistics", "统计看板", "统计看板相关API"),
+        ("Workflow", "工作流程", "工作流程相关API")
+    };
+
     /// <summary>
-    /// 添加Swagger服务
+    /// 添加 OpenAPI 文档服务（ASP.NET Core 内置 OpenAPI，按模块分组）
     /// </summary>
     /// <param name="services">服务集合</param>
     /// <param name="assemblyName">程序集名称，用于加载XML注释</param>
@@ -31,169 +44,62 @@ public static class TaktSwaggerCollectionExtensions
     public static IServiceCollection AddTaktSwagger(this IServiceCollection services, string? assemblyName = null)
     {
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(c =>
+
+        foreach (var doc in TaktSwaggerDocuments)
         {
-            // 按模块分组（8 组）：会计核算、代码管理、人力资源、身份认证、后勤管理、日常事务、统计看板、工作流程
-            c.SwaggerDoc("Accounting", new OpenApiInfo
+            services.AddOpenApi(doc.Name, options =>
             {
-                Title = "会计核算",
-                Version = "v1",
-                Description = "会计核算相关API"
-            });
-
-            c.SwaggerDoc("Generator", new OpenApiInfo
-            {
-                Title = "代码管理",
-                Version = "v1",
-                Description = "代码生成与管理相关API"
-            });
-
-            c.SwaggerDoc("Organization", new OpenApiInfo
-            {
-                Title = "人力资源",
-                Version = "v1",
-                Description = "人力资源与组织管理相关API"
-            });
-
-            c.SwaggerDoc("Identity", new OpenApiInfo
-            {
-                Title = "身份认证",
-                Version = "v1",
-                Description = "身份认证、用户、租户、OAuth2/OIDC 等API"
-            });
-
-            c.SwaggerDoc("Logistics", new OpenApiInfo
-            {
-                Title = "后勤管理",
-                Version = "v1",
-                Description = "后勤管理相关API：销售、生产、物料、质量等"
-            });
-
-            c.SwaggerDoc("Routine", new OpenApiInfo
-            {
-                Title = "日常事务",
-                Version = "v1",
-                Description = "日常事务、字典、文件、设置、SignalR 等API"
-            });
-
-            c.SwaggerDoc("Logging", new OpenApiInfo
-            {
-                Title = "统计看板",
-                Version = "v1",
-                Description = "统计与日志看板相关API"
-            });
-
-            c.SwaggerDoc("Workflow", new OpenApiInfo
-            {
-                Title = "工作流程",
-                Version = "v1",
-                Description = "工作流与流程管理相关API"
-            });
-
-            // 严格按控制器的 [ApiModule(moduleName, ...)] 的 GroupName 分组，仅上述 8 组
-            c.DocInclusionPredicate((docName, apiDesc) =>
-            {
-                var groupName = apiDesc.GroupName;
-                if (string.IsNullOrEmpty(groupName))
-                    return string.Equals(docName, "Identity", StringComparison.OrdinalIgnoreCase);
-                return string.Equals(docName, groupName.Trim(), StringComparison.OrdinalIgnoreCase);
-            });
-
-            // 添加文档过滤器
-            c.DocumentFilter<SwaggerDocumentStatsFilter>();
-
-            // 自定义 Schema ID 生成器，避免类型名称冲突
-            c.CustomSchemaIds(type => type.FullName);
-
-            // 确保所有控制器都被发现（即使没有 ApiExplorerSettings）
-            // 这可以确保所有控制器都能被 Swagger 发现和分组
-            c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
-
-            // 确保所有操作都被包含（即使没有 ApiExplorerSettings）
-            // 这可以确保所有操作都能被 Swagger 发现
-            c.IgnoreObsoleteActions();
-
-            // 包含XML注释（如果有）
-            if (!string.IsNullOrEmpty(assemblyName))
-            {
-                var xmlFile = $"{assemblyName}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                if (File.Exists(xmlPath))
+                options.ShouldInclude = desc =>
                 {
-                    c.IncludeXmlComments(xmlPath);
-                }
-            }
-        });
+                    var groupName = desc.GroupName;
+                    if (string.IsNullOrWhiteSpace(groupName))
+                    {
+                        return string.Equals(doc.Name, "Identity", StringComparison.OrdinalIgnoreCase);
+                    }
+                    return string.Equals(groupName.Trim(), doc.Name, StringComparison.OrdinalIgnoreCase);
+                };
+
+                // 供 Scalar / 契约生成工具识别 JWT Bearer（与控制器 [Authorize] 一致）
+                options.AddDocumentTransformer((document, _, _) =>
+                {
+                    document.Components ??= new OpenApiComponents();
+                    document.Components.SecuritySchemes ??= new Dictionary<string, OpenApiSecurityScheme>(StringComparer.Ordinal);
+                    document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        Description = "在请求头携带 access_token，格式：`Authorization: Bearer {token}`（通过 `api/TaktAuth` 登录获取）。"
+                    };
+                    return Task.CompletedTask;
+                });
+            });
+        }
 
         return services;
     }
 
     /// <summary>
-    /// 使用Swagger UI
+    /// 映射 OpenAPI JSON 与 Scalar API 参考端点
     /// </summary>
-    /// <param name="app">应用程序构建器</param>
-    /// <returns>应用程序构建器</returns>
-    public static IApplicationBuilder UseTaktSwaggerUI(this IApplicationBuilder app)
+    /// <param name="app">Web 应用</param>
+    /// <returns>Web 应用</returns>
+    public static WebApplication UseTaktSwaggerUI(this WebApplication app)
     {
-        // 先配置 Swagger JSON 端点
-        app.UseSwagger(c =>
+        app.MapOpenApi("/openapi/{documentName}.json");
+        app.MapScalarApiReference("/swagger", options =>
         {
-            c.RouteTemplate = "swagger/{documentName}/swagger.json";
-            // Swashbuckle 10.1.0 默认生成 OpenAPI 3.x 格式，无需额外配置
-        });
+            options.WithTitle("Takt.Net API Reference")
+                   .WithOpenApiRoutePattern("/openapi/{documentName}.json")
+                   .AddHttpAuthentication("Bearer", _ => { })
+                   .AddPreferredSecuritySchemes(["Bearer"]);
 
-        // 再配置 Swagger UI
-        app.UseSwaggerUI(c =>
-        {
-            // 设置Swagger UI路径为 /swagger（避免拦截 SignalR 请求）
-            c.RoutePrefix = "swagger";
-
-            // 配置默认文档
-            c.DefaultModelsExpandDepth(-1);
-            c.DefaultModelRendering(Swashbuckle.AspNetCore.SwaggerUI.ModelRendering.Model);
-
-            // 仅 8 组，与控制器 [ApiModule] 的 GroupName 一致
-            var endpoints = new[]
+            foreach (var doc in TaktSwaggerDocuments.OrderByDescending(x => x.Name == "Identity"))
             {
-                ("Accounting", "会计核算"),
-                ("Generator", "代码管理"),
-                ("Organization", "人力资源"),
-                ("Identity", "身份认证"),
-                ("Logistics", "后勤管理"),
-                ("Routine", "日常事务"),
-                ("Logging", "统计看板"),
-                ("Workflow", "工作流程")
-            };
-
-            // 使用 SwaggerEndpoint 注册所有文档（这是 Swashbuckle 推荐的方式）
-            // 注意：必须确保每个文档的路径都正确，且文档名称与 SwaggerDoc 中定义的名称完全匹配
-            // 重要：即使文档为空，也应该注册，这样 Swagger UI 才会在下拉列表中显示
-            foreach (var (docName, docTitle) in endpoints)
-            {
-                var endpointUrl = $"/swagger/{docName}/swagger.json";
-                c.SwaggerEndpoint(endpointUrl, docTitle);
+                options.AddDocument(doc.Name, doc.Title);
             }
-
-            // 设置 Swagger UI 配置
-            c.ConfigObject.DefaultModelExpandDepth = 1;
-            c.ConfigObject.DocExpansion = Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List;
-            c.ConfigObject.DeepLinking = true;
-            c.ConfigObject.DisplayRequestDuration = true;
-
-        });
+        }).AllowAnonymous();
 
         return app;
-    }
-}
-
-/// <summary>
-/// Swagger 文档统计过滤器
-/// </summary>
-internal class SwaggerDocumentStatsFilter : IDocumentFilter
-{
-    public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
-    {
-        // Swashbuckle 10.1.0 默认生成 OpenAPI 3.0.4，会自动包含 "openapi": "3.0.4" 字段
-        // 此过滤器保留用于未来可能的文档修改需求
     }
 }

@@ -1,19 +1,37 @@
 <template>
   <div class="layout-settings">
-    <a-space direction="vertical" size="large" style="width: 100%">
+    <a-space
+      direction="vertical"
+      size="large"
+      style="width: 100%"
+    >
       <a-form-item :label="$t('components.navigation.systemSetting.layoutMode')">
-        <a-radio-group v-model:value="setting.layout" @change="handleChange">
-          <a-radio-button value="side">{{ $t('components.navigation.systemSetting.sideNav') }}</a-radio-button>
-          <a-radio-button value="top">{{ $t('components.navigation.systemSetting.topNav') }}</a-radio-button>
-          <a-radio-button value="mix">{{ $t('components.navigation.systemSetting.mixNav') }}</a-radio-button>
-          <a-radio-button value="content">{{ $t('components.navigation.systemSetting.contentNav') }}</a-radio-button>
+        <a-radio-group
+          v-model:value="setting.layout"
+          @change="handleChange"
+        >
+          <a-radio-button value="side">
+            {{ $t('components.navigation.systemSetting.sideNav') }}
+          </a-radio-button>
+          <a-radio-button value="top">
+            {{ $t('components.navigation.systemSetting.topNav') }}
+          </a-radio-button>
+          <a-radio-button value="mix">
+            {{ $t('components.navigation.systemSetting.mixNav') }}
+          </a-radio-button>
+          <a-radio-button value="content">
+            {{ $t('components.navigation.systemSetting.contentNav') }}
+          </a-radio-button>
         </a-radio-group>
       </a-form-item>
 
       <a-form-item>
         <template #label>
           <span>{{ $t('components.navigation.systemSetting.titleLabel') }}</span>
-          <a-tooltip :title="$t('components.navigation.systemSetting.titleHint')" placement="top">
+          <a-tooltip
+            :title="$t('components.navigation.systemSetting.titleHint')"
+            placement="top"
+          >
             <span class="label-hint-icon"><RiQuestionLine /></span>
           </a-tooltip>
         </template>
@@ -28,7 +46,10 @@
       <a-form-item>
         <template #label>
           <span>{{ $t('components.navigation.systemSetting.collapseTitle') }}</span>
-          <a-tooltip :title="$t('components.navigation.systemSetting.collapseTitleHint')" placement="top">
+          <a-tooltip
+            :title="$t('components.navigation.systemSetting.collapseTitleHint')"
+            placement="top"
+          >
             <span class="label-hint-icon"><RiQuestionLine /></span>
           </a-tooltip>
         </template>
@@ -43,17 +64,26 @@
       <a-form-item>
         <template #label>
           <span>{{ $t('components.navigation.systemSetting.showLogo') }}</span>
-          <a-tooltip :title="$t('components.navigation.systemSetting.showLogoHint')" placement="top">
+          <a-tooltip
+            :title="$t('components.navigation.systemSetting.showLogoHint')"
+            placement="top"
+          >
             <span class="label-hint-icon"><RiQuestionLine /></span>
           </a-tooltip>
         </template>
-        <a-switch v-model:checked="setting.showLogo" @change="handleChange" />
+        <a-switch
+          v-model:checked="setting.showLogo"
+          @change="handleChange"
+        />
       </a-form-item>
 
       <a-form-item v-if="setting.showLogo">
         <template #label>
           <span>{{ $t('components.navigation.systemSetting.logoPath') }}</span>
-          <a-tooltip :title="$t('components.navigation.systemSetting.logoPathHint')" placement="top">
+          <a-tooltip
+            :title="$t('components.navigation.systemSetting.logoPathHint')"
+            placement="top"
+          >
             <span class="label-hint-icon"><RiQuestionLine /></span>
           </a-tooltip>
         </template>
@@ -66,11 +96,17 @@
       </a-form-item>
 
       <a-form-item :label="$t('components.navigation.systemSetting.fixedHeader')">
-        <a-switch v-model:checked="setting.fixedHeader" @change="handleChange" />
+        <a-switch
+          v-model:checked="setting.fixedHeader"
+          @change="handleChange"
+        />
       </a-form-item>
 
       <a-form-item :label="$t('components.navigation.systemSetting.fixedSidebar')">
-        <a-switch v-model:checked="setting.fixedSider" @change="handleChange" />
+        <a-switch
+          v-model:checked="setting.fixedSider"
+          @change="handleChange"
+        />
       </a-form-item>
 
       <a-form-item :label="$t('components.navigation.systemSetting.sidebarWidth')">
@@ -96,9 +132,16 @@
       </a-form-item>
 
       <a-form-item :label="$t('components.navigation.systemSetting.contentWidth')">
-        <a-radio-group v-model:value="setting.contentWidth" @change="handleChange">
-          <a-radio-button value="fluid">{{ $t('components.navigation.systemSetting.fluid') }}</a-radio-button>
-          <a-radio-button value="fixed">{{ $t('components.navigation.systemSetting.fixed') }}</a-radio-button>
+        <a-radio-group
+          v-model:value="setting.contentWidth"
+          @change="handleChange"
+        >
+          <a-radio-button value="fluid">
+            {{ $t('components.navigation.systemSetting.fluid') }}
+          </a-radio-button>
+          <a-radio-button value="fixed">
+            {{ $t('components.navigation.systemSetting.fixed') }}
+          </a-radio-button>
         </a-radio-group>
       </a-form-item>
     </a-space>

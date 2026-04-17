@@ -27,7 +27,7 @@ namespace Takt.WebApi.Controllers.Logistics.Materials;
 /// 工厂表控制器
 /// </summary>
 [Route("api/[controller]", Name = "工厂表")]
-[ApiModule("Logistics", "物流管理")]
+[ApiModule("Logistics", "后勤管理")]
 [TaktPermission("logistics_materials:plant", "工厂表管理")]
 public class TaktPlantController : TaktControllerBase
 {

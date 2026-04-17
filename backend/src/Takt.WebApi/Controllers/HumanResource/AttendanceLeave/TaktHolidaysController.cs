@@ -23,7 +23,7 @@ namespace Takt.WebApi.Controllers.HumanResource.AttendanceLeave;
 /// 假日控制器
 /// </summary>
 [Route("api/[controller]", Name = "假日")]
-[ApiModule("HumanResource.AttendanceLeave", "考勤请假")]
+[ApiModule("HumanResource", "人力资源")]
 [TaktPermission("humanresource:attendanceleave:holiday:list", "假日管理")]
 public class TaktHolidaysController : TaktControllerBase
 {

@@ -23,7 +23,7 @@ namespace Takt.WebApi.Controllers.HumanResource.Personnel;
 /// 员工控制器（权限前缀 humanresource:personnel:employee，与菜单/按钮种子一致）
 /// </summary>
 [Route("api/[controller]", Name = "员工")]
-[ApiModule("HumanResource.Personnel", "人事管理")]
+[ApiModule("HumanResource", "人力资源")]
 [TaktPermission("humanresource:personnel:employee:list", "员工管理")]
 public class TaktEmployeesController : TaktControllerBase
 {

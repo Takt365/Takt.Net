@@ -11,23 +11,49 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" layout="vertical" :model="form" :rules="formRules">
-    <a-steps :current="currentStep" :items="stepItems" class="scheme-steps" />
+  <a-form
+    ref="formRef"
+    layout="vertical"
+    :model="form"
+    :rules="formRules"
+  >
+    <a-steps
+      :current="currentStep"
+      :items="stepItems"
+      class="scheme-steps"
+    />
     <div class="steps-content">
       <!-- 步骤1：流程信息（与 AntFlow BasicSetting 职责对齐，绑定 FlowSchemeCreateOrUpdate） -->
-      <div v-show="currentStep === 0" class="step-content">
-        <TaktFlowBasicSetting :form="form" />
+      <div
+        v-show="currentStep === 0"
+        class="step-content"
+      >
+        <TaktFlowBasicSetting v-model:form="form" />
       </div>
       <!-- 步骤2：单选 关联表单 / 新建表单，均用 TaktFormDesigner 展示与设计 -->
-      <div v-show="currentStep === 1" class="step-content">
+      <div
+        v-show="currentStep === 1"
+        class="step-content"
+      >
         <a-form-item :label="t('workflow.scheme.linkForm')">
-          <a-radio-group v-model:value="linkFormMode" class="scheme-form__form-radio">
-            <a-radio value="link">{{ t('workflow.scheme.linkFormOptionLink') }}</a-radio>
-            <a-radio value="new">{{ t('workflow.scheme.linkFormOptionNew') }}</a-radio>
+          <a-radio-group
+            v-model:value="linkFormMode"
+            class="scheme-form__form-radio"
+          >
+            <a-radio value="link">
+              {{ t('workflow.scheme.linkFormOptionLink') }}
+            </a-radio>
+            <a-radio value="new">
+              {{ t('workflow.scheme.linkFormOptionNew') }}
+            </a-radio>
           </a-radio-group>
         </a-form-item>
         <!-- 关联表单：表单选择器 -->
-        <a-form-item v-if="linkFormMode === 'link'" :label="t('workflow.scheme.linkForm')" name="formCode">
+        <a-form-item
+          v-if="linkFormMode === 'link'"
+          :label="t('workflow.scheme.linkForm')"
+          name="formCode"
+        >
           <a-spin :spinning="formListLoading">
             <template v-if="formList.length > 0">
               <a-select
@@ -40,12 +66,20 @@
                 option-filter-prop="label"
                 @change="onFormSelectChange"
               >
-                <a-select-option v-for="item in formList" :key="item.formId ?? item.formCode" :value="item.formCode ?? ''" :label="(item.formCode ?? '') + ' ' + (item.formName ?? '')">
+                <a-select-option
+                  v-for="item in formList"
+                  :key="item.formId ?? item.formCode"
+                  :value="item.formCode ?? ''"
+                  :label="(item.formCode ?? '') + ' ' + (item.formName ?? '')"
+                >
                   {{ item.formCode }} - {{ item.formName }}
                 </a-select-option>
               </a-select>
             </template>
-            <div v-else-if="!formListLoading" class="scheme-form__no-form">
+            <div
+              v-else-if="!formListLoading"
+              class="scheme-form__no-form"
+            >
               <span class="scheme-form__hint">{{ t('workflow.scheme.noFormHint') }}</span>
             </div>
           </a-spin>
@@ -66,7 +100,10 @@
         </div>
       </div>
       <!-- 步骤3：流程设计 -->
-      <div v-show="currentStep === 2" class="step-content step-content-design">
+      <div
+        v-show="currentStep === 2"
+        class="step-content step-content-design"
+      >
         <div class="scheme-designer-section">
           <div class="scheme-designer-section__title">
             {{ isEdit ? t('workflow.scheme.designerLabelEdit') : t('workflow.scheme.designerLabel') }}
@@ -82,8 +119,20 @@
       </div>
     </div>
     <div class="steps-action">
-      <a-button v-if="currentStep > 0" style="margin-right: 8px" @click="prev">{{ t('workflow.scheme.step.prev') }}</a-button>
-      <a-button v-if="currentStep < steps.length - 1" type="primary" @click="next">{{ t('workflow.scheme.step.next') }}</a-button>
+      <a-button
+        v-if="currentStep > 0"
+        style="margin-right: 8px"
+        @click="prev"
+      >
+        {{ t('workflow.scheme.step.prev') }}
+      </a-button>
+      <a-button
+        v-if="currentStep < steps.length - 1"
+        type="primary"
+        @click="next"
+      >
+        {{ t('workflow.scheme.step.next') }}
+      </a-button>
       <a-button
         v-if="currentStep === steps.length - 1"
         type="primary"

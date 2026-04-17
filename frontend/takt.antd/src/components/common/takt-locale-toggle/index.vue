@@ -1,18 +1,27 @@
 <template>
-  <a-dropdown :trigger="['click']" placement="bottomRight">
+  <a-dropdown
+    :trigger="['click']"
+    placement="bottomRight"
+  >
     <a-button type="text">
       <template #icon>
         <RiTranslate />
       </template>
     </a-button>
     <template #overlay>
-      <a-menu :selected-keys="[localeStore.locale]" @click="handleMenuClick">
+      <a-menu
+        :selected-keys="[localeStore.locale]"
+        @click="handleMenuClick"
+      >
         <a-menu-item 
           v-for="lang in localeStore.enabledLanguages" 
           :key="lang.code"
         >
           <span style="display: inline-flex; align-items: center;">
-            <span :class="getFlagClass(lang.code)" style="font-size: 20px; margin-right: 8px;"></span>
+            <span
+              :class="getFlagClass(lang.code)"
+              style="font-size: 20px; margin-right: 8px;"
+            />
             {{ lang.displayName || lang.name }}
           </span>
         </a-menu-item>
@@ -55,7 +64,7 @@ const getFlagClass = (cultureCode: string): string => {
 
 // 处理菜单点击
 const handleMenuClick = ({ key }: { key: string | number }) => {
-  localeStore.setLocale(String(key) as Locale)
+  localeStore.setLocale(String(key))
 }
 
 // 组件挂载时确保语言列表已加载，并确保默认选中正确的语言
@@ -82,7 +91,7 @@ onMounted(async () => {
     if (defaultLocaleFromSetting) {
       const settingLang = localeStore.enabledLanguages.find(lang => lang.code === defaultLocaleFromSetting)
       if (settingLang) {
-        localeStore.setLocale(defaultLocaleFromSetting as Locale)
+        localeStore.setLocale(defaultLocaleFromSetting)
       } else {
         // 如果设置中的默认语言不可用，尝试使用中文
         const zhCnLang = localeStore.enabledLanguages.find(lang => lang.code === 'zh-CN')

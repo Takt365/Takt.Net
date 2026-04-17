@@ -42,8 +42,7 @@ public class TaktAccountingTitleEntitiesSeedData : ITaktSeedData
         try
         {
             var languages = await languageRepository.FindAsync(l =>
-                l.LanguageStatus == 0 &&
-                l.IsDeleted == 0);
+                l.LanguageStatus == 0);
 
             if (languages == null || languages.Count == 0)
                 return (0, 0);
@@ -58,8 +57,7 @@ public class TaktAccountingTitleEntitiesSeedData : ITaktSeedData
 
                 var existing = await translationRepository.GetAsync(t =>
                     t.ResourceKey == translation.ResourceKey &&
-                    t.CultureCode == translation.CultureCode &&
-                    t.IsDeleted == 0);
+                    t.CultureCode == translation.CultureCode);
 
                 if (existing == null)
                 {

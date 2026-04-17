@@ -59,7 +59,7 @@ function isSensitiveField(fieldName: string): boolean {
  * @param obj 要脱敏的对象
  * @returns 脱敏后的对象
  */
-export function sanitizeForLogging(obj: any): any {
+export function sanitizeForLogging(obj: unknown): unknown {
   if (obj === null || obj === undefined) {
     return obj
   }
@@ -72,8 +72,8 @@ export function sanitizeForLogging(obj: any): any {
     return obj.map(item => sanitizeForLogging(item))
   }
 
-  const sanitized: Record<string, any> = {}
-  for (const [key, value] of Object.entries(obj)) {
+  const sanitized: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
     if (isSensitiveField(key)) {
       sanitized[key] = '***'
     } else if (typeof value === 'object' && value !== null) {
@@ -84,6 +84,26 @@ export function sanitizeForLogging(obj: any): any {
   }
 
   return sanitized
+}
+
+/** 仅用于日志输出的请求配置片段（与 Axios 常用字段对齐，避免耦合 axios 类型） */
+type LoggableRequestConfig = {
+  baseURL?: string
+  params?: unknown
+  headers?: Record<string, string | undefined>
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message
+  if (error && typeof error === 'object' && 'response' in error) {
+    const data = (error as { response?: { data?: { message?: string } | string } }).response?.data
+    if (typeof data === 'string' && data.trim()) return data.trim()
+    if (data && typeof data === 'object' && 'message' in data) {
+      const m = (data as { message?: string }).message
+      if (m) return m
+    }
+  }
+  return '请求失败'
 }
 
 /**
@@ -106,15 +126,16 @@ class ApiLogger {
   /**
    * API 请求日志
    */
-  apiRequest(method: string, url: string, config?: any): void {
+  apiRequest(method: string, url: string, config?: LoggableRequestConfig): void {
     if (isDev()) {
+      const headers = config?.headers
       this.logger.debug('[API Request]', {
         method,
         url,
         baseURL: config?.baseURL || '',
         params: sanitizeForLogging(config?.params),
-        hasAuth: !!config?.headers?.Authorization,
-        hasCsrfToken: !!config?.headers?.['X-CSRF-Token']
+        hasAuth: !!(headers && 'Authorization' in headers && headers.Authorization),
+        hasCsrfToken: !!(headers && 'X-CSRF-Token' in headers && headers['X-CSRF-Token'])
       })
     }
   }
@@ -122,11 +143,12 @@ class ApiLogger {
   /**
    * API 响应日志
    */
-  apiResponse(status: number, method: string, url: string, data?: any, message?: string): void {
+  apiResponse(status: number, method: string, url: string, data?: unknown, message?: string): void {
     if (isDev()) {
+      const dataObj = data && typeof data === 'object' ? (data as Record<string, unknown>) : null
       const logData = {
         status,
-        code: data?.code || data?.Code || null,
+        code: (dataObj?.code ?? dataObj?.Code ?? null) as unknown,
         url,
         method,
         data: sanitizeForLogging(data),
@@ -144,26 +166,36 @@ class ApiLogger {
   /**
    * API 错误日志
    */
-  apiError(status: number, method: string, url: string, error: any): void {
-    const message = error?.message || error?.response?.data?.message || '请求失败'
+  apiError(status: number, method: string, url: string, error: unknown): void {
+    const message = errorMessage(error)
     const summary = `${status} ${method} ${url} - ${message}`
+    const errObj = error && typeof error === 'object' ? (error as Record<string, unknown>) : null
+    const statusText =
+      errObj && typeof errObj.statusText === 'string' ? errObj.statusText : null
+    const responseData =
+      errObj && 'response' in errObj && errObj.response && typeof errObj.response === 'object'
+        ? (errObj.response as { data?: unknown }).data
+        : undefined
     this.logger.error('[API Error]', summary, {
       status,
-      statusText: error?.statusText || null,
+      statusText,
       url,
       method,
       message,
-      data: sanitizeForLogging(error?.response?.data)
+      data: sanitizeForLogging(responseData)
     })
   }
 
   /**
    * 网络错误日志
    */
-  networkError(method: string, url: string, error: any): void {
+  networkError(method: string, url: string, error: unknown): void {
+    const e = error instanceof Error ? error : null
+    const code =
+      error && typeof error === 'object' && 'code' in error ? (error as { code?: string }).code : undefined
     this.logger.error('[Network Error]', {
-      message: error?.message || '网络错误',
-      code: error?.code,
+      message: e?.message || '网络错误',
+      code,
       url,
       method
     })
@@ -172,10 +204,13 @@ class ApiLogger {
   /**
    * 健康检查错误日志
    */
-  healthCheckError(error: any): void {
+  healthCheckError(error: unknown): void {
+    const e = error instanceof Error ? error : null
+    const code =
+      error && typeof error === 'object' && 'code' in error ? (error as { code?: string }).code : undefined
     this.logger.error('[Health Check Error]', {
-      message: error?.message || '健康检查失败',
-      code: error?.code
+      message: e?.message || '健康检查失败',
+      code
     })
   }
 }

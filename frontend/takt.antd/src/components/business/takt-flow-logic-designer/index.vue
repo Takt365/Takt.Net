@@ -7,7 +7,11 @@
 <!-- ======================================== -->
 
 <template>
-  <div ref="rootRef" class="takt-flow-logic-designer" :class="{ 'takt-flow-logic-designer--dark': isDark, 'takt-flow-logic-designer--fullscreen': isFullscreen }">
+  <div
+    ref="rootRef"
+    class="takt-flow-logic-designer"
+    :class="{ 'takt-flow-logic-designer--dark': isDark, 'takt-flow-logic-designer--fullscreen': isFullscreen }"
+  >
     <a-tooltip :title="isFullscreen ? t('common.button.exitFullscreen') : t('common.button.fullscreen')">
       <a-button
         type="text"
@@ -22,20 +26,34 @@
     </a-tooltip>
     <!-- 画布（图元由 DndPanel 拖拽添加） -->
     <div class="takt-flow-logic-designer__canvas-wrap">
-      <div ref="containerRef" class="takt-flow-logic-designer__canvas" />
+      <div
+        ref="containerRef"
+        class="takt-flow-logic-designer__canvas"
+      />
     </div>
 
     <!-- 属性面板：右侧 -->
     <aside class="takt-flow-logic-designer__property-panel">
-      <div class="takt-flow-logic-designer__property-title">{{ t('workflow.designer.propertyPanel') }}</div>
+      <div class="takt-flow-logic-designer__property-title">
+        {{ t('workflow.designer.propertyPanel') }}
+      </div>
       <div class="takt-flow-logic-designer__property-body">
         <template v-if="!selectedNodeId && !selectedEdgeId">
-          <div class="takt-flow-logic-designer__property-empty">{{ t('workflow.designer.selectNodeOrEdge') }}</div>
+          <div class="takt-flow-logic-designer__property-empty">
+            {{ t('workflow.designer.selectNodeOrEdge') }}
+          </div>
         </template>
         <template v-else-if="selectedNodeId && selectedNodeData">
-          <a-form layout="vertical" size="small" class="takt-flow-logic-designer__property-form">
+          <a-form
+            layout="vertical"
+            size="small"
+            class="takt-flow-logic-designer__property-form"
+          >
             <a-form-item :label="t('workflow.designer.propId')">
-              <a-input :value="selectedNodeData.id" disabled />
+              <a-input
+                :value="selectedNodeData.id"
+                disabled
+              />
             </a-form-item>
             <a-form-item :label="t('workflow.designer.propName')">
               <a-input
@@ -51,13 +69,27 @@
                 :disabled="readonly"
                 @update:value="(v) => applySelectedNodeType(v == null ? 'userTask' : String(v))"
               >
-                <a-select-option value="start">{{ t('workflow.designer.nodeTypeStart') }}</a-select-option>
-                <a-select-option value="userTask">{{ t('workflow.designer.nodeTypeUserTask') }}</a-select-option>
-                <a-select-option value="copy">{{ t('workflow.designer.nodeTypeCopy') }}</a-select-option>
-                <a-select-option value="systemTask">{{ t('workflow.designer.nodeTypeSystemTask') }}</a-select-option>
-                <a-select-option value="gateway">{{ t('workflow.designer.nodeTypeGateway') }}</a-select-option>
-                <a-select-option value="countersign">{{ t('workflow.designer.nodeTypeCountersign') }}</a-select-option>
-                <a-select-option value="end">{{ t('workflow.designer.nodeTypeEnd') }}</a-select-option>
+                <a-select-option value="start">
+                  {{ t('workflow.designer.nodeTypeStart') }}
+                </a-select-option>
+                <a-select-option value="userTask">
+                  {{ t('workflow.designer.nodeTypeUserTask') }}
+                </a-select-option>
+                <a-select-option value="copy">
+                  {{ t('workflow.designer.nodeTypeCopy') }}
+                </a-select-option>
+                <a-select-option value="systemTask">
+                  {{ t('workflow.designer.nodeTypeSystemTask') }}
+                </a-select-option>
+                <a-select-option value="gateway">
+                  {{ t('workflow.designer.nodeTypeGateway') }}
+                </a-select-option>
+                <a-select-option value="countersign">
+                  {{ t('workflow.designer.nodeTypeCountersign') }}
+                </a-select-option>
+                <a-select-option value="end">
+                  {{ t('workflow.designer.nodeTypeEnd') }}
+                </a-select-option>
               </a-select>
             </a-form-item>
             <!-- 审批人设置（参照 AntFlow-Designer approverDrawer） -->
@@ -70,14 +102,27 @@
                   allow-clear
                   @update:value="(v) => applySelectedNodeAssigneeType(v === undefined || v === null ? undefined : String(v))"
                 >
-                  <a-select-option value="starter">{{ t('workflow.designer.assigneeStarter') }}</a-select-option>
-                  <a-select-option value="assignee">{{ t('workflow.designer.assigneeAssignee') }}</a-select-option>
-                  <a-select-option value="selfSelect">{{ t('workflow.designer.assigneeSelfSelect') }}</a-select-option>
-                  <a-select-option value="role">{{ t('workflow.designer.assigneeRole') }}</a-select-option>
-                  <a-select-option value="dept">{{ t('workflow.designer.assigneeDept') }}</a-select-option>
+                  <a-select-option value="starter">
+                    {{ t('workflow.designer.assigneeStarter') }}
+                  </a-select-option>
+                  <a-select-option value="assignee">
+                    {{ t('workflow.designer.assigneeAssignee') }}
+                  </a-select-option>
+                  <a-select-option value="selfSelect">
+                    {{ t('workflow.designer.assigneeSelfSelect') }}
+                  </a-select-option>
+                  <a-select-option value="role">
+                    {{ t('workflow.designer.assigneeRole') }}
+                  </a-select-option>
+                  <a-select-option value="dept">
+                    {{ t('workflow.designer.assigneeDept') }}
+                  </a-select-option>
                 </a-select>
               </a-form-item>
-              <a-form-item v-if="selectedNodeData.assigneeType === 'role'" :label="t('workflow.designer.propRoles')">
+              <a-form-item
+                v-if="selectedNodeData.assigneeType === 'role'"
+                :label="t('workflow.designer.propRoles')"
+              >
                 <a-select
                   :value="selectedNodeData.roles"
                   mode="multiple"
@@ -90,7 +135,10 @@
                   @update:value="(v: string[]) => applySelectedNodeRoles(v)"
                 />
               </a-form-item>
-              <a-form-item v-if="selectedNodeData.assigneeType === 'dept'" :label="t('workflow.designer.propDepartments')">
+              <a-form-item
+                v-if="selectedNodeData.assigneeType === 'dept'"
+                :label="t('workflow.designer.propDepartments')"
+              >
                 <a-tree-select
                   :value="selectedNodeData.departments"
                   style="width: 100%"
@@ -103,7 +151,10 @@
                   @update:value="(v: string[]) => applySelectedNodeDepartments(v)"
                 />
               </a-form-item>
-              <a-form-item v-if="selectedNodeData.assigneeType === 'assignee'" :label="t('workflow.designer.propAssignees')">
+              <a-form-item
+                v-if="selectedNodeData.assigneeType === 'assignee'"
+                :label="t('workflow.designer.propAssignees')"
+              >
                 <a-select
                   :value="selectedNodeData.assigneeUserIds"
                   mode="multiple"
@@ -138,19 +189,34 @@
               </a-form-item>
             </template>
             <a-form-item v-if="!readonly">
-              <a-button type="primary" danger block @click="deleteSelectedNode">
+              <a-button
+                type="primary"
+                danger
+                block
+                @click="deleteSelectedNode"
+              >
                 {{ t('workflow.designer.deleteNode') }}
               </a-button>
             </a-form-item>
           </a-form>
         </template>
         <template v-else-if="selectedEdgeId && selectedEdgeData">
-          <a-form layout="vertical" size="small" class="takt-flow-logic-designer__property-form">
+          <a-form
+            layout="vertical"
+            size="small"
+            class="takt-flow-logic-designer__property-form"
+          >
             <a-form-item :label="t('workflow.designer.propFrom')">
-              <a-input :value="selectedEdgeData.from" disabled />
+              <a-input
+                :value="selectedEdgeData.from"
+                disabled
+              />
             </a-form-item>
             <a-form-item :label="t('workflow.designer.propTo')">
-              <a-input :value="selectedEdgeData.to" disabled />
+              <a-input
+                :value="selectedEdgeData.to"
+                disabled
+              />
             </a-form-item>
             <!-- 条件设置（参照 AntFlow-Designer conditionDrawer：优先级、条件描述、表达式） -->
             <a-form-item :label="t('workflow.designer.edgeLabel')">
@@ -181,7 +247,12 @@
               />
             </a-form-item>
             <a-form-item v-if="!readonly">
-              <a-button type="primary" danger block @click="deleteSelectedEdge">
+              <a-button
+                type="primary"
+                danger
+                block
+                @click="deleteSelectedEdge"
+              >
                 {{ t('workflow.designer.deleteEdge') }}
               </a-button>
             </a-form-item>
@@ -432,7 +503,7 @@ function parseJson(json?: string | { nodes?: unknown[]; edges?: unknown[] }): { 
       : []
     return { nodes, edges }
   }
-  const content = (json as string).trim()
+  const content = (json).trim()
   if (!content) return { nodes: [], edges: [] }
   try {
     const obj = JSON.parse(content) as { nodes?: unknown[]; edges?: unknown[] }
@@ -468,7 +539,7 @@ function getNodeStyle(flowType: string | undefined): { fill: string; stroke: str
 /** 生成与画布形状、颜色一致的 DndPanel 图标（SVG data URL，32x32） */
 function flowIcon(flowType: string, shape: 'circle' | 'rect' | 'diamond' | 'polygon'): string {
   const fill = FLOW_NODE_COLORS[flowType] ?? '#999'
-  let path = ''
+  let path: string
   if (shape === 'circle') path = '<circle cx="16" cy="16" r="14" fill="' + fill + '" stroke="' + fill + '"/>'
   else if (shape === 'rect') path = '<rect x="4" y="6" width="24" height="20" rx="3" fill="' + fill + '" stroke="' + fill + '"/>'
   else if (shape === 'diamond') path = '<path d="M16 4L28 16 16 28 4 16z" fill="' + fill + '" stroke="' + fill + '"/>'

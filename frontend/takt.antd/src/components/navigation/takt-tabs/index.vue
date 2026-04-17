@@ -1,8 +1,11 @@
 <template>
-  <div class="takt-tabs-container" v-if="show">
+  <div
+    v-if="show"
+    class="takt-tabs-container"
+  >
     <div class="tabs-wrapper">
       <a-tabs
-        v-model:activeKey="activeKey"
+        v-model:active-key="activeKey"
         :class="['takt-tabs', `tab-style-${settingSafe.tabStyle}`]"
         type="editable-card"
         hide-add
@@ -16,18 +19,31 @@
         >
           <template #tab>
             <span class="tab-content">
-              <component v-if="tab.icon" :is="tab.icon" class="tab-icon" />
+              <component
+                :is="tab.icon"
+                v-if="tab.icon"
+                class="tab-icon"
+              />
               <span>{{ tab.title }}</span>
             </span>
           </template>
-          <slot :name="tab.key" :tab="tab">
+          <slot
+            :name="tab.key"
+            :tab="tab"
+          >
             <router-view v-if="tab.component" />
           </slot>
         </a-tab-pane>
         <template #rightExtra>
           <div class="tabs-extra">
-            <a-dropdown :trigger="['click']" placement="bottomRight">
-              <a-button type="text" class="tabs-dropdown-btn">
+            <a-dropdown
+              :trigger="['click']"
+              placement="bottomRight"
+            >
+              <a-button
+                type="text"
+                class="tabs-dropdown-btn"
+              >
                 <template #icon>
                   <RiArrowDownSLine />
                 </template>
@@ -37,19 +53,34 @@
                   <a-menu-item key="refresh">
                     {{ t('components.navigation.tabs.refreshCurrent') }}
                   </a-menu-item>
-                  <a-menu-item key="close-current" :disabled="activeKey === '/dashboard/workspace' || displayTabs.length <= 1">
+                  <a-menu-item
+                    key="close-current"
+                    :disabled="activeKey === '/dashboard/workspace' || displayTabs.length <= 1"
+                  >
                     {{ t('components.navigation.tabs.closeCurrent') }}
                   </a-menu-item>
-                  <a-menu-item key="close-right" :disabled="!hasRightTabs">
+                  <a-menu-item
+                    key="close-right"
+                    :disabled="!hasRightTabs"
+                  >
                     {{ t('components.navigation.tabs.closeRight') }}
                   </a-menu-item>
-                  <a-menu-item key="close-left" :disabled="!hasLeftTabs">
+                  <a-menu-item
+                    key="close-left"
+                    :disabled="!hasLeftTabs"
+                  >
                     {{ t('components.navigation.tabs.closeLeft') }}
                   </a-menu-item>
-                  <a-menu-item key="close-other" :disabled="displayTabs.length <= 1">
+                  <a-menu-item
+                    key="close-other"
+                    :disabled="displayTabs.length <= 1"
+                  >
                     {{ t('components.navigation.tabs.closeOthers') }}
                   </a-menu-item>
-                  <a-menu-item key="close-all" :disabled="displayTabs.length <= 1">
+                  <a-menu-item
+                    key="close-all"
+                    :disabled="displayTabs.length <= 1"
+                  >
                     {{ t('components.navigation.tabs.closeAll') }}
                   </a-menu-item>
                 </a-menu>
@@ -58,8 +89,8 @@
             <a-button
               type="text"
               class="tabs-fullscreen-btn"
-              @click="handleToggleFullscreen"
               :title="isFullscreen ? t('common.button.exitFullscreen') : t('common.button.fullscreen')"
+              @click="handleToggleFullscreen"
             >
               <template #icon>
                 <RiFullscreenExitLine v-if="isFullscreen" />
@@ -75,7 +106,9 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick, markRaw } from 'vue'
+import type { Component } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import type { RouteMeta } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { RiArrowDownSLine, RiFullscreenLine, RiFullscreenExitLine } from '@remixicon/vue'
 import type { MenuInfo } from 'ant-design-vue/es/menu/src/interface'
@@ -89,8 +122,19 @@ interface Tab {
   title: string
   path: string
   closable?: boolean
-  component?: any
-  icon?: any
+  component?: Component
+  icon?: Component
+}
+type MenuTreeLegacy = MenuTree & {
+  extValue?: string
+  transKey?: string
+  dictLabel?: string
+}
+type StoredTab = {
+  key: string
+  title: string
+  path: string
+  closable?: boolean
 }
 
 interface Props {
@@ -129,7 +173,7 @@ const tabsList = ref<Tab[]>([])
 const isFullscreen = ref(false)
 
 // 图标缓存
-const iconCache = ref<Record<string, any>>({})
+const iconCache = ref<Record<string, Component>>({})
 
 // 预加载图标（使用 @remixicon/vue 组件名，如 RiHomeLine）
 const preloadIcon = async (iconName: string) => {
@@ -138,11 +182,12 @@ const preloadIcon = async (iconName: string) => {
   }
   try {
     const module = await import('@remixicon/vue')
-    const IconComponent = (module as any)[iconName]
+    const iconModule = module as Record<string, unknown>
+    const IconComponent = iconModule[iconName]
     if (IconComponent) {
-      iconCache.value[iconName] = markRaw(IconComponent)
+      iconCache.value[iconName] = markRaw(IconComponent as Component)
     }
-  } catch (error) {
+  } catch {
     // 图标加载失败，忽略
   }
 }
@@ -150,8 +195,8 @@ const preloadIcon = async (iconName: string) => {
 // 从菜单树中查找菜单项（通过 path 匹配，后端已统一转换为 camelCase）
 const findMenuByPath = (menus: MenuTree[], path: string): MenuTree | null => {
   for (const menu of menus) {
-    const menuAny = menu as any
-    const menuPath = menu.path || menuAny.extValue || ''
+    const menuLegacy = menu as MenuTreeLegacy
+    const menuPath = menu.path || menuLegacy.extValue || ''
     if (menuPath === path) {
       return menu
     }
@@ -166,9 +211,10 @@ const findMenuByPath = (menus: MenuTree[], path: string): MenuTree | null => {
 }
 
 // 获取翻译文本（后端已统一转换为 camelCase）
-const getTranslatedTitle = (menu: MenuTree | null, routeMeta: any): string => {
+const getTranslatedTitle = (menu: MenuTree | null, routeMeta: RouteMeta | null): string => {
   if (menu) {
-    const menuL10nKey = menu.menuL10nKey || (menu as any).transKey
+    const menuLegacy = menu as MenuTreeLegacy
+    const menuL10nKey = menu.menuL10nKey || menuLegacy.transKey
     if (menuL10nKey) {
       try {
         const translated = t(menuL10nKey)
@@ -176,11 +222,11 @@ const getTranslatedTitle = (menu: MenuTree | null, routeMeta: any): string => {
         if (translated && translated !== menuL10nKey) {
           return translated
         }
-      } catch (error) {
+      } catch {
         // 翻译失败，继续使用 menuName
       }
     }
-    const menuName = menu.menuName || (menu as any).dictLabel || ''
+    const menuName = menu.menuName || menuLegacy.dictLabel || ''
     if (menuName) {
       return menuName
     }
@@ -336,7 +382,7 @@ const loadTabsFromStorage = () => {
         const data = JSON.parse(stored)
         if (data.tabs && Array.isArray(data.tabs)) {
           // 恢复标签列表（但需要重新加载图标）
-          tabsList.value = data.tabs.map((tab: any) => ({
+          tabsList.value = data.tabs.map((tab: StoredTab) => ({
             key: tab.key,
             title: tab.title,
             path: tab.path,
@@ -349,7 +395,7 @@ const loadTabsFromStorage = () => {
             router.push(data.activeKey)
           }
         }
-      } catch (error) {
+      } catch {
         // 解析失败，忽略
       }
     }
@@ -487,7 +533,7 @@ const handleMenuClick = (info: MenuInfo) => {
         emit('close-current', activeKey.value)
       }
       break
-    case 'close-right':
+    case 'close-right': {
       // 关闭右侧标签
       const currentIndex = tabsList.value.findIndex(t => t.key === activeKey.value)
       if (currentIndex >= 0 && currentIndex < tabsList.value.length - 1) {
@@ -503,7 +549,8 @@ const handleMenuClick = (info: MenuInfo) => {
         emit('close-right', activeKey.value)
       }
       break
-    case 'close-left':
+    }
+    case 'close-left': {
       // 关闭左侧标签（保留首页和当前标签）
       const currentIndexLeft = tabsList.value.findIndex(t => t.key === activeKey.value)
       if (currentIndexLeft > 1) {
@@ -519,7 +566,8 @@ const handleMenuClick = (info: MenuInfo) => {
         emit('close-left', activeKey.value)
       }
       break
-    case 'close-other':
+    }
+    case 'close-other': {
       // 关闭其他标签，只保留当前标签和首页标签
       const currentTab = tabsList.value.find(t => t.key === activeKey.value)
       const homeTab = tabsList.value.find(t => t.key === homePath)
@@ -534,7 +582,8 @@ const handleMenuClick = (info: MenuInfo) => {
         emit('close-other', activeKey.value)
       }
       break
-    case 'close-all':
+    }
+    case 'close-all': {
       // 关闭所有标签，但保留首页标签
       const homeTabOnly = tabsList.value.find(t => t.key === homePath)
       if (homeTabOnly) {
@@ -564,6 +613,7 @@ const handleMenuClick = (info: MenuInfo) => {
       }
       emit('close-all')
       break
+    }
   }
 }
 

@@ -48,11 +48,19 @@
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'instanceStatus'">
-          <a-tag :color="statusColor((record as FlowInstance).instanceStatus)">{{ statusText((record as FlowInstance).instanceStatus) }}</a-tag>
+          <a-tag :color="statusColor((record as FlowInstance).instanceStatus)">
+            {{ statusText((record as FlowInstance).instanceStatus) }}
+          </a-tag>
         </template>
         <template v-else-if="column.key === 'action'">
           <a-space>
-            <a-button type="link" size="small" @click="showDetail(asFlowInstance(record))">{{ t('common.button.detail') }}</a-button>
+            <a-button
+              type="link"
+              size="small"
+              @click="showDetail(asFlowInstance(record))"
+            >
+              {{ t('common.button.detail') }}
+            </a-button>
             <a-button
               v-if="((record as FlowInstance).instanceStatus === 0 || (record as FlowInstance).instanceStatus === 5) && isStarter(asFlowInstance(record))"
               type="link"
@@ -97,7 +105,10 @@
       :cancel-text="t('common.button.cancel')"
       @cancel="detailVisible = false"
     >
-      <FlowInstanceDetailForm :detail="detail" @refresh="reloadInstanceDetail" />
+      <FlowInstanceDetailForm
+        :detail="detail"
+        @refresh="reloadInstanceDetail"
+      />
     </TaktModal>
     <TaktModal
       v-model:open="editVisible"
@@ -108,7 +119,10 @@
       @ok="handleEditSubmit"
       @cancel="editVisible = false"
     >
-      <FlowInstanceEditForm ref="editFormRef" :form="editForm" />
+      <FlowInstanceEditForm
+        ref="editFormRef"
+        :form="editForm"
+      />
     </TaktModal>
     <TaktModal
       v-model:open="startFlowVisible"
@@ -124,9 +138,22 @@
         :scheme-loading="schemeLoading"
       />
       <template #footer>
-        <a-button @click="closeStartFlowModal">{{ t('common.button.cancel') }}</a-button>
-        <a-button :loading="startDraftLoading" @click="handleStartFlowDraft">{{ t('workflow.instance.startFlowForm.saveDraft') }}</a-button>
-        <a-button type="primary" :loading="startFlowLoading" @click="handleStartFlowSubmit">{{ t('workflow.instance.startFlowForm.submit') }}</a-button>
+        <a-button @click="closeStartFlowModal">
+          {{ t('common.button.cancel') }}
+        </a-button>
+        <a-button
+          :loading="startDraftLoading"
+          @click="handleStartFlowDraft"
+        >
+          {{ t('workflow.instance.startFlowForm.saveDraft') }}
+        </a-button>
+        <a-button
+          type="primary"
+          :loading="startFlowLoading"
+          @click="handleStartFlowSubmit"
+        >
+          {{ t('workflow.instance.startFlowForm.submit') }}
+        </a-button>
       </template>
     </TaktModal>
   </div>
@@ -149,6 +176,7 @@ import type { FlowInstance, FlowInstanceDetail } from '@/types/workflow/instance
 import type { FlowScheme } from '@/types/workflow/scheme'
 import type { FlowInstanceQuery } from '@/types/workflow/instance'
 import type { TaktPagedResult } from '@/types/common'
+const toErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error))
 
 const { t } = useI18n()
 const loading = ref(false)
@@ -221,7 +249,7 @@ async function goStartFlow() {
       pageIndex: 1,
       pageSize: 100,
       processStatus: 1
-    }) as TaktPagedResult<FlowScheme>
+    })
     const list = res.data ?? []
     schemeOptions.value = list.map((s: FlowScheme) => ({ label: `${s.processName}（${s.processKey}）`, value: s.processKey }))
     if (list.length === 1) startFlowForm.processKey = list[0].processKey
@@ -250,8 +278,8 @@ async function handleStartFlowSubmit() {
     message.success(t('workflow.instance.startFlowForm.submitSuccess', { code: res.instanceCode }))
     closeStartFlowModal()
     loadList()
-  } catch (err: any) {
-    message.error(err?.message ?? t('common.msg.operateFail'))
+  } catch (err: unknown) {
+    message.error(toErrorMessage(err) || t('common.msg.operateFail'))
   } finally {
     startFlowLoading.value = false
   }
@@ -271,8 +299,8 @@ async function handleStartFlowDraft() {
     message.success(t('workflow.instance.startFlowForm.saveDraftSuccess', { code: res.instanceCode }))
     closeStartFlowModal()
     loadList()
-  } catch (err: any) {
-    message.error(err?.message ?? t('common.msg.operateFail'))
+  } catch (err: unknown) {
+    message.error(toErrorMessage(err) || t('common.msg.operateFail'))
   } finally {
     startDraftLoading.value = false
   }
@@ -296,7 +324,7 @@ async function loadList() {
       params.processKey = queryKeyword.value.trim()
       params.instanceCode = queryKeyword.value.trim()
     }
-    const res = await getMyInstances(params) as TaktPagedResult<FlowInstance>
+    const res = await getMyInstances(params)
     dataSource.value = res.data ?? []
     total.value = res.total ?? 0
   } finally {
@@ -367,7 +395,9 @@ async function handleEdit(record: FlowInstance) {
       editForm.processTitle = d.processTitle ?? ''
       editForm.frmData = d.frmData ?? ''
     }
-  } catch (_) {}
+  } catch {
+    // 忽略详情回填失败，保留当前行数据进入编辑
+  }
   editVisible.value = true
 }
 
@@ -386,8 +416,8 @@ async function handleEditSubmit() {
     editVisible.value = false
     currentEditRecord.value = null
     loadList()
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.operateFail'))
+  } catch (error: unknown) {
+    message.error(toErrorMessage(error) || t('common.msg.operateFail'))
   } finally {
     editLoading.value = false
   }
@@ -405,8 +435,8 @@ function handleStartFromDraft(record: FlowInstance) {
         await startFromDraft(record.instanceId)
         message.success(t('common.msg.operateSuccess'))
         loadList()
-      } catch (error: any) {
-        message.error(error?.message || t('common.msg.operateFail'))
+      } catch (error: unknown) {
+        message.error(toErrorMessage(error) || t('common.msg.operateFail'))
       } finally {
         loading.value = false
       }
@@ -437,8 +467,8 @@ async function handleExport() {
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
     message.success(t('common.msg.exportSuccess'))
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.exportFail'))
+  } catch (error: unknown) {
+    message.error(toErrorMessage(error) || t('common.msg.exportFail'))
   } finally {
     exportLoading.value = false
   }
@@ -456,8 +486,8 @@ function handleRevoke(record: FlowInstance) {
         await revoke(record.instanceCode)
         message.success(t('common.msg.actionSuccess', { action: t('common.button.revoke') }))
         loadList()
-      } catch (error: any) {
-        message.error(error?.message || t('common.msg.operateFail'))
+      } catch (error: unknown) {
+        message.error(toErrorMessage(error) || t('common.msg.operateFail'))
       } finally {
         loading.value = false
       }

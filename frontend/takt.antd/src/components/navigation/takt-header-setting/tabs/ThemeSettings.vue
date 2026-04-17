@@ -1,10 +1,21 @@
 <template>
   <div class="theme-settings">
-    <a-space direction="vertical" class="theme-settings-space" style="width: 100%">
+    <a-space
+      direction="vertical"
+      class="theme-settings-space"
+      style="width: 100%"
+    >
       <a-form-item :label="$t('components.navigation.systemSetting.themeMode')">
-        <a-radio-group v-model:value="setting.theme" @change="handleChange">
-          <a-radio-button value="light">{{ $t('components.navigation.systemSetting.light') }}</a-radio-button>
-          <a-radio-button value="dark">{{ $t('components.navigation.systemSetting.dark') }}</a-radio-button>
+        <a-radio-group
+          v-model:value="setting.theme"
+          @change="handleChange"
+        >
+          <a-radio-button value="light">
+            {{ $t('components.navigation.systemSetting.light') }}
+          </a-radio-button>
+          <a-radio-button value="dark">
+            {{ $t('components.navigation.systemSetting.dark') }}
+          </a-radio-button>
         </a-radio-group>
       </a-form-item>
 
@@ -22,26 +33,38 @@
               :style="{ backgroundColor: color }"
               @click="handleColorSelect(key as ThemeColor)"
             >
-              <RiCheckLine v-if="setting.themeColor.type === key" class="color-item-check" />
+              <RiCheckLine
+                v-if="setting.themeColor.type === key"
+                class="color-item-check"
+              />
             </div>
           </a-tooltip>
-          <a-tooltip :title="$t('components.navigation.systemSetting.custom')" placement="top">
+          <a-tooltip
+            :title="$t('components.navigation.systemSetting.custom')"
+            placement="top"
+          >
             <div
               class="color-item custom"
               :class="{ active: setting.themeColor.type === 'custom' }"
               @click="handleColorSelect('custom')"
             >
-              <RiCheckLine v-if="setting.themeColor.type === 'custom'" class="color-item-check custom-check" />
+              <RiCheckLine
+                v-if="setting.themeColor.type === 'custom'"
+                class="color-item-check custom-check"
+              />
             </div>
           </a-tooltip>
         </div>
-        <div v-if="setting.themeColor.type === 'custom'" style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+        <div
+          v-if="setting.themeColor.type === 'custom'"
+          style="margin-top: 8px; display: flex; align-items: center; gap: 8px;"
+        >
           <input
             type="color"
             :value="customColorValue"
-            @input="handleCustomColorPickerInput"
             style="width: 40px; height: 32px; border: 1px solid #d9d9d9; border-radius: 4px; cursor: pointer;"
-          />
+            @input="handleCustomColorPickerInput"
+          >
           <a-input
             v-model:value="customColorValue"
             placeholder="#1890ff"
@@ -51,12 +74,25 @@
       </a-form-item>
 
       <a-form-item :label="$t('components.navigation.systemSetting.borderRadius')">
-        <a-radio-group v-model:value="setting.borderRadius" @change="handleChange">
-          <a-radio-button :value="0">0</a-radio-button>
-          <a-radio-button :value="5">5</a-radio-button>
-          <a-radio-button :value="10">10</a-radio-button>
-          <a-radio-button :value="15">15</a-radio-button>
-          <a-radio-button :value="20">20</a-radio-button>
+        <a-radio-group
+          v-model:value="setting.borderRadius"
+          @change="handleChange"
+        >
+          <a-radio-button :value="0">
+            0
+          </a-radio-button>
+          <a-radio-button :value="5">
+            5
+          </a-radio-button>
+          <a-radio-button :value="10">
+            10
+          </a-radio-button>
+          <a-radio-button :value="15">
+            15
+          </a-radio-button>
+          <a-radio-button :value="20">
+            20
+          </a-radio-button>
         </a-radio-group>
       </a-form-item>
 
@@ -72,11 +108,17 @@
       </a-form-item>
 
       <a-form-item :label="$t('components.navigation.systemSetting.colorWeak')">
-        <a-switch v-model:checked="setting.colorWeak" @change="handleChange" />
+        <a-switch
+          v-model:checked="setting.colorWeak"
+          @change="handleChange"
+        />
       </a-form-item>
 
       <a-form-item :label="$t('components.navigation.systemSetting.grayMode')">
-        <a-switch v-model:checked="setting.grayscale" @change="handleChange" />
+        <a-switch
+          v-model:checked="setting.grayscale"
+          @change="handleChange"
+        />
       </a-form-item>
     </a-space>
   </div>

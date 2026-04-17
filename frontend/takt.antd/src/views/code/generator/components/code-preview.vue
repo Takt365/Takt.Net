@@ -16,17 +16,26 @@
     destroy-on-close
     @cancel="handleCancel"
   >
-    <div v-if="loading" class="code-preview-loading">
+    <div
+      v-if="loading"
+      class="code-preview-loading"
+    >
       <a-spin :tip="t('code.generator.previewLoading')" />
     </div>
-    <div v-else-if="!files || files.length === 0" class="code-preview-empty">
+    <div
+      v-else-if="!files || files.length === 0"
+      class="code-preview-empty"
+    >
       <a-empty :description="t('code.generator.previewEmpty')">
         <template #description>
           <span>{{ t('code.generator.previewEmptyHint') }}</span>
         </template>
       </a-empty>
     </div>
-    <div v-else class="code-preview-tabs-wrap">
+    <div
+      v-else
+      class="code-preview-tabs-wrap"
+    >
       <a-alert
         v-if="(validationIssues?.length ?? 0) > 0"
         type="warning"
@@ -36,23 +45,53 @@
       >
         <template #description>
           <div class="preview-validation-issues">
-            <div v-for="(issue, idx) in validationIssues" :key="`${issue.templateKey}_${idx}`" class="preview-validation-issue-item">
-              <div class="issue-template">{{ issue.templateKey }}</div>
-              <div v-if="issue.targetPath" class="issue-path">{{ issue.targetPath }}</div>
-              <div class="issue-message">{{ issue.message }}</div>
+            <div
+              v-for="(issue, idx) in validationIssues"
+              :key="`${issue.templateKey}_${idx}`"
+              class="preview-validation-issue-item"
+            >
+              <div class="issue-template">
+                {{ issue.templateKey }}
+              </div>
+              <div
+                v-if="issue.targetPath"
+                class="issue-path"
+              >
+                {{ issue.targetPath }}
+              </div>
+              <div class="issue-message">
+                {{ issue.message }}
+              </div>
             </div>
           </div>
         </template>
       </a-alert>
-      <a-tabs v-model:active-key="activeTab" class="code-preview-tabs">
-        <a-tab-pane key="backend" :tab="t('code.generator.previewTabBackend')" />
-        <a-tab-pane key="frontend" :tab="t('code.generator.previewTabFrontend')" />
-        <a-tab-pane key="script" :tab="t('code.generator.previewTabScript')" />
+      <a-tabs
+        v-model:active-key="activeTab"
+        class="code-preview-tabs"
+      >
+        <a-tab-pane
+          key="backend"
+          :tab="t('code.generator.previewTabBackend')"
+        />
+        <a-tab-pane
+          key="frontend"
+          :tab="t('code.generator.previewTabFrontend')"
+        />
+        <a-tab-pane
+          key="script"
+          :tab="t('code.generator.previewTabScript')"
+        />
       </a-tabs>
       <div class="code-preview-body">
         <div class="file-list">
-          <template v-for="group in visibleCategoryGroups" :key="group.key">
-            <div class="file-group-title">{{ group.label }}</div>
+          <template
+            v-for="group in visibleCategoryGroups"
+            :key="group.key"
+          >
+            <div class="file-group-title">
+              {{ group.label }}
+            </div>
             <div
               v-for="f in group.files"
               :key="f.name"
@@ -61,7 +100,12 @@
               @click="selectedFileName = f.name"
             >
               <span class="file-item-name">{{ f.name }}</span>
-              <a-tag v-if="f.isExisting" color="orange">{{ t('code.generator.previewExists') }}</a-tag>
+              <a-tag
+                v-if="f.isExisting"
+                color="orange"
+              >
+                {{ t('code.generator.previewExists') }}
+              </a-tag>
             </div>
           </template>
         </div>

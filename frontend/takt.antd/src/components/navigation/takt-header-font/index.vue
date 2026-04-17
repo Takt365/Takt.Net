@@ -1,6 +1,9 @@
 <template>
   <a-dropdown>
-    <a-button type="text" class="takt-header-font">
+    <a-button
+      type="text"
+      class="takt-header-font"
+    >
       <template #icon>
         <RiFontSize />
       </template>

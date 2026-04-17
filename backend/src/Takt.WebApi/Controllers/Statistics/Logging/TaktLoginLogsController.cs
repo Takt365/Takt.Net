@@ -30,7 +30,7 @@ namespace Takt.WebApi.Controllers.Statistics.Logging;
 /// </remarks>
 [ApiController]
 [Route("api/[controller]", Name = "登录日志")]
-[ApiModule("Logging", "统计看板")]
+[ApiModule("Statistics", "统计看板")]
 [Authorize]
 [TaktPermission("statistics:loginlog", "登录日志管理")]
 public class TaktLoginLogsController : TaktControllerBase

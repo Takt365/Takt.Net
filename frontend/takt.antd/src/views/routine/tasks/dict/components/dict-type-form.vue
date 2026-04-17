@@ -12,9 +12,12 @@
 
 <template>
   <div class="dict-type-form">
-    <a-tabs v-model:activeKey="activeTab">
+    <a-tabs v-model:active-key="activeTab">
       <!-- 主表：字典类型信息 -->
-      <a-tab-pane key="main" tab="字典类型信息">
+      <a-tab-pane
+        key="main"
+        tab="字典类型信息"
+      >
         <a-form
           ref="mainFormRef"
           :model="mainFormState"
@@ -23,7 +26,10 @@
           :wrapper-col="{ span: 20 }"
           layout="horizontal"
         >
-          <a-form-item label="字典类型编码" name="dictTypeCode">
+          <a-form-item
+            label="字典类型编码"
+            name="dictTypeCode"
+          >
             <a-input
               v-model:value="mainFormState.dictTypeCode"
               placeholder="请输入字典类型编码"
@@ -31,14 +37,20 @@
             />
           </a-form-item>
 
-          <a-form-item label="字典类型名称" name="dictTypeName">
+          <a-form-item
+            label="字典类型名称"
+            name="dictTypeName"
+          >
             <a-input
               v-model:value="mainFormState.dictTypeName"
               placeholder="请输入字典类型名称"
             />
           </a-form-item>
 
-          <a-form-item label="数据源" name="dataSource">
+          <a-form-item
+            label="数据源"
+            name="dataSource"
+          >
             <TaktSelect
               v-model:value="mainFormState.dataSource"
               dict-type="sys_data_source"
@@ -69,7 +81,10 @@
             />
           </a-form-item>
 
-          <a-form-item label="是否内置" name="isBuiltIn">
+          <a-form-item
+            label="是否内置"
+            name="isBuiltIn"
+          >
             <TaktSelect
               v-model:value="mainFormState.isBuiltIn"
               dict-type="sys_yes_no"
@@ -77,7 +92,10 @@
             />
           </a-form-item>
 
-          <a-form-item label="排序号" name="orderNum">
+          <a-form-item
+            label="排序号"
+            name="orderNum"
+          >
             <a-input-number
               v-model:value="mainFormState.orderNum"
               :min="0"
@@ -86,7 +104,10 @@
             />
           </a-form-item>
 
-          <a-form-item label="类型状态" name="dictTypeStatus">
+          <a-form-item
+            label="类型状态"
+            name="dictTypeStatus"
+          >
             <TaktSelect
               v-model:value="mainFormState.dictTypeStatus"
               dict-type="sys_status"
@@ -94,7 +115,10 @@
             />
           </a-form-item>
 
-          <a-form-item label="备注" name="remark">
+          <a-form-item
+            label="备注"
+            name="remark"
+          >
             <a-textarea
               v-model:value="mainFormState.remark"
               placeholder="请输入备注"
@@ -105,10 +129,18 @@
       </a-tab-pane>
 
       <!-- 子表：字典数据列表 -->
-      <a-tab-pane key="data" tab="字典数据">
+      <a-tab-pane
+        key="data"
+        tab="字典数据"
+      >
         <div class="dict-data-toolbar">
-          <a-button type="primary" @click="handleAddDictData">
-            <template #icon><PlusOutlined /></template>
+          <a-button
+            type="primary"
+            @click="handleAddDictData"
+          >
+            <template #icon>
+              <PlusOutlined />
+            </template>
             新增字典数据
           </a-button>
         </div>
@@ -136,7 +168,7 @@
                 v-model:value="editingRecord.dictLabel"
                 size="small"
                 @blur="handleSaveCell(record, index, 'dictLabel')"
-                @pressEnter="handleSaveCell(record, index, 'dictLabel')"
+                @press-enter="handleSaveCell(record, index, 'dictLabel')"
                 @keydown.esc="handleCancelEdit"
               />
               <span
@@ -154,7 +186,7 @@
                 v-model:value="editingRecord.dictL10nKey"
                 size="small"
                 @blur="handleSaveCell(record, index, 'dictL10nKey')"
-                @pressEnter="handleSaveCell(record, index, 'dictL10nKey')"
+                @press-enter="handleSaveCell(record, index, 'dictL10nKey')"
                 @keydown.esc="handleCancelEdit"
               />
               <span
@@ -172,7 +204,7 @@
                 v-model:value="editingRecord.dictValue"
                 size="small"
                 @blur="handleSaveCell(record, index, 'dictValue')"
-                @pressEnter="handleSaveCell(record, index, 'dictValue')"
+                @press-enter="handleSaveCell(record, index, 'dictValue')"
                 @keydown.esc="handleCancelEdit"
               />
               <span
@@ -192,7 +224,7 @@
                 size="small"
                 style="width: 100%"
                 @blur="handleSaveCell(record, index, 'cssClass')"
-                @pressEnter="handleSaveCell(record, index, 'cssClass')"
+                @press-enter="handleSaveCell(record, index, 'cssClass')"
                 @keydown.esc="handleCancelEdit"
               />
               <span
@@ -212,7 +244,7 @@
                 size="small"
                 style="width: 100%"
                 @blur="handleSaveCell(record, index, 'listClass')"
-                @pressEnter="handleSaveCell(record, index, 'listClass')"
+                @press-enter="handleSaveCell(record, index, 'listClass')"
                 @keydown.esc="handleCancelEdit"
               />
               <span
@@ -230,7 +262,7 @@
                 v-model:value="editingRecord.extLabel"
                 size="small"
                 @blur="handleSaveCell(record, index, 'extLabel')"
-                @pressEnter="handleSaveCell(record, index, 'extLabel')"
+                @press-enter="handleSaveCell(record, index, 'extLabel')"
                 @keydown.esc="handleCancelEdit"
               />
               <span
@@ -248,7 +280,7 @@
                 v-model:value="editingRecord.extValue"
                 size="small"
                 @blur="handleSaveCell(record, index, 'extValue')"
-                @pressEnter="handleSaveCell(record, index, 'extValue')"
+                @press-enter="handleSaveCell(record, index, 'extValue')"
                 @keydown.esc="handleCancelEdit"
               />
               <span
@@ -268,7 +300,7 @@
                 size="small"
                 style="width: 100%"
                 @blur="handleSaveCell(record, index, 'orderNum')"
-                @pressEnter="handleSaveCell(record, index, 'orderNum')"
+                @press-enter="handleSaveCell(record, index, 'orderNum')"
                 @keydown.esc="handleCancelEdit"
               />
               <span

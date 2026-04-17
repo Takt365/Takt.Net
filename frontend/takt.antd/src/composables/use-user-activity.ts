@@ -27,6 +27,7 @@ interface UserActivityConfig {
  * @param config 配置选项
  */
 export function useUserActivity(config: UserActivityConfig = {}) {
+  type WarningModalLike = { destroy: () => void }
   const {
     inactivityTimeout = 30 * 60 * 1000, // 默认 30 分钟
     warningTime = 5 * 60 * 1000, // 默认 5 分钟前警告
@@ -42,7 +43,7 @@ export function useUserActivity(config: UserActivityConfig = {}) {
   // 活动检测定时器
   let activityCheckTimer: ReturnType<typeof setInterval> | null = null
   // 警告 Modal 实例
-  let warningModal: any = null
+  let warningModal: WarningModalLike | null = null
   // 是否已显示警告
   const hasWarningShown = ref(false)
   // 是否已启动检测
@@ -133,7 +134,7 @@ export function useUserActivity(config: UserActivityConfig = {}) {
       message.warning(t('layouts.session.autoLogout'))
       await userStore.logout()
       router.push('/login')
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[User Activity] 自动登出失败:', error)
     }
   }

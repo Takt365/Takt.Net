@@ -10,158 +10,158 @@
 <!-- ======================================== -->
 
 <template>
-    <div class="humanresource-attendance-leave-holiday">
-      <!-- 顶部：关键字检索（entity.holiday.keyword） -->
-      <TaktQueryBar
-        v-model="queryKeyword"
-        :placeholder="t('common.form.placeholder.search', { keyword: t('entity.holiday.keyword') })"
-        :loading="loading"
-        @search="handleSearch"
-        @reset="handleReset"
-      />
+  <div class="humanresource-attendance-leave-holiday">
+    <!-- 顶部：关键字检索（entity.holiday.keyword） -->
+    <TaktQueryBar
+      v-model="queryKeyword"
+      :placeholder="t('common.form.placeholder.search', { keyword: t('entity.holiday.keyword') })"
+      :loading="loading"
+      @search="handleSearch"
+      @reset="handleReset"
+    />
 
-      <!-- 工具栏：RBAC 与 TaktHolidaysController 权限码一致 -->
-      <TaktToolsBar
-        create-permission="humanresource:attendanceleave:holiday:create"
-        update-permission="humanresource:attendanceleave:holiday:update"
-        delete-permission="humanresource:attendanceleave:holiday:delete"
-        import-permission="humanresource:attendanceleave:holiday:import"
-        template-permission="humanresource:attendanceleave:holiday:template"
-        export-permission="humanresource:attendanceleave:holiday:export"
-        :show-create="true"
-        :show-update="true"
-        :show-delete="true"
-        :show-import="true"
-        :show-export="true"
-        :show-advanced-query="true"
-        :show-column-setting="true"
-        :show-fullscreen="true"
-        :show-refresh="true"
-        :update-disabled="!selectedRow"
-        :delete-disabled="!selectedRow && selectedRows.length === 0"
-        :create-loading="loading"
-        :update-loading="loading"
-        :delete-loading="loading"
-        :refresh-loading="loading"
-        @create="handleCreate"
-        @update="handleUpdate"
-        @delete="handleDelete"
-        @import="handleImport"
-        @export="handleExport"
-        @advanced-query="handleAdvancedQuery"
-        @column-setting="handleColumnSetting"
-        @refresh="handleRefresh"
-      />
+    <!-- 工具栏：RBAC 与 TaktHolidaysController 权限码一致 -->
+    <TaktToolsBar
+      create-permission="humanresource:attendanceleave:holiday:create"
+      update-permission="humanresource:attendanceleave:holiday:update"
+      delete-permission="humanresource:attendanceleave:holiday:delete"
+      import-permission="humanresource:attendanceleave:holiday:import"
+      template-permission="humanresource:attendanceleave:holiday:template"
+      export-permission="humanresource:attendanceleave:holiday:export"
+      :show-create="true"
+      :show-update="true"
+      :show-delete="true"
+      :show-import="true"
+      :show-export="true"
+      :show-advanced-query="true"
+      :show-column-setting="true"
+      :show-fullscreen="true"
+      :show-refresh="true"
+      :update-disabled="!selectedRow"
+      :delete-disabled="!selectedRow && selectedRows.length === 0"
+      :create-loading="loading"
+      :update-loading="loading"
+      :delete-loading="loading"
+      :refresh-loading="loading"
+      @create="handleCreate"
+      @update="handleUpdate"
+      @delete="handleDelete"
+      @import="handleImport"
+      @export="handleExport"
+      @advanced-query="handleAdvancedQuery"
+      @column-setting="handleColumnSetting"
+      @refresh="handleRefresh"
+    />
 
-      <!-- 主表：holidayType / isWorkingDay 与用户页一致，bodyCell + TaktDictTag -->
-      <TaktSingleTable
-        ref="tableRef"
-        :columns="displayColumns"
-        :data-source="dataSource"
-        :loading="loading"
-        :stripe="true"
-        :row-key="getHolidayId"
-        :row-selection="rowSelection"
-        :custom-row="onClickRow"
-        :large-screen-column-count="9"
-        :small-screen-column-count="5"
-        @change="handleTableChange"
-        @resize-column="handleResizeColumn"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'holidayType'">
-            <TaktDictTag
-              :value="getHolidayField(record, 'holidayType')"
-              dict-type="hr_holiday_type"
-            />
-          </template>
-          <template v-else-if="column.key === 'isWorkingDay'">
-            <TaktDictTag
-              :value="getHolidayField(record, 'isWorkingDay')"
-              dict-type="hr_holiday_is_working_day"
-            />
-          </template>
+    <!-- 主表：holidayType / isWorkingDay 与用户页一致，bodyCell + TaktDictTag -->
+    <TaktSingleTable
+      ref="tableRef"
+      :columns="displayColumns"
+      :data-source="dataSource"
+      :loading="loading"
+      :stripe="true"
+      :row-key="getHolidayId"
+      :row-selection="rowSelection"
+      :custom-row="onClickRow"
+      :large-screen-column-count="9"
+      :small-screen-column-count="5"
+      @change="handleTableChange"
+      @resize-column="handleResizeColumn"
+    >
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'holidayType'">
+          <TaktDictTag
+            :value="getHolidayField(record, 'holidayType')"
+            dict-type="hr_holiday_type"
+          />
         </template>
-      </TaktSingleTable>
+        <template v-else-if="column.key === 'isWorkingDay'">
+          <TaktDictTag
+            :value="getHolidayField(record, 'isWorkingDay')"
+            dict-type="hr_holiday_is_working_day"
+          />
+        </template>
+      </template>
+    </TaktSingleTable>
 
-      <!-- 底部分页 -->
-      <TaktPagination
-        v-model:current="currentPage"
-        v-model:page-size="pageSize"
-        :total="total"
-        @change="handlePaginationChange"
-        @show-size-change="handlePaginationSizeChange"
+    <!-- 底部分页 -->
+    <TaktPagination
+      v-model:current="currentPage"
+      v-model:page-size="pageSize"
+      :total="total"
+      @change="handlePaginationChange"
+      @show-size-change="handlePaginationSizeChange"
+    />
+
+    <!-- 新增 / 编辑：HolidayForm，宽度 50% -->
+    <TaktModal
+      v-model:open="formVisible"
+      :title="formTitle"
+      width="50%"
+      wrap-class-name="takt-form-modal-resizable"
+      :confirm-loading="formLoading"
+      @ok="handleFormSubmit"
+      @cancel="handleFormCancel"
+    >
+      <HolidayForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
       />
+    </TaktModal>
 
-      <!-- 新增 / 编辑：HolidayForm，宽度 50% -->
-      <TaktModal
-        v-model:open="formVisible"
-        :title="formTitle"
-        width="50%"
-        wrap-class-name="takt-form-modal-resizable"
-        :confirm-loading="formLoading"
-        @ok="handleFormSubmit"
-        @cancel="handleFormCancel"
-      >
-        <HolidayForm
-          ref="formRef"
-          :form-data="formData"
-          :loading="formLoading"
-        />
-      </TaktModal>
+    <!-- 高级查询：地区、假日名称并入列表查询参数 -->
+    <TaktQueryDrawer
+      v-model:open="advancedQueryVisible"
+      :form-model="advancedQueryForm"
+      @submit="handleAdvancedQuerySubmit"
+      @reset="handleAdvancedQueryReset"
+    >
+      <a-form-item :label="t('entity.holiday.region')">
+        <a-input v-model:value="advancedQueryForm.region" />
+      </a-form-item>
+      <a-form-item :label="t('entity.holiday.holidayname')">
+        <a-input v-model:value="advancedQueryForm.holidayName" />
+      </a-form-item>
+    </TaktQueryDrawer>
 
-      <!-- 高级查询：地区、假日名称并入列表查询参数 -->
-      <TaktQueryDrawer
-        v-model:open="advancedQueryVisible"
-        :form-model="advancedQueryForm"
-        @submit="handleAdvancedQuerySubmit"
-        @reset="handleAdvancedQueryReset"
-      >
-        <a-form-item :label="t('entity.holiday.region')">
-          <a-input v-model:value="advancedQueryForm.region" />
-        </a-form-item>
-        <a-form-item :label="t('entity.holiday.holidayname')">
-          <a-input v-model:value="advancedQueryForm.holidayName" />
-        </a-form-item>
-      </TaktQueryDrawer>
-
-      <!-- 导入：sheet 名与模板名由 i18n 模板拼接（与后端约定一致时请改为 taktExcelEntityNames） -->
-      <TaktModal
-        v-model:open="importVisible"
-        :title="t('common.button.import') + t('entity.holiday._self')"
-        :width="600"
-        :footer="null"
-        :cancel-text="t('common.button.close')"
-        @cancel="handleImportCancel"
-      >
-        <TaktImportFile
-          file-type="xlsx"
-          :sheet-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.holiday._self') })"
-          :template-file-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.holiday._self') })"
-          template-permission="humanresource:attendanceleave:holiday:template"
-          import-permission="humanresource:attendanceleave:holiday:import"
-          :download-template="handleDownloadTemplate"
-          :import-file="handleImportFile"
-          :template-text="t('common.action.import.templateText', { entity: t('entity.holiday._self') })"
-          :upload-text="t('common.action.import.uploadText')"
-          :hint="t('common.action.import.hint')"
-          :max-size="10"
-          :max-rows="1000"
-          @success="handleImportSuccess"
-        />
-      </TaktModal>
-
-      <!-- 列设置 -->
-      <TaktColumnDrawer
-        v-model:open="columnSettingVisible"
-        :columns="columns"
-        :checked-keys="visibleColumnKeys"
-        :id-column-key="'id'"
-        :action-column-key="'action'"
-        @update:checked-keys="handleColumnKeysChange"
-        @reset="handleColumnSettingReset"
+    <!-- 导入：sheet 名与模板名由 i18n 模板拼接（与后端约定一致时请改为 taktExcelEntityNames） -->
+    <TaktModal
+      v-model:open="importVisible"
+      :title="t('common.button.import') + t('entity.holiday._self')"
+      :width="600"
+      :footer="null"
+      :cancel-text="t('common.button.close')"
+      @cancel="handleImportCancel"
+    >
+      <TaktImportFile
+        file-type="xlsx"
+        :sheet-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.holiday._self') })"
+        :template-file-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.holiday._self') })"
+        template-permission="humanresource:attendanceleave:holiday:template"
+        import-permission="humanresource:attendanceleave:holiday:import"
+        :download-template="handleDownloadTemplate"
+        :import-file="handleImportFile"
+        :template-text="t('common.action.import.templateText', { entity: t('entity.holiday._self') })"
+        :upload-text="t('common.action.import.uploadText')"
+        :hint="t('common.action.import.hint')"
+        :max-size="10"
+        :max-rows="1000"
+        @success="handleImportSuccess"
       />
-    </div>
+    </TaktModal>
+
+    <!-- 列设置 -->
+    <TaktColumnDrawer
+      v-model:open="columnSettingVisible"
+      :columns="columns"
+      :checked-keys="visibleColumnKeys"
+      :id-column-key="'id'"
+      :action-column-key="'action'"
+      @update:checked-keys="handleColumnKeysChange"
+      @reset="handleColumnSettingReset"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -334,9 +334,9 @@ const getHolidayId = (record: Holiday): string => {
  *
  * @param {Holiday} record - 列表行
  * @param {string} field - 字段名
- * @returns {any}
+ * @returns {unknown}
  */
-const getHolidayField = (record: Holiday, field: string): any =>
+const getHolidayField = (record: Holiday, field: string): unknown =>
   (record as unknown as Record<string, unknown>)[field]
 
 /**

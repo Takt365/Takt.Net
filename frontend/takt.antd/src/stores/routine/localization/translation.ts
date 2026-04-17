@@ -87,7 +87,7 @@ export const useTranslationStore = defineStore('translation', () => {
       // }
 
       return allTranslations
-    } catch (error) {
+    } catch {
       // logger.error(`[Translation] 加载翻译数据失败 (${cultureCode}, ${resourceType}):`, error)
       return {}
     } finally {

@@ -14,7 +14,10 @@
       layout="horizontal"
     >
       <a-form-item label="岗位">
-        <a-input :value="postInfo" disabled />
+        <a-input
+          :value="postInfo"
+          disabled
+        />
       </a-form-item>
       <a-form-item label="用户">
         <a-transfer

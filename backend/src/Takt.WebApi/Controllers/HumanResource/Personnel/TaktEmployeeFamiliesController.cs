@@ -22,7 +22,7 @@ namespace Takt.WebApi.Controllers.HumanResource.Personnel;
 /// 员工家庭成员控制器（权限前缀 humanresource:personnel:employeefamily）
 /// </summary>
 [Route("api/[controller]", Name = "员工家庭成员")]
-[ApiModule("HumanResource.Personnel", "人事管理")]
+[ApiModule("HumanResource", "人力资源")]
 [TaktPermission("humanresource:personnel:employeefamily:list", "员工家庭成员管理")]
 public class TaktEmployeeFamiliesController : TaktControllerBase
 {

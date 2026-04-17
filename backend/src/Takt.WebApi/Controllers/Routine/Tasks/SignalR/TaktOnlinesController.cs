@@ -30,7 +30,7 @@ namespace Takt.WebApi.Controllers.Routine.Tasks.SignalR;
 /// </remarks>
 [ApiController]
 [Route("api/[controller]", Name = "在线用户")]
-[ApiModule("Routine", "在线用户")]
+[ApiModule("Routine", "日常事务")]
 [Authorize]
 [TaktPermission("routine:tasks:online", "在线用户管理")]
 public class TaktOnlinesController : TaktControllerBase

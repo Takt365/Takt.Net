@@ -12,10 +12,22 @@
 
 <template>
   <div class="takt-cropper">
-    <div v-if="imageSrc" class="takt-cropper-container" :style="{ width: `${width}px`, height: `${height}px` }">
-      <img ref="cropperImgRef" :src="imageSrc" :alt="t('components.common.upload.cropImage')" class="takt-cropper-img" />
+    <div
+      v-if="imageSrc"
+      class="takt-cropper-container"
+      :style="{ width: `${width}px`, height: `${height}px` }"
+    >
+      <img
+        ref="cropperImgRef"
+        :src="imageSrc"
+        :alt="t('components.common.upload.cropImage')"
+        class="takt-cropper-img"
+      >
     </div>
-    <div v-else class="takt-cropper-empty">
+    <div
+      v-else
+      class="takt-cropper-empty"
+    >
       <a-empty :description="t('components.common.upload.selectImageFirst')" />
     </div>
   </div>
@@ -33,9 +45,27 @@ const { t } = useI18n()
  */
 interface CropperInstance {
   destroy(): void
-  getCropperCanvas(): any
-  getCropperImage(): any
-  getCropperSelection(): any
+  getCropperCanvas(): { disabled?: boolean } | null
+  getCropperImage(): {
+    src?: string
+    $resetTransform: () => void
+    $move: (x: number, y: number) => void
+    $moveTo: (x: number, y: number) => void
+    $scale: (scaleX: number, scaleY?: number) => void
+    $rotate: (degree: number) => void
+    $setTransform: (transform: Record<string, unknown>) => void
+    $getTransform: () => Record<string, unknown> | null
+  } | null
+  getCropperSelection(): {
+    aspectRatio?: number
+    hidden?: boolean
+    x: number
+    y: number
+    width: number
+    height: number
+    $toCanvas: (options?: Record<string, unknown>) => Promise<HTMLCanvasElement>
+    $reset: () => void
+  } | null
 }
 
 interface Props {
@@ -124,7 +154,7 @@ const initCropper = () => {
     try {
       // cropperjs 2.0: 使用构造函数创建实例
       cropperInstance.value = new Cropper(cropperImgRef.value, {}) as unknown as CropperInstance
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[TaktCropper] 初始化裁剪器失败:', error)
       emit('error', error instanceof Error ? error : new Error(String(error)))
     }
@@ -188,7 +218,7 @@ const getCroppedCanvas = async (options?: CropOptions): Promise<HTMLCanvasElemen
     const width = options?.width || props.cropWidth
     const height = options?.height || props.cropHeight
 
-    const canvasOptions: any = {
+    const canvasOptions: Record<string, unknown> = {
       imageSmoothingEnabled: true,
       imageSmoothingQuality: 'high'
     }
@@ -206,7 +236,7 @@ const getCroppedCanvas = async (options?: CropOptions): Promise<HTMLCanvasElemen
     // Cropper.js 2.0: 使用 $toCanvas 方法（返回 Promise）
     const canvas = await selection.$toCanvas(canvasOptions)
     return canvas
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[TaktCropper] 获取裁剪 Canvas 失败:', error)
     const err = error instanceof Error ? error : new Error(String(error))
     emit('error', err)
@@ -234,7 +264,7 @@ const getCroppedImage = async (options?: CropOptions, fileName?: string): Promis
 
     // 将 canvas 转换为 Blob 和 DataURL
     return convertCanvasToResult(canvas, format, quality, fileName)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[TaktCropper] 获取裁剪图片失败:', error)
     const err = error instanceof Error ? error : new Error(String(error))
     emit('error', err)
@@ -318,14 +348,9 @@ const getCroppedFile = async (fileName: string, options?: CropOptions): Promise<
  * @param options 裁剪选项
  */
 const crop = async (options?: CropOptions) => {
-  try {
-    const result = await getCroppedImage(options)
-    emit('crop', result.blob, result.dataUrl)
-    return result
-  } catch (error) {
-    // 错误已在 getCroppedImage 中处理
-    throw error
-  }
+  const result = await getCroppedImage(options)
+  emit('crop', result.blob, result.dataUrl)
+  return result
 }
 
 /**
@@ -444,7 +469,7 @@ const rotate = (degree: number) => {
 /**
  * 设置变换
  */
-const setTransform = (transform: any) => {
+const setTransform = (transform: Record<string, unknown>) => {
   if (cropperInstance.value) {
     const image = cropperInstance.value.getCropperImage()
     if (image) {

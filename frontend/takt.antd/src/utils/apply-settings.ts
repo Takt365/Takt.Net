@@ -22,8 +22,16 @@ export function applySettings() {
   const root = document.documentElement
   if (root) {
     root.style.fontSize = `${s.fontSize}px`
-    s.colorWeak ? root.classList.add('color-weak') : root.classList.remove('color-weak')
-    s.grayscale ? root.classList.add('grayscale') : root.classList.remove('grayscale')
+    if (s.colorWeak) {
+      root.classList.add('color-weak')
+    } else {
+      root.classList.remove('color-weak')
+    }
+    if (s.grayscale) {
+      root.classList.add('grayscale')
+    } else {
+      root.classList.remove('grayscale')
+    }
     root.style.setProperty('--border-radius-base', `${s.borderRadius}px`)
   }
 }

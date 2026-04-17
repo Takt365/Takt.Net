@@ -20,13 +20,19 @@
       :wrapper-col="{ span: 18 }"
       layout="horizontal"
     >
-      <a-form-item label="资源键" name="resourceKey">
+      <a-form-item
+        label="资源键"
+        name="resourceKey"
+      >
         <a-input
           v-model:value="formState.resourceKey"
           placeholder="如：UserNotFound、menu.home._self"
         />
       </a-form-item>
-      <a-form-item label="语言（子表）" name="cultureCode">
+      <a-form-item
+        label="语言（子表）"
+        name="cultureCode"
+      >
         <TaktSelect
           v-model:value="formState.cultureCode"
           :options="languageOptions"
@@ -36,29 +42,45 @@
           allow-clear
         />
       </a-form-item>
-      <a-form-item label="翻译值" name="translationValue">
+      <a-form-item
+        label="翻译值"
+        name="translationValue"
+      >
         <a-input
           v-model:value="formState.translationValue"
           placeholder="该语言下的文本内容"
         />
       </a-form-item>
-      <a-form-item label="资源类型" name="resourceType">
+      <a-form-item
+        label="资源类型"
+        name="resourceType"
+      >
         <a-select
           v-model:value="formState.resourceType"
           placeholder="Frontend / Backend"
           allow-clear
         >
-          <a-select-option value="Frontend">Frontend</a-select-option>
-          <a-select-option value="Backend">Backend</a-select-option>
+          <a-select-option value="Frontend">
+            Frontend
+          </a-select-option>
+          <a-select-option value="Backend">
+            Backend
+          </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="资源分组" name="resourceGroup">
+      <a-form-item
+        label="资源分组"
+        name="resourceGroup"
+      >
         <a-input
           v-model:value="formState.resourceGroup"
           placeholder="如：Validation、Menu（可选）"
         />
       </a-form-item>
-      <a-form-item label="排序号" name="orderNum">
+      <a-form-item
+        label="排序号"
+        name="orderNum"
+      >
         <a-input-number
           v-model:value="formState.orderNum"
           :min="0"
@@ -66,7 +88,10 @@
           style="width: 100%"
         />
       </a-form-item>
-      <a-form-item label="备注" name="remark">
+      <a-form-item
+        label="备注"
+        name="remark"
+      >
         <a-textarea
           v-model:value="formState.remark"
           placeholder="可选"

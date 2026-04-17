@@ -1,6 +1,9 @@
 <template>
   <div class="dashboard-workspace">
-    <a-row ref="rowRef" :gutter="[16, 16]">
+    <a-row
+      ref="rowRef"
+      :gutter="[16, 16]"
+    >
       <a-col
         v-for="item in modules"
         :key="item.id"
@@ -10,32 +13,40 @@
         <a-dropdown trigger="contextmenu">
           <div class="workspace-module-context-target">
             <WorkspaceModuleCard
-          :module="item"
-          @remove="removeModule(item.id)"
-          @change-span="updateModuleSpan"
-        >
-          <template #headActions>
-            <a-tooltip v-if="item.moduleKey === 'shortcut'" :title="t('dashboard.workspace.manageShortcuts')" placement="right">
-              <a-button
-                type="text"
-                size="small"
-                @click="shortcutRefs[item.id]?.openManage?.()"
-              >
-                <template #icon><RiSettings3Line /></template>
-              </a-button>
-            </a-tooltip>
-          </template>
-          <component
-            :is="moduleComponents[item.moduleKey]"
-            v-bind="getModuleProps(item)"
-            :ref="(el: any) => setShortcutRef(item.id, item.moduleKey, el)"
-          />
-        </WorkspaceModuleCard>
+              :module="item"
+              @remove="removeModule(item.id)"
+              @change-span="updateModuleSpan"
+            >
+              <template #headActions>
+                <a-tooltip
+                  v-if="item.moduleKey === 'shortcut'"
+                  :title="t('dashboard.workspace.manageShortcuts')"
+                  placement="right"
+                >
+                  <a-button
+                    type="text"
+                    size="small"
+                    @click="shortcutRefs[item.id]?.openManage?.()"
+                  >
+                    <template #icon>
+                      <RiSettings3Line />
+                    </template>
+                  </a-button>
+                </a-tooltip>
+              </template>
+              <component
+                :is="moduleComponents[item.moduleKey]"
+                v-bind="getModuleProps(item)"
+                :ref="(el: unknown) => setShortcutRef(item.id, item.moduleKey, el)"
+              />
+            </WorkspaceModuleCard>
           </div>
           <template #overlay>
             <a-menu @click="onModuleContextMenuClick(item, $event)">
               <a-menu-item key="add">
-                <template #icon><RiAddLine /></template>
+                <template #icon>
+                  <RiAddLine />
+                </template>
                 {{ t('dashboard.workspace.addModule') }}
               </a-menu-item>
               <a-menu-item
@@ -43,7 +54,9 @@
                 key="remove"
                 danger
               >
-                <template #icon><RiDeleteBinLine /></template>
+                <template #icon>
+                  <RiDeleteBinLine />
+                </template>
                 {{ t('dashboard.workspace.removeModule') }}
               </a-menu-item>
             </a-menu>
@@ -58,10 +71,16 @@
       :width="520"
       @ok="onAddModule"
     >
-      <p class="workspace-add-tip">{{ t('dashboard.workspace.selectModuleType') }}</p>
+      <p class="workspace-add-tip">
+        {{ t('dashboard.workspace.selectModuleType') }}
+      </p>
       <a-checkbox-group v-model:value="addingKeys">
         <a-row :gutter="[8, 8]">
-          <a-col v-for="m in WORKSPACE_AVAILABLE_MODULES" :key="m.key" :span="8">
+          <a-col
+            v-for="m in WORKSPACE_AVAILABLE_MODULES"
+            :key="m.key"
+            :span="8"
+          >
             <a-checkbox
               :value="m.key"
               :disabled="m.key !== 'custom' && addedModuleKeys.has(m.key)"
@@ -98,7 +117,7 @@ import {
 
 const { t } = useI18n()
 
-const moduleComponents: Record<WorkspaceModuleKey, any> = {
+const moduleComponents: Record<WorkspaceModuleKey, unknown> = {
   welcome: markRaw(WelcomeModule),
   shortcut: markRaw(ShortcutModule),
   todo: markRaw(TodoModule),
@@ -113,7 +132,9 @@ function loadModules(): WorkspaceModuleItem[] {
       const parsed = JSON.parse(raw) as WorkspaceModuleItem[]
       if (Array.isArray(parsed) && parsed.length > 0) return parsed
     }
-  } catch (_) {}
+  } catch {
+    // ignore
+  }
   return getDefaultWorkspaceModules()
 }
 
@@ -128,7 +149,7 @@ let sortableInstance: Sortable | null = null
 
 const shortcutRefs = ref<Record<string, { openManage: () => void }>>({})
 
-function setShortcutRef(id: string, moduleKey: WorkspaceModuleKey, el: any) {
+function setShortcutRef(id: string, moduleKey: WorkspaceModuleKey, el: unknown) {
   if (moduleKey !== 'shortcut') return
   if (el) shortcutRefs.value[id] = el
   else delete shortcutRefs.value[id]
@@ -168,7 +189,7 @@ onMounted(() => {
       animation: 150,
       ghostClass: 'workspace-module-card-ghost',
       onEnd(evt: Sortable.SortableEvent) {
-        reorderModulesByDomOrder(evt.from as HTMLElement)
+        reorderModulesByDomOrder(evt.from)
       }
     })
   })

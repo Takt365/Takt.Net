@@ -293,10 +293,10 @@ export class MaskHelper {
    * // { name: '张*', phone: '138****8000', email: 't***@example.com' }
    */
   static maskObject(
-    obj: any,
+    obj: unknown,
     sensitiveFields?: string[],
     maskChar: string = '*'
-  ): any {
+  ): unknown {
     if (obj === null || obj === undefined) {
       return obj
     }
@@ -310,9 +310,9 @@ export class MaskHelper {
     }
 
     const fields = sensitiveFields || [...this.DEFAULT_SENSITIVE_FIELDS]
-    const sanitized: Record<string, any> = {}
+    const sanitized: Record<string, unknown> = {}
 
-    for (const [key, value] of Object.entries(obj)) {
+    for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
       const lowerKey = key.toLowerCase()
 
       // 检查是否为敏感字段
@@ -374,7 +374,7 @@ export class MaskHelper {
    * @param sensitiveFields 敏感字段列表（可选，默认使用内置列表）
    * @returns 脱敏后的数据
    */
-  static maskForLogging(data: any, sensitiveFields?: string[]): any {
+  static maskForLogging(data: unknown, sensitiveFields?: string[]): unknown {
     return this.maskObject(data, sensitiveFields, '*')
   }
 }

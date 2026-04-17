@@ -12,15 +12,15 @@
 
 <template>
   <a-button
-    :loading="loading"
-    :disabled="disabled || loading"
+    :loading="effectiveLoading"
+    :disabled="disabled || effectiveLoading"
     :type="type"
     :size="size"
     :icon="icon"
     :block="block"
-    @click="handleDownload"
     v-bind="$attrs"
     class="takt-download-file"
+    @click="handleDownload"
   >
     <slot>{{ textDisplay }}</slot>
   </a-button>
@@ -28,7 +28,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { DownloadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
 
@@ -50,7 +49,7 @@ interface Props {
   /** 按钮尺寸 */
   size?: 'large' | 'middle' | 'small'
   /** 按钮图标 */
-  icon?: any
+  icon?: unknown
   /** 是否块级按钮 */
   block?: boolean
   /** 是否禁用 */
@@ -80,7 +79,8 @@ const emit = defineEmits<{
   'error': [error: Error]
 }>()
 
-const loading = ref(false)
+const internalLoading = ref(false)
+const effectiveLoading = computed(() => props.loading || internalLoading.value)
 
 // 从 URL 获取文件名
 const getFileNameFromUrl = (url: string): string => {
@@ -142,7 +142,7 @@ const handleDownload = async () => {
   }
 
   try {
-    loading.value = true
+    internalLoading.value = true
 
     let blob: Blob
     let finalFileName = props.fileName
@@ -184,13 +184,13 @@ const handleDownload = async () => {
 
     message.success(t('components.common.download.success', { name: finalFileName }))
     emit('success', finalFileName)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[TaktDownloadFile] 下载失败:', error)
     const err = error instanceof Error ? error : new Error(String(error))
     message.error(err.message || t('components.common.download.fail'))
     emit('error', err)
   } finally {
-    loading.value = false
+    internalLoading.value = false
   }
 }
 

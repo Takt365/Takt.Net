@@ -23,7 +23,7 @@ namespace Takt.WebApi.Controllers.HumanResource.AttendanceLeave;
 /// 考勤设备数据采集入口控制器
 /// </summary>
 [Route("api/[controller]", Name = "考勤采集入口")]
-[ApiModule("HumanResource.AttendanceLeave", "考勤请假")]
+[ApiModule("HumanResource", "人力资源")]
 public class TaktAttendanceIngestController : TaktControllerBase
 {
     private readonly ITaktAttendanceCollector _collector;

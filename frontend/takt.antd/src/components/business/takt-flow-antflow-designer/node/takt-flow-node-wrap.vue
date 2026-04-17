@@ -17,32 +17,63 @@
         class="node-wrap-box"
         :class="{ 'start-node': nodeConfig.nodeType === 1 }"
       >
-        <div class="title" :style="titleStyle">
-          <template v-if="nodeConfig.nodeType === 1">{{ nodeConfig.nodeName }}</template>
+        <div
+          class="title"
+          :style="titleStyle"
+        >
+          <template v-if="nodeConfig.nodeType === 1">
+            {{ nodeConfig.nodeName }}
+          </template>
           <template v-else>
-            <span class="iconfont node-title-icon" aria-hidden="true">
-              <RiShieldCheckLine v-if="nodeConfig.nodeType === 4" size="15" />
-              <RiShareForwardLine v-else size="15" />
+            <span
+              class="iconfont node-title-icon"
+              aria-hidden="true"
+            >
+              <RiShieldCheckLine
+                v-if="nodeConfig.nodeType === 4"
+                size="15"
+              />
+              <RiShareForwardLine
+                v-else
+                size="15"
+              />
             </span>
             <span class="title-label">{{ nodeConfig.nodeName }}</span>
-            <i v-if="!readonly" class="close" @click.stop="delNode">×</i>
+            <i
+              v-if="!readonly"
+              class="close"
+              @click.stop="delNode"
+            >×</i>
           </template>
         </div>
-        <div class="content" @click="openDrawerForNode">
+        <div
+          class="content"
+          @click="openDrawerForNode"
+        >
           <div class="text">
-            <span v-if="!showText" class="placeholder">{{ t('workflow.designer.pleaseSelect') }}{{ defaultText }}</span>
+            <span
+              v-if="!showText"
+              class="placeholder"
+            >{{ t('workflow.designer.pleaseSelect') }}{{ defaultText }}</span>
             {{ showText }}
           </div>
-          <span class="arrow" aria-hidden="true"><RiArrowRightSLine size="14" /></span>
+          <span
+            class="arrow"
+            aria-hidden="true"
+          ><RiArrowRightSLine size="14" /></span>
         </div>
       </div>
-      <TaktFlowAddNode v-if="!readonly" :child-node-p="nodeConfig.childNode ?? null" @update:child-node-p="(v) => (nodeConfig!.childNode = v)" />
+      <TaktFlowAddNode
+        v-if="!readonly"
+        :child-node-p="nodeConfig.childNode ?? null"
+        @update:child-node-p="(v) => (nodeConfig!.childNode = v)"
+      />
       <TaktFlowNodeWrap
         v-if="nodeConfig.childNode != null"
         :node-config="nodeConfig.childNode ?? null"
-        @update:node-config="(v) => (nodeConfig!.childNode = v)"
         :drawer="drawer"
         :readonly="readonly"
+        @update:node-config="(v) => (nodeConfig!.childNode = v)"
       />
     </div>
   </template>
@@ -52,54 +83,95 @@
     <div class="branch-wrap">
       <div class="branch-box-wrap">
         <div class="branch-box">
-          <button v-if="!readonly" type="button" class="add-branch" @click="addTerm">{{ t('workflow.designer.addCondition') }}</button>
-            <div v-for="(item, index) in nodeConfig.conditionNodes" :key="item.nodeId" class="col-box">
-              <div class="condition-node">
-                <div class="condition-node-box">
-                  <div class="auto-judge">
-                    <div class="title-wrapper">
-                      <span class="iconfont node-title-icon" aria-hidden="true">
-                        <RiPulseLine v-if="nodeConfig.isDynamicCondition === true" size="15" />
-                        <RiOrganizationChart v-else-if="nodeConfig.isParallel === true" size="15" />
-                        <RiGitBranchLine v-else size="15" />
-                      </span>
-                      <span class="editable-title">{{ item.nodeName }}</span>
-                      <span class="priority-title" @click="openConditionDrawer(item.priorityLevel ?? 0)">优先级{{ item.priorityLevel }}</span>
-                      <i v-if="!readonly" class="close" @click.stop="delTerm(index)">×</i>
-                    </div>
-                    <div class="content condition-content" @click="openConditionDrawer(item.priorityLevel ?? 0)">
-                      {{ conditionStrFor(index) }}
-                    </div>
+          <button
+            v-if="!readonly"
+            type="button"
+            class="add-branch"
+            @click="addTerm"
+          >
+            {{ t('workflow.designer.addCondition') }}
+          </button>
+          <div
+            v-for="(item, index) in nodeConfig.conditionNodes"
+            :key="item.nodeId"
+            class="col-box"
+          >
+            <div class="condition-node">
+              <div class="condition-node-box">
+                <div class="auto-judge">
+                  <div class="title-wrapper">
+                    <span
+                      class="iconfont node-title-icon"
+                      aria-hidden="true"
+                    >
+                      <RiPulseLine
+                        v-if="nodeConfig.isDynamicCondition === true"
+                        size="15"
+                      />
+                      <RiOrganizationChart
+                        v-else-if="nodeConfig.isParallel === true"
+                        size="15"
+                      />
+                      <RiGitBranchLine
+                        v-else
+                        size="15"
+                      />
+                    </span>
+                    <span class="editable-title">{{ item.nodeName }}</span>
+                    <span
+                      class="priority-title"
+                      @click="openConditionDrawer(item.priorityLevel ?? 0)"
+                    >优先级{{ item.priorityLevel }}</span>
+                    <i
+                      v-if="!readonly"
+                      class="close"
+                      @click.stop="delTerm(index)"
+                    >×</i>
                   </div>
-                  <TaktFlowAddNode v-if="!readonly" :child-node-p="item.childNode ?? null" @update:child-node-p="(v) => (item.childNode = v)" />
+                  <div
+                    class="content condition-content"
+                    @click="openConditionDrawer(item.priorityLevel ?? 0)"
+                  >
+                    {{ conditionStrFor(index) }}
+                  </div>
                 </div>
+                <TaktFlowAddNode
+                  v-if="!readonly"
+                  :child-node-p="item.childNode ?? null"
+                  @update:child-node-p="(v) => (item.childNode = v)"
+                />
               </div>
-              <TaktFlowNodeWrap
-                v-if="item.childNode != null"
-                :node-config="item.childNode ?? null"
-                @update:node-config="(v) => (item.childNode = v)"
-                :drawer="drawer"
-                :readonly="readonly"
-              />
-              <template v-if="index === 0">
-                <div class="top-left-cover-line" />
-                <div class="bottom-left-cover-line" />
-              </template>
-              <template v-if="index === (nodeConfig.conditionNodes?.length ?? 0) - 1">
-                <div class="top-right-cover-line" />
-                <div class="bottom-right-cover-line" />
-              </template>
             </div>
+            <TaktFlowNodeWrap
+              v-if="item.childNode != null"
+              :node-config="item.childNode ?? null"
+              :drawer="drawer"
+              :readonly="readonly"
+              @update:node-config="(v) => (item.childNode = v)"
+            />
+            <template v-if="index === 0">
+              <div class="top-left-cover-line" />
+              <div class="bottom-left-cover-line" />
+            </template>
+            <template v-if="index === (nodeConfig.conditionNodes?.length ?? 0) - 1">
+              <div class="top-right-cover-line" />
+              <div class="bottom-right-cover-line" />
+            </template>
+          </div>
         </div>
-        <TaktFlowAddNode v-if="!readonly" :child-node-p="nodeConfig.childNode ?? null" @update:child-node-p="(v) => (nodeConfig!.childNode = v)" />
+        <TaktFlowAddNode
+          v-if="!readonly"
+          :child-node-p="nodeConfig.childNode ?? null"
+          @update:child-node-p="(v) => (nodeConfig!.childNode = v)"
+        />
       </div>
     </div>
     <TaktFlowNodeWrap
       v-if="nodeConfig?.childNode != null"
       :node-config="(nodeConfig?.childNode) ?? null"
-      @update:node-config="(v) => nodeConfig && (nodeConfig.childNode = v)"
       :drawer="drawer"
       :readonly="readonly"
+      @update:node-config="updateCurrentChildNode"
     />
   </template>
 
@@ -108,55 +180,93 @@
     <div class="branch-wrap">
       <div class="branch-box-wrap">
         <div class="branch-box">
-          <button v-if="!readonly" type="button" class="add-branch" @click="addTerm">{{ t('workflow.designer.addParallelApprover') }}</button>
-            <div v-for="(item, index) in nodeConfig.parallelNodes" :key="item.nodeId" class="col-box">
-              <div class="condition-node">
-                <div class="condition-node-box">
-                  <div class="node-wrap-box parallel-col-box">
-                    <div class="title" :style="parallelTitleStyle">
-                      <span class="iconfont node-title-icon" aria-hidden="true">
-                        <RiShieldCheckLine size="15" />
-                      </span>
-                      <span class="title-label">{{ item.nodeName }}</span>
-                      <i v-if="!readonly" class="close" @click.stop="delTerm(index)">×</i>
-                    </div>
-                    <div class="content" @click="openParallelDrawer(index)">
-                      <div class="text">
-                        <span v-if="!parallelShowText(item)" class="placeholder">{{ t('workflow.designer.pleaseSelect') }}{{ t('workflow.designer.approver') }}</span>
-                        {{ parallelShowText(item) }}
-                      </div>
-                      <span class="arrow" aria-hidden="true"><RiArrowRightSLine size="14" /></span>
-                    </div>
+          <button
+            v-if="!readonly"
+            type="button"
+            class="add-branch"
+            @click="addTerm"
+          >
+            {{ t('workflow.designer.addParallelApprover') }}
+          </button>
+          <div
+            v-for="(item, index) in nodeConfig.parallelNodes"
+            :key="item.nodeId"
+            class="col-box"
+          >
+            <div class="condition-node">
+              <div class="condition-node-box">
+                <div class="node-wrap-box parallel-col-box">
+                  <div
+                    class="title"
+                    :style="parallelTitleStyle"
+                  >
+                    <span
+                      class="iconfont node-title-icon"
+                      aria-hidden="true"
+                    >
+                      <RiShieldCheckLine size="15" />
+                    </span>
+                    <span class="title-label">{{ item.nodeName }}</span>
+                    <i
+                      v-if="!readonly"
+                      class="close"
+                      @click.stop="delTerm(index)"
+                    >×</i>
                   </div>
-                  <TaktFlowAddNode v-if="!readonly" :child-node-p="item.childNode ?? null" @update:child-node-p="(v) => (item.childNode = v)" />
+                  <div
+                    class="content"
+                    @click="openParallelDrawer(index)"
+                  >
+                    <div class="text">
+                      <span
+                        v-if="!parallelShowText(item)"
+                        class="placeholder"
+                      >{{ t('workflow.designer.pleaseSelect') }}{{ t('workflow.designer.approver') }}</span>
+                      {{ parallelShowText(item) }}
+                    </div>
+                    <span
+                      class="arrow"
+                      aria-hidden="true"
+                    ><RiArrowRightSLine size="14" /></span>
+                  </div>
                 </div>
+                <TaktFlowAddNode
+                  v-if="!readonly"
+                  :child-node-p="item.childNode ?? null"
+                  @update:child-node-p="(v) => (item.childNode = v)"
+                />
               </div>
-              <TaktFlowNodeWrap
-                v-if="item.childNode != null"
-                :node-config="item.childNode ?? null"
-                @update:node-config="(v) => (item.childNode = v)"
-                :drawer="drawer"
-                :readonly="readonly"
-              />
-              <template v-if="index === 0">
-                <div class="top-left-cover-line" />
-                <div class="bottom-left-cover-line" />
-              </template>
-              <template v-if="index === (nodeConfig.parallelNodes?.length ?? 0) - 1">
-                <div class="top-right-cover-line" />
-                <div class="bottom-right-cover-line" />
-              </template>
             </div>
+            <TaktFlowNodeWrap
+              v-if="item.childNode != null"
+              :node-config="item.childNode ?? null"
+              :drawer="drawer"
+              :readonly="readonly"
+              @update:node-config="(v) => (item.childNode = v)"
+            />
+            <template v-if="index === 0">
+              <div class="top-left-cover-line" />
+              <div class="bottom-left-cover-line" />
+            </template>
+            <template v-if="index === (nodeConfig.parallelNodes?.length ?? 0) - 1">
+              <div class="top-right-cover-line" />
+              <div class="bottom-right-cover-line" />
+            </template>
+          </div>
         </div>
-        <TaktFlowAddNode v-if="!readonly" :child-node-p="nodeConfig.childNode ?? null" @update:child-node-p="(v) => (nodeConfig!.childNode = v)" />
+        <TaktFlowAddNode
+          v-if="!readonly"
+          :child-node-p="nodeConfig.childNode ?? null"
+          @update:child-node-p="(v) => (nodeConfig!.childNode = v)"
+        />
       </div>
     </div>
     <TaktFlowNodeWrap
       v-if="nodeConfig?.childNode != null"
       :node-config="(nodeConfig?.childNode) ?? null"
-      @update:node-config="(v) => nodeConfig && (nodeConfig.childNode = v)"
       :drawer="drawer"
       :readonly="readonly"
+      @update:node-config="updateCurrentChildNode"
     />
   </template>
 </template>
@@ -267,6 +377,11 @@ function openConditionDrawer(priorityLevel: number) {
 
 function delNode() {
   emit('update:nodeConfig', props.nodeConfig?.childNode ?? null)
+}
+
+function updateCurrentChildNode(value: FlowTreeNode | null) {
+  if (!props.nodeConfig) return
+  emit('update:nodeConfig', { ...props.nodeConfig, childNode: value ?? undefined })
 }
 
 function resetConditionNodesTitle(gateway: FlowTreeNode, index: number): string {

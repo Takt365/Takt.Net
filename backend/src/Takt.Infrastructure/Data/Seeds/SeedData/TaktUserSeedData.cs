@@ -62,9 +62,9 @@ public class TaktUserSeedData : ITaktSeedData
         var snowflakeEnabled = configuration.GetSection("Snowflake").GetValue<bool>("Enabled", true);
 
         // 先按员工编码解析出 EmployeeId（依赖 TaktEmployeeSeedData 已写入的系统用户 9 开头编号 900001/900002/900003）
-        var empAdmin = await dbHr.Queryable<TaktEmployee>().Where(e => e.EmployeeCode == "900001" && e.IsDeleted == 0).FirstAsync();
-        var empGuest = await dbHr.Queryable<TaktEmployee>().Where(e => e.EmployeeCode == "900002" && e.IsDeleted == 0).FirstAsync();
-        var empUser01 = await dbHr.Queryable<TaktEmployee>().Where(e => e.EmployeeCode == "900003" && e.IsDeleted == 0).FirstAsync();
+        var empAdmin = await dbHr.Queryable<TaktEmployee>().Where(e => e.EmployeeCode == "900001").FirstAsync();
+        var empGuest = await dbHr.Queryable<TaktEmployee>().Where(e => e.EmployeeCode == "900002").FirstAsync();
+        var empUser01 = await dbHr.Queryable<TaktEmployee>().Where(e => e.EmployeeCode == "900003").FirstAsync();
         if (empAdmin == null || empGuest == null || empUser01 == null)
             throw new InvalidOperationException("种子员工不存在（需 900001/900002/900003）。请先执行 TaktEmployeeSeedData（Order=1），再执行用户种子（Order=3）。");
 
@@ -107,7 +107,7 @@ public class TaktUserSeedData : ITaktSeedData
         foreach (var u in userDefs)
         {
             var existingUser = await dbIdentity.Queryable<TaktUser>()
-                .Where(x => x.UserName == u.UserName && x.IsDeleted == 0)
+                .Where(x => x.UserName == u.UserName)
                 .FirstAsync();
 
             var passwordHash = TaktEncryptHelper.HashPassword(u.PasswordPlain);

@@ -1,6 +1,9 @@
 <template>
   <div class="dashboard-data-board">
-    <a-row ref="rowRef" :gutter="[16, 16]">
+    <a-row
+      ref="rowRef"
+      :gutter="[16, 16]"
+    >
       <a-col
         v-for="item in modules"
         :key="item.id"
@@ -20,11 +23,18 @@
           <template #overlay>
             <a-menu @click="onModuleContextMenuClick(item, $event)">
               <a-menu-item key="add">
-                <template #icon><RiAddLine /></template>
+                <template #icon>
+                  <RiAddLine />
+                </template>
                 {{ t('dashboard.data-board.addModule') }}
               </a-menu-item>
-              <a-menu-item key="remove" danger>
-                <template #icon><RiDeleteBinLine /></template>
+              <a-menu-item
+                key="remove"
+                danger
+              >
+                <template #icon>
+                  <RiDeleteBinLine />
+                </template>
                 {{ t('dashboard.data-board.removeModule') }}
               </a-menu-item>
             </a-menu>
@@ -39,10 +49,16 @@
       :width="520"
       @ok="onAddModule"
     >
-      <p class="databoard-add-tip">{{ t('dashboard.data-board.selectModuleType') }}</p>
+      <p class="databoard-add-tip">
+        {{ t('dashboard.data-board.selectModuleType') }}
+      </p>
       <a-checkbox-group v-model:value="addingKeys">
         <a-row :gutter="[8, 8]">
-          <a-col v-for="m in DATA_BOARD_AVAILABLE_MODULES" :key="m.key" :span="8">
+          <a-col
+            v-for="m in DATA_BOARD_AVAILABLE_MODULES"
+            :key="m.key"
+            :span="8"
+          >
             <a-checkbox
               :value="m.key"
               :disabled="m.key !== 'custom' && addedModuleKeys.has(m.key)"
@@ -80,7 +96,7 @@ import {
 
 const { t } = useI18n()
 
-const moduleComponents: Record<DataBoardModuleKey, any> = {
+const moduleComponents: Record<DataBoardModuleKey, unknown> = {
   overview: markRaw(StatsOverviewModule),
   change: markRaw(StatsChangeModule),
   online: markRaw(StatsOnlineModule),
@@ -96,7 +112,9 @@ function loadModules(): DataBoardModuleItem[] {
       const parsed = JSON.parse(raw) as DataBoardModuleItem[]
       if (Array.isArray(parsed) && parsed.length > 0) return parsed
     }
-  } catch (_) {}
+  } catch {
+    // ignore
+  }
   return getDefaultDataBoardModules()
 }
 
@@ -140,7 +158,7 @@ onMounted(() => {
       animation: 150,
       ghostClass: 'databoard-module-card-ghost',
       onEnd(evt: Sortable.SortableEvent) {
-        reorderModulesByDomOrder(evt.from as HTMLElement)
+        reorderModulesByDomOrder(evt.from)
       }
     })
   })

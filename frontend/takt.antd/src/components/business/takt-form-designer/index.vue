@@ -58,7 +58,7 @@ const designerConfig = computed(() => {
 
 /** 透传 menu、mask 等（剔除可能冲突的 config/handle/locale 字段） */
 const designerAttrsRest = computed(() => {
-  const { config: _c, handle: _h, locale: _l, ...rest } = (props.designerAttrs ?? {}) as Record<string, unknown>
+  const { config: _c, handle: _h, locale: _l, ...rest } = (props.designerAttrs ?? {})
   return rest
 })
 

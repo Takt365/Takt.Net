@@ -9,7 +9,13 @@
       </template>
 
       <!-- 缓存配置信息 -->
-      <a-descriptions title="缓存配置" :column="1" bordered size="small" style="margin-bottom: 24px">
+      <a-descriptions
+        title="缓存配置"
+        :column="1"
+        bordered
+        size="small"
+        style="margin-bottom: 24px"
+      >
         <a-descriptions-item label="提供者">
           {{ cacheInfo?.provider ?? '-' }}
         </a-descriptions-item>
@@ -22,13 +28,22 @@
         <a-descriptions-item label="多级缓存">
           {{ cacheInfo?.enableMultiLevelCache ? '是' : '否' }}
         </a-descriptions-item>
-        <a-descriptions-item v-if="cacheInfo?.provider === 'Redis'" label="Redis 实例前缀">
+        <a-descriptions-item
+          v-if="cacheInfo?.provider === 'Redis'"
+          label="Redis 实例前缀"
+        >
           {{ cacheInfo?.redisInstanceName || '-' }}
         </a-descriptions-item>
       </a-descriptions>
 
       <!-- 缓存统计（仅 Memory 支持） -->
-      <a-descriptions title="缓存统计" :column="1" bordered size="small" style="margin-bottom: 24px">
+      <a-descriptions
+        title="缓存统计"
+        :column="1"
+        bordered
+        size="small"
+        style="margin-bottom: 24px"
+      >
         <template v-if="!statistics?.supported || statistics?.message">
           <a-descriptions-item label="说明">
             {{ statistics?.message ?? '加载中…' }}
@@ -57,8 +72,17 @@
 
       <!-- 按键操作 -->
       <h4>按键操作</h4>
-      <a-form layout="inline" :model="keyForm" @finish="handleCheckExists" style="margin-bottom: 16px">
-        <a-form-item label="缓存键" name="key" :rules="[{ required: true, message: '请输入缓存键' }]">
+      <a-form
+        layout="inline"
+        :model="keyForm"
+        style="margin-bottom: 16px"
+        @finish="handleCheckExists"
+      >
+        <a-form-item
+          label="缓存键"
+          name="key"
+          :rules="[{ required: true, message: '请输入缓存键' }]"
+        >
           <a-input
             v-model:value="keyForm.key"
             placeholder="请输入缓存键"
@@ -67,8 +91,14 @@
           />
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" html-type="submit" :loading="existsLoading">
-            <template #icon><SearchOutlined /></template>
+          <a-button
+            type="primary"
+            html-type="submit"
+            :loading="existsLoading"
+          >
+            <template #icon>
+              <SearchOutlined />
+            </template>
             检查是否存在
           </a-button>
           <a-button
@@ -78,7 +108,9 @@
             :disabled="!keyForm.key?.trim()"
             @click="handleRemove"
           >
-            <template #icon><DeleteOutlined /></template>
+            <template #icon>
+              <DeleteOutlined />
+            </template>
             移除
           </a-button>
         </a-form-item>

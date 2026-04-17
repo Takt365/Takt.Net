@@ -17,6 +17,17 @@ import { logger } from '@/utils/logger'
 import request from '@/api/request'
 import type { TaktSelectOption, TaktTreeSelectOption } from '@/types/common'
 import i18n from '@/locales'
+type DictOptionLike = Record<string, unknown> & {
+  dictTypeCode?: string
+  dictValue?: string | number
+  dictLabel?: string
+  extLabel?: string
+  extValue?: string | number
+  dictL10nKey?: string
+  cssClass?: string
+  listClass?: string
+  orderNum?: number
+}
 
 /**
  * 字典数据 Store
@@ -38,7 +49,7 @@ export const useDictDataStore = defineStore('dictData', () => {
   
   // 是否已加载所有字典数据
   const isLoaded = ref(false)
-  const translate = (i18n.global as any).t as (key: string) => string
+  const translate = (key: string): string => String(i18n.global.t(key))
 
   /**
    * 解析字典显示文本：
@@ -89,16 +100,17 @@ export const useDictDataStore = defineStore('dictData', () => {
       // 按字典类型编码分组（ExtValue = DictTypeCode）
       const groupedDictData: Record<string, TaktSelectOption[]> = {}
       
-      allDictData.forEach((option: any) => {
+      allDictData.forEach((option) => {
+        const optionLike = option as DictOptionLike
         // 兼容 PascalCase 和 camelCase
         // 后端已统一转换为 camelCase
         // 批量加载时：DictTypeCode 用于分组，ExtLabel 和 ExtValue 保持原始值
-        const dictTypeCode = String(option.dictTypeCode ?? '') // DictTypeCode 用于分组
-        const dictValue = option.dictValue
-        const dictLabel = option.dictLabel
-        const extLabel = option.extLabel // ExtLabel 保持原始值
-        const extValue = option.extValue // ExtValue 保持原始值
-        const dictL10nKey = option.dictL10nKey // DictL10nKey 保持原始值
+        const dictTypeCode = String(optionLike.dictTypeCode ?? '') // DictTypeCode 用于分组
+        const dictValue = optionLike.dictValue
+        const dictLabel = optionLike.dictLabel
+        const extLabel = optionLike.extLabel // ExtLabel 保持原始值
+        const extValue = optionLike.extValue // ExtValue 保持原始值
+        const dictL10nKey = optionLike.dictL10nKey // DictL10nKey 保持原始值
         
         if (!dictTypeCode) {
           logger.warn('[DictData] 字典数据缺少 dictTypeCode（字典类型编码）:', option)
@@ -118,9 +130,9 @@ export const useDictDataStore = defineStore('dictData', () => {
           extLabel: extLabel, // 后端：ExtLabel = ExtLabel（原始扩展标签）
           extValue: extValue, // 后端：ExtValue = ExtValue（原始扩展值）
           // 后端已统一转换为 camelCase
-          cssClass: option.cssClass,
-          listClass: option.listClass,
-          orderNum: option.orderNum ?? 0
+          cssClass: optionLike.cssClass,
+          listClass: optionLike.listClass,
+          orderNum: optionLike.orderNum ?? 0
         })
       })
       

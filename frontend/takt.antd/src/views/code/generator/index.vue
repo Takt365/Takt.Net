@@ -52,7 +52,7 @@
       :data-source="dataSource"
       :loading="loading"
       :stripe="true"
-      :row-key="(record: any) => record.tableId || ''"
+      :row-key="(record: GenTable) => String(record.tableId ?? '')"
       :row-selection="rowSelection"
       :custom-row="onClickRow"
       :pagination="false"
@@ -116,7 +116,12 @@
     </TaktModal>
 
     <!-- 代码预览弹窗 -->
-    <CodePreview v-model="previewVisible" :files="previewFiles" :loading="previewLoading" :validation-issues="previewValidationIssues" />
+    <CodePreview
+      v-model="previewVisible"
+      :files="previewFiles"
+      :loading="previewLoading"
+      :validation-issues="previewValidationIssues"
+    />
 
     <!-- 另存为：输入生成路径后确定生成 -->
     <a-modal
@@ -128,7 +133,9 @@
       @ok="handleSaveAsOk"
       @cancel="saveAsVisible = false"
     >
-      <p style="margin-bottom: 8px">{{ t('code.generator.saveAsPathHint') }}</p>
+      <p style="margin-bottom: 8px">
+        {{ t('code.generator.saveAsPathHint') }}
+      </p>
       <a-input
         v-model:value="saveAsPath"
         :placeholder="t('code.generator.saveAsPathPlaceholder')"
@@ -147,12 +154,23 @@
     >
       <a-form layout="vertical">
         <a-form-item :label="t('code.generator.searchKeywordLabel')">
-          <a-input v-model:value="queryKeyword" :placeholder="t('code.generator.placeholderFuzzy')" allow-clear />
+          <a-input
+            v-model:value="queryKeyword"
+            :placeholder="t('code.generator.placeholderFuzzy')"
+            allow-clear
+          />
         </a-form-item>
         <a-form-item>
           <a-space>
-            <a-button type="primary" @click="handleAdvancedQuerySubmit">{{ t('common.button.query') }}</a-button>
-            <a-button @click="handleAdvancedQueryReset">{{ t('common.button.reset') }}</a-button>
+            <a-button
+              type="primary"
+              @click="handleAdvancedQuerySubmit"
+            >
+              {{ t('common.button.query') }}
+            </a-button>
+            <a-button @click="handleAdvancedQueryReset">
+              {{ t('common.button.reset') }}
+            </a-button>
           </a-space>
         </a-form-item>
       </a-form>
@@ -235,6 +253,22 @@ const saveAsVisible = ref(false)
 const saveAsPath = ref('')
 const saveAsRecord = ref<GenTable | null>(null)
 
+function getErrorMessage(error: unknown): string | undefined {
+  if (error instanceof Error) return error.message
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const msg = (error as { message?: unknown }).message
+    return typeof msg === 'string' ? msg : undefined
+  }
+  return undefined
+}
+
+function getTableId(record: GenTable): string | number | undefined {
+  if (record.tableId != null && String(record.tableId) !== '') return String(record.tableId)
+  const legacyId = (record).id
+  if (typeof legacyId === 'string' || typeof legacyId === 'number') return legacyId
+  return undefined
+}
+
 const columns = computed(() => [
   { title: t('code.generator.tableName'), dataIndex: 'tableName', key: 'tableName', width: 180, ellipsis: true },
   { title: t('code.generator.tableComment'), dataIndex: 'tableComment', key: 'tableComment', width: 140, ellipsis: true },
@@ -307,10 +341,10 @@ const columns = computed(() => [
 
 const displayColumns = computed<TableColumnsType>(() => {
   const keys = visibleColumnKeys.value || []
-  const cols = (columns.value || []) as any[]
+  const cols = (columns.value || []) as Array<{ key?: unknown }>
   if (keys.length === 0) return cols as TableColumnsType
   const keySet = new Set(keys)
-  return cols.filter((c: any) => keySet.has(String(c.key))) as TableColumnsType
+  return cols.filter((c) => keySet.has(String(c.key))) as TableColumnsType
 })
 
 const rowSelection = computed(() => ({
@@ -341,14 +375,14 @@ async function loadData() {
       pageSize: pageSize.value
     }
     if (queryKeyword.value) params.keyWords = queryKeyword.value
-    const response = (await getGenTableList(params)) as any
+    const response = (await getGenTableList(params)) as { data?: GenTable[]; total?: number }
     const items = response?.data ?? []
     const totalCount = response?.total ?? 0
     dataSource.value = items
     total.value = totalCount
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[GenTable] 加载失败:', error)
-    message.error(error?.message || t('common.msg.loadFail'))
+    message.error(getErrorMessage(error) || t('common.msg.loadFail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -367,7 +401,11 @@ function handleReset() {
   loadData()
 }
 
-function handleTableChange(_pagination: any, _filters: any, _sorter: any) {}
+function handleTableChange(
+  _pagination: unknown,
+  _filters: unknown,
+  _sorter: unknown
+) {}
 
 function handlePaginationChange(page: number, size: number) {
   currentPage.value = page
@@ -389,7 +427,7 @@ function handleCreate() {
 
 async function handleEdit(record: GenTable) {
   formTitle.value = t('common.button.edit') + t('code.generator.tableConfig')
-  const id = record.tableId ?? (record as any).id
+  const id = getTableId(record)
   if (!id) {
     formData.value = { ...record, tableId: record.tableId }
     formVisible.value = true
@@ -398,10 +436,14 @@ async function handleEdit(record: GenTable) {
   try {
     loading.value = true
     const detail = await getGenTableById(String(id))
-    formData.value = { ...detail, tableId: detail.tableId ?? String(id) }
+    const fallbackTableId = String(id)
+    formData.value = {
+      ...detail,
+      tableId: detail.tableId != null ? String(detail.tableId) : (fallbackTableId || undefined)
+    } as Partial<GenTable>
     formVisible.value = true
-  } catch (e: any) {
-    message.error(e?.message || t('common.msg.loadTargetFail', { target: tableConfig() }))
+  } catch (e: unknown) {
+    message.error(getErrorMessage(e) || t('common.msg.loadTargetFail', { target: tableConfig() }))
   } finally {
     loading.value = false
   }
@@ -422,8 +464,8 @@ function handleDeleteOne(record: GenTable) {
         await deleteGenTable(String(record.tableId))
         message.success(t('common.msg.deleteSuccess'))
         loadData()
-      } catch (e: any) {
-        message.error(e?.message || t('common.msg.deleteFail'))
+      } catch (e: unknown) {
+        message.error(getErrorMessage(e) || t('common.msg.deleteFail'))
       } finally {
         loading.value = false
       }
@@ -448,8 +490,8 @@ function handleDelete() {
         selectedRows.value = []
         selectedRow.value = null
         loadData()
-      } catch (e: any) {
-        message.error(e?.message || t('common.msg.deleteFail'))
+      } catch (e: unknown) {
+        message.error(getErrorMessage(e) || t('common.msg.deleteFail'))
       } finally {
         loading.value = false
       }
@@ -461,7 +503,10 @@ async function doGenerateCode(record: GenTable, genPathOverride?: string) {
   const id = String(record.tableId)
   const genMethod = record.genMethod != null ? Number(record.genMethod) : 0
   const result = await generateCode(id, genMethod, genPathOverride)
-  if (typeof (result as any).message === 'string' && typeof (result as any).count === 'number') {
+  if (
+    typeof (result as { message?: unknown }).message === 'string' &&
+    typeof (result as { count?: unknown }).count === 'number'
+  ) {
     const res = result as { message: string; count: number; files: string[] }
     message.success(res.message + (res.files?.length ? t('code.generator.genSuccessCount', { count: res.count }) : ''))
     return
@@ -482,7 +527,7 @@ async function doGenerateCode(record: GenTable, genPathOverride?: string) {
 
 function showSaveAsPathModal(record: GenTable) {
   saveAsRecord.value = record
-  saveAsPath.value = (record.genPath ?? '').trim() || '/'
+  saveAsPath.value = String(record.genPath ?? '').trim() || '/'
   saveAsVisible.value = true
 }
 
@@ -501,8 +546,8 @@ async function handleSaveAsOk() {
     loading.value = true
     await doGenerateCode(record, newPath)
     saveAsVisible.value = false
-  } catch (e: any) {
-    message.error(e?.message || t('common.msg.actionFail', { action: t('code.generator.generate') }))
+  } catch (e: unknown) {
+    message.error(getErrorMessage(e) || t('common.msg.actionFail', { action: t('code.generator.generate') }))
   } finally {
     loading.value = false
   }
@@ -514,8 +559,8 @@ async function handleGenerateOne(record: GenTable) {
     try {
       loading.value = true
       await doGenerateCode(record)
-    } catch (e: any) {
-      message.error(e?.message || t('common.msg.actionFail', { action: t('code.generator.generate') }))
+    } catch (e: unknown) {
+      message.error(getErrorMessage(e) || t('common.msg.actionFail', { action: t('code.generator.generate') }))
     } finally {
       loading.value = false
     }
@@ -524,7 +569,7 @@ async function handleGenerateOne(record: GenTable) {
   try {
     loading.value = true
     const id = String(record.tableId)
-    const genPath = (record.genPath ?? '').trim() || undefined
+    const genPath = String(record.genPath ?? '').trim() || undefined
     const preview = await generateCodePreview(id, genPath)
     const existingFiles = preview?.existingFiles ?? []
     loading.value = false
@@ -539,8 +584,8 @@ async function handleGenerateOne(record: GenTable) {
           try {
             loading.value = true
             await doGenerateCode(record)
-          } catch (e: any) {
-            message.error(e?.message || t('common.msg.actionFail', { action: t('code.generator.generate') }))
+          } catch (e: unknown) {
+            message.error(getErrorMessage(e) || t('common.msg.actionFail', { action: t('code.generator.generate') }))
           } finally {
             loading.value = false
           }
@@ -557,14 +602,14 @@ async function handleGenerateOne(record: GenTable) {
         loading.value = false
       }
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     loading.value = false
-    message.error(e?.message || t('common.msg.actionFail', { action: t('code.generator.generate') }))
+    message.error(getErrorMessage(e) || t('common.msg.actionFail', { action: t('code.generator.generate') }))
   }
 }
 
 async function handleSync(record: GenTable) {
-  const id = record.tableId ?? (record as any).id
+  const id = getTableId(record)
   if (!id) {
     message.warning(t('code.generator.noTableIdSync'))
     return
@@ -572,19 +617,23 @@ async function handleSync(record: GenTable) {
   try {
     loading.value = true
     const detail = await getGenTableById(String(id))
-    formData.value = { ...detail, tableId: detail.tableId ?? String(id) }
+    const fallbackTableId = String(id)
+    formData.value = {
+      ...detail,
+      tableId: detail.tableId != null ? String(detail.tableId) : (fallbackTableId || undefined)
+    } as Partial<GenTable>
     formTitle.value = t('code.generator.sync') + t('code.generator.tableConfig')
     formVisible.value = true
     message.info(t('code.generator.syncFormHint'))
-  } catch (e: any) {
-    message.error(e?.message || t('common.msg.loadTargetFail', { target: tableConfig() }))
+  } catch (e: unknown) {
+    message.error(getErrorMessage(e) || t('common.msg.loadTargetFail', { target: tableConfig() }))
   } finally {
     loading.value = false
   }
 }
 
 async function handleInitialize(record: GenTable) {
-  const id = record.tableId ?? (record as any).id
+  const id = getTableId(record)
   if (!id) {
     message.warning(t('code.generator.noTableIdInit'))
     return
@@ -594,15 +643,15 @@ async function handleInitialize(record: GenTable) {
     await initializeTable(String(id))
     message.success(t('common.msg.actionSuccess', { action: t('code.generator.initialize') }))
     loadData()
-  } catch (e: any) {
-    message.error(e?.message || t('common.msg.actionFail', { action: t('code.generator.initialize') }))
+  } catch (e: unknown) {
+    message.error(getErrorMessage(e) || t('common.msg.actionFail', { action: t('code.generator.initialize') }))
   } finally {
     loading.value = false
   }
 }
 
 async function handleClone(record: GenTable) {
-  const id = record.tableId ?? (record as any).id
+  const id = getTableId(record)
   if (!id) {
     formData.value = { ...record, tableId: undefined, tableName: `${record.tableName ?? 'table'}_copy` }
     formTitle.value = t('common.button.clone') + t('code.generator.tableConfig')
@@ -612,12 +661,12 @@ async function handleClone(record: GenTable) {
   try {
     loading.value = true
     const detail = await getGenTableById(String(id))
-    const columns = (detail as any).columns
+    const columns = (detail as { columns?: unknown }).columns
     const cloneData: Partial<GenTable> = { ...detail, tableId: undefined, tableName: `${detail.tableName ?? 'table'}_copy` }
-    delete (cloneData as any).tableId
+    delete (cloneData as { tableId?: unknown }).tableId
     if (Array.isArray(columns)) {
-      (cloneData as any).columns = columns.map((col: any) => {
-        const c = { ...col }
+      ;(cloneData as { columns?: Record<string, unknown>[] }).columns = columns.map((col) => {
+        const c = { ...(col as Record<string, unknown>) }
         delete c.columnId
         delete c.tableId
         return c
@@ -627,8 +676,8 @@ async function handleClone(record: GenTable) {
     formTitle.value = t('common.button.clone') + t('code.generator.tableConfig')
     formVisible.value = true
     message.success(t('code.generator.cloneSuccess'))
-  } catch (e: any) {
-    message.error(e?.message || t('common.msg.loadTargetFail', { target: tableConfig() }))
+  } catch (e: unknown) {
+    message.error(getErrorMessage(e) || t('common.msg.loadTargetFail', { target: tableConfig() }))
   } finally {
     loading.value = false
   }
@@ -660,8 +709,8 @@ function handleExport() {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
     message.success(t('common.msg.exportSuccess'))
-  } catch (e: any) {
-    message.error(e?.message || t('common.msg.exportFail'))
+  } catch (e: unknown) {
+    message.error(getErrorMessage(e) || t('common.msg.exportFail'))
   }
 }
 
@@ -709,9 +758,9 @@ async function handleFormSubmit() {
     formVisible.value = false
     formData.value = null
     loadData()
-  } catch (e: any) {
-    if (e?.errorFields) return
-    message.error(e?.message || t('common.msg.operateFail'))
+  } catch (e: unknown) {
+    if (typeof e === 'object' && e !== null && 'errorFields' in e) return
+    message.error(getErrorMessage(e) || t('common.msg.operateFail'))
   } finally {
     formLoading.value = false
   }
@@ -724,7 +773,7 @@ function handleFormCancel() {
 }
 
 async function handlePreviewOne(record: GenTable) {
-  const id = record.tableId ?? (record as any).id
+  const id = getTableId(record)
   if (!id) {
     message.warning(t('code.generator.noTableIdPreview'))
     return
@@ -736,7 +785,7 @@ async function handlePreviewOne(record: GenTable) {
   previewVisible.value = true
   previewLoading.value = true
   try {
-    const genPath = (record.genPath ?? '').trim() || undefined
+    const genPath = String(record.genPath ?? '').trim() || undefined
     const preview = await generateCodePreview(String(id), genPath)
     previewValidationIssues.value = preview?.validationIssues ?? []
     const previewItems = preview?.previewFiles ?? []
@@ -758,8 +807,8 @@ async function handlePreviewOne(record: GenTable) {
     if (previewValidationIssues.value.length > 0) {
       message.warning(t('code.generator.previewValidationIssueToast', { count: previewValidationIssues.value.length }))
     }
-  } catch (e: any) {
-    message.error(e?.message || t('code.generator.previewLoadFail'))
+  } catch (e: unknown) {
+    message.error(getErrorMessage(e) || t('code.generator.previewLoadFail'))
     previewFiles.value = []
   } finally {
     previewLoading.value = false
@@ -773,8 +822,8 @@ async function handleImportConfigChange(configId: string) {
     databaseTablesLoading.value = true
     const list = await getDatabaseTables(configId)
     databaseTables.value = list ?? []
-  } catch (e: any) {
-    message.error(e?.message || t('common.msg.loadFail'))
+  } catch (e: unknown) {
+    message.error(getErrorMessage(e) || t('common.msg.loadFail'))
     databaseTables.value = []
   } finally {
     databaseTablesLoading.value = false
@@ -796,8 +845,11 @@ async function handleImportSubmit(payload: { configId: string; tableName: string
       selectedRows.value = found ? [found] : (imported ? [imported] : [])
       selectedRow.value = found ?? imported ?? null
     }
-  } catch (e: any) {
-    const msg = e?.response?.data?.message ?? e?.message ?? t('common.msg.actionFail', { action: t('common.button.import') })
+  } catch (e: unknown) {
+    const msg =
+      (e as { response?: { data?: { message?: string } } }).response?.data?.message ??
+      getErrorMessage(e) ??
+      t('common.msg.actionFail', { action: t('common.button.import') })
     message.error(msg)
   } finally {
     importLoading.value = false

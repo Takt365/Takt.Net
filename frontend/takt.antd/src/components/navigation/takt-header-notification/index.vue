@@ -6,7 +6,11 @@
     :overflow-count="overflowCount"
     :show-zero="false"
   >
-    <a-button type="text" @click="handleClick" class="takt-header-notification">
+    <a-button
+      type="text"
+      class="takt-header-notification"
+      @click="handleClick"
+    >
       <template #icon>
         <RiNotificationLine />
       </template>
@@ -15,8 +19,8 @@
   <a-button 
     v-else
     type="text" 
-    @click="handleClick" 
-    class="takt-header-notification"
+    class="takt-header-notification" 
+    @click="handleClick"
   >
     <template #icon>
       <RiNotificationLine />
@@ -30,7 +34,12 @@
     class="takt-header-notification-drawer"
   >
     <template #extra>
-      <a-button type="text" @click="handleClearAll">{{ $t('common.button.empty') }}</a-button>
+      <a-button
+        type="text"
+        @click="handleClearAll"
+      >
+        {{ $t('common.button.empty') }}
+      </a-button>
     </template>
     <a-list
       :data-source="notifications"
@@ -45,14 +54,26 @@
             </template>
             <template #description>
               <div>{{ item.content }}</div>
-              <div class="notification-time">{{ item.time }}</div>
+              <div class="notification-time">
+                {{ item.time }}
+              </div>
             </template>
           </a-list-item-meta>
           <template #actions>
-            <a-button type="text" size="small" @click="handleMarkRead(item.id)" v-if="!item.read">
+            <a-button
+              v-if="!item.read"
+              type="text"
+              size="small"
+              @click="handleMarkRead(item.id)"
+            >
               {{ $t('common.button.markRead') }}
             </a-button>
-            <a-button type="text" size="small" danger @click="handleDelete(item.id)">
+            <a-button
+              type="text"
+              size="small"
+              danger
+              @click="handleDelete(item.id)"
+            >
               {{ $t('common.button.delete') }}
             </a-button>
           </template>

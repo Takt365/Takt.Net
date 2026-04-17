@@ -96,7 +96,11 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <EmployeeAttachmentForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <EmployeeAttachmentForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
 
     <!-- 高级查询抽屉 -->
@@ -110,7 +114,12 @@
         <a-input v-model:value="advancedQueryForm.employeeId" />
       </a-form-item>
       <a-form-item :label="t('entity.employeeattachment.attachmentType')">
-        <a-select v-model:value="advancedQueryForm.attachmentType" :options="attachmentTypeOptions" allow-clear style="width: 100%" />
+        <a-select
+          v-model:value="advancedQueryForm.attachmentType"
+          :options="attachmentTypeOptions"
+          allow-clear
+          style="width: 100%"
+        />
       </a-form-item>
     </TaktQueryDrawer>
 

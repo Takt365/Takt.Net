@@ -8,8 +8,11 @@
 <!-- ======================================== -->
 
 <template>
-  <a-tabs v-model:activeKey="activeTab">
-    <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
+  <a-tabs v-model:active-key="activeTab">
+    <a-tab-pane
+      key="basic"
+      :tab="t('common.form.tabs.basicInfo')"
+    >
       <div :class="formContentClass">
         <a-form
           ref="formRef"
@@ -22,7 +25,10 @@
         >
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancecorrection.employeeid')" name="employeeId">
+              <a-form-item
+                :label="t('entity.attendancecorrection.employeeid')"
+                name="employeeId"
+              >
                 <a-input
                   v-model:value="formState.employeeId"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendancecorrection.employeeid') })"
@@ -31,7 +37,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancecorrection.targetdate')" name="targetDate">
+              <a-form-item
+                :label="t('entity.attendancecorrection.targetdate')"
+                name="targetDate"
+              >
                 <a-date-picker
                   v-model:value="formState.targetDate"
                   value-format="YYYY-MM-DD"
@@ -43,7 +52,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancecorrection.correctionkind')" name="correctionKind">
+              <a-form-item
+                :label="t('entity.attendancecorrection.correctionkind')"
+                name="correctionKind"
+              >
                 <TaktSelect
                   v-model="formState.correctionKind"
                   dict-type="hr_attendance_correction_kind"
@@ -54,7 +66,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancecorrection.requestpunchtime')" name="requestPunchTime">
+              <a-form-item
+                :label="t('entity.attendancecorrection.requestpunchtime')"
+                name="requestPunchTime"
+              >
                 <a-date-picker
                   v-model:value="formState.requestPunchTime"
                   show-time
@@ -67,7 +82,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancecorrection.approvalstatus')" name="approvalStatus">
+              <a-form-item
+                :label="t('entity.attendancecorrection.approvalstatus')"
+                name="approvalStatus"
+              >
                 <TaktSelect
                   v-model="formState.approvalStatus"
                   dict-type="hr_attendance_correction_approval"
@@ -78,7 +96,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancecorrection.reason')" name="reason">
+              <a-form-item
+                :label="t('entity.attendancecorrection.reason')"
+                name="reason"
+              >
                 <a-input
                   v-model:value="formState.reason"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendancecorrection.reason') })"

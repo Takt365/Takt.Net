@@ -10,11 +10,19 @@
     <div class="flow-start-form__layout">
       <!-- 左侧：选择模板 -->
       <aside class="flow-start-form__sidebar">
-        <div class="flow-start-form__sidebar-title">{{ t('workflow.instance.startFlowForm.templateListTitle') }}</div>
-        <div v-if="schemeLoading" class="flow-start-form__sidebar-loading">
+        <div class="flow-start-form__sidebar-title">
+          {{ t('workflow.instance.startFlowForm.templateListTitle') }}
+        </div>
+        <div
+          v-if="schemeLoading"
+          class="flow-start-form__sidebar-loading"
+        >
           <a-spin />
         </div>
-        <ul v-else class="flow-start-form__list">
+        <ul
+          v-else
+          class="flow-start-form__list"
+        >
           <li
             v-for="opt in schemeOptions"
             :key="opt.value"
@@ -24,16 +32,31 @@
           >
             {{ opt.label }}
           </li>
-          <li v-if="!schemeOptions.length" class="flow-start-form__list-empty">
+          <li
+            v-if="!schemeOptions.length"
+            class="flow-start-form__list-empty"
+          >
             {{ t('workflow.instance.startFlowForm.processPlaceholder') }}
           </li>
         </ul>
       </aside>
       <!-- 右侧：填写审批内容 / 全景流程图 -->
       <main class="flow-start-form__main">
-        <a-tabs v-model:activeKey="activeTab" class="flow-start-form__tabs">
-          <a-tab-pane :key="'fill'" :title="t('workflow.instance.startFlowForm.fillApprovalContent')">
-            <a-form ref="formRef" layout="vertical" :model="form" :rules="formRules" class="flow-start-form__form">
+        <a-tabs
+          v-model:active-key="activeTab"
+          class="flow-start-form__tabs"
+        >
+          <a-tab-pane
+            :key="'fill'"
+            :title="t('workflow.instance.startFlowForm.fillApprovalContent')"
+          >
+            <a-form
+              ref="formRef"
+              layout="vertical"
+              :model="form"
+              :rules="formRules"
+              class="flow-start-form__form"
+            >
               <a-form-item :label="t('workflow.instance.startFlowForm.applicantLabel')">
                 <a-select
                   v-model:value="applicantEmployeeId"
@@ -46,7 +69,10 @@
                   style="width: 100%"
                 />
               </a-form-item>
-              <a-form-item :label="t('entity.flowinstance.processtitle')" name="processTitle">
+              <a-form-item
+                :label="t('entity.flowinstance.processtitle')"
+                name="processTitle"
+              >
                 <a-input
                   v-model:value="form.processTitle"
                   :placeholder="t('workflow.instance.startFlowForm.titlePlaceholder')"
@@ -55,7 +81,10 @@
               </a-form-item>
               <template v-if="formConfigRule.length">
                 <template v-if="formConfigLoading">
-                  <a-form-item :label="t('workflow.instance.startFlowForm.formDataLabel')" class="flow-start-form__form-data-item">
+                  <a-form-item
+                    :label="t('workflow.instance.startFlowForm.formDataLabel')"
+                    class="flow-start-form__form-data-item"
+                  >
                     <div class="flow-start-form-loading">
                       <a-spin />
                     </div>
@@ -98,7 +127,11 @@
                   </a-form-item>
                 </template>
               </template>
-              <a-form-item v-else :label="t('entity.flowinstance.frmdata')" name="frmData">
+              <a-form-item
+                v-else
+                :label="t('entity.flowinstance.frmdata')"
+                name="frmData"
+              >
                 <a-textarea
                   v-model:value="form.frmData"
                   :rows="4"
@@ -107,9 +140,15 @@
               </a-form-item>
             </a-form>
           </a-tab-pane>
-          <a-tab-pane :key="'chart'" :title="t('workflow.instance.startFlowForm.step3FlowChart')">
+          <a-tab-pane
+            :key="'chart'"
+            :title="t('workflow.instance.startFlowForm.step3FlowChart')"
+          >
             <div class="flow-start-form__step-chart">
-              <div v-if="!processContentForPreview?.trim()" class="flow-start-form-chart-empty">
+              <div
+                v-if="!processContentForPreview?.trim()"
+                class="flow-start-form-chart-empty"
+              >
                 {{ t('workflow.instance.startFlowForm.flowChartEmpty') }}
               </div>
               <TaktFlowLogicDesigner

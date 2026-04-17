@@ -8,20 +8,26 @@
       :loading="masterLoading"
       :pagination="masterPaginationConfig"
       :row-key="masterRowKey"
-      :row-class-name="(_record: any, index: number) => (index % 2 === 1 ? 'table-striped' : null) as any"
+      :row-class-name="(_record: TableRecord, index: number) => (index % 2 === 1 ? 'table-striped' : '')"
       :scroll="masterScrollConfig"
       :virtual="masterVirtual"
       :size="size"
       :bordered="bordered"
       :row-selection="props.masterRowSelection"
       :expanded-row-keys="expandedRowKeys"
+      v-bind="$attrs"
       @change="handleMasterTableChange"
       @expand="handleExpand"
-      @resizeColumn="handleMasterResizeColumn"
-      v-bind="$attrs"
+      @resize-column="handleMasterResizeColumn"
     >
-      <template v-for="(_, name) in $slots" #[name]="slotData">
-        <slot :name="name" v-bind="slotData" />
+      <template
+        v-for="(_, name) in $slots"
+        #[name]="slotData"
+      >
+        <slot
+          :name="name"
+          v-bind="slotData"
+        />
       </template>
       <!-- 主表总结栏插槽
        * 使用方式：在组件中使用 <template #summary> 插槽
@@ -35,7 +41,10 @@
        *   </a-table-summary>
        * </template>
        -->
-      <template v-if="$slots.summary" #summary>
+      <template
+        v-if="$slots.summary"
+        #summary
+      >
         <slot name="summary" />
       </template>
     </a-table>
@@ -71,20 +80,23 @@
         :loading="detailLoading"
         :pagination="detailPaginationConfig"
         :row-key="detailRowKey"
-        :row-class-name="(_record: any, index: number) => (index % 2 === 1 ? 'table-striped' : null) as any"
+        :row-class-name="(_record: TableRecord, index: number) => (index % 2 === 1 ? 'table-striped' : '')"
         :scroll="detailScrollConfig"
         :virtual="detailVirtual"
         :size="size"
         :bordered="bordered"
         @change="handleDetailTableChange"
-      @resizeColumn="handleDetailResizeColumn"
+        @resize-column="handleDetailResizeColumn"
       >
         <template
           v-for="(_, name) in detailSlotNames"
           :key="name"
           #[name]="slotData"
         >
-          <slot :name="name" v-bind="slotData" />
+          <slot
+            :name="name"
+            v-bind="slotData"
+          />
         </template>
         <!-- 从表总结栏插槽
          * 使用方式：在组件中使用 <template #detail-summary> 插槽
@@ -98,7 +110,10 @@
          *   </a-table-summary>
          * </template>
          -->
-        <template v-if="$slots['detail-summary']" #summary>
+        <template
+          v-if="$slots['detail-summary']"
+          #summary
+        >
           <slot name="detail-summary" />
         </template>
       </a-table>
@@ -146,12 +161,34 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import type { TableColumnsType, TableProps } from 'ant-design-vue'
+import type {
+  ColumnType,
+  FilterValue,
+  SorterResult,
+  TableCurrentDataSource,
+  TablePaginationConfig
+} from 'ant-design-vue/es/table/interface'
 import { mergeDefaultColumns } from '@/utils/table-columns'
 import { useI18n } from 'vue-i18n'
 import TaktPagination from '@/components/business/takt-pagination/index.vue'
 import TaktColumnDrawer from '@/components/business/takt-column-drawer/index.vue'
+import { logger } from '@/utils/logger'
 
 const { t } = useI18n()
+type TableRecord = Record<string, unknown>
+type TableColumnLike = ColumnType<unknown> & {
+  key?: string | number
+  dataIndex?: string | number
+  title?: string | number
+  width?: string | number
+  ellipsis?: unknown
+}
+type TablePagination = { current?: number; pageSize?: number; total?: number }
+type TableSorter = {
+  field?: string | number | readonly (string | number)[]
+  order?: string
+}
+type TableFilters = Record<string, FilterValue | null>
 
 interface Props {
   /** 主表列配置
@@ -163,13 +200,13 @@ interface Props {
    */
   masterColumns: TableColumnsType
   /** 主表数据源 */
-  masterDataSource?: any[]
+  masterDataSource?: TableRecord[]
   /** 主表加载状态 */
   masterLoading?: boolean
   /** 主表行键 */
-  masterRowKey?: string | ((record: any) => string)
+  masterRowKey?: string | ((record: TableRecord) => string)
   /** 主表自定义行类名 */
-  masterRowClassName?: string | ((record: any, index: number) => string)
+  masterRowClassName?: string | ((record: TableRecord, index: number) => string)
   /** 主表是否启用斑马纹 */
   masterStripe?: boolean
   /** 是否显示主表分页 */
@@ -189,15 +226,15 @@ interface Props {
    * - 文本省略：在 columns 中设置 ellipsis: true/false 或 { ellipsis: { showTitle: true } }
    * - 列宽调整：在 columns 中设置 resizable: true/false，启用后可通过拖拽调整列宽，会触发 @detail-resize-column 事件
    */
-  detailColumns: TableColumnsType
+  detailColumns?: TableColumnsType
   /** 从表数据源 */
-  detailDataSource?: any[]
+  detailDataSource?: TableRecord[]
   /** 从表加载状态 */
   detailLoading?: boolean
   /** 从表行键 */
-  detailRowKey?: string | ((record: any) => string)
+  detailRowKey?: string | ((record: TableRecord) => string)
   /** 从表自定义行类名 */
-  detailRowClassName?: string | ((record: any, index: number) => string)
+  detailRowClassName?: string | ((record: TableRecord, index: number) => string)
   /** 从表是否启用斑马纹 */
   detailStripe?: boolean
   /** 是否显示从表分页 */
@@ -241,7 +278,7 @@ interface Props {
   /** 从表抽屉宽度 */
   detailDrawerWidth?: number | string
   /** 从表数据加载函数 */
-  loadDetailData?: (masterRecord: any, page: number, pageSize: number) => Promise<any[]>
+  loadDetailData?: (masterRecord: TableRecord, page: number, pageSize: number) => Promise<TableRecord[]>
   /** 是否默认启用所有列的文本省略（默认 true，会自动为没有设置 ellipsis 的列添加 ellipsis: true） */
   defaultEllipsis?: boolean
   /** 主表是否默认启用所有列的文本省略（默认 true，会自动为没有设置 ellipsis 的列添加 ellipsis: true） */
@@ -279,6 +316,7 @@ const props = withDefaults(defineProps<Props>(), {
   masterRowClassName: undefined,
   masterStripe: true,
   showMasterPagination: true,
+  masterPagination: undefined,
   masterCurrent: 1,
   masterPageSize: 10,
   masterTotal: 0,
@@ -289,6 +327,7 @@ const props = withDefaults(defineProps<Props>(), {
   detailRowClassName: undefined,
   detailStripe: true,
   showDetailPagination: true,
+  detailPagination: undefined,
   detailCurrent: 1,
   detailPageSize: 10,
   detailTotal: 0,
@@ -300,10 +339,14 @@ const props = withDefaults(defineProps<Props>(), {
   simplePagination: false,
   masterVirtual: false,
   detailVirtual: false,
+  masterScroll: undefined,
+  detailScroll: undefined,
   size: 'middle',
   bordered: false,
+  masterRowSelection: undefined,
   detailDrawerTitle: undefined,
   detailDrawerWidth: 800,
+  loadDetailData: undefined,
   defaultEllipsis: true,
   masterDefaultEllipsis: true,
   detailDefaultEllipsis: true,
@@ -325,15 +368,15 @@ const emit = defineEmits<{
   'update:masterPageSize': [pageSize: number]
   'update:detailCurrent': [page: number]
   'update:detailPageSize': [pageSize: number]
-  'master-change': [pagination: any, filters: any, sorter: any]
-  'detail-change': [pagination: any, filters: any, sorter: any]
-  'expand': [expanded: boolean, record: any]
+  'master-change': [pagination: TablePagination, filters: TableFilters, sorter: TableSorter | TableSorter[]]
+  'detail-change': [pagination: TablePagination, filters: TableFilters, sorter: TableSorter | TableSorter[]]
+  'expand': [expanded: boolean, record: TableRecord]
   'master-pagination-change': [page: number, pageSize: number]
   'detail-pagination-change': [page: number, pageSize: number]
   'master-column-setting-change': [keys: string[]]
   'detail-column-setting-change': [keys: string[]]
-  'master-resize-column': [width: number, column: any]
-  'detail-resize-column': [width: number, column: any]
+  'master-resize-column': [width: number, column: TableColumnLike]
+  'detail-resize-column': [width: number, column: TableColumnLike]
 }>()
 
 const masterCurrentPage = ref(props.masterCurrent)
@@ -342,7 +385,7 @@ const detailCurrentPage = ref(props.detailCurrent)
 const detailPageSize = ref(props.detailPageSize)
 const expandedRowKeys = ref<string[]>([])
 const detailDrawerVisible = ref(false)
-const currentMasterRecord = ref<any>(null)
+const currentMasterRecord = ref<TableRecord | null>(null)
 
 const detailDrawerTitleDisplay = computed(() => props.detailDrawerTitle ?? t('common.button.detail'))
 
@@ -351,7 +394,7 @@ const slots = useSlots()
 const detailSlotNames = computed(() => {
   return Object.keys(slots).filter(
     (name) => typeof name === 'string' && name.startsWith('detail-')
-  ) as string[]
+  )
 })
 
 // 监听 props 变化
@@ -390,7 +433,7 @@ const computedShowTotal = computed(() => {
   }
   if (props.showTotal === true) {
     // 默认显示总数函数
-    return (total: number, range: [number, number]) => t('components.navigation.systemSetting.totalCount', { total })
+    return (total: number, _range: [number, number]) => t('components.navigation.systemSetting.totalCount', { total })
   }
   // showTotal 为 false 或 undefined 时，返回 undefined（不显示总数）
   return undefined
@@ -421,7 +464,7 @@ const detailColumnSettingVisible = ref(false)
 const detailVisibleColumnKeys = ref<string[]>([])
 
 // 获取列键（统一转换为字符串）
-const getColumnKey = (column: any): string => {
+const getColumnKey = (column: ColumnType<unknown>): string => {
   const key = column.key || column.dataIndex || column.title
   return String(key)
 }
@@ -555,15 +598,17 @@ defineExpose({
 })
 
 // 处理主表列宽调整（使用 Ant Design Vue 原生支持）
-const handleMasterResizeColumn = (w: number, col: any) => {
-  col.width = w
-  emit('master-resize-column', w, col)
+const handleMasterResizeColumn = (w: number, col: ColumnType<unknown>) => {
+  const mutableColumn = col as TableColumnLike
+  mutableColumn.width = w
+  emit('master-resize-column', w, mutableColumn)
 }
 
 // 处理从表列宽调整（使用 Ant Design Vue 原生支持）
-const handleDetailResizeColumn = (w: number, col: any) => {
-  col.width = w
-  emit('detail-resize-column', w, col)
+const handleDetailResizeColumn = (w: number, col: ColumnType<unknown>) => {
+  const mutableColumn = col as TableColumnLike
+  mutableColumn.width = w
+  emit('detail-resize-column', w, mutableColumn)
 }
 
 // 处理主表列配置，默认启用 ellipsis，支持 resizable，设置默认列宽
@@ -572,8 +617,8 @@ const processedMasterColumns = computed(() => {
   // 计算可见列数（用于设置默认列宽）
   const visibleCount = masterVisibleColumnKeys.value.length || mergedMasterColumns.value.length
   
-  return mergedMasterColumns.value.map((column: any) => {
-    const processedColumn: any = { ...column }
+  return mergedMasterColumns.value.map((column) => {
+    const processedColumn = { ...column } as TableColumnLike & Record<string, unknown>
     
     // 如果列没有设置 width，默认设置为视口的 1/9（假设显示9个字段）
     if (!processedColumn.width && visibleCount > 0) {
@@ -599,7 +644,7 @@ const displayMasterColumns = computed(() => {
     // 如果未启用列设置，使用响应式默认显示
     const idKey = String(props.masterIdColumnKey)
     const actionKey = String(props.masterActionColumnKey)
-    const nonFixedColumns = processedMasterColumns.value.filter((col: any) => {
+    const nonFixedColumns = processedMasterColumns.value.filter((col) => {
       const key = getColumnKey(col)
       return key !== idKey && key !== actionKey
     })
@@ -609,10 +654,10 @@ const displayMasterColumns = computed(() => {
       : props.masterSmallScreenColumnCount
     
     const selectedNonFixed = nonFixedColumns.slice(0, columnCount)
-    const idColumn = processedMasterColumns.value.find((col: any) => getColumnKey(col) === idKey)
-    const actionColumn = processedMasterColumns.value.find((col: any) => getColumnKey(col) === actionKey)
+    const idColumn = processedMasterColumns.value.find((col) => getColumnKey(col as TableColumnLike) === idKey)
+    const actionColumn = processedMasterColumns.value.find((col) => getColumnKey(col as TableColumnLike) === actionKey)
     
-    const result: any[] = []
+    const result: Array<TableColumnLike & Record<string, unknown>> = []
     if (idColumn) result.push(idColumn)
     result.push(...selectedNonFixed)
     if (actionColumn) result.push(actionColumn)
@@ -626,8 +671,8 @@ const displayMasterColumns = computed(() => {
     return []
   }
   
-  return processedMasterColumns.value.filter((column: any) => {
-    const key = getColumnKey(column)
+  return processedMasterColumns.value.filter((column) => {
+    const key = getColumnKey(column as TableColumnLike)
     return masterVisibleColumnKeys.value.includes(key)
   })
 })
@@ -638,8 +683,8 @@ const processedDetailColumns = computed(() => {
   // 计算可见列数（用于设置默认列宽）
   const visibleCount = detailVisibleColumnKeys.value.length || mergedDetailColumns.value.length
   
-  return mergedDetailColumns.value.map((column: any) => {
-    const processedColumn: any = { ...column }
+  return mergedDetailColumns.value.map((column) => {
+    const processedColumn = { ...column } as TableColumnLike & Record<string, unknown>
     
     // 如果列没有设置 width，默认设置为视口的 1/9（假设显示9个字段）
     if (!processedColumn.width && visibleCount > 0) {
@@ -665,7 +710,7 @@ const displayDetailColumns = computed(() => {
     // 如果未启用列设置，使用响应式默认显示
     const idKey = String(props.detailIdColumnKey)
     const actionKey = String(props.detailActionColumnKey)
-    const nonFixedColumns = processedDetailColumns.value.filter((col: any) => {
+    const nonFixedColumns = processedDetailColumns.value.filter((col) => {
       const key = getColumnKey(col)
       return key !== idKey && key !== actionKey
     })
@@ -675,10 +720,10 @@ const displayDetailColumns = computed(() => {
       : props.detailSmallScreenColumnCount
     
     const selectedNonFixed = nonFixedColumns.slice(0, columnCount)
-    const idColumn = processedDetailColumns.value.find((col: any) => getColumnKey(col) === idKey)
-    const actionColumn = processedDetailColumns.value.find((col: any) => getColumnKey(col) === actionKey)
+    const idColumn = processedDetailColumns.value.find((col) => getColumnKey(col as TableColumnLike) === idKey)
+    const actionColumn = processedDetailColumns.value.find((col) => getColumnKey(col as TableColumnLike) === actionKey)
     
-    const result: any[] = []
+    const result: Array<TableColumnLike & Record<string, unknown>> = []
     if (idColumn) result.push(idColumn)
     result.push(...selectedNonFixed)
     if (actionColumn) result.push(actionColumn)
@@ -692,8 +737,8 @@ const displayDetailColumns = computed(() => {
     return []
   }
   
-  return processedDetailColumns.value.filter((column: any) => {
-    const key = getColumnKey(column)
+  return processedDetailColumns.value.filter((column) => {
+    const key = getColumnKey(column as TableColumnLike)
     return detailVisibleColumnKeys.value.includes(key)
   })
 })
@@ -709,12 +754,13 @@ const masterScrollConfig = computed(() => {
   
   // 如果没有设置 scroll.x，自动计算所有列的宽度总和，确保列宽按照配置显示
   if (!config.x) {
-    const totalWidth = displayMasterColumns.value.reduce((sum: number, col: any) => {
-      return sum + (col.width || 0)
+    const totalWidth = displayMasterColumns.value.reduce((sum: number, col) => {
+      const width = (col as TableColumnLike).width
+      return sum + (typeof width === 'number' ? width : 0)
     }, 0)
     
     // 如果所有列都有 width 配置，使用总和；否则使用 'max-content' 让表格自动计算
-    if (totalWidth > 0 && displayMasterColumns.value.every((col: any) => col.width)) {
+    if (totalWidth > 0 && displayMasterColumns.value.every((col) => !!(col as TableColumnLike).width)) {
       config.x = totalWidth
     } else {
       // 如果有些列没有 width，使用 'max-content' 确保表格能正确显示
@@ -739,12 +785,13 @@ const detailScrollConfig = computed(() => {
   
   // 如果没有设置 scroll.x，自动计算所有列的宽度总和，确保列宽按照配置显示
   if (!config.x) {
-    const totalWidth = displayDetailColumns.value.reduce((sum: number, col: any) => {
-      return sum + (col.width || 0)
+    const totalWidth = displayDetailColumns.value.reduce((sum: number, col) => {
+      const width = (col as TableColumnLike).width
+      return sum + (typeof width === 'number' ? width : 0)
     }, 0)
     
     // 如果所有列都有 width 配置，使用总和；否则使用 'max-content' 让表格自动计算
-    if (totalWidth > 0 && displayDetailColumns.value.every((col: any) => col.width)) {
+    if (totalWidth > 0 && displayDetailColumns.value.every((col) => !!(col as TableColumnLike).width)) {
       config.x = totalWidth
     } else {
       // 如果有些列没有 width，使用 'max-content' 确保表格能正确显示
@@ -760,29 +807,43 @@ const detailScrollConfig = computed(() => {
 })
 
 // 主表变化处理
-const handleMasterTableChange = (pagination: any, filters: any, sorter: any) => {
+const handleMasterTableChange = (
+  pagination: TablePaginationConfig,
+  filters: TableFilters,
+  sorter: SorterResult<TableRecord> | SorterResult<TableRecord>[],
+  _extra: TableCurrentDataSource<TableRecord>
+) => {
   if (pagination) {
-    masterCurrentPage.value = pagination.current
-    masterPageSize.value = pagination.pageSize
-    emit('update:masterCurrent', pagination.current)
-    emit('update:masterPageSize', pagination.pageSize)
+    const nextCurrent = pagination.current ?? masterCurrentPage.value
+    const nextPageSize = pagination.pageSize ?? masterPageSize.value
+    masterCurrentPage.value = nextCurrent
+    masterPageSize.value = nextPageSize
+    emit('update:masterCurrent', nextCurrent)
+    emit('update:masterPageSize', nextPageSize)
   }
-  emit('master-change', pagination, filters, sorter)
+  emit('master-change', pagination as TablePagination, filters, sorter as TableSorter | TableSorter[])
 }
 
 // 从表变化处理
-const handleDetailTableChange = (pagination: any, filters: any, sorter: any) => {
+const handleDetailTableChange = (
+  pagination: TablePaginationConfig,
+  filters: TableFilters,
+  sorter: SorterResult<TableRecord> | SorterResult<TableRecord>[],
+  _extra: TableCurrentDataSource<TableRecord>
+) => {
   if (pagination) {
-    detailCurrentPage.value = pagination.current
-    detailPageSize.value = pagination.pageSize
-    emit('update:detailCurrent', pagination.current)
-    emit('update:detailPageSize', pagination.pageSize)
+    const nextCurrent = pagination.current ?? detailCurrentPage.value
+    const nextPageSize = pagination.pageSize ?? detailPageSize.value
+    detailCurrentPage.value = nextCurrent
+    detailPageSize.value = nextPageSize
+    emit('update:detailCurrent', nextCurrent)
+    emit('update:detailPageSize', nextPageSize)
   }
-  emit('detail-change', pagination, filters, sorter)
+  emit('detail-change', pagination as TablePagination, filters, sorter as TableSorter | TableSorter[])
 }
 
 // 展开处理
-const handleExpand = async (expanded: boolean, record: any) => {
+const handleExpand = async (expanded: boolean, record: TableRecord) => {
   if (expanded) {
     currentMasterRecord.value = record
     detailDrawerVisible.value = true
@@ -790,7 +851,7 @@ const handleExpand = async (expanded: boolean, record: any) => {
     // 如果有加载函数，调用加载从表数据
     if (props.loadDetailData) {
       try {
-        const data = await props.loadDetailData(record, detailCurrentPage.value, detailPageSize.value)
+        await props.loadDetailData(record, detailCurrentPage.value, detailPageSize.value)
         // 这里需要父组件处理数据更新
       } catch (error) {
         logger.error('[TaktMasterDetailTable] 加载从表数据失败:', error)
@@ -832,7 +893,7 @@ const handleDetailPaginationChange = async (page: number, size: number) => {
   // 如果展开状态且有加载函数，重新加载数据
   if (detailDrawerVisible.value && currentMasterRecord.value && props.loadDetailData) {
     try {
-      const data = await props.loadDetailData(currentMasterRecord.value, page, size)
+      await props.loadDetailData(currentMasterRecord.value, page, size)
       // 这里需要父组件处理数据更新
     } catch (error) {
       logger.error('[TaktMasterDetailTable] 加载从表数据失败:', error)
@@ -850,7 +911,7 @@ const handleDetailPaginationSizeChange = async (current: number, size: number) =
   // 如果展开状态且有加载函数，重新加载数据
   if (detailDrawerVisible.value && currentMasterRecord.value && props.loadDetailData) {
     try {
-      const data = await props.loadDetailData(currentMasterRecord.value, current, size)
+      await props.loadDetailData(currentMasterRecord.value, current, size)
       // 这里需要父组件处理数据更新
     } catch (error) {
       logger.error('[TaktMasterDetailTable] 加载从表数据失败:', error)

@@ -11,18 +11,34 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" class="flow-todo-modal-form" layout="vertical" :model="form" :rules="formRules">
-    <a-form-item :label="t('workflow.instance.approveComment')" name="comment">
+  <a-form
+    ref="formRef"
+    class="flow-todo-modal-form"
+    layout="vertical"
+    :model="form"
+    :rules="formRules"
+  >
+    <a-form-item
+      :label="t('workflow.instance.approveComment')"
+      name="comment"
+    >
       <a-textarea
         v-model:value="form.comment"
         :rows="3"
         :placeholder="t('workflow.instance.frmDataPlaceholder')"
       />
     </a-form-item>
-    <a-form-item :label="t('workflow.instance.approveResult')" name="approved">
+    <a-form-item
+      :label="t('workflow.instance.approveResult')"
+      name="approved"
+    >
       <a-radio-group v-model:value="form.approved">
-        <a-radio :value="true">{{ t('workflow.instance.approvePass') }}</a-radio>
-        <a-radio :value="false">{{ t('workflow.instance.approveReject') }}</a-radio>
+        <a-radio :value="true">
+          {{ t('workflow.instance.approvePass') }}
+        </a-radio>
+        <a-radio :value="false">
+          {{ t('workflow.instance.approveReject') }}
+        </a-radio>
       </a-radio-group>
     </a-form-item>
     <a-form-item

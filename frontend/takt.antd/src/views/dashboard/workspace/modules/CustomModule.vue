@@ -1,9 +1,16 @@
 <template>
   <div class="custom-module">
-    <a-typography-paragraph v-if="customContent" class="custom-content">
+    <a-typography-paragraph
+      v-if="customContent"
+      class="custom-content"
+    >
       {{ customContent }}
     </a-typography-paragraph>
-    <a-empty v-else :description="t('dashboard.workspace.customPlaceholder')" :image="Empty.PRESENTED_IMAGE_SIMPLE" />
+    <a-empty
+      v-else
+      :description="t('dashboard.workspace.customPlaceholder')"
+      :image="Empty.PRESENTED_IMAGE_SIMPLE"
+    />
   </div>
 </template>
 

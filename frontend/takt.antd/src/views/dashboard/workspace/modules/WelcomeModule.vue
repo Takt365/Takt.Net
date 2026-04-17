@@ -1,8 +1,19 @@
 <template>
   <div class="welcome-module">
-    <a-row class="welcome-row" :gutter="16">
-      <a-col :span="12" class="welcome-greeting-col">{{ greetingText }}</a-col>
-      <a-col :span="12" class="welcome-date-col">
+    <a-row
+      class="welcome-row"
+      :gutter="16"
+    >
+      <a-col
+        :span="12"
+        class="welcome-greeting-col"
+      >
+        {{ greetingText }}
+      </a-col>
+      <a-col
+        :span="12"
+        class="welcome-date-col"
+      >
         <a-tooltip :title="dateTooltip">
           <span>{{ t('dashboard.workspace.currentTimeLabel') }} {{ dateText }}</span>
         </a-tooltip>
@@ -132,7 +143,7 @@ const greetingText = computed(() => {
 const quoteText = computed(() => {
   void currentLocale.value
   const holiday = holidayFromToken.value
-  if (holiday?.isHolidayToday && (holiday.holidayQuote ?? holiday.holidayGreeting)) return (holiday.holidayQuote ?? holiday.holidayGreeting)!
+  if (holiday?.isHolidayToday && (holiday.holidayQuote ?? holiday.holidayGreeting)) return (holiday.holidayQuote ?? holiday.holidayGreeting)
   const letters = 'abcdefghijklmnopqrstuvwxyz'
   const idx = now.value.getDate() % 26
   const key = `common.quote.${letters[idx]}`

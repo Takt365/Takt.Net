@@ -1,10 +1,24 @@
 <template>
   <div class="shortcut-module">
     <a-row :gutter="[16, 16]">
-      <a-col v-for="item in shortcuts" :key="item.path" :span="3">
-        <a-tooltip :title="item.title" placement="top">
-          <a class="shortcut-item" @click="go(item.path)">
-            <span class="shortcut-icon" v-if="item.icon" :style="item.iconColor ? { color: item.iconColor } : undefined"><component :is="item.icon" /></span>
+      <a-col
+        v-for="item in shortcuts"
+        :key="item.path"
+        :span="3"
+      >
+        <a-tooltip
+          :title="item.title"
+          placement="top"
+        >
+          <a
+            class="shortcut-item"
+            @click="go(item.path)"
+          >
+            <span
+              v-if="item.icon"
+              class="shortcut-icon"
+              :style="item.iconColor ? { color: item.iconColor } : undefined"
+            ><component :is="item.icon" /></span>
           </a>
         </a-tooltip>
       </a-col>
@@ -12,14 +26,20 @@
     <a-modal
       v-model:open="manageVisible"
       :title="t('dashboard.workspace.manageShortcuts')"
+      :width="520"
       @ok="handleManageOk"
       @cancel="handleManageCancel"
-      :width="520"
     >
-      <p class="shortcut-tip">最多选择 16 个菜单作为快捷入口（两行，每行 8 个）。</p>
+      <p class="shortcut-tip">
+        最多选择 16 个菜单作为快捷入口（两行，每行 8 个）。
+      </p>
       <a-checkbox-group v-model:value="editingPaths">
         <a-row :gutter="[8, 8]">
-          <a-col v-for="item in availableShortcuts" :key="item.path" :span="6">
+          <a-col
+            v-for="item in availableShortcuts"
+            :key="item.path"
+            :span="6"
+          >
             <a-checkbox
               :value="item.path"
               :disabled="editingPaths.length >= 16 && !editingPaths.includes(item.path)"

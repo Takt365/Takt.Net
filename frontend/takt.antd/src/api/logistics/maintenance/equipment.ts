@@ -1,9 +1,12 @@
 import request from '@/api/request'
+import type { Equipment, EquipmentQuery } from '@/types/logistics/maintenance/equipment'
 
 const equipmentUrl = '/api/TaktEquipments'
 
+type EquipmentPayload = Partial<Equipment>
+
 // 设备管理相关 API
-export function getEquipmentList(params: any) {
+export function getEquipmentList(params: EquipmentQuery) {
   return request({
     url: `${equipmentUrl}/list`,
     method: 'get',
@@ -18,7 +21,7 @@ export function getEquipmentById(id: string) {
   })
 }
 
-export function createEquipment(data: any) {
+export function createEquipment(data: EquipmentPayload) {
   return request({
     url: equipmentUrl,
     method: 'post',
@@ -26,7 +29,7 @@ export function createEquipment(data: any) {
   })
 }
 
-export function updateEquipment(id: string, data: any) {
+export function updateEquipment(id: string, data: EquipmentPayload) {
   return request({
     url: `${equipmentUrl}/${id}`,
     method: 'put',

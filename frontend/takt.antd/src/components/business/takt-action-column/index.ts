@@ -9,24 +9,26 @@ import { logger } from '@/utils/logger'
 
 const t = (key: string) => (i18n.global.t as (k: string) => string)(key)
 
+type ActionRecord = Record<string, unknown>
+
 export interface ActionColumnItem {
   key: string
   label?: string
   /** 按钮形状：standard（标准，图标+文本）、plain（透明背景，图标或图标+文本）、circle（圆形，只显示图标） */
   shape?: 'standard' | 'plain' | 'circle'
   size?: 'small' | 'middle' | 'large'
-  disabled?: boolean | ((record: any, index: number) => boolean)
-  disabledFn?: (record: any, index: number) => boolean
-  loading?: boolean | ((record: any, index: number) => boolean)
-  loadingFn?: (record: any, index: number) => boolean
+  disabled?: boolean | ((record: ActionRecord, index: number) => boolean)
+  disabledFn?: (record: ActionRecord, index: number) => boolean
+  loading?: boolean | ((record: ActionRecord, index: number) => boolean)
+  loadingFn?: (record: ActionRecord, index: number) => boolean
   /** 是否显示按钮，可以是布尔值或函数（根据记录动态判断） */
-  visible?: boolean | ((record: any, index: number) => boolean)
+  visible?: boolean | ((record: ActionRecord, index: number) => boolean)
   /** 图标组件或 CSS 类名（如 'ri-edit-line'） */
   icon?: Component | string
   permission?: string
   /** 按钮样式类名（如：takt-button-detail） */
   buttonClass?: string
-  onClick?: (record: any, index: number) => void
+  onClick?: (record: ActionRecord, index: number) => void
 }
 
 export interface ActionColumnOptions {
@@ -60,7 +62,7 @@ export function CreateActionColumn(options: ActionColumnOptions): TableColumnsTy
     fixed,
     align,
     className: 'takt-action-column',
-    customRender: ({ record, index }: { record: any; index: number }) => {
+    customRender: ({ record, index }: { record: ActionRecord; index: number }) => {
       // 严格过滤：只有有权限且可见的操作才显示
       const filteredActions = actions.filter(action => {
         try {

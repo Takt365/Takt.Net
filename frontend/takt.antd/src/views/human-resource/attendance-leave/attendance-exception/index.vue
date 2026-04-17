@@ -86,7 +86,11 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <AttendanceExceptionForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <AttendanceExceptionForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
 
     <!-- 高级查询：字段与 TaktAttendanceExceptionQueryDto 一致（前端 AttendanceExceptionQuery） -->
@@ -100,16 +104,35 @@
         <a-input v-model:value="advancedQueryForm.employeeId" />
       </a-form-item>
       <a-form-item :label="t('entity.attendanceexception.exceptiontype')">
-        <a-input-number v-model:value="advancedQueryForm.exceptionType" :min="1" style="width: 100%" allow-clear />
+        <a-input-number
+          v-model:value="advancedQueryForm.exceptionType"
+          :min="1"
+          style="width: 100%"
+          allow-clear
+        />
       </a-form-item>
       <a-form-item :label="t('entity.attendanceexception.handlestatus')">
-        <a-input-number v-model:value="advancedQueryForm.handleStatus" :min="0" :max="2" style="width: 100%" allow-clear />
+        <a-input-number
+          v-model:value="advancedQueryForm.handleStatus"
+          :min="0"
+          :max="2"
+          style="width: 100%"
+          allow-clear
+        />
       </a-form-item>
       <a-form-item :label="t('entity.attendanceexception.datefrom')">
-        <a-date-picker v-model:value="advancedQueryForm.from" value-format="YYYY-MM-DD" style="width: 100%" />
+        <a-date-picker
+          v-model:value="advancedQueryForm.from"
+          value-format="YYYY-MM-DD"
+          style="width: 100%"
+        />
       </a-form-item>
       <a-form-item :label="t('entity.attendanceexception.dateto')">
-        <a-date-picker v-model:value="advancedQueryForm.to" value-format="YYYY-MM-DD" style="width: 100%" />
+        <a-date-picker
+          v-model:value="advancedQueryForm.to"
+          value-format="YYYY-MM-DD"
+          style="width: 100%"
+        />
       </a-form-item>
     </TaktQueryDrawer>
 
@@ -605,7 +628,7 @@ const handleExport = async () => {
     const resBlob =
       typeof blob === 'object' && blob !== null && 'data' in blob && blob.data instanceof Blob
         ? blob.data
-        : (blob as Blob)
+        : (blob)
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
     const fileName = `${exceptionExcelNames.fileBase}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`

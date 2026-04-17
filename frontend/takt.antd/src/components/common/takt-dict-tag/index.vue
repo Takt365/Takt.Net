@@ -27,7 +27,7 @@ import type { TaktSelectOption } from '@/types/common'
 
 interface Props {
   /** 字典选项数据（支持 TaktSelectOption 对象） */
-  option?: TaktSelectOption | Record<string, any>
+  option?: TaktSelectOption | Record<string, unknown>
   /** 字典值（如果提供了 option，则优先使用 option.dictValue；如果提供了 dictType，则从 store 中查找） */
   value?: string | number
   /** 字典标签（如果提供了 option，则优先使用 option.dictLabel） */
@@ -41,6 +41,11 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  option: undefined,
+  value: undefined,
+  label: undefined,
+  dictType: undefined,
+  color: undefined,
   size: 'middle'
 })
 

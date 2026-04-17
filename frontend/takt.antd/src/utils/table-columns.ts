@@ -11,6 +11,18 @@
 // ========================================
 
 import type { TableColumnsType } from 'ant-design-vue'
+import type { ColumnGroupType, ColumnType } from 'ant-design-vue/es/table'
+
+/** 表格行占位（默认实体列排序/过滤用） */
+type RowRecord = Record<string, unknown>
+
+type ColumnItem = ColumnType<RowRecord> | ColumnGroupType<RowRecord>
+
+function getColumnKey(col: ColumnItem | Record<string, unknown>): string | undefined {
+  const c = col as { key?: string | number; dataIndex?: string | number }
+  const k = c.key ?? c.dataIndex
+  return k != null && k !== '' ? String(k) : undefined
+}
 
 /**
  * 审计字段列表（如果 includeAuditFields 为 false，这些字段会被过滤掉）
@@ -28,6 +40,8 @@ const AUDIT_FIELDS = [
   'deletedBy',
   'deletedAt'
 ] as const
+
+type AuditFieldName = (typeof AUDIT_FIELDS)[number]
 
 /**
  * 获取默认字段列配置（对应 TaktEntityBase）
@@ -78,9 +92,9 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
       title: t('common.entity.createTime'),
       width: 180,
       ellipsis: true,
-      sorter: (a: any, b: any) => {
-        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0
-        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      sorter: (a: RowRecord, b: RowRecord) => {
+        const aTime = a.createdAt ? new Date(String(a.createdAt)).getTime() : 0
+        const bTime = b.createdAt ? new Date(String(b.createdAt)).getTime() : 0
         return aTime - bTime
       }
     },
@@ -104,9 +118,9 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
       title: t('common.entity.updateTime'),
       width: 180,
       ellipsis: true,
-      sorter: (a: any, b: any) => {
-        const aTime = a.updatedAt ? new Date(a.updatedAt).getTime() : 0
-        const bTime = b.updatedAt ? new Date(b.updatedAt).getTime() : 0
+      sorter: (a: RowRecord, b: RowRecord) => {
+        const aTime = a.updatedAt ? new Date(String(a.updatedAt)).getTime() : 0
+        const bTime = b.updatedAt ? new Date(String(b.updatedAt)).getTime() : 0
         return aTime - bTime
       }
     },
@@ -116,9 +130,9 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
       title: t('common.entity.isDeleted'),
       width: 100,
       ellipsis: true,
-      sorter: (a: any, b: any) => {
-        const aValue = a.isDeleted ?? 0
-        const bValue = b.isDeleted ?? 0
+      sorter: (a: RowRecord, b: RowRecord) => {
+        const aValue = Number(a.isDeleted ?? 0)
+        const bValue = Number(b.isDeleted ?? 0)
         return aValue - bValue
       }
     },
@@ -142,9 +156,9 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
       title: t('common.entity.deletedTime'),
       width: 180,
       ellipsis: true,
-      sorter: (a: any, b: any) => {
-        const aTime = a.deletedAt ? new Date(a.deletedAt).getTime() : 0
-        const bTime = b.deletedAt ? new Date(b.deletedAt).getTime() : 0
+      sorter: (a: RowRecord, b: RowRecord) => {
+        const aTime = a.deletedAt ? new Date(String(a.deletedAt)).getTime() : 0
+        const bTime = b.deletedAt ? new Date(String(b.deletedAt)).getTime() : 0
         return aTime - bTime
       }
     }
@@ -153,8 +167,8 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
   // 如果不需要包含审计字段，则过滤掉
   if (!includeAuditFields) {
     return allColumns.filter(col => {
-      const key = col.key || (col as any).dataIndex
-      return key && !AUDIT_FIELDS.includes(key as any)
+      const key = getColumnKey(col as ColumnItem)
+      return key != null && !AUDIT_FIELDS.includes(key as AuditFieldName)
     })
   }
   
@@ -178,25 +192,25 @@ export function mergeDefaultColumns(userColumns: TableColumnsType, t: (key: stri
     // 检查是否为 ColumnGroupType（有 children 属性）
     if ('children' in col && col.children) {
       // 如果是分组列，递归处理子列
-      col.children.forEach((childCol: any) => {
-        const key = childCol.key || childCol.dataIndex
+      col.children.forEach((childCol: ColumnType<RowRecord>) => {
+        const key = getColumnKey(childCol)
         if (key) {
-          userColumnKeys.add(String(key))
+          userColumnKeys.add(key)
         }
       })
     } else {
       // 普通列
-      const key = (col as any).key || (col as any).dataIndex
+      const key = getColumnKey(col as ColumnItem)
       if (key) {
-        userColumnKeys.add(String(key))
+        userColumnKeys.add(key)
       }
     }
   })
   
   // 过滤出用户未定义的默认列
   const missingDefaultColumns = defaultColumns.filter(col => {
-    const key = col.key || (col as any).dataIndex
-    return key && !userColumnKeys.has(String(key))
+    const key = getColumnKey(col as ColumnItem)
+    return key != null && !userColumnKeys.has(key)
   })
   
   // 分离操作列（key='action' 或 fixed='right' 的列）
@@ -204,10 +218,11 @@ export function mergeDefaultColumns(userColumns: TableColumnsType, t: (key: stri
   const actionColumns: TableColumnsType = []
   const otherUserColumns: TableColumnsType = []
   
-  userColumns.forEach((col: any) => {
-    const key = col.key || col.dataIndex
+  userColumns.forEach((col) => {
+    const item = col as ColumnItem
+    const key = getColumnKey(item)
     // 如果是操作列（key='action'）或固定右侧的列，放到操作列数组
-    if (key === 'action' || col.fixed === 'right') {
+    if (key === 'action' || item.fixed === 'right') {
       actionColumns.push(col)
     } else {
       otherUserColumns.push(col)
@@ -219,14 +234,15 @@ export function mergeDefaultColumns(userColumns: TableColumnsType, t: (key: stri
   
   // 如果不包含审计字段，过滤掉用户定义的审计字段列
   if (!includeAuditFields) {
-    return mergedColumns.map((col: any) => {
-      const key = col.key || col.dataIndex
+    return mergedColumns.map((col) => {
+      const item = col as ColumnItem
+      const key = getColumnKey(item)
       // 如果是分组列，检查子列
-      if ('children' in col && col.children) {
+      if ('children' in item && item.children) {
         // 过滤子列中的审计字段
-        const filteredChildren = col.children.filter((childCol: any) => {
-          const childKey = childCol.key || childCol.dataIndex
-          return childKey && !AUDIT_FIELDS.includes(childKey as any)
+        const filteredChildren = item.children.filter((childCol: ColumnItem) => {
+          const childKey = getColumnKey(childCol)
+          return childKey != null && !AUDIT_FIELDS.includes(childKey as AuditFieldName)
         })
         // 如果所有子列都被过滤掉了，返回 null（后续会被过滤掉）
         if (filteredChildren.length === 0) {
@@ -234,16 +250,16 @@ export function mergeDefaultColumns(userColumns: TableColumnsType, t: (key: stri
         }
         // 创建新的分组列对象，包含过滤后的子列
         return {
-          ...col,
+          ...item,
           children: filteredChildren
         }
       }
       // 普通列：如果是审计字段，返回 null（后续会被过滤掉）
-      if (key && AUDIT_FIELDS.includes(key as any)) {
+      if (key != null && AUDIT_FIELDS.includes(key as AuditFieldName)) {
         return null
       }
       return col
-    }).filter((col: any) => col !== null) as TableColumnsType
+    }).filter((col): col is ColumnItem => col !== null) as TableColumnsType
   }
   
   return mergedColumns

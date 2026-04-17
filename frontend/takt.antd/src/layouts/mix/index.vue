@@ -16,7 +16,7 @@
             class="logo-image"
             @error="(e) => { logoError = true; console.error('[MixLayout] Logo 图片加载失败:', { logoUrl, error: e }) }"
             @load="() => console.log('[MixLayout] Logo 图片加载成功:', logoUrl)"
-          />
+          >
           <span class="title-text">{{ settingSafe.logoText }}</span>
         </div>
       </template>
@@ -52,7 +52,10 @@
       
       <!-- 内容区域 -->
       <a-layout :style="{ marginLeft: settingSafe.fixedSider ? (collapsed ? settingSafe.siderCollapsedWidth + 'px' : settingSafe.siderWidth + 'px') : 0 }">
-        <a-layout-content :class="['layout-content', `content-width-${settingSafe.contentWidth}`]" :style="{ marginBottom: '2px', maxWidth: settingSafe.contentWidth === 'fixed' ? '1200px' : 'none', marginLeft: settingSafe.contentWidth === 'fixed' ? 'auto' : '0', marginRight: settingSafe.contentWidth === 'fixed' ? 'auto' : '0', maxHeight: contentMaxHeight }">
+        <a-layout-content
+          :class="['layout-content', `content-width-${settingSafe.contentWidth}`]"
+          :style="{ marginBottom: '2px', maxWidth: settingSafe.contentWidth === 'fixed' ? '1200px' : 'none', marginLeft: settingSafe.contentWidth === 'fixed' ? 'auto' : '0', marginRight: settingSafe.contentWidth === 'fixed' ? 'auto' : '0', maxHeight: contentMaxHeight }"
+        >
           <RouterView />
         </a-layout-content>
         <TaktFooter :height="40" />
@@ -69,6 +72,7 @@ import { defaultSetting, useSettingStore } from '@/stores/setting'
 import { useUserStore } from '@/stores/identity/user'
 import { useMenuStore } from '@/stores/identity/menu'
 import { ensureMenuAndRoutesLoaded } from '@/router'
+type HeaderHeight = 32 | 40 | 48
 
 const themeStore = useThemeStore()
 const { setting } = storeToRefs(useSettingStore())
@@ -97,7 +101,13 @@ const logoUrl = computed(() => {
   }
 })
 
-const headerHeight = computed(() => (settingSafe.value as any)?.headerHeight ?? 40)
+const headerHeight = computed(() => {
+  const headerHeightValue = (settingSafe.value as Record<string, unknown>)?.headerHeight
+  if (headerHeightValue === 32 || headerHeightValue === 40 || headerHeightValue === 48) {
+    return headerHeightValue
+  }
+  return 40 as HeaderHeight
+})
 
 const contentMaxHeight = computed(() => 'calc(100vh - 44px)')
 </script>

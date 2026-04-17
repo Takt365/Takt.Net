@@ -13,8 +13,10 @@
 // ========================================
 
 using Microsoft.Extensions.DependencyInjection;
+using SqlSugar;
 using Takt.Domain.Entities.Identity;
 using Takt.Domain.Repositories;
+using Takt.Infrastructure.Data;
 
 namespace Takt.Infrastructure.Data.Seeds.SeedData;
 
@@ -28,6 +30,11 @@ namespace Takt.Infrastructure.Data.Seeds.SeedData;
 public class TaktMenuLevel3SeedData
 {
     /// <summary>
+    /// 当前种子执行期间的菜单数据库客户端（用于查询包含软删除的数据）。
+    /// </summary>
+    private static ISqlSugarClient? _menuDbClient;
+
+    /// <summary>
     /// 初始化三级菜单种子数据。
     /// <para>
     /// 分块写入：日常业务、基础任务、财务会计/管理会计、物料与采购、销售、生产制造、质量、
@@ -40,6 +47,8 @@ public class TaktMenuLevel3SeedData
     public static async Task<(int InsertCount, int UpdateCount)> SeedAsync(IServiceProvider serviceProvider, string configId)
     {
         var menuRepository = serviceProvider.GetRequiredService<ITaktRepository<TaktMenu>>();
+        var dbContext = serviceProvider.GetRequiredService<TaktSqlSugarDbContext>();
+        _menuDbClient = dbContext.GetClient(typeof(TaktMenu));
 
         int insertCount = 0;
         int updateCount = 0;
@@ -355,10 +364,73 @@ public class TaktMenuLevel3SeedData
         // ========== 财务会计下的三级菜单（5.财务会计）==========
         if (accountingFinancialMenu != null)
         {
-            // 公司信息
-            var (insert6, update6) = await CreateOrUpdateMenuAsync(menuRepository, "ACCOUNTING_FINANCIAL_COMPANY", menu =>
+            // 会计科目
+            var (insertTitle, updateTitle) = await CreateOrUpdateMenuAsync(menuRepository, "ACCOUNTING_FINANCIAL_TITLE", menu =>
             {
-                menu.MenuName = "公司信息";
+                menu.MenuName = "会计科目";
+                menu.MenuCode = "ACCOUNTING_FINANCIAL_TITLE";
+                menu.MenuL10nKey = "menu.accounting.financial.title";
+                menu.MenuIcon = "RiBook2Line";
+                menu.ParentId = accountingFinancialMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "accounting:financial:title:list";
+                menu.Path = "/accounting/financial/title";
+                menu.Component = "accounting/financial/title/index";
+                menu.OrderNum = 1;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insertTitle;
+            updateCount += updateTitle;
+
+            // 固定资产
+            var (insertFixedAsset, updateFixedAsset) = await CreateOrUpdateMenuAsync(menuRepository, "ACCOUNTING_FINANCIAL_FIXED_ASSET", menu =>
+            {
+                menu.MenuName = "固定资产";
+                menu.MenuCode = "ACCOUNTING_FINANCIAL_FIXED_ASSET";
+                menu.MenuL10nKey = "menu.accounting.financial.fixedasset";
+                menu.MenuIcon = "RiMoneyDollarCircleLine";
+                menu.ParentId = accountingFinancialMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "accounting:financial:fixedasset:list";
+                menu.Path = "/accounting/financial/fixed-asset";
+                menu.Component = "accounting/financial/fixed-asset/index";
+                menu.OrderNum = 2;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insertFixedAsset;
+            updateCount += updateFixedAsset;
+
+            // 会签管理
+            var (insertCountersign, updateCountersign) = await CreateOrUpdateMenuAsync(menuRepository, "ACCOUNTING_FINANCIAL_COUNTERSIGN", menu =>
+            {
+                menu.MenuName = "会签管理";
+                menu.MenuCode = "ACCOUNTING_FINANCIAL_COUNTERSIGN";
+                menu.MenuL10nKey = "menu.accounting.financial.countersign";
+                menu.MenuIcon = "RiFileList3Line";
+                menu.ParentId = accountingFinancialMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "accounting:financial:countersign:list";
+                menu.Path = "/accounting/financial/countersign";
+                menu.Component = "accounting/financial/countersign/index";
+                menu.OrderNum = 3;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insertCountersign;
+            updateCount += updateCountersign;
+
+            // 公司管理
+            var (insertCompany, updateCompany) = await CreateOrUpdateMenuAsync(menuRepository, "ACCOUNTING_FINANCIAL_COMPANY", menu =>
+            {
+                menu.MenuName = "公司管理";
                 menu.MenuCode = "ACCOUNTING_FINANCIAL_COMPANY";
                 menu.MenuL10nKey = "menu.accounting.financial.company";
                 menu.MenuIcon = "RiBuildingLine";
@@ -367,19 +439,40 @@ public class TaktMenuLevel3SeedData
                 menu.Permission = "accounting:financial:company:list";
                 menu.Path = "/accounting/financial/company";
                 menu.Component = "accounting/financial/company/index";
+                menu.OrderNum = 4;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insertCompany;
+            updateCount += updateCompany;
+        }
+
+        // ========== 管理会计下的三级菜单（5.管理会计）==========
+        if (accountingControllingMenu != null)
+        {
+            // 利润中心
+            var (insertProfitCenter, updateProfitCenter) = await CreateOrUpdateMenuAsync(menuRepository, "ACCOUNTING_CONTROLLING_PROFIT_CENTER", menu =>
+            {
+                menu.MenuName = "利润中心";
+                menu.MenuCode = "ACCOUNTING_CONTROLLING_PROFIT_CENTER";
+                menu.MenuL10nKey = "menu.accounting.controlling.profitcenter";
+                menu.MenuIcon = "RiLineChartLine";
+                menu.ParentId = accountingControllingMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "accounting:controlling:profitcenter:list";
+                menu.Path = "/accounting/controlling/profit-center";
+                menu.Component = "accounting/controlling/profit-center/index";
                 menu.OrderNum = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
                 menu.IsExternal = 0;
             });
-            insertCount += insert6;
-            updateCount += update6;
-        }
+            insertCount += insertProfitCenter;
+            updateCount += updateProfitCenter;
 
-        // ========== 管理会计下的三级菜单（5.财务会计）==========
-        if (accountingControllingMenu != null)
-        {
             // 成本中心
             var (insert7, update7) = await CreateOrUpdateMenuAsync(menuRepository, "ACCOUNTING_CONTROLLING_COST_CENTER", menu =>
             {
@@ -392,7 +485,7 @@ public class TaktMenuLevel3SeedData
                 menu.Permission = "accounting:controlling:costcenter:list";
                 menu.Path = "/accounting/controlling/cost-center";
                 menu.Component = "accounting/controlling/cost-center/index";
-                menu.OrderNum = 1;
+                menu.OrderNum = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -400,6 +493,48 @@ public class TaktMenuLevel3SeedData
             });
             insertCount += insert7;
             updateCount += update7;
+
+            // 成本要素
+            var (insertCostElement, updateCostElement) = await CreateOrUpdateMenuAsync(menuRepository, "ACCOUNTING_CONTROLLING_COST_ELEMENT", menu =>
+            {
+                menu.MenuName = "成本要素";
+                menu.MenuCode = "ACCOUNTING_CONTROLLING_COST_ELEMENT";
+                menu.MenuL10nKey = "menu.accounting.controlling.costelement";
+                menu.MenuIcon = "RiStackLine";
+                menu.ParentId = accountingControllingMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "accounting:controlling:costelement:list";
+                menu.Path = "/accounting/controlling/cost-element";
+                menu.Component = "accounting/controlling/cost-element/index";
+                menu.OrderNum = 3;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insertCostElement;
+            updateCount += updateCostElement;
+
+            // 工资率
+            var (insertWageRate, updateWageRate) = await CreateOrUpdateMenuAsync(menuRepository, "ACCOUNTING_CONTROLLING_WAGE_RATE", menu =>
+            {
+                menu.MenuName = "工资率";
+                menu.MenuCode = "ACCOUNTING_CONTROLLING_WAGE_RATE";
+                menu.MenuL10nKey = "menu.accounting.controlling.wagerate";
+                menu.MenuIcon = "RiPercentLine";
+                menu.ParentId = accountingControllingMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "accounting:controlling:wagerate:list";
+                menu.Path = "/accounting/controlling/wage-rate";
+                menu.Component = "accounting/controlling/wage-rate/index";
+                menu.OrderNum = 4;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insertWageRate;
+            updateCount += updateWageRate;
         }
 
         // ========== 物料管理下的三级菜单（6.后勤-物料）==========
@@ -1680,7 +1815,7 @@ public class TaktMenuLevel3SeedData
 
             var (insertAopLog, updateAopLog) = await CreateOrUpdateMenuAsync(menuRepository, "LOGGING_AOP_LOG", menu =>
             {
-                menu.MenuName = "AOP鏃ュ織";
+                menu.MenuName = "AOP日志";
                 menu.MenuCode = "LOGGING_AOP_LOG";
                 menu.MenuL10nKey = "menu.statistics.logging.aoplog";
                 menu.MenuIcon = "RiTerminalBoxLine";
@@ -1853,6 +1988,7 @@ public class TaktMenuLevel3SeedData
             updateCount += update17;
         }
 
+        _menuDbClient = null;
         return (insertCount, updateCount);
     }
 
@@ -1872,7 +2008,20 @@ public class TaktMenuLevel3SeedData
         string menuCode,
         Action<TaktMenu> setupAction)
     {
-        var menu = await menuRepository.GetAsync(m => m.MenuCode == menuCode);
+        TaktMenu? menu;
+        if (_menuDbClient != null)
+        {
+            menu = await _menuDbClient.Queryable<TaktMenu>()
+                .Where(m => m.MenuCode == menuCode)
+                .OrderBy(m => m.IsDeleted, OrderByType.Asc)
+                .OrderBy(m => m.UpdatedAt, OrderByType.Desc)
+                .FirstAsync();
+        }
+        else
+        {
+            // 兜底：保持原逻辑（仅查询未软删除）
+            menu = await menuRepository.GetAsync(m => m.MenuCode == menuCode);
+        }
 
         if (menu == null)
         {
@@ -1888,6 +2037,13 @@ public class TaktMenuLevel3SeedData
         }
 
         // 存在则更新
+        if (menu.IsDeleted != 0)
+        {
+            menu.IsDeleted = 0;
+            menu.DeletedAt = null;
+            menu.DeletedById = null;
+            menu.DeletedBy = null;
+        }
         setupAction(menu);
         await menuRepository.UpdateAsync(menu);
         return (0, 1);

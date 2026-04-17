@@ -1,6 +1,9 @@
 <template>
   <div class="notice-module">
-    <a-empty :description="t('dashboard.workspace.noticePlaceholder')" :image="Empty.PRESENTED_IMAGE_SIMPLE" />
+    <a-empty
+      :description="t('dashboard.workspace.noticePlaceholder')"
+      :image="Empty.PRESENTED_IMAGE_SIMPLE"
+    />
   </div>
 </template>
 

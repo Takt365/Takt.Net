@@ -79,7 +79,11 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <AnnouncementForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <AnnouncementForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
     <TaktQueryDrawer
       v-model:open="advancedQueryVisible"
@@ -88,10 +92,18 @@
       @reset="handleAdvancedQueryReset"
     >
       <a-form-item label="公告编码">
-        <a-input v-model:value="advancedQueryForm.announcementCode" placeholder="公告编码" allow-clear />
+        <a-input
+          v-model:value="advancedQueryForm.announcementCode"
+          placeholder="公告编码"
+          allow-clear
+        />
       </a-form-item>
       <a-form-item label="公告标题">
-        <a-input v-model:value="advancedQueryForm.announcementTitle" placeholder="公告标题" allow-clear />
+        <a-input
+          v-model:value="advancedQueryForm.announcementTitle"
+          placeholder="公告标题"
+          allow-clear
+        />
       </a-form-item>
       <a-form-item label="公告类型">
         <a-select

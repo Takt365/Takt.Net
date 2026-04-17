@@ -63,7 +63,7 @@ public async Task<ActionResult<TaktPagedResult<TaktFlowSchemeDto>>> GetListAsync
 ```
 
 - 第一个参数：权限码，必须与菜单中按钮的 `Permission` 字段一致。
-- 第二个参数：中文说明，用于生成权限/菜单文档或 Swagger 描述。
+- 第二个参数：中文说明，用于生成权限/菜单文档或 OpenAPI 中的操作说明。
 - 不需要权限但需要登录时使用 `[AllowAnonymous]` 之外的项目自定义特性（若有），或在业务中显式允许。
 
 ## 4. 菜单与按钮配置

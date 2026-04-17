@@ -95,7 +95,11 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <AttendanceDeviceForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <AttendanceDeviceForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
 
     <!-- 高级查询：字段与 TaktAttendanceDeviceQueryDto 一致（前端 AttendanceDeviceQuery） -->
@@ -312,9 +316,9 @@ const getDeviceId = (record: AttendanceDevice): string => {
  *
  * @param {AttendanceDevice} record - 行
  * @param {string} field - 字段名
- * @returns {any}
+ * @returns {unknown}
  */
-const getDeviceField = (record: AttendanceDevice, field: string): any =>
+const getDeviceField = (record: AttendanceDevice, field: string): unknown =>
   (record as unknown as Record<string, unknown>)[field]
 
 function coerceAdvancedDeviceStatus(value: string | number | undefined | null): number | undefined {
@@ -724,7 +728,7 @@ const handleExport = async () => {
     const resBlob =
       typeof blob === 'object' && blob !== null && 'data' in blob && blob.data instanceof Blob
         ? blob.data
-        : (blob as Blob)
+        : (blob)
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
     const fileName = `${deviceExcelNames.fileBase}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`

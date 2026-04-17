@@ -16,22 +16,35 @@
     v-bind="modalProps"
     @cancel="handleCancel"
   >
-    <template v-if="$slots.default" #default>
+    <template
+      v-if="$slots.default"
+      #default
+    >
       <slot />
     </template>
-    <template v-if="$slots.title" #title>
+    <template
+      v-if="$slots.title"
+      #title
+    >
       <slot name="title" />
     </template>
     <template #footer>
       <slot name="footer">
         <div class="takt-modal-footer-default">
-          <a-button @click="handleCancel" class="takt-modal-btn-cancel">
+          <a-button
+            class="takt-modal-btn-cancel"
+            @click="handleCancel"
+          >
             <template #icon>
               <RiCloseLine />
             </template>
             {{ cancelTextDisplay }}
           </a-button>
-          <a-button type="primary" @click="handleOk" class="takt-modal-btn-ok">
+          <a-button
+            type="primary"
+            class="takt-modal-btn-ok"
+            @click="handleOk"
+          >
             <template #icon>
               <RiCheckLine />
             </template>
@@ -40,7 +53,10 @@
         </div>
       </slot>
     </template>
-    <template v-if="$slots.closeIcon" #closeIcon>
+    <template
+      v-if="$slots.closeIcon"
+      #closeIcon
+    >
       <slot name="closeIcon" />
     </template>
   </a-modal>
@@ -89,14 +105,15 @@ const internalOpen = computed({
 
 // 计算 modal 的所有属性，排除已定义的 props；统一默认弹出大小：视口 70% 宽、85% 高；默认垂直水平居中（与 a-modal 的 centered 一致）
 const modalProps = computed(() => {
-  const { okText, cancelText, open, centered, ...rest } = attrs
+  const { centered, ...rest } = attrs
   const wrapClassName = [rest.wrapClassName, 'takt-modal-viewport-size'].filter(Boolean).join(' ')
   const width = rest.width !== undefined && rest.width !== null ? rest.width : '70vw'
+  const normalizedCentered = typeof centered === 'boolean' ? centered : true
   return {
     ...rest,
     width: width as string | number,
     wrapClassName,
-    centered: centered !== undefined && centered !== null ? centered : true
+    centered: normalizedCentered
   }
 })
 

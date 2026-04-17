@@ -29,7 +29,7 @@ namespace Takt.WebApi.Controllers.Identity;
 /// 创建时间: 2025-01-20
 /// </remarks>
 [Route("api/[controller]", Name = "租户")]
-[ApiModule("Identity", "租户管理")]
+[ApiModule("Identity", "身份认证")]
 [TaktPermission("identity:tenant", "租户管理")]
 public class TaktTenantsController : TaktControllerBase
 {

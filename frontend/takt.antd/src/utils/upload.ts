@@ -11,9 +11,20 @@
 // ========================================
 
 import service from '@/api/request'
-import type { AxiosProgressEvent, CancelTokenSource } from 'axios'
+import axios, { type AxiosProgressEvent, type CancelTokenSource } from 'axios'
 import { logger } from './logger'
 import SparkMD5 from 'spark-md5'
+
+function isUploadCancelled(error: unknown): boolean {
+  if (axios.isCancel(error)) return true
+  const e = error as { __CANCEL__?: boolean; message?: string }
+  return e.__CANCEL__ === true || (typeof e.message === 'string' && e.message.includes('canceled'))
+}
+
+function uploadErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message
+  return String(error)
+}
 
 /**
  * 文件上传状态
@@ -88,11 +99,11 @@ export interface UploadFileInfo {
   /** 上传结束时间 */
   endTime?: number
   /** 上传响应数据 */
-  response?: any
+  response?: unknown
   /** 错误信息 */
   error?: Error
   /** 自定义参数 */
-  params?: Record<string, any>
+  params?: Record<string, unknown>
 }
 
 /**
@@ -116,11 +127,11 @@ export interface UploadOptions {
   /** 重试延迟时间（毫秒） */
   retryDelay?: number
   /** 上传参数 */
-  params?: Record<string, any>
+  params?: Record<string, unknown>
   /** 请求头 */
   headers?: Record<string, string>
   /** 上传成功回调 */
-  onSuccess?: (file: UploadFileInfo, response: any) => void
+  onSuccess?: (file: UploadFileInfo, response: unknown) => void
   /** 上传失败回调 */
   onError?: (file: UploadFileInfo, error: Error) => void
   /** 上传进度回调 */
@@ -144,7 +155,7 @@ export interface UploadResult {
   /** 文件信息 */
   file?: UploadFileInfo
   /** 响应数据 */
-  response?: any
+  response?: unknown
   /** 错误信息 */
   error?: Error
 }
@@ -153,9 +164,19 @@ export interface UploadResult {
  * 生成文件唯一标识符（用于断点续传）
  * 使用 spark-md5 计算文件内容的 MD5 值
  */
+type FilePrototypeWithLegacySlice = typeof File.prototype & {
+  mozSlice?: typeof File.prototype.slice
+  webkitSlice?: typeof File.prototype.slice
+}
+
 export async function generateFileIdentifier(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
-    const blobSlice = File.prototype.slice || (File.prototype as any).mozSlice || (File.prototype as any).webkitSlice
+    const proto = File.prototype as FilePrototypeWithLegacySlice
+    const blobSlice = proto.slice ?? proto.mozSlice ?? proto.webkitSlice
+    if (!blobSlice) {
+      reject(new Error('浏览器不支持文件分片读取'))
+      return
+    }
     const chunkSize = 2 * 1024 * 1024 // 2MB 分片读取
     const chunks = Math.ceil(file.size / chunkSize)
     let currentChunk = 0
@@ -269,7 +290,7 @@ export class UploadHelper {
   /**
    * 添加文件到上传队列
    */
-  async addFile(file: File, params?: Record<string, any>, useFastIdentifier: boolean = false): Promise<UploadFileInfo> {
+  async addFile(file: File, params?: Record<string, unknown>, useFastIdentifier: boolean = false): Promise<UploadFileInfo> {
     const id = generateFileId()
     
     // 根据参数选择使用快速标识符还是完整 MD5
@@ -413,11 +434,11 @@ export class UploadHelper {
       this.updateProgress(fileInfo)
 
       logger.debug(`[UploadHelper] 分片上传成功: ${fileInfo.name} - Chunk ${chunk.index + 1}/${fileInfo.totalChunks}`)
-    } catch (error: any) {
+    } catch (error: unknown) {
       chunk.uploading = false
 
       // 如果是取消操作，不进行重试
-      if (error.__CANCEL__ || (error.message && error.message.includes('canceled'))) {
+      if (isUploadCancelled(error)) {
         throw error
       }
 
@@ -430,7 +451,9 @@ export class UploadHelper {
         return this.uploadChunk(fileInfo, chunk)
       } else {
         logger.error(`[UploadHelper] 分片上传失败: ${fileInfo.name} - Chunk ${chunk.index + 1}`)
-        throw new Error(`分片上传失败: ${error.message || '未知错误'}`)
+        const chunkErr = new Error(`分片上传失败: ${uploadErrorMessage(error)}`)
+        Object.assign(chunkErr, { cause: error })
+        throw chunkErr
       }
     }
   }
@@ -438,7 +461,7 @@ export class UploadHelper {
   /**
    * 合并分片（服务端合并）
    */
-  private async mergeChunks(fileInfo: UploadFileInfo): Promise<any> {
+  private async mergeChunks(fileInfo: UploadFileInfo): Promise<unknown> {
     try {
       const response = await service.post(this.options.mergeUrl!, {
         identifier: fileInfo.identifier,
@@ -450,16 +473,18 @@ export class UploadHelper {
       })
 
       return response.data
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[UploadHelper] 合并分片失败:', error)
-      throw new Error(`合并分片失败: ${error.message || '未知错误'}`)
+      const mergeErr = new Error(`合并分片失败: ${uploadErrorMessage(error)}`)
+      Object.assign(mergeErr, { cause: error })
+      throw mergeErr
     }
   }
 
   /**
    * 上传整个文件（非分片）
    */
-  private async uploadWholeFile(fileInfo: UploadFileInfo): Promise<any> {
+  private async uploadWholeFile(fileInfo: UploadFileInfo): Promise<unknown> {
     const CancelToken = (await import('axios')).default.CancelToken
     const source = CancelToken.source()
 
@@ -489,8 +514,8 @@ export class UploadHelper {
       })
 
       return response.data
-    } catch (error: any) {
-      if (error.__CANCEL__ || (error.message && error.message.includes('canceled'))) {
+    } catch (error: unknown) {
+      if (isUploadCancelled(error)) {
         throw error
       }
       throw error
@@ -550,7 +575,7 @@ export class UploadHelper {
     try {
       this.setStatus(fileInfo, UploadStatus.UPLOADING)
 
-      let response: any
+      let response: unknown
 
       if (this.options.chunked && fileInfo.chunks.length > 0) {
         // 分片上传
@@ -621,9 +646,9 @@ export class UploadHelper {
       if (this.options.onSuccess) {
         this.options.onSuccess(fileInfo, response)
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // 如果是取消操作，不触发错误回调
-      if (error.__CANCEL__ || (error.message && error.message.includes('canceled'))) {
+      if (isUploadCancelled(error)) {
         this.setStatus(fileInfo, UploadStatus.CANCELLED)
         return
       }
@@ -782,7 +807,7 @@ export async function uploadFile(
   options: UploadOptions = {},
   useFastIdentifier: boolean = false
 ): Promise<UploadResult> {
-  return new Promise(async (resolve) => {
+  return new Promise<UploadResult>((resolve) => {
     const uploader = new UploadHelper({
       ...options,
       autoStart: true,
@@ -804,7 +829,13 @@ export async function uploadFile(
       }
     })
 
-    await uploader.addFile(file, undefined, useFastIdentifier)
+    void uploader.addFile(file, undefined, useFastIdentifier).catch((err: unknown) => {
+      resolve({
+        success: false,
+        error: err instanceof Error ? err : new Error(String(err))
+      })
+      uploader.destroy()
+    })
   })
 }
 
@@ -828,7 +859,7 @@ export async function uploadFiles(
 
   const promises = fileInfos.map(fileInfo => {
     return new Promise<UploadResult>((resolve) => {
-      const onSuccess = (f: UploadFileInfo, response: any) => {
+      const onSuccess = (f: UploadFileInfo, response: unknown) => {
         if (f.id === fileInfo.id) {
           resolve({
             success: true,

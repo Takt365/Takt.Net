@@ -4,5 +4,20 @@ export default {
   titleName: 'Title Name',
   titleType: 'Title Type',
   titleLevel: 'Title Level',
-  titleStatus: 'Title Status'
+  titleStatus: 'Title Status',
+  titleType0: 'Asset',
+  titleType1: 'Liability',
+  titleType2: 'Equity',
+  titleType3: 'Revenue',
+  titleType4: 'Expense',
+  titleType5: 'Cost',
+  balanceDirection0: 'Debit',
+  balanceDirection1: 'Credit',
+  auxiliaryType0: 'None',
+  auxiliaryType1: 'Department',
+  auxiliaryType2: 'Project',
+  auxiliaryType3: 'Customer',
+  auxiliaryType4: 'Vendor',
+  auxiliaryType5: 'Employee',
+  auxiliaryType6: 'Custom'
 }

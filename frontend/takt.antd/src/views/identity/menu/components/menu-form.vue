@@ -1,6 +1,9 @@
 <template>
-  <a-tabs v-model:activeKey="activeTab">
-    <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
+  <a-tabs v-model:active-key="activeTab">
+    <a-tab-pane
+      key="basic"
+      :tab="t('common.form.tabs.basicInfo')"
+    >
       <div :class="formContentClass">
         <a-form
           ref="formRef"
@@ -13,19 +16,41 @@
         >
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.menu.name')" name="menuName">
-                <a-input v-model:value="formState.menuName" :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.name') })" show-count :maxlength="50" />
+              <a-form-item
+                :label="t('entity.menu.name')"
+                name="menuName"
+              >
+                <a-input
+                  v-model:value="formState.menuName"
+                  :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.name') })"
+                  show-count
+                  :maxlength="50"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.menu.code')" name="menuCode">
-                <a-input v-model:value="formState.menuCode" :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.code') })" show-count :maxlength="200" :disabled="!!formData?.menuId" />
+              <a-form-item
+                :label="t('entity.menu.code')"
+                name="menuCode"
+              >
+                <a-input
+                  v-model:value="formState.menuCode"
+                  :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.code') })"
+                  show-count
+                  :maxlength="200"
+                  :disabled="!!formData?.menuId"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('entity.menu.parentid')" name="parentId" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
+              <a-form-item
+                :label="t('entity.menu.parentid')"
+                name="parentId"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
                 <TaktTreeSelect
                   v-model:value="formState.parentId"
                   api-url="/api/TaktMenus/tree-options"
@@ -38,31 +63,68 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.menu.path')" name="path">
-                <a-input v-model:value="formState.path" :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.path') })" show-count :maxlength="200" />
+              <a-form-item
+                :label="t('entity.menu.path')"
+                name="path"
+              >
+                <a-input
+                  v-model:value="formState.path"
+                  :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.path') })"
+                  show-count
+                  :maxlength="200"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.menu.component')" name="component">
-                <a-input v-model:value="formState.component" :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.component') })" show-count :maxlength="200" />
+              <a-form-item
+                :label="t('entity.menu.component')"
+                name="component"
+              >
+                <a-input
+                  v-model:value="formState.component"
+                  :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.component') })"
+                  show-count
+                  :maxlength="200"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.menu.icon')" name="menuIcon">
-                <a-input v-model:value="formState.menuIcon" :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.icon') })" show-count :maxlength="100" />
+              <a-form-item
+                :label="t('entity.menu.icon')"
+                name="menuIcon"
+              >
+                <a-input
+                  v-model:value="formState.menuIcon"
+                  :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.icon') })"
+                  show-count
+                  :maxlength="100"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.menu.ordernum')" name="orderNum">
-                <a-input-number v-model:value="formState.orderNum" :placeholder="t('common.form.placeholder.orderNumHint')" :min="0" style="width: 100%" />
+              <a-form-item
+                :label="t('entity.menu.ordernum')"
+                name="orderNum"
+              >
+                <a-input-number
+                  v-model:value="formState.orderNum"
+                  :placeholder="t('common.form.placeholder.orderNumHint')"
+                  :min="0"
+                  style="width: 100%"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('entity.menu.type')" name="menuType" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
+              <a-form-item
+                :label="t('entity.menu.type')"
+                name="menuType"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
                 <TaktSelect
                   v-model:value="formState.menuType"
                   dict-type="sys_menu_type"
@@ -73,7 +135,12 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('entity.menu.status')" name="menuStatus" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
+              <a-form-item
+                :label="t('entity.menu.status')"
+                name="menuStatus"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
                 <TaktSelect
                   v-model:value="formState.menuStatus"
                   dict-type="sys_normal_disable"
@@ -84,14 +151,27 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('entity.menu.permission')" name="permission" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-                <a-input v-model:value="formState.permission" :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.permission') })" show-count :maxlength="100" />
+              <a-form-item
+                :label="t('entity.menu.permission')"
+                name="permission"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
+                <a-input
+                  v-model:value="formState.permission"
+                  :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.permission') })"
+                  show-count
+                  :maxlength="100"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.menu.isvisible')" name="isVisible">
+              <a-form-item
+                :label="t('entity.menu.isvisible')"
+                name="isVisible"
+              >
                 <TaktSelect
                   v-model:value="formState.isVisible"
                   dict-type="sys_yes_no"
@@ -100,7 +180,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.menu.iscache')" name="isCache">
+              <a-form-item
+                :label="t('entity.menu.iscache')"
+                name="isCache"
+              >
                 <TaktSelect
                   v-model:value="formState.isCache"
                   dict-type="sys_yes_no"
@@ -111,7 +194,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.menu.isexternal')" name="isExternal">
+              <a-form-item
+                :label="t('entity.menu.isexternal')"
+                name="isExternal"
+              >
                 <TaktSelect
                   v-model:value="formState.isExternal"
                   dict-type="sys_yes_no"
@@ -120,20 +206,45 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.menu.linkurl')" name="linkUrl">
-                <a-input v-model:value="formState.linkUrl" :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.linkurl') })" show-count :maxlength="500" />
+              <a-form-item
+                :label="t('entity.menu.linkurl')"
+                name="linkUrl"
+              >
+                <a-input
+                  v-model:value="formState.linkUrl"
+                  :placeholder="t('common.form.placeholder.required', { field: t('entity.menu.linkurl') })"
+                  show-count
+                  :maxlength="500"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.menu.l10nkey')" name="menuL10nKey">
-                <a-input v-model:value="formState.menuL10nKey" :placeholder="t('identity.menu.placeholder.l10nHint')" show-count :maxlength="100" />
+              <a-form-item
+                :label="t('entity.menu.l10nkey')"
+                name="menuL10nKey"
+              >
+                <a-input
+                  v-model:value="formState.menuL10nKey"
+                  :placeholder="t('identity.menu.placeholder.l10nHint')"
+                  show-count
+                  :maxlength="100"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('common.entity.remark')" name="remark">
-                <a-textarea v-model:value="formState.remark" :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })" :rows="2" show-count :maxlength="500" />
+              <a-form-item
+                :label="t('common.entity.remark')"
+                name="remark"
+              >
+                <a-textarea
+                  v-model:value="formState.remark"
+                  :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"
+                  :rows="2"
+                  show-count
+                  :maxlength="500"
+                />
               </a-form-item>
             </a-col>
           </a-row>

@@ -64,6 +64,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import type { TableColumnsType } from 'ant-design-vue'
+import type { TablePaginationConfig } from 'ant-design-vue'
+import type { FilterValue, SorterResult } from 'ant-design-vue/es/table/interface'
 import { CreateActionColumn } from '@/components/business/takt-action-column/index'
 import { mergeDefaultColumns } from '@/utils/table-columns'
 import { useI18n } from 'vue-i18n'
@@ -90,13 +92,16 @@ const selectedRowKeys = ref<(string | number)[]>([])
 const tableRef = ref()
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
+type AopLogLike = AopLog & Record<string, unknown>
+type ColumnLike = { key?: string | number; dataIndex?: string | number; title?: string | number; width?: number }
+const toErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error))
 
 onMounted(() => {
   loadData()
 })
 
-const getAopLogId = (record: any): string => record?.aopLogId != null ? String(record.aopLogId) : ''
-const getAopLogField = (record: any, field: string): any => record?.[field]
+const getAopLogId = (record: AopLogLike): string => record?.aopLogId != null ? String(record.aopLogId) : ''
+const getAopLogField = (record: AopLogLike, field: string): unknown => record?.[field]
 
 const columns = ref<TableColumnsType>([
   {
@@ -107,7 +112,7 @@ const columns = ref<TableColumnsType>([
     resizable: true,
     ellipsis: true,
     fixed: 'left',
-    customRender: ({ record }: { record: any }) => getAopLogField(record, 'aopLogId') ?? ''
+    customRender: ({ record }: { record: AopLogLike }) => getAopLogField(record, 'aopLogId') ?? ''
   },
   {
     title: '用户名',
@@ -169,14 +174,14 @@ const columns = ref<TableColumnsType>([
   })
 ])
 
-const mergedColumns = computed((): any => mergeDefaultColumns(columns.value as any, t, true))
-const displayColumns = computed((): any => {
+const mergedColumns = computed(() => mergeDefaultColumns(columns.value as TableColumnsType, t, true))
+const displayColumns = computed(() => {
   const keys = visibleColumnKeys.value || []
-  const merged: any = mergedColumns.value || []
+  const merged = (mergedColumns.value || []) as ColumnLike[]
   if (keys.length === 0) return columns.value
-  const getColumnKey = (col: any): string => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
+  const getColumnKey = (col: ColumnLike): string => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
   const keysSet = new Set(keys.map(k => String(k)))
-  return merged.filter((col: any) => {
+  return merged.filter((col: ColumnLike) => {
     const colKey = getColumnKey(col)
     return colKey && keysSet.has(colKey)
   })
@@ -213,20 +218,20 @@ const onClickRow = (record: AopLog) => ({
 const loadData = async () => {
   try {
     loading.value = true
-    const params: any = {
+    const params: Record<string, string | number> = {
       PageIndex: currentPage.value,
       PageSize: pageSize.value
     }
     if (queryKeyword.value) params.KeyWords = queryKeyword.value
     const response = await getAopLogList(params)
-    const responseAny = response as any
+    const responseAny = response as { Data?: AopLog[]; Total?: number }
     const items = response?.data ?? responseAny?.Data ?? []
     const totalCount = response?.total ?? responseAny?.Total ?? 0
     dataSource.value = items
     total.value = totalCount
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[AopLog] 加载数据失败:', error)
-    message.error(error?.message ?? '加载数据失败')
+    message.error(toErrorMessage(error) || '加载数据失败')
     dataSource.value = []
     total.value = 0
   } finally {
@@ -236,8 +241,14 @@ const loadData = async () => {
 
 const handleSearch = () => { currentPage.value = 1; loadData() }
 const handleReset = () => { queryKeyword.value = ''; currentPage.value = 1; loadData() }
-const handleTableChange = (_pagination: any, _filters: any, sorter: any) => {
-  if (sorter?.order) logger.debug('[AopLog] 排序:', sorter.field, sorter.order)
+const handleTableChange = (
+  _pagination: TablePaginationConfig,
+  _filters: Record<string, FilterValue | null>,
+  sorter: SorterResult<AopLogLike> | SorterResult<AopLogLike>[]
+) => {
+  const sortInfo = Array.isArray(sorter) ? sorter[0] : sorter
+  if (!sortInfo) return
+  if (sortInfo.order) logger.debug('[AopLog] 排序:', sortInfo.field, sortInfo.order)
 }
 const handlePaginationChange = (page: number, size: number) => {
   currentPage.value = page
@@ -249,8 +260,8 @@ const handlePaginationSizeChange = (_current: number, size: number) => {
   pageSize.value = size
   loadData()
 }
-const handleResizeColumn = (w: number, col: any) => {
-  const column = columns.value.find((c: any) => String(c.key || c.dataIndex || c.title) === String(col.key || col.dataIndex || col.title))
+const handleResizeColumn = (w: number, col: ColumnLike) => {
+  const column = (columns.value as ColumnLike[]).find((c) => String(c.key || c.dataIndex || c.title) === String(col.key || col.dataIndex || col.title))
   if (column) column.width = w
 }
 
@@ -267,8 +278,8 @@ const handleDeleteOne = (record: AopLog) => {
         await deleteAopLog(getAopLogId(record))
         message.success('删除成功')
         loadData()
-      } catch (error: any) {
-        message.error(error?.message ?? '删除失败')
+      } catch (error: unknown) {
+        message.error(toErrorMessage(error) || '删除失败')
       } finally {
         loading.value = false
       }
@@ -295,8 +306,8 @@ const handleDelete = () => {
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
-      } catch (error: any) {
-        message.error(error?.message ?? '删除失败')
+      } catch (error: unknown) {
+        message.error(toErrorMessage(error) || '删除失败')
       } finally {
         loading.value = false
       }
@@ -306,7 +317,7 @@ const handleDelete = () => {
 const handleExport = async () => {
   try {
     loading.value = true
-    const params: any = { PageIndex: 1, PageSize: total.value || 99999 }
+    const params: Record<string, string | number> = { PageIndex: 1, PageSize: total.value || 99999 }
     if (queryKeyword.value) params.KeyWords = queryKeyword.value
     const blob = await exportAopLog(params, undefined, '差异日志')
     const ts = new Date(); const t = (n: number, w = 2) => String(n).padStart(w, '0')
@@ -321,9 +332,9 @@ const handleExport = async () => {
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
     message.success('导出成功')
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[AopLog] 导出失败:', error)
-    message.error(error?.message ?? '导出失败')
+    message.error(toErrorMessage(error) || '导出失败')
   } finally {
     loading.value = false
   }

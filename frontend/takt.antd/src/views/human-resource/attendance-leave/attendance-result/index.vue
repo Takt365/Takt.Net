@@ -95,7 +95,11 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <AttendanceResultForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <AttendanceResultForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
 
     <!-- 高级查询：字段与 TaktAttendanceResultQueryDto 一致（前端 AttendanceResultQuery） -->
@@ -118,10 +122,18 @@
         />
       </a-form-item>
       <a-form-item :label="t('entity.attendanceresult.datefrom')">
-        <a-date-picker v-model:value="advancedQueryForm.from" value-format="YYYY-MM-DD" style="width: 100%" />
+        <a-date-picker
+          v-model:value="advancedQueryForm.from"
+          value-format="YYYY-MM-DD"
+          style="width: 100%"
+        />
       </a-form-item>
       <a-form-item :label="t('entity.attendanceresult.dateto')">
-        <a-date-picker v-model:value="advancedQueryForm.to" value-format="YYYY-MM-DD" style="width: 100%" />
+        <a-date-picker
+          v-model:value="advancedQueryForm.to"
+          value-format="YYYY-MM-DD"
+          style="width: 100%"
+        />
       </a-form-item>
     </TaktQueryDrawer>
 
@@ -223,7 +235,7 @@ function getResultColumnKey(col: ResultTableColumn): string {
 }
 
 /** 与用户页 `getUserField` 一致，供 `TaktDictTag` 的 `:value`。 */
-function getResultField(record: AttendanceResult, field: string): any {
+function getResultField(record: AttendanceResult, field: string): unknown {
   return (record as unknown as Record<string, unknown>)[field]
 }
 
@@ -664,7 +676,7 @@ const handleExport = async () => {
     const resBlob =
       typeof blob === 'object' && blob !== null && 'data' in blob && blob.data instanceof Blob
         ? blob.data
-        : (blob as Blob)
+        : (blob)
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
     const fileName = `${resultExcelNames.fileBase}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`

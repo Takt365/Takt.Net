@@ -8,8 +8,11 @@
 <!-- ======================================== -->
 
 <template>
-  <a-tabs v-model:activeKey="activeTab">
-    <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
+  <a-tabs v-model:active-key="activeTab">
+    <a-tab-pane
+      key="basic"
+      :tab="t('common.form.tabs.basicInfo')"
+    >
       <a-form
         ref="formRef"
         :model="formState"
@@ -19,84 +22,129 @@
         layout="horizontal"
         label-align="right"
       >
-    <a-row :gutter="24">
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeeattachment.employeeId')" name="employeeId">
-          <a-input
-            v-model:value="formState.employeeId"
-            :placeholder="t('common.form.placeholder.required', { field: t('entity.employeeattachment.employeeId') })"
-            allow-clear
-          />
-        </a-form-item>
-      </a-col>
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeeattachment.fileId')" name="fileId">
-          <a-input v-model:value="formState.fileId" allow-clear />
-        </a-form-item>
-      </a-col>
-    </a-row>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeeattachment.employeeId')"
+              name="employeeId"
+            >
+              <a-input
+                v-model:value="formState.employeeId"
+                :placeholder="t('common.form.placeholder.required', { field: t('entity.employeeattachment.employeeId') })"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeeattachment.fileId')"
+              name="fileId"
+            >
+              <a-input
+                v-model:value="formState.fileId"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
 
-    <a-row :gutter="24">
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeeattachment.fileCode')" name="fileCode">
-          <a-input v-model:value="formState.fileCode" allow-clear />
-        </a-form-item>
-      </a-col>
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeeattachment.fileName')" name="fileName">
-          <a-input
-            v-model:value="formState.fileName"
-            :placeholder="t('common.form.placeholder.required', { field: t('entity.employeeattachment.fileName') })"
-            allow-clear
-          />
-        </a-form-item>
-      </a-col>
-    </a-row>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeeattachment.fileCode')"
+              name="fileCode"
+            >
+              <a-input
+                v-model:value="formState.fileCode"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeeattachment.fileName')"
+              name="fileName"
+            >
+              <a-input
+                v-model:value="formState.fileName"
+                :placeholder="t('common.form.placeholder.required', { field: t('entity.employeeattachment.fileName') })"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
 
-    <a-row :gutter="24">
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeeattachment.filePath')" name="filePath">
-          <a-input v-model:value="formState.filePath" allow-clear />
-        </a-form-item>
-      </a-col>
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeeattachment.fileSize')" name="fileSize">
-          <a-input-number v-model:value="formState.fileSize" :min="0" style="width: 100%" />
-        </a-form-item>
-      </a-col>
-    </a-row>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeeattachment.filePath')"
+              name="filePath"
+            >
+              <a-input
+                v-model:value="formState.filePath"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeeattachment.fileSize')"
+              name="fileSize"
+            >
+              <a-input-number
+                v-model:value="formState.fileSize"
+                :min="0"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
 
-    <a-row :gutter="24">
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeeattachment.attachmentType')" name="attachmentType">
-          <a-select
-            v-model:value="formState.attachmentType"
-            :options="attachmentTypeOptions"
-            :placeholder="t('common.form.placeholder.select', { field: t('entity.employeeattachment.attachmentType') })"
-            allow-clear
-            style="width: 100%"
-          />
-        </a-form-item>
-      </a-col>
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeeattachment.orderNum')" name="orderNum">
-          <a-input-number v-model:value="formState.orderNum" :min="0" style="width: 100%" />
-        </a-form-item>
-      </a-col>
-    </a-row>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeeattachment.attachmentType')"
+              name="attachmentType"
+            >
+              <a-select
+                v-model:value="formState.attachmentType"
+                :options="attachmentTypeOptions"
+                :placeholder="t('common.form.placeholder.select', { field: t('entity.employeeattachment.attachmentType') })"
+                allow-clear
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeeattachment.orderNum')"
+              name="orderNum"
+            >
+              <a-input-number
+                v-model:value="formState.orderNum"
+                :min="0"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
 
-    <a-row :gutter="24">
-      <a-col :span="24">
-        <a-form-item
-          :label="t('entity.employeeattachment.attachmentDescription')"
-          name="attachmentDescription"
-          :label-col="{ span: 4 }"
-          :wrapper-col="{ span: 20 }"
-        >
-          <a-textarea v-model:value="formState.attachmentDescription" :rows="2" allow-clear />
-        </a-form-item>
-      </a-col>
-    </a-row>
+        <a-row :gutter="24">
+          <a-col :span="24">
+            <a-form-item
+              :label="t('entity.employeeattachment.attachmentDescription')"
+              name="attachmentDescription"
+              :label-col="{ span: 4 }"
+              :wrapper-col="{ span: 20 }"
+            >
+              <a-textarea
+                v-model:value="formState.attachmentDescription"
+                :rows="2"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
       </a-form>
     </a-tab-pane>
   </a-tabs>

@@ -22,7 +22,7 @@ namespace Takt.WebApi.Controllers.HumanResource.Personnel;
 /// 员工合同控制器（权限前缀 humanresource:personnel:employeecontract）
 /// </summary>
 [Route("api/[controller]", Name = "员工合同")]
-[ApiModule("HumanResource.Personnel", "人事管理")]
+[ApiModule("HumanResource", "人力资源")]
 [TaktPermission("humanresource:personnel:employeecontract:list", "员工合同管理")]
 public class TaktEmployeeContractsController : TaktControllerBase
 {

@@ -89,7 +89,11 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <WorkForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <WorkForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
 
     <!-- 高级查询抽屉 -->

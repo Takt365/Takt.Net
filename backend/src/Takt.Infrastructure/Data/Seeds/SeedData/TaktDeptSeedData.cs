@@ -37,7 +37,7 @@ public class TaktDeptSeedData : ITaktSeedData
     {
         var deptRepository = serviceProvider.GetRequiredService<ITaktRepository<TaktDept>>();
         var employeeRepository = serviceProvider.GetRequiredService<ITaktRepository<TaktEmployee>>();
-        var adminEmployee = await employeeRepository.GetAsync(e => e.EmployeeCode == "900001" && e.IsDeleted == 0);
+        var adminEmployee = await employeeRepository.GetAsync(e => e.EmployeeCode == "900001");
         if (adminEmployee == null)
             throw new InvalidOperationException("TaktDeptSeedData: 未找到系统员工 900001，无法设置部门负责人 DeptHeadId。");
 

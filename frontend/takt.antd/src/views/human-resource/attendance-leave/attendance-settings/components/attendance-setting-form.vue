@@ -9,13 +9,26 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" :model="formState" :rules="rules" layout="horizontal" label-align="right">
-    <a-tabs v-model:activeKey="activeTab">
-      <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')" force-render>
+  <a-form
+    ref="formRef"
+    :model="formState"
+    :rules="rules"
+    layout="horizontal"
+    label-align="right"
+  >
+    <a-tabs v-model:active-key="activeTab">
+      <a-tab-pane
+        key="basic"
+        :tab="t('common.form.tabs.basicInfo')"
+        force-render
+      >
         <div :class="formContentClass">
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesetting.settingcode')" name="settingCode">
+              <a-form-item
+                :label="t('entity.attendancesetting.settingcode')"
+                name="settingCode"
+              >
                 <a-input
                   v-model:value="formState.settingCode"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendancesetting.settingcode') })"
@@ -25,7 +38,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesetting.settingname')" name="settingName">
+              <a-form-item
+                :label="t('entity.attendancesetting.settingname')"
+                name="settingName"
+              >
                 <a-input
                   v-model:value="formState.settingName"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendancesetting.settingname') })"
@@ -37,7 +53,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesetting.workstarttime')" name="workStartTime">
+              <a-form-item
+                :label="t('entity.attendancesetting.workstarttime')"
+                name="workStartTime"
+              >
                 <a-input
                   v-model:value="formState.workStartTime"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendancesetting.workstarttime') })"
@@ -45,7 +64,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesetting.workendtime')" name="workEndTime">
+              <a-form-item
+                :label="t('entity.attendancesetting.workendtime')"
+                name="workEndTime"
+              >
                 <a-input
                   v-model:value="formState.workEndTime"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendancesetting.workendtime') })"
@@ -55,7 +77,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesetting.lategraceminutes')" name="lateGraceMinutes">
+              <a-form-item
+                :label="t('entity.attendancesetting.lategraceminutes')"
+                name="lateGraceMinutes"
+              >
                 <a-input-number
                   v-model:value="formState.lateGraceMinutes"
                   :min="0"
@@ -65,7 +90,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesetting.earlyleavegraceminutes')" name="earlyLeaveGraceMinutes">
+              <a-form-item
+                :label="t('entity.attendancesetting.earlyleavegraceminutes')"
+                name="earlyLeaveGraceMinutes"
+              >
                 <a-input-number
                   v-model:value="formState.earlyLeaveGraceMinutes"
                   :min="0"
@@ -77,7 +105,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesetting.isdefault')" name="isDefault">
+              <a-form-item
+                :label="t('entity.attendancesetting.isdefault')"
+                name="isDefault"
+              >
                 <TaktSelect
                   v-model:value="formState.isDefault"
                   dict-type="sys_is_default"
@@ -86,7 +117,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesetting.ordernum')" name="orderNum">
+              <a-form-item
+                :label="t('entity.attendancesetting.ordernum')"
+                name="orderNum"
+              >
                 <a-input-number
                   v-model:value="formState.orderNum"
                   :min="0"
@@ -98,7 +132,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('common.entity.remark')" name="remark">
+              <a-form-item
+                :label="t('common.entity.remark')"
+                name="remark"
+              >
                 <a-textarea
                   v-model:value="formState.remark"
                   :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"

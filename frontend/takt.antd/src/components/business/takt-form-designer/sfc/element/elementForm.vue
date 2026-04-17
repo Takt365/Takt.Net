@@ -1,6 +1,8 @@
 <template>
   <div class="element-form">
-    <div class="element-form__empty">Element Plus 预览仅用于占位</div>
+    <div class="element-form__empty">
+      Element Plus 预览仅用于占位
+    </div>
   </div>
 </template>
 

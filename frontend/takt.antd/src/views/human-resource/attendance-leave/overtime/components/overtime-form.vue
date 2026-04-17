@@ -9,13 +9,26 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" :model="formState" :rules="rules" layout="horizontal" label-align="right">
-    <a-tabs v-model:activeKey="activeTab">
-      <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')" force-render>
+  <a-form
+    ref="formRef"
+    :model="formState"
+    :rules="rules"
+    layout="horizontal"
+    label-align="right"
+  >
+    <a-tabs v-model:active-key="activeTab">
+      <a-tab-pane
+        key="basic"
+        :tab="t('common.form.tabs.basicInfo')"
+        force-render
+      >
         <div :class="formContentClass">
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.overtime.employeeid')" name="employeeId">
+              <a-form-item
+                :label="t('entity.overtime.employeeid')"
+                name="employeeId"
+              >
                 <a-input
                   v-model:value="formState.employeeId"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.overtime.employeeid') })"
@@ -24,7 +37,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.overtime.overtimedate')" name="overtimeDate">
+              <a-form-item
+                :label="t('entity.overtime.overtimedate')"
+                name="overtimeDate"
+              >
                 <a-date-picker
                   v-model:value="formState.overtimeDate"
                   value-format="YYYY-MM-DD"
@@ -36,7 +52,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.overtime.plannedhours')" name="plannedHours">
+              <a-form-item
+                :label="t('entity.overtime.plannedhours')"
+                name="plannedHours"
+              >
                 <a-input-number
                   v-model:value="formState.plannedHours"
                   :min="0"
@@ -47,7 +66,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.overtime.actualhours')" name="actualHours">
+              <a-form-item
+                :label="t('entity.overtime.actualhours')"
+                name="actualHours"
+              >
                 <a-input-number
                   v-model:value="formState.actualHours"
                   :min="0"
@@ -60,7 +82,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.overtime.overtimestatus')" name="overtimeStatus">
+              <a-form-item
+                :label="t('entity.overtime.overtimestatus')"
+                name="overtimeStatus"
+              >
                 <TaktSelect
                   v-model:value="formState.overtimeStatus"
                   dict-type="hr_overtime_status"
@@ -69,7 +94,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.overtime.reason')" name="reason">
+              <a-form-item
+                :label="t('entity.overtime.reason')"
+                name="reason"
+              >
                 <a-input
                   v-model:value="formState.reason"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.overtime.reason') })"
@@ -80,7 +108,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('common.entity.remark')" name="remark">
+              <a-form-item
+                :label="t('common.entity.remark')"
+                name="remark"
+              >
                 <a-textarea
                   v-model:value="formState.remark"
                   :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"

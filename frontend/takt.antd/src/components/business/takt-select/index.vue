@@ -44,11 +44,14 @@
     :max-tag-count="effectiveMaxTagCount"
     :virtual="shouldUseVirtual"
     :list-height="listHeight"
+    v-bind="$attrs"
     @change="handleChange"
     @search="handleSearch"
-    v-bind="$attrs"
   >
-    <template v-if="$slots.default" #default>
+    <template
+      v-if="$slots.default"
+      #default
+    >
       <slot />
     </template>
   </a-select>
@@ -64,6 +67,7 @@ import { useDictDataStore } from '@/stores/routine/dict/dictdata'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+type SelectOptionLike = { label?: string; value?: string | number; dictLabel?: string; dictValue?: string | number; extLabel?: string; extValue?: string | number } & Record<string, unknown>
 
 interface Props {
   /** 绑定值 */
@@ -73,7 +77,7 @@ interface Props {
   /** API 端点（可选，如果提供了 dictType 或 options 则不需要） */
   apiUrl?: string
   /** 选项数据（可选，如果提供了则直接使用，不再通过 dictType 或 apiUrl 加载）。支持标准格式 { label, value } 或 TaktSelectOption 格式 { dictLabel, dictValue } */
-  options?: TaktSelectOption[] | Array<{ label: string; value: string | number; [key: string]: any }>
+  options?: TaktSelectOption[] | Array<{ label: string; value: string | number } & Record<string, unknown>>
   /** 占位符 */
   placeholder?: string
   /** 是否显示清除按钮 */
@@ -87,7 +91,7 @@ interface Props {
   /** 是否支持搜索 */
   showSearch?: boolean
   /** 自定义过滤函数 */
-  filterOption?: boolean | ((input: string, option: any) => boolean)
+  filterOption?: boolean | ((input: string, option?: DefaultOptionType) => boolean)
   /** 多选时最多显示多少个标签，超出部分以 +N 形式展示。支持数字或 'responsive'（响应式模式，但不推荐在大表单场景下使用，因为对性能有所消耗） */
   maxTagCount?: number | 'responsive'
   /** 是否开启虚拟滚动（大数据量时建议开启，可提升渲染性能）。如果不指定，当选项数量超过 100 条时会自动开启 */
@@ -102,6 +106,10 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  modelValue: undefined,
+  dictType: undefined,
+  apiUrl: undefined,
+  options: undefined,
   placeholder: undefined,
   allowClear: true,
   disabled: false,
@@ -120,9 +128,17 @@ const props = withDefaults(defineProps<Props>(), {
 
 const placeholderDisplay = computed(() => props.placeholder ?? t('common.form.placeholder.selectOnly'))
 
+const filterOption = computed(() => {
+  if (typeof props.filterOption !== 'function') {
+    return props.filterOption
+  }
+  const customFilter = props.filterOption
+  return (input: string, option?: DefaultOptionType) => customFilter(input, option)
+})
+
 const emit = defineEmits<{
   'update:modelValue': [value: string | number | (string | number)[] | undefined]
-  'change': [value: string | number | (string | number)[] | undefined, option: any]
+  'change': [value: string | number | (string | number)[] | undefined, option: SelectOptionLike | SelectOptionLike[] | null]
   'search': [value: string]
 }>()
 
@@ -212,6 +228,13 @@ function convertValueType(value: string | number, expectedType: 'number' | 'stri
   return value
 }
 
+function normalizeValue(value: unknown): string | number {
+  if (typeof value === 'string' || typeof value === 'number') {
+    return value
+  }
+  return ''
+}
+
 // 将后端数据转换为 Select 组件需要的格式
 const options = computed(() => {
   const expectedValueType = inferValueType(props.modelValue)
@@ -222,9 +245,10 @@ const options = computed(() => {
     const valueField = props.fieldNames?.value ?? 'value'
     
     return props.options.map(item => {
-      const itemObj = item as Record<string, any>
-      const rawValue = 'value' in item ? item.value : (itemObj[valueField] ?? itemObj.dictValue ?? itemObj.extLabel ?? itemObj.extValue ?? '')
+      const itemObj = item as SelectOptionLike
+      const rawValueSource = 'value' in item ? item.value : (itemObj[valueField] ?? itemObj.dictValue ?? itemObj.extLabel ?? itemObj.extValue ?? '')
       const label = 'label' in item ? item.label : (itemObj[labelField] ?? itemObj.dictLabel ?? itemObj.extLabel ?? '')
+      const rawValue = normalizeValue(rawValueSource)
       const convertedValue = convertValueType(rawValue, expectedValueType, props.dictType || 'custom')
       
       return {
@@ -273,7 +297,7 @@ const options = computed(() => {
   const valueField = props.fieldNames?.value ?? 'value'
   
   return rawData.value.map(item => {
-    const itemAny = item as any
+    const itemAny = item as SelectOptionLike
     const label = labelField === 'extLabel' 
       ? String(itemAny.extLabel ?? itemAny.dictLabel ?? '')
       : (itemAny.dictLabel ?? '')
@@ -307,7 +331,7 @@ const shouldUseRadio = computed(() => {
     return false
   }
   
-  const allOptionsAreNumeric = options.value.every(option => isNumericValue((option as any).value))
+  const allOptionsAreNumeric = options.value.every(option => isNumericValue((option as SelectOptionLike).value))
   if (!allOptionsAreNumeric) {
     return false
   }
@@ -323,7 +347,7 @@ const radioSize = computed(() => {
 // Radio 选项数据（options.value 已包含正确转换后的 label 和 value）
 const radioOptions = computed(() => {
   return options.value.map(option => {
-    const item = option as any
+    const item = option as SelectOptionLike
     return {
       label: item.label ?? item.dictLabel ?? '',
       value: item.value ?? ''
@@ -381,7 +405,7 @@ const extractRawValue = (value: SelectValue): string | number | (string | number
   if (Array.isArray(value)) {
     return value.map(v => {
       if (typeof v === 'object' && v !== null && 'value' in v) {
-        return (v as LabeledValue).value
+        return (v).value
       }
       return v as string | number
     })
@@ -389,7 +413,7 @@ const extractRawValue = (value: SelectValue): string | number | (string | number
   
   // 如果是对象（LabeledValue）
   if (typeof value === 'object' && 'value' in value) {
-    return (value as LabeledValue).value
+    return (value).value
   }
   
   // 原始值
@@ -397,8 +421,11 @@ const extractRawValue = (value: SelectValue): string | number | (string | number
 }
 
 // 处理 Radio 值变化
-const handleRadioChange = (event: any) => {
-  const value = event?.target?.value ?? event
+const handleRadioChange = (event: unknown) => {
+  const eventValue = typeof event === 'object' && event !== null && 'target' in event
+    ? (event as { target?: { value?: string | number } }).target?.value
+    : undefined
+  const value = eventValue ?? (event as string | number | null | undefined)
   if (value == null) return
   
   emit('update:modelValue', value)
@@ -410,7 +437,8 @@ const handleRadioChange = (event: any) => {
 const handleChange = (value: SelectValue, option: DefaultOptionType | DefaultOptionType[]) => {
   const rawValue = extractRawValue(value)
   emit('update:modelValue', rawValue)
-  emit('change', rawValue, option)
+  const normalizedOption = option as SelectOptionLike | SelectOptionLike[] | null
+  emit('change', rawValue, normalizedOption)
 }
 
 // 处理搜索

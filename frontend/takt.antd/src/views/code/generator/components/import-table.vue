@@ -6,7 +6,10 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
+  <a-form
+    :label-col="{ span: 6 }"
+    :wrapper-col="{ span: 16 }"
+  >
     <a-form-item label="数据源">
       <a-select
         v-model:value="configId"
@@ -15,7 +18,11 @@
         style="width: 100%"
         @change="handleConfigChange"
       >
-        <a-select-option v-for="c in databaseConfigs" :key="c.configId" :value="c.configId">
+        <a-select-option
+          v-for="c in databaseConfigs"
+          :key="c.configId"
+          :value="c.configId"
+        >
           {{ c.displayName }} ({{ c.configId }})
         </a-select-option>
       </a-select>
@@ -29,13 +36,22 @@
         allow-clear
         style="width: 100%"
       >
-        <a-select-option v-for="t in databaseTables" :key="t.tableName" :value="t.tableName">
+        <a-select-option
+          v-for="t in databaseTables"
+          :key="t.tableName"
+          :value="t.tableName"
+        >
           {{ t.tableName }} {{ t.tableComment ? `- ${t.tableComment}` : '' }}
         </a-select-option>
       </a-select>
     </a-form-item>
     <a-form-item :wrapper-col="{ offset: 6, span: 16 }">
-      <a-button type="primary" :loading="importLoading" :disabled="!configId || !tableName" @click="handleSubmit">
+      <a-button
+        type="primary"
+        :loading="importLoading"
+        :disabled="!configId || !tableName"
+        @click="handleSubmit"
+      >
         导入
       </a-button>
     </a-form-item>

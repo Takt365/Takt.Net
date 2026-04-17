@@ -23,7 +23,10 @@
     >
       <a-row :gutter="24">
         <a-col :span="12">
-          <a-form-item :label="t('entity.tenant.tenantname')" name="tenantName">
+          <a-form-item
+            :label="t('entity.tenant.tenantname')"
+            name="tenantName"
+          >
             <a-input
               v-model:value="formState.tenantName"
               :placeholder="t('common.form.placeholder.required', { field: t('entity.tenant.tenantname') })"
@@ -33,7 +36,10 @@
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item :label="t('entity.tenant.tenantcode')" name="tenantCode">
+          <a-form-item
+            :label="t('entity.tenant.tenantcode')"
+            name="tenantCode"
+          >
             <a-input
               v-model:value="formState.tenantCode"
               :placeholder="t('common.form.placeholder.required', { field: t('entity.tenant.tenantcode') })"
@@ -46,7 +52,10 @@
       </a-row>
       <a-row :gutter="24">
         <a-col :span="12">
-          <a-form-item :label="t('entity.tenant.configid')" name="configId">
+          <a-form-item
+            :label="t('entity.tenant.configid')"
+            name="configId"
+          >
             <a-input
               v-model:value="formState.configId"
               :placeholder="t('common.form.placeholder.required', { field: t('entity.tenant.configid') })"
@@ -56,7 +65,10 @@
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item :label="t('entity.tenant.starttime')" name="startTime">
+          <a-form-item
+            :label="t('entity.tenant.starttime')"
+            name="startTime"
+          >
             <a-date-picker
               v-model:value="formState.startTimeMoment"
               :placeholder="t('common.form.placeholder.select', { field: t('entity.tenant.starttime') })"
@@ -69,7 +81,10 @@
       </a-row>
       <a-row :gutter="24">
         <a-col :span="12">
-          <a-form-item :label="t('entity.tenant.endtime')" name="endTime">
+          <a-form-item
+            :label="t('entity.tenant.endtime')"
+            name="endTime"
+          >
             <a-date-picker
               v-model:value="formState.endTimeMoment"
               :placeholder="t('common.form.placeholder.select', { field: t('entity.tenant.endtime') })"
@@ -82,7 +97,12 @@
       </a-row>
       <a-row :gutter="24">
         <a-col :span="24">
-          <a-form-item :label="t('common.entity.remark')" name="remark" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
+          <a-form-item
+            :label="t('common.entity.remark')"
+            name="remark"
+            :label-col="{ span: 4 }"
+            :wrapper-col="{ span: 20 }"
+          >
             <a-textarea
               v-model:value="formState.remark"
               :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"

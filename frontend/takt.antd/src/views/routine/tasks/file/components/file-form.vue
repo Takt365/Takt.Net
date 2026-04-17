@@ -7,7 +7,10 @@
     :wrapper-col="{ span: 24 }"
     layout="horizontal"
   >
-    <a-form-item label="存储方式" name="storageType">
+    <a-form-item
+      label="存储方式"
+      name="storageType"
+    >
       <TaktSelect
         v-model:value="formState.storageType"
         dict-type="sys_storage_type"
@@ -34,7 +37,7 @@
           <span>
             OSS提供商
             <a-tooltip :title="getOssTooltipText(formState.ossProvider)">
-              <RiQuestionFill    style="margin-left: 4px; color: #1890ff; cursor: help;" />
+              <RiQuestionFill style="margin-left: 4px; color: #1890ff; cursor: help;" />
             </a-tooltip>
           </span>
         </template>
@@ -53,7 +56,7 @@
           <span>
             FTP提供者
             <a-tooltip :title="getFtpTooltipText(formState.ftpType)">
-              <RiQuestionFill    style="margin-left: 4px; color: #1890ff; cursor: help;" />
+              <RiQuestionFill style="margin-left: 4px; color: #1890ff; cursor: help;" />
             </a-tooltip>
           </span>
         </template>
@@ -65,7 +68,10 @@
       </a-form-item>
     </template>
 
-    <a-form-item label="命名规则" name="storageNaming">
+    <a-form-item
+      label="命名规则"
+      name="storageNaming"
+    >
       <TaktSelect
         v-model:value="formState.storageNaming"
         dict-type="sys_storage_naming"
@@ -84,7 +90,10 @@
       />
     </a-form-item>
 
-    <a-form-item label="是否公开" name="isPublic">
+    <a-form-item
+      label="是否公开"
+      name="isPublic"
+    >
       <TaktSelect
         v-model:value="formState.isPublic"
         dict-type="sys_yes_no"
@@ -92,7 +101,10 @@
       />
     </a-form-item>
 
-    <a-form-item label="文件状态" name="fileStatus">
+    <a-form-item
+      label="文件状态"
+      name="fileStatus"
+    >
       <TaktSelect
         v-model:value="formState.fileStatus"
         dict-type="sys_file_status"
@@ -100,7 +112,10 @@
       />
     </a-form-item>
 
-    <a-form-item label="文件描述" name="fileDescription">
+    <a-form-item
+      label="文件描述"
+      name="fileDescription"
+    >
       <a-textarea
         v-model:value="formState.fileDescription"
         placeholder="请输入文件描述"
@@ -108,7 +123,10 @@
       />
     </a-form-item>
 
-    <a-form-item label="备注" name="remark">
+    <a-form-item
+      label="备注"
+      name="remark"
+    >
       <a-textarea
         v-model:value="formState.remark"
         placeholder="请输入备注"
@@ -116,14 +134,30 @@
       />
     </a-form-item>
 
-    <a-form-item label="文件标签" name="fileTags">
-      <template v-for="(tag, index) in fileTagsList" :key="tag">
-        <a-tooltip v-if="tag.length > 20" :title="tag">
-          <a-tag :closable="index !== 0" @close="() => handleRemoveTag(tag)">
+    <a-form-item
+      label="文件标签"
+      name="fileTags"
+    >
+      <template
+        v-for="(tag, index) in fileTagsList"
+        :key="tag"
+      >
+        <a-tooltip
+          v-if="tag.length > 20"
+          :title="tag"
+        >
+          <a-tag
+            :closable="index !== 0"
+            @close="() => handleRemoveTag(tag)"
+          >
             {{ `${tag.slice(0, 20)}...` }}
           </a-tag>
         </a-tooltip>
-        <a-tag v-else :closable="index !== 0" @close="() => handleRemoveTag(tag)">
+        <a-tag
+          v-else
+          :closable="index !== 0"
+          @close="() => handleRemoveTag(tag)"
+        >
           {{ tag }}
         </a-tag>
       </template>
@@ -137,14 +171,21 @@
         @blur="handleTagInputConfirm"
         @keyup.enter="handleTagInputConfirm"
       />
-      <a-tag v-else-if="fileTagsList.length < 7" @click="showTagInput">
+      <a-tag
+        v-else-if="fileTagsList.length < 7"
+        @click="showTagInput"
+      >
         <plus-outlined />
         添加标签
       </a-tag>
     </a-form-item>
 
     <!-- 文件上传组件 - 放在最后 -->
-    <a-form-item label="文件上传" name="fileUpload" :required="true">
+    <a-form-item
+      label="文件上传"
+      name="fileUpload"
+      :required="true"
+    >
       <TaktUploadFile
         ref="uploadFileRef"
         tabs-type="files"
@@ -622,7 +663,7 @@ const getFtpTooltipText = (provider?: string): string => {
 // 文件类型验证：只允许 jpg, pdf, xlsx, rar
 const validateFileType = (file: File | any, fileList?: File[] | any[]): boolean => {
   // 获取原生 File 对象
-  const originFile = (file as any).originFileObj || (file as File)
+  const originFile = (file).originFileObj || (file as File)
   
   if (!originFile || !(originFile instanceof File)) {
     return false
@@ -683,7 +724,7 @@ const handleFileUpload = async (options: CustomUploadRequestOption) => {
     
     // 使用正确的 API 方法上传文件
     let uploadResult = await uploadFileApi(
-      uploadFile as globalThis.File,
+      uploadFile,
       2, // File = 2
       targetFileName, // 传递目标文件名（如果已设置命名规则）
       onProgress ? (progressEvent: { percent: number }) => {
@@ -801,7 +842,7 @@ const handleFilesChange = (info: UploadChangeParam) => {
   
   const { file } = info
   if (file.status === 'done' && file.response) {
-    const uploadResult = file.response as any
+    const uploadResult = file.response
     if (uploadResult && uploadResult.fileCode) {
       // 自动填充所有字段（包括显示字段）
       formState.fileCode = uploadResult.fileCode || ''

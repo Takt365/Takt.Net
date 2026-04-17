@@ -21,13 +21,19 @@
     @close="handleClose"
   >
     <template #extra>
-      <a-button size="small" @click="handleReset">
+      <a-button
+        size="small"
+        @click="handleReset"
+      >
         {{ resetText }}
       </a-button>
     </template>
     
     <div class="column-setting-content">
-      <a-checkbox-group v-model:value="checkedKeys" class="column-checkbox-group">
+      <a-checkbox-group
+        v-model:value="selectedColumnKeys"
+        class="column-checkbox-group"
+      >
         <div
           v-for="column in validColumns"
           :key="getColumnKey(column)"
@@ -39,7 +45,13 @@
           >
             {{ getColumnTitle(column) }}
           </a-checkbox>
-          <a-tag v-if="isFixedColumn(column)" size="small" color="blue">{{ t('common.button.fixed') }}</a-tag>
+          <a-tag
+            v-if="isFixedColumn(column)"
+            size="small"
+            color="blue"
+          >
+            {{ t('common.button.fixed') }}
+          </a-tag>
         </div>
       </a-checkbox-group>
     </div>
@@ -53,6 +65,27 @@ import { mergeDefaultColumns } from '@/utils/table-columns'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+
+/** 与 Table `columns` 单项类型一致（title 可为 ColumnTitle，不可收窄为 string） */
+type ColumnItem = TableColumnsType[number]
+
+/** 列设置里仅展示 string/number 标题；VNode/函数标题退回 key/dataIndex */
+function columnTitlePrimitive(column: ColumnItem): string | number | undefined {
+  const v = column.title
+  if (v == null) return undefined
+  if (typeof v === 'string' || typeof v === 'number') return v
+  return undefined
+}
+
+/** ColumnGroupType 无 dataIndex；DataIndex 可为路径数组，统一成 string | number 供 key 使用 */
+function columnDataIndex(column: ColumnItem): string | number | undefined {
+  if (!('dataIndex' in column)) return undefined
+  const di = column.dataIndex
+  if (di == null) return undefined
+  if (typeof di === 'string' || typeof di === 'number') return di
+  const parts = [...di]
+  return parts.length ? parts.join('.') : undefined
+}
 
 interface Props {
   /** 是否显示抽屉 */
@@ -112,7 +145,7 @@ const mergedColumns = computed(() => {
   if (import.meta.env.DEV) {
     console.debug('[TaktColumnDrawer] mergedColumns 计算:', {
       columnsLength: columns.length,
-      columnsKeys: columns.slice(0, 5).map((col: any) => col.key || col.dataIndex || col.title)
+      columnsKeys: columns.slice(0, 5).map((col) => col.key ?? columnDataIndex(col) ?? columnTitlePrimitive(col))
     })
   }
   
@@ -121,7 +154,7 @@ const mergedColumns = computed(() => {
   if (import.meta.env.DEV) {
     console.debug('[TaktColumnDrawer] mergeDefaultColumns 结果:', {
       mergedLength: merged.length,
-      mergedKeys: merged.slice(0, 10).map((col: any) => col.key || col.dataIndex || col.title)
+      mergedKeys: merged.slice(0, 10).map((col) => col.key ?? columnDataIndex(col) ?? columnTitlePrimitive(col))
     })
   }
   
@@ -132,8 +165,7 @@ const attrs = useAttrs()
 
 // 计算 drawer 的所有属性，排除已定义的 props
 const drawerProps = computed(() => {
-  const { open, title, placement, width, resetText, columns, checkedKeys, idColumnKey, actionColumnKey, ...rest } = attrs
-  return rest
+  return attrs
 })
 
 // 确保操作列始终被包含，并在最后
@@ -146,8 +178,8 @@ const ensureFixedColumns = (keys: string[]): string[] => {
 }
 
 // 获取列键（统一转换为字符串）
-const getColumnKey = (column: any): string => {
-  const key = column.key || column.dataIndex || column.title
+const getColumnKey = (column: ColumnItem): string => {
+  const key = column.key ?? columnDataIndex(column) ?? columnTitlePrimitive(column)
   if (key == null || key === '') {
     return ''
   }
@@ -155,12 +187,14 @@ const getColumnKey = (column: any): string => {
 }
 
 // 获取列标题
-const getColumnTitle = (column: any): string => {
-  return column.title || String(column.key || column.dataIndex || '')
+const getColumnTitle = (column: ColumnItem): string => {
+  const fromTitle = columnTitlePrimitive(column)
+  if (fromTitle != null && fromTitle !== '') return String(fromTitle)
+  return String(column.key ?? columnDataIndex(column) ?? '')
 }
 
 // 判断是否为固定列（只有操作列是固定的）
-const isFixedColumn = (column: any): boolean => {
+const isFixedColumn = (column: ColumnItem): boolean => {
   const key = getColumnKey(column)
   const actionKey = String(props.actionColumnKey)
   return key === actionKey
@@ -169,8 +203,8 @@ const isFixedColumn = (column: any): boolean => {
 // 获取有效的列（有 key、dataIndex 或 title 的列）
 // 使用合并后的列配置（包含审计字段）
 const validColumns = computed(() => {
-  return mergedColumns.value.filter(col => {
-    const key = col.key || (col as any).dataIndex || col.title
+  return mergedColumns.value.filter((col) => {
+    const key = col.key ?? columnDataIndex(col) ?? columnTitlePrimitive(col)
     return key != null && key !== ''
   })
 })
@@ -253,7 +287,7 @@ onMounted(() => {
 
 // 使用 computed 来绑定到 checkbox-group
 // 当用户勾选/取消勾选时，会触发 setter，更新内部状态并通知父组件
-const checkedKeys = computed({
+const selectedColumnKeys = computed({
   get: () => {
     return internalCheckedKeys.value
   },
@@ -270,7 +304,7 @@ const checkedKeys = computed({
 // 处理重置
 const handleReset = () => {
   // 重置为默认的9个列（ID + 7个字段 + 操作列）
-  checkedKeys.value = getDefaultCheckedKeys()
+  selectedColumnKeys.value = getDefaultCheckedKeys()
   emit('reset')
 }
 
@@ -286,7 +320,7 @@ defineExpose({
   mergedColumns,
   // 根据选中 keys 过滤的列配置
   displayColumns: computed(() => {
-    const keys = checkedKeys.value || []
+    const keys = selectedColumnKeys.value || []
     const merged = mergedColumns.value || []
     return merged.filter(col => {
       const key = getColumnKey(col)

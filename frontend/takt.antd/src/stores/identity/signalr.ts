@@ -12,6 +12,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import type { VNodeChild } from 'vue'
 import { signalRManager } from '@/utils/signalr'
 import * as signalR from '@microsoft/signalr'
 import type {
@@ -27,6 +28,15 @@ import type {
 } from '@/types/routine/tasks/signalr/signalr'
 import { message, notification } from 'ant-design-vue'
 import i18n from '@/locales'
+
+/** 非 setup 场景下 `i18n.global.t` 为 Composer / Legacy 联合类型，TS 无法直接调用；收窄为可调用签名 */
+function tGlobal(key: string): string {
+  return String((i18n.global as { t: (k: string) => unknown }).t(key))
+}
+
+type MessageWithId = SignalRMessage & { messageId?: number }
+const toErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error)
 
 export const useSignalRStore = defineStore('signalr', () => {
   // 状态
@@ -72,7 +82,7 @@ export const useSignalRStore = defineStore('signalr', () => {
     broadcastMessages.value.push(msg)
     // 显示通知
     message.info({
-      content: `[${i18n.global.t('stores.signalr.broadcastLabel')}] ${msg.messageContent}`,
+      content: `[${tGlobal('stores.signalr.broadcastLabel')}] ${msg.messageContent}`,
       duration: 5
     })
   }
@@ -83,7 +93,7 @@ export const useSignalRStore = defineStore('signalr', () => {
 
   const handleMessageRead = (event: MessageReadEvent) => {
     // 更新消息状态
-    const message = messages.value.find((m) => (m as any).messageId === event.messageId)
+    const message = messages.value.find((m: MessageWithId) => m.messageId === event.messageId)
     if (message) {
       message.readStatus = 1
       if (unreadCount.value > 0) {
@@ -94,15 +104,18 @@ export const useSignalRStore = defineStore('signalr', () => {
 
   const handleError = (error: SignalRErrorEvent) => {
     logger.error('[SignalR Store] SignalR 错误:', error)
-    message.error(error.message || i18n.global.t('stores.signalr.error'))
+    const errText = String(error.message ?? '').trim()
+    message.error(errText || tGlobal('stores.signalr.error'))
   }
 
   const handleOnlineMessage = (event: OnlineMessageEvent) => {
     logger.info('[SignalR Store] 收到上线消息:', event.message)
+    // OpenAPI 推断的 message 为 unknown，需转为 VNodeChild 才能满足 Notification 的 props
+    const description: VNodeChild = String(event.message ?? '')
     // 显示上线通知（使用 Notification，位置在右上角）
     notification.success({
-      message: i18n.global.t('stores.signalr.onlineNotify'),
-      description: event.message,
+      message: tGlobal('stores.signalr.onlineNotify'),
+      description,
       placement: 'topRight',
       duration: 10
     })
@@ -136,20 +149,20 @@ export const useSignalRStore = defineStore('signalr', () => {
       try {
         await refreshOnlineUsers()
         logger.debug('[SignalR Store] 已获取在线用户列表')
-      } catch (error: any) {
-        logger.error('[SignalR Store] 获取在线用户列表失败:', error.message || error)
+      } catch (error: unknown) {
+        logger.error('[SignalR Store] 获取在线用户列表失败:', toErrorMessage(error))
       }
       
       // 获取未读消息数量
       try {
         await refreshUnreadCount()
         logger.debug('[SignalR Store] 已获取未读消息数量')
-      } catch (error: any) {
-        logger.error('[SignalR Store] 获取未读消息数量失败:', error.message || error)
+      } catch (error: unknown) {
+        logger.error('[SignalR Store] 获取未读消息数量失败:', toErrorMessage(error))
       }
-    } catch (error: any) {
-      logger.error('[SignalR Store] SignalR 连接失败，错误:', error.message || error)
-      message.error(i18n.global.t('stores.signalr.connectFail'))
+    } catch (error: unknown) {
+      logger.error('[SignalR Store] SignalR 连接失败，错误:', toErrorMessage(error))
+      message.error(tGlobal('stores.signalr.connectFail'))
       throw error
     }
   }
@@ -165,8 +178,8 @@ export const useSignalRStore = defineStore('signalr', () => {
       broadcastMessages.value = []
       unreadCount.value = 0
       logger.info('[SignalR Store] SignalR 断开连接成功')
-    } catch (error: any) {
-      logger.error('[SignalR Store] SignalR 断开连接失败，错误:', error.message || error)
+    } catch (error: unknown) {
+      logger.error('[SignalR Store] SignalR 断开连接失败，错误:', toErrorMessage(error))
       throw error
     }
   }
@@ -204,7 +217,7 @@ export const useSignalRStore = defineStore('signalr', () => {
       await signalRManager.sendMessage(toUserName, messageContent, messageTitle, messageType, messageGroup, messageExtData)
     } catch (error) {
       logger.error('[SignalR Store] 发送消息失败:', error)
-      message.error(i18n.global.t('stores.signalr.sendFail'))
+      message.error(tGlobal('stores.signalr.sendFail'))
       throw error
     }
   }
@@ -220,7 +233,7 @@ export const useSignalRStore = defineStore('signalr', () => {
       await signalRManager.broadcastMessage(messageContent, messageTitle, messageType, messageGroup)
     } catch (error) {
       logger.error('[SignalR Store] 发送广播消息失败:', error)
-      message.error(i18n.global.t('stores.signalr.broadcastFail'))
+      message.error(tGlobal('stores.signalr.broadcastFail'))
       throw error
     }
   }

@@ -2,28 +2,35 @@
 <!-- 项目名称：节拍数字工厂 · Takt Digital Factory (TDF) -->
 <!-- 命名空间：@/views/human-resource/personnel/employee/components -->
 <!-- 文件名称：employee-form.vue -->
-<!-- 功能描述：员工维护弹窗内嵌表单。由 employee/index.vue 引用；defineExpose 提供 validate、getValues、resetFields、setServerValidationErrors。 -->
+<!-- 功能描述：员工维护弹窗内嵌表单。由 employee/index.vue 引用；含“基本信息/更多信息”双标签页，覆盖员工核心信息与扩展字段；defineExpose 提供 validate、getValues、resetFields、setServerValidationErrors。 -->
 <!--  -->
 <!-- 版权信息：Copyright (c) 2025 Takt  All rights reserved. -->
 <!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->
 <!-- ======================================== -->
 
 <template>
-  <a-tabs v-model:activeKey="activeTab">
-    <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
-      <div :class="formContentClass">
-        <a-form
-          ref="formRef"
-          :model="formState"
-          :rules="rules"
-          :label-col="{ span: 6 }"
-          :wrapper-col="{ span: 18 }"
-          layout="horizontal"
-          label-align="right"
-        >
+  <a-form
+    ref="formRef"
+    :model="formState"
+    :rules="rules"
+    :label-col="{ span: 6 }"
+    :wrapper-col="{ span: 18 }"
+    layout="horizontal"
+    label-align="right"
+  >
+    <a-tabs v-model:active-key="activeTab">
+      <a-tab-pane
+        key="basic"
+        :tab="t('common.form.tabs.basicInfo')"
+        force-render
+      >
+        <div :class="formContentClass">
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.code')" name="employeeCode">
+              <a-form-item
+                :label="t('entity.employee.code')"
+                name="employeeCode"
+              >
                 <a-input
                   v-model:value="formState.employeeCode"
                   :disabled="!isEdit"
@@ -33,7 +40,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.realname')" name="realName">
+              <a-form-item
+                :label="t('entity.employee.realname')"
+                name="realName"
+              >
                 <a-input
                   v-model:value="formState.realName"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.employee.realname') })"
@@ -42,7 +52,10 @@
               </a-form-item>
             </a-col>
           </a-row>
-          <a-row v-if="!isEdit && isAdmin" :gutter="24">
+          <a-row
+            v-if="!isEdit && isAdmin"
+            :gutter="24"
+          >
             <a-col :span="24">
               <a-form-item
                 :label="t('entity.employee.systemEmployeeCode')"
@@ -57,31 +70,58 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.formername')" name="formerName">
-                <a-input v-model:value="formState.formerName" allow-clear />
+              <a-form-item
+                :label="t('entity.employee.formername')"
+                name="formerName"
+              >
+                <a-input
+                  v-model:value="formState.formerName"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.fullname')" name="fullName">
-                <a-input v-model:value="formState.fullName" allow-clear />
+              <a-form-item
+                :label="t('entity.employee.fullname')"
+                name="fullName"
+              >
+                <a-input
+                  v-model:value="formState.fullName"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.nativename')" name="nativeName">
-                <a-input v-model:value="formState.nativeName" allow-clear />
+              <a-form-item
+                :label="t('entity.employee.nativename')"
+                name="nativeName"
+              >
+                <a-input
+                  v-model:value="formState.nativeName"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.displayname')" name="displayName">
-                <a-input v-model:value="formState.displayName" allow-clear />
+              <a-form-item
+                :label="t('entity.employee.displayname')"
+                name="displayName"
+              >
+                <a-input
+                  v-model:value="formState.displayName"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.gender')" name="gender">
+              <a-form-item
+                :label="t('entity.employee.gender')"
+                name="gender"
+              >
                 <TaktSelect
                   v-model:value="formState.gender"
                   :options="genderOptions"
@@ -92,7 +132,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.birthdate')" name="birthDate">
+              <a-form-item
+                :label="t('entity.employee.birthdate')"
+                name="birthDate"
+              >
                 <a-date-picker
                   v-model:value="formState.birthDate"
                   value-format="YYYY-MM-DD"
@@ -101,26 +144,120 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.idcard')" name="idCard">
-                <a-input v-model:value="formState.idCard" allow-clear />
+              <a-form-item
+                :label="t('entity.employee.idcard')"
+                name="idCard"
+              >
+                <a-input
+                  v-model:value="formState.idCard"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.phone')" name="phone">
-                <a-input v-model:value="formState.phone" allow-clear />
+              <a-form-item
+                :label="t('entity.employee.phone')"
+                name="phone"
+              >
+                <a-input
+                  v-model:value="formState.phone"
+                  allow-clear
+                />
+              </a-form-item>
+            </a-col>
+          </a-row>
+        </div>
+      </a-tab-pane>
+      <a-tab-pane
+        key="more"
+        :tab="t('common.button.more')"
+        force-render
+      >
+        <div :class="formContentClass">
+          <a-row :gutter="24">
+            <a-col :span="12">
+              <a-form-item
+                :label="t('entity.employee.email')"
+                name="email"
+              >
+                <a-input
+                  v-model:value="formState.email"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.email')" name="email">
-                <a-input v-model:value="formState.email" allow-clear />
+              <a-form-item
+                :label="t('entity.employee.age')"
+                name="age"
+              >
+                <a-input-number
+                  v-model:value="formState.age"
+                  :min="0"
+                  :max="150"
+                  style="width: 100%"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.nativeplace')" name="nativePlace">
+              <a-form-item
+                :label="t('entity.employee.avatar')"
+                name="avatar"
+              >
+                <a-input
+                  v-model:value="formState.avatar"
+                  allow-clear
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-item
+                :label="t('entity.employee.nationality')"
+                name="nationality"
+              >
+                <a-input
+                  v-model:value="formState.nationality"
+                  allow-clear
+                />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-row :gutter="24">
+            <a-col :span="12">
+              <a-form-item
+                :label="t('entity.employee.politicalstatus')"
+                name="politicalStatus"
+              >
+                <TaktSelect
+                  v-model:value="formState.politicalStatus"
+                  dict-type="hr_political_status"
+                  :placeholder="t('common.form.placeholder.select', { field: t('entity.employee.politicalstatus') })"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-item
+                :label="t('entity.employee.maritalstatus')"
+                name="maritalStatus"
+              >
+                <TaktSelect
+                  v-model:value="formState.maritalStatus"
+                  dict-type="hr_marital_status"
+                  :placeholder="t('common.form.placeholder.select', { field: t('entity.employee.maritalstatus') })"
+                />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-row :gutter="24">
+            <a-col :span="12">
+              <a-form-item
+                :label="t('entity.employee.nativeplace')"
+                name="nativePlace"
+              >
                 <TaktSelect
                   v-model:value="formState.nativePlace"
                   dict-type="hr_native_place"
@@ -128,8 +265,13 @@
                 />
               </a-form-item>
             </a-col>
+          </a-row>
+          <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.employee.employeestatus')" name="employeeStatus">
+              <a-form-item
+                :label="t('entity.employee.employeestatus')"
+                name="employeeStatus"
+              >
                 <TaktSelect
                   v-model:value="formState.employeeStatus"
                   dict-type="hr_employee_status"
@@ -140,27 +282,60 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('entity.employee.currentaddress')" name="currentAddress" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-                <a-input v-model:value="formState.currentAddress" allow-clear />
+              <a-form-item
+                :label="t('entity.employee.currentaddress')"
+                name="currentAddress"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
+                <a-input
+                  v-model:value="formState.currentAddress"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('entity.employee.remark')" name="remark" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-                <a-textarea v-model:value="formState.remark" :rows="2" allow-clear />
+              <a-form-item
+                :label="t('entity.employee.registeredaddress')"
+                name="registeredAddress"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
+                <a-input
+                  v-model:value="formState.registeredAddress"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
-        </a-form>
-      </div>
-    </a-tab-pane>
-  </a-tabs>
+          <a-row :gutter="24">
+            <a-col :span="24">
+              <a-form-item
+                :label="t('entity.employee.remark')"
+                name="remark"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
+                <a-textarea
+                  v-model:value="formState.remark"
+                  :rows="2"
+                  allow-clear
+                />
+              </a-form-item>
+            </a-col>
+          </a-row>
+        </div>
+      </a-tab-pane>
+    </a-tabs>
+  </a-form>
 </template>
 
 <script setup lang="ts">
 /**
  * 员工表单脚本：与 `employee/index.vue` 中表单 ref 配合；
+ * 表单按“基本信息/更多信息”分组，统一维护 formState 回填、校验、取值与重置；
  * 父组件通过 `validate`、`getValues`、`resetFields`、`setServerValidationErrors` 完成弹窗提交流程。
  */
 import { reactive, watch, ref, computed } from 'vue'
@@ -189,7 +364,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const formRef = ref()
 const activeTab = ref('basic')
-const TOTAL_FIELDS = 14
+const TOTAL_FIELDS = 21
 const formContentClass = computed(() =>
   TOTAL_FIELDS >= 30 ? 'takt-form-content-rows-10' : 'takt-form-content-rows-5'
 )
@@ -230,11 +405,17 @@ interface FormState {
   displayName?: string
   gender?: number
   birthDate?: string
+  age?: number
   idCard?: string
   phone?: string
   email?: string
+  avatar?: string
+  nationality?: string
+  politicalStatus?: number
+  maritalStatus?: number
   nativePlace?: string
   currentAddress?: string
+  registeredAddress?: string
   employeeStatus?: number
   remark?: string
 }
@@ -249,11 +430,17 @@ const formState = reactive<FormState>({
   displayName: '',
   gender: undefined,
   birthDate: '',
+  age: undefined,
   idCard: '',
   phone: '',
   email: '',
+  avatar: '',
+  nationality: '',
+  politicalStatus: 0,
+  maritalStatus: 0,
   nativePlace: '',
   currentAddress: '',
+  registeredAddress: '',
   employeeStatus: 0,
   remark: ''
 })
@@ -327,11 +514,17 @@ watch(
         displayName: newData.displayName ?? '',
         gender: newData.gender ?? 0,
         birthDate: newData.birthDate ?? '',
+        age: newData.age ?? undefined,
         idCard: newData.idCard ?? '',
         phone: newData.phone ?? '',
         email: newData.email ?? '',
+        avatar: newData.avatar ?? '',
+        nationality: newData.nationality ?? '',
+        politicalStatus: newData.politicalStatus ?? 0,
+        maritalStatus: newData.maritalStatus ?? 0,
         nativePlace: newData.nativePlace ?? '',
         currentAddress: newData.currentAddress ?? '',
+        registeredAddress: newData.registeredAddress ?? '',
         employeeStatus: newData.employeeStatus ?? 0,
         remark: newData.remark ?? ''
       })
@@ -346,11 +539,17 @@ watch(
         displayName: '',
         gender: undefined,
         birthDate: '',
+        age: undefined,
         idCard: '',
         phone: '',
         email: '',
+        avatar: '',
+        nationality: '',
+        politicalStatus: 0,
+        maritalStatus: 0,
         nativePlace: '',
         currentAddress: '',
+        registeredAddress: '',
         employeeStatus: 0,
         remark: ''
       })
@@ -373,11 +572,17 @@ const getValues = (): EmployeeCreate => {
     displayName: formState.displayName || undefined,
     gender: formState.gender ?? 0,
     birthDate: formState.birthDate || undefined,
+    age: formState.age ?? undefined,
     idCard: formState.idCard || undefined,
     phone: formState.phone || undefined,
     email: formState.email || undefined,
+    avatar: formState.avatar || undefined,
+    nationality: formState.nationality || undefined,
+    politicalStatus: formState.politicalStatus ?? 0,
+    maritalStatus: formState.maritalStatus ?? 0,
     nativePlace: formState.nativePlace || undefined,
     currentAddress: formState.currentAddress || undefined,
+    registeredAddress: formState.registeredAddress || undefined,
     employeeStatus: formState.employeeStatus ?? 0,
     remark: formState.remark || undefined
   }
@@ -402,11 +607,17 @@ const resetFields = () => {
     displayName: '',
     gender: undefined,
     birthDate: '',
+    age: undefined,
     idCard: '',
     phone: '',
     email: '',
+    avatar: '',
+    nationality: '',
+    politicalStatus: 0,
+    maritalStatus: 0,
     nativePlace: '',
     currentAddress: '',
+    registeredAddress: '',
     employeeStatus: 0,
     remark: ''
   })

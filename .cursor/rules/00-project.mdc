@@ -11,11 +11,11 @@ alwaysApply: true
 
 ```text
 Takt.Net/
-├── backend/                        # .NET 8 后端
+├── backend/                        # .NET 9+ 后端
 │   ├── src/
 │   │   ├── Takt.Domain/           # 领域层：实体、仓储接口、领域接口、验证
 │   │   ├── Takt.Application/      # 应用层：DTO、应用服务
-│   │   ├── Takt.Infrastructure/   # 基础设施：SqlSugar、多库、仓储实现、种子、Swagger 等
+│   │   ├── Takt.Infrastructure/   # 基础设施：SqlSugar、多库、仓储实现、种子、OpenAPI/Scalar 等
 │   │   ├── Takt.Shared/           # 共享：通用模型、异常、帮助类
 │   │   └── Takt.WebApi/           # Web API：控制器、Program、配置说明
 │   └── Takt.Net.sln               # 后端解决方案
@@ -34,16 +34,16 @@ Takt.Net/
 
 ## 文档与配置
 
-- 后端配置说明：`backend/src/Takt.WebApi/配置说明.md`（包含租户、多库、Swagger、日志等配置要点）。
-- 后端 Swagger 文档：
-  - 通过 `Takt.Infrastructure.Extensions.TaktSwaggerCollectionExtensions.AddTaktSwagger` 注册；
-  - 在 `appsettings.json` 中启用 `"Swagger": { "Enabled": true }` 后，通过 `/swagger` 访问 UI。
+- 后端配置说明：`backend/src/Takt.WebApi/配置说明.md`（包含租户、多库、`Swagger.Enabled`（API 文档开关）、日志等配置要点）。
+- 后端 API 文档（内置 OpenAPI + Scalar）：
+  - 通过 `Takt.Infrastructure.Extensions.TaktSwaggerCollectionExtensions.AddTaktSwagger` / `UseTaktSwaggerUI` 注册；
+  - 在 `appsettings.json` 中启用 `"Swagger": { "Enabled": true }` 后：`/swagger` 为 Scalar UI，`/openapi/{documentName}.json` 为分组 OpenAPI 规范（细则见 `配置说明.md`「API 文档」）。
 
 ## 技术栈
 
 | 层级 | 技术 |
 |------|------|
-| 后端 | .NET 8、C#、SqlSugarCore、Swashbuckle、Serilog、多租户/多库（ConfigId 路由） |
+| 后端 | .NET 9+、C#、SqlSugarCore、ASP.NET Core 内置 OpenAPI、Scalar、Serilog、多租户/多库（ConfigId 路由） |
 | 前端 | Vue 3、Vite、Ant Design Vue、TypeScript、Pinia、Axios |
 
 ## 项目总则

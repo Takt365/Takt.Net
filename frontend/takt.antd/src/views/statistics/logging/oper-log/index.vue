@@ -75,13 +75,14 @@ import type { TableColumnsType } from 'ant-design-vue'
 import { CreateActionColumn } from '@/components/business/takt-action-column/index'
 import { mergeDefaultColumns } from '@/utils/table-columns'
 import { useI18n } from 'vue-i18n'
+import TaktSingleTable from '@/components/business/takt-single-table/index.vue'
 import {
   getOperLogList,
   deleteOperLog,
   deleteOperLogBatch,
   exportOperLog
 } from '@/api/statistics/logging/oper-log'
-import type { OperLog } from '@/types/statistics/logging/oper-log'
+import type { OperLog, OperLogQuery } from '@/types/statistics/logging/oper-log'
 import { logger } from '@/utils/logger'
 import { RiDeleteBinLine } from '@remixicon/vue'
 
@@ -99,12 +100,48 @@ const tableRef = ref<InstanceType<typeof TaktSingleTable> | null>(null)
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
 
+type OperLogColumn = {
+  key?: string | number
+  dataIndex?: string | number
+  title?: string | number
+  width?: number
+}
+
+type TableSorterInfo = {
+  field?: string
+  order?: string
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = (error as { message?: unknown }).message
+    if (typeof message === 'string' && message.trim()) return message
+  }
+  return fallback
+}
+
+function getColumnKey(column: OperLogColumn): string {
+  const key = column.key ?? column.dataIndex ?? column.title
+  return key != null ? String(key) : ''
+}
+
+function getSorterInfo(sorter: unknown): TableSorterInfo {
+  if (typeof sorter !== 'object' || sorter === null) return {}
+  const sorterObj = sorter as { field?: unknown; order?: unknown }
+  return {
+    field: typeof sorterObj.field === 'string' ? sorterObj.field : undefined,
+    order: typeof sorterObj.order === 'string' ? sorterObj.order : undefined
+  }
+}
+
 onMounted(() => {
   loadData()
 })
 
-const getOperLogId = (record: any): string => record?.operLogId != null ? String(record.operLogId) : ''
-const getOperLogField = (record: any, field: string): any => record?.[field]
+const getOperLogId = (record: OperLog): string => record?.operLogId != null ? String(record.operLogId) : ''
+function getOperLogField<K extends keyof OperLog>(record: OperLog, field: K): OperLog[K] {
+  return record[field]
+}
 
 const columns = ref<TableColumnsType>([
   {
@@ -115,7 +152,7 @@ const columns = ref<TableColumnsType>([
     resizable: true,
     ellipsis: true,
     fixed: 'left',
-    customRender: ({ record }: { record: any }) => getOperLogField(record, 'operLogId') ?? ''
+    customRender: ({ record }: { record: OperLog }) => getOperLogField(record, 'operLogId') ?? ''
   },
   {
     title: '用户名',
@@ -190,15 +227,14 @@ const columns = ref<TableColumnsType>([
   })
 ])
 
-const mergedColumns = computed((): any => mergeDefaultColumns(columns.value as any, t, true))
-const displayColumns = computed((): any => {
+const mergedColumns = computed<TableColumnsType>(() => mergeDefaultColumns(columns.value, t, true))
+const displayColumns = computed<TableColumnsType>(() => {
   const keys = visibleColumnKeys.value || []
-  const merged: any = mergedColumns.value || []
+  const merged = mergedColumns.value || []
   if (keys.length === 0) return columns.value
-  const getColumnKey = (col: any): string => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
   const keysSet = new Set(keys.map(k => String(k)))
-  return merged.filter((col: any) => {
-    const colKey = getColumnKey(col)
+  return merged.filter((col) => {
+    const colKey = getColumnKey(col as OperLogColumn)
     return colKey && keysSet.has(colKey)
   })
 })
@@ -234,20 +270,19 @@ const onClickRow = (record: OperLog) => ({
 const loadData = async () => {
   try {
     loading.value = true
-    const params: any = {
-      PageIndex: currentPage.value,
-      PageSize: pageSize.value
+    const params: OperLogQuery = {
+      pageIndex: currentPage.value,
+      pageSize: pageSize.value
     }
-    if (queryKeyword.value) params.KeyWords = queryKeyword.value
+    if (queryKeyword.value) params.keyWords = queryKeyword.value
     const response = await getOperLogList(params)
-    const responseAny = response as any
-    const items = response?.data ?? responseAny?.Data ?? []
-    const totalCount = response?.total ?? responseAny?.Total ?? 0
+    const items = response?.data ?? []
+    const totalCount = response?.total ?? 0
     dataSource.value = items
     total.value = totalCount
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[OperLog] 加载数据失败:', error)
-    message.error(error?.message ?? '加载数据失败')
+    message.error(getErrorMessage(error, '加载数据失败'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -257,8 +292,9 @@ const loadData = async () => {
 
 const handleSearch = () => { currentPage.value = 1; loadData() }
 const handleReset = () => { queryKeyword.value = ''; currentPage.value = 1; loadData() }
-const handleTableChange = (_pagination: any, _filters: any, sorter: any) => {
-  if (sorter?.order) logger.debug('[OperLog] 排序:', sorter.field, sorter.order)
+const handleTableChange = (_pagination: unknown, _filters: unknown, sorter: unknown) => {
+  const sorterInfo = getSorterInfo(sorter)
+  if (sorterInfo.order) logger.debug('[OperLog] 排序:', sorterInfo.field, sorterInfo.order)
 }
 const handlePaginationChange = (page: number, size: number) => {
   currentPage.value = page
@@ -270,9 +306,9 @@ const handlePaginationSizeChange = (_current: number, size: number) => {
   pageSize.value = size
   loadData()
 }
-const handleResizeColumn = (w: number, col: any) => {
-  const column = columns.value.find((c: any) => String(c.key || c.dataIndex || c.title) === String(col.key || col.dataIndex || col.title))
-  if (column) column.width = w
+const handleResizeColumn = (w: number, col: OperLogColumn) => {
+  const column = columns.value.find((c) => getColumnKey(c as OperLogColumn) === getColumnKey(col))
+  if (column) (column as OperLogColumn).width = w
 }
 
 const handleDeleteOne = (record: OperLog) => {
@@ -288,8 +324,8 @@ const handleDeleteOne = (record: OperLog) => {
         await deleteOperLog(getOperLogId(record))
         message.success('删除成功')
         loadData()
-      } catch (error: any) {
-        message.error(error?.message ?? '删除失败')
+      } catch (error: unknown) {
+        message.error(getErrorMessage(error, '删除失败'))
       } finally {
         loading.value = false
       }
@@ -316,8 +352,8 @@ const handleDelete = () => {
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
-      } catch (error: any) {
-        message.error(error?.message ?? '删除失败')
+      } catch (error: unknown) {
+        message.error(getErrorMessage(error, '删除失败'))
       } finally {
         loading.value = false
       }
@@ -327,8 +363,8 @@ const handleDelete = () => {
 const handleExport = async () => {
   try {
     loading.value = true
-    const params: any = { PageIndex: 1, PageSize: total.value || 99999 }
-    if (queryKeyword.value) params.KeyWords = queryKeyword.value
+    const params: OperLogQuery = { pageIndex: 1, pageSize: total.value || 99999 }
+    if (queryKeyword.value) params.keyWords = queryKeyword.value
     const blob = await exportOperLog(params, undefined, '操作日志')
     const ts = new Date(); const t = (n: number, w = 2) => String(n).padStart(w, '0')
     const fileName = `操作日志_${ts.getFullYear()}${t(ts.getMonth()+1)}${t(ts.getDate())}${t(ts.getHours())}${t(ts.getMinutes())}${t(ts.getSeconds())}.xlsx`
@@ -342,9 +378,9 @@ const handleExport = async () => {
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
     message.success('导出成功')
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[OperLog] 导出失败:', error)
-    message.error(error?.message ?? '导出失败')
+    message.error(getErrorMessage(error, '导出失败'))
   } finally {
     loading.value = false
   }

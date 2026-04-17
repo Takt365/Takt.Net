@@ -77,8 +77,17 @@
     </template>
 
     <!-- 多个标签页时显示 tabs -->
-    <a-tabs v-else v-model:activeKey="activeKey" type="card" class="takt-upload-file-tabs">
-      <a-tab-pane v-if="visibleTabs.includes('avatar')" key="avatar" :tab="t('components.common.upload.avatar')">
+    <a-tabs
+      v-else
+      v-model:active-key="currentActiveKey"
+      type="card"
+      class="takt-upload-file-tabs"
+    >
+      <a-tab-pane
+        v-if="visibleTabs.includes('avatar')"
+        key="avatar"
+        :tab="t('components.common.upload.avatar')"
+      >
         <takt-upload-avatar
           v-model="avatarUrl"
           :avatar-size="avatarSize"
@@ -92,7 +101,11 @@
         />
       </a-tab-pane>
 
-      <a-tab-pane v-if="visibleTabs.includes('images')" key="images" :tab="t('components.common.upload.images')">
+      <a-tab-pane
+        v-if="visibleTabs.includes('images')"
+        key="images"
+        :tab="t('components.common.upload.images')"
+      >
         <takt-upload-images
           v-model="imagesFileList"
           :name="imagesName"
@@ -118,7 +131,11 @@
         />
       </a-tab-pane>
 
-      <a-tab-pane v-if="visibleTabs.includes('files')" key="files" :tab="t('components.common.upload.files')">
+      <a-tab-pane
+        v-if="visibleTabs.includes('files')"
+        key="files"
+        :tab="t('components.common.upload.files')"
+      >
         <takt-upload-files
           ref="filesUploadRef"
           v-model="filesFileList"
@@ -193,7 +210,7 @@ interface Props {
   /** 图片是否禁用 */
   imagesDisabled?: boolean
   /** 图片列表类型 */
-  imagesListType?: 'text' | 'picture' | 'picture-card' | 'picture-circle'
+  imagesListType?: UploadProps['listType']
   /** 图片上传前钩子 */
   imagesBeforeUpload?: UploadProps['beforeUpload']
   /** 图片自定义上传请求 */
@@ -298,6 +315,10 @@ const props = withDefaults(defineProps<Props>(), {
 const imagesUploadTextDisplay = computed(() => props.imagesUploadText ?? t('components.common.upload.upload'))
 const filesTextDisplay = computed(() => props.filesText ?? t('components.common.upload.filesText'))
 const filesHintDisplay = computed(() => props.filesHint ?? t('components.common.upload.filesHint'))
+type FilesUploadRef = {
+  uploadFiles: () => Promise<void>
+  clearFiles: () => void
+}
 
 const emit = defineEmits<{
   /** 当前激活标签页变化 */
@@ -353,27 +374,27 @@ const defaultActiveKey = computed<'avatar' | 'images' | 'files'>(() => {
   return visibleTabs.value[0] || 'avatar'
 })
 
-const activeKey = ref<'avatar' | 'images' | 'files'>(defaultActiveKey.value)
+const currentActiveKey = ref<'avatar' | 'images' | 'files'>(defaultActiveKey.value)
 const avatarUrl = ref(props.avatarUrl)
 const imagesFileList = ref<UploadFile[]>(props.imagesFileList || [])
 const filesFileList = ref<UploadFile[]>(props.filesFileList || [])
-const filesUploadRef = ref<any>(null)
+const filesUploadRef = ref<FilesUploadRef | null>(null)
 
 // 监听 visibleTabs 变化，自动调整 activeKey
 watch(visibleTabs, (newTabs) => {
-  if (!newTabs.includes(activeKey.value)) {
-    activeKey.value = newTabs[0] || 'avatar'
+  if (!newTabs.includes(currentActiveKey.value)) {
+    currentActiveKey.value = newTabs[0] || 'avatar'
   }
 }, { immediate: true })
 
 // 监听 activeKey 变化
 watch(() => props.activeKey, (newValue) => {
   if (newValue) {
-    activeKey.value = newValue
+    currentActiveKey.value = newValue
   }
 }, { immediate: true })
 
-watch(activeKey, (newValue) => {
+watch(currentActiveKey, (newValue) => {
   emit('update:activeKey', newValue)
 })
 

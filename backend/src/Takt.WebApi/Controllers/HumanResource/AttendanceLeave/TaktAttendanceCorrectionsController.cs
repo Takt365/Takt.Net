@@ -24,7 +24,7 @@ namespace Takt.WebApi.Controllers.HumanResource.AttendanceLeave;
 /// 补卡管理控制器，提供补卡记录的 RESTful API。
 /// </summary>
 [Route("api/[controller]", Name = "补卡")]
-[ApiModule("HumanResource.AttendanceLeave", "考勤请假")]
+[ApiModule("HumanResource", "人力资源")]
 [TaktPermission("humanresource:attendanceleave:attendancecorrection:list", "补卡管理")]
 public class TaktAttendanceCorrectionsController : TaktControllerBase
 {

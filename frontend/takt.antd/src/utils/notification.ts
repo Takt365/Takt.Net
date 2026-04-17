@@ -18,7 +18,9 @@ notification.config({ placement: 'topRight' })
 
 function t(key: string): string {
   const locale = useLocaleStore().locale
-  return (i18n.global.t as (k: string, values?: any, options?: { locale?: string }) => string)(key, {}, { locale })
+  type I18nT = (key: string, values?: object, options?: { locale?: string }) => string
+  const translate = i18n.global.t as I18nT
+  return String(translate(key, {}, { locale }))
 }
 
 export type NotifyType = 'success' | 'info' | 'error' | 'warning'

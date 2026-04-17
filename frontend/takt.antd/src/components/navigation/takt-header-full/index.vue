@@ -1,9 +1,9 @@
 <template>
   <a-button
     type="text"
-    @click="handleToggleFullscreen"
     class="takt-header-full"
     :title="isFullscreen ? $t('common.button.exitFullscreen') : $t('common.button.fullscreen')"
+    @click="handleToggleFullscreen"
   >
     <template #icon>
       <RiFullscreenExitLine v-if="isFullscreen" />

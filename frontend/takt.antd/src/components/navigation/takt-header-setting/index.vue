@@ -1,9 +1,9 @@
 <template>
   <a-button
     type="text"
-    @click="handleClick"
     class="takt-header-setting"
     :title="$t('components.navigation.systemSetting.title')"
+    @click="handleClick"
   >
     <template #icon>
       <RiTShirtLine />
@@ -19,13 +19,19 @@
     <template #extra>
       <div class="drawer-extra-actions">
         <a-space>
-          <a-button class="takt-button takt-button-copy" @click="handleCopy">
+          <a-button
+            class="takt-button takt-button-copy"
+            @click="handleCopy"
+          >
             <template #icon>
               <RiFileCopyLine />
             </template>
             {{ $t('common.button.copy') }} {{ $t('common.button.preferences') }} {{ $t('common.button.config') }}
           </a-button>
-          <a-button class="takt-button takt-button-reset" @click="handleReset">
+          <a-button
+            class="takt-button takt-button-reset"
+            @click="handleReset"
+          >
             <template #icon>
               <RiRefreshLine />
             </template>
@@ -35,20 +41,35 @@
       </div>
     </template>
     <div class="takt-header-setting-drawer__body">
-      <a-tabs v-model:activeKey="activeTab">
-        <a-tab-pane key="layout" :tab="$t('components.navigation.systemSetting.layout')">
+      <a-tabs v-model:active-key="activeTab">
+        <a-tab-pane
+          key="layout"
+          :tab="$t('components.navigation.systemSetting.layout')"
+        >
           <LayoutSettings @change="handleSettingChange" />
         </a-tab-pane>
-        <a-tab-pane key="theme" :tab="$t('components.navigation.systemSetting.theme')">
+        <a-tab-pane
+          key="theme"
+          :tab="$t('components.navigation.systemSetting.theme')"
+        >
           <ThemeSettings @change="handleSettingChange" />
         </a-tab-pane>
-        <a-tab-pane key="navigation" :tab="$t('components.navigation.systemSetting.navigation')">
+        <a-tab-pane
+          key="navigation"
+          :tab="$t('components.navigation.systemSetting.navigation')"
+        >
           <NavigationSettings @change="handleSettingChange" />
         </a-tab-pane>
-        <a-tab-pane key="tabs" :tab="$t('components.navigation.systemSetting.tabs')">
+        <a-tab-pane
+          key="tabs"
+          :tab="$t('components.navigation.systemSetting.tabs')"
+        >
           <TabsSettings @change="handleSettingChange" />
         </a-tab-pane>
-        <a-tab-pane key="other" :tab="$t('components.navigation.systemSetting.other')">
+        <a-tab-pane
+          key="other"
+          :tab="$t('components.navigation.systemSetting.other')"
+        >
           <OtherSettings @change="handleSettingChange" />
         </a-tab-pane>
       </a-tabs>
@@ -78,10 +99,6 @@ interface Props {
 
 // 定义 props 以接受 type 属性，避免 Vue 警告
 defineProps<Props>()
-
-const emit = defineEmits<{
-  'change': [setting: Partial<AppSetting>]
-}>()
 
 const visible = ref(false)
 const activeTab = ref('layout')

@@ -22,7 +22,7 @@ namespace Takt.WebApi.Controllers.HumanResource.Personnel;
 /// 员工业务技能控制器（权限前缀 humanresource:personnel:employeeskill）
 /// </summary>
 [Route("api/[controller]", Name = "员工业务技能")]
-[ApiModule("HumanResource.Personnel", "人事管理")]
+[ApiModule("HumanResource", "人力资源")]
 [TaktPermission("humanresource:personnel:employeeskill:list", "员工业务技能管理")]
 public class TaktEmployeeSkillsController : TaktControllerBase
 {

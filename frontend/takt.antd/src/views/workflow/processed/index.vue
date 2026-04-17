@@ -44,10 +44,18 @@
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'instanceStatus'">
-          <a-tag :color="statusColor((record as FlowInstance).instanceStatus)">{{ statusText((record as FlowInstance).instanceStatus) }}</a-tag>
+          <a-tag :color="statusColor((record as FlowInstance).instanceStatus)">
+            {{ statusText((record as FlowInstance).instanceStatus) }}
+          </a-tag>
         </template>
         <template v-else-if="column.key === 'action'">
-          <a-button type="link" size="small" @click="showDetail(asFlowInstance(record))">{{ t('common.button.detail') }}</a-button>
+          <a-button
+            type="link"
+            size="small"
+            @click="showDetail(asFlowInstance(record))"
+          >
+            {{ t('common.button.detail') }}
+          </a-button>
         </template>
       </template>
     </TaktSingleTable>
@@ -66,7 +74,10 @@
       :cancel-text="t('common.button.cancel')"
       @cancel="detailVisible = false"
     >
-      <FlowInstanceDetailForm :detail="detail" @refresh="reloadInstanceDetail" />
+      <FlowInstanceDetailForm
+        :detail="detail"
+        @refresh="reloadInstanceDetail"
+      />
     </TaktModal>
   </div>
 </template>
@@ -82,6 +93,7 @@ import { getMyProcessed, getFlowInstanceById, exportProcessed } from '@/api/work
 import FlowInstanceDetailForm from '@/views/workflow/processed/components/flow-instance-detail-form.vue'
 import type { FlowInstance, FlowInstanceDetail, FlowInstanceQuery } from '@/types/workflow/instance'
 import type { TaktPagedResult } from '@/types/common'
+const toErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error))
 
 const { t } = useI18n()
 const loading = ref(false)
@@ -138,7 +150,7 @@ async function loadList() {
       params.processKey = queryKeyword.value.trim()
       params.instanceCode = queryKeyword.value.trim()
     }
-    const res = await getMyProcessed(params) as TaktPagedResult<FlowInstance>
+    const res = await getMyProcessed(params)
     dataSource.value = res.data ?? []
     total.value = res.total ?? 0
   } finally {
@@ -221,8 +233,8 @@ async function handleExport() {
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
     message.success('导出成功')
-  } catch (error: any) {
-    message.error(error?.message || '导出失败')
+  } catch (error: unknown) {
+    message.error(toErrorMessage(error) || '导出失败')
   } finally {
     exportLoading.value = false
   }

@@ -9,28 +9,134 @@
 
 <template>
   <!-- 根：a-form 包裹 a-tabs；formRef 供父级 validate、resetFields -->
-  <a-form ref="formRef" :model="formState" :rules="rules" layout="horizontal" label-align="right">
-    <a-tabs v-model:activeKey="activeTab">
+  <a-form
+    ref="formRef"
+    :model="formState"
+    :rules="rules"
+    layout="horizontal"
+    label-align="right"
+  >
+    <a-tabs v-model:active-key="activeTab">
       <!-- 标签1：基础信息 -->
-      <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')" force-render>
+      <a-tab-pane
+        key="basic"
+        :tab="t('common.form.tabs.basicInfo')"
+        force-render
+      >
         <a-row :gutter="24">
-          <a-col :span="12"><a-form-item :label="t('entity.employeecontract.employeeId')" name="employeeId"><a-input v-model:value="formState.employeeId" allow-clear /></a-form-item></a-col>
-          <a-col :span="12"><a-form-item :label="t('entity.employeecontract.contractNo')" name="contractNo"><a-input v-model:value="formState.contractNo" allow-clear /></a-form-item></a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeecontract.employeeId')"
+              name="employeeId"
+            >
+              <a-input
+                v-model:value="formState.employeeId"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeecontract.contractNo')"
+              name="contractNo"
+            >
+              <a-input
+                v-model:value="formState.contractNo"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
         </a-row>
         <a-row :gutter="24">
-          <a-col :span="12"><a-form-item :label="t('entity.employeecontract.contractType')" name="contractType"><a-input-number v-model:value="formState.contractType" :min="0" style="width: 100%" /></a-form-item></a-col>
-          <a-col :span="12"><a-form-item :label="t('entity.employeecontract.contractStatus')" name="contractStatus"><a-input-number v-model:value="formState.contractStatus" :min="0" style="width: 100%" /></a-form-item></a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeecontract.contractType')"
+              name="contractType"
+            >
+              <a-input-number
+                v-model:value="formState.contractType"
+                :min="0"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeecontract.contractStatus')"
+              name="contractStatus"
+            >
+              <a-input-number
+                v-model:value="formState.contractStatus"
+                :min="0"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
         </a-row>
         <a-row :gutter="24">
-          <a-col :span="12"><a-form-item :label="t('entity.employeecontract.startDate')" name="startDate"><a-date-picker v-model:value="formState.startDate" value-format="YYYY-MM-DD" style="width: 100%" /></a-form-item></a-col>
-          <a-col :span="12"><a-form-item :label="t('entity.employeecontract.endDate')" name="endDate"><a-date-picker v-model:value="formState.endDate" value-format="YYYY-MM-DD" style="width: 100%" /></a-form-item></a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeecontract.startDate')"
+              name="startDate"
+            >
+              <a-date-picker
+                v-model:value="formState.startDate"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeecontract.endDate')"
+              name="endDate"
+            >
+              <a-date-picker
+                v-model:value="formState.endDate"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
         </a-row>
         <a-row :gutter="24">
-          <a-col :span="12"><a-form-item :label="t('entity.employeecontract.probationEndDate')" name="probationEndDate"><a-date-picker v-model:value="formState.probationEndDate" value-format="YYYY-MM-DD" style="width: 100%" /></a-form-item></a-col>
-          <a-col :span="12"><a-form-item :label="t('entity.employeecontract.signDate')" name="signDate"><a-date-picker v-model:value="formState.signDate" value-format="YYYY-MM-DD" style="width: 100%" /></a-form-item></a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeecontract.probationEndDate')"
+              name="probationEndDate"
+            >
+              <a-date-picker
+                v-model:value="formState.probationEndDate"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeecontract.signDate')"
+              name="signDate"
+            >
+              <a-date-picker
+                v-model:value="formState.signDate"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
         </a-row>
         <a-row :gutter="24">
-          <a-col :span="24"><a-form-item :label="t('entity.employeecontract.signCompany')" name="signCompany"><a-input v-model:value="formState.signCompany" allow-clear /></a-form-item></a-col>
+          <a-col :span="24">
+            <a-form-item
+              :label="t('entity.employeecontract.signCompany')"
+              name="signCompany"
+            >
+              <a-input
+                v-model:value="formState.signCompany"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
         </a-row>
       </a-tab-pane>
     </a-tabs>

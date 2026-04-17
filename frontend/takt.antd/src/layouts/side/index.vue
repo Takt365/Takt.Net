@@ -8,7 +8,10 @@
       :theme="themeStore.themeMode === 'dark' ? 'dark' : 'light'"
       :style="{ position: settingSafe.fixedSider ? 'fixed' : 'relative', height: '100vh', left: 0, top: 0 }"
     >
-      <div class="sider-header" :class="{ collapsed }">
+      <div
+        class="sider-header"
+        :class="{ collapsed }"
+      >
         <img
           v-if="logoUrl && settingSafe.showLogo"
           :src="logoUrl"
@@ -16,9 +19,15 @@
           class="logo-image"
           @error="handleLogoError"
           @load="handleLogoLoad"
-        />
-        <span class="title-text" v-if="!collapsed">{{ settingSafe.logoText }}</span>
-        <span class="title-text collapsed" v-else>{{ settingSafe.logoCollapsedText }}</span>
+        >
+        <span
+          v-if="!collapsed"
+          class="title-text"
+        >{{ settingSafe.logoText }}</span>
+        <span
+          v-else
+          class="title-text collapsed"
+        >{{ settingSafe.logoCollapsedText }}</span>
       </div>
       <TaktSideMenu
         :collapsed="collapsed"
@@ -75,6 +84,7 @@ import { defaultSetting, useSettingStore } from '@/stores/setting'
 import { useUserStore } from '@/stores/identity/user'
 import { useMenuStore } from '@/stores/identity/menu'
 import { ensureMenuAndRoutesLoaded } from '@/router'
+type HeaderHeight = 32 | 40 | 48
 
 const themeStore = useThemeStore()
 const { setting } = storeToRefs(useSettingStore())
@@ -117,7 +127,13 @@ const handleLogoError = () => {
 const handleLogoLoad = () => {}
 
 // Header 高度，可以从设置中获取，默认 40px
-const headerHeight = computed(() => (settingSafe.value as any)?.headerHeight ?? 40)
+const headerHeight = computed(() => {
+  const headerHeightValue = (settingSafe.value as Record<string, unknown>)?.headerHeight
+  if (headerHeightValue === 32 || headerHeightValue === 40 || headerHeightValue === 48) {
+    return headerHeightValue
+  }
+  return 40 as HeaderHeight
+})
 
 // Content 最大高度计算（用于滚动条）
 const contentMaxHeight = computed(() => {

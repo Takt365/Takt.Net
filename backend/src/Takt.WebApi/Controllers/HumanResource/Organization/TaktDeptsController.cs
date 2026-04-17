@@ -29,7 +29,7 @@ namespace Takt.WebApi.Controllers.HumanResource.Organization;
 /// 创建时间: 2025-01-20
 /// </remarks>
 [Route("api/[controller]", Name = "部门")]
-[ApiModule("Organization", "组织管理")]
+[ApiModule("HumanResource", "人力资源")]
 [TaktPermission("humanresource:organization:dept:list", "部门管理")]
 public class TaktDeptsController : TaktControllerBase
 {

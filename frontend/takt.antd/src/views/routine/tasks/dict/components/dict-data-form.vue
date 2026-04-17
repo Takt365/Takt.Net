@@ -21,7 +21,10 @@
       layout="horizontal"
     >
       <!-- 表单字段顺序与 DictData 接口字段顺序一致 -->
-      <a-form-item label="字典类型编码" name="dictTypeCode">
+      <a-form-item
+        label="字典类型编码"
+        name="dictTypeCode"
+      >
         <a-input
           v-model:value="formState.dictTypeCode"
           placeholder="字典类型编码"
@@ -29,28 +32,40 @@
         />
       </a-form-item>
 
-      <a-form-item label="字典标签" name="dictLabel">
+      <a-form-item
+        label="字典标签"
+        name="dictLabel"
+      >
         <a-input
           v-model:value="formState.dictLabel"
           placeholder="请输入字典标签（在同一个字典类型下唯一）"
         />
       </a-form-item>
 
-      <a-form-item label="字典本地化键" name="dictL10nKey">
+      <a-form-item
+        label="字典本地化键"
+        name="dictL10nKey"
+      >
         <a-input
           v-model:value="formState.dictL10nKey"
           placeholder="请输入字典本地化键（可选，用于多语言翻译）"
         />
       </a-form-item>
 
-      <a-form-item label="字典值" name="dictValue">
+      <a-form-item
+        label="字典值"
+        name="dictValue"
+      >
         <a-input
           v-model:value="formState.dictValue"
           placeholder="请输入字典值（显示值）"
         />
       </a-form-item>
 
-      <a-form-item label="CSS类名" name="cssClass">
+      <a-form-item
+        label="CSS类名"
+        name="cssClass"
+      >
         <a-input-number
           v-model:value="formState.cssClass"
           :min="0"
@@ -59,7 +74,10 @@
         />
       </a-form-item>
 
-      <a-form-item label="列表类名" name="listClass">
+      <a-form-item
+        label="列表类名"
+        name="listClass"
+      >
         <a-input-number
           v-model:value="formState.listClass"
           :min="0"
@@ -68,21 +86,30 @@
         />
       </a-form-item>
 
-      <a-form-item label="扩展标签" name="extLabel">
+      <a-form-item
+        label="扩展标签"
+        name="extLabel"
+      >
         <a-input
           v-model:value="formState.extLabel"
           placeholder="请输入扩展标签（可选）"
         />
       </a-form-item>
 
-      <a-form-item label="扩展值" name="extValue">
+      <a-form-item
+        label="扩展值"
+        name="extValue"
+      >
         <a-input
           v-model:value="formState.extValue"
           placeholder="请输入扩展值（可选）"
         />
       </a-form-item>
 
-      <a-form-item label="排序号" name="orderNum">
+      <a-form-item
+        label="排序号"
+        name="orderNum"
+      >
         <a-input-number
           v-model:value="formState.orderNum"
           :min="0"
@@ -91,7 +118,10 @@
         />
       </a-form-item>
 
-      <a-form-item label="备注" name="remark">
+      <a-form-item
+        label="备注"
+        name="remark"
+      >
         <a-textarea
           v-model:value="formState.remark"
           placeholder="请输入备注"

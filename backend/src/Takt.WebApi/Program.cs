@@ -454,26 +454,26 @@ try
     // 映射控制器路由
     app.MapControllers();
 
-    // Swagger UI（必须在端点映射之后，根据官方文档，从配置文件读取，不允许硬编码）
-    // 访问地址：https://localhost:60071/swagger
-    // RoutePrefix 已改为 "swagger"，避免拦截 SignalR 请求
+    // Scalar API 参考（内置 OpenAPI JSON：`/openapi/{documentName}.json`；必须在端点映射之后；从配置读取，不允许硬编码）
+    // 访问地址示例：https://localhost:60071/swagger
+    // 使用路径前缀 "swagger"，避免拦截 SignalR 请求
     var swaggerEnabled = app.Configuration.GetValue<bool?>("Swagger:Enabled");
     if (swaggerEnabled == true)
     {
         app.UseTaktSwaggerUI();
-        Log.Information("Swagger UI 已启用，访问地址: https://localhost:60071/swagger");
+        Log.Information("Scalar API 参考已启用，访问地址: https://localhost:60071/swagger");
 
-        // 配置根路径重定向到 Swagger UI
+        // 配置根路径重定向到 Scalar
         app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
-        Log.Information("根路径已配置重定向到 Swagger UI: / -> /swagger");
+        Log.Information("根路径已配置重定向到 Scalar: / -> /swagger");
     }
     else if (swaggerEnabled == false)
     {
-        Log.Information("Swagger UI 已禁用");
+        Log.Information("Scalar API 参考已禁用");
     }
     else
     {
-        Log.Warning("Swagger.Enabled 配置项未找到，Swagger UI未启用，请检查 appsettings.json 配置文件");
+        Log.Warning("Swagger.Enabled 配置项未找到，Scalar API 参考未启用，请检查 appsettings.json 配置文件");
     }
 
     // 输出配置信息（仅用于日志显示，实际配置已在 appsettings.json 中定义）

@@ -1,0 +1,60 @@
+# 在推送到 master 后：把「推送前的 master 尖端」保存为 dev_<UTC时间戳> 分支，并只保留最近 7 条此类备份（更早的 dev_* 快照分支会被删除）。
+# master 本身不被改名；仅新增指向旧尖端的远程分支。
+name: Master snapshot to dev
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+concurrency:
+  group: master-dev-snapshot-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.before != github.event.after &&
+      github.event.before != '0000000000000000000000000000000000000000'
+    steps:
+      - name: Checkout (for remote auth)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push previous master tip and prune old dev snapshots
+        shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          TS="$(date -u +%Y%m%d%H%M%S)"
+          BRANCH="dev_${TS}"
+          echo "Snapshot previous master ${BEFORE_SHA} -> origin/${BRANCH}"
+          git push origin "${BEFORE_SHA}:refs/heads/${BRANCH}"
+
+          # 仅处理本工作流创建的 dev_YYYYMMDDHHMMSS 形态，避免误删其它 dev_ 分支
+          mapfile -t all < <(
+            git ls-remote --heads origin 'refs/heads/dev_*' \
+              | awk '{print $2}' \
+              | sed 's|^refs/heads/||' \
+              | { grep -E '^dev_[0-9]{14}$' || true; } \
+              | sort
+          )
+
+          count="${#all[@]}"
+          echo "Found ${count} dev_<timestamp> snapshot branch(es)"
+          if (( count <= 7 )); then
+            echo "Nothing to prune (max 7)"
+            exit 0
+          fi
+          delete_count=$((count - 7))
+          for ((i = 0; i < delete_count; i++)); do
+            old="${all[i]}"
+            echo "Deleting old snapshot: origin/${old}"
+            git push origin --delete "${old}"
+          done

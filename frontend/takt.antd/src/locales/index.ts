@@ -3,6 +3,10 @@ import { unref } from 'vue'
 import { createI18n } from 'vue-i18n'
 import type { I18n } from 'vue-i18n'
 import { logger } from '@/utils/logger'
+type MessageRecord = Record<string, unknown>
+type TranslationModule = { default: MessageRecord }
+const isRecord = (value: unknown): value is MessageRecord =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
 
 /**
  * 自动导入所有翻译文件
@@ -19,7 +23,7 @@ import { logger } from '@/utils/logger'
  *    若要在切换器中展示新语言，需在后端维护该语言并设为启用；前端仅负责已有静态文件的合并与展示。
  * 3) 后端翻译（如 entity.xxx）：通过种子或管理端维护 TaktTranslation，ResourceKey 与前端 t('key') 一致。
  */
-const translationModules = import.meta.glob<{ default: Record<string, any> }>('./**/*.ts', {
+const translationModules = import.meta.glob<TranslationModule>('./**/*.ts', {
   eager: true
 })
 
@@ -29,7 +33,7 @@ const translationModules = import.meta.glob<{ default: Record<string, any> }>('.
  * @param messages 翻译消息对象
  * @returns 嵌套的消息结构
  */
-function buildNestedMessages(path: string, messages: Record<string, any>): Record<string, any> {
+function buildNestedMessages(path: string, messages: MessageRecord): MessageRecord {
   // 移除 ./ 前缀和文件扩展名（包括语言代码）
   // 使用动态正则表达式匹配所有语言代码格式（如：zh-CN, en-US, ar-SA, es-ES, fr-FR, ja-JP, ru-RU）
   // 例如：./common/zh-CN.ts -> common
@@ -41,23 +45,22 @@ function buildNestedMessages(path: string, messages: Record<string, any>): Recor
     return messages
   }
   
-  // 分割路径为数组，例如：['common'] 或 ['identity', 'user']
-  const pathParts = cleanPath.split('/')
+  // 分割路径为数组，例如：['common'] 或 ['identity', 'user']（去掉空段，避免 // 产生 undefined 语义）
+  const pathParts = cleanPath.split('/').filter((segment): segment is string => segment.length > 0)
   
   // 构建嵌套对象
-  const result: Record<string, any> = {}
-  let current = result
+  const result: MessageRecord = {}
+  let current: MessageRecord = result
   
-  // 遍历路径部分，构建嵌套结构
-  for (let i = 0; i < pathParts.length; i++) {
-    const part = pathParts[i]
+  // 使用 entries()：在 noUncheckedIndexedAccess 下 pathParts[i] 为 string | undefined，不能作 Record 索引
+  for (const [i, part] of pathParts.entries()) {
     if (i === pathParts.length - 1) {
       // 最后一个部分，直接赋值消息
       current[part] = messages
     } else {
       // 中间部分，创建嵌套对象
       current[part] = {}
-      current = current[part]
+      current = current[part] as MessageRecord
     }
   }
   
@@ -67,13 +70,15 @@ function buildNestedMessages(path: string, messages: Record<string, any>): Recor
 /**
  * 深度合并对象（用于合并翻译数据）
  */
-function deepMerge(target: Record<string, any>, source: Record<string, any>): Record<string, any> {
+function deepMerge(target: MessageRecord, source: MessageRecord): MessageRecord {
   const result = { ...target }
   for (const key in source) {
-    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-      result[key] = deepMerge(target[key] || {}, source[key])
+    const sourceValue = source[key]
+    const targetValue = target[key]
+    if (isRecord(sourceValue)) {
+      result[key] = deepMerge(isRecord(targetValue) ? targetValue : {}, sourceValue)
     } else {
-      result[key] = source[key]
+      result[key] = sourceValue
     }
   }
   return result
@@ -89,7 +94,8 @@ function extractLocaleFromPath(path: string): string | null {
   // 例如：./common/zh-CN.ts -> zh-CN
   // 例如：./identity/user/en-US.ts -> en-US
   const localeMatch = path.match(/\/([a-z]{2}-[A-Z]{2})\.ts$/i)
-  return localeMatch ? localeMatch[1] : null
+  const code = localeMatch?.[1]
+  return typeof code === 'string' && code.length > 0 ? code : null
 }
 
 /**
@@ -116,8 +122,8 @@ function getSupportedLocalesFromModules(): string[] {
  * 自动加载所有静态翻译文件
  * @param supportedLocales 支持的语言代码列表（由 getSupportedLocalesFromModules 动态得到）
  */
-function loadStaticMessages(supportedLocales: string[]): Record<string, Record<string, any>> {
-  const messages: Record<string, Record<string, any>> = {}
+function loadStaticMessages(supportedLocales: string[]): Record<string, MessageRecord> {
+  const messages: Record<string, MessageRecord> = {}
 
   supportedLocales.forEach(locale => {
     messages[locale] = {}
@@ -129,7 +135,7 @@ function loadStaticMessages(supportedLocales: string[]): Record<string, Record<s
     if (!locale || !supportedLocales.includes(locale)) continue
     const moduleMessages = module.default || {}
     const nestedMessages = buildNestedMessages(path, moduleMessages)
-    messages[locale] = deepMerge(messages[locale], nestedMessages)
+    messages[locale] = deepMerge(messages[locale] ?? {}, nestedMessages)
   }
 
   return messages
@@ -145,7 +151,7 @@ const i18n = createI18n({
   locale: localStorage.getItem('locale') || 'zh-CN',
   // 缺失翻译统一回退到英文（en-US）；若英文也缺失，再由 missing 返回键名
   fallbackLocale: 'en-US',
-  messages: staticMessages,
+  messages: staticMessages as unknown as Record<string, never>,
   missingWarn: import.meta.env.DEV,
   fallbackWarn: false,
   missing: (_locale: string, key: string) => key
@@ -168,7 +174,7 @@ export async function loadTranslationsFromBackend(cultureCode: string, resourceT
       // 将后端翻译数据转换为嵌套对象结构
       // 后端返回格式：{ resourceKey: translationValue }
       // 如果 resourceKey 包含点号（如：common.app.htmlTitle），则转换为嵌套结构
-      const backendMessages: Record<string, any> = {}
+      const backendMessages: MessageRecord = {}
       
       // 按路径长度排序：先处理长路径（更具体的，如 menu.logistics.material.purchasing），
       // 再处理短路径（更通用的，如 menu.logistics），避免短路径覆盖嵌套结构
@@ -180,9 +186,10 @@ export async function loadTranslationsFromBackend(cultureCode: string, resourceT
       
       sortedEntries.forEach(([key, value]) => {
         const keys = key.split('.')
-        let current: Record<string, any> = backendMessages
+        let current: MessageRecord = backendMessages
         for (let i = 0; i < keys.length - 1; i++) {
           const k = keys[i]
+          if (k === undefined) break
           const existing = current[k]
           // 若该节点已是基本类型（如 menu.logistics 为 "采购管理"），不能在其上挂子键
           // 改为空对象并继续，避免 "Cannot create property 'supplier' on string '采购管理'"
@@ -193,10 +200,11 @@ export async function loadTranslationsFromBackend(cultureCode: string, resourceT
             }
             current[k] = {}
           }
-          current = current[k]
+          current = current[k] as MessageRecord
         }
         // 如果目标位置已经是对象（来自更长的路径），且当前值是字符串，则保留对象结构
         const lastKey = keys[keys.length - 1]
+        if (lastKey === undefined) return
         if (typeof current[lastKey] === 'object' && current[lastKey] !== null && !Array.isArray(current[lastKey])) {
           // 目标位置已经是对象，说明有更长的路径已经创建了嵌套结构，短路径忽略（后端实体名已改为 entity.xxx._self，此处仅兼容旧数据）
           if (import.meta.env.DEV) {
@@ -210,8 +218,8 @@ export async function loadTranslationsFromBackend(cultureCode: string, resourceT
       // 合并到 i18n messages（后端翻译优先于静态翻译）
       // 使用深度合并，确保嵌套结构正确合并
       // 使用 unref 安全地获取 messages 的值
-      const messagesValue = unref(i18n.global.messages) as Record<string, any>
-      const currentMessages = messagesValue[cultureCode] || {}
+      const messagesValue = unref(i18n.global.messages) as Record<string, unknown>
+      const currentMessages = isRecord(messagesValue[cultureCode]) ? messagesValue[cultureCode] : {}
       const mergedMessages = deepMerge(currentMessages, backendMessages)
       
       // 设置翻译消息，这会触发 vue-i18n 的响应式更新

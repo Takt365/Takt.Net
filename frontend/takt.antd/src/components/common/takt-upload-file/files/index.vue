@@ -13,33 +13,40 @@
 <template>
   <div class="takt-upload-files">
     <a-upload-dragger
-      v-model:fileList="fileList"
+      v-model:file-list="fileList"
       :name="name"
       :multiple="multiple"
       :action="autoUpload ? action : undefined"
       :accept="accept"
-      :maxCount="maxCount"
+      :max-count="maxCount"
       :disabled="disabled"
-      :beforeUpload="handleBeforeUpload"
-      :customRequest="autoUpload ? customRequest : undefined"
-      :showUploadList="showUploadList"
+      :before-upload="handleBeforeUpload"
+      :custom-request="autoUpload ? customRequest : undefined"
+      :show-upload-list="showUploadList"
+      v-bind="$attrs"
+      class="takt-upload-files-dragger"
       @change="handleChange"
       @drop="handleDrop"
       @remove="handleRemove"
       @preview="handlePreview"
-      v-bind="$attrs"
-      class="takt-upload-files-dragger"
     >
       <p class="ant-upload-drag-icon">
         <slot name="icon">
-          <inbox-outlined></inbox-outlined>
+          <inbox-outlined />
         </slot>
       </p>
       <p class="ant-upload-text">
-        <slot name="text">{{ textDisplay }}</slot>
+        <slot name="text">
+          {{ textDisplay }}
+        </slot>
       </p>
-      <p class="ant-upload-hint" v-if="hintDisplay">
-        <slot name="hint">{{ hintDisplay }}</slot>
+      <p
+        v-if="hintDisplay"
+        class="ant-upload-hint"
+      >
+        <slot name="hint">
+          {{ hintDisplay }}
+        </slot>
       </p>
     </a-upload-dragger>
   </div>
@@ -54,6 +61,9 @@ import { useI18n } from 'vue-i18n'
 import { logger } from '@/utils/logger'
 
 const { t } = useI18n()
+type BeforeUploadFn = NonNullable<UploadProps['beforeUpload']>
+type CustomRequestOptions = Parameters<NonNullable<UploadProps['customRequest']>>[0]
+type UploadProgress = { percent?: number }
 
 interface Props {
   /** 文件列表 */
@@ -91,6 +101,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  modelValue: undefined,
   name: 'file',
   multiple: true,
   action: '',
@@ -154,7 +165,11 @@ const handleBeforeUpload = (file: UploadFile | File) => {
 
   // 如果提供了自定义 beforeUpload
   if (props.beforeUpload) {
-    return props.beforeUpload(originFile as any, fileList.value as any)
+    const beforeUpload = props.beforeUpload
+    return beforeUpload(
+      originFile as Parameters<BeforeUploadFn>[0],
+      fileList.value as Parameters<BeforeUploadFn>[1]
+    )
   }
 
   return true
@@ -220,7 +235,7 @@ const uploadFiles = async (): Promise<void> => {
   // 逐个上传文件
   const uploadPromises = filesToUpload.map((file) => {
     return new Promise<void>((resolve, reject) => {
-      const originFile = file.originFileObj || (file as any)
+      const originFile = file.originFileObj as File | undefined
       if (!originFile) {
         reject(new Error(t('components.common.upload.fileInvalid', { name: file.name })))
         return
@@ -231,9 +246,11 @@ const uploadFiles = async (): Promise<void> => {
       file.percent = 0
       
       // 调用自定义上传请求
-      props.customRequest?.({
+      const requestOptions: CustomRequestOptions = {
         file: originFile,
-        onSuccess: (response: any) => {
+        action: props.action || '',
+        method: 'post',
+        onSuccess: (response: unknown) => {
           file.status = 'done'
           file.percent = 100
           file.response = response
@@ -244,14 +261,15 @@ const uploadFiles = async (): Promise<void> => {
           } as UploadChangeParam)
           resolve()
         },
-        onError: (error: Error) => {
+        onError: (error: unknown) => {
+          const err = error instanceof Error ? error : new Error(String(error))
           file.status = 'error'
-          file.error = error
+          file.error = err
           
           // 记录错误日志
           logger.error('[TaktUploadFiles] 文件上传失败:', {
             fileName: file.name,
-            error: error.message,
+            error: err.message,
             file: file
           })
           
@@ -260,27 +278,29 @@ const uploadFiles = async (): Promise<void> => {
             file,
             fileList: fileList.value
           } as UploadChangeParam)
-          reject(error)
+          reject(err)
         },
-        onProgress: (event: { percent: number }) => {
-          file.percent = event.percent
+        onProgress: (event: UploadProgress) => {
+          file.percent = event.percent ?? 0
         }
-      } as any)
+      }
+      props.customRequest?.(requestOptions)
     })
   })
   
   try {
     await Promise.all(uploadPromises)
     message.success(t('components.common.upload.allUploadSuccess'))
-  } catch (error: any) {
-    const errorMessage = error?.message || t('components.common.upload.partialUploadFail')
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error))
+    const errorMessage = err.message || t('components.common.upload.partialUploadFail')
     logger.error('[TaktUploadFiles] 批量上传失败:', {
       error: errorMessage,
       filesCount: filesToUpload.length,
-      fullError: error
+      fullError: err
     })
     message.error(errorMessage)
-    throw error
+    throw err
   }
 }
 

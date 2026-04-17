@@ -13,27 +13,38 @@
 <template>
   <div class="takt-upload-avatar">
     <div class="takt-upload-avatar-preview">
-      <a-avatar :size="avatarSize" :src="avatarUrl" class="takt-upload-avatar-img">
+      <a-avatar
+        :size="avatarSize"
+        :src="avatarUrl"
+        class="takt-upload-avatar-img"
+      >
         <template #icon>
           <user-outlined />
         </template>
       </a-avatar>
       <div class="takt-upload-avatar-actions">
         <a-upload
-          :showUploadList="false"
-          :beforeUpload="handleBeforeUpload"
-          :customRequest="handleCustomRequest"
+          :show-upload-list="false"
+          :before-upload="handleBeforeUpload"
+          :custom-request="handleCustomRequest"
           accept="image/*"
           v-bind="$attrs"
         >
-          <a-button type="primary" :loading="uploading">
+          <a-button
+            type="primary"
+            :loading="uploading"
+          >
             <template #icon>
               <upload-outlined />
             </template>
             {{ uploading ? t('components.common.upload.avatarUploading') : t('components.common.upload.avatarUpload') }}
           </a-button>
         </a-upload>
-        <a-button v-if="avatarUrl" danger @click="handleRemove">
+        <a-button
+          v-if="avatarUrl"
+          danger
+          @click="handleRemove"
+        >
           <template #icon>
             <delete-outlined />
           </template>
@@ -47,21 +58,21 @@
       v-model:open="cropperVisible"
       :title="t('components.common.upload.cropAvatar')"
       :width="700"
-      :okText="t('components.common.upload.ok')"
-      :cancelText="t('components.common.upload.cancel')"
-      :confirmLoading="cropping"
+      :ok-text="t('components.common.upload.ok')"
+      :cancel-text="t('components.common.upload.cancel')"
+      :confirm-loading="cropping"
+      class="takt-upload-avatar-cropper-modal"
       @ok="handleCropConfirm"
       @cancel="handleCropCancel"
-      class="takt-upload-avatar-cropper-modal"
     >
       <takt-cropper
         ref="cropperRef"
-        :imageSrc="cropperImage"
-        :aspectRatio="1"
+        :image-src="cropperImage"
+        :aspect-ratio="1"
         :width="600"
         :height="600"
-        :cropWidth="cropSize"
-        :cropHeight="cropSize"
+        :crop-width="cropSize"
+        :crop-height="cropSize"
         @crop="handleCropperCrop"
         @error="handleCropperError"
       />
@@ -70,14 +81,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { UserOutlined, UploadOutlined, DeleteOutlined } from '@ant-design/icons-vue'
-import { Avatar, Button, Upload, Modal, message } from 'ant-design-vue'
-import type { UploadChangeParam, UploadFile, UploadProps } from 'ant-design-vue'
+import { Modal, message } from 'ant-design-vue'
+import type { UploadFile, UploadProps } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
 import TaktCropper from '../cropper/index.vue'
 
 const { t } = useI18n()
+type CustomRequestOptions = Parameters<NonNullable<UploadProps['customRequest']>>[0]
+type UploadResultLike = { url?: string; data?: { url?: string } }
 
 interface Props {
   /** 头像地址 */
@@ -120,6 +133,15 @@ const cropperImage = ref('')
 const cropping = ref(false)
 const cropperRef = ref<InstanceType<typeof TaktCropper> | null>(null)
 const currentFile = ref<File | null>(null)
+
+function getUploadUrl(result: unknown, fallbackUrl: string): string {
+  const data = result as UploadResultLike
+  return data?.url ?? data?.data?.url ?? fallbackUrl
+}
+
+function toError(error: unknown): Error {
+  return error instanceof Error ? error : new Error(String(error))
+}
 
 // 监听 modelValue 变化
 watch(() => props.modelValue, (newValue) => {
@@ -168,7 +190,7 @@ const handleBeforeUpload = (file: UploadFile | File) => {
 }
 
 // 裁剪器裁剪事件
-const handleCropperCrop = (blob: Blob, dataUrl: string) => {
+const handleCropperCrop = (_blob: Blob, _dataUrl: string) => {
   // 裁剪完成，这里可以预览裁剪后的图片
   // dataUrl 可以用于预览，blob 用于实际上传
 }
@@ -203,11 +225,13 @@ const handleCropConfirm = async () => {
       await new Promise<void>((resolve, reject) => {
         uploading.value = true
 
-        props.customRequest!({
+        const requestOptions: CustomRequestOptions = {
           file: croppedFile,
-          onSuccess: (result: any) => {
+          action: props.action || '',
+          method: 'post',
+          onSuccess: (result: unknown) => {
             // 假设返回结果中有 url 字段
-            const url = result?.url || result?.data?.url || dataUrl
+            const url = getUploadUrl(result, dataUrl)
             avatarUrl.value = url
             uploading.value = false
             cropperVisible.value = false
@@ -217,9 +241,9 @@ const handleCropConfirm = async () => {
             emit('success', url, croppedFile)
             resolve()
           },
-          onError: (error: any) => {
+          onError: (error: unknown) => {
             uploading.value = false
-            const err = error instanceof Error ? error : new Error(String(error))
+            const err = toError(error)
             message.error(t('components.common.upload.uploadFail') + '：' + err.message)
             emit('error', err)
             reject(err)
@@ -227,7 +251,8 @@ const handleCropConfirm = async () => {
           onProgress: () => {
             // 进度处理
           }
-        } as any)
+        }
+        props.customRequest!(requestOptions)
       })
     } else if (props.action) {
       // 使用默认上传请求
@@ -255,9 +280,9 @@ const handleCropConfirm = async () => {
         currentFile.value = null
         message.success(t('components.common.upload.uploadSuccess'))
         emit('success', url, croppedFile)
-      } catch (error: any) {
+      } catch (error: unknown) {
         uploading.value = false
-        const err = error instanceof Error ? error : new Error(String(error))
+        const err = toError(error)
         message.error(t('components.common.upload.uploadFail') + '：' + err.message)
         emit('error', err)
       }
@@ -270,9 +295,9 @@ const handleCropConfirm = async () => {
       message.success(t('components.common.upload.cropSuccess'))
       emit('success', dataUrl, croppedFile)
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[TaktUploadAvatar] 裁剪上传失败:', error)
-    const err = error instanceof Error ? error : new Error(String(error))
+    const err = toError(error)
     message.error(t('components.common.upload.operationFail') + '：' + err.message)
     emit('error', err)
   } finally {
@@ -288,7 +313,7 @@ const handleCropCancel = () => {
 }
 
 // 自定义上传请求（如果不提供，使用默认的）
-const handleCustomRequest = (options: any) => {
+const handleCustomRequest = (options: CustomRequestOptions) => {
   // 这个函数实际上不会被调用，因为我们在 beforeUpload 中返回了 false
   // 但为了完整性，这里提供一个实现
   if (props.customRequest) {

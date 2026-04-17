@@ -83,7 +83,7 @@ public class TaktAuthController : TaktControllerBase
     /// </summary>
     /// <returns>令牌响应</returns>
     [HttpPost("connect/token")]
-    [ApiModule("Identity", "OAuth2/OIDC连接")]
+    [ApiModule("Identity", "身份认证")]
     [Produces("application/json")]
     [IgnoreAntiforgeryToken]
     public async Task<IActionResult> ExchangeAsync()

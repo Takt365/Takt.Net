@@ -37,9 +37,9 @@ public class TaktPostSeedData : ITaktSeedData
         int insertCount = 0;
         int updateCount = 0;
 
-        var headOffice = await deptRepository.GetAsync(d => d.DeptCode == "HEAD_OFFICE" && d.IsDeleted == 0);
-        var gmRoom = await deptRepository.GetAsync(d => d.DeptCode == "D1000" && d.IsDeleted == 0);
-        var dta = await deptRepository.GetAsync(d => d.DeptCode == "D0000" && d.IsDeleted == 0);
+        var headOffice = await deptRepository.GetAsync(d => d.DeptCode == "HEAD_OFFICE");
+        var gmRoom = await deptRepository.GetAsync(d => d.DeptCode == "D1000");
+        var dta = await deptRepository.GetAsync(d => d.DeptCode == "D0000");
         if (headOffice == null || gmRoom == null || dta == null)
             return (0, 0);
 

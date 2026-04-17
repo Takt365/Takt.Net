@@ -1,140 +1,197 @@
 <template>
-  <div ref="containerRef" class="takt-captcha-slider-wrapper">
+  <div
+    ref="containerRef"
+    class="takt-captcha-slider-wrapper"
+  >
     <!-- 按登录页视口：图片区 400x100 等比缩放，轨道宽度随图片、轨道高度与输入框一致 -->
-    <div class="takt-captcha-slider-scaled" :style="scaledStyle">
-      <div class="takt-captcha-slider-inner">
-    <!-- 仅无数据时的加载状态（避免刷新/验证时整块切换导致闪烁） -->
-    <div v-if="loading && !captchaData" class="captcha-loading">
-      <a-spin :tip="$t('components.common.captcha.loading')" />
-    </div>
-
-    <!-- 验证码容器 -->
     <div
-      v-else-if="captchaData"
-      class="takt-captcha-slider-container"
-      :style="{ '--takt-captcha-primary': themeColor }"
+      class="takt-captcha-slider-scaled"
+      :style="scaledStyle"
     >
-      <!-- 刷新/验证时的加载遮罩（不替换 DOM，避免闪烁） -->
-      <div v-if="loading" class="captcha-overlay">
-        <a-spin :tip="$t('components.common.captcha.loading')" />
-      </div>
-      <!-- 图片区域：按 400x100 等比缩放 -->
-      <div v-if="captchaData.enabled !== false" class="takt-captcha-slider-image-wrap" :style="imageWrapStyle">
-        <div class="takt-captcha-slider-image-scaled" :style="imageScaledStyle">
+      <div class="takt-captcha-slider-inner">
+        <!-- 仅无数据时的加载状态（避免刷新/验证时整块切换导致闪烁） -->
         <div
-          ref="imageRef"
-          class="captcha-image"
-          :style="{
-            width: `${props.width}px`,
-            height: `${props.height}px`
-          }"
+          v-if="loading && !captchaData"
+          class="captcha-loading"
         >
-          <img
-            v-if="captchaData.backgroundImage"
-            :src="captchaData.backgroundImage"
-            :alt="$t('components.common.captcha.slide')"
-            class="bg-image"
-            :class="{ 'clickable': !verified }"
-            @click="refresh"
-          />
-          <img
-            v-if="captchaData.sliderImage"
-            :src="captchaData.sliderImage"
-            :alt="$t('components.common.captcha.slideToVerify')"
-            class="slider-image"
-            :style="{ left: `${sliderLeft}px` }"
-          />
+          <a-spin :tip="$t('components.common.captcha.loading')" />
         </div>
-        </div>
-      </div>
-      <!-- 验证码未启用时的占位区域（同图片区等比缩放） -->
-      <div
-        v-else
-        class="takt-captcha-slider-image-wrap"
-        :style="imageWrapStyle"
-      >
-        <div class="takt-captcha-slider-image-scaled" :style="imageScaledStyle">
-        <div
-          class="captcha-disabled-placeholder"
-          :style="{
-            width: `${props.width}px`,
-            height: `${props.height}px`
-          }"
-        >
-          <a-alert :message="$t('components.common.captcha.disabled')" type="info" show-icon :banner="true" />
-        </div>
-        </div>
-      </div>
 
-      <!-- 滑块轨道：仅横向缩放，高度与表单输入框一致 -->
-      <div
-        v-if="captchaData.enabled !== false"
-        class="takt-captcha-slider-track-wrap"
-        :style="trackWrapStyle"
-      >
-        <div class="takt-captcha-slider-track-scaled" :style="trackScaledStyle">
+        <!-- 验证码容器 -->
         <div
-          class="slider-track"
-          ref="trackRef"
-          :style="{
-            width: `${props.width}px`
-          }"
+          v-else-if="captchaData"
+          class="takt-captcha-slider-container"
+          :style="{ '--takt-captcha-primary': themeColor }"
         >
-        <!-- 背景轨道 -->
-        <div class="slider-bg"></div>
+          <!-- 刷新/验证时的加载遮罩（不替换 DOM，避免闪烁） -->
+          <div
+            v-if="loading"
+            class="captcha-overlay"
+          >
+            <a-spin :tip="$t('components.common.captcha.loading')" />
+          </div>
+          <!-- 图片区域：按 400x100 等比缩放 -->
+          <div
+            v-if="captchaData.enabled !== false"
+            class="takt-captcha-slider-image-wrap"
+            :style="imageWrapStyle"
+          >
+            <div
+              class="takt-captcha-slider-image-scaled"
+              :style="imageScaledStyle"
+            >
+              <div
+                ref="imageRef"
+                class="captcha-image"
+                :style="{
+                  width: `${props.width}px`,
+                  height: `${props.height}px`
+                }"
+              >
+                <img
+                  v-if="captchaData.backgroundImage"
+                  :src="captchaData.backgroundImage"
+                  :alt="$t('components.common.captcha.slide')"
+                  class="bg-image"
+                  :class="{ 'clickable': !verified }"
+                  @click="refresh"
+                >
+                <img
+                  v-if="captchaData.sliderImage"
+                  :src="captchaData.sliderImage"
+                  :alt="$t('components.common.captcha.slideToVerify')"
+                  class="slider-image"
+                  :style="{ left: `${sliderLeft}px` }"
+                >
+              </div>
+            </div>
+          </div>
+          <!-- 验证码未启用时的占位区域（同图片区等比缩放） -->
+          <div
+            v-else
+            class="takt-captcha-slider-image-wrap"
+            :style="imageWrapStyle"
+          >
+            <div
+              class="takt-captcha-slider-image-scaled"
+              :style="imageScaledStyle"
+            >
+              <div
+                class="captcha-disabled-placeholder"
+                :style="{
+                  width: `${props.width}px`,
+                  height: `${props.height}px`
+                }"
+              >
+                <a-alert
+                  :message="$t('components.common.captcha.disabled')"
+                  type="info"
+                  show-icon
+                  :banner="true"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 滑块轨道：仅横向缩放，高度与表单输入框一致 -->
+          <div
+            v-if="captchaData.enabled !== false"
+            class="takt-captcha-slider-track-wrap"
+            :style="trackWrapStyle"
+          >
+            <div
+              class="takt-captcha-slider-track-scaled"
+              :style="trackScaledStyle"
+            >
+              <div
+                ref="trackRef"
+                class="slider-track"
+                :style="{
+                  width: `${props.width}px`
+                }"
+              >
+                <!-- 背景轨道 -->
+                <div class="slider-bg" />
         
-        <!-- 滑块手柄 -->
-        <div
-          class="slider-thumb"           
-          :class="{ 
-            'dragging': isDragging, 
-            'success': verified,
-            'hover': !isDragging && !verified && thumbLeft === 0
-          }"
-          :style="{ left: thumbLeft + 'px' }"
-          @mousedown="handleDragStart"
-          @touchstart="handleDragStart"
-        >
-          <div class="thumb-icon" >
-            <RiArrowRightDoubleLine v-if="!verified" />
-            <RiCheckLine v-else />
+                <!-- 滑块手柄 -->
+                <div
+                  class="slider-thumb"           
+                  :class="{ 
+                    'dragging': isDragging, 
+                    'success': verified,
+                    'hover': !isDragging && !verified && thumbLeft === 0
+                  }"
+                  :style="{ left: thumbLeft + 'px' }"
+                  @mousedown="handleDragStart"
+                  @touchstart="handleDragStart"
+                >
+                  <div class="thumb-icon">
+                    <RiArrowRightDoubleLine v-if="!verified" />
+                    <RiCheckLine v-else />
+                  </div>
+                </div>
+        
+                <!-- 进度条 -->
+                <div 
+                  class="progress-bar"
+                  :style="{ width: `${thumbLeft + 48}px` }"
+                />
+        
+                <!-- 提示文字（居中显示） -->
+                <div
+                  class="slider-tip-text"
+                  :class="{ 
+                    success: verified,
+                    'text-left': verified && successTextPosition === 'left',
+                    'text-right': verified && successTextPosition === 'right',
+                    'text-center': !verified || successTextPosition === 'center'
+                  }"
+                >
+                  <a-typography-text
+                    v-if="!verified"
+                    class="shine-text"
+                  >
+                    {{ $t('components.common.captcha.slideToVerify') }}
+                  </a-typography-text>
+                  <a-typography-text
+                    v-else
+                    class="success-text"
+                  >
+                    {{ $t('components.common.captcha.success') }}
+                  </a-typography-text>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 错误提示 -->
+          <div
+            v-if="errorMessage"
+            class="captcha-tip"
+          >
+            <a-typography-text class="tip-error">
+              {{ errorMessage }}
+            </a-typography-text>
           </div>
         </div>
-        
-        <!-- 进度条 -->
-        <div 
-          class="progress-bar"
-          :style="{ width: `${thumbLeft + 48}px` }"
-        ></div>
-        
-        <!-- 提示文字（居中显示） -->
+
+        <!-- 错误状态 -->
         <div
-          class="slider-tip-text"
-          :class="{ 
-            success: verified,
-            'text-left': verified && successTextPosition === 'left',
-            'text-right': verified && successTextPosition === 'right',
-            'text-center': !verified || successTextPosition === 'center'
-          }"
+          v-else-if="errorMessage"
+          class="captcha-error"
         >
-          <a-typography-text v-if="!verified" class="shine-text">{{ $t('components.common.captcha.slideToVerify') }}</a-typography-text>
-          <a-typography-text v-else class="success-text">{{ $t('components.common.captcha.success') }}</a-typography-text>
+          <a-alert
+            :message="errorMessage"
+            type="error"
+            show-icon
+          />
+          <a-button
+            type="link"
+            @click="generate"
+          >
+            {{ $t('components.common.captcha.regenerate') }}
+          </a-button>
         </div>
-        </div>
-        </div>
-      </div>
-
-      <!-- 错误提示 -->
-      <div v-if="errorMessage" class="captcha-tip">
-        <a-typography-text class="tip-error">{{ errorMessage }}</a-typography-text>
-      </div>
-    </div>
-
-    <!-- 错误状态 -->
-    <div v-else-if="errorMessage" class="captcha-error">
-      <a-alert :message="errorMessage" type="error" show-icon />
-      <a-button type="link" @click="generate">{{ $t('components.common.captcha.regenerate') }}</a-button>
-    </div>
       </div>
     </div>
   </div>
@@ -201,6 +258,10 @@ const mouseTrajectory = ref<Array<{ x: number; y: number; t: number }>>([])
 const containerRef = ref<HTMLDivElement>()
 const imageRef = ref<HTMLElement>()
 const trackRef = ref<HTMLElement>()
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback
+}
 
 // 视口缩放：图片区按 400x100 等比缩放，轨道宽度随图片、轨道高度与表单输入框一致
 const scale = ref(1)
@@ -297,7 +358,7 @@ const generate = async () => {
     // 等待 DOM 完全渲染
     await new Promise(resolve => setTimeout(resolve, 50))
     if (trackRef.value) {
-      const trackEl = trackRef.value as HTMLElement
+      const trackEl = trackRef.value
       const thumbWidth = 48
       maxLeft.value = Math.max(0, trackEl.clientWidth - thumbWidth)
       logger.debug('[Captcha Slider] 滑块轨道尺寸初始化', {
@@ -309,9 +370,9 @@ const generate = async () => {
       logger.warn('[Captcha Slider] 滑块轨道元素未找到，无法初始化 maxLeft')
       maxLeft.value = props.width - 48 // 使用默认值
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[Captcha Slider] 生成验证码失败', error)
-    errorMessage.value = error.message || t('components.common.captcha.generateFailed')
+    errorMessage.value = getErrorMessage(error, t('components.common.captcha.generateFailed'))
     emit('fail', errorMessage.value)
     captchaData.value = null
   } finally {
@@ -479,9 +540,9 @@ const verify = async (position: number, timeSpent: number) => {
         generate()
       }, 1500)
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[Captcha Slider] 验证码验证异常', error)
-    errorMessage.value = error.message || t('components.common.captcha.failed')
+    errorMessage.value = getErrorMessage(error, t('components.common.captcha.failed'))
     emit('fail', errorMessage.value)
     emit('verified', false)
     await resetSlider()
@@ -567,7 +628,7 @@ async function applyInitialData() {
   await nextTick()
   await new Promise(resolve => setTimeout(resolve, 50))
   if (trackRef.value) {
-    const trackEl = trackRef.value as HTMLElement
+    const trackEl = trackRef.value
     maxLeft.value = Math.max(0, trackEl.clientWidth - 48)
   } else {
     maxLeft.value = props.width - 48

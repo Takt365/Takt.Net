@@ -1,13 +1,12 @@
 <template>
   <a-menu
-    v-model:selectedKeys="selectedKeys"
+    v-model:selected-keys="selectedKeys"
     mode="horizontal"
     :theme="theme"
     :items="menuItems"
-    @click="handleMenuClick"
     class="takt-top-menu"
-  >
-  </a-menu>
+    @click="handleMenuClick"
+  />
 </template>
 
 <script setup lang="ts">

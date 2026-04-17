@@ -24,6 +24,8 @@ import type {
 } from '@/types/routine/tasks/signalr/signalr'
 import { logger } from './logger'
 
+const toErrorMessage = (e: unknown): string => (e instanceof Error ? e.message : String(e))
+
 /**
  * SignalR 自定义日志记录器（将 UTC 时间转换为本地时间）
  */
@@ -257,8 +259,8 @@ export class TaktSignalRManager {
                 }
               }
             }
-          } catch (refreshError: any) {
-            logger.error('[SignalR] 刷新 token 失败:', refreshError.message || refreshError)
+          } catch (refreshError: unknown) {
+            logger.error('[SignalR] 刷新 token 失败:', toErrorMessage(refreshError))
           }
         }
       } else {
@@ -416,22 +418,26 @@ export class TaktSignalRManager {
         logger.info('[SignalR] 正在连接连接 Hub...')
         await this.connectHub.start()
         logger.info('[SignalR] 连接 Hub 连接成功，ConnectionId:', this.connectHub.connectionId)
-      } catch (connectError: any) {
-        logger.error('[SignalR] 连接 Hub 连接失败，URL:', connectHubUrl, '错误:', connectError.message || connectError)
-        throw new Error(`连接 Hub 连接失败: ${connectError.message || connectError}`)
+      } catch (connectError: unknown) {
+        logger.error('[SignalR] 连接 Hub 连接失败，URL:', connectHubUrl, '错误:', toErrorMessage(connectError))
+        const hubErr = new Error(`连接 Hub 连接失败: ${toErrorMessage(connectError)}`)
+        Object.assign(hubErr, { cause: connectError })
+        throw hubErr
       }
 
       try {
         logger.info('[SignalR] 正在连接通知 Hub...')
         await this.notificationHub.start()
         logger.info('[SignalR] 通知 Hub 连接成功，ConnectionId:', this.notificationHub.connectionId)
-      } catch (notificationError: any) {
-        logger.error('[SignalR] 通知 Hub 连接失败，URL:', notificationHubUrl, '错误:', notificationError.message || notificationError)
+      } catch (notificationError: unknown) {
+        logger.error('[SignalR] 通知 Hub 连接失败，URL:', notificationHubUrl, '错误:', toErrorMessage(notificationError))
         // 如果通知 Hub 连接失败，先断开连接 Hub
         if (this.connectHub.state === signalR.HubConnectionState.Connected) {
           await this.connectHub.stop()
         }
-        throw new Error(`通知 Hub 连接失败: ${notificationError.message || notificationError}`)
+        const notifyHubErr = new Error(`通知 Hub 连接失败: ${toErrorMessage(notificationError)}`)
+        Object.assign(notifyHubErr, { cause: notificationError })
+        throw notifyHubErr
       }
 
       logger.info('[SignalR] 所有 Hub 已连接成功')
@@ -440,8 +446,8 @@ export class TaktSignalRManager {
       // 启动心跳
       this.startHeartbeat()
       logger.info('[SignalR] 心跳已启动')
-    } catch (error: any) {
-      logger.error('[SignalR] SignalR 连接失败，错误:', error.message || error)
+    } catch (error: unknown) {
+      logger.error('[SignalR] SignalR 连接失败，错误:', toErrorMessage(error))
       throw error
     }
   }
@@ -461,13 +467,13 @@ export class TaktSignalRManager {
         promises.push(
           this.connectHub.stop().then(() => {
             logger.info('[SignalR] 连接 Hub 已断开，ConnectionId:', connectionId)
-          }).catch((error: any) => {
-            logger.error('[SignalR] 断开连接 Hub 失败，ConnectionId:', connectionId, '错误:', error.message || error)
+          }).catch((error: unknown) => {
+            logger.error('[SignalR] 断开连接 Hub 失败，ConnectionId:', connectionId, '错误:', toErrorMessage(error))
           })
         )
         this.connectHub = null
-      } catch (error: any) {
-        logger.error('[SignalR] 断开连接 Hub 时发生错误:', error.message || error)
+      } catch (error: unknown) {
+        logger.error('[SignalR] 断开连接 Hub 时发生错误:', toErrorMessage(error))
       }
     }
 
@@ -477,13 +483,13 @@ export class TaktSignalRManager {
         promises.push(
           this.notificationHub.stop().then(() => {
             logger.info('[SignalR] 通知 Hub 已断开，ConnectionId:', connectionId)
-          }).catch((error: any) => {
-            logger.error('[SignalR] 断开通知 Hub 失败，ConnectionId:', connectionId, '错误:', error.message || error)
+          }).catch((error: unknown) => {
+            logger.error('[SignalR] 断开通知 Hub 失败，ConnectionId:', connectionId, '错误:', toErrorMessage(error))
           })
         )
         this.notificationHub = null
-      } catch (error: any) {
-        logger.error('[SignalR] 断开通知 Hub 时发生错误:', error.message || error)
+      } catch (error: unknown) {
+        logger.error('[SignalR] 断开通知 Hub 时发生错误:', toErrorMessage(error))
       }
     }
 

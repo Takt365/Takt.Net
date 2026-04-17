@@ -18,7 +18,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Takt.Application.Services.Identity;
 using Takt.Application.Services.Captcha;
-using Takt.Application.Services.Generator.CodeEngine;
+using Takt.Application.Services.Code.Generator.CodeEngine;
 using Takt.Application.Services.Routine.Tasks.NumberingRule.RuleEngine;
 using Takt.Domain.Interfaces;
 using Takt.Domain.Repositories;

@@ -52,6 +52,7 @@
         :update-loading="loading"
         :delete-loading="loading"
         :refresh-loading="loading"
+        :expanded="tableExpanded"
         @create="handleCreate"
         @update="handleUpdate"
         @delete="handleDelete"
@@ -60,7 +61,6 @@
         @advanced-query="handleAdvancedQuery"
         @column-setting="handleColumnSetting"
         @refresh="handleRefresh"
-        :expanded="tableExpanded"
         @update:expanded="(v: boolean) => (tableExpanded = v)"
       />
     </div>
@@ -68,11 +68,11 @@
     <!-- 第三行：左 1/4 树 | 右 3/4 树表 -->
     <div class="menu-tree-table-wrap">
       <TaktTreeLeftTable
+        v-model:expanded-keys="treeExpandedKeys"
+        v-model:selected-keys="selectedTreeKeys"
         :tree-data="filteredMenuTreeData"
         :tree-field-names="{ title: 'title', key: 'key', children: 'children' }"
         :tree-width-ratio="0.2"
-        v-model:expanded-keys="treeExpandedKeys"
-        v-model:selected-keys="selectedTreeKeys"
         :loading="loading"
         :virtual="false"
         :draggable="true"
@@ -81,12 +81,12 @@
       />
       <TaktTreeRightTable
         ref="tableRef"
+        v-model:expanded-row-keys="tableExpandedRowKeys"
         :columns="displayColumns"
         :data-source="tableTreeData"
         :loading="loading"
         :row-key="getMenuId"
         :stripe="true"
-        v-model:expanded-row-keys="tableExpandedRowKeys"
         :row-selection="rowSelection"
         @change="handleTableChange"
         @resize-column="handleResizeColumn"
@@ -351,7 +351,7 @@ function getAllParentKeys(nodes: TreeDataItem[]): (string | number)[] {
     if (!list?.length) return
     for (const node of list) {
       if (node.children?.length) {
-        keys.push(node.key as string | number)
+        keys.push(node.key)
         walk(node.children)
       }
     }

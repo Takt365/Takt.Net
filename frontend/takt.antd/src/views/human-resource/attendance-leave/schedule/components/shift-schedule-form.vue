@@ -9,13 +9,26 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" :model="formState" :rules="rules" layout="horizontal" label-align="right">
-    <a-tabs v-model:activeKey="activeTab">
-      <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')" force-render>
+  <a-form
+    ref="formRef"
+    :model="formState"
+    :rules="rules"
+    layout="horizontal"
+    label-align="right"
+  >
+    <a-tabs v-model:active-key="activeTab">
+      <a-tab-pane
+        key="basic"
+        :tab="t('common.form.tabs.basicInfo')"
+        force-render
+      >
         <div :class="formContentClass">
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.shiftschedule.employeeid')" name="employeeId">
+              <a-form-item
+                :label="t('entity.shiftschedule.employeeid')"
+                name="employeeId"
+              >
                 <a-input
                   v-model:value="formState.employeeId"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.shiftschedule.employeeid') })"
@@ -24,7 +37,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.shiftschedule.scheduledate')" name="scheduleDate">
+              <a-form-item
+                :label="t('entity.shiftschedule.scheduledate')"
+                name="scheduleDate"
+              >
                 <a-date-picker
                   v-model:value="formState.scheduleDate"
                   value-format="YYYY-MM-DD"
@@ -36,7 +52,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.shiftschedule.shiftid')" name="shiftId">
+              <a-form-item
+                :label="t('entity.shiftschedule.shiftid')"
+                name="shiftId"
+              >
                 <a-select
                   v-model:value="formState.shiftId"
                   :options="shiftOptions"
@@ -51,7 +70,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('common.entity.remark')" name="remark">
+              <a-form-item
+                :label="t('common.entity.remark')"
+                name="remark"
+              >
                 <a-textarea
                   v-model:value="formState.remark"
                   :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"

@@ -9,13 +9,26 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" :model="formState" :rules="rules" layout="horizontal" label-align="right">
-    <a-tabs v-model:activeKey="activeTab">
-      <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')" force-render>
+  <a-form
+    ref="formRef"
+    :model="formState"
+    :rules="rules"
+    layout="horizontal"
+    label-align="right"
+  >
+    <a-tabs v-model:active-key="activeTab">
+      <a-tab-pane
+        key="basic"
+        :tab="t('common.form.tabs.basicInfo')"
+        force-render
+      >
         <div :class="formContentClass">
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancepunch.employeeid')" name="employeeId">
+              <a-form-item
+                :label="t('entity.attendancepunch.employeeid')"
+                name="employeeId"
+              >
                 <a-input
                   v-model:value="formState.employeeId"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendancepunch.employeeid') })"
@@ -24,7 +37,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancepunch.punchtime')" name="punchTime">
+              <a-form-item
+                :label="t('entity.attendancepunch.punchtime')"
+                name="punchTime"
+              >
                 <a-date-picker
                   v-model:value="formState.punchTime"
                   show-time
@@ -37,7 +53,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancepunch.punchtype')" name="punchType">
+              <a-form-item
+                :label="t('entity.attendancepunch.punchtype')"
+                name="punchType"
+              >
                 <TaktSelect
                   v-model:value="formState.punchType"
                   dict-type="hr_attendance_punch_type"
@@ -46,7 +65,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancepunch.punchsource')" name="punchSource">
+              <a-form-item
+                :label="t('entity.attendancepunch.punchsource')"
+                name="punchSource"
+              >
                 <TaktSelect
                   v-model:value="formState.punchSource"
                   dict-type="hr_attendance_punch_source"
@@ -57,14 +79,23 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('entity.attendancepunch.punchaddress')" name="punchAddress">
-                <a-input v-model:value="formState.punchAddress" allow-clear />
+              <a-form-item
+                :label="t('entity.attendancepunch.punchaddress')"
+                name="punchAddress"
+              >
+                <a-input
+                  v-model:value="formState.punchAddress"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('common.entity.remark')" name="remark">
+              <a-form-item
+                :label="t('common.entity.remark')"
+                name="remark"
+              >
                 <a-textarea
                   v-model:value="formState.remark"
                   :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"

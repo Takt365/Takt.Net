@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { MenuTree } from '@/types/identity/menu'
+type MenuLike = MenuTree & {
+  dictValue?: string | number
+  dictLabel?: string
+  transKey?: string
+  extValue?: string
+}
 
 export const usePermissionStore = defineStore('permission', () => {
   const permissions = ref<string[]>([])
@@ -10,8 +16,8 @@ export const usePermissionStore = defineStore('permission', () => {
     const result: string[] = []
     
     const traverse = (menuList: MenuTree[]) => {
-      menuList.forEach((menu: any) => {
-        const { permission, children, menuType, menuName, menuCode } = extractMenuFields(menu)
+      menuList.forEach((menu: MenuTree) => {
+        const { permission, children, menuType } = extractMenuFields(menu)
         
         // 如果菜单有权限标识，添加到结果中（包括按钮类型）
         if (permission && typeof permission === 'string' && permission.trim()) {
@@ -36,20 +42,23 @@ export const usePermissionStore = defineStore('permission', () => {
   }
 
   // 辅助函数：从菜单对象提取字段（后端已统一转换为 camelCase）
-  const extractMenuFields = (menu: any) => ({
+  const extractMenuFields = (menu: MenuTree) => {
+    const menuLike = menu as MenuLike
+    return {
     menuId: menu.menuId || menu.dictValue,
-    menuName: menu.menuName || menu.dictLabel || '',
+    menuName: menu.menuName || menuLike.dictLabel || '',
     menuCode: menu.menuCode || menu.extLabel || '',
-    menuL10nKey: menu.menuL10nKey || menu.transKey,
+    menuL10nKey: menu.menuL10nKey || menuLike.transKey,
     menuIcon: menu.menuIcon,
-    path: menu.path || menu.extValue || '',
+    path: menu.path || menuLike.extValue || '',
     component: menu.component,
     menuType: menu.menuType ?? 0,
     menuStatus: menu.menuStatus ?? 1,
     isVisible: menu.isVisible ?? 1,
     permission: menu.permission,
     children: menu.children
-  })
+    }
+  }
 
   // 设置权限列表（从菜单树或用户信息中提取）
   const setPermissions = (menuPermissions: string[], userPermissions: string[] = []) => {

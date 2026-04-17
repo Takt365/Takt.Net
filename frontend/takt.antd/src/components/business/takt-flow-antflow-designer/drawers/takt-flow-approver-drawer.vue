@@ -21,14 +21,27 @@
       <a-form layout="vertical">
         <a-form-item :label="t('workflow.designer.propAssigneeType')">
           <a-radio-group v-model:value="form.setType">
-            <a-radio :value="1">{{ t('workflow.designer.assigneeAssignee') }}</a-radio>
-            <a-radio :value="2">直接主管</a-radio>
-            <a-radio :value="3">{{ t('workflow.designer.assigneeRole') }}</a-radio>
-            <a-radio :value="4">{{ t('workflow.designer.assigneeDept') }}</a-radio>
-            <a-radio :value="5">{{ t('workflow.designer.assigneeSelfSelect') }}</a-radio>
+            <a-radio :value="1">
+              {{ t('workflow.designer.assigneeAssignee') }}
+            </a-radio>
+            <a-radio :value="2">
+              直接主管
+            </a-radio>
+            <a-radio :value="3">
+              {{ t('workflow.designer.assigneeRole') }}
+            </a-radio>
+            <a-radio :value="4">
+              {{ t('workflow.designer.assigneeDept') }}
+            </a-radio>
+            <a-radio :value="5">
+              {{ t('workflow.designer.assigneeSelfSelect') }}
+            </a-radio>
           </a-radio-group>
         </a-form-item>
-        <a-form-item v-if="form.setType === 1" :label="t('workflow.designer.propAssignees')">
+        <a-form-item
+          v-if="form.setType === 1"
+          :label="t('workflow.designer.propAssignees')"
+        >
           <div class="takt-flow-drawer-pick-row">
             <a-select
               v-model:value="form.assigneeUserIds"
@@ -40,12 +53,19 @@
               class="takt-flow-drawer-pick-row__select"
               :field-names="{ label: 'dictLabel', value: 'dictValue' }"
             />
-            <a-button type="primary" ghost @click="selectUserOpen = true">
+            <a-button
+              type="primary"
+              ghost
+              @click="selectUserOpen = true"
+            >
               {{ t('workflow.designer.openSelectUserList') }}
             </a-button>
           </div>
         </a-form-item>
-        <a-form-item v-if="form.setType === 3" :label="t('workflow.designer.propRoles')">
+        <a-form-item
+          v-if="form.setType === 3"
+          :label="t('workflow.designer.propRoles')"
+        >
           <div class="takt-flow-drawer-pick-row">
             <a-select
               v-model:value="form.roleIds"
@@ -57,12 +77,19 @@
               class="takt-flow-drawer-pick-row__select"
               :field-names="{ label: 'dictLabel', value: 'dictValue' }"
             />
-            <a-button type="primary" ghost @click="selectRoleOpen = true">
+            <a-button
+              type="primary"
+              ghost
+              @click="selectRoleOpen = true"
+            >
               {{ t('workflow.designer.openSelectRoleList') }}
             </a-button>
           </div>
         </a-form-item>
-        <a-form-item v-if="form.setType === 4" :label="t('workflow.designer.propDepartments')">
+        <a-form-item
+          v-if="form.setType === 4"
+          :label="t('workflow.designer.propDepartments')"
+        >
           <a-tree-select
             v-model:value="form.deptIds"
             multiple
@@ -74,18 +101,40 @@
             :field-names="{ label: 'dictLabel', value: 'dictValue' }"
           />
         </a-form-item>
-        <a-form-item v-if="form.setType === 2" label="主管层级">
-          <a-select v-model:value="form.directorLevel" style="width: 100%">
-            <a-select-option :value="1">直接主管</a-select-option>
-            <a-select-option :value="2">第2级主管</a-select-option>
-            <a-select-option :value="3">第3级主管</a-select-option>
+        <a-form-item
+          v-if="form.setType === 2"
+          label="主管层级"
+        >
+          <a-select
+            v-model:value="form.directorLevel"
+            style="width: 100%"
+          >
+            <a-select-option :value="1">
+              直接主管
+            </a-select-option>
+            <a-select-option :value="2">
+              第2级主管
+            </a-select-option>
+            <a-select-option :value="3">
+              第3级主管
+            </a-select-option>
           </a-select>
         </a-form-item>
       </a-form>
     </template>
     <template #footer>
-      <a-button style="margin-right: 8px" @click="handleClose">取消</a-button>
-      <a-button type="primary" @click="handleSave">确定</a-button>
+      <a-button
+        style="margin-right: 8px"
+        @click="handleClose"
+      >
+        取消
+      </a-button>
+      <a-button
+        type="primary"
+        @click="handleSave"
+      >
+        确定
+      </a-button>
     </template>
     <TaktFlowSelectUserDialog
       v-model:open="selectUserOpen"

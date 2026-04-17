@@ -12,9 +12,9 @@ description: Takt .NET 后端开发规范与模块架构。用于在 Takt 项目
 
 - **Takt.Domain**：实体 (`Entities`)、仓储接口 (`Repositories`)、领域接口、扩展与验证。
 - **Takt.Application**：DTO (`Dtos`)、应用服务接口与实现 (`Services`)。
-- **Takt.Infrastructure**：SqlSugar 配置、多库路由 (`TaktEntityDatabaseMapping`)、仓储实现、种子数据、日志、Swagger 等。
+- **Takt.Infrastructure**：SqlSugar 配置、多库路由 (`TaktEntityDatabaseMapping`)、仓储实现、种子数据、日志、内置 OpenAPI 与 Scalar 等。
 - **Takt.Shared**：通用模型、异常 (`TaktBusinessException`)、帮助类。
-- **Takt.WebApi**：控制器 (`Controllers`)、Program/Startup、Swagger 文档入口。
+- **Takt.WebApi**：控制器 (`Controllers`)、Program、Scalar/OpenAPI 文档入口（`Swagger.Enabled`）。
 
 新增业务时，通常涉及这几层：
 

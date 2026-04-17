@@ -19,15 +19,24 @@
       :bordered="bordered"
       :row-selection="effectiveRowSelection"
       :expanded-row-keys="expandedRowKeys"
+      v-bind="$attrs"
       @update:expanded-row-keys="(keys) => emit('update:expandedRowKeys', keys)"
       @change="handleTableChange"
-      @resizeColumn="handleResizeColumn"
-      v-bind="$attrs"
+      @resize-column="handleResizeColumn"
     >
-      <template v-for="(_, name) in $slots" #[name]="slotData">
-        <slot :name="name" v-bind="slotData" />
+      <template
+        v-for="(_, name) in $slots"
+        #[name]="slotData"
+      >
+        <slot
+          :name="name"
+          v-bind="slotData"
+        />
       </template>
-      <template v-if="$slots.summary" #summary>
+      <template
+        v-if="$slots.summary"
+        #summary
+      >
         <slot name="summary" />
       </template>
     </a-table>
@@ -38,17 +47,23 @@
 import { computed } from 'vue'
 import type { TableColumnsType, TableProps } from 'ant-design-vue'
 
+type TableRecord = Record<string, unknown>
+type TableSorter = { field?: string; order?: string }
+type TableFilters = Record<string, unknown>
+type TablePagination = { current?: number; pageSize?: number; total?: number }
+type ResizableColumn = { width?: number; ellipsis?: unknown }
+
 interface Props {
   /** 表格列配置 */
   columns: TableColumnsType
   /** 数据源 */
-  dataSource?: any[]
+  dataSource?: TableRecord[]
   /** 加载状态 */
   loading?: boolean
   /** 行键 */
-  rowKey?: string | ((record: any) => string)
+  rowKey?: string | ((record: TableRecord) => string)
   /** 自定义行类名（斑马纹等） */
-  rowClassName?: string | ((record: any, index: number) => string)
+  rowClassName?: string | ((record: TableRecord, index: number) => string)
   /** 是否启用斑马纹 */
   stripe?: boolean
   /** 是否启用虚拟滚动 */
@@ -76,16 +91,18 @@ const props = withDefaults(defineProps<Props>(), {
   rowClassName: undefined,
   stripe: true,
   virtual: false,
+  scroll: undefined,
   size: 'middle',
   bordered: false,
+  rowSelection: undefined,
   showRowSelection: true,
   expandedRowKeys: () => [],
   defaultEllipsis: true
 })
 
 const emit = defineEmits<{
-  'change': [pagination: any, filters: any, sorter: any]
-  'resize-column': [width: number, column: any]
+  'change': [pagination: TablePagination, filters: TableFilters, sorter: TableSorter]
+  'resize-column': [width: number, column: ResizableColumn]
   'update:expandedRowKeys': [keys: (string | number)[]]
 }>()
 
@@ -98,7 +115,7 @@ const effectiveRowSelection = computed(() => {
 const rowClassName = computed(() => {
   if (props.rowClassName) return props.rowClassName
   if (props.stripe) {
-    return (_record: any, index: number) => (index % 2 === 1 ? 'table-striped' : '') as string
+    return (_record: TableRecord, index: number) => (index % 2 === 1 ? 'table-striped' : '')
   }
   return undefined
 })
@@ -106,8 +123,8 @@ const rowClassName = computed(() => {
 const displayColumns = computed(() => {
   const cols = props.columns
   const visibleCount = cols.length
-  return cols.map((column: any) => {
-    const processedColumn: any = { ...column }
+  return cols.map((column) => {
+    const processedColumn = { ...column } as ResizableColumn & Record<string, unknown>
     if (!processedColumn.width && visibleCount > 0) {
       const viewportWidth = window.innerWidth - 40
       processedColumn.width = Math.floor(viewportWidth / 9)
@@ -122,18 +139,21 @@ const displayColumns = computed(() => {
 const scrollConfig = computed(() => {
   const config: { x?: number | string | true; y?: number | string } = { ...props.scroll }
   if (!config.x) {
-    const totalWidth = displayColumns.value.reduce((sum: number, col: any) => sum + (col.width || 0), 0)
-    config.x = totalWidth > 0 && displayColumns.value.every((col: any) => col.width) ? totalWidth : 'max-content'
+    const totalWidth = displayColumns.value.reduce((sum: number, col) => {
+      const width = (col as ResizableColumn).width
+      return sum + (typeof width === 'number' ? width : 0)
+    }, 0)
+    config.x = totalWidth > 0 && displayColumns.value.every((col) => !!(col as ResizableColumn).width) ? totalWidth : 'max-content'
   }
   if (props.virtual && !config.y) config.y = 600
   return config
 })
 
-const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+const handleTableChange = (pagination: TablePagination, filters: TableFilters, sorter: TableSorter) => {
   emit('change', pagination, filters, sorter)
 }
 
-const handleResizeColumn = (w: number, col: any) => {
+const handleResizeColumn = (w: number, col: ResizableColumn) => {
   col.width = w
   emit('resize-column', w, col)
 }

@@ -20,30 +20,46 @@
       :wrapper-col="{ span: 18 }"
       layout="horizontal"
     >
-      <a-form-item label="资源键" name="resourceKey">
+      <a-form-item
+        label="资源键"
+        name="resourceKey"
+      >
         <a-input
           v-model:value="formState.resourceKey"
           placeholder="如：UserNotFound、menu.home._self"
           :disabled="isEdit"
         />
       </a-form-item>
-      <a-form-item label="资源类型" name="resourceType">
+      <a-form-item
+        label="资源类型"
+        name="resourceType"
+      >
         <a-select
           v-model:value="formState.resourceType"
           placeholder="Frontend / Backend"
           allow-clear
         >
-          <a-select-option value="Frontend">Frontend</a-select-option>
-          <a-select-option value="Backend">Backend</a-select-option>
+          <a-select-option value="Frontend">
+            Frontend
+          </a-select-option>
+          <a-select-option value="Backend">
+            Backend
+          </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="资源分组" name="resourceGroup">
+      <a-form-item
+        label="资源分组"
+        name="resourceGroup"
+      >
         <a-input
           v-model:value="formState.resourceGroup"
           placeholder="如：Validation、Menu（可选）"
         />
       </a-form-item>
-      <a-form-item label="排序号" name="orderNum">
+      <a-form-item
+        label="排序号"
+        name="orderNum"
+      >
         <a-input-number
           v-model:value="formState.orderNum"
           :min="0"
@@ -51,7 +67,9 @@
           style="width: 100%"
         />
       </a-form-item>
-      <a-divider orientation="left">各语言翻译值</a-divider>
+      <a-divider orientation="left">
+        各语言翻译值
+      </a-divider>
       <a-form-item
         v-for="lang in languageList"
         :key="lang.cultureCode"
@@ -63,7 +81,10 @@
           :placeholder="`${lang.label} 翻译值`"
         />
       </a-form-item>
-      <a-form-item label="备注" name="remark">
+      <a-form-item
+        label="备注"
+        name="remark"
+      >
         <a-textarea
           v-model:value="formState.remark"
           placeholder="可选"

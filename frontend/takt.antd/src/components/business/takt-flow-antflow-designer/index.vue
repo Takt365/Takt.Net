@@ -10,33 +10,76 @@
 <!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->
 <!-- ======================================== -->
 <template>
-  <div class="takt-flow-antflow-designer" :class="{ 'takt-flow-antflow-designer--dark': isDark }">
-    <section class="dingflow-design" ref="dingflowRef">
+  <div
+    class="takt-flow-antflow-designer"
+    :class="{ 'takt-flow-antflow-designer--dark': isDark }"
+  >
+    <section
+      ref="dingflowRef"
+      class="dingflow-design"
+    >
       <div class="zoom-bar">
-        <a-button type="link" size="small" class="zoom-bar__validate" @click="runValidateDesign">
+        <a-button
+          type="link"
+          size="small"
+          class="zoom-bar__validate"
+          @click="runValidateDesign"
+        >
           {{ t('workflow.designer.validateFlow') }}
         </a-button>
-        <span class="zoom-bar__sep" aria-hidden="true" />
-        <span class="zoom-out" title="缩小" @click="zoomOut" />
+        <span
+          class="zoom-bar__sep"
+          aria-hidden="true"
+        />
+        <span
+          class="zoom-out"
+          title="缩小"
+          @click="zoomOut"
+        />
         <span class="zoom-val">{{ nowVal }}%</span>
-        <span class="zoom-in" title="放大" @click="zoomIn" />
-        <span class="zoom-reset" title="还原缩放" @click="zoomReset">↺</span>
+        <span
+          class="zoom-in"
+          title="放大"
+          @click="zoomIn"
+        />
+        <span
+          class="zoom-reset"
+          title="还原缩放"
+          @click="zoomReset"
+        >↺</span>
       </div>
-      <div class="box-scale" ref="boxScaleRef">
-        <div v-if="nodeConfig" class="flow-canvas-chain">
+      <div
+        ref="boxScaleRef"
+        class="box-scale"
+      >
+        <div
+          v-if="nodeConfig"
+          class="flow-canvas-chain"
+        >
           <TaktFlowNodeWrap
             v-model:node-config="nodeConfig"
             :drawer="drawer"
           />
-          <div class="end-connector" aria-hidden="true" />
+          <div
+            class="end-connector"
+            aria-hidden="true"
+          />
           <div class="end-node">
             <div class="end-node-block">
               <span class="end-node-text">{{ t('workflow.designer.endNode') }}</span>
             </div>
           </div>
         </div>
-        <div v-else class="start-empty">
-          <a-button type="primary" @click="initStart">从发起人开始</a-button>
+        <div
+          v-else
+          class="start-empty"
+        >
+          <a-button
+            type="primary"
+            @click="initStart"
+          >
+            从发起人开始
+          </a-button>
         </div>
       </div>
     </section>
@@ -44,7 +87,10 @@
     <TaktFlowApproverDrawer />
     <TaktFlowCopyerDrawer />
     <TaktFlowConditionDrawer />
-    <TaktFlowErrorDialog v-model:open="errorDialogOpen" :rows="errorDialogRows" />
+    <TaktFlowErrorDialog
+      v-model:open="errorDialogOpen"
+      :rows="errorDialogRows"
+    />
   </div>
 </template>
 
@@ -179,7 +225,7 @@ function parseProcessContent(val: string): { nodes: GraphNode[]; edges: GraphEdg
     const edges = (Array.isArray(obj.edges) ? obj.edges : []) as GraphEdge[]
     const rawFt = obj.flowTree ?? obj.FlowTree
     const flowTree =
-      rawFt != null && typeof rawFt === 'object' && isDesignerFlowTreeRoot(rawFt) ? (rawFt as FlowTreeNode) : undefined
+      rawFt != null && typeof rawFt === 'object' && isDesignerFlowTreeRoot(rawFt) ? (rawFt) : undefined
     return { nodes, edges, flowTree }
   } catch {
     return { nodes: [], edges: [] }

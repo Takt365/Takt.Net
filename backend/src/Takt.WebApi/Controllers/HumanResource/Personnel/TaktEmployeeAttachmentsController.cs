@@ -22,7 +22,7 @@ namespace Takt.WebApi.Controllers.HumanResource.Personnel;
 /// 员工附件控制器（权限前缀 humanresource:personnel:employeeattachment）
 /// </summary>
 [Route("api/[controller]", Name = "员工附件")]
-[ApiModule("HumanResource.Personnel", "人事管理")]
+[ApiModule("HumanResource", "人力资源")]
 [TaktPermission("humanresource:personnel:employeeattachment:list", "员工附件管理")]
 public class TaktEmployeeAttachmentsController : TaktControllerBase
 {

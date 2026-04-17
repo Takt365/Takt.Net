@@ -1,7 +1,10 @@
 <template>
   <div class="element-code">
     <div class="element-code__preview">
-      <pre class="element-code__pre"><code class="hljs" v-html="highlightedHtml"></code></pre>
+      <pre class="element-code__pre"><code
+        ref="codeRef"
+        class="hljs language-xml"
+      /></pre>
     </div>
     <a-button
       v-if="showDownload"
@@ -15,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github.min.css'
 
@@ -29,21 +32,22 @@ const props = withDefaults(
   { showDownload: true, downloadFilename: 'FormComponent.element.vue', rows: 16 }
 )
 
-const highlightedHtml = computed(() => {
+const codeRef = ref<HTMLElement | null>(null)
+const highlightedContent = computed(() => {
   const code = props.content ?? ''
-  if (!code.trim()) return ''
-  try {
-    return hljs.highlight(code, { language: 'xml' }).value
-  } catch {
-    return escapeHtml(code)
-  }
+  return code.trim() ? code : ''
 })
 
-function escapeHtml(s: string): string {
-  const div = document.createElement('div')
-  div.textContent = s
-  return div.innerHTML
+function renderHighlightedCode() {
+  const element = codeRef.value
+  if (!element) return
+  element.textContent = highlightedContent.value
+  hljs.highlightElement(element)
 }
+
+watch(highlightedContent, () => {
+  nextTick(() => renderHighlightedCode())
+}, { immediate: true })
 
 function onDownload() {
   const blob = new Blob([props.content], { type: 'text/plain;charset=utf-8' })

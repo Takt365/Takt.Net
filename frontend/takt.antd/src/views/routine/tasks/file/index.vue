@@ -996,7 +996,7 @@ const handleFormSubmit = async () => {
         }
         const updateData = { ...formValues, fileId }
         logger.debug('[FileSubmit] 开始更新文件记录:', updateData)
-        await updateFile(String(fileId), updateData as any)
+        await updateFile(String(fileId), updateData)
         message.success('更新成功')
       } else {
         // 新增：使用 create API 创建数据库记录

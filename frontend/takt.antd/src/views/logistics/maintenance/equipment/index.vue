@@ -1,8 +1,13 @@
 <template>
   <div class="logistics-maintenance-equipment">
     <a-card>
-      <template #title>设备管理</template>
-      <a-table :columns="columns" :data-source="dataSource" />
+      <template #title>
+        设备管理
+      </template>
+      <a-table
+        :columns="columns"
+        :data-source="dataSource"
+      />
     </a-card>
   </div>
 </template>

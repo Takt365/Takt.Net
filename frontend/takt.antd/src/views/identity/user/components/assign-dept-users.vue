@@ -23,7 +23,10 @@
       layout="horizontal"
     >
       <a-form-item :label="t('entity.user._self')">
-        <a-input :value="userInfo" disabled />
+        <a-input
+          :value="userInfo"
+          disabled
+        />
       </a-form-item>
       <a-form-item :label="t('entity.dept._self')">
         <a-transfer

@@ -11,7 +11,7 @@
 // ========================================
 
 import { createRouter, createWebHistory } from 'vue-router'
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw, NavigationGuardNext, RouteLocationRaw } from 'vue-router'
 import { nextTick } from 'vue'
 import { useUserStore } from '@/stores/identity/user'
 import { usePermissionStore } from '@/stores/identity/permission'
@@ -84,13 +84,27 @@ const router = createRouter({
   routes
 })
 
+/**
+ * 移除值为 `undefined` 的键，满足 `exactOptionalPropertyTypes: true` 下 `RouteRecordRaw` 的要求：
+ * 可选属性只能「省略」，不能显式赋 `undefined`（展开 `RouteRecordNormalized` 时常带 `redirect: undefined` 等）。
+ */
+function dropUndefinedRecordKeys(record: Record<string, unknown>): Record<string, unknown> {
+  const next: Record<string, unknown> = { ...record }
+  for (const key of Object.keys(next)) {
+    if (next[key] === undefined) {
+      delete next[key]
+    }
+  }
+  return next
+}
+
 // 辅助函数：获取根路由
 const getRootRoute = () => {
   return router.getRoutes().find(r => r.path === '/' && (r.name === 'Root' || !r.name))
 }
 
 // 辅助函数：处理根路径重定向
-const handleRootRedirect = (next: Function) => {
+const handleRootRedirect = (next: NavigationGuardNext) => {
   next('/dashboard/workspace')
   NProgress.done()
 }
@@ -125,10 +139,11 @@ const registerDynamicRoutes = (routes: RouteRecordRaw[]) => {
     router.removeRoute(currentRootRoute.name)
     
     // 添加新的根路由（包含所有 children）
-    router.addRoute({
-      ...currentRootRoute,
+    const mergedRoot = {
+      ...(currentRootRoute as unknown as Record<string, unknown>),
       children: newChildren
-    })
+    }
+    router.addRoute(dropUndefinedRecordKeys(mergedRoot) as unknown as RouteRecordRaw)
     
     return true
   }
@@ -136,11 +151,11 @@ const registerDynamicRoutes = (routes: RouteRecordRaw[]) => {
 }
 
 // 辅助函数：跳转到登录页
-const redirectToLogin = (next: Function, redirectPath?: string) => {
-  next({
-    path: '/login',
-    query: redirectPath ? { redirect: redirectPath } : undefined
-  })
+const redirectToLogin = (next: NavigationGuardNext, redirectPath?: string) => {
+  const target: RouteLocationRaw = redirectPath
+    ? { path: '/login', query: { redirect: redirectPath } }
+    : { path: '/login' }
+  next(target)
   NProgress.done()
 }
 
@@ -150,7 +165,7 @@ const loadBackendTranslations = async () => {
     const { loadTranslationsFromBackend } = await import('@/locales')
     const { unref } = await import('vue')
     const i18n = await import('@/locales')
-    const currentLocale = unref(i18n.default.global.locale) as string
+    const currentLocale = unref(i18n.default.global.locale)
     await loadTranslationsFromBackend(currentLocale, 'Frontend')
     logger.info('[Router Guard] 后端翻译数据加载成功')
   } catch (error) {
@@ -180,8 +195,9 @@ const connectSignalR = async () => {
       await signalRStore.connect()
       logger.info('[Router Guard] SignalR 连接成功')
     }
-  } catch (error: any) {
-    logger.error('[Router Guard] SignalR 连接失败:', error.message || error)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error)
+    logger.error('[Router Guard] SignalR 连接失败:', message)
   }
 }
 
@@ -218,7 +234,7 @@ router.beforeEach(async (to, _from, next) => {
         
         // 连接 SignalR（登录成功后）
         await connectSignalR()
-      } catch (error) {
+      } catch {
         userStore.logout()
         redirectToLogin(next, to.fullPath)
         return
@@ -235,7 +251,7 @@ router.beforeEach(async (to, _from, next) => {
       // 检查翻译数据是否已加载（如果未加载则加载）
       const { unref } = await import('vue')
       const i18n = await import('@/locales')
-      const currentLocale = unref(i18n.default.global.locale) as string
+      const currentLocale = unref(i18n.default.global.locale)
       const { useTranslationStore } = await import('@/stores/routine/localization/translation')
       const translationStore = useTranslationStore()
       const { useDictDataStore } = await import('@/stores/routine/dict/dictdata')
@@ -313,7 +329,7 @@ router.beforeEach(async (to, _from, next) => {
         menuStore.isRoutesLoaded = true
         // 从已注册的路由中恢复 routes（用于保持状态一致性）
         if (rootRoute?.children) {
-          menuStore.routes = rootRoute.children as RouteRecordRaw[]
+          menuStore.routes = rootRoute.children
         }
       }
       // 场景2：退出后再次登录 - 路由已注册但菜单数据为空

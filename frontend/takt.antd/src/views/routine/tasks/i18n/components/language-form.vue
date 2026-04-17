@@ -12,9 +12,12 @@
 
 <template>
   <div class="language-form">
-    <a-tabs v-model:activeKey="activeTab">
+    <a-tabs v-model:active-key="activeTab">
       <!-- 主表：语言信息 -->
-      <a-tab-pane key="main" tab="语言信息">
+      <a-tab-pane
+        key="main"
+        tab="语言信息"
+      >
         <a-form
           ref="mainFormRef"
           :model="mainFormState"
@@ -24,14 +27,20 @@
           layout="horizontal"
         >
           <!-- 表单字段顺序与 Language 接口字段顺序一致 -->
-          <a-form-item label="语言名称" name="languageName">
+          <a-form-item
+            label="语言名称"
+            name="languageName"
+          >
             <a-input
               v-model:value="mainFormState.languageName"
               placeholder="请输入语言名称（中文名称，如：简体中文）"
             />
           </a-form-item>
 
-          <a-form-item label="语言编码" name="cultureCode">
+          <a-form-item
+            label="语言编码"
+            name="cultureCode"
+          >
             <a-input
               v-model:value="mainFormState.cultureCode"
               placeholder="请输入语言编码（如：zh-CN、en-US）"
@@ -39,21 +48,30 @@
             />
           </a-form-item>
 
-          <a-form-item label="本地化名称" name="nativeName">
+          <a-form-item
+            label="本地化名称"
+            name="nativeName"
+          >
             <a-input
               v-model:value="mainFormState.nativeName"
               placeholder="请输入本地化名称（该语言下的名称，如：简体中文、English）"
             />
           </a-form-item>
 
-          <a-form-item label="语言图标" name="languageIcon">
+          <a-form-item
+            label="语言图标"
+            name="languageIcon"
+          >
             <a-input
               v-model:value="mainFormState.languageIcon"
               placeholder="请输入语言图标URL（可选）"
             />
           </a-form-item>
 
-          <a-form-item label="排序号" name="orderNum">
+          <a-form-item
+            label="排序号"
+            name="orderNum"
+          >
             <a-input-number
               v-model:value="mainFormState.orderNum"
               :min="0"
@@ -62,7 +80,10 @@
             />
           </a-form-item>
 
-          <a-form-item label="语言状态" name="languageStatus">
+          <a-form-item
+            label="语言状态"
+            name="languageStatus"
+          >
             <TaktSelect
               v-model:value="mainFormState.languageStatus"
               dict-type="sys_status"
@@ -70,7 +91,10 @@
             />
           </a-form-item>
 
-          <a-form-item label="是否默认" name="isDefault">
+          <a-form-item
+            label="是否默认"
+            name="isDefault"
+          >
             <TaktSelect
               v-model:value="mainFormState.isDefault"
               dict-type="sys_yes_no"
@@ -78,7 +102,10 @@
             />
           </a-form-item>
 
-          <a-form-item label="是否RTL" name="isRtl">
+          <a-form-item
+            label="是否RTL"
+            name="isRtl"
+          >
             <TaktSelect
               v-model:value="mainFormState.isRtl"
               dict-type="sys_yes_no"
@@ -86,7 +113,10 @@
             />
           </a-form-item>
 
-          <a-form-item label="备注" name="remark">
+          <a-form-item
+            label="备注"
+            name="remark"
+          >
             <a-textarea
               v-model:value="mainFormState.remark"
               placeholder="请输入备注"
@@ -97,10 +127,18 @@
       </a-tab-pane>
 
       <!-- 子表：翻译列表 -->
-      <a-tab-pane key="translation" tab="翻译列表">
+      <a-tab-pane
+        key="translation"
+        tab="翻译列表"
+      >
         <div class="translation-toolbar">
-          <a-button type="primary" @click="handleAddTranslation">
-            <template #icon><PlusOutlined /></template>
+          <a-button
+            type="primary"
+            @click="handleAddTranslation"
+          >
+            <template #icon>
+              <PlusOutlined />
+            </template>
             新增翻译
           </a-button>
         </div>

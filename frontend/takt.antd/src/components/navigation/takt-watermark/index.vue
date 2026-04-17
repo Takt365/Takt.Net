@@ -61,7 +61,8 @@ const props = withDefaults(defineProps<Props>(), {
   rotate: -22,
   zIndex: 1000,
   width: 120,
-  height: 64
+  height: 64,
+  image: undefined
 })
 
 const { setting } = storeToRefs(useSettingStore())

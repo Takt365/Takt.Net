@@ -85,7 +85,7 @@ public interface ITaktDatabaseSchemaProvider
     /// 用于无表流程：代码生成后，用户手动指定实体类型全名，在指定库中创建该实体对应的表。
     /// </summary>
     /// <param name="configId">数据库配置 ID（对应 dbConfigs 中的 ConfigId）</param>
-    /// <param name="entityTypeFullName">实体类型全名（如 Takt.Domain.Entities.Generator.TaktGenTable）</param>
+    /// <param name="entityTypeFullName">实体类型全名（如 Takt.Domain.Entities.Code.Generator.TaktGenTable）</param>
     /// <returns>任务</returns>
     Task InitializeTableFromEntityTypeAsync(string configId, string entityTypeFullName);
 
@@ -93,7 +93,7 @@ public interface ITaktDatabaseSchemaProvider
     /// 获取当前已加载、可用于“按实体初始化表”的实体类型全名列表（继承 TaktEntityBase 的 Takt.* 程序集类型）。
     /// 供无表流程中“手动选择实体”使用。
     /// </summary>
-    /// <returns>实体类型全名列表（如 Takt.Domain.Entities.Generator.TaktGenTable）</returns>
+    /// <returns>实体类型全名列表（如 Takt.Domain.Entities.Code.Generator.TaktGenTable）</returns>
     Task<IReadOnlyList<string>> GetAvailableEntityTypeFullNamesAsync();
 
     /// <summary>

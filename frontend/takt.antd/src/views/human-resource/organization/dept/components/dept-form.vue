@@ -1,6 +1,9 @@
 <template>
-  <a-tabs v-model:activeKey="activeTab">
-    <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
+  <a-tabs v-model:active-key="activeTab">
+    <a-tab-pane
+      key="basic"
+      :tab="t('common.form.tabs.basicInfo')"
+    >
       <div :class="formContentClass">
         <a-form
           ref="formRef"
@@ -13,19 +16,41 @@
         >
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item label="部门名称" name="deptName">
-                <a-input v-model:value="formState.deptName" placeholder="请输入部门名称" show-count :maxlength="50" />
+              <a-form-item
+                label="部门名称"
+                name="deptName"
+              >
+                <a-input
+                  v-model:value="formState.deptName"
+                  placeholder="请输入部门名称"
+                  show-count
+                  :maxlength="50"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item label="部门编码" name="deptCode">
-                <a-input v-model:value="formState.deptCode" placeholder="请输入部门编码" show-count :maxlength="50" :disabled="!!formData?.deptId" />
+              <a-form-item
+                label="部门编码"
+                name="deptCode"
+              >
+                <a-input
+                  v-model:value="formState.deptCode"
+                  placeholder="请输入部门编码"
+                  show-count
+                  :maxlength="50"
+                  :disabled="!!formData?.deptId"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item label="上级部门" name="parentId" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
+              <a-form-item
+                label="上级部门"
+                name="parentId"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
                 <TaktTreeSelect
                   v-model:value="formState.parentId"
                   api-url="/api/TaktDepts/tree-options"
@@ -38,7 +63,12 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item label="部门类型" name="deptType" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
+              <a-form-item
+                label="部门类型"
+                name="deptType"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
                 <TaktSelect
                   v-model:value="formState.deptType"
                   api-url="/api/TaktDictDatas/options?dictTypeCode=sys_dept_type"
@@ -50,7 +80,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.dept.headid')" name="deptHeadId">
+              <a-form-item
+                :label="t('entity.dept.headid')"
+                name="deptHeadId"
+              >
                 <TaktSelect
                   v-model:value="formState.deptHeadId"
                   api-url="/api/TaktEmployees/options"
@@ -61,7 +94,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.dept.costcenter')" name="costCenterCode">
+              <a-form-item
+                :label="t('entity.dept.costcenter')"
+                name="costCenterCode"
+              >
                 <TaktSelect
                   v-model:value="formState.costCenterCode"
                   api-url="/api/TaktCostCenters/options"
@@ -75,7 +111,12 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('entity.dept.delegate')" name="delegateEmployeeIds" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
+              <a-form-item
+                :label="t('entity.dept.delegate')"
+                name="delegateEmployeeIds"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
                 <TaktSelect
                   v-model:value="formState.delegateEmployeeIds"
                   api-url="/api/TaktEmployees/options"
@@ -90,46 +131,105 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item label="部门电话" name="deptPhone">
-                <a-input v-model:value="formState.deptPhone" placeholder="请输入部门电话" show-count :maxlength="50" />
+              <a-form-item
+                label="部门电话"
+                name="deptPhone"
+              >
+                <a-input
+                  v-model:value="formState.deptPhone"
+                  placeholder="请输入部门电话"
+                  show-count
+                  :maxlength="50"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item label="部门邮箱" name="deptMail">
-                <a-input v-model:value="formState.deptMail" placeholder="请输入部门邮箱" show-count :maxlength="100" />
+              <a-form-item
+                label="部门邮箱"
+                name="deptMail"
+              >
+                <a-input
+                  v-model:value="formState.deptMail"
+                  placeholder="请输入部门邮箱"
+                  show-count
+                  :maxlength="100"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item label="部门地址" name="deptAddr">
-                <a-input v-model:value="formState.deptAddr" placeholder="请输入部门地址" show-count :maxlength="200" />
+              <a-form-item
+                label="部门地址"
+                name="deptAddr"
+              >
+                <a-input
+                  v-model:value="formState.deptAddr"
+                  placeholder="请输入部门地址"
+                  show-count
+                  :maxlength="200"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item label="排序号" name="orderNum">
-                <a-input-number v-model:value="formState.orderNum" placeholder="越小越靠前" :min="0" style="width: 100%" />
+              <a-form-item
+                label="排序号"
+                name="orderNum"
+              >
+                <a-input-number
+                  v-model:value="formState.orderNum"
+                  placeholder="越小越靠前"
+                  :min="0"
+                  style="width: 100%"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item label="备注" name="remark">
-                <a-textarea v-model:value="formState.remark" placeholder="请输入备注" :rows="2" show-count :maxlength="500" />
+              <a-form-item
+                label="备注"
+                name="remark"
+              >
+                <a-textarea
+                  v-model:value="formState.remark"
+                  placeholder="请输入备注"
+                  :rows="2"
+                  show-count
+                  :maxlength="500"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item label="数据范围" name="dataScope" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-                <a-select v-model:value="formState.dataScope" placeholder="请选择" :options="dataScopeOptions" />
+              <a-form-item
+                label="数据范围"
+                name="dataScope"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
+                <a-select
+                  v-model:value="formState.dataScope"
+                  placeholder="请选择"
+                  :options="dataScopeOptions"
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item label="部门状态" name="deptStatus" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
-                <a-select v-model:value="formState.deptStatus" placeholder="请选择" :options="deptStatusOptions" />
+              <a-form-item
+                label="部门状态"
+                name="deptStatus"
+                :label-col="{ span: 4 }"
+                :wrapper-col="{ span: 20 }"
+              >
+                <a-select
+                  v-model:value="formState.deptStatus"
+                  placeholder="请选择"
+                  :options="deptStatusOptions"
+                />
               </a-form-item>
             </a-col>
           </a-row>

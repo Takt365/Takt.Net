@@ -22,7 +22,7 @@ namespace Takt.WebApi.Controllers.Workflow;
 /// 流程表单控制器。细粒度权限见各 Action；数据源/表/列相关接口使用 workflow:form:datasource。
 /// </summary>
 [Route("api/[controller]")]
-[ApiModule("Workflow", "工作流")]
+[ApiModule("Workflow", "工作流程")]
 [TaktPermission("workflow:form:list", "流程表单")]
 public class TaktFlowFormsController : TaktControllerBase
 {

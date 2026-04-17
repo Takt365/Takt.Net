@@ -1,7 +1,13 @@
 <template>
-  <a-card class="databoard-module-card" :body-style="bodyStyle">
+  <a-card
+    class="databoard-module-card"
+    :body-style="bodyStyle"
+  >
     <template #title>
-      <a-tooltip :title="dragTooltip" placement="right">
+      <a-tooltip
+        :title="dragTooltip"
+        placement="right"
+      >
         <span class="databoard-module-card-drag-handle">
           <RiDraggable />
         </span>
@@ -9,24 +15,55 @@
     </template>
     <template #extra>
       <a-space>
-        <a-tooltip :title="displayTitle" placement="right">
-          <a-button type="text" size="small" class="databoard-module-card-title-trigger">
-            <template #icon><RiInformationLine /></template>
+        <a-tooltip
+          :title="displayTitle"
+          placement="right"
+        >
+          <a-button
+            type="text"
+            size="small"
+            class="databoard-module-card-title-trigger"
+          >
+            <template #icon>
+              <RiInformationLine />
+            </template>
           </a-button>
         </a-tooltip>
-        <a-tooltip v-if="showLayoutSwitch" :title="layoutTooltip" placement="right">
+        <a-tooltip
+          v-if="showLayoutSwitch"
+          :title="layoutTooltip"
+          placement="right"
+        >
           <a-dropdown trigger="click">
-            <a-button type="text" size="small">
-              <template #icon><RiLayoutGridLine /></template>
+            <a-button
+              type="text"
+              size="small"
+            >
+              <template #icon>
+                <RiLayoutGridLine />
+              </template>
             </a-button>
             <template #overlay>
-              <a-menu :selected-keys="currentLayoutKey ? [currentLayoutKey] : []" @click="onLayoutMenuClick">
-                <a-menu-item key="full" :disabled="moduleSpan === 24">
-                  <template #icon><RiLayoutRowLine /></template>
+              <a-menu
+                :selected-keys="currentLayoutKey ? [currentLayoutKey] : []"
+                @click="onLayoutMenuClick"
+              >
+                <a-menu-item
+                  key="full"
+                  :disabled="moduleSpan === 24"
+                >
+                  <template #icon>
+                    <RiLayoutRowLine />
+                  </template>
                   {{ t('dashboard.data-board.layoutFullRow') }}
                 </a-menu-item>
-                <a-menu-item key="half" :disabled="moduleSpan === 12">
-                  <template #icon><RiLayoutColumnLine /></template>
+                <a-menu-item
+                  key="half"
+                  :disabled="moduleSpan === 12"
+                >
+                  <template #icon>
+                    <RiLayoutColumnLine />
+                  </template>
                   {{ t('dashboard.data-board.layoutHalfRow') }}
                 </a-menu-item>
               </a-menu>
@@ -34,9 +71,19 @@
           </a-dropdown>
         </a-tooltip>
         <slot name="headActions" />
-        <a-tooltip :title="t('dashboard.data-board.removeModule')" placement="right">
-          <a-button type="text" size="small" danger @click="onRemove">
-            <template #icon><RiDeleteBinLine /></template>
+        <a-tooltip
+          :title="t('dashboard.data-board.removeModule')"
+          placement="right"
+        >
+          <a-button
+            type="text"
+            size="small"
+            danger
+            @click="onRemove"
+          >
+            <template #icon>
+              <RiDeleteBinLine />
+            </template>
           </a-button>
         </a-tooltip>
       </a-space>

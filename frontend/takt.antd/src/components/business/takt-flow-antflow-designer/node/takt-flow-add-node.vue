@@ -20,19 +20,28 @@
       >
         <template #content>
           <div class="add-node-popover-body">
-            <a class="add-node-popover-item" @click="addType(1)">
+            <a
+              class="add-node-popover-item"
+              @click="addType(1)"
+            >
               <div class="item-wrapper">
                 <span class="iconfont approver-icon"><RiShieldCheckLine size="20" /></span>
                 <p>{{ t('workflow.designer.approver') }}</p>
               </div>
             </a>
-            <a class="add-node-popover-item" @click="addType(3)">
+            <a
+              class="add-node-popover-item"
+              @click="addType(3)"
+            >
               <div class="item-wrapper">
                 <span class="item-icon parallel-icon"><RiSplitCellsHorizontal size="20" /></span>
                 <p>{{ t('workflow.designer.parallelApproval') }}</p>
               </div>
             </a>
-            <a class="add-node-popover-item" @click="addType(2)">
+            <a
+              class="add-node-popover-item"
+              @click="addType(2)"
+            >
               <div class="item-wrapper">
                 <span class="iconfont copyer-icon"><RiShareForwardLine size="20" /></span>
                 <p>{{ t('workflow.designer.copyer') }}</p>
@@ -40,19 +49,28 @@
             </a>
           </div>
           <div class="add-node-popover-body">
-            <a class="add-node-popover-item" @click="addType(4)">
+            <a
+              class="add-node-popover-item"
+              @click="addType(4)"
+            >
               <div class="item-wrapper">
                 <span class="iconfont condition-icon"><RiGitBranchLine size="20" /></span>
                 <p>{{ t('workflow.designer.conditionBranch') }}</p>
               </div>
             </a>
-            <a class="add-node-popover-item" @click="addType(5)">
+            <a
+              class="add-node-popover-item"
+              @click="addType(5)"
+            >
               <div class="item-wrapper">
                 <span class="iconfont dynamic-icon"><RiPulseLine size="20" /></span>
                 <p>{{ t('workflow.designer.dynamicCondition') }}</p>
               </div>
             </a>
-            <a class="add-node-popover-item" @click="addType(6)">
+            <a
+              class="add-node-popover-item"
+              @click="addType(6)"
+            >
               <div class="item-wrapper">
                 <span class="iconfont parallel-cond-icon"><RiOrganizationChart size="20" /></span>
                 <p>{{ t('workflow.designer.conditionParallel') }}</p>

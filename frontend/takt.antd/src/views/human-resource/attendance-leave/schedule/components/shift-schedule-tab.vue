@@ -83,11 +83,20 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <ShiftScheduleForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <ShiftScheduleForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
 
     <!-- 高级查询 -->
-    <TaktQueryDrawer v-model:open="advancedQueryVisible" :form-model="adv" @submit="handleAdvancedQuerySubmit" @reset="resetAdv">
+    <TaktQueryDrawer
+      v-model:open="advancedQueryVisible"
+      :form-model="adv"
+      @submit="handleAdvancedQuerySubmit"
+      @reset="resetAdv"
+    >
       <a-form-item :label="t('entity.shiftschedule.employeeid')">
         <a-input v-model:value="adv.employeeId" />
       </a-form-item>
@@ -104,10 +113,18 @@
         />
       </a-form-item>
       <a-form-item :label="t('entity.shiftschedule.scheduledatefrom')">
-        <a-date-picker v-model:value="adv.from" value-format="YYYY-MM-DD" style="width: 100%" />
+        <a-date-picker
+          v-model:value="adv.from"
+          value-format="YYYY-MM-DD"
+          style="width: 100%"
+        />
       </a-form-item>
       <a-form-item :label="t('entity.shiftschedule.scheduledateto')">
-        <a-date-picker v-model:value="adv.to" value-format="YYYY-MM-DD" style="width: 100%" />
+        <a-date-picker
+          v-model:value="adv.to"
+          value-format="YYYY-MM-DD"
+          style="width: 100%"
+        />
       </a-form-item>
     </TaktQueryDrawer>
 
@@ -408,10 +425,10 @@ const handleFormSubmit = async () => {
     const id = formData.value.shiftScheduleId
     if (id != null && String(id).length > 0) {
       const idStr = String(id)
-      await updateShiftSchedule(idStr, { ...formValues, shiftScheduleId: idStr } as any)
+      await updateShiftSchedule(idStr, { ...formValues, shiftScheduleId: idStr } as Record<string, unknown>)
       message.success(t('common.msg.updateSuccess', { target: entitySelf.value }))
     } else {
-      await createShiftSchedule(formValues as any)
+      await createShiftSchedule(formValues)
       message.success(t('common.msg.createSuccess', { target: entitySelf.value }))
     }
     formRef.value?.resetFields()

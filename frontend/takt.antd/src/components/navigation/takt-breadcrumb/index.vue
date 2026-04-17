@@ -1,12 +1,28 @@
 <template>
   <a-breadcrumb v-if="show">
-    <a-breadcrumb-item v-for="(item, index) in breadcrumbItems" :key="index">
-      <router-link v-if="item.path && index < breadcrumbItems.length - 1" :to="item.path" class="breadcrumb-link">
-        <component v-if="item.icon" :is="item.icon" />
+    <a-breadcrumb-item
+      v-for="(item, index) in breadcrumbItems"
+      :key="index"
+    >
+      <router-link
+        v-if="item.path && index < breadcrumbItems.length - 1"
+        :to="item.path"
+        class="breadcrumb-link"
+      >
+        <component
+          :is="item.icon"
+          v-if="item.icon"
+        />
         <span class="breadcrumb-title">{{ item.title }}</span>
       </router-link>
-      <span v-else class="breadcrumb-plain">
-        <component v-if="item.icon" :is="item.icon" />
+      <span
+        v-else
+        class="breadcrumb-plain"
+      >
+        <component
+          :is="item.icon"
+          v-if="item.icon"
+        />
         <span class="breadcrumb-title">{{ item.title }}</span>
       </span>
     </a-breadcrumb-item>
@@ -15,7 +31,9 @@
 
 <script setup lang="ts">
 import { computed, ref, markRaw } from 'vue'
+import type { Component } from 'vue'
 import { useRoute } from 'vue-router'
+import type { RouteMeta } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { defaultSetting, useSettingStore } from '@/stores/setting'
@@ -25,7 +43,7 @@ import type { MenuTree } from '@/types/identity/menu'
 interface BreadcrumbItem {
   title: string
   path?: string
-  icon?: any
+  icon?: Component
 }
 
 const route = useRoute()
@@ -35,7 +53,12 @@ const { t } = useI18n()
 const menuStore = useMenuStore()
 
 // 图标缓存
-const iconCache = ref<Record<string, any>>({})
+const iconCache = ref<Record<string, Component>>({})
+type MenuTreeLegacy = MenuTree & {
+  extValue?: string
+  transKey?: string
+  dictLabel?: string
+}
 
 // 预加载图标（使用 @remixicon/vue 组件名，如 RiHomeLine）
 const preloadIcon = async (iconName: string) => {
@@ -44,11 +67,12 @@ const preloadIcon = async (iconName: string) => {
   }
   try {
     const module = await import('@remixicon/vue')
-    const IconComponent = (module as any)[iconName]
+    const iconModule = module as Record<string, unknown>
+    const IconComponent = iconModule[iconName]
     if (IconComponent) {
-      iconCache.value[iconName] = markRaw(IconComponent)
+      iconCache.value[iconName] = markRaw(IconComponent as Component)
     }
-  } catch (error) {
+  } catch {
     // 图标加载失败，忽略
   }
 }
@@ -57,7 +81,8 @@ const preloadIcon = async (iconName: string) => {
 // 从菜单树中查找菜单项（通过 path 匹配，后端已统一转换为 camelCase）
 const findMenuByPath = (menus: MenuTree[], path: string): MenuTree | null => {
   for (const menu of menus) {
-    const menuPath = menu.path || (menu as any).extValue || ''
+    const menuLegacy = menu as MenuTreeLegacy
+    const menuPath = menu.path || menuLegacy.extValue || ''
     if (menuPath === path) {
       return menu
     }
@@ -72,9 +97,10 @@ const findMenuByPath = (menus: MenuTree[], path: string): MenuTree | null => {
 }
 
 // 获取翻译文本（后端已统一转换为 camelCase）
-const getTranslatedTitle = (menu: MenuTree | null, routeMeta: any): string => {
+const getTranslatedTitle = (menu: MenuTree | null, routeMeta: RouteMeta | undefined): string => {
   if (menu) {
-    const menuL10nKey = menu.menuL10nKey || (menu as any).transKey
+    const menuLegacy = menu as MenuTreeLegacy
+    const menuL10nKey = menu.menuL10nKey || menuLegacy.transKey
     if (menuL10nKey) {
       try {
         const translated = t(menuL10nKey)
@@ -82,11 +108,11 @@ const getTranslatedTitle = (menu: MenuTree | null, routeMeta: any): string => {
         if (translated && translated !== menuL10nKey) {
           return translated
         }
-      } catch (error) {
+      } catch {
         // 翻译失败，继续使用 menuName
       }
     }
-    const menuName = menu.menuName || (menu as any).dictLabel || ''
+    const menuName = menu.menuName || menuLegacy.dictLabel || ''
     if (menuName) {
       return menuName
     }

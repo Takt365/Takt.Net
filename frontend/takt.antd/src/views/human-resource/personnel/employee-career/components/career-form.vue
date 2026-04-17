@@ -8,8 +8,11 @@
 <!-- ======================================== -->
 
 <template>
-  <a-tabs v-model:activeKey="activeTab">
-    <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
+  <a-tabs v-model:active-key="activeTab">
+    <a-tab-pane
+      key="basic"
+      :tab="t('common.form.tabs.basicInfo')"
+    >
       <a-form
         ref="formRef"
         :model="formState"
@@ -21,65 +24,132 @@
       >
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeecareer.employeeId')" name="employeeId">
-              <a-input v-model:value="formState.employeeId" allow-clear />
+            <a-form-item
+              :label="t('entity.employeecareer.employeeId')"
+              name="employeeId"
+            >
+              <a-input
+                v-model:value="formState.employeeId"
+                allow-clear
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeecareer.deptId')" name="deptId">
-              <a-input v-model:value="formState.deptId" allow-clear />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter="24">
-          <a-col :span="12">
-            <a-form-item :label="t('entity.employeecareer.deptName')" name="deptName">
-              <a-input v-model:value="formState.deptName" allow-clear />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item :label="t('entity.employeecareer.postName')" name="postName">
-              <a-input v-model:value="formState.postName" allow-clear />
-            </a-form-item>
-          </a-col>
-        </a-row>
-
-        <a-row :gutter="24">
-          <a-col :span="12">
-            <a-form-item :label="t('entity.employeecareer.jobTitle')" name="jobTitle">
-              <a-input v-model:value="formState.jobTitle" allow-clear />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item :label="t('entity.employeecareer.joinDate')" name="joinDate">
-              <a-date-picker v-model:value="formState.joinDate" value-format="YYYY-MM-DD" style="width: 100%" />
+            <a-form-item
+              :label="t('entity.employeecareer.deptId')"
+              name="deptId"
+            >
+              <a-input
+                v-model:value="formState.deptId"
+                allow-clear
+              />
             </a-form-item>
           </a-col>
         </a-row>
 
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeecareer.workNature')" name="workNature">
-              <a-select v-model:value="formState.workNature" :options="workNatureOptions" allow-clear style="width: 100%" />
+            <a-form-item
+              :label="t('entity.employeecareer.deptName')"
+              name="deptName"
+            >
+              <a-input
+                v-model:value="formState.deptName"
+                allow-clear
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeecareer.employmentType')" name="employmentType">
-              <a-select v-model:value="formState.employmentType" :options="employmentTypeOptions" allow-clear style="width: 100%" />
+            <a-form-item
+              :label="t('entity.employeecareer.postName')"
+              name="postName"
+            >
+              <a-input
+                v-model:value="formState.postName"
+                allow-clear
+              />
             </a-form-item>
           </a-col>
         </a-row>
 
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeecareer.isPrimary')" name="isPrimary">
-              <a-select v-model:value="formState.isPrimary" :options="isPrimaryOptions" allow-clear style="width: 100%" />
+            <a-form-item
+              :label="t('entity.employeecareer.jobTitle')"
+              name="jobTitle"
+            >
+              <a-input
+                v-model:value="formState.jobTitle"
+                allow-clear
+              />
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeecareer.directManagerName')" name="directManagerName">
-              <a-input v-model:value="formState.directManagerName" allow-clear />
+            <a-form-item
+              :label="t('entity.employeecareer.joinDate')"
+              name="joinDate"
+            >
+              <a-date-picker
+                v-model:value="formState.joinDate"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeecareer.workNature')"
+              name="workNature"
+            >
+              <a-select
+                v-model:value="formState.workNature"
+                :options="workNatureOptions"
+                allow-clear
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeecareer.employmentType')"
+              name="employmentType"
+            >
+              <a-select
+                v-model:value="formState.employmentType"
+                :options="employmentTypeOptions"
+                allow-clear
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeecareer.isPrimary')"
+              name="isPrimary"
+            >
+              <a-select
+                v-model:value="formState.isPrimary"
+                :options="isPrimaryOptions"
+                allow-clear
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeecareer.directManagerName')"
+              name="directManagerName"
+            >
+              <a-input
+                v-model:value="formState.directManagerName"
+                allow-clear
+              />
             </a-form-item>
           </a-col>
         </a-row>

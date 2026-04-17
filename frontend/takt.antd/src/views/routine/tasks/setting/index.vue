@@ -108,7 +108,11 @@
       @reset="handleAdvancedQueryReset"
     >
       <a-form-item label="设置键">
-        <a-input v-model:value="advancedQueryForm.settingKey" placeholder="请输入设置键" allow-clear />
+        <a-input
+          v-model:value="advancedQueryForm.settingKey"
+          placeholder="请输入设置键"
+          allow-clear
+        />
       </a-form-item>
       <a-form-item label="设置分组">
         <TaktSelect
@@ -146,9 +150,17 @@
       :footer="null"
       @cancel="importVisible = false"
     >
-      <a-space direction="vertical" style="width: 100%">
-        <a-button type="link" @click="handleDownloadTemplate">
-          <template #icon><DownloadOutlined /></template>
+      <a-space
+        direction="vertical"
+        style="width: 100%"
+      >
+        <a-button
+          type="link"
+          @click="handleDownloadTemplate"
+        >
+          <template #icon>
+            <DownloadOutlined />
+          </template>
           下载导入模板
         </a-button>
         <a-upload
@@ -157,7 +169,9 @@
           accept=".xlsx,.xls"
         >
           <a-button type="primary">
-            <template #icon><UploadOutlined /></template>
+            <template #icon>
+              <UploadOutlined />
+            </template>
             选择 Excel 文件并导入
           </a-button>
         </a-upload>

@@ -1,0 +1,43 @@
+# git-cliff 配置：https://git-cliff.org/docs/configuration
+# 供 GitHub Actions 根据 Git 提交生成根目录 CHANGELOG.md
+
+[changelog]
+header = "# Changelog\n\n本文件由 GitHub Actions 根据仓库提交记录自动生成与更新。\n\n"
+body = """
+{% if version %}\
+## [{{ version | trim_start_matches(pat="v") }}] — {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+## [未发布]
+{% endif %}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group }}
+{% for commit in commits %}
+- {% if commit.scope %}**{{ commit.scope }}**: {% endif %}{{ commit.message | trim }} (`{{ commit.id | truncate(length=7, end="") }}`)
+{% endfor %}
+
+{% endfor %}
+"""
+footer = """
+"""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+filter_commits = false
+sort_commits = "newest"
+tag_pattern = "v[0-9].*"
+
+commit_parsers = [
+  { message = "^chore\\(changelog\\)", skip = true },
+  { message = "^feat", group = "功能 (feat)" },
+  { message = "^fix", group = "修复 (fix)" },
+  { message = "^docs?\\b|^doc\\b", group = "文档 (docs)" },
+  { message = "^perf", group = "性能 (perf)" },
+  { message = "^refactor", group = "重构 (refactor)" },
+  { message = "^test", group = "测试 (test)" },
+  { message = "^build", group = "构建 (build)" },
+  { message = "^chore|^ci", group = "工程 / CI (chore)" },
+  { message = "^revert", group = "回退 (revert)" },
+  { message = ".*", group = "其它提交" },
+]

@@ -16,6 +16,18 @@
 
 
     "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "allowUnusedLabels": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
@@ -39,6 +51,9 @@
 
 
     "types": ["vite/client"]
+  },
+  "vueCompilerOptions": {
+    "target": 3.3
   },
   "include": [
     "src/**/*.ts",

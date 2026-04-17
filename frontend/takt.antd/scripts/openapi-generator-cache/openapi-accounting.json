@@ -1,0 +1,1946 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Takt.WebApi | Accounting",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:60071"
+    }
+  ],
+  "paths": {
+    "/api/TaktAccountingTitles/list": {
+      "get": {
+        "tags": [
+          "TaktAccountingTitles"
+        ],
+        "parameters": [
+          {
+            "name": "TitleName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "TitleCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ParentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "TitleType",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "TitleStatus",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "KeyWords",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktPagedResultOfTaktAccountingTitleDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktPagedResultOfTaktAccountingTitleDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktPagedResultOfTaktAccountingTitleDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaktAccountingTitles/{id}": {
+      "get": {
+        "tags": [
+          "TaktAccountingTitles"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "TaktAccountingTitles"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleUpdateDto"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleUpdateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "TaktAccountingTitles"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TaktAccountingTitles/tree-options": {
+      "get": {
+        "tags": [
+          "TaktAccountingTitles"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaktTreeSelectOption"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaktTreeSelectOption"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaktTreeSelectOption"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaktAccountingTitles/tree": {
+      "get": {
+        "tags": [
+          "TaktAccountingTitles"
+        ],
+        "parameters": [
+          {
+            "name": "parentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 0
+            }
+          },
+          {
+            "name": "includeDisabled",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaktAccountingTitleTreeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaktAccountingTitleTreeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaktAccountingTitleTreeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaktAccountingTitles/children": {
+      "get": {
+        "tags": [
+          "TaktAccountingTitles"
+        ],
+        "parameters": [
+          {
+            "name": "parentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "includeDisabled",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaktAccountingTitles": {
+      "post": {
+        "tags": [
+          "TaktAccountingTitles"
+        ],
+        "operationId": "会计科目",
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleCreateDto"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleCreateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaktAccountingTitles/status": {
+      "put": {
+        "tags": [
+          "TaktAccountingTitles"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleStatusDto"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleStatusDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleStatusDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleStatusDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktAccountingTitleDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaktAccountingTitles/template": {
+      "get": {
+        "tags": [
+          "TaktAccountingTitles"
+        ],
+        "parameters": [
+          {
+            "name": "sheetName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": null
+            }
+          },
+          {
+            "name": "fileName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TaktAccountingTitles/import": {
+      "post": {
+        "tags": [
+          "TaktAccountingTitles"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "file": {
+                        "$ref": "#/components/schemas/IFormFile"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "sheetName": {
+                        "type": "string",
+                        "default": null
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TaktAccountingTitles/export": {
+      "post": {
+        "tags": [
+          "TaktAccountingTitles"
+        ],
+        "parameters": [
+          {
+            "name": "sheetName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": null
+            }
+          },
+          {
+            "name": "fileName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": null
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleQueryDto"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleQueryDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleQueryDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktAccountingTitleQueryDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TaktCostCenters/list": {
+      "get": {
+        "tags": [
+          "TaktCostCenters"
+        ],
+        "parameters": [
+          {
+            "name": "CostCenterName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "CostCenterCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ParentId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "CostCenterType",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "CostCenterStatus",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "KeyWords",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktPagedResultOfTaktCostCenterDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktPagedResultOfTaktCostCenterDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktPagedResultOfTaktCostCenterDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaktCostCenters/{id}": {
+      "get": {
+        "tags": [
+          "TaktCostCenters"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktCostCenterDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktCostCenterDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktCostCenterDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "TaktCostCenters"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterUpdateDto"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterUpdateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktCostCenterDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktCostCenterDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktCostCenterDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "TaktCostCenters"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TaktCostCenters/options": {
+      "get": {
+        "tags": [
+          "TaktCostCenters"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaktSelectOption"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaktSelectOption"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaktSelectOption"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaktCostCenters": {
+      "post": {
+        "tags": [
+          "TaktCostCenters"
+        ],
+        "operationId": "成本中心",
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterCreateDto"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterCreateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktCostCenterDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktCostCenterDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktCostCenterDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaktCostCenters/status": {
+      "put": {
+        "tags": [
+          "TaktCostCenters"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterStatusDto"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterStatusDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterStatusDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterStatusDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktCostCenterDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktCostCenterDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaktCostCenterDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TaktCostCenters/template": {
+      "get": {
+        "tags": [
+          "TaktCostCenters"
+        ],
+        "parameters": [
+          {
+            "name": "sheetName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": null
+            }
+          },
+          {
+            "name": "fileName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TaktCostCenters/import": {
+      "post": {
+        "tags": [
+          "TaktCostCenters"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "file": {
+                        "$ref": "#/components/schemas/IFormFile"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "sheetName": {
+                        "type": "string",
+                        "default": null
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TaktCostCenters/export": {
+      "post": {
+        "tags": [
+          "TaktCostCenters"
+        ],
+        "parameters": [
+          {
+            "name": "sheetName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": null
+            }
+          },
+          {
+            "name": "fileName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": null
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterQueryDto"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterQueryDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterQueryDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaktCostCenterQueryDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IFormFile": {
+        "type": "string",
+        "format": "binary"
+      },
+      "TaktAccountingTitleCreateDto": {
+        "type": "object",
+        "properties": {
+          "titleCode": {
+            "type": "string"
+          },
+          "titleName": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "titleType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "balanceDirection": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLeaf": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isAuxiliary": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "auxiliaryType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isCurrency": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isCash": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isBank": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderNum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TaktAccountingTitleDto": {
+        "type": "object",
+        "properties": {
+          "titleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "titleCode": {
+            "type": "string"
+          },
+          "titleName": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "titleType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "balanceDirection": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "titleLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLeaf": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isAuxiliary": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "auxiliaryType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isCurrency": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isCash": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isBank": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderNum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "titleStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "configId": {
+            "type": "string"
+          },
+          "extFieldJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdById": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedById": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "updatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isDeleted": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deletedById": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "TaktAccountingTitleQueryDto": {
+        "type": "object",
+        "properties": {
+          "titleName": {
+            "type": "string",
+            "nullable": true
+          },
+          "titleCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "titleType": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "titleStatus": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "keyWords": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TaktAccountingTitleStatusDto": {
+        "type": "object",
+        "properties": {
+          "titleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "titleStatus": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TaktAccountingTitleTreeDto": {
+        "type": "object",
+        "properties": {
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/#/items"
+            }
+          },
+          "titleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "titleCode": {
+            "type": "string"
+          },
+          "titleName": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "titleType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "balanceDirection": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "titleLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLeaf": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isAuxiliary": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "auxiliaryType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isCurrency": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isCash": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isBank": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderNum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "titleStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "configId": {
+            "type": "string"
+          },
+          "extFieldJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdById": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedById": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "updatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isDeleted": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deletedById": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "TaktAccountingTitleUpdateDto": {
+        "type": "object",
+        "properties": {
+          "titleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "titleCode": {
+            "type": "string"
+          },
+          "titleName": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "titleType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "balanceDirection": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isLeaf": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isAuxiliary": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "auxiliaryType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isCurrency": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isCash": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isBank": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderNum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TaktCostCenterCreateDto": {
+        "type": "object",
+        "properties": {
+          "costCenterCode": {
+            "type": "string"
+          },
+          "costCenterName": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "costCenterType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "managerId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "managerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "deptId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "deptName": {
+            "type": "string",
+            "nullable": true
+          },
+          "orderNum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TaktCostCenterDto": {
+        "type": "object",
+        "properties": {
+          "costCenterId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "costCenterCode": {
+            "type": "string"
+          },
+          "costCenterName": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "costCenterType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "managerId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "managerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "deptId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "deptName": {
+            "type": "string",
+            "nullable": true
+          },
+          "costCenterLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderNum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "costCenterStatus": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "configId": {
+            "type": "string"
+          },
+          "extFieldJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdById": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedById": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "updatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isDeleted": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deletedById": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "deletedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "TaktCostCenterQueryDto": {
+        "type": "object",
+        "properties": {
+          "costCenterName": {
+            "type": "string",
+            "nullable": true
+          },
+          "costCenterCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "costCenterType": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "costCenterStatus": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "keyWords": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TaktCostCenterStatusDto": {
+        "type": "object",
+        "properties": {
+          "costCenterId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "costCenterStatus": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TaktCostCenterUpdateDto": {
+        "type": "object",
+        "properties": {
+          "costCenterCode": {
+            "type": "string"
+          },
+          "costCenterName": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "costCenterType": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "managerId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "managerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "deptId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "deptName": {
+            "type": "string",
+            "nullable": true
+          },
+          "orderNum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remark": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TaktPagedResultOfTaktAccountingTitleDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaktAccountingTitleDto"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TaktPagedResultOfTaktCostCenterDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaktCostCenterDto"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TaktSelectOption": {
+        "type": "object",
+        "properties": {
+          "dictLabel": {
+            "type": "string"
+          },
+          "dictValue": { },
+          "extLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "extValue": { },
+          "dictL10nKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "dictTypeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "cssClass": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "listClass": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "orderNum": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TaktTreeSelectOption": {
+        "type": "object",
+        "properties": {
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/#/items"
+            }
+          },
+          "dictLabel": {
+            "type": "string"
+          },
+          "dictValue": { },
+          "extLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "extValue": { },
+          "dictL10nKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "dictTypeCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "cssClass": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "listClass": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "orderNum": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "在请求头携带 access_token，格式：`Authorization: Bearer {token}`（通过 `api/TaktAuth` 登录获取）。",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "TaktAccountingTitles"
+    },
+    {
+      "name": "TaktCostCenters"
+    }
+  ]
+}

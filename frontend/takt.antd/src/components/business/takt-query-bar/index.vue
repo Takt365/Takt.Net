@@ -1,5 +1,8 @@
 <template>
-  <div v-if="show" class="takt-query-bar">
+  <div
+    v-if="show"
+    class="takt-query-bar"
+  >
     <a-input
       v-model:value="keyword"
       :placeholder="placeholderDisplay"

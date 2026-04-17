@@ -19,7 +19,10 @@
     :centered="true"
     @update:open="handleVisibleChange"
   >
-    <div v-if="dictType" class="dict-data-window">
+    <div
+      v-if="dictType"
+      class="dict-data-window"
+    >
       <div style="margin-bottom: 16px; font-weight: bold; color: #1890ff">
         字典类型：{{ dictType.dictTypeName }} ({{ dictType.dictTypeCode }})
       </div>
@@ -89,7 +92,7 @@
               v-model:value="editingRecord.dictLabel"
               size="small"
               @blur="handleSaveCell(record, 'dictLabel')"
-              @pressEnter="handleSaveCell(record, 'dictLabel')"
+              @press-enter="handleSaveCell(record, 'dictLabel')"
               @keydown.esc="handleCancelEdit"
             />
             <span
@@ -107,7 +110,7 @@
               v-model:value="editingRecord.dictL10nKey"
               size="small"
               @blur="handleSaveCell(record, 'dictL10nKey')"
-              @pressEnter="handleSaveCell(record, 'dictL10nKey')"
+              @press-enter="handleSaveCell(record, 'dictL10nKey')"
               @keydown.esc="handleCancelEdit"
             />
             <span
@@ -125,7 +128,7 @@
               v-model:value="editingRecord.dictValue"
               size="small"
               @blur="handleSaveCell(record, 'dictValue')"
-              @pressEnter="handleSaveCell(record, 'dictValue')"
+              @press-enter="handleSaveCell(record, 'dictValue')"
               @keydown.esc="handleCancelEdit"
             />
             <span
@@ -145,7 +148,7 @@
               size="small"
               style="width: 100%"
               @blur="handleSaveCell(record, 'cssClass')"
-              @pressEnter="handleSaveCell(record, 'cssClass')"
+              @press-enter="handleSaveCell(record, 'cssClass')"
               @keydown.esc="handleCancelEdit"
             />
             <span
@@ -165,7 +168,7 @@
               size="small"
               style="width: 100%"
               @blur="handleSaveCell(record, 'listClass')"
-              @pressEnter="handleSaveCell(record, 'listClass')"
+              @press-enter="handleSaveCell(record, 'listClass')"
               @keydown.esc="handleCancelEdit"
             />
             <span
@@ -183,7 +186,7 @@
               v-model:value="editingRecord.extLabel"
               size="small"
               @blur="handleSaveCell(record, 'extLabel')"
-              @pressEnter="handleSaveCell(record, 'extLabel')"
+              @press-enter="handleSaveCell(record, 'extLabel')"
               @keydown.esc="handleCancelEdit"
             />
             <span
@@ -201,7 +204,7 @@
               v-model:value="editingRecord.extValue"
               size="small"
               @blur="handleSaveCell(record, 'extValue')"
-              @pressEnter="handleSaveCell(record, 'extValue')"
+              @press-enter="handleSaveCell(record, 'extValue')"
               @keydown.esc="handleCancelEdit"
             />
             <span
@@ -221,7 +224,7 @@
               size="small"
               style="width: 100%"
               @blur="handleSaveCell(record, 'orderNum')"
-              @pressEnter="handleSaveCell(record, 'orderNum')"
+              @press-enter="handleSaveCell(record, 'orderNum')"
               @keydown.esc="handleCancelEdit"
             />
             <span

@@ -11,8 +11,18 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" class="flow-todo-modal-form" layout="vertical" :model="form" :rules="formRules">
-    <a-form-item :label="t('workflow.instance.transferToUser')" name="toUserId" required>
+  <a-form
+    ref="formRef"
+    class="flow-todo-modal-form"
+    layout="vertical"
+    :model="form"
+    :rules="formRules"
+  >
+    <a-form-item
+      :label="t('workflow.instance.transferToUser')"
+      name="toUserId"
+      required
+    >
       <a-select
         v-model:value="form.toUserId"
         :placeholder="t('workflow.instance.transferToUserPlaceholder')"
@@ -25,8 +35,14 @@
         @change="onUserChange"
       />
     </a-form-item>
-    <a-form-item :label="t('workflow.instance.transferComment')" name="comment">
-      <a-textarea v-model:value="form.comment" :rows="2" />
+    <a-form-item
+      :label="t('workflow.instance.transferComment')"
+      name="comment"
+    >
+      <a-textarea
+        v-model:value="form.comment"
+        :rows="2"
+      />
     </a-form-item>
   </a-form>
 </template>

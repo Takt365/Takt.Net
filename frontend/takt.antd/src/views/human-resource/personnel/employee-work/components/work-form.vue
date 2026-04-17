@@ -16,12 +16,19 @@
     layout="horizontal"
     label-align="right"
   >
-    <a-tabs v-model:activeKey="activeTab">
+    <a-tabs v-model:active-key="activeTab">
       <!-- 标签1：基础信息 -->
-      <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')" force-render>
+      <a-tab-pane
+        key="basic"
+        :tab="t('common.form.tabs.basicInfo')"
+        force-render
+      >
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeework.employeeId')" name="employeeId">
+            <a-form-item
+              :label="t('entity.employeework.employeeId')"
+              name="employeeId"
+            >
               <a-input
                 v-model:value="formState.employeeId"
                 allow-clear
@@ -29,7 +36,10 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeework.companyName')" name="companyName">
+            <a-form-item
+              :label="t('entity.employeework.companyName')"
+              name="companyName"
+            >
               <a-input
                 v-model:value="formState.companyName"
                 allow-clear
@@ -40,7 +50,10 @@
 
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeework.positionName')" name="positionName">
+            <a-form-item
+              :label="t('entity.employeework.positionName')"
+              name="positionName"
+            >
               <a-input
                 v-model:value="formState.positionName"
                 allow-clear
@@ -48,7 +61,10 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeework.witnessName')" name="witnessName">
+            <a-form-item
+              :label="t('entity.employeework.witnessName')"
+              name="witnessName"
+            >
               <a-input
                 v-model:value="formState.witnessName"
                 allow-clear
@@ -59,7 +75,10 @@
 
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeework.witnessPhone')" name="witnessPhone">
+            <a-form-item
+              :label="t('entity.employeework.witnessPhone')"
+              name="witnessPhone"
+            >
               <a-input
                 v-model:value="formState.witnessPhone"
                 allow-clear
@@ -67,7 +86,10 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeework.startDate')" name="startDate">
+            <a-form-item
+              :label="t('entity.employeework.startDate')"
+              name="startDate"
+            >
               <a-date-picker
                 v-model:value="formState.startDate"
                 value-format="YYYY-MM-DD"
@@ -79,7 +101,10 @@
 
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeework.endDate')" name="endDate">
+            <a-form-item
+              :label="t('entity.employeework.endDate')"
+              name="endDate"
+            >
               <a-date-picker
                 v-model:value="formState.endDate"
                 value-format="YYYY-MM-DD"
@@ -92,7 +117,10 @@
 
         <a-row :gutter="24">
           <a-col :span="24">
-            <a-form-item :label="t('entity.employeework.jobContent')" name="jobContent">
+            <a-form-item
+              :label="t('entity.employeework.jobContent')"
+              name="jobContent"
+            >
               <a-textarea
                 v-model:value="formState.jobContent"
                 :rows="4"

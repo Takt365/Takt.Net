@@ -1,12 +1,12 @@
 # 节拍数字工厂 · Takt Digital Factory (TDF)
 
-Takt.Net 为前后端分离的企业级应用：后端 .NET 8 Web API，前端 Vue 3 + TypeScript + Ant Design Vue。
+Takt.Net 为前后端分离的企业级应用：后端 .NET 9+ Web API，前端 Vue 3 + TypeScript + Ant Design Vue。
 
 ## 技术栈
 
 | 端 | 技术 |
 |----|------|
-| 后端 | .NET 8、ASP.NET Core、SqlSugar、OpenIddict、Serilog、Autofac、FluentValidation、Swagger |
+| 后端 | .NET 9+、ASP.NET Core、SqlSugar、OpenIddict、Serilog、Autofac、FluentValidation、内置 OpenAPI、Scalar |
 | 前端 | Vue 3、Vite 7、TypeScript 5（ES2020）、Ant Design Vue 4、Pinia、Vue Router、Vue I18n、Axios、SignalR |
 
 ## 仓库结构
@@ -37,7 +37,7 @@ Takt.Net/
 
 ## 环境要求
 
-- **后端**：.NET 8 SDK、SQL Server（多库：Identity/Accounting/HumanResource/Logistics/Building/Routine，见 `appsettings` 中 `dbConfigs`）
+- **后端**：.NET 9+ SDK、SQL Server（多库：Identity/Accounting/HumanResource/Logistics/Building/Routine，见 `appsettings` 中 `dbConfigs`）
 - **前端**：Node.js 18+、npm
 
 ## 后端运行
@@ -53,7 +53,12 @@ dotnet restore
 dotnet run --project src/Takt.WebApi/Takt.WebApi.csproj
 ```
 
-默认启动后可通过 Swagger 访问 API 文档（具体端口见 `launchSettings.json`）。
+在 `appsettings.json` 中将 **`Swagger.Enabled`** 设为 `true` 后，启用 **Scalar** 与 **ASP.NET Core 内置 OpenAPI** 提供的 API 文档（配置节名 `Swagger` 与代码中的 `Swagger:Enabled` 对应）。HTTPS 端口以 `src/Takt.WebApi/Properties/launchSettings.json` 的 `applicationUrl` 为准（模板默认 **`https://localhost:60071`**）：
+
+- **Scalar**：`/swagger`（根路径 `/` 会重定向到此处）
+- **分组 OpenAPI JSON**：`/openapi/{documentName}.json`（`documentName`：`Accounting`、`Generator`、`HumanResource`、`Identity`、`Logistics`、`Routine`、`Statistics`、`Workflow`；与控制器 `[ApiModule("模块名", …)]` 一致，未分组接口在 `Identity` 文档中）
+
+详见 `backend/src/Takt.WebApi/配置说明.md` 中的「API 文档」一节。
 
 ## 前端运行
 
@@ -77,7 +82,7 @@ npm run preview
 
 ## 配置说明
 
-- **后端**：`backend/src/Takt.WebApi/appsettings.example.json` 含 Serilog、多库 `dbConfigs`（ConfigId 0~5）、OpenIddict 等示例；复制为 `appsettings.json` 后按需修改。
+- **后端**：`backend/src/Takt.WebApi/appsettings.example.json` 含 Serilog、多库 `dbConfigs`（ConfigId 0~5）、OpenIddict、`Swagger.Enabled`（控制 Scalar/OpenAPI）等示例；复制为 `appsettings.json` 后按需修改。完整说明见同目录下 `配置说明.md`。
 - **前端**：`frontend/takt.antd/.env.development` 含 API 基址、超时、开发服务器端口、HTTPS、代理目标等；生产构建使用 `.env.production`。
 
 ## 许可证

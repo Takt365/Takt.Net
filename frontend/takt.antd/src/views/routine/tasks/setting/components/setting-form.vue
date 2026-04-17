@@ -7,7 +7,10 @@
     :wrapper-col="{ span: 20 }"
     layout="horizontal"
   >
-    <a-form-item label="设置键" name="settingKey">
+    <a-form-item
+      label="设置键"
+      name="settingKey"
+    >
       <a-input
         v-model:value="formState.settingKey"
         placeholder="请输入设置键（唯一）"
@@ -15,7 +18,10 @@
       />
     </a-form-item>
 
-    <a-form-item label="设置值" name="settingValue">
+    <a-form-item
+      label="设置值"
+      name="settingValue"
+    >
       <a-input
         v-model:value="formState.settingValue"
         placeholder="请输入设置值"
@@ -23,7 +29,10 @@
       />
     </a-form-item>
 
-    <a-form-item label="设置名称" name="settingName">
+    <a-form-item
+      label="设置名称"
+      name="settingName"
+    >
       <a-input
         v-model:value="formState.settingName"
         placeholder="请输入设置名称（描述）"
@@ -31,7 +40,10 @@
       />
     </a-form-item>
 
-    <a-form-item label="设置分组" name="settingGroup">
+    <a-form-item
+      label="设置分组"
+      name="settingGroup"
+    >
       <TaktSelect
         v-model:value="formState.settingGroup"
         dict-type="sys_setting_group"
@@ -40,7 +52,10 @@
       />
     </a-form-item>
 
-    <a-form-item label="是否内置" name="isBuiltIn">
+    <a-form-item
+      label="是否内置"
+      name="isBuiltIn"
+    >
       <TaktSelect
         v-model:value="formState.isBuiltIn"
         dict-type="sys_yes_no"
@@ -48,7 +63,10 @@
       />
     </a-form-item>
 
-    <a-form-item label="是否加密" name="isEncrypted">
+    <a-form-item
+      label="是否加密"
+      name="isEncrypted"
+    >
       <TaktSelect
         v-model:value="formState.isEncrypted"
         dict-type="sys_yes_no"
@@ -56,7 +74,10 @@
       />
     </a-form-item>
 
-    <a-form-item label="排序号" name="orderNum">
+    <a-form-item
+      label="排序号"
+      name="orderNum"
+    >
       <a-input-number
         v-model:value="formState.orderNum"
         :min="0"
@@ -65,7 +86,10 @@
       />
     </a-form-item>
 
-    <a-form-item label="备注" name="remark">
+    <a-form-item
+      label="备注"
+      name="remark"
+    >
       <a-textarea
         v-model:value="formState.remark"
         placeholder="请输入备注"

@@ -29,7 +29,11 @@
       
       <a-form-item>
         <a-space>
-          <a-button type="primary" html-type="submit" :loading="submitLoading">
+          <a-button
+            type="primary"
+            html-type="submit"
+            :loading="submitLoading"
+          >
             {{ submitTextDisplay }}
           </a-button>
           <a-button @click="handleReset">
@@ -58,7 +62,7 @@ interface Props {
   /** 抽屉宽度，默认为 400 */
   width?: string | number
   /** 表单数据模型 */
-  formModel?: Record<string, any>
+  formModel?: Record<string, unknown>
   /** 表单布局，默认为"vertical" */
   formLayout?: 'horizontal' | 'vertical' | 'inline'
   /** 查询按钮文本，默认为"查询" */
@@ -87,13 +91,16 @@ const resetTextDisplay = computed(() => props.resetText ?? t('common.button.rese
 
 const emit = defineEmits<{
   'update:open': [open: boolean]
-  'submit': [values: Record<string, any>]
+  'submit': [values: Record<string, unknown>]
   'reset': []
   'close': []
 }>()
 
 const attrs = useAttrs()
 const formRef = ref<FormInstance>()
+type FormInstanceWithSetFieldsValue = FormInstance & {
+  setFieldsValue?: (values: Record<string, unknown>) => void
+}
 
 // 内部 open 状态
 const internalOpen = computed({
@@ -105,12 +112,11 @@ const internalOpen = computed({
 
 // 计算 drawer 的所有属性，排除已定义的 props
 const drawerProps = computed(() => {
-  const { open, title, placement, width, formModel, formLayout, submitText, resetText, submitLoading, ...rest } = attrs
-  return rest
+  return attrs
 })
 
 // 处理查询提交
-const handleSubmit = (values: Record<string, any>) => {
+const handleSubmit = (values: Record<string, unknown>) => {
   emit('submit', values)
 }
 
@@ -132,7 +138,10 @@ defineExpose({
   validate: () => formRef.value?.validate(),
   validateFields: (nameList?: string[]) => formRef.value?.validateFields(nameList),
   getFieldsValue: () => formRef.value?.getFieldsValue(),
-  setFieldsValue: (values: Record<string, any>) => formRef.value?.setFieldsValue(values)
+  setFieldsValue: (values: Record<string, unknown>) => {
+    const form = formRef.value as FormInstanceWithSetFieldsValue | undefined
+    form?.setFieldsValue?.(values)
+  }
 })
 </script>
 

@@ -21,27 +21,27 @@
     />
 
     <TaktToolsBar
-        update-permission="workflow:instance:update"
-        delete-permission="workflow:instance:delete"
-        export-permission="workflow:instance:export"
-        :show-create="false"
-        :show-update="true"
-        :show-delete="true"
-        :show-refresh="true"
-        :show-export="true"
-        :show-fullscreen="true"
-        :show-advanced-query="true"
-        :show-column-setting="true"
-        :update-disabled="!selectedRow || selectedRows.length !== 1"
-        :delete-disabled="selectedRows.length === 0"
-        :refresh-loading="loading"
-        @update="handleUpdate"
-        @delete="handleDelete"
-        @refresh="handleRefresh"
-        @export="handleExport"
-        @advanced-query="handleAdvancedQuery"
-        @column-setting="handleColumnSetting"
-      />
+      update-permission="workflow:instance:update"
+      delete-permission="workflow:instance:delete"
+      export-permission="workflow:instance:export"
+      :show-create="false"
+      :show-update="true"
+      :show-delete="true"
+      :show-refresh="true"
+      :show-export="true"
+      :show-fullscreen="true"
+      :show-advanced-query="true"
+      :show-column-setting="true"
+      :update-disabled="!selectedRow || selectedRows.length !== 1"
+      :delete-disabled="selectedRows.length === 0"
+      :refresh-loading="loading"
+      @update="handleUpdate"
+      @delete="handleDelete"
+      @refresh="handleRefresh"
+      @export="handleExport"
+      @advanced-query="handleAdvancedQuery"
+      @column-setting="handleColumnSetting"
+    />
 
     <TaktSingleTable
       :columns="displayColumns"
@@ -83,7 +83,10 @@
       @cancel="detailVisible = false"
       @ok="detail?.canUndoVerify ? handleUndoVerify() : undefined"
     >
-      <InstanceForm :detail="detail" @refresh="reloadInstanceDetail" />
+      <InstanceForm
+        :detail="detail"
+        @refresh="reloadInstanceDetail"
+      />
     </TaktModal>
 
     <!-- 挂起 -->
@@ -95,7 +98,11 @@
     >
       <a-form layout="vertical">
         <a-form-item :label="t('workflow.instance.suspendReason')">
-          <a-textarea v-model:value="suspendReason" :rows="3" :placeholder="t('workflow.instance.suspendReasonPlaceholder')" />
+          <a-textarea
+            v-model:value="suspendReason"
+            :rows="3"
+            :placeholder="t('workflow.instance.suspendReasonPlaceholder')"
+          />
         </a-form-item>
       </a-form>
     </TaktModal>
@@ -108,7 +115,11 @@
     >
       <a-form layout="vertical">
         <a-form-item :label="t('workflow.instance.terminateReason')">
-          <a-textarea v-model:value="terminateReason" :rows="3" :placeholder="t('workflow.instance.terminateReasonPlaceholder')" />
+          <a-textarea
+            v-model:value="terminateReason"
+            :rows="3"
+            :placeholder="t('workflow.instance.terminateReasonPlaceholder')"
+          />
         </a-form-item>
       </a-form>
     </TaktModal>
@@ -122,10 +133,17 @@
     >
       <a-form layout="vertical">
         <a-form-item :label="t('entity.flowinstance.processtitle')">
-          <a-input v-model:value="updateProcessTitle" :placeholder="t('common.form.placeholder.required', { field: t('entity.flowinstance.processtitle') })" />
+          <a-input
+            v-model:value="updateProcessTitle"
+            :placeholder="t('common.form.placeholder.required', { field: t('entity.flowinstance.processtitle') })"
+          />
         </a-form-item>
         <a-form-item :label="t('entity.flowinstance.frmdata')">
-          <a-textarea v-model:value="updateFrmData" :rows="6" :placeholder="t('workflow.instance.frmDataPlaceholder')" />
+          <a-textarea
+            v-model:value="updateFrmData"
+            :rows="6"
+            :placeholder="t('workflow.instance.frmDataPlaceholder')"
+          />
         </a-form-item>
       </a-form>
     </TaktModal>
@@ -144,8 +162,18 @@
         <a-input v-model:value="advancedQueryForm.processKey" />
       </a-form-item>
       <a-form-item :label="t('entity.flowinstance.instancestatus')">
-        <a-select v-model:value="advancedQueryForm.instanceStatus" :placeholder="t('common.form.placeholder.select', { field: t('entity.flowinstance.instancestatus') })" allow-clear>
-          <a-select-option v-for="(label, val) in statusOptions" :key="val" :value="Number(val)">{{ label }}</a-select-option>
+        <a-select
+          v-model:value="advancedQueryForm.instanceStatus"
+          :placeholder="t('common.form.placeholder.select', { field: t('entity.flowinstance.instancestatus') })"
+          allow-clear
+        >
+          <a-select-option
+            v-for="(label, val) in statusOptions"
+            :key="val"
+            :value="Number(val)"
+          >
+            {{ label }}
+          </a-select-option>
         </a-select>
       </a-form-item>
     </TaktQueryDrawer>
@@ -176,7 +204,7 @@ import { mergeDefaultColumns } from '@/utils/table-columns'
 import { getFlowInstanceList, getFlowInstanceById, revoke, updateFlowInstance, deleteFlowInstanceById, deleteFlowInstanceBatch, exportFlowInstanceData, suspend, resume, terminate, undoVerification } from '@/api/workflow/instance'
 import { useUserStore } from '@/stores/identity/user'
 import InstanceForm from './components/instance-form.vue'
-import type { FlowInstance, FlowInstanceDetail } from '@/types/workflow/instance'
+import type { FlowInstance, FlowInstanceDetail, FlowInstanceQuery } from '@/types/workflow/instance'
 import type { TaktPagedResult } from '@/types/common'
 import { RiEyeLine, RiArrowGoBackLine, RiEditLine, RiDeleteBinLine, RiPauseLine, RiPlayLine, RiStopLine } from '@remixicon/vue'
 
@@ -208,6 +236,40 @@ const currentSuspendInstance = ref<FlowInstance | null>(null)
 const terminateVisible = ref(false)
 const terminateReason = ref('')
 const currentTerminateInstance = ref<FlowInstance | null>(null)
+
+type FlowInstanceColumn = {
+  key?: string | number
+  dataIndex?: string | number
+  title?: string | number
+  width?: number
+}
+
+type TableSorterInfo = {
+  field?: string
+  order?: string
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = (error as { message?: unknown }).message
+    if (typeof message === 'string' && message.trim()) return message
+  }
+  return fallback
+}
+
+function getColumnKey(column: FlowInstanceColumn): string {
+  const key = column.key ?? column.dataIndex ?? column.title
+  return key != null ? String(key) : ''
+}
+
+function getSorterInfo(sorter: unknown): TableSorterInfo {
+  if (typeof sorter !== 'object' || sorter === null) return {}
+  const sorterObj = sorter as { field?: unknown; order?: unknown }
+  return {
+    field: typeof sorterObj.field === 'string' ? sorterObj.field : undefined,
+    order: typeof sorterObj.order === 'string' ? sorterObj.order : undefined
+  }
+}
 
 const userStore = useUserStore()
 const currentUserId = computed(() => userStore.userInfo?.userId ?? '')
@@ -363,14 +425,16 @@ const columns = computed<TableColumnsType>(() => [
   })
 ])
 
-const mergedColumns = computed((): any => mergeDefaultColumns(columns.value as any, t, true))
-const displayColumns = computed(() => {
+const mergedColumns = computed<TableColumnsType>(() => mergeDefaultColumns(columns.value, t, true))
+const displayColumns = computed<TableColumnsType>(() => {
   const keys = visibleColumnKeys.value || []
   const merged = mergedColumns.value || []
   if (keys.length === 0) return columns.value
-  const getColumnKey = (col: any) => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
   const keysSet = new Set(keys.map(k => String(k)))
-  return merged.filter((col: any) => getColumnKey(col) && keysSet.has(getColumnKey(col)))
+  return merged.filter((col) => {
+    const colKey = getColumnKey(col as FlowInstanceColumn)
+    return colKey && keysSet.has(colKey)
+  })
 })
 
 const rowSelection = computed(() => ({
@@ -427,11 +491,11 @@ async function loadData() {
       processKey: queryKeyword.value || advancedQueryForm.value.processKey || undefined,
       instanceCode: queryKeyword.value || advancedQueryForm.value.instanceCode || undefined,
       instanceStatus: advancedQueryForm.value.instanceStatus
-    })) as TaktPagedResult<FlowInstance>
+    }))
     dataSource.value = res.data ?? []
     total.value = res.total ?? 0
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.loadFail'))
+  } catch (error: unknown) {
+    message.error(getErrorMessage(error, t('common.msg.loadFail')))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -495,7 +559,7 @@ function handleRefresh() {
 async function handleExport() {
   try {
     loading.value = true
-    const query = {
+    const query: FlowInstanceQuery = {
       pageIndex: 1,
       pageSize: 99999,
       processKey: queryKeyword.value || advancedQueryForm.value.processKey || undefined,
@@ -516,16 +580,19 @@ async function handleExport() {
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
     message.success(t('common.msg.exportSuccess'))
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.exportFail'))
+  } catch (error: unknown) {
+    message.error(getErrorMessage(error, t('common.msg.exportFail')))
   } finally {
     loading.value = false
   }
 }
 
 /** 表格变化（排序等）占位 */
-function handleTableChange(_pagination: any, _filters: any, sorter: any) {
-  if (sorter?.order) {}
+function handleTableChange(_pagination: unknown, _filters: unknown, sorter: unknown) {
+  const sorterInfo = getSorterInfo(sorter)
+  if (sorterInfo.order) {
+    // 如需服务端排序可在此处理
+  }
 }
 
 /** 分页变化时更新并拉取 */
@@ -543,13 +610,9 @@ function handlePaginationSizeChange(_current: number, size: number) {
 }
 
 /** 列宽拖拽后更新对应列的 width */
-function handleResizeColumn(w: number, col: any) {
-  const column = columns.value.find((c: any) => {
-    const colKey = col.key || col.dataIndex
-    const cKey = c.key || c.dataIndex
-    return colKey && cKey && String(colKey) === String(cKey)
-  })
-  if (column) (column as any).width = w
+function handleResizeColumn(w: number, col: FlowInstanceColumn) {
+  const column = columns.value.find((c) => getColumnKey(c as FlowInstanceColumn) === getColumnKey(col))
+  if (column) (column as FlowInstanceColumn).width = w
 }
 
 /** 拉取实例详情并打开详情弹窗 */
@@ -582,8 +645,8 @@ async function handleUndoVerify() {
     detailVisible.value = false
     detail.value = null
     loadData()
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.operateFail'))
+  } catch (error: unknown) {
+    message.error(getErrorMessage(error, t('common.msg.operateFail')))
   } finally {
     loading.value = false
   }
@@ -607,8 +670,8 @@ async function submitSuspend() {
     currentSuspendInstance.value = null
     suspendReason.value = ''
     loadData()
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.operateFail'))
+  } catch (error: unknown) {
+    message.error(getErrorMessage(error, t('common.msg.operateFail')))
   } finally {
     loading.value = false
   }
@@ -629,8 +692,8 @@ function handleResume(record: FlowInstance) {
         await resume({ flowInstanceId: record.instanceId })
         message.success(t('workflow.instance.resumeSuccess'))
         loadData()
-      } catch (error: any) {
-        message.error(error?.message || t('common.msg.operateFail'))
+      } catch (error: unknown) {
+        message.error(getErrorMessage(error, t('common.msg.operateFail')))
       } finally {
         loading.value = false
       }
@@ -656,8 +719,8 @@ async function submitTerminate() {
     currentTerminateInstance.value = null
     terminateReason.value = ''
     loadData()
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.operateFail'))
+  } catch (error: unknown) {
+    message.error(getErrorMessage(error, t('common.msg.operateFail')))
   } finally {
     loading.value = false
   }
@@ -678,8 +741,8 @@ function handleRevoke(record: FlowInstance) {
         await revoke(record.instanceCode)
         message.success(t('common.msg.actionSuccess', { action: t('common.button.revoke') }))
         loadData()
-      } catch (error: any) {
-        message.error(error?.message || t('common.msg.operateFail'))
+      } catch (error: unknown) {
+        message.error(getErrorMessage(error, t('common.msg.operateFail')))
       } finally {
         loading.value = false
       }
@@ -704,7 +767,9 @@ async function handleEditInstance(record: FlowInstance) {
       updateProcessTitle.value = d.processTitle ?? ''
       updateFrmData.value = d.frmData ?? ''
     }
-  } catch (_) {}
+  } catch (error: unknown) {
+    message.error(getErrorMessage(error, t('common.msg.loadFail')))
+  }
   updateVisible.value = true
 }
 
@@ -722,8 +787,8 @@ async function handleUpdateSubmit() {
     updateVisible.value = false
     currentEditInstance.value = null
     loadData()
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.operateFail'))
+  } catch (error: unknown) {
+    message.error(getErrorMessage(error, t('common.msg.operateFail')))
   } finally {
     updateLoading.value = false
   }
@@ -744,8 +809,8 @@ function handleDeleteOne(record: FlowInstance) {
         await deleteFlowInstanceById(record.instanceId)
         message.success(t('common.msg.deleteSuccess'))
         loadData()
-      } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+      } catch (error: unknown) {
+        message.error(getErrorMessage(error, t('common.msg.deleteFail')))
       } finally {
         loading.value = false
       }
@@ -774,8 +839,8 @@ function handleDelete() {
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
-      } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+      } catch (error: unknown) {
+        message.error(getErrorMessage(error, t('common.msg.deleteFail')))
       } finally {
         loading.value = false
       }

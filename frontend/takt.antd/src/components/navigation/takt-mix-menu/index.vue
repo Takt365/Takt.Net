@@ -1,16 +1,15 @@
 <template>
   <a-menu
-    v-model:selectedKeys="selectedKeys"
-    v-model:openKeys="openKeys"
+    v-model:selected-keys="selectedKeys"
+    v-model:open-keys="openKeys"
     mode="inline"
     :theme="theme"
     :items="menuItems"
     :inline-collapsed="collapsed"
     :accordion="setting.menuAccordion"
-    @click="handleMenuClick"
     :class="['takt-mix-menu', `menu-style-${setting.menuStyle}`]"
-  >
-  </a-menu>
+    @click="handleMenuClick"
+  />
 </template>
 
 <script setup lang="ts">

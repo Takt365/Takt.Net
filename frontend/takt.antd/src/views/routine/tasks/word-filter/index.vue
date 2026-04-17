@@ -20,12 +20,25 @@
         </a-space>
       </template>
 
-      <a-tabs v-model:activeKey="activeTab" type="card">
+      <a-tabs
+        v-model:active-key="activeTab"
+        type="card"
+      >
         <!-- 文本检查标签页 -->
-        <a-tab-pane key="check" tab="文本检查">
+        <a-tab-pane
+          key="check"
+          tab="文本检查"
+        >
           <a-card>
-            <a-form layout="vertical" :model="checkForm" @finish="handleCheck">
-              <a-form-item label="待检查文本" required>
+            <a-form
+              layout="vertical"
+              :model="checkForm"
+              @finish="handleCheck"
+            >
+              <a-form-item
+                label="待检查文本"
+                required
+              >
                 <a-textarea
                   v-model:value="checkForm.text"
                   :rows="6"
@@ -35,11 +48,22 @@
                 />
               </a-form-item>
               <a-form-item>
-                <a-button type="primary" html-type="submit" :loading="checkLoading">
-                  <template #icon><SearchOutlined /></template>
+                <a-button
+                  type="primary"
+                  html-type="submit"
+                  :loading="checkLoading"
+                >
+                  <template #icon>
+                    <SearchOutlined />
+                  </template>
                   检查
                 </a-button>
-                <a-button style="margin-left: 8px" @click="handleCheckReset">重置</a-button>
+                <a-button
+                  style="margin-left: 8px"
+                  @click="handleCheckReset"
+                >
+                  重置
+                </a-button>
               </a-form-item>
             </a-form>
 
@@ -69,10 +93,20 @@
         </a-tab-pane>
 
         <!-- 查找敏感词标签页 -->
-        <a-tab-pane key="find" tab="查找敏感词">
+        <a-tab-pane
+          key="find"
+          tab="查找敏感词"
+        >
           <a-card>
-            <a-form layout="vertical" :model="findForm" @finish="handleFind">
-              <a-form-item label="待查找文本" required>
+            <a-form
+              layout="vertical"
+              :model="findForm"
+              @finish="handleFind"
+            >
+              <a-form-item
+                label="待查找文本"
+                required
+              >
                 <a-textarea
                   v-model:value="findForm.text"
                   :rows="6"
@@ -82,14 +116,27 @@
                 />
               </a-form-item>
               <a-form-item>
-                <a-checkbox v-model:checked="findForm.includeDetails">包含位置信息</a-checkbox>
+                <a-checkbox v-model:checked="findForm.includeDetails">
+                  包含位置信息
+                </a-checkbox>
               </a-form-item>
               <a-form-item>
-                <a-button type="primary" html-type="submit" :loading="findLoading">
-                  <template #icon><SearchOutlined /></template>
+                <a-button
+                  type="primary"
+                  html-type="submit"
+                  :loading="findLoading"
+                >
+                  <template #icon>
+                    <SearchOutlined />
+                  </template>
                   查找
                 </a-button>
-                <a-button style="margin-left: 8px" @click="handleFindReset">重置</a-button>
+                <a-button
+                  style="margin-left: 8px"
+                  @click="handleFindReset"
+                >
+                  重置
+                </a-button>
               </a-form-item>
             </a-form>
 
@@ -113,7 +160,10 @@
                   {{ word }}
                 </a-tag>
               </div>
-              <div v-if="findResult.illegalWordDetails && findResult.illegalWordDetails.length > 0" style="margin-top: 16px">
+              <div
+                v-if="findResult.illegalWordDetails && findResult.illegalWordDetails.length > 0"
+                style="margin-top: 16px"
+              >
                 <h4>位置信息：</h4>
                 <a-table
                   :columns="detailColumns"
@@ -134,10 +184,20 @@
         </a-tab-pane>
 
         <!-- 替换敏感词标签页 -->
-        <a-tab-pane key="replace" tab="替换敏感词">
+        <a-tab-pane
+          key="replace"
+          tab="替换敏感词"
+        >
           <a-card>
-            <a-form layout="vertical" :model="replaceForm" @finish="handleReplace">
-              <a-form-item label="待替换文本" required>
+            <a-form
+              layout="vertical"
+              :model="replaceForm"
+              @finish="handleReplace"
+            >
+              <a-form-item
+                label="待替换文本"
+                required
+              >
                 <a-textarea
                   v-model:value="replaceForm.text"
                   :rows="6"
@@ -148,11 +208,18 @@
               </a-form-item>
               <a-form-item label="替换方式">
                 <a-radio-group v-model:value="replaceForm.replaceMode">
-                  <a-radio value="char">使用字符替换</a-radio>
-                  <a-radio value="text">使用文本替换</a-radio>
+                  <a-radio value="char">
+                    使用字符替换
+                  </a-radio>
+                  <a-radio value="text">
+                    使用文本替换
+                  </a-radio>
                 </a-radio-group>
               </a-form-item>
-              <a-form-item v-if="replaceForm.replaceMode === 'char'" label="替换字符">
+              <a-form-item
+                v-if="replaceForm.replaceMode === 'char'"
+                label="替换字符"
+              >
                 <a-input
                   v-model:value="replaceForm.replaceChar"
                   placeholder="请输入替换字符（如：*）"
@@ -160,7 +227,10 @@
                   style="width: 200px"
                 />
               </a-form-item>
-              <a-form-item v-if="replaceForm.replaceMode === 'text'" label="替换文本">
+              <a-form-item
+                v-if="replaceForm.replaceMode === 'text'"
+                label="替换文本"
+              >
                 <a-input
                   v-model:value="replaceForm.replaceText"
                   placeholder="请输入替换文本（如：***）"
@@ -168,11 +238,22 @@
                 />
               </a-form-item>
               <a-form-item>
-                <a-button type="primary" html-type="submit" :loading="replaceLoading">
-                  <template #icon><EditOutlined /></template>
+                <a-button
+                  type="primary"
+                  html-type="submit"
+                  :loading="replaceLoading"
+                >
+                  <template #icon>
+                    <EditOutlined />
+                  </template>
                   替换
                 </a-button>
-                <a-button style="margin-left: 8px" @click="handleReplaceReset">重置</a-button>
+                <a-button
+                  style="margin-left: 8px"
+                  @click="handleReplaceReset"
+                >
+                  重置
+                </a-button>
               </a-form-item>
             </a-form>
 
@@ -186,20 +267,38 @@
                 style="margin-bottom: 16px"
               />
               <a-form-item label="原始文本">
-                <a-textarea :value="replaceResult.originalText" :rows="4" readonly />
+                <a-textarea
+                  :value="replaceResult.originalText"
+                  :rows="4"
+                  readonly
+                />
               </a-form-item>
               <a-form-item label="替换后文本">
-                <a-textarea :value="replaceResult.replacedText" :rows="4" readonly />
+                <a-textarea
+                  :value="replaceResult.replacedText"
+                  :rows="4"
+                  readonly
+                />
               </a-form-item>
             </div>
           </a-card>
         </a-tab-pane>
 
         <!-- 高亮敏感词标签页 -->
-        <a-tab-pane key="highlight" tab="高亮敏感词">
+        <a-tab-pane
+          key="highlight"
+          tab="高亮敏感词"
+        >
           <a-card>
-            <a-form layout="vertical" :model="highlightForm" @finish="handleHighlight">
-              <a-form-item label="待高亮文本" required>
+            <a-form
+              layout="vertical"
+              :model="highlightForm"
+              @finish="handleHighlight"
+            >
+              <a-form-item
+                label="待高亮文本"
+                required
+              >
                 <a-textarea
                   v-model:value="highlightForm.text"
                   :rows="6"
@@ -216,11 +315,22 @@
                 />
               </a-form-item>
               <a-form-item>
-                <a-button type="primary" html-type="submit" :loading="highlightLoading">
-                  <template #icon><EditOutlined /></template>
+                <a-button
+                  type="primary"
+                  html-type="submit"
+                  :loading="highlightLoading"
+                >
+                  <template #icon>
+                    <EditOutlined />
+                  </template>
                   高亮
                 </a-button>
-                <a-button style="margin-left: 8px" @click="handleHighlightReset">重置</a-button>
+                <a-button
+                  style="margin-left: 8px"
+                  @click="handleHighlightReset"
+                >
+                  重置
+                </a-button>
               </a-form-item>
             </a-form>
 
@@ -234,7 +344,11 @@
                 style="margin-bottom: 16px"
               />
               <a-form-item label="原始文本">
-                <a-textarea :value="highlightResult.originalText" :rows="4" readonly />
+                <a-textarea
+                  :value="highlightResult.originalText"
+                  :rows="4"
+                  readonly
+                />
               </a-form-item>
               <a-form-item label="高亮后文本（HTML）">
                 <div
@@ -247,36 +361,60 @@
         </a-tab-pane>
 
         <!-- 敏感词管理标签页 -->
-        <a-tab-pane key="manage" tab="敏感词管理">
+        <a-tab-pane
+          key="manage"
+          tab="敏感词管理"
+        >
           <a-card>
             <a-space style="margin-bottom: 16px">
-              <a-button type="primary" @click="handleLoadWords" :loading="wordsLoading">
-                <template #icon><ReloadOutlined /></template>
+              <a-button
+                type="primary"
+                :loading="wordsLoading"
+                @click="handleLoadWords"
+              >
+                <template #icon>
+                  <ReloadOutlined />
+                </template>
                 刷新列表
               </a-button>
-              <a-button type="primary" @click="handleAddWords" :loading="addLoading">
-                <template #icon><PlusOutlined /></template>
+              <a-button
+                type="primary"
+                :loading="addLoading"
+                @click="handleAddWords"
+              >
+                <template #icon>
+                  <PlusOutlined />
+                </template>
                 添加敏感词
               </a-button>
               <a-button
                 danger
                 :disabled="selectedWords.length === 0"
-                @click="handleRemoveWords"
                 :loading="removeLoading"
+                @click="handleRemoveWords"
               >
-                <template #icon><DeleteOutlined /></template>
+                <template #icon>
+                  <DeleteOutlined />
+                </template>
                 移除选中
               </a-button>
               <a-button
                 danger
-                @click="handleClearWords"
                 :loading="clearLoading"
+                @click="handleClearWords"
               >
-                <template #icon><DeleteOutlined /></template>
+                <template #icon>
+                  <DeleteOutlined />
+                </template>
                 清空词库
               </a-button>
-              <a-button @click="handleLoadStats" :loading="statsLoading">
-                <template #icon><InfoCircleOutlined /></template>
+              <a-button
+                :loading="statsLoading"
+                @click="handleLoadStats"
+              >
+                <template #icon>
+                  <InfoCircleOutlined />
+                </template>
                 查看统计
               </a-button>
             </a-space>
@@ -295,12 +433,14 @@
               :loading="wordsLoading"
               :pagination="wordsPagination"
               :row-selection="wordsRowSelection"
-              @change="handleWordsTableChange"
               :row-key="(record, index) => record || index"
+              @change="handleWordsTableChange"
             >
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'word'">
-                  <a-tag color="red">{{ record }}</a-tag>
+                  <a-tag color="red">
+                    {{ record }}
+                  </a-tag>
                 </template>
               </template>
             </a-table>
@@ -340,7 +480,10 @@
             选择词库组后，敏感词将同时添加到内存词库和对应的词库文件中
           </div>
         </a-form-item>
-        <a-form-item label="敏感词（每行一个）" required>
+        <a-form-item
+          label="敏感词（每行一个）"
+          required
+        >
           <a-textarea
             v-model:value="addWordsText"
             :rows="10"

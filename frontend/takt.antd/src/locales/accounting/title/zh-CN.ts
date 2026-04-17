@@ -4,5 +4,20 @@ export default {
   titleName: '科目名称',
   titleType: '科目类型',
   titleLevel: '科目级别',
-  titleStatus: '科目状态'
+  titleStatus: '科目状态',
+  titleType0: '资产',
+  titleType1: '负债',
+  titleType2: '所有者权益',
+  titleType3: '收入',
+  titleType4: '费用',
+  titleType5: '成本',
+  balanceDirection0: '借方',
+  balanceDirection1: '贷方',
+  auxiliaryType0: '无',
+  auxiliaryType1: '部门',
+  auxiliaryType2: '项目',
+  auxiliaryType3: '客户',
+  auxiliaryType4: '供应商',
+  auxiliaryType5: '员工',
+  auxiliaryType6: '自定义'
 }

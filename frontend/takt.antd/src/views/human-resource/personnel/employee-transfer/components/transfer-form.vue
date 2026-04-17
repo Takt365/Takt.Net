@@ -8,8 +8,11 @@
 <!-- ======================================== -->
 
 <template>
-  <a-tabs v-model:activeKey="activeTab">
-    <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
+  <a-tabs v-model:active-key="activeTab">
+    <a-tab-pane
+      key="basic"
+      :tab="t('common.form.tabs.basicInfo')"
+    >
       <a-form
         ref="formRef"
         :model="formState"
@@ -19,80 +22,117 @@
         layout="horizontal"
         label-align="right"
       >
-    <a-row :gutter="24">
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeetransfer.employeeId')" name="employeeId">
-          <a-input
-            v-model:value="formState.employeeId"
-            :placeholder="t('common.form.placeholder.required', { field: t('entity.employeetransfer.employeeId') })"
-            allow-clear
-          />
-        </a-form-item>
-      </a-col>
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeetransfer.transferType')" name="transferType">
-          <a-select
-            v-model:value="formState.transferType"
-            :options="transferTypeOptions"
-            :placeholder="t('common.form.placeholder.select', { field: t('entity.employeetransfer.transferType') })"
-            allow-clear
-            style="width: 100%"
-          />
-        </a-form-item>
-      </a-col>
-    </a-row>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeetransfer.employeeId')"
+              name="employeeId"
+            >
+              <a-input
+                v-model:value="formState.employeeId"
+                :placeholder="t('common.form.placeholder.required', { field: t('entity.employeetransfer.employeeId') })"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeetransfer.transferType')"
+              name="transferType"
+            >
+              <a-select
+                v-model:value="formState.transferType"
+                :options="transferTypeOptions"
+                :placeholder="t('common.form.placeholder.select', { field: t('entity.employeetransfer.transferType') })"
+                allow-clear
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
 
-    <a-row :gutter="24">
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeetransfer.fromDeptId')" name="fromDeptId">
-          <a-input v-model:value="formState.fromDeptId" allow-clear />
-        </a-form-item>
-      </a-col>
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeetransfer.fromDeptName')" name="fromDeptName">
-          <a-input v-model:value="formState.fromDeptName" allow-clear />
-        </a-form-item>
-      </a-col>
-    </a-row>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeetransfer.fromDeptId')"
+              name="fromDeptId"
+            >
+              <a-input
+                v-model:value="formState.fromDeptId"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeetransfer.fromDeptName')"
+              name="fromDeptName"
+            >
+              <a-input
+                v-model:value="formState.fromDeptName"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
 
-    <a-row :gutter="24">
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeetransfer.toDeptId')" name="toDeptId">
-          <a-input v-model:value="formState.toDeptId" allow-clear />
-        </a-form-item>
-      </a-col>
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeetransfer.toDeptName')" name="toDeptName">
-          <a-input v-model:value="formState.toDeptName" allow-clear />
-        </a-form-item>
-      </a-col>
-    </a-row>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeetransfer.toDeptId')"
+              name="toDeptId"
+            >
+              <a-input
+                v-model:value="formState.toDeptId"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeetransfer.toDeptName')"
+              name="toDeptName"
+            >
+              <a-input
+                v-model:value="formState.toDeptName"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
 
-    <a-row :gutter="24">
-      <a-col :span="12">
-        <a-form-item :label="t('entity.employeetransfer.effectiveDate')" name="effectiveDate">
-          <a-date-picker
-            v-model:value="formState.effectiveDate"
-            value-format="YYYY-MM-DD"
-            style="width: 100%"
-          />
-        </a-form-item>
-      </a-col>
-      <a-col :span="12" />
-    </a-row>
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item
+              :label="t('entity.employeetransfer.effectiveDate')"
+              name="effectiveDate"
+            >
+              <a-date-picker
+                v-model:value="formState.effectiveDate"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :span="12" />
+        </a-row>
 
-    <a-row :gutter="24">
-      <a-col :span="24">
-        <a-form-item
-          :label="t('entity.employeetransfer.reason')"
-          name="reason"
-          :label-col="{ span: 4 }"
-          :wrapper-col="{ span: 20 }"
-        >
-          <a-textarea v-model:value="formState.reason" :rows="2" allow-clear />
-        </a-form-item>
-      </a-col>
-    </a-row>
+        <a-row :gutter="24">
+          <a-col :span="24">
+            <a-form-item
+              :label="t('entity.employeetransfer.reason')"
+              name="reason"
+              :label-col="{ span: 4 }"
+              :wrapper-col="{ span: 20 }"
+            >
+              <a-textarea
+                v-model:value="formState.reason"
+                :rows="2"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+        </a-row>
       </a-form>
     </a-tab-pane>
   </a-tabs>

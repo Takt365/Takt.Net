@@ -11,6 +11,9 @@ interface ViewTransition {
   updateCallbackDone: Promise<void>
   skipTransition(): void
 }
+interface DocumentWithViewTransition extends Document {
+  startViewTransition?: (updateCallback: () => void | Promise<void>) => ViewTransition
+}
 
 // 检查浏览器是否支持 View Transitions API
 // 参考：https://developer.chrome.com/docs/web-platform/view-transitions/same-document
@@ -40,14 +43,14 @@ function updateThemeAttribute(mode: ThemeMode) {
 
 // 使用 View Transitions API 更新主题
 // 参考：https://developer.chrome.com/docs/web-platform/view-transitions/same-document
-function updateThemeWithTransition(
+function _updateThemeWithTransition(
   updateFn: () => void | Promise<void>
 ): ViewTransition | null {
   if (supportsViewTransitions()) {
     try {
       // 使用 View Transitions API
       // 根据 Chrome 文档，回调函数应该尽可能快，避免阻塞
-      const transition = (document as any).startViewTransition(
+      const transition = (document as DocumentWithViewTransition).startViewTransition?.(
         async (): Promise<void> => {
           try {
             // 执行更新函数（同步更新 DOM 属性）
@@ -149,7 +152,7 @@ export const useThemeStore = defineStore('theme', () => {
       )
 
       // 启动 View Transition
-      const transition = (document as any).startViewTransition(
+      const transition = (document as DocumentWithViewTransition).startViewTransition?.(
         async (): Promise<void> => {
           try {
             // 同步更新 DOM 属性
@@ -164,6 +167,12 @@ export const useThemeStore = defineStore('theme', () => {
           }
         }
       )
+
+      if (!transition) {
+        updateThemeAttribute(newMode)
+        themeMode.value = newMode
+        return null
+      }
 
       // 在过渡准备就绪后，应用圆形展开动画
       transition.ready.then(() => {
@@ -196,7 +205,7 @@ export const useThemeStore = defineStore('theme', () => {
         console.warn('[Theme] View Transition 完成时出错')
       })
 
-      return transition as ViewTransition
+      return transition
     } catch (error) {
       // 如果启动失败，降级为直接更新
       console.warn('[Theme] View Transition 启动失败，使用降级方案:', error)

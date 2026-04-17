@@ -365,9 +365,9 @@ const getLeaveId = (record: Leave): string => {
  *
  * @param {Leave} record - 列表行
  * @param {string} field - 字段名
- * @returns {any} 原始值
+ * @returns {unknown} 原始值
  */
-const getLeaveField = (record: Leave, field: string): any =>
+const getLeaveField = (record: Leave, field: string): unknown =>
   (record as unknown as Record<string, unknown>)[field]
 
 /**
@@ -867,7 +867,7 @@ const handleExport = async () => {
     const resBlob =
       typeof blob === 'object' && blob !== null && 'data' in blob && blob.data instanceof Blob
         ? blob.data
-        : (blob as Blob)
+        : (blob)
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
     const fileName = `${leaveExcelNames.fileBase}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`

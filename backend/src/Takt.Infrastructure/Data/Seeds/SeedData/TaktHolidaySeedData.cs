@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktHolidaySeedData.cs
@@ -160,7 +160,7 @@ public class TaktHolidaySeedData : ITaktSeedData
             var end = new DateTime(year, endMd.Item1, endMd.Item2);
             var remarkValue = string.IsNullOrEmpty(remark) ? null : $"调休补班：{remark}";
 
-            var existing = await repo.GetAsync(x => x.StartDate == start && x.HolidayName == name && x.Region == country && x.IsDeleted == 0);
+            var existing = await repo.GetAsync(x => x.StartDate == start && x.HolidayName == name && x.Region == country);
             if (existing == null)
             {
                 await repo.CreateAsync(new TaktHoliday

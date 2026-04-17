@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <!-- 目标框架 -->
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <!-- 可空引用类型 -->
     <Nullable>enable</Nullable>
     <!-- 隐式 using -->
@@ -10,5 +10,14 @@
     <Version>0.1.0</Version>
     <AssemblyVersion>0.1.0.0</AssemblyVersion>
     <FileVersion>0.1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <!-- Roslyn / .NET 代码分析器：由 .NET SDK 内置（与 SDK 版本同步的 CA 等规则），此处显式打开并在生成时执行代码样式。 -->
+  <!-- 若需固定分析器版本（与 CI/SDK 解耦），可再添加 PackageReference Microsoft.CodeAnalysis.NetAnalyzers，且版本应不低于本机 SDK 提示版本。 -->
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>Default</AnalysisMode>
   </PropertyGroup>
 </Project>

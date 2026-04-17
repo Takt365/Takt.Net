@@ -50,16 +50,16 @@ public class TaktRbacSeedData : ITaktSeedData
 
         // User、Role 始终从 Identity 库（ConfigId 0）查
         var adminUser = await dbIdentity.Queryable<TaktUser>()
-            .Where(u => u.UserName == "admin" && u.IsDeleted == 0)
+            .Where(u => u.UserName == "admin")
             .FirstAsync();
         var guestUser = await dbIdentity.Queryable<TaktUser>()
-            .Where(u => u.UserName == "guest" && u.IsDeleted == 0)
+            .Where(u => u.UserName == "guest")
             .FirstAsync();
         var superAdminRole = await dbIdentity.Queryable<TaktRole>()
-            .Where(r => r.RoleCode == "SUPER_ADMIN" && r.IsDeleted == 0)
+            .Where(r => r.RoleCode == "SUPER_ADMIN")
             .FirstAsync();
         var guestRole = await dbIdentity.Queryable<TaktRole>()
-            .Where(r => r.RoleCode == "GUEST" && r.IsDeleted == 0)
+            .Where(r => r.RoleCode == "GUEST")
             .FirstAsync();
 
         // 部门、岗位在 ConfigId 1（HR 库）；仅当当前为 ConfigId 1 时查询，否则不访问该表避免 ConfigId 0 报“对象名无效”
@@ -70,16 +70,16 @@ public class TaktRbacSeedData : ITaktSeedData
         if (configId == "1")
         {
             headOffice = await db.Queryable<TaktDept>()
-                .Where(d => d.DeptCode == "HEAD_OFFICE" && d.IsDeleted == 0)
+                .Where(d => d.DeptCode == "HEAD_OFFICE")
                 .FirstAsync();
             generalOffice = await db.Queryable<TaktDept>()
-                .Where(d => d.DeptCode == "D1000" && d.IsDeleted == 0)
+                .Where(d => d.DeptCode == "D1000")
                 .FirstAsync();
             chairmanPost = await db.Queryable<TaktPost>()
-                .Where(p => p.PostCode == "CHAIRMAN" && p.IsDeleted == 0)
+                .Where(p => p.PostCode == "CHAIRMAN")
                 .FirstAsync();
             employeePost = await db.Queryable<TaktPost>()
-                .Where(p => p.PostCode == "OPERATOR" && p.IsDeleted == 0)
+                .Where(p => p.PostCode == "OPERATOR")
                 .FirstAsync();
         }
 
@@ -116,7 +116,7 @@ public class TaktRbacSeedData : ITaktSeedData
         if (superAdminRole != null && headOffice != null)
         {
             var superAdminRoleDept = await db.Queryable<TaktRoleDept>()
-                .Where(rd => rd.RoleId == superAdminRole.Id && rd.DeptId == headOffice.Id && rd.IsDeleted == 0)
+                .Where(rd => rd.RoleId == superAdminRole.Id && rd.DeptId == headOffice.Id)
                 .FirstAsync();
             if (superAdminRoleDept == null)
             {
@@ -142,7 +142,7 @@ public class TaktRbacSeedData : ITaktSeedData
         if (guestRole != null && generalOffice != null)
         {
             var guestRoleDept = await db.Queryable<TaktRoleDept>()
-                .Where(rd => rd.RoleId == guestRole.Id && rd.DeptId == generalOffice.Id && rd.IsDeleted == 0)
+                .Where(rd => rd.RoleId == guestRole.Id && rd.DeptId == generalOffice.Id)
                 .FirstAsync();
             if (guestRoleDept == null)
             {
@@ -171,7 +171,7 @@ public class TaktRbacSeedData : ITaktSeedData
         if (adminUser != null && headOffice != null)
         {
             var adminDeptUser = await db.Queryable<TaktUserDept>()
-                .Where(du => du.UserId == adminUser.Id && du.DeptId == headOffice.Id && du.IsDeleted == 0)
+                .Where(du => du.UserId == adminUser.Id && du.DeptId == headOffice.Id)
                 .FirstAsync();
 
             if (adminDeptUser == null)
@@ -205,7 +205,7 @@ public class TaktRbacSeedData : ITaktSeedData
         if (guestUser != null && generalOffice != null)
         {
             var guestDeptUser = await db.Queryable<TaktUserDept>()
-                .Where(du => du.UserId == guestUser.Id && du.DeptId == generalOffice.Id && du.IsDeleted == 0)
+                .Where(du => du.UserId == guestUser.Id && du.DeptId == generalOffice.Id)
                 .FirstAsync();
 
             if (guestDeptUser == null)
@@ -241,7 +241,7 @@ public class TaktRbacSeedData : ITaktSeedData
         if (adminUser != null && chairmanPost != null)
         {
             var adminPostUser = await db.Queryable<TaktUserPost>()
-                .Where(pu => pu.UserId == adminUser.Id && pu.PostId == chairmanPost.Id && pu.IsDeleted == 0)
+                .Where(pu => pu.UserId == adminUser.Id && pu.PostId == chairmanPost.Id)
                 .FirstAsync();
 
             if (adminPostUser == null)
@@ -275,7 +275,7 @@ public class TaktRbacSeedData : ITaktSeedData
         if (guestUser != null && employeePost != null)
         {
             var guestPostUser = await db.Queryable<TaktUserPost>()
-                .Where(pu => pu.UserId == guestUser.Id && pu.PostId == employeePost.Id && pu.IsDeleted == 0)
+                .Where(pu => pu.UserId == guestUser.Id && pu.PostId == employeePost.Id)
                 .FirstAsync();
 
             if (guestPostUser == null)
@@ -329,7 +329,7 @@ public class TaktRbacSeedData : ITaktSeedData
 
         // 用户-角色：admin -> SUPER_ADMIN
         var adminUserRole = await db.Queryable<TaktUserRole>()
-            .Where(ur => ur.UserId == adminUser.Id && ur.RoleId == superAdminRole.Id && ur.IsDeleted == 0)
+            .Where(ur => ur.UserId == adminUser.Id && ur.RoleId == superAdminRole.Id)
             .FirstAsync();
         if (adminUserRole == null)
         {
@@ -350,7 +350,7 @@ public class TaktRbacSeedData : ITaktSeedData
 
         // 用户-角色：guest -> GUEST
         var guestUserRole = await db.Queryable<TaktUserRole>()
-            .Where(ur => ur.UserId == guestUser.Id && ur.RoleId == guestRole.Id && ur.IsDeleted == 0)
+            .Where(ur => ur.UserId == guestUser.Id && ur.RoleId == guestRole.Id)
             .FirstAsync();
         if (guestUserRole == null)
         {
@@ -370,13 +370,13 @@ public class TaktRbacSeedData : ITaktSeedData
         }
 
         // 角色-菜单：SUPER_ADMIN 关联全部菜单
-        var allMenus = await db.Queryable<TaktMenu>().Where(m => m.IsDeleted == 0).ToListAsync();
+        var allMenus = await db.Queryable<TaktMenu>().ToListAsync();
         if (allMenus != null && allMenus.Count > 0)
         {
             foreach (var menu in allMenus)
             {
                 var roleMenu = await db.Queryable<TaktRoleMenu>()
-                    .Where(rm => rm.RoleId == superAdminRole.Id && rm.MenuId == menu.Id && rm.IsDeleted == 0)
+                    .Where(rm => rm.RoleId == superAdminRole.Id && rm.MenuId == menu.Id)
                     .FirstAsync();
                 if (roleMenu == null)
                 {
@@ -399,14 +399,14 @@ public class TaktRbacSeedData : ITaktSeedData
 
         // 用户-租户：admin/guest 关联默认租户 tenant_0
         var defaultTenant = await db.Queryable<TaktTenant>()
-            .Where(t => t.ConfigId == "0" && t.TenantCode == "tenant_0" && t.IsDeleted == 0)
+            .Where(t => t.ConfigId == "0" && t.TenantCode == "tenant_0")
             .FirstAsync();
         if (defaultTenant != null)
         {
             foreach (var user in new[] { adminUser, guestUser })
             {
                 var userTenant = await db.Queryable<TaktUserTenant>()
-                    .Where(ut => ut.UserId == user.Id && ut.TenantId == defaultTenant.Id && ut.IsDeleted == 0)
+                    .Where(ut => ut.UserId == user.Id && ut.TenantId == defaultTenant.Id)
                     .FirstAsync();
                 if (userTenant == null)
                 {

@@ -45,10 +45,35 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
           <a-space wrap>
-            <a-button type="link" size="small" @click="handleApprove(asFlowTodoItem(record), true)">通过</a-button>
-            <a-button type="link" size="small" danger @click="handleApprove(asFlowTodoItem(record), false)">驳回</a-button>
-            <a-button type="link" size="small" @click="openTransfer(asFlowTodoItem(record))">{{ t('workflow.instance.transfer') }}</a-button>
-            <a-button type="link" size="small" @click="openAddSign(asFlowTodoItem(record))">{{ t('workflow.instance.addSign') }}</a-button>
+            <a-button
+              type="link"
+              size="small"
+              @click="handleApprove(asFlowTodoItem(record), true)"
+            >
+              通过
+            </a-button>
+            <a-button
+              type="link"
+              size="small"
+              danger
+              @click="handleApprove(asFlowTodoItem(record), false)"
+            >
+              驳回
+            </a-button>
+            <a-button
+              type="link"
+              size="small"
+              @click="openTransfer(asFlowTodoItem(record))"
+            >
+              {{ t('workflow.instance.transfer') }}
+            </a-button>
+            <a-button
+              type="link"
+              size="small"
+              @click="openAddSign(asFlowTodoItem(record))"
+            >
+              {{ t('workflow.instance.addSign') }}
+            </a-button>
           </a-space>
         </template>
       </template>
@@ -72,7 +97,9 @@
     >
       <div class="todo-modal__sections">
         <div class="todo-modal__section">
-          <div class="todo-modal__section-title">{{ t('workflow.instance.taskFormContent') }}</div>
+          <div class="todo-modal__section-title">
+            {{ t('workflow.instance.taskFormContent') }}
+          </div>
           <TaskFormContent :detail="taskDetail" />
           <FlowPendingAddApproversPanel
             :detail="taskDetail"
@@ -80,8 +107,13 @@
             @refresh="reloadTaskDetailInModal"
           />
         </div>
-        <div v-if="taskDetail?.currentNodeName === CASHIER_ROUTE_NODE_ID" class="todo-modal__section">
-          <div class="todo-modal__section-title">{{ t('workflow.instance.cashierPayoutMethod') }}</div>
+        <div
+          v-if="taskDetail?.currentNodeName === CASHIER_ROUTE_NODE_ID"
+          class="todo-modal__section"
+        >
+          <div class="todo-modal__section-title">
+            {{ t('workflow.instance.cashierPayoutMethod') }}
+          </div>
           <a-select
             v-model:value="cashierPayoutChannel"
             :options="cashierPayoutOptions"
@@ -91,8 +123,13 @@
           />
         </div>
         <div class="todo-modal__section">
-          <div class="todo-modal__section-title">{{ t('workflow.instance.taskApproveAction') }}</div>
-          <ApproveForm ref="approveFormRef" :form="completeForm" />
+          <div class="todo-modal__section-title">
+            {{ t('workflow.instance.taskApproveAction') }}
+          </div>
+          <ApproveForm
+            ref="approveFormRef"
+            :form="completeForm"
+          />
         </div>
       </div>
     </TaktModal>
@@ -108,7 +145,9 @@
     >
       <div class="todo-modal__sections">
         <div class="todo-modal__section">
-          <div class="todo-modal__section-title">{{ t('workflow.instance.taskFormContent') }}</div>
+          <div class="todo-modal__section-title">
+            {{ t('workflow.instance.taskFormContent') }}
+          </div>
           <TaskFormContent :detail="taskDetail" />
           <FlowPendingAddApproversPanel
             :detail="taskDetail"
@@ -117,8 +156,14 @@
           />
         </div>
         <div class="todo-modal__section">
-          <div class="todo-modal__section-title">{{ t('workflow.instance.taskApproveAction') }}</div>
-          <TransferForm ref="transferFormRef" :form="transferForm" :user-options="userOptions" />
+          <div class="todo-modal__section-title">
+            {{ t('workflow.instance.taskApproveAction') }}
+          </div>
+          <TransferForm
+            ref="transferFormRef"
+            :form="transferForm"
+            :user-options="userOptions"
+          />
         </div>
       </div>
     </TaktModal>
@@ -134,7 +179,9 @@
     >
       <div class="todo-modal__sections">
         <div class="todo-modal__section">
-          <div class="todo-modal__section-title">{{ t('workflow.instance.taskFormContent') }}</div>
+          <div class="todo-modal__section-title">
+            {{ t('workflow.instance.taskFormContent') }}
+          </div>
           <TaskFormContent :detail="taskDetail" />
           <FlowPendingAddApproversPanel
             :detail="taskDetail"
@@ -143,8 +190,14 @@
           />
         </div>
         <div class="todo-modal__section">
-          <div class="todo-modal__section-title">{{ t('workflow.instance.taskApproveAction') }}</div>
-          <AddSignForm ref="addSignFormRef" :form="addSignForm" :user-options="userOptions" />
+          <div class="todo-modal__section-title">
+            {{ t('workflow.instance.taskApproveAction') }}
+          </div>
+          <AddSignForm
+            ref="addSignFormRef"
+            :form="addSignForm"
+            :user-options="userOptions"
+          />
         </div>
       </div>
     </TaktModal>
@@ -169,6 +222,7 @@ import type { FlowTodoItem, FlowTodoQuery, FlowInstanceDetail } from '@/types/wo
 import type { FlowAddApproverItem } from '@/types/workflow/instance'
 import type { TaktPagedResult } from '@/types/common'
 import type { TaktSelectOption } from '@/types/common'
+const toErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error))
 
 const { t } = useI18n()
 
@@ -246,7 +300,7 @@ async function loadTodo() {
       pageIndex: currentPage.value,
       pageSize: pageSize.value
     }
-    const res = await getMyTodo(params) as TaktPagedResult<FlowTodoItem>
+    const res = await getMyTodo(params)
     dataSource.value = res.data ?? []
     total.value = res.total ?? 0
   } finally {
@@ -364,8 +418,8 @@ async function handleApproveOk() {
     modalVisible.value = false
     taskDetail.value = null
     loadTodo()
-  } catch (error: any) {
-    message.error(error?.message || '提交失败')
+  } catch (error: unknown) {
+    message.error(toErrorMessage(error) || '提交失败')
   } finally {
     loading.value = false
   }
@@ -389,8 +443,8 @@ async function handleExport() {
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
     message.success('导出成功')
-  } catch (error: any) {
-    message.error(error?.message || '导出失败')
+  } catch (error: unknown) {
+    message.error(toErrorMessage(error) || '导出失败')
   } finally {
     exportLoading.value = false
   }
@@ -453,8 +507,8 @@ async function handleTransferOk() {
     currentTransferTask.value = null
     taskDetail.value = null
     loadTodo()
-  } catch (error: any) {
-    message.error(error?.message || '转办失败')
+  } catch (error: unknown) {
+    message.error(toErrorMessage(error) || '转办失败')
   } finally {
     loading.value = false
   }
@@ -500,8 +554,8 @@ async function handleAddSignOk() {
     currentAddSignTask.value = null
     taskDetail.value = null
     loadTodo()
-  } catch (error: any) {
-    message.error(error?.message || '加签失败')
+  } catch (error: unknown) {
+    message.error(toErrorMessage(error) || '加签失败')
   } finally {
     loading.value = false
   }

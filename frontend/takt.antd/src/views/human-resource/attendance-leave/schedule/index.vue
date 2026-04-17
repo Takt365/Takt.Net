@@ -1,11 +1,20 @@
 <!-- 排班管理：排班计划 + 班次定义（双页签） -->
 <template>
   <div class="schedule-page">
-    <a-tabs v-model:activeKey="activeTab" destroy-inactive-tab-pane>
-      <a-tab-pane key="plan" tab="排班计划">
+    <a-tabs
+      v-model:active-key="activeTab"
+      destroy-inactive-tab-pane
+    >
+      <a-tab-pane
+        key="plan"
+        tab="排班计划"
+      >
         <ShiftScheduleTab />
       </a-tab-pane>
-      <a-tab-pane key="shift" tab="班次定义">
+      <a-tab-pane
+        key="shift"
+        tab="班次定义"
+      >
         <WorkShiftTab />
       </a-tab-pane>
     </a-tabs>

@@ -12,16 +12,38 @@
 
 <template>
   <div v-if="detail">
-    <a-descriptions bordered size="small" :column="1">
-      <a-descriptions-item :label="t('entity.flowinstance.instancecode')">{{ detail.instanceCode }}</a-descriptions-item>
-      <a-descriptions-item :label="t('entity.flowinstance.processname')">{{ detail.processName }}</a-descriptions-item>
-      <a-descriptions-item :label="t('entity.flowinstance.processtitle')">{{ detail.processTitle }}</a-descriptions-item>
-      <a-descriptions-item :label="t('entity.flowinstance.instancestatus')">{{ statusText(detail.instanceStatus) }}</a-descriptions-item>
-      <a-descriptions-item :label="t('entity.flowinstance.currentnodename')">{{ detail.currentNodeName || '-' }}</a-descriptions-item>
-      <a-descriptions-item :label="t('entity.flowinstance.startusername')">{{ detail.startUserName }}</a-descriptions-item>
-      <a-descriptions-item :label="t('entity.flowinstance.starttime')">{{ detail.startTime }}</a-descriptions-item>
+    <a-descriptions
+      bordered
+      size="small"
+      :column="1"
+    >
+      <a-descriptions-item :label="t('entity.flowinstance.instancecode')">
+        {{ detail.instanceCode }}
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('entity.flowinstance.processname')">
+        {{ detail.processName }}
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('entity.flowinstance.processtitle')">
+        {{ detail.processTitle }}
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('entity.flowinstance.instancestatus')">
+        {{ statusText(detail.instanceStatus) }}
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('entity.flowinstance.currentnodename')">
+        {{ detail.currentNodeName || '-' }}
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('entity.flowinstance.startusername')">
+        {{ detail.startUserName }}
+      </a-descriptions-item>
+      <a-descriptions-item :label="t('entity.flowinstance.starttime')">
+        {{ detail.startTime }}
+      </a-descriptions-item>
       <a-descriptions-item :label="t('workflow.instance.transitionHistory')">
-        <div v-for="(h, i) in detail.history" :key="i" class="history-item">
+        <div
+          v-for="(h, i) in detail.history"
+          :key="i"
+          class="history-item"
+        >
           {{ h.fromNodeName }} → {{ h.toNodeName }}（{{ h.transitionUserName }}，{{ h.transitionTime }}）
           <span v-if="h.transitionComment">：{{ h.transitionComment }}</span>
         </div>

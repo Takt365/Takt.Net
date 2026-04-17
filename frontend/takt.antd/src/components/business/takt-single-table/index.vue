@@ -7,18 +7,24 @@
       :loading="loading"
       :pagination="false"
       :row-key="rowKey"
-      :row-class-name="(_record, index) => (index % 2 === 1 ? 'table-striped' : null) as any"
+      :row-class-name="(_record, index) => (index % 2 === 1 ? 'table-striped' : '')"
       :scroll="scrollConfig"
       :virtual="virtual"
       :size="size"
       :bordered="bordered"
       :row-selection="effectiveRowSelection"
-      @change="handleTableChange"
-      @resizeColumn="handleResizeColumn"
       v-bind="$attrs"
+      @change="handleTableChange"
+      @resize-column="handleResizeColumn"
     >
-      <template v-for="(_, name) in $slots" #[name]="slotData">
-        <slot :name="name" v-bind="slotData" />
+      <template
+        v-for="(_, name) in $slots"
+        #[name]="slotData"
+      >
+        <slot
+          :name="name"
+          v-bind="slotData"
+        />
       </template>
       <!-- 总结栏插槽
        * 使用方式：在组件中使用 <template #summary> 插槽
@@ -32,7 +38,10 @@
        *   </a-table-summary>
        * </template>
        -->
-      <template v-if="$slots.summary" #summary>
+      <template
+        v-if="$slots.summary"
+        #summary
+      >
         <slot name="summary" />
       </template>
     </a-table>
@@ -42,6 +51,22 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { TableColumnsType, TableProps } from 'ant-design-vue'
+import type {
+  ColumnType,
+  FilterValue,
+  SorterResult,
+  TableCurrentDataSource,
+  TablePaginationConfig
+} from 'ant-design-vue/es/table/interface'
+
+type TableRecord = Record<string, unknown>
+type TableSorter = {
+  field?: string | number | readonly (string | number)[]
+  order?: string
+}
+type TableFilters = Record<string, FilterValue | null>
+type TablePagination = { current?: number; pageSize?: number; total?: number }
+type ResizableColumn = { width?: string | number } & Record<string, unknown>
 
 interface Props {
   /** 表格列配置
@@ -53,16 +78,16 @@ interface Props {
    */
   columns: TableColumnsType
   /** 数据源 */
-  dataSource?: any[]
+  dataSource?: TableRecord[]
   /** 加载状态 */
   loading?: boolean
   /** 行键 */
-  rowKey?: string | ((record: any) => string)
+  rowKey?: string | ((record: TableRecord) => string)
   /** 自定义行类名（用于自定义带斑马纹的表格）
    * 如果提供函数，函数接收 (record, index) 参数，返回类名字符串
    * 如果不提供且 stripe 为 true，则自动应用斑马纹样式
    */
-  rowClassName?: string | ((record: any, index: number) => string)
+  rowClassName?: string | ((record: TableRecord, index: number) => string)
   /** 是否启用斑马纹（默认 true，会自动为奇数行添加 takt-table-row-stripe 类） */
   stripe?: boolean
   /** 是否启用虚拟滚动（大数据量时建议开启）
@@ -93,15 +118,17 @@ const props = withDefaults(defineProps<Props>(), {
   rowClassName: undefined,
   stripe: true,
   virtual: false,
+  scroll: undefined,
   size: 'middle',
   bordered: false,
+  rowSelection: undefined,
   showRowSelection: true,
   defaultEllipsis: true
 })
 
 const emit = defineEmits<{
-  'change': [pagination: any, filters: any, sorter: any]
-  'resize-column': [width: number, column: any]
+  'change': [pagination: TablePagination, filters: TableFilters, sorter: TableSorter | TableSorter[]]
+  'resize-column': [width: number, column: ResizableColumn]
 }>()
 
 /** 行选择：默认显示选择列（showRowSelection 为 true 且未传 rowSelection 时用空对象） */
@@ -112,11 +139,12 @@ const effectiveRowSelection = computed(() => {
 
 // 处理列宽调整（使用 Ant Design Vue 原生支持）
 // 注意：直接修改 col.width 以立即更新显示，同时触发事件让父组件更新原始数据
-const handleResizeColumn = (w: number, col: any) => {
+const handleResizeColumn = (w: number, col: ColumnType<unknown>) => {
+  const mutableCol = col as ResizableColumn
   // 更新当前列的宽度（用于立即显示）
-  col.width = w
+  mutableCol.width = w
   // 触发事件，让父组件更新原始数据源
-  emit('resize-column', w, col)
+  emit('resize-column', w, mutableCol)
 }
 
 // 直接使用传入的 columns，不再进行任何合并处理
@@ -124,8 +152,8 @@ const handleResizeColumn = (w: number, col: any) => {
 const displayColumns = computed(() => {
   const visibleCount = props.columns.length
   
-  return props.columns.map((column: any) => {
-    const processedColumn: any = { ...column }
+  return props.columns.map((column) => {
+    const processedColumn = { ...column } as ResizableColumn & Record<string, unknown>
     
     // 如果列没有设置 width，默认设置为视口的 1/9（假设显示9个字段）
     if (!processedColumn.width && visibleCount > 0) {
@@ -135,7 +163,7 @@ const displayColumns = computed(() => {
     }
     
     // 处理 ellipsis
-    if (props.defaultEllipsis && column.ellipsis === undefined) {
+    if (props.defaultEllipsis && !('ellipsis' in column)) {
       processedColumn.ellipsis = true
     }
     
@@ -157,12 +185,13 @@ const scrollConfig = computed(() => {
   
   // 如果没有设置 scroll.x，自动计算所有列的宽度总和，确保列宽按照配置显示
   if (!config.x) {
-    const totalWidth = displayColumns.value.reduce((sum: number, col: any) => {
-      return sum + (col.width || 0)
+    const totalWidth = displayColumns.value.reduce((sum: number, col) => {
+      const width = (col as ResizableColumn).width
+      return sum + (typeof width === 'number' ? width : 0)
     }, 0)
     
     // 如果所有列都有 width 配置，使用总和；否则使用 'max-content' 让表格自动计算
-    if (totalWidth > 0 && displayColumns.value.every((col: any) => col.width)) {
+    if (totalWidth > 0 && displayColumns.value.every((col) => (col as ResizableColumn).width)) {
       config.x = totalWidth
     } else {
       // 如果有些列没有 width，使用 'max-content' 确保表格能正确显示
@@ -182,8 +211,13 @@ const scrollConfig = computed(() => {
 })
 
 // 表格变化处理
-const handleTableChange = (pagination: any, filters: any, sorter: any) => {
-  emit('change', pagination, filters, sorter)
+const handleTableChange = (
+  pagination: TablePaginationConfig,
+  filters: TableFilters,
+  sorter: SorterResult<TableRecord> | SorterResult<TableRecord>[],
+  _extra: TableCurrentDataSource<TableRecord>
+) => {
+  emit('change', pagination as TablePagination, filters, sorter as TableSorter | TableSorter[])
 }
 </script>
 

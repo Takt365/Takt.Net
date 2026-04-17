@@ -47,7 +47,7 @@ public class TaktMenuButtonSeedData
         int insertCount = 0;
         int updateCount = 0;
 
-        var menus = await menuRepository.FindAsync(m => m.MenuType == 1 && m.IsDeleted == 0);
+        var menus = await menuRepository.FindAsync(m => m.MenuType == 1);
 
         foreach (var menu in menus)
         {

@@ -48,7 +48,7 @@ const app = createApp(App)
 // 注意：这个警告是 Ant Design Vue 库的问题，在异步操作中调用插槽函数
 if (import.meta.env.DEV) {
   const originalWarn = console.warn
-  console.warn = (...args: any[]) => {
+  console.warn = (...args: unknown[]) => {
     const msg = args[0] && typeof args[0] === 'string' ? args[0] : ''
     // 过滤掉 Tooltip 相关的插槽警告
     if (msg.includes('Slot') && msg.includes('invoked outside of the render function')) {
@@ -137,7 +137,7 @@ watchEffect(() => {
   const localeRef = i18n.global.locale as { value: string }
   void localeRef.value
   // 使用类型断言修复 t 方法的类型问题
-  const htmlTitle = (i18n.global.t as any)('common.app.htmlTitle') as string
+  const htmlTitle = String(i18n.global.t('common.app.htmlTitle'))
   if (htmlTitle && htmlTitle !== 'common.app.htmlTitle') {
     document.title = htmlTitle
   }

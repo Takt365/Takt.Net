@@ -95,7 +95,11 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <AttendanceCorrectionForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <AttendanceCorrectionForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
 
     <!-- 高级查询：字段与 TaktAttendanceCorrectionQueryDto 一致（前端 AttendanceCorrectionQuery） -->
@@ -118,10 +122,18 @@
         />
       </a-form-item>
       <a-form-item :label="t('entity.attendancecorrection.targetdatefrom')">
-        <a-date-picker v-model:value="advancedQueryForm.from" value-format="YYYY-MM-DD" style="width: 100%" />
+        <a-date-picker
+          v-model:value="advancedQueryForm.from"
+          value-format="YYYY-MM-DD"
+          style="width: 100%"
+        />
       </a-form-item>
       <a-form-item :label="t('entity.attendancecorrection.targetdateto')">
-        <a-date-picker v-model:value="advancedQueryForm.to" value-format="YYYY-MM-DD" style="width: 100%" />
+        <a-date-picker
+          v-model:value="advancedQueryForm.to"
+          value-format="YYYY-MM-DD"
+          style="width: 100%"
+        />
       </a-form-item>
     </TaktQueryDrawer>
 
@@ -262,7 +274,7 @@ const getCorrectionId = (record: AttendanceCorrection): string => {
 }
 
 /** 与用户页 `getUserField` 一致，供 `TaktDictTag` 的 `:value`。 */
-const getCorrectionField = (record: AttendanceCorrection, field: string): any =>
+const getCorrectionField = (record: AttendanceCorrection, field: string): unknown =>
   (record as unknown as Record<string, unknown>)[field]
 
 function coerceAdvancedApprovalStatus(value: string | number | undefined | null): number | undefined {
@@ -632,7 +644,7 @@ const handleExport = async () => {
     const resBlob =
       typeof blob === 'object' && blob !== null && 'data' in blob && blob.data instanceof Blob
         ? blob.data
-        : (blob as Blob)
+        : (blob)
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
     const fileName = `${correctionExcelNames.fileBase}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`

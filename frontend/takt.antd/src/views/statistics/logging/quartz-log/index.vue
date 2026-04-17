@@ -81,7 +81,7 @@ import {
   deleteQuartzLogBatch,
   exportQuartzLog
 } from '@/api/statistics/logging/quartz-log'
-import type { QuartzLog } from '@/types/statistics/logging/quartz-log'
+import type { QuartzLog, QuartzLogQuery } from '@/types/statistics/logging/quartz-log'
 import { logger } from '@/utils/logger'
 import { RiDeleteBinLine } from '@remixicon/vue'
 
@@ -99,12 +99,48 @@ const tableRef = ref()
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
 
+type QuartzLogColumn = {
+  key?: string | number
+  dataIndex?: string | number
+  title?: string | number
+  width?: number
+}
+
+type TableSorterInfo = {
+  field?: string
+  order?: string
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = (error as { message?: unknown }).message
+    if (typeof message === 'string' && message.trim()) return message
+  }
+  return fallback
+}
+
+function getColumnKey(column: QuartzLogColumn): string {
+  const key = column.key ?? column.dataIndex ?? column.title
+  return key != null ? String(key) : ''
+}
+
+function getSorterInfo(sorter: unknown): TableSorterInfo {
+  if (typeof sorter !== 'object' || sorter === null) return {}
+  const sorterObj = sorter as { field?: unknown; order?: unknown }
+  return {
+    field: typeof sorterObj.field === 'string' ? sorterObj.field : undefined,
+    order: typeof sorterObj.order === 'string' ? sorterObj.order : undefined
+  }
+}
+
 onMounted(() => {
   loadData()
 })
 
-const getQuartzLogId = (record: any): string => record?.quartzLogId != null ? String(record.quartzLogId) : ''
-const getQuartzLogField = (record: any, field: string): any => record?.[field]
+const getQuartzLogId = (record: QuartzLog): string => record?.quartzLogId != null ? String(record.quartzLogId) : ''
+function getQuartzLogField<K extends keyof QuartzLog>(record: QuartzLog, field: K): QuartzLog[K] {
+  return record[field]
+}
 
 const columns = ref<TableColumnsType>([
   {
@@ -115,7 +151,7 @@ const columns = ref<TableColumnsType>([
     resizable: true,
     ellipsis: true,
     fixed: 'left',
-    customRender: ({ record }: { record: any }) => getQuartzLogField(record, 'quartzLogId') ?? ''
+    customRender: ({ record }: { record: QuartzLog }) => getQuartzLogField(record, 'quartzLogId') ?? ''
   },
   {
     title: '用户名',
@@ -195,10 +231,9 @@ const displayColumns = computed(() => {
   const keys = visibleColumnKeys.value || []
   const merged = mergedColumns.value || []
   if (keys.length === 0) return columns.value
-  const getColumnKey = (col: any): string => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
   const keysSet = new Set(keys.map(k => String(k)))
-  return merged.filter((col: any) => {
-    const colKey = getColumnKey(col)
+  return merged.filter((col) => {
+    const colKey = getColumnKey(col as QuartzLogColumn)
     return colKey && keysSet.has(colKey)
   })
 })
@@ -234,20 +269,19 @@ const onClickRow = (record: QuartzLog) => ({
 const loadData = async () => {
   try {
     loading.value = true
-    const params: any = {
-      PageIndex: currentPage.value,
-      PageSize: pageSize.value
+    const params: QuartzLogQuery = {
+      pageIndex: currentPage.value,
+      pageSize: pageSize.value
     }
-    if (queryKeyword.value) params.KeyWords = queryKeyword.value
+    if (queryKeyword.value) params.keyWords = queryKeyword.value
     const response = await getQuartzLogList(params)
-    const responseAny = response as any
-    const items = response?.data ?? responseAny?.Data ?? []
-    const totalCount = response?.total ?? responseAny?.Total ?? 0
+    const items = response?.data ?? []
+    const totalCount = response?.total ?? 0
     dataSource.value = items
     total.value = totalCount
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[QuartzLog] 加载数据失败:', error)
-    message.error(error?.message ?? '加载数据失败')
+    message.error(getErrorMessage(error, '加载数据失败'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -257,8 +291,9 @@ const loadData = async () => {
 
 const handleSearch = () => { currentPage.value = 1; loadData() }
 const handleReset = () => { queryKeyword.value = ''; currentPage.value = 1; loadData() }
-const handleTableChange = (_pagination: any, _filters: any, sorter: any) => {
-  if (sorter?.order) logger.debug('[QuartzLog] 排序:', sorter.field, sorter.order)
+const handleTableChange = (_pagination: unknown, _filters: unknown, sorter: unknown) => {
+  const sorterInfo = getSorterInfo(sorter)
+  if (sorterInfo.order) logger.debug('[QuartzLog] 排序:', sorterInfo.field, sorterInfo.order)
 }
 const handlePaginationChange = (page: number, size: number) => {
   currentPage.value = page
@@ -270,9 +305,9 @@ const handlePaginationSizeChange = (_current: number, size: number) => {
   pageSize.value = size
   loadData()
 }
-const handleResizeColumn = (w: number, col: any) => {
-  const column = columns.value.find((c: any) => String(c.key || c.dataIndex || c.title) === String(col.key || col.dataIndex || col.title))
-  if (column) column.width = w
+const handleResizeColumn = (w: number, col: QuartzLogColumn) => {
+  const column = columns.value.find((c) => getColumnKey(c as QuartzLogColumn) === getColumnKey(col))
+  if (column) (column as QuartzLogColumn).width = w
 }
 
 const handleDeleteOne = (record: QuartzLog) => {
@@ -288,8 +323,8 @@ const handleDeleteOne = (record: QuartzLog) => {
         await deleteQuartzLog(getQuartzLogId(record))
         message.success('删除成功')
         loadData()
-      } catch (error: any) {
-        message.error(error?.message ?? '删除失败')
+      } catch (error: unknown) {
+        message.error(getErrorMessage(error, '删除失败'))
       } finally {
         loading.value = false
       }
@@ -316,8 +351,8 @@ const handleDelete = () => {
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
-      } catch (error: any) {
-        message.error(error?.message ?? '删除失败')
+      } catch (error: unknown) {
+        message.error(getErrorMessage(error, '删除失败'))
       } finally {
         loading.value = false
       }
@@ -327,8 +362,8 @@ const handleDelete = () => {
 const handleExport = async () => {
   try {
     loading.value = true
-    const params: any = { PageIndex: 1, PageSize: total.value || 99999 }
-    if (queryKeyword.value) params.KeyWords = queryKeyword.value
+    const params: QuartzLogQuery = { pageIndex: 1, pageSize: total.value || 99999 }
+    if (queryKeyword.value) params.keyWords = queryKeyword.value
     const blob = await exportQuartzLog(params, undefined, '任务日志')
     const ts = new Date(); const t = (n: number, w = 2) => String(n).padStart(w, '0')
     const fileName = `任务日志_${ts.getFullYear()}${t(ts.getMonth()+1)}${t(ts.getDate())}${t(ts.getHours())}${t(ts.getMinutes())}${t(ts.getSeconds())}.xlsx`
@@ -342,9 +377,9 @@ const handleExport = async () => {
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
     message.success('导出成功')
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[QuartzLog] 导出失败:', error)
-    message.error(error?.message ?? '导出失败')
+    message.error(getErrorMessage(error, '导出失败'))
   } finally {
     loading.value = false
   }

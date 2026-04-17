@@ -22,7 +22,7 @@ namespace Takt.WebApi.Controllers.HumanResource.Personnel;
 /// 员工调动控制器（转岗/调岗，与流程审批关联；权限前缀 humanresource:personnel:employeetransfer）
 /// </summary>
 [Route("api/[controller]", Name = "员工调动")]
-[ApiModule("HumanResource.Personnel", "人事管理")]
+[ApiModule("HumanResource", "人力资源")]
 [TaktPermission("humanresource:personnel:employeetransfer:list", "员工调动管理")]
 public class TaktEmployeeTransfersController : TaktControllerBase
 {

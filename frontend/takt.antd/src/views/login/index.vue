@@ -18,54 +18,89 @@
     :embedded="true"
     @back="switchView('login')"
   />
-  <div v-else class="login-page" :class="[`position-${layoutPosition}`, `theme-${themeStore.themeMode}`]">
+  <div
+    v-else
+    class="login-page"
+    :class="[`position-${layoutPosition}`, `theme-${themeStore.themeMode}`]"
+  >
     <!-- 背景层 -->
-    <div class="login-background" :style="{ background: backgroundGradient }"></div>
+    <div
+      class="login-background"
+      :style="{ background: backgroundGradient }"
+    />
     <!-- 左上角 Logo -->
     <div class="login-logo">
-      <img :src="appLogo" :alt="$t('common.app.name')" />
+      <img
+        :src="appLogo"
+        :alt="$t('common.app.name')"
+      >
       <div class="login-app-info">
-        <a-typography-text class="login-app-name">{{ $t('common.app.name') }}</a-typography-text>
-        <a-typography-text class="login-product-code">{{ productCodeWithVersion }}</a-typography-text>
+        <a-typography-text class="login-app-name">
+          {{ $t('common.app.name') }}
+        </a-typography-text>
+        <a-typography-text class="login-product-code">
+          {{ productCodeWithVersion }}
+        </a-typography-text>
       </div>
     </div>
     <!-- 右上角按钮组 -->
     <div class="button-group-wrapper">
       <a-button-group size="small">
         <!-- 颜色切换 -->
-        <a-radio-button size="small"> <TaktColorToggle type="icon" /></a-radio-button>
+        <a-radio-button size="small">
+          <TaktColorToggle type="icon" />
+        </a-radio-button>
         <!-- 表单位置切换 -->
-        <a-radio-button size="small"> <TaktLayoutToggle v-model:position="layoutPosition" /></a-radio-button>
+        <a-radio-button size="small">
+          <TaktLayoutToggle v-model:position="layoutPosition" />
+        </a-radio-button>
         <!-- 语言切换 -->
-        <a-radio-button size="small"> <TaktLocaleToggle type="icon" /></a-radio-button>
+        <a-radio-button size="small">
+          <TaktLocaleToggle type="icon" />
+        </a-radio-button>
         <!-- 主题切换 -->
-        <a-radio-button size="small"> <TaktThemeToggle type="icon" /></a-radio-button>
+        <a-radio-button size="small">
+          <TaktThemeToggle type="icon" />
+        </a-radio-button>
       </a-button-group>
     </div>
     <!-- 登录容器 -->
     <div class="login-container">
       <!-- 左侧内容区（仅在非居中模式下显示） -->
-      <div v-if="layoutPosition !== 'center'" class="login-left-panel">
+      <div
+        v-if="layoutPosition !== 'center'"
+        class="login-left-panel"
+      >
         <div class="login-illustration">
           <ShowcaseForm />
           <div class="login-slogan">
-            <a-typography-text class="login-slogan-text">{{ $t('common.app.slogan') }}</a-typography-text>
-            <a-typography-text class="login-tagline">{{ $t('common.app.tagline') }}</a-typography-text>
+            <a-typography-text class="login-slogan-text">
+              {{ $t('common.app.slogan') }}
+            </a-typography-text>
+            <a-typography-text class="login-tagline">
+              {{ $t('common.app.tagline') }}
+            </a-typography-text>
           </div>
         </div>
       </div>
       <!-- 右侧表单区 -->
-      <div class="login-right-panel" :class="`panel-${layoutPosition}`" :style="{ background: panelBackgroundGradient }">
+      <div
+        class="login-right-panel"
+        :class="`panel-${layoutPosition}`"
+        :style="{ background: panelBackgroundGradient }"
+      >
         <div class="login-box">
           <div class="login-header">
-            <a-typography-title :level="3">{{ $t('login.login.title') }}</a-typography-title>
+            <a-typography-title :level="3">
+              {{ $t('login.login.title') }}
+            </a-typography-title>
           </div>
           <a-form
             ref="formRef"
             :model="formState"
             :rules="rules"
-            @finish="handleSubmit"
             class="login-form"
+            @finish="handleSubmit"
           >
             <a-form-item name="username">
               <a-input
@@ -97,21 +132,39 @@
                 <a-checkbox v-model:checked="formState.rememberMe">
                   {{ $t('login.login.rememberMe') }}
                 </a-checkbox>
-                <a v-if="showForgotPassword" href="javascript:;" class="login-forgot-link" @click.prevent="switchView('forget')">
+                <a
+                  v-if="showForgotPassword"
+                  href="javascript:;"
+                  class="login-forgot-link"
+                  @click.prevent="switchView('forget')"
+                >
                   {{ $t('login.forgot.title') }}
                 </a>
               </div>
             </a-form-item>
             <a-form-item>
-              <a-button type="primary" html-type="submit" block size="large" :loading="loading">
+              <a-button
+                type="primary"
+                html-type="submit"
+                block
+                size="large"
+                :loading="loading"
+              >
                 <template #icon>
                   <RiLoginBoxLine />
                 </template>
                 {{ $t('login.login.login') }}
               </a-button>
             </a-form-item>
-            <a-form-item v-if="showRegister" class="login-register-row">
-              <a href="javascript:;" class="login-register-link" @click.prevent="switchView('register')">
+            <a-form-item
+              v-if="showRegister"
+              class="login-register-row"
+            >
+              <a
+                href="javascript:;"
+                class="login-register-link"
+                @click.prevent="switchView('register')"
+              >
                 {{ $t('login.login.noAccountRegister', { register: $t('login.sign.title') }) }}
               </a>
             </a-form-item>
@@ -126,17 +179,20 @@
       :title="$t('login.fields.captcha.validation.required')"
       :footer="null"
       :closable="true"
-      :maskClosable="false"
+      :mask-closable="false"
       :width="captchaModalWidth"
       centered
       :wrap-class-name="captchaModalWrapClassName"
       :body-style="captchaModalBodyStyle"
       @cancel="captchaModalVisible = false"
     >
-      <div class="login-captcha-modal-body" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+      <div
+        class="login-captcha-modal-body"
+        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"
+      >
         <component
-          v-if="captchaModalData && captchaModalVisible"
           :is="captchaModalComponent"
+          v-if="captchaModalData && captchaModalVisible"
           :initial-data="captchaModalData"
           :auto-generate="false"
           @success="onCaptchaModalSuccess"
@@ -360,7 +416,7 @@ const handleSubmit = async () => {
 
   try {
     loading.value = true
-    const result = await generateCaptchaApi() as CaptchaGenerateResult
+    const result = await generateCaptchaApi()
     if (!result) {
       message.error(t('login.fields.captcha.validation.required'))
       loading.value = false

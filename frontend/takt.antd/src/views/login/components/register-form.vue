@@ -8,47 +8,83 @@
 <!-- ======================================== -->
 
 <template>
-  <div class="login-page" :class="[`position-${layoutPosition}`, `theme-${themeStore.themeMode}`]">
-    <div class="login-background" :style="{ background: backgroundGradient }"></div>
+  <div
+    class="login-page"
+    :class="[`position-${layoutPosition}`, `theme-${themeStore.themeMode}`]"
+  >
+    <div
+      class="login-background"
+      :style="{ background: backgroundGradient }"
+    />
     <div class="login-logo">
-      <img :src="appLogo" :alt="$t('common.app.name')" />
+      <img
+        :src="appLogo"
+        :alt="$t('common.app.name')"
+      >
       <div class="login-app-info">
-        <a-typography-text class="login-app-name">{{ $t('common.app.name') }}</a-typography-text>
-        <a-typography-text class="login-product-code">{{ productCodeWithVersion }}</a-typography-text>
+        <a-typography-text class="login-app-name">
+          {{ $t('common.app.name') }}
+        </a-typography-text>
+        <a-typography-text class="login-product-code">
+          {{ productCodeWithVersion }}
+        </a-typography-text>
       </div>
     </div>
     <div class="button-group-wrapper">
       <a-button-group size="small">
-        <a-radio-button size="small"> <TaktColorToggle type="icon" /></a-radio-button>
-        <a-radio-button size="small"> <TaktLayoutToggle v-model:position="layoutPosition" /></a-radio-button>
-        <a-radio-button size="small"> <TaktLocaleToggle type="icon" /></a-radio-button>
-        <a-radio-button size="small"> <TaktThemeToggle type="icon" /></a-radio-button>
+        <a-radio-button size="small">
+          <TaktColorToggle type="icon" />
+        </a-radio-button>
+        <a-radio-button size="small">
+          <TaktLayoutToggle v-model:position="layoutPosition" />
+        </a-radio-button>
+        <a-radio-button size="small">
+          <TaktLocaleToggle type="icon" />
+        </a-radio-button>
+        <a-radio-button size="small">
+          <TaktThemeToggle type="icon" />
+        </a-radio-button>
       </a-button-group>
     </div>
     <div class="login-container">
-      <div v-if="layoutPosition !== 'center'" class="login-left-panel">
+      <div
+        v-if="layoutPosition !== 'center'"
+        class="login-left-panel"
+      >
         <div class="login-illustration">
           <div class="login-icon-wrapper">
-            <i class="fa-solid fa-robot login-icon"></i>
+            <i class="fa-solid fa-robot login-icon" />
           </div>
           <div class="login-slogan">
-            <a-typography-text class="login-slogan-text">{{ $t('common.app.slogan') }}</a-typography-text>
-            <a-typography-text class="login-tagline">{{ $t('common.app.tagline') }}</a-typography-text>
+            <a-typography-text class="login-slogan-text">
+              {{ $t('common.app.slogan') }}
+            </a-typography-text>
+            <a-typography-text class="login-tagline">
+              {{ $t('common.app.tagline') }}
+            </a-typography-text>
           </div>
         </div>
       </div>
-      <div class="login-right-panel" :class="`panel-${layoutPosition}`" :style="{ background: panelBackgroundGradient }">
+      <div
+        class="login-right-panel"
+        :class="`panel-${layoutPosition}`"
+        :style="{ background: panelBackgroundGradient }"
+      >
         <div class="login-box">
           <div class="login-header">
-            <a-typography-title :level="3">{{ t('login.sign.title') }}</a-typography-title>
-            <a-typography-text class="login-subtitle">{{ t('login.sign.subtitle') }}</a-typography-text>
+            <a-typography-title :level="3">
+              {{ t('login.sign.title') }}
+            </a-typography-title>
+            <a-typography-text class="login-subtitle">
+              {{ t('login.sign.subtitle') }}
+            </a-typography-text>
           </div>
           <a-form
             ref="formRef"
             :model="formState"
             :rules="rules"
-            @finish="handleSubmit"
             class="login-form"
+            @finish="handleSubmit"
           >
             <a-form-item name="userName">
               <a-input
@@ -87,7 +123,13 @@
               </a-input>
             </a-form-item>
             <a-form-item>
-              <a-button type="primary" html-type="submit" block size="large" :loading="loading">
+              <a-button
+                type="primary"
+                html-type="submit"
+                block
+                size="large"
+                :loading="loading"
+              >
                 <template #icon>
                   <RiUserAddLine />
                 </template>
@@ -109,17 +151,20 @@
       :title="$t('login.fields.captcha.validation.required')"
       :footer="null"
       :closable="true"
-      :maskClosable="false"
+      :mask-closable="false"
       :width="500"
       centered
       :wrap-class-name="captchaModalWrapClassName"
       :body-style="captchaModalBodyStyle"
       @cancel="captchaModalVisible = false"
     >
-      <div class="login-captcha-modal-body" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+      <div
+        class="login-captcha-modal-body"
+        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"
+      >
         <component
-          v-if="captchaModalData && captchaModalVisible"
           :is="captchaModalComponent"
+          v-if="captchaModalData && captchaModalVisible"
           :initial-data="captchaModalData"
           :auto-generate="false"
           @success="onCaptchaModalSuccess"
@@ -327,7 +372,7 @@ const handleSubmit = async () => {
 
   try {
     loading.value = true
-    const result = await generateCaptchaApi() as CaptchaGenerateResult
+    const result = await generateCaptchaApi()
     if (!result) {
       message.error(t('login.fields.captcha.validation.required'))
       loading.value = false

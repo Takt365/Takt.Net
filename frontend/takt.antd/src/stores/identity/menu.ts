@@ -1,10 +1,25 @@
 import { defineStore } from 'pinia'
 import { ref, computed, h, markRaw } from 'vue'
+import type { Component, VNode } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { getMenuTree } from '@/api/identity/menu'
 import type { MenuTree } from '@/types/identity/menu'
 import type { MenuProps } from 'ant-design-vue'
 import i18n from '@/locales'
+type MenuNode = MenuTree & {
+  transKey?: string
+  orderNum?: number
+}
+type MenuItemNode = {
+  key: string
+  title: string
+  label: string
+  titleKey?: string
+  icon?: () => VNode | null
+  children?: MenuItemNode[]
+}
+type I18nReactiveValue = { value: unknown }
+const toMenuNode = (menu: MenuTree): MenuNode => menu as MenuNode
 
 export const useMenuStore = defineStore('menu', () => {
   const routes = ref<RouteRecordRaw[]>([])
@@ -14,12 +29,13 @@ export const useMenuStore = defineStore('menu', () => {
   // 从菜单树中收集所有用到的图标名（递归）
   const collectIconNames = (menus: MenuTree[]): Set<string> => {
     const names = new Set<string>()
-    const walk = (items: any[]) => {
+    const walk = (items: MenuTree[]) => {
       if (!items?.length) return
-      items.forEach((menu: any) => {
-        const icon = menu.menuIcon
+      items.forEach((menu) => {
+        const node = toMenuNode(menu)
+        const icon = node.menuIcon
         if (icon && typeof icon === 'string') names.add(icon)
-        if (menu.children?.length) walk(menu.children)
+        if (node.children?.length) walk(node.children)
       })
     }
     walk(menus)
@@ -59,7 +75,7 @@ export const useMenuStore = defineStore('menu', () => {
 
       // 在设置 menuList 前先填充图标缓存，避免菜单渲染时图标异步加载导致延迟
       const iconNames = collectIconNames(menus)
-      const mod = iconModule as Record<string, any>
+      const mod = iconModule as Record<string, Component>
       iconNames.forEach((name) => {
         if (mod[name]) {
           iconCache.value[name] = markRaw(mod[name])
@@ -168,20 +184,23 @@ export const useMenuStore = defineStore('menu', () => {
   })
 
   // 辅助函数：从菜单对象提取字段（后端已统一转换为 camelCase）
-  const extractMenuFields = (menu: any) => ({
-    menuId: menu.menuId || menu.dictValue,
-    menuName: menu.menuName || menu.dictLabel || '',
-    menuCode: menu.menuCode || menu.extLabel || '',
-    menuL10nKey: menu.menuL10nKey || menu.transKey,
-    menuIcon: menu.menuIcon,
-    path: menu.path || menu.extValue || '',
-    component: menu.component,
-    menuType: menu.menuType ?? 0,
-    menuStatus: menu.menuStatus ?? 1,
-    isVisible: menu.isVisible ?? 1,
-    permission: menu.permission,
-    children: menu.children
-  })
+  const extractMenuFields = (menu: MenuTree) => {
+    const node = toMenuNode(menu)
+    return {
+      menuId: node.menuId || node.dictValue,
+      menuName: node.menuName || node.dictLabel || '',
+      menuCode: node.menuCode || node.extLabel || '',
+      menuL10nKey: node.menuL10nKey || node.transKey,
+      menuIcon: node.menuIcon,
+      path: node.path || node.extValue || '',
+      component: node.component,
+      menuType: node.menuType ?? 0,
+      menuStatus: node.menuStatus ?? 1,
+      isVisible: node.isVisible ?? 1,
+      permission: node.permission,
+      children: node.children
+    }
+  }
 
   // 从菜单树生成路由
   // 规范：
@@ -193,13 +212,13 @@ export const useMenuStore = defineStore('menu', () => {
     const result: RouteRecordRaw[] = []
 
     // 按 orderNum 排序（后端已统一转换为 camelCase）
-    const sortedMenus = [...menus].sort((a: any, b: any) => {
-      const aOrder = a.orderNum ?? 0
-      const bOrder = b.orderNum ?? 0
+    const sortedMenus = [...menus].sort((a, b) => {
+      const aOrder = toMenuNode(a).orderNum ?? 0
+      const bOrder = toMenuNode(b).orderNum ?? 0
       return aOrder - bOrder
     })
 
-    sortedMenus.forEach((menu: any, index) => {
+    sortedMenus.forEach((menu, index) => {
       // 提取菜单字段
       const {
         menuId,
@@ -417,12 +436,12 @@ export const useMenuStore = defineStore('menu', () => {
 
   // 根据 menuL10nKey 获取翻译后的菜单标题（供 leafMenuItems 与 formatMenuItems 共用）
   // 菜单翻译来自后端 TaktTranslation，切换语言时 loadTranslationsFromBackend 会合并到 i18n.messages，故直接用 t() 即可，不依赖 locales/identity/menu 是否含当前语言
-  const getTranslatedLabelForMenu = (menu: any): string => {
-    const menuName = menu.menuName || menu.dictLabel || ''
-    const menuL10nKey = menu.menuL10nKey || menu.transKey
+  const getTranslatedLabelForMenu = (menu: MenuTree): string => {
+    const node = toMenuNode(menu)
+    const menuName = node.menuName || node.dictLabel || ''
+    const menuL10nKey = node.menuL10nKey || node.transKey
     if (!menuL10nKey) return menuName
-    const t = (i18n.global as any).t as (key: string, ...args: any[]) => string
-    const translated = t(menuL10nKey)
+    const translated = String(i18n.global.t(menuL10nKey))
     if (translated && translated !== menuL10nKey) return translated
     return menuName
   }
@@ -432,23 +451,24 @@ export const useMenuStore = defineStore('menu', () => {
     if (!menus || !Array.isArray(menus)) return []
     const result: { path: string; title: string; iconName?: string }[] = []
     const walk = (items: MenuTree[]) => {
-      items.forEach((menu: any) => {
-        const menuType = menu.menuType ?? 0
-        const menuStatus = menu.menuStatus ?? 1
-        const isVisible = menu.isVisible ?? 1
+      items.forEach((menu) => {
+        const node = toMenuNode(menu)
+        const menuType = node.menuType ?? 0
+        const menuStatus = node.menuStatus ?? 1
+        const isVisible = node.isVisible ?? 1
         if (menuType !== 2 && menuStatus === 1 && isVisible === 1) {
           if (menuType === 1) {
-            const path = menu.path || menu.extValue || ''
+            const path = node.path || node.extValue || ''
             if (path) {
               result.push({
                 path: path.startsWith('/') ? path : `/${path}`,
-                title: getTranslatedLabelForMenu(menu),
-                iconName: menu.menuIcon
+                title: getTranslatedLabelForMenu(node),
+                iconName: node.menuIcon
               })
             }
           }
-          if (menu.children && menu.children.length > 0) {
-            walk(menu.children)
+          if (node.children && node.children.length > 0) {
+            walk(node.children)
           }
         }
       })
@@ -458,15 +478,16 @@ export const useMenuStore = defineStore('menu', () => {
   }
 
   // 图标缓存：使用响应式对象，确保图标加载完成后触发更新
-  const iconCache = ref<Record<string, any>>({})
+  const iconCache = ref<Record<string, Component>>({})
 
   // 预加载图标到缓存（使用 @remixicon/vue 组件名，如 RiHomeLine）
   const preloadIcon = (iconName: string) => {
     if (iconCache.value[iconName]) {
       return
     }
-    import('@remixicon/vue').then((module: any) => {
-      const IconComponent = module[iconName]
+    import('@remixicon/vue').then((module) => {
+      const iconModule = module as Record<string, Component>
+      const IconComponent = iconModule[iconName]
       if (IconComponent) {
         iconCache.value[iconName] = markRaw(IconComponent)
       }
@@ -478,7 +499,7 @@ export const useMenuStore = defineStore('menu', () => {
   // 获取图标渲染函数
   // 注意：Ant Design Vue 的菜单组件在使用 :items 时，icon 应该是渲染函数
   // 渲染函数会在菜单组件的上下文中执行，确保可以正确获取菜单上下文和 props
-  const getIconRenderer = (iconName: string | undefined): (() => any) | undefined => {
+  const getIconRenderer = (iconName: string | undefined): (() => VNode | null) | undefined => {
     if (!iconName) {
       return undefined
     }
@@ -505,22 +526,24 @@ export const useMenuStore = defineStore('menu', () => {
       return []
     }
     return menus
-      .filter((menu: any) => {
+      .filter((menu) => {
+        const node = toMenuNode(menu)
         // 过滤掉不可见和禁用的菜单（后端已统一转换为 camelCase）
-        const isVisible = menu.isVisible ?? 1
-        const menuStatus = menu.menuStatus ?? 1
-        const menuType = menu.menuType ?? 0
+        const isVisible = node.isVisible ?? 1
+        const menuStatus = node.menuStatus ?? 1
+        const menuType = node.menuType ?? 0
         return menuType !== 2 && menuStatus === 1 && isVisible === 1
       })
-      .map((menu: any) => {
+      .map((menu) => {
+        const node = toMenuNode(menu)
         // 提取菜单字段（后端已统一转换为 camelCase）
-        const menuL10nKey = menu.menuL10nKey || menu.transKey
-        const menuIcon = menu.menuIcon
-        const path = menu.path || menu.extValue || ''
-        const children = menu.children
-        const translatedLabel = getTranslatedLabelForMenu(menu)
+        const menuL10nKey = node.menuL10nKey || node.transKey
+        const menuIcon = node.menuIcon
+        const path = node.path || node.extValue || ''
+        const children = node.children
+        const translatedLabel = getTranslatedLabelForMenu(node)
 
-        const item: any = {
+        const item: MenuItemNode = {
           key: path,
           title: translatedLabel,
           label: translatedLabel,
@@ -555,16 +578,16 @@ export const useMenuStore = defineStore('menu', () => {
     // 访问 iconCache 和 i18n.locale 以建立响应式依赖
     // 同时访问 messages 确保翻译数据更新后菜单也会更新
     void iconCache.value
-    void (i18n.global.locale as any).value
-    void (i18n.global.messages as any).value
+    void (i18n.global.locale as I18nReactiveValue).value
+    void (i18n.global.messages as I18nReactiveValue).value
     return formatMenuItems(menuList.value)
   })
 
   // 仅 menuType=1 的扁平菜单列表（供 header-query 下拉与工作台快捷入口使用）
   const leafMenuItems = computed(() => {
     void iconCache.value
-    void (i18n.global.locale as any).value
-    void (i18n.global.messages as any).value
+    void (i18n.global.locale as I18nReactiveValue).value
+    void (i18n.global.messages as I18nReactiveValue).value
     return flattenLeafMenus(menuList.value)
   })
 

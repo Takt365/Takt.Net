@@ -4,15 +4,22 @@
 <!-- ======================================== -->
 
 <template>
-  <div ref="containerRef" class="takt-tree-left-table" :style="leftStyle">
-    <a-spin :spinning="loading" class="takt-tree-left-table__spin">
+  <div
+    ref="containerRef"
+    class="takt-tree-left-table"
+    :style="leftStyle"
+  >
+    <a-spin
+      :spinning="loading"
+      class="takt-tree-left-table__spin"
+    >
       <a-tree
+        v-model:expanded-keys="expandedKeys"
+        v-model:selected-keys="selectedKeys"
         class="takt-tree-left-table__tree"
         :class="{ 'draggable-tree': draggable }"
         :tree-data="treeData"
         :field-names="fieldNames"
-        v-model:expanded-keys="expandedKeys"
-        v-model:selected-keys="selectedKeys"
         :block-node="blockNode"
         :show-line="showLine"
         :selectable="selectable"
@@ -24,8 +31,16 @@
         @dragenter="onDragEnter"
         @drop="onDrop"
       >
-        <template v-if="$slots.title" #title="{ title, key, dataRef }">
-          <slot name="title" :title="title" :key="key" :data-ref="dataRef" />
+        <template
+          v-if="$slots.title"
+          #title="{ title, key, dataRef }"
+        >
+          <slot
+            :key="key"
+            name="title"
+            :title="title"
+            :data-ref="dataRef"
+          />
         </template>
       </a-tree>
     </a-spin>
@@ -36,6 +51,9 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { logger } from '@/utils/logger'
 
+type TreeNode = Record<string, unknown> & { children?: TreeNode[] }
+type TreeSelectEvent = Record<string, unknown>
+
 export interface TreeFieldNames {
   title?: string
   key?: string
@@ -44,7 +62,7 @@ export interface TreeFieldNames {
 
 interface Props {
   /** 树数据 */
-  treeData?: any[]
+  treeData?: TreeNode[]
   /** 树字段映射 */
   treeFieldNames?: TreeFieldNames
   /** 当前展开的节点 key 列表（v-model:expanded-keys） */
@@ -165,19 +183,19 @@ onBeforeUnmount(() => {
 })
 
 export interface TreeDropPayload {
-  newTreeData: any[]
+  newTreeData: TreeNode[]
   dragKey: string | number
   dropKey: string | number
   dropToGap: boolean
   dropPosition: number
-  dragNode: any
-  dropNode: any
+  dragNode: TreeNode
+  dropNode: TreeNode
 }
 
 const emit = defineEmits<{
   'update:expandedKeys': [keys: (string | number)[]]
   'update:selectedKeys': [keys: (string | number)[]]
-  'tree-select': [selectedKeys: (string | number)[], e: any]
+  'tree-select': [selectedKeys: (string | number)[], e: TreeSelectEvent]
   'tree-drop': [payload: TreeDropPayload]
 }>()
 
@@ -207,18 +225,19 @@ const leftStyle = computed(() => {
   }
 })
 
-const handleSelect = (keys: (string | number)[], e: any) => {
+const handleSelect = (keys: (string | number)[], e: TreeSelectEvent) => {
   emit('tree-select', keys, e)
 }
 
 /** 深拷贝树节点（保留 key/title/children 等字段） */
-function deepCloneTree(arr: any[]): any[] {
+function deepCloneTree(arr: TreeNode[]): TreeNode[] {
   if (!arr?.length) return []
   return arr.map(item => {
-    const next: any = { ...item }
+    const next = { ...item } as TreeNode
     const ch = fieldNames.value.children
-    if (next[ch]?.length) {
-      next[ch] = deepCloneTree(next[ch])
+    const children = next[ch] as TreeNode[] | undefined
+    if (children?.length) {
+      next[ch] = deepCloneTree(children)
     }
     return next
   })
@@ -226,9 +245,9 @@ function deepCloneTree(arr: any[]): any[] {
 
 /** 在树中查找节点并执行 callback，用于删除或插入；找到并执行后返回 true */
 function loop(
-  data: any[],
+  data: TreeNode[],
   key: string | number,
-  callback: (item: any, index: number, arr: any[]) => void
+  callback: (item: TreeNode, index: number, arr: TreeNode[]) => void
 ): boolean {
   const keyF = fieldNames.value.key
   const chF = fieldNames.value.children
@@ -251,7 +270,7 @@ function onDragEnter(info: { expandedKeys: (string | number)[] }) {
 }
 
 function onDrop(info: {
-  node: { key: string | number; pos?: string; children?: any[]; expanded?: boolean }
+  node: { key: string | number; pos?: string; children?: TreeNode[]; expanded?: boolean }
   dragNode: { key: string | number }
   dropPosition: number
   dropToGap?: boolean
@@ -265,9 +284,9 @@ function onDrop(info: {
   const chF = fieldNames.value.children
 
   const data = deepCloneTree(props.treeData ?? [])
-  let dragObj: any = null
+  let dragObj: TreeNode | null = null
 
-  loop(data, dragKey, (item: any, index: number, arr: any[]) => {
+  loop(data, dragKey, (item: TreeNode, index: number, arr: TreeNode[]) => {
     arr.splice(index, 1)
     dragObj = item
   })
@@ -275,8 +294,8 @@ function onDrop(info: {
   if (dragObj == null) return
 
   if (!info.dropToGap) {
-    loop(data, dropKey, (item: any) => {
-      const children = item[chF] ?? []
+    loop(data, dropKey, (item: TreeNode) => {
+      const children = (item[chF] as TreeNode[] | undefined) ?? []
       item[chF] = [dragObj, ...children]
     })
   } else if (
@@ -284,14 +303,14 @@ function onDrop(info: {
     info.node.expanded &&
     dropPosition === 1
   ) {
-    loop(data, dropKey, (item: any) => {
-      const children = item[chF] ?? []
+    loop(data, dropKey, (item: TreeNode) => {
+      const children = (item[chF] as TreeNode[] | undefined) ?? []
       item[chF] = [dragObj, ...children]
     })
   } else {
-    let ar: any[] = []
+    let ar: TreeNode[] = []
     let i = 0
-    loop(data, dropKey, (_item: any, index: number, arr: any[]) => {
+    loop(data, dropKey, (_item: TreeNode, index: number, arr: TreeNode[]) => {
       ar = arr
       i = index
     })

@@ -24,7 +24,7 @@ namespace Takt.WebApi.Controllers.HumanResource.AttendanceLeave;
 /// 排班计划控制器，提供员工排班计划的 RESTful API。
 /// </summary>
 [Route("api/[controller]", Name = "排班")]
-[ApiModule("HumanResource.AttendanceLeave", "考勤请假")]
+[ApiModule("HumanResource", "人力资源")]
 [TaktPermission("humanresource:attendanceleave:schedule:list", "排班管理")]
 public class TaktShiftSchedulesController : TaktControllerBase
 {

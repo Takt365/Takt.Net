@@ -9,8 +9,11 @@
 
 <template>
   <!-- 单 Tab：预留 activeTab 与 holiday-form 结构一致 -->
-  <a-tabs v-model:activeKey="activeTab">
-    <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
+  <a-tabs v-model:active-key="activeTab">
+    <a-tab-pane
+      key="basic"
+      :tab="t('common.form.tabs.basicInfo')"
+    >
       <div :class="formContentClass">
         <a-form
           ref="formRef"
@@ -24,7 +27,10 @@
           <!-- 员工 ID、请假类型（leave_type 列，字典 sys_leave_category） -->
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.leave.employeeid')" name="employeeId">
+              <a-form-item
+                :label="t('entity.leave.employeeid')"
+                name="employeeId"
+              >
                 <a-input
                   v-model:value="formState.employeeId"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.leave.employeeid') })"
@@ -33,7 +39,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.leave.leavetype')" name="leaveType">
+              <a-form-item
+                :label="t('entity.leave.leavetype')"
+                name="leaveType"
+              >
                 <TaktSelect
                   v-model="formState.leaveType"
                   dict-type="sys_leave_category"
@@ -47,7 +56,10 @@
           <!-- 开始/结束日期（与 TaktLeave.start_date / end_date、value-format YYYY-MM-DD 一致） -->
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.leave.startdate')" name="startDate">
+              <a-form-item
+                :label="t('entity.leave.startdate')"
+                name="startDate"
+              >
                 <a-date-picker
                   v-model:value="formState.startDate"
                   :placeholder="t('common.form.placeholder.select', { field: t('entity.leave.startdate') })"
@@ -57,7 +69,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.leave.enddate')" name="endDate">
+              <a-form-item
+                :label="t('entity.leave.enddate')"
+                name="endDate"
+              >
                 <a-date-picker
                   v-model:value="formState.endDate"
                   :placeholder="t('common.form.placeholder.select', { field: t('entity.leave.enddate') })"
@@ -95,8 +110,8 @@
               >
                 <TaktUploadFile
                   ref="proofUploadRef"
-                  tabs-type="files"
                   v-model:files-file-list="proofFilesList"
+                  tabs-type="files"
                   :files-custom-request="handleProofUpload"
                   :files-max-size="20"
                   :files-max-count="10"
@@ -370,8 +385,8 @@ watch(
       Object.assign(formState, {
         employeeId: newData.employeeId ?? '',
         leaveType: newData.leaveType ?? '',
-        startDate: newData.startDate ? toDateStr(newData.startDate as string) : '',
-        endDate: newData.endDate ? toDateStr(newData.endDate as string) : '',
+        startDate: newData.startDate ? toDateStr(newData.startDate) : '',
+        endDate: newData.endDate ? toDateStr(newData.endDate) : '',
         reason: newData.reason ?? '',
         proofAttachmentsJson: newData.proofAttachmentsJson
       })

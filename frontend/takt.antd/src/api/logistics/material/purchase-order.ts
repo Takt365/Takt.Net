@@ -1,9 +1,12 @@
 import request, { type BlobDownloadWithMeta } from '@/api/request'
+import type { PurchaseOrder, PurchaseOrderQuery } from '@/types/logistics/material/purchase-order'
 
 const purchaseOrderUrl = '/api/TaktPurchaseOrders'
 
+type PurchaseOrderPayload = Partial<PurchaseOrder>
+
 // 采购订单相关 API
-export function getPurchaseOrderList(params: any) {
+export function getPurchaseOrderList(params: PurchaseOrderQuery) {
   return request({
     url: `${purchaseOrderUrl}/list`,
     method: 'get',
@@ -18,7 +21,7 @@ export function getPurchaseOrderById(id: string) {
   })
 }
 
-export function createPurchaseOrder(data: any) {
+export function createPurchaseOrder(data: PurchaseOrderPayload) {
   return request({
     url: purchaseOrderUrl,
     method: 'post',
@@ -26,7 +29,7 @@ export function createPurchaseOrder(data: any) {
   })
 }
 
-export function updatePurchaseOrder(id: string, data: any) {
+export function updatePurchaseOrder(id: string, data: PurchaseOrderPayload) {
   return request({
     url: `${purchaseOrderUrl}/${id}`,
     method: 'put',
@@ -70,7 +73,7 @@ export function importPurchaseOrder(file: File, sheetName?: string) {
   })
 }
 
-export function exportPurchaseOrder(query: any, sheetName?: string, fileName?: string): Promise<Blob> {
+export function exportPurchaseOrder(query: PurchaseOrderQuery, sheetName?: string, fileName?: string): Promise<Blob> {
   return request({
     url: `${purchaseOrderUrl}/export`,
     method: 'post',

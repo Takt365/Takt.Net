@@ -85,15 +85,12 @@
       @reset="handleAdvancedQueryReset"
     >
       <a-form-item label="工厂代码">
-
         <a-input v-model:value="advancedQueryForm.plantCode" />
       </a-form-item>
       <a-form-item label="工厂名称">
-
         <a-input v-model:value="advancedQueryForm.plantName" />
       </a-form-item>
       <a-form-item label="工厂简称">
-
         <a-input v-model:value="advancedQueryForm.plantShortName" />
       </a-form-item>
     </TaktQueryDrawer>

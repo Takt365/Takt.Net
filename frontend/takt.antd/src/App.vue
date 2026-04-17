@@ -1,5 +1,9 @@
 <template>
-  <a-config-provider :theme="themeConfig" :direction="direction" :locale="antdVueLocale">
+  <a-config-provider
+    :theme="themeConfig"
+    :direction="direction"
+    :locale="antdVueLocale"
+  >
     <RouterView />
   </a-config-provider>
 </template>
@@ -113,7 +117,7 @@ const performHealthCheck = async () => {
       errorNotificationKey = null
       hasErrorNotification.value = false
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     // 健康检查失败，显示连接失败提示并跳转登录页（避免重复提示）
     if (!hasErrorNotification.value) {
       notification.error({

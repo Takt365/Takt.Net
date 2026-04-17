@@ -1,8 +1,16 @@
 <template>
-  <a-layout-header class="takt-header" :style="headerStyle" :data-height="height">
+  <a-layout-header
+    class="takt-header"
+    :style="headerStyle"
+    :data-height="height"
+  >
     <div class="header-left">
       <slot name="left">
-        <a-button type="text" class="trigger" @click.stop="handleToggle">
+        <a-button
+          type="text"
+          class="trigger"
+          @click.stop="handleToggle"
+        >
           <template #icon>
             <RiMenuUnfoldLine v-if="props.collapsed" />
             <RiMenuFoldLine v-else />
@@ -27,7 +35,7 @@
         />
         <TaktLocaleToggle type="icon" />
         <TaktThemeToggle type="icon" />
-        <TaktHeaderSetting type="icon"/>
+        <TaktHeaderSetting type="icon" />
         <TaktHeaderUser 
           type="icon"
           @profile="handleProfile"

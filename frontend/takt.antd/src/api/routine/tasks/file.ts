@@ -11,6 +11,7 @@
 // ========================================
 
 import request from '@/api/request'
+import type { AxiosProgressEvent } from 'axios'
 import type { TaktPagedResult } from '@/types/common'
 import type {
   File as TaktFile,
@@ -134,7 +135,7 @@ export function upload(
   fileType: number = 2,
   targetFileName?: string,
   onProgress?: (progressEvent: { percent: number }) => void
-): Promise<any> {
+): Promise<TaktFile> {
   const formData = new FormData()
   formData.append('file', file)
   formData.append('fileType', fileType.toString())
@@ -149,7 +150,7 @@ export function upload(
     headers: {
       'Content-Type': 'multipart/form-data'
     },
-    onUploadProgress: onProgress ? (progressEvent: any) => {
+    onUploadProgress: onProgress ? (progressEvent: AxiosProgressEvent) => {
       if (progressEvent.total) {
         const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total)
         onProgress({ percent })

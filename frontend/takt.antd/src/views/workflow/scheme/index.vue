@@ -88,7 +88,10 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <SchemeForm ref="schemeFormRef" :form="form" />
+      <SchemeForm
+        ref="schemeFormRef"
+        :form="form"
+      />
     </TaktModal>
 
     <!-- 高级查询抽屉 -->
@@ -105,10 +108,20 @@
         <a-input v-model:value="advancedQueryForm.processName" />
       </a-form-item>
       <a-form-item :label="t('entity.flowscheme.processstatus')">
-        <a-select v-model:value="advancedQueryForm.processStatus" :placeholder="t('common.form.placeholder.select', { field: t('entity.flowscheme.processstatus') })" allow-clear>
-          <a-select-option :value="0">{{ t('common.button.draft') }}</a-select-option>
-          <a-select-option :value="1">{{ t('common.button.publish') }}</a-select-option>
-          <a-select-option :value="2">{{ t('common.button.disable') }}</a-select-option>
+        <a-select
+          v-model:value="advancedQueryForm.processStatus"
+          :placeholder="t('common.form.placeholder.select', { field: t('entity.flowscheme.processstatus') })"
+          allow-clear
+        >
+          <a-select-option :value="0">
+            {{ t('common.button.draft') }}
+          </a-select-option>
+          <a-select-option :value="1">
+            {{ t('common.button.publish') }}
+          </a-select-option>
+          <a-select-option :value="2">
+            {{ t('common.button.disable') }}
+          </a-select-option>
         </a-select>
       </a-form-item>
     </TaktQueryDrawer>
@@ -161,6 +174,40 @@ const advancedQueryVisible = ref(false)
 const advancedQueryForm = ref<{ processKey?: string; processName?: string; processStatus?: number }>({ processKey: '', processName: '', processStatus: undefined })
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
+
+type FlowSchemeColumn = {
+  key?: string | number
+  dataIndex?: string | number
+  title?: string | number
+  width?: number
+}
+
+type TableSorterInfo = {
+  field?: string
+  order?: string
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = (error as { message?: unknown }).message
+    if (typeof message === 'string' && message.trim()) return message
+  }
+  return fallback
+}
+
+function getColumnKey(column: FlowSchemeColumn): string {
+  const key = column.key ?? column.dataIndex ?? column.title
+  return key != null ? String(key) : ''
+}
+
+function getSorterInfo(sorter: unknown): TableSorterInfo {
+  if (typeof sorter !== 'object' || sorter === null) return {}
+  const sorterObj = sorter as { field?: unknown; order?: unknown }
+  return {
+    field: typeof sorterObj.field === 'string' ? sorterObj.field : undefined,
+    order: typeof sorterObj.order === 'string' ? sorterObj.order : undefined
+  }
+}
 
 const form = reactive<FlowSchemeCreateOrUpdate & { schemeId?: string }>({
   schemeId: undefined,
@@ -265,14 +312,16 @@ const columns = computed<TableColumnsType>(() => [
   })
 ])
 
-const mergedColumns = computed((): any => mergeDefaultColumns(columns.value as any, t, true))
-const displayColumns = computed(() => {
+const mergedColumns = computed<TableColumnsType>(() => mergeDefaultColumns(columns.value, t, true))
+const displayColumns = computed<TableColumnsType>(() => {
   const keys = visibleColumnKeys.value || []
   const merged = mergedColumns.value || []
   if (keys.length === 0) return columns.value
-  const getColumnKey = (col: any) => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
   const keysSet = new Set(keys.map(k => String(k)))
-  return merged.filter((col: any) => getColumnKey(col) && keysSet.has(getColumnKey(col)))
+  return merged.filter((col) => {
+    const colKey = getColumnKey(col as FlowSchemeColumn)
+    return colKey && keysSet.has(colKey)
+  })
 })
 
 const rowSelection = computed(() => ({
@@ -321,11 +370,11 @@ async function loadData() {
       processName: queryKeyword.value || advancedQueryForm.value.processName || undefined,
       processStatus: advancedQueryForm.value.processStatus
     }
-    const res = (await getFlowSchemeList(params)) as TaktPagedResult<FlowScheme>
+    const res = (await getFlowSchemeList(params))
     dataSource.value = res.data ?? []
     total.value = res.total ?? 0
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.loadFail'))
+  } catch (error: unknown) {
+    message.error(getErrorMessage(error, t('common.msg.loadFail')))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -380,8 +429,11 @@ function handleColumnSettingReset() {
 }
 
 /** 表格变化（排序等），当前仅占位 */
-function handleTableChange(_pagination: any, _filters: any, sorter: any) {
-  if (sorter?.order) {}
+function handleTableChange(_pagination: unknown, _filters: unknown, sorter: unknown) {
+  const sorterInfo = getSorterInfo(sorter)
+  if (sorterInfo.order) {
+    // 如需服务端排序可在此处理
+  }
 }
 
 /** 分页页码或每页条数变化时重新拉取 */
@@ -427,21 +479,17 @@ async function handleExport() {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
     message.success(t('common.msg.exportSuccess'))
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.exportFail'))
+  } catch (error: unknown) {
+    message.error(getErrorMessage(error, t('common.msg.exportFail')))
   } finally {
     loading.value = false
   }
 }
 
 /** 列宽拖拽后更新对应列的 width */
-function handleResizeColumn(w: number, col: any) {
-  const column = columns.value.find((c: any) => {
-    const colKey = col.key || col.dataIndex
-    const cKey = c.key || c.dataIndex
-    return colKey && cKey && String(colKey) === String(cKey)
-  })
-  if (column) (column as any).width = w
+function handleResizeColumn(w: number, col: FlowSchemeColumn) {
+  const column = columns.value.find((c) => getColumnKey(c as FlowSchemeColumn) === getColumnKey(col))
+  if (column) (column as FlowSchemeColumn).width = w
 }
 
 /** 新增：清空 form、设置标题、打开弹窗并重置步骤 */
@@ -512,8 +560,8 @@ function handleDeleteOne(record: FlowScheme) {
         await deleteFlowSchemeById(record.schemeId)
         message.success(t('common.msg.deleteSuccess'))
         loadData()
-      } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+      } catch (error: unknown) {
+        message.error(getErrorMessage(error, t('common.msg.deleteFail')))
       } finally {
         loading.value = false
       }
@@ -544,8 +592,8 @@ function handleDelete() {
         selectedRows.value = []
         selectedRow.value = null
         loadData()
-      } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+      } catch (error: unknown) {
+        message.error(getErrorMessage(error, t('common.msg.deleteFail')))
       } finally {
         loading.value = false
       }
@@ -587,8 +635,8 @@ async function handleFormSubmit() {
     message.success(t('common.msg.updateSuccess'))
     formVisible.value = false
     loadData()
-  } catch (error: any) {
-    message.error(error?.message || t('common.msg.operateFail'))
+  } catch (error: unknown) {
+    message.error(getErrorMessage(error, t('common.msg.operateFail')))
   } finally {
     formLoading.value = false
   }

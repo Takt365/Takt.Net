@@ -60,7 +60,7 @@ export const RegexPatterns = {
   POSTAL_CODE_CN: /^[1-9]\d{5}$/,
   
   /** URL地址 */
-  URL: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
+  URL: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/,
   
   /** IP地址（IPv4） */
   IPV4: /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/,
@@ -75,7 +75,7 @@ export const RegexPatterns = {
   REAL_NAME: /^[\u4e00-\u9fa5]{2,50}$/,
   
   /** 全名（中文、英文、数字、空格、点、横线，2-100位） */
-  FULL_NAME: /^[\u4e00-\u9fa5a-zA-Z0-9\s.\-]{2,100}$/,
+  FULL_NAME: /^[\u4e00-\u9fa5a-zA-Z0-9\s.-]{2,100}$/,
   
   /** 昵称（中文、英文、数字、下划线、横线、点，1-200位） */
   NICK_NAME: /^[\u4e00-\u9fa5a-zA-Z0-9_.-]{1,200}$/,
@@ -341,7 +341,7 @@ export class RegexHelper {
   static replace(
     pattern: RegExp | keyof typeof RegexPatterns,
     text: string,
-    replacement: string | ((match: string, ...args: any[]) => string),
+    replacement: string | ((match: string, ...args: unknown[]) => string),
     flags?: string
   ): string {
     if (!text) {

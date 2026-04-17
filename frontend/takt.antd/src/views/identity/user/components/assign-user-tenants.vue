@@ -23,7 +23,10 @@
       layout="horizontal"
     >
       <a-form-item :label="t('entity.user._self')">
-        <a-input :value="userInfo" disabled />
+        <a-input
+          :value="userInfo"
+          disabled
+        />
       </a-form-item>
       <a-form-item :label="t('entity.tenant._self')">
         <a-transfer
@@ -56,6 +59,11 @@ import { getUserTenantIds, assignUserTenants } from '@/api/identity/user'
 import type { User } from '@/types/identity/user'
 import type { TaktSelectOption } from '@/types/common'
 import { logger } from '@/utils/logger'
+
+function getErrorMessage(error: unknown): string | undefined {
+  if (error instanceof Error) return error.message
+  return undefined
+}
 
 /**
  * 组件入参。
@@ -95,9 +103,9 @@ const userInfo = ref('')
 
 /** Transfer 数据源 */
 const dataSource = computed(() => 
-  allOptions.value.map(item => ({
-    key: String((item as any).value ?? item.dictValue),
-    title: (item as any).label ?? item.dictLabel ?? ''
+  allOptions.value.map((item) => ({
+    key: String(item.dictValue),
+    title: item.dictLabel ?? ''
   }))
 )
 
@@ -122,14 +130,14 @@ const loadUserTenants = async () => {
     loading.value = true
     optionsLoading.value = true
 
-    const u = props.user as User & { UserId?: string; UserName?: string; NickName?: string }
-    const userId = u.userId || u.UserId || ''
+    const u = props.user
+    const userId = u.userId
     if (!userId) {
       message.error(t('common.msg.entityIdRequired', { entity: t('entity.user._self') }))
       return
     }
 
-    userInfo.value = `${u.userName || u.UserName || ''}（${u.nickName || u.NickName || ''}）`
+    userInfo.value = `${u.userName || ''}（${u.nickName || ''}）`
 
     // 并行加载所有租户和用户已分配的租户
     const [allTenants, tenantIds] = await Promise.all([
@@ -145,9 +153,9 @@ const loadUserTenants = async () => {
       tenantIds,
       targetKeys: targetKeys.value
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[AssignUserTenants] 加载用户租户失败:', error)
-    message.error(error.message || t('common.msg.loadTargetFail', { target: t('entity.user._self') + t('entity.tenant._self') }))
+    message.error(getErrorMessage(error) || t('common.msg.loadTargetFail', { target: t('entity.user._self') + t('entity.tenant._self') }))
   } finally {
     loading.value = false
     optionsLoading.value = false
@@ -155,7 +163,7 @@ const loadUserTenants = async () => {
 }
 
 /** Transfer 变更 */
-const handleTransferChange = (keys: string[], direction: string, moveKeys: string[]) => {
+const handleTransferChange = (keys: string[], _direction: string, _moveKeys: string[]) => {
   targetKeys.value = keys
 }
 
@@ -170,7 +178,7 @@ const handleSubmit = async () => {
     loading.value = true
 
     // 获取用户ID
-    const userId = props.user.userId || (props.user as any).UserId || ''
+    const userId = props.user.userId
     if (!userId) {
       message.error(t('common.msg.entityIdRequired', { entity: t('entity.user._self') }))
       return
@@ -182,9 +190,9 @@ const handleSubmit = async () => {
     message.success(t('common.msg.assignSuccess', { target: t('entity.tenant._self') }))
     emit('success')
     handleCancel()
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[AssignUserTenants] 分配租户失败:', error)
-    message.error(error.message || t('common.msg.assignFail', { target: t('entity.tenant._self') }))
+    message.error(getErrorMessage(error) || t('common.msg.assignFail', { target: t('entity.tenant._self') }))
   } finally {
     loading.value = false
   }

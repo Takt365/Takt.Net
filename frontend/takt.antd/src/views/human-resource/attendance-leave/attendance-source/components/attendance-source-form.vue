@@ -9,13 +9,26 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" :model="formState" :rules="rules" layout="horizontal" label-align="right">
-    <a-tabs v-model:activeKey="activeTab">
-      <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')" force-render>
+  <a-form
+    ref="formRef"
+    :model="formState"
+    :rules="rules"
+    layout="horizontal"
+    label-align="right"
+  >
+    <a-tabs v-model:active-key="activeTab">
+      <a-tab-pane
+        key="basic"
+        :tab="t('common.form.tabs.basicInfo')"
+        force-render
+      >
         <div :class="formContentClass">
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesource.deviceid')" name="deviceId">
+              <a-form-item
+                :label="t('entity.attendancesource.deviceid')"
+                name="deviceId"
+              >
                 <a-input
                   v-model:value="formState.deviceId"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendancesource.deviceid') })"
@@ -24,7 +37,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesource.employeeid')" name="employeeId">
+              <a-form-item
+                :label="t('entity.attendancesource.employeeid')"
+                name="employeeId"
+              >
                 <a-input
                   v-model:value="formState.employeeId"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendancesource.employeeid') })"
@@ -35,7 +51,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesource.enrollnumber')" name="enrollNumber">
+              <a-form-item
+                :label="t('entity.attendancesource.enrollnumber')"
+                name="enrollNumber"
+              >
                 <a-input
                   v-model:value="formState.enrollNumber"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendancesource.enrollnumber') })"
@@ -44,7 +63,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesource.rawpunchtime')" name="rawPunchTime">
+              <a-form-item
+                :label="t('entity.attendancesource.rawpunchtime')"
+                name="rawPunchTime"
+              >
                 <a-date-picker
                   v-model:value="formState.rawPunchTime"
                   show-time
@@ -57,7 +79,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesource.verifymode')" name="verifyMode">
+              <a-form-item
+                :label="t('entity.attendancesource.verifymode')"
+                name="verifyMode"
+              >
                 <TaktSelect
                   v-model:value="formState.verifyMode"
                   dict-type="hr_attendance_verify_mode"
@@ -66,26 +91,48 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesource.externalrecordkey')" name="externalRecordKey">
-                <a-input v-model:value="formState.externalRecordKey" allow-clear />
+              <a-form-item
+                :label="t('entity.attendancesource.externalrecordkey')"
+                name="externalRecordKey"
+              >
+                <a-input
+                  v-model:value="formState.externalRecordKey"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesource.downloadbatchno')" name="downloadBatchNo">
-                <a-input v-model:value="formState.downloadBatchNo" allow-clear />
+              <a-form-item
+                :label="t('entity.attendancesource.downloadbatchno')"
+                name="downloadBatchNo"
+              >
+                <a-input
+                  v-model:value="formState.downloadBatchNo"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancesource.rawpayloadjson')" name="rawPayloadJson">
-                <a-textarea v-model:value="formState.rawPayloadJson" :rows="2" allow-clear />
+              <a-form-item
+                :label="t('entity.attendancesource.rawpayloadjson')"
+                name="rawPayloadJson"
+              >
+                <a-textarea
+                  v-model:value="formState.rawPayloadJson"
+                  :rows="2"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('common.entity.remark')" name="remark">
+              <a-form-item
+                :label="t('common.entity.remark')"
+                name="remark"
+              >
                 <a-textarea
                   v-model:value="formState.remark"
                   :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"

@@ -33,8 +33,8 @@ public class TaktFlowSchemeSeedData : ITaktSeedData
         int insertCount = 0;
         int updateCount = 0;
 
-        var leaveForm = await formRepo.GetAsync(x => x.FormCode == "leave_form" && x.IsDeleted == 0);
-        var reimburseForm = await formRepo.GetAsync(x => x.FormCode == "reimburse_form" && x.IsDeleted == 0);
+        var leaveForm = await formRepo.GetAsync(x => x.FormCode == "leave_form");
+        var reimburseForm = await formRepo.GetAsync(x => x.FormCode == "reimburse_form");
         // 设变流程可不绑定业务表单；需要表单时可在后台绑定或扩展 TaktFlowFormSeedData
 
         // 流程入口合并为「发起人」节点（type=start）：工作流发起人为当前登录用户（实例 StartUserId）。
@@ -59,7 +59,7 @@ public class TaktFlowSchemeSeedData : ITaktSeedData
 """;
 
         // 1. 请假流程：发起人→部门审批→天数分支→分管领导审批/公司领导审批→人事核定→结束，关联表单 leave_form
-        var leave = await repo.GetAsync(x => x.ProcessKey == "Leave" && x.IsDeleted == 0);
+        var leave = await repo.GetAsync(x => x.ProcessKey == "Leave");
         if (leave == null)
         {
             await repo.CreateAsync(new TaktFlowScheme
@@ -88,7 +88,7 @@ public class TaktFlowSchemeSeedData : ITaktSeedData
         }
 
         // 2. 报销流程：发起人→部门审批→金额网关→(≥阈值会签：财务→相关部门发起人指定→公司领导)→财务复核→出纳分支→结束，关联 reimburse_form
-        var reimburse = await repo.GetAsync(x => x.ProcessKey == "Reimburse" && x.IsDeleted == 0);
+        var reimburse = await repo.GetAsync(x => x.ProcessKey == "Reimburse");
         if (reimburse == null)
         {
             await repo.CreateAsync(new TaktFlowScheme
@@ -117,7 +117,7 @@ public class TaktFlowSchemeSeedData : ITaktSeedData
         }
 
         // 3. 设变流程：发起人→抄送各部门→结束，全自动（无默认业务表单，FormId/FormCode 为空）
-        var ecn = await repo.GetAsync(x => x.ProcessKey == "Ecn" && x.IsDeleted == 0);
+        var ecn = await repo.GetAsync(x => x.ProcessKey == "Ecn");
         if (ecn == null)
         {
             await repo.CreateAsync(new TaktFlowScheme
@@ -147,7 +147,7 @@ public class TaktFlowSchemeSeedData : ITaktSeedData
         }
 
         // 4. 通知流程：部门审批→相关部门会签→管理层→最终发布→抄送各部门（无默认业务表单）
-        var notice = await repo.GetAsync(x => x.ProcessKey == "Notice" && x.IsDeleted == 0);
+        var notice = await repo.GetAsync(x => x.ProcessKey == "Notice");
         if (notice == null)
         {
             await repo.CreateAsync(new TaktFlowScheme

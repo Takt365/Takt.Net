@@ -78,7 +78,7 @@ function collectFields(
   for (const item of items) {
     if (item.field) {
       formState[item.field] = defaultValue(item)
-      const rules = toFormRules(item.validate as Array<Record<string, unknown>> | undefined)
+      const rules = toFormRules(item.validate)
       if (rules.length) formRules[item.field] = rules
     }
     if (item.children?.length) collectFields(item.children, formState, formRules)

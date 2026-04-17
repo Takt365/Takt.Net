@@ -1,5 +1,8 @@
 <template>
-  <div v-if="show" class="takt-pagination">
+  <div
+    v-if="show"
+    class="takt-pagination"
+  >
     <a-pagination
       v-model:current="currentPage"
       v-model:page-size="pageSize"

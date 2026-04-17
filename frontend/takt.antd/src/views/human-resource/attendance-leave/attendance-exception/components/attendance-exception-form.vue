@@ -8,8 +8,11 @@
 <!-- ======================================== -->
 
 <template>
-  <a-tabs v-model:activeKey="activeTab">
-    <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
+  <a-tabs v-model:active-key="activeTab">
+    <a-tab-pane
+      key="basic"
+      :tab="t('common.form.tabs.basicInfo')"
+    >
       <div :class="formContentClass">
         <a-form
           ref="formRef"
@@ -22,7 +25,10 @@
         >
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendanceexception.employeeid')" name="employeeId">
+              <a-form-item
+                :label="t('entity.attendanceexception.employeeid')"
+                name="employeeId"
+              >
                 <a-input
                   v-model:value="formState.employeeId"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendanceexception.employeeid') })"
@@ -31,7 +37,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendanceexception.exceptiondate')" name="exceptionDate">
+              <a-form-item
+                :label="t('entity.attendanceexception.exceptiondate')"
+                name="exceptionDate"
+              >
                 <a-date-picker
                   v-model:value="formState.exceptionDate"
                   value-format="YYYY-MM-DD"
@@ -43,7 +52,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendanceexception.exceptiontype')" name="exceptionType">
+              <a-form-item
+                :label="t('entity.attendanceexception.exceptiontype')"
+                name="exceptionType"
+              >
                 <TaktSelect
                   v-model="formState.exceptionType"
                   dict-type="hr_attendance_exception_type"
@@ -54,7 +66,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendanceexception.handlestatus')" name="handleStatus">
+              <a-form-item
+                :label="t('entity.attendanceexception.handlestatus')"
+                name="handleStatus"
+              >
                 <TaktSelect
                   v-model="formState.handleStatus"
                   dict-type="hr_attendance_exception_handle_status"

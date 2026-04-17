@@ -4,7 +4,10 @@
 <!-- ======================================== -->
 
 <template>
-  <div v-if="show" class="takt-tree-left-tools-bar">
+  <div
+    v-if="show"
+    class="takt-tree-left-tools-bar"
+  >
     <a-space :size="8">
       <a-button
         class="takt-button-query"

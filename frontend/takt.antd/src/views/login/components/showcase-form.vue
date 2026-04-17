@@ -17,7 +17,11 @@
     :data="objectData"
     class="showcase-form-object"
   >
-    <img :alt="ariaLabel" :src="objectData" class="showcase-form-fallback" />
+    <img
+      :alt="ariaLabel"
+      :src="objectData"
+      class="showcase-form-fallback"
+    >
   </object>
 </template>
 

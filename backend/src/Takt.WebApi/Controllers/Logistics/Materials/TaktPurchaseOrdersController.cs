@@ -28,7 +28,7 @@ namespace Takt.WebApi.Controllers.Logistics.Materials;
 /// 创建时间: 2025-01-20
 /// </remarks>
 [Route("api/[controller]", Name = "采购订单")]
-[ApiModule("Logistics", "物流管理")]
+[ApiModule("Logistics", "后勤管理")]
 [TaktPermission("logistics:purchaseorder", "采购订单管理")]
 public class TaktPurchaseOrdersController : TaktControllerBase
 {

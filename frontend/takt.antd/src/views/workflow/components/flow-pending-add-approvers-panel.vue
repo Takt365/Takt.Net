@@ -5,8 +5,13 @@
 <!-- 功能描述：展示未处理加签列表；可选减签（与实例详情 pendingAddApprovers、reduce-sign API 对应） -->
 <!-- ======================================== -->
 <template>
-  <div v-if="detail?.pendingAddApprovers?.length" class="flow-pending-add">
-    <div class="flow-pending-add__title">{{ t('workflow.instance.pendingAddApproversTitle') }}</div>
+  <div
+    v-if="detail?.pendingAddApprovers?.length"
+    class="flow-pending-add"
+  >
+    <div class="flow-pending-add__title">
+      {{ t('workflow.instance.pendingAddApproversTitle') }}
+    </div>
     <div
       v-for="p in detail.pendingAddApprovers"
       :key="p.addApproverId"

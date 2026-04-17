@@ -11,7 +11,7 @@
 // ========================================
 
 import request, { type BlobDownloadWithMeta } from '../../request'
-import type { TaktPagedResult, TaktSelectOption } from '@/types/common'
+import type { TaktPagedResult } from '@/types/common'
 
 
 import type {
@@ -160,7 +160,8 @@ export function exportPlantData(query: PlantQuery, sheetName?: string, fileName?
     url: '/api/TaktPlant/export',
 
     method: 'post',
-    params,
+    data: query,
+    params: { sheetName, fileName },
     responseType: 'blob'
   })
 }

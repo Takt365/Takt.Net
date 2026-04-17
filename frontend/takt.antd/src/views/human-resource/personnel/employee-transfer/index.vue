@@ -68,8 +68,12 @@
     >
       <!-- 自定义列渲染 -->
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'transferType'">{{ getTransferTypeLabel(getField(record, 'transferType')) }}</template>
-        <template v-else-if="column.key === 'transferStatus'">{{ getTransferStatusLabel(getField(record, 'transferStatus')) }}</template>
+        <template v-if="column.key === 'transferType'">
+          {{ getTransferTypeLabel(getField(record, 'transferType')) }}
+        </template>
+        <template v-else-if="column.key === 'transferStatus'">
+          {{ getTransferStatusLabel(getField(record, 'transferStatus')) }}
+        </template>
       </template>
     </TaktSingleTable>
 
@@ -92,7 +96,11 @@
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
     >
-      <EmployeeTransferForm ref="formRef" :form-data="formData" :loading="formLoading" />
+      <EmployeeTransferForm
+        ref="formRef"
+        :form-data="formData"
+        :loading="formLoading"
+      />
     </TaktModal>
 
     <!-- 高级查询抽屉 -->
@@ -102,9 +110,25 @@
       @submit="handleAdvancedQuerySubmit"
       @reset="handleAdvancedQueryReset"
     >
-      <a-form-item :label="t('entity.employeetransfer.employeeId')"><a-input v-model:value="advancedQueryForm.employeeId" /></a-form-item>
-      <a-form-item :label="t('entity.employeetransfer.transferType')"><a-select v-model:value="advancedQueryForm.transferType" :options="transferTypeOptions" allow-clear style="width: 100%" /></a-form-item>
-      <a-form-item :label="t('entity.employeetransfer.transferStatus')"><a-select v-model:value="advancedQueryForm.transferStatus" :options="transferStatusOptions" allow-clear style="width: 100%" /></a-form-item>
+      <a-form-item :label="t('entity.employeetransfer.employeeId')">
+        <a-input v-model:value="advancedQueryForm.employeeId" />
+      </a-form-item>
+      <a-form-item :label="t('entity.employeetransfer.transferType')">
+        <a-select
+          v-model:value="advancedQueryForm.transferType"
+          :options="transferTypeOptions"
+          allow-clear
+          style="width: 100%"
+        />
+      </a-form-item>
+      <a-form-item :label="t('entity.employeetransfer.transferStatus')">
+        <a-select
+          v-model:value="advancedQueryForm.transferStatus"
+          :options="transferStatusOptions"
+          allow-clear
+          style="width: 100%"
+        />
+      </a-form-item>
     </TaktQueryDrawer>
 
     <!-- 列设置抽屉 -->

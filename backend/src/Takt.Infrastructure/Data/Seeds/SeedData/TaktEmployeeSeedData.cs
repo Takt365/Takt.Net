@@ -137,7 +137,9 @@ public class TaktEmployeeSeedData : ITaktSeedData
         foreach (var e in employeeDefs)
         {
             var existing = await dbHr.Queryable<TaktEmployee>()
-                .Where(x => x.EmployeeCode == e.EmployeeCode && x.IsDeleted == 0)
+                .Where(x => x.EmployeeCode == e.EmployeeCode)
+                .OrderBy(x => x.IsDeleted, OrderByType.Asc)
+                .OrderBy(x => x.UpdatedAt, OrderByType.Desc)
                 .FirstAsync();
 
             if (existing == null)

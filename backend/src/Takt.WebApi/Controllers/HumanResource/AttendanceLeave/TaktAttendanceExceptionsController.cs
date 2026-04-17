@@ -24,7 +24,7 @@ namespace Takt.WebApi.Controllers.HumanResource.AttendanceLeave;
 /// 考勤异常控制器，提供考勤异常记录的 RESTful API。
 /// </summary>
 [Route("api/[controller]", Name = "考勤异常")]
-[ApiModule("HumanResource.AttendanceLeave", "考勤请假")]
+[ApiModule("HumanResource", "人力资源")]
 [TaktPermission("humanresource:attendanceleave:attendanceexception:list", "考勤异常")]
 public class TaktAttendanceExceptionsController : TaktControllerBase
 {

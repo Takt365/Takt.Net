@@ -4,7 +4,10 @@
 <!-- ======================================== -->
 
 <template>
-  <div v-if="show" class="takt-tree-left-query-bar">
+  <div
+    v-if="show"
+    class="takt-tree-left-query-bar"
+  >
     <a-input
       v-model:value="keyword"
       :placeholder="placeholderDisplay"

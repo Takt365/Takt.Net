@@ -5,7 +5,12 @@
       :rule="rule"
       :option="props.option"
     />
-    <div v-else class="antdv-form__empty">暂无表单项，请在设计器中添加</div>
+    <div
+      v-else
+      class="antdv-form__empty"
+    >
+      暂无表单项，请在设计器中添加
+    </div>
   </div>
 </template>
 

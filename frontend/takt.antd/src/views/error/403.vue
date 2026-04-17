@@ -6,7 +6,10 @@
       sub-title="抱歉，您没有权限访问此页面"
     >
       <template #extra>
-        <a-button type="primary" @click="goHome">
+        <a-button
+          type="primary"
+          @click="goHome"
+        >
           返回首页
         </a-button>
       </template>

@@ -1,5 +1,8 @@
 <template>
-  <a-dropdown :trigger="['click']" placement="bottomRight">
+  <a-dropdown
+    :trigger="['click']"
+    placement="bottomRight"
+  >
     <a-button type="text">
       <template #icon>
         <RiMoonLine v-if="themeStore.themeMode === 'dark'" />
@@ -7,7 +10,10 @@
       </template>
     </a-button>
     <template #overlay>
-      <a-menu :selected-keys="[themeStore.themeMode]" @click="handleMenuClick">
+      <a-menu
+        :selected-keys="[themeStore.themeMode]"
+        @click="handleMenuClick"
+      >
         <a-menu-item key="light">
           <span style="display: inline-flex; align-items: center;">
             <RiSunLine style="margin-right: 8px;" />
@@ -26,7 +32,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { MenuInfo } from 'ant-design-vue/es/menu/src/interface'
 import { useThemeStore, type ThemeMode } from '@/stores/theme'
 import { RiSunLine, RiMoonLine } from '@remixicon/vue'

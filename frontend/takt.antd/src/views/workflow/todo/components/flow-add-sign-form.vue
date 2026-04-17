@@ -11,8 +11,18 @@
 <!-- ======================================== -->
 
 <template>
-  <a-form ref="formRef" class="flow-todo-modal-form" layout="vertical" :model="form" :rules="formRules">
-    <a-form-item :label="t('workflow.instance.addSignApprovers')" name="approverIds" required>
+  <a-form
+    ref="formRef"
+    class="flow-todo-modal-form"
+    layout="vertical"
+    :model="form"
+    :rules="formRules"
+  >
+    <a-form-item
+      :label="t('workflow.instance.addSignApprovers')"
+      name="approverIds"
+      required
+    >
       <a-select
         v-model:value="form.approverIds"
         mode="multiple"
@@ -25,18 +35,39 @@
         style="width: 100%"
       />
     </a-form-item>
-    <a-form-item :label="t('workflow.instance.addSignType')" name="approveType">
-      <a-select v-model:value="form.approveType" style="width: 100%" :placeholder="t('common.form.placeholder.select', { field: t('workflow.instance.addSignType') })">
-        <a-select-option value="sequential">{{ t('workflow.instance.addSignTypeSequential') }}</a-select-option>
-        <a-select-option value="all">{{ t('workflow.instance.addSignTypeAll') }}</a-select-option>
-        <a-select-option value="one">{{ t('workflow.instance.addSignTypeOne') }}</a-select-option>
+    <a-form-item
+      :label="t('workflow.instance.addSignType')"
+      name="approveType"
+    >
+      <a-select
+        v-model:value="form.approveType"
+        style="width: 100%"
+        :placeholder="t('common.form.placeholder.select', { field: t('workflow.instance.addSignType') })"
+      >
+        <a-select-option value="sequential">
+          {{ t('workflow.instance.addSignTypeSequential') }}
+        </a-select-option>
+        <a-select-option value="all">
+          {{ t('workflow.instance.addSignTypeAll') }}
+        </a-select-option>
+        <a-select-option value="one">
+          {{ t('workflow.instance.addSignTypeOne') }}
+        </a-select-option>
       </a-select>
     </a-form-item>
-    <a-form-item :label="t('workflow.instance.addSignReason')" name="reason">
-      <a-textarea v-model:value="form.reason" :rows="2" />
+    <a-form-item
+      :label="t('workflow.instance.addSignReason')"
+      name="reason"
+    >
+      <a-textarea
+        v-model:value="form.reason"
+        :rows="2"
+      />
     </a-form-item>
     <a-form-item name="returnToSignNode">
-      <a-checkbox v-model:checked="form.returnToSignNode">{{ t('workflow.instance.addSignReturnToNode') }}</a-checkbox>
+      <a-checkbox v-model:checked="form.returnToSignNode">
+        {{ t('workflow.instance.addSignReturnToNode') }}
+      </a-checkbox>
     </a-form-item>
   </a-form>
 </template>

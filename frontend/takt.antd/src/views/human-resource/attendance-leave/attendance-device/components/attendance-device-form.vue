@@ -8,8 +8,11 @@
 <!-- ======================================== -->
 
 <template>
-  <a-tabs v-model:activeKey="activeTab">
-    <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')">
+  <a-tabs v-model:active-key="activeTab">
+    <a-tab-pane
+      key="basic"
+      :tab="t('common.form.tabs.basicInfo')"
+    >
       <div :class="formContentClass">
         <a-form
           ref="formRef"
@@ -22,7 +25,10 @@
         >
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancedevice.devicecode')" name="deviceCode">
+              <a-form-item
+                :label="t('entity.attendancedevice.devicecode')"
+                name="deviceCode"
+              >
                 <a-input
                   v-model:value="formState.deviceCode"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendancedevice.devicecode') })"
@@ -32,7 +38,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancedevice.devicename')" name="deviceName">
+              <a-form-item
+                :label="t('entity.attendancedevice.devicename')"
+                name="deviceName"
+              >
                 <a-input
                   v-model:value="formState.deviceName"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.attendancedevice.devicename') })"
@@ -44,7 +53,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancedevice.manufacturer')" name="manufacturer">
+              <a-form-item
+                :label="t('entity.attendancedevice.manufacturer')"
+                name="manufacturer"
+              >
                 <TaktSelect
                   v-model:value="formState.manufacturer"
                   dict-type="hr_attendance_device_brand"
@@ -54,24 +66,47 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancedevice.ipaddress')" name="ipAddress">
-                <a-input v-model:value="formState.ipAddress" allow-clear />
+              <a-form-item
+                :label="t('entity.attendancedevice.ipaddress')"
+                name="ipAddress"
+              >
+                <a-input
+                  v-model:value="formState.ipAddress"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancedevice.port')" name="port">
-                <a-input-number v-model:value="formState.port" :min="0" :max="65535" style="width: 100%" />
+              <a-form-item
+                :label="t('entity.attendancedevice.port')"
+                name="port"
+              >
+                <a-input-number
+                  v-model:value="formState.port"
+                  :min="0"
+                  :max="65535"
+                  style="width: 100%"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancedevice.devicemodel')" name="deviceModel">
-                <a-input v-model:value="formState.deviceModel" allow-clear />
+              <a-form-item
+                :label="t('entity.attendancedevice.devicemodel')"
+                name="deviceModel"
+              >
+                <a-input
+                  v-model:value="formState.deviceModel"
+                  allow-clear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.attendancedevice.devicestatus')" name="deviceStatus">
+              <a-form-item
+                :label="t('entity.attendancedevice.devicestatus')"
+                name="deviceStatus"
+              >
                 <TaktSelect
                   v-model="formState.deviceStatus"
                   dict-type="hr_attendance_device_status"

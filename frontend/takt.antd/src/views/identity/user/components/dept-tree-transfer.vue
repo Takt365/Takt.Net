@@ -107,10 +107,43 @@ const emit = defineEmits<{
   'update:modelValue': [value: string[]]
 }>()
 
+interface TransferItem {
+  key: string
+  title: string
+  dictValue: string | number
+  dictLabel?: string
+}
+
+interface DeptTreeNode {
+  key: string
+  title: string
+  dictValue: string | number
+  dictLabel?: string
+  disabled?: boolean
+  children?: DeptTreeNode[]
+}
+
+interface TreeCheckResult {
+  checked?: Array<string | number>
+}
+
+function normalizeCheckedKeys(input: unknown): string[] {
+  if (Array.isArray(input)) {
+    return input.map((k) => String(k))
+  }
+  if (typeof input === 'object' && input !== null && 'checked' in input) {
+    const checked = (input as TreeCheckResult).checked
+    if (Array.isArray(checked)) {
+      return checked.map((k) => String(k))
+    }
+  }
+  return []
+}
+
 /** 部门树源数据 */
 const allOptions = ref<TaktTreeSelectOption[]>([])
 /** Transfer 展平行 */
-const transferDataSource = ref<TransferProps['dataSource']>([])
+const transferDataSource = ref<TransferItem[]>([])
 
 /** Transfer 内部右侧 keys，与 props.modelValue 双向同步 */
 const internalTargetKeys = ref<string[]>([])
@@ -143,18 +176,15 @@ watch(internalTargetKeys, (newValue) => {
 
 /** 展平部门树 */
 function flatten(list: TaktTreeSelectOption[] = []) {
-  if (!transferDataSource.value) {
-    transferDataSource.value = []
-  }
   list.forEach(item => {
     const key = String(item.dictValue)
     const title = item.dictLabel || ''
-    transferDataSource.value!.push({
+    transferDataSource.value.push({
       key,
       title,
       dictValue: item.dictValue,
       dictLabel: item.dictLabel
-    } as any)
+    })
     if (item.children?.length) {
       flatten(item.children)
     }
@@ -162,7 +192,7 @@ function flatten(list: TaktTreeSelectOption[] = []) {
 }
 
 /** 左侧树节点 */
-function handleTreeData(treeNodes: TaktTreeSelectOption[], targetKeys: string[] = []): any[] {
+function handleTreeData(treeNodes: TaktTreeSelectOption[], targetKeys: string[] = []): DeptTreeNode[] {
   return treeNodes.map(({ children, ...props }) => {
     const key = String(props.dictValue)
     return {
@@ -178,7 +208,7 @@ function handleTreeData(treeNodes: TaktTreeSelectOption[], targetKeys: string[] 
 }
 
 /** 右侧已选子树 */
-function filterTreeDataBySelectedKeys(treeNodes: TaktTreeSelectOption[], selectedKeys: string[]): any[] {
+function filterTreeDataBySelectedKeys(treeNodes: TaktTreeSelectOption[], selectedKeys: string[]): DeptTreeNode[] {
   return treeNodes.map(({ children, ...props }) => {
     const key = String(props.dictValue)
     const filteredChildren = children?.length 
@@ -199,7 +229,7 @@ function filterTreeDataBySelectedKeys(treeNodes: TaktTreeSelectOption[], selecte
       }
     }
     return null
-  }).filter(Boolean) as any[]
+  }).filter((node): node is DeptTreeNode => node !== null)
 }
 
 /** 左侧部门树 */
@@ -221,11 +251,11 @@ const rightTreeData = computed(() => {
 })
 
 /** 右侧取消勾选：更新 internal 并 emit */
-const handleRightTreeCheck = (checked: any) => {
+const handleRightTreeCheck = (checked: unknown) => {
   // 处理右侧树的取消选中操作
-  const checkedKeys = Array.isArray(checked) ? checked : checked.checked || []
+  const checkedKeys = normalizeCheckedKeys(checked)
   // 找出被取消选中的节点（在 internalTargetKeys 中但不在 checkedKeys 中）
-  const removedKeys = internalTargetKeys.value.filter((k: string) => !checkedKeys.map((ck: string | number) => String(ck)).includes(k))
+  const removedKeys = internalTargetKeys.value.filter((k: string) => !checkedKeys.includes(k))
   // 从 internalTargetKeys 中移除取消选中的节点
   const newKeys = internalTargetKeys.value.filter((k: string) => !removedKeys.includes(k))
   internalTargetKeys.value = newKeys
@@ -242,7 +272,7 @@ const loadDeptOptions = async () => {
     // 展平树形数据
     transferDataSource.value = []
     flatten(depts)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[DeptTreeTransfer] 加载部门数据失败:', error)
   }
 }

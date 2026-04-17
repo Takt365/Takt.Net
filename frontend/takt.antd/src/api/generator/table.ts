@@ -99,7 +99,7 @@ export function generateCodePreview(id: string, genPath?: string): Promise<Gener
     url: `${tableUrl}/${id}/generate-preview`,
     method: 'get',
     params: genPath != null && genPath !== '' ? { genPath } : undefined
-  }) as Promise<GenerateCodePreviewResult>
+  })
 }
 
 /** 根据表配置生成代码。后端按表配置的 GenMethod：0=返回 ZIP（Blob），1=自定义路径、2=当前项目=写入磁盘并返回 JSON。genPathOverride 仅 GenMethod=1 时“另存为”有效。 */
@@ -116,7 +116,7 @@ export function generateCode(
       ? { data: { genPath: genPathOverride } }
       : {}),
     ...(isWriteToDisk ? {} : { responseType: 'blob' })
-  }) as Promise<Blob | GenerateCodeResult>
+  })
 }
 
 /** 数据库配置项（对应后端 TaktDatabaseInfo） */

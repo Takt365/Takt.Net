@@ -24,7 +24,7 @@ namespace Takt.WebApi.Controllers.Workflow;
 /// 权限标识与菜单/按钮种子一致：页面 workflow:scheme:list；接口见各 Action 的 TaktPermission（含 detail/query/template/import/export 等）。
 /// </summary>
 [Route("api/[controller]")]
-[ApiModule("Workflow", "工作流")]
+[ApiModule("Workflow", "工作流程")]
 [TaktPermission("workflow:scheme:list", "流程方案")]
 public class TaktFlowSchemesController : TaktControllerBase
 {

@@ -16,15 +16,22 @@
     layout="horizontal"
     label-align="right"
   >
-    <a-tabs v-model:activeKey="activeTab">
+    <a-tabs v-model:active-key="activeTab">
       <!-- 标签1：员工信息（编辑=已绑定员工只读+描述；新增=下拉选员工，可跳转人事员工页建档，变更时带出默认 userName） -->
-      <a-tab-pane key="employee" :tab="t('identity.user.tabs.employeeInfo')" force-render>
+      <a-tab-pane
+        key="employee"
+        :tab="t('identity.user.tabs.employeeInfo')"
+        force-render
+      >
         <div :class="formContentClass">
           <!-- 编辑态 -->
           <template v-if="formData?.userId">
             <a-row :gutter="24">
               <a-col :span="24">
-                <a-form-item :label="t('entity.user.employeeid')" name="employeeId">
+                <a-form-item
+                  :label="t('entity.user.employeeid')"
+                  name="employeeId"
+                >
                   <TaktSelect
                     v-model:value="formState.employeeId"
                     :options="employeeOptions"
@@ -33,7 +40,12 @@
                 </a-form-item>
               </a-col>
             </a-row>
-            <a-descriptions v-if="boundEmployeeOption" bordered size="middle" :column="2">
+            <a-descriptions
+              v-if="boundEmployeeOption"
+              bordered
+              size="middle"
+              :column="2"
+            >
               <a-descriptions-item :label="t('entity.employee.code')">
                 {{ displayStr(boundEmployeeOption.extLabel) }}
               </a-descriptions-item>
@@ -52,7 +64,10 @@
           <template v-else>
             <a-row :gutter="24">
               <a-col :span="24">
-                <a-form-item :label="t('entity.user.employeeid')" name="employeeId">
+                <a-form-item
+                  :label="t('entity.user.employeeid')"
+                  name="employeeId"
+                >
                   <TaktSelect
                     v-model:value="formState.employeeId"
                     :options="employeeOptions"
@@ -72,11 +87,19 @@
             />
             <a-space style="margin-bottom: 16px">
               <span>{{ t('identity.user.fields.employeeLink.createNewHint') }}</span>
-              <a-button type="link" @click="goToEmployeeCreate">
+              <a-button
+                type="link"
+                @click="goToEmployeeCreate"
+              >
                 {{ t('common.button.create') }}{{ t('entity.employee._self') }}
               </a-button>
             </a-space>
-            <a-descriptions v-if="selectedEmployeeOption" bordered size="middle" :column="2">
+            <a-descriptions
+              v-if="selectedEmployeeOption"
+              bordered
+              size="middle"
+              :column="2"
+            >
               <a-descriptions-item :label="t('entity.employee.code')">
                 {{ displayStr(selectedEmployeeOption.extLabel) }}
               </a-descriptions-item>
@@ -95,11 +118,18 @@
       </a-tab-pane>
 
       <!-- 标签2：用户信息（账号、联系方式、类型/状态、备注；新增时含密码） -->
-      <a-tab-pane key="user" :tab="t('identity.user.tabs.userInfo')" force-render>
+      <a-tab-pane
+        key="user"
+        :tab="t('identity.user.tabs.userInfo')"
+        force-render
+      >
         <div :class="formContentClass">
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('entity.user.name')" name="userName">
+              <a-form-item
+                :label="t('entity.user.name')"
+                name="userName"
+              >
                 <a-input
                   v-model:value="formState.userName"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.user.name') })"
@@ -112,7 +142,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('entity.user.nickname')" name="nickName">
+              <a-form-item
+                :label="t('entity.user.nickname')"
+                name="nickName"
+              >
                 <a-input
                   v-model:value="formState.nickName"
                   :placeholder="t('identity.user.fields.nicknamePlaceholder')"
@@ -124,7 +157,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.user.email')" name="userEmail">
+              <a-form-item
+                :label="t('entity.user.email')"
+                name="userEmail"
+              >
                 <a-input
                   v-model:value="formState.userEmail"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.user.email') })"
@@ -134,7 +170,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.user.phone')" name="userPhone">
+              <a-form-item
+                :label="t('entity.user.phone')"
+                name="userPhone"
+              >
                 <a-input
                   v-model:value="formState.userPhone"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.user.phone') })"
@@ -146,7 +185,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="12">
-              <a-form-item :label="t('entity.user.type')" name="userType">
+              <a-form-item
+                :label="t('entity.user.type')"
+                name="userType"
+              >
                 <TaktSelect
                   v-model:value="formState.userType"
                   dict-type="sys_user_type"
@@ -155,7 +197,10 @@
               </a-form-item>
             </a-col>
             <a-col :span="12">
-              <a-form-item :label="t('entity.user.status')" name="userStatus">
+              <a-form-item
+                :label="t('entity.user.status')"
+                name="userStatus"
+              >
                 <TaktSelect
                   v-model:value="formState.userStatus"
                   dict-type="sys_normal_disable"
@@ -165,9 +210,15 @@
             </a-col>
           </a-row>
           <!-- 仅新增展示密码；编辑不展示，提交时由父级不传 passwordHash -->
-          <a-row :gutter="24" v-if="!formData?.userId">
+          <a-row
+            v-if="!formData?.userId"
+            :gutter="24"
+          >
             <a-col :span="24">
-              <a-form-item :label="t('entity.user.password')" name="password">
+              <a-form-item
+                :label="t('entity.user.password')"
+                name="password"
+              >
                 <a-input-password
                   v-model:value="formState.password"
                   :placeholder="t('common.form.placeholder.required', { field: t('entity.user.password') })"
@@ -179,7 +230,10 @@
           </a-row>
           <a-row :gutter="24">
             <a-col :span="24">
-              <a-form-item :label="t('common.entity.remark')" name="remark">
+              <a-form-item
+                :label="t('common.entity.remark')"
+                name="remark"
+              >
                 <a-textarea
                   v-model:value="formState.remark"
                   :placeholder="t('common.form.placeholder.required', { field: t('common.entity.remark') })"
@@ -194,7 +248,11 @@
       </a-tab-pane>
 
       <!-- 标签3：权限分配（角色、租户、部门树、岗位；绑定 permissionState，随 getValues 返回） -->
-      <a-tab-pane key="permission" :tab="t('common.action.tabTargetAllocation', { target: t('identity.user.tabs.permission') })" force-render>
+      <a-tab-pane
+        key="permission"
+        :tab="t('common.action.tabTargetAllocation', { target: t('identity.user.tabs.permission') })"
+        force-render
+      >
         <div :class="formContentClass">
           <a-row :gutter="24">
             <a-col :span="24">
@@ -246,7 +304,6 @@
           </a-row>
         </div>
       </a-tab-pane>
-
     </a-tabs>
   </a-form>
 </template>
@@ -387,7 +444,7 @@ const onEmployeeChange = (value: string | number | (string | number)[] | undefin
   const v = value == null ? '' : Array.isArray(value) ? value[0] : value
   const opt = employeeOptions.value.find((o) => String(o.dictValue) === String(v))
   if (opt && !props.formData?.userId) {
-    formState.userName = (opt.extLabel ?? opt.dictLabel ?? '') as string
+    formState.userName = (opt.extLabel ?? opt.dictLabel ?? '')
   }
 }
 

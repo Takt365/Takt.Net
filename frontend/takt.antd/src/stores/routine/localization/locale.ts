@@ -17,7 +17,13 @@ export interface Language {
   enabled?: boolean
   /** 排序 */
   order?: number
-  [key: string]: any
+  [key: string]: unknown
+}
+type LanguageOptionLike = Record<string, unknown> & {
+  dictValue?: string
+  dictLabel?: string
+  extLabel?: string
+  orderNum?: number
 }
 
 /**
@@ -37,7 +43,7 @@ function getDefaultLocale(): Locale {
     if (setting.defaultLocale) {
       return setting.defaultLocale
     }
-  } catch (error) {
+  } catch {
     // logger.warn('[Locale Store] 读取设置失败，使用默认值:', error)
   }
   
@@ -73,20 +79,21 @@ export const useLocaleStore = defineStore('locale', () => {
       // 将 TaktSelectOption 转换为 Language 格式
       // 后端映射：DictLabel=LanguageName(中文名称), DictValue=CultureCode(语言代码), ExtLabel=NativeName(本地化名称), ExtValue=Id(语言ID)
       // 后端已统一转换为 camelCase
-      languages.value = options.map((option: any) => {
+      languages.value = options.map((option) => {
+        const optionLike = option as LanguageOptionLike
         // 后端已统一转换为 camelCase
-        const dictValue = option.dictValue
-        const dictLabel = option.dictLabel
-        const extLabel = option.extLabel
-        const orderNum = option.orderNum
+        const dictValue = optionLike.dictValue
+        const dictLabel = optionLike.dictLabel
+        const extLabel = optionLike.extLabel
+        const orderNum = optionLike.orderNum
         
         const mapped = {
-          code: String(dictValue), // 语言代码，如：'ar-SA'
-          name: dictLabel, // 中文名称，如：'阿拉伯语'
-          displayName: extLabel || dictLabel, // 本地化名称，如：'العربية'，如果没有则使用中文名称
+          code: String(dictValue ?? ''), // 语言代码，如：'ar-SA'
+          name: String(dictLabel ?? ''), // 中文名称，如：'阿拉伯语'
+          displayName: String(extLabel ?? dictLabel ?? ''), // 本地化名称，如：'العربية'，如果没有则使用中文名称
           enabled: true, // getOptions 返回的都是启用的语言（LanguageStatus == 0）
           order: orderNum || 0,
-          ...option
+          ...optionLike
         }
         
         return mapped
@@ -101,7 +108,7 @@ export const useLocaleStore = defineStore('locale', () => {
           if (setting.defaultLocale) {
             defaultLocaleFromSetting = setting.defaultLocale
           }
-        } catch (error) {
+        } catch {
           // logger.warn('[Locale Store] 读取设置失败:', error)
         }
         
@@ -147,7 +154,7 @@ export const useLocaleStore = defineStore('locale', () => {
           if (setting.defaultLocale) {
             defaultLocaleFromSetting = setting.defaultLocale
           }
-        } catch (error) {
+        } catch {
           // logger.warn('[Locale Store] 读取设置失败:', error)
         }
         
@@ -183,7 +190,7 @@ export const useLocaleStore = defineStore('locale', () => {
           }
         }
       }
-    } catch (error) {
+    } catch {
       // logger.error('[Locale Store] 加载语言列表失败:', error)
       // 如果加载失败，使用默认语言列表
       if (languages.value.length === 0) {
@@ -208,7 +215,7 @@ export const useLocaleStore = defineStore('locale', () => {
         const { loadTranslationsFromBackend } = await import('@/locales')
         await loadTranslationsFromBackend(newLocale, 'Frontend')
         await nextTick()
-      } catch (error) {
+      } catch {
         localeRef.value = newLocale
       }
     },
@@ -228,7 +235,9 @@ export const useLocaleStore = defineStore('locale', () => {
     
     const currentIndex = enabled.findIndex(lang => lang.code === locale.value)
     const nextIndex = (currentIndex + 1) % enabled.length
-    locale.value = enabled[nextIndex].code
+    const nextLang = enabled[nextIndex]
+    if (nextLang === undefined) return
+    locale.value = nextLang.code
   }
 
   return {

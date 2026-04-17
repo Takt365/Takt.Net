@@ -276,7 +276,7 @@ public class TaktDatabaseSchemaProvider : ITaktDatabaseSchemaProvider
     /// 按实体类型初始化数据表（与 TaktTableInitializer 一致：SqlSugar CodeFirst.InitTables）。
     /// </summary>
     /// <param name="configId">数据库配置 ID</param>
-    /// <param name="entityTypeFullName">实体类型全名（如 Takt.Domain.Entities.Generator.TaktGenTable）</param>
+    /// <param name="entityTypeFullName">实体类型全名（如 Takt.Domain.Entities.Code.Generator.TaktGenTable）</param>
     /// <remarks>从已加载的 Takt.* 程序集中解析继承 TaktEntityBase 的类型，在指定库执行 CodeFirst.InitTables。</remarks>
     public async Task InitializeTableFromEntityTypeAsync(string configId, string entityTypeFullName)
     {

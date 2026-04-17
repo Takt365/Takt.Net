@@ -75,7 +75,7 @@ public class TaktFlowFormSeedData : ITaktSeedData
         int updateCount = 0;
 
         // 请假表单：RelatedDataBaseName=当前环境 HR 库名（如 Takt_HumanResource_Dev），RelatedTableName=takt_humanresource_leave
-        var leaveForm = await repo.GetAsync(x => x.FormCode == "leave_form" && x.IsDeleted == 0);
+        var leaveForm = await repo.GetAsync(x => x.FormCode == "leave_form");
         if (leaveForm == null)
         {
             await repo.CreateAsync(new TaktFlowForm
@@ -113,7 +113,7 @@ public class TaktFlowFormSeedData : ITaktSeedData
         }
 
         // 费用报销表单：RelatedDataBaseName=当前环境 Routine 库名（如 Takt_Routine_Dev），RelatedTableName=takt_routine_expense_reimburse
-        var reimburseForm = await repo.GetAsync(x => x.FormCode == "reimburse_form" && x.IsDeleted == 0);
+        var reimburseForm = await repo.GetAsync(x => x.FormCode == "reimburse_form");
         if (reimburseForm == null)
         {
             await repo.CreateAsync(new TaktFlowForm

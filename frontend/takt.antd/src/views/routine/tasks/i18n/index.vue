@@ -12,9 +12,15 @@
 
 <template>
   <div class="routine-i18n">
-    <a-tabs v-model:activeKey="activeTab" type="card">
+    <a-tabs
+      v-model:active-key="activeTab"
+      type="card"
+    >
       <!-- 主表：翻译 -->
-      <a-tab-pane key="translation" tab="翻译（主）">
+      <a-tab-pane
+        key="translation"
+        tab="翻译（主）"
+      >
         <TaktQueryBar
           v-model="translationQueryKeyword"
           placeholder="资源键、翻译值"
@@ -65,7 +71,10 @@
           @change="() => {}"
         />
         <!-- 转置模式：表头=语言列，每行一资源键+操作列 -->
-        <div v-else class="transposed-table-wrap">
+        <div
+          v-else
+          class="transposed-table-wrap"
+        >
           <a-table
             :columns="transposedColumns"
             :data-source="transposedTableRows"
@@ -119,19 +128,36 @@
           @reset="handleTranslationAdvancedReset"
         >
           <a-form-item label="资源键">
-            <a-input v-model:value="translationAdvancedForm.resourceKey" placeholder="模糊" />
+            <a-input
+              v-model:value="translationAdvancedForm.resourceKey"
+              placeholder="模糊"
+            />
           </a-form-item>
           <a-form-item label="语言编码">
-            <a-input v-model:value="translationAdvancedForm.cultureCode" placeholder="如 zh-CN" />
+            <a-input
+              v-model:value="translationAdvancedForm.cultureCode"
+              placeholder="如 zh-CN"
+            />
           </a-form-item>
           <a-form-item label="资源类型">
-            <a-select v-model:value="translationAdvancedForm.resourceType" placeholder="Frontend/Backend" allow-clear>
-              <a-select-option value="Frontend">Frontend</a-select-option>
-              <a-select-option value="Backend">Backend</a-select-option>
+            <a-select
+              v-model:value="translationAdvancedForm.resourceType"
+              placeholder="Frontend/Backend"
+              allow-clear
+            >
+              <a-select-option value="Frontend">
+                Frontend
+              </a-select-option>
+              <a-select-option value="Backend">
+                Backend
+              </a-select-option>
             </a-select>
           </a-form-item>
           <a-form-item label="资源分组">
-            <a-input v-model:value="translationAdvancedForm.resourceGroup" placeholder="如 Menu" />
+            <a-input
+              v-model:value="translationAdvancedForm.resourceGroup"
+              placeholder="如 Menu"
+            />
           </a-form-item>
         </TaktQueryDrawer>
         <TaktColumnDrawer
@@ -146,152 +172,155 @@
       </a-tab-pane>
 
       <!-- 子表：语言 -->
-      <a-tab-pane key="language" tab="语言（子）">
-    <!-- 查询栏 -->
-    <TaktQueryBar
-      v-model="queryKeyword"
-      placeholder="请输入语言编码或名称"
-      :loading="loading"
-      @search="handleSearch"
-      @reset="handleReset"
-    />
-
-    <!-- 工具栏 -->
-    <TaktToolsBar
-      create-permission="routine:tasks:i18n:create"
-      update-permission="routine:tasks:i18n:update"
-      delete-permission="routine:tasks:i18n:delete"
-      export-permission="routine:tasks:i18n:export"
-      :show-create="true"
-      :show-update="true"
-      :show-delete="true"
-      :show-export="true"
-      :show-advanced-query="true"
-      :show-column-setting="true"
-      :show-fullscreen="true"
-      :show-refresh="true"
-      :create-disabled="false"
-      :update-disabled="!selectedRow"
-      :delete-disabled="selectedRows.length === 0"
-      :create-loading="loading"
-      :update-loading="loading"
-      :delete-loading="loading"
-      :export-loading="loading"
-      :refresh-loading="loading"
-      @create="handleCreate"
-      @update="handleUpdate"
-      @delete="handleDelete"
-      @export="handleExport"
-      @advanced-query="handleAdvancedQuery"
-      @column-setting="handleColumnSetting"
-      @refresh="handleRefresh"
-    />
-
-    <!-- 表格 -->
-    <TaktSingleTable
-      :columns="displayColumns"
-      :data-source="dataSource"
-      :loading="loading"
-      :stripe="true"
-      :row-key="(record: any) => record.languageId || ''"
-      :row-selection="rowSelection"
-      :custom-row="onClickRow"
-      :pagination="false"
-      :expanded-row-keys="expandedRowKeys"
-      @change="handleTableChange"
-      @resize-column="handleResizeColumn"
-      @expand="handleExpand"
-    >
-      <!-- 自定义列渲染 -->
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'languageStatus'">
-          <a-switch
-            :checked="record.languageStatus === 0"
-            checked-children="启用"
-            un-checked-children="禁用"
-            @change="(checked: any) => handleStatusChange(record, !!checked)"
-          />
-        </template>
-        <template v-else-if="column.key === 'isDefault'">
-          {{ record.isDefault === 0 ? '是' : '否' }}
-        </template>
-        <template v-else-if="column.key === 'isRtl'">
-          {{ record.isRtl === 0 ? '是' : '否' }}
-        </template>
-      </template>
-      <!-- 展开行渲染 -->
-      <template #expandedRowRender="{ record }">
-        <div style="padding: 16px">
-          <TaktSingleTable
-            v-if="(dataSource.find(item => item.languageId === record.languageId)?.translationList || []).length > 0"
-            :columns="translationColumns"
-            :data-source="dataSource.find(item => item.languageId === record.languageId)?.translationList || []"
-            :row-key="(r: Translation) => r.translationId || ''"
-            :pagination="false"
-            :stripe="true"
-            size="small"
-          />
-          <a-empty v-else />
-        </div>
-      </template>
-    </TaktSingleTable>
-
-    <!-- 分页组件 -->
-    <TaktPagination
-      v-model:current="currentPage"
-      v-model:page-size="pageSize"
-      :total="total"
-      @change="handlePaginationChange"
-      @show-size-change="handlePaginationSizeChange"
-    />
-
-    <!-- 新增/编辑对话框 -->
-    <TaktModal
-      v-model:open="formVisible"
-      :title="formTitle"
-      :width="1200"
-      :confirm-loading="formLoading"
-      @ok="handleFormSubmit"
-      @cancel="handleFormCancel"
-    >
-      <LanguageForm
-        ref="formRef"
-        :form-data="formData"
-        :loading="formLoading"
-      />
-    </TaktModal>
-
-    <!-- 高级查询抽屉 -->
-    <TaktQueryDrawer
-      v-model:open="advancedQueryVisible"
-      :form-model="advancedQueryForm"
-      @submit="handleAdvancedQuerySubmit"
-      @reset="handleAdvancedQueryReset"
-    >
-      <a-form-item label="语言编码">
-        <a-input v-model:value="advancedQueryForm.cultureCode" />
-      </a-form-item>
-      <a-form-item label="语言状态">
-        <TaktSelect
-          v-model:value="advancedQueryForm.languageStatus"
-          dict-type="sys_status"
-          placeholder="请选择状态"
-          allow-clear
+      <a-tab-pane
+        key="language"
+        tab="语言（子）"
+      >
+        <!-- 查询栏 -->
+        <TaktQueryBar
+          v-model="queryKeyword"
+          placeholder="请输入语言编码或名称"
+          :loading="loading"
+          @search="handleSearch"
+          @reset="handleReset"
         />
-      </a-form-item>
-    </TaktQueryDrawer>
 
-    <!-- 列设置抽屉 -->
-    <!-- 审计字段统一在 TaktColumnDrawer 中处理 -->
-    <TaktColumnDrawer
-      v-model:open="columnDrawerVisible"
-      :columns="mergedColumns"
-      :checked-keys="visibleColumnKeys"
-      :id-column-key="'cultureCode'"
-      :action-column-key="'action'"
-      @update:checked-keys="handleColumnKeysChange"
-      @reset="handleColumnSettingReset"
-    />
+        <!-- 工具栏 -->
+        <TaktToolsBar
+          create-permission="routine:tasks:i18n:create"
+          update-permission="routine:tasks:i18n:update"
+          delete-permission="routine:tasks:i18n:delete"
+          export-permission="routine:tasks:i18n:export"
+          :show-create="true"
+          :show-update="true"
+          :show-delete="true"
+          :show-export="true"
+          :show-advanced-query="true"
+          :show-column-setting="true"
+          :show-fullscreen="true"
+          :show-refresh="true"
+          :create-disabled="false"
+          :update-disabled="!selectedRow"
+          :delete-disabled="selectedRows.length === 0"
+          :create-loading="loading"
+          :update-loading="loading"
+          :delete-loading="loading"
+          :export-loading="loading"
+          :refresh-loading="loading"
+          @create="handleCreate"
+          @update="handleUpdate"
+          @delete="handleDelete"
+          @export="handleExport"
+          @advanced-query="handleAdvancedQuery"
+          @column-setting="handleColumnSetting"
+          @refresh="handleRefresh"
+        />
+
+        <!-- 表格 -->
+        <TaktSingleTable
+          :columns="displayColumns"
+          :data-source="dataSource"
+          :loading="loading"
+          :stripe="true"
+          :row-key="(record: any) => record.languageId || ''"
+          :row-selection="rowSelection"
+          :custom-row="onClickRow"
+          :pagination="false"
+          :expanded-row-keys="expandedRowKeys"
+          @change="handleTableChange"
+          @resize-column="handleResizeColumn"
+          @expand="handleExpand"
+        >
+          <!-- 自定义列渲染 -->
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'languageStatus'">
+              <a-switch
+                :checked="record.languageStatus === 0"
+                checked-children="启用"
+                un-checked-children="禁用"
+                @change="(checked: any) => handleStatusChange(record, !!checked)"
+              />
+            </template>
+            <template v-else-if="column.key === 'isDefault'">
+              {{ record.isDefault === 0 ? '是' : '否' }}
+            </template>
+            <template v-else-if="column.key === 'isRtl'">
+              {{ record.isRtl === 0 ? '是' : '否' }}
+            </template>
+          </template>
+          <!-- 展开行渲染 -->
+          <template #expandedRowRender="{ record }">
+            <div style="padding: 16px">
+              <TaktSingleTable
+                v-if="(dataSource.find(item => item.languageId === record.languageId)?.translationList || []).length > 0"
+                :columns="translationColumns"
+                :data-source="dataSource.find(item => item.languageId === record.languageId)?.translationList || []"
+                :row-key="(r: Translation) => r.translationId || ''"
+                :pagination="false"
+                :stripe="true"
+                size="small"
+              />
+              <a-empty v-else />
+            </div>
+          </template>
+        </TaktSingleTable>
+
+        <!-- 分页组件 -->
+        <TaktPagination
+          v-model:current="currentPage"
+          v-model:page-size="pageSize"
+          :total="total"
+          @change="handlePaginationChange"
+          @show-size-change="handlePaginationSizeChange"
+        />
+
+        <!-- 新增/编辑对话框 -->
+        <TaktModal
+          v-model:open="formVisible"
+          :title="formTitle"
+          :width="1200"
+          :confirm-loading="formLoading"
+          @ok="handleFormSubmit"
+          @cancel="handleFormCancel"
+        >
+          <LanguageForm
+            ref="formRef"
+            :form-data="formData"
+            :loading="formLoading"
+          />
+        </TaktModal>
+
+        <!-- 高级查询抽屉 -->
+        <TaktQueryDrawer
+          v-model:open="advancedQueryVisible"
+          :form-model="advancedQueryForm"
+          @submit="handleAdvancedQuerySubmit"
+          @reset="handleAdvancedQueryReset"
+        >
+          <a-form-item label="语言编码">
+            <a-input v-model:value="advancedQueryForm.cultureCode" />
+          </a-form-item>
+          <a-form-item label="语言状态">
+            <TaktSelect
+              v-model:value="advancedQueryForm.languageStatus"
+              dict-type="sys_status"
+              placeholder="请选择状态"
+              allow-clear
+            />
+          </a-form-item>
+        </TaktQueryDrawer>
+
+        <!-- 列设置抽屉 -->
+        <!-- 审计字段统一在 TaktColumnDrawer 中处理 -->
+        <TaktColumnDrawer
+          v-model:open="columnDrawerVisible"
+          :columns="mergedColumns"
+          :checked-keys="visibleColumnKeys"
+          :id-column-key="'cultureCode'"
+          :action-column-key="'action'"
+          @update:checked-keys="handleColumnKeysChange"
+          @reset="handleColumnSettingReset"
+        />
       </a-tab-pane>
     </a-tabs>
   </div>

@@ -1,5 +1,10 @@
 <template>
-  <a-layout-footer class="takt-footer" :style="footerStyle" :data-height="height" v-if="show">
+  <a-layout-footer
+    v-if="show"
+    class="takt-footer"
+    :style="footerStyle"
+    :data-height="height"
+  >
     <slot>
       <div class="footer-content">
         <span>{{ settingSafe.copyright }}</span>

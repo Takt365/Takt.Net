@@ -16,12 +16,19 @@
     layout="horizontal"
     label-align="right"
   >
-    <a-tabs v-model:activeKey="activeTab">
+    <a-tabs v-model:active-key="activeTab">
       <!-- 标签1：基础信息 -->
-      <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')" force-render>
+      <a-tab-pane
+        key="basic"
+        :tab="t('common.form.tabs.basicInfo')"
+        force-render
+      >
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeeeducation.employeeId')" name="employeeId">
+            <a-form-item
+              :label="t('entity.employeeeducation.employeeId')"
+              name="employeeId"
+            >
               <a-input
                 v-model:value="formState.employeeId"
                 allow-clear
@@ -29,7 +36,10 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeeeducation.schoolName')" name="schoolName">
+            <a-form-item
+              :label="t('entity.employeeeducation.schoolName')"
+              name="schoolName"
+            >
               <a-input
                 v-model:value="formState.schoolName"
                 allow-clear
@@ -40,7 +50,10 @@
 
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeeeducation.educationLevel')" name="educationLevel">
+            <a-form-item
+              :label="t('entity.employeeeducation.educationLevel')"
+              name="educationLevel"
+            >
               <a-input-number
                 v-model:value="formState.educationLevel"
                 :min="0"
@@ -50,7 +63,10 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeeeducation.degreeLevel')" name="degreeLevel">
+            <a-form-item
+              :label="t('entity.employeeeducation.degreeLevel')"
+              name="degreeLevel"
+            >
               <a-input-number
                 v-model:value="formState.degreeLevel"
                 :min="0"
@@ -63,7 +79,10 @@
 
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeeeducation.majorName')" name="majorName">
+            <a-form-item
+              :label="t('entity.employeeeducation.majorName')"
+              name="majorName"
+            >
               <a-input
                 v-model:value="formState.majorName"
                 allow-clear
@@ -71,7 +90,10 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeeeducation.certificateNo')" name="certificateNo">
+            <a-form-item
+              :label="t('entity.employeeeducation.certificateNo')"
+              name="certificateNo"
+            >
               <a-input
                 v-model:value="formState.certificateNo"
                 allow-clear
@@ -82,7 +104,10 @@
 
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeeeducation.startDate')" name="startDate">
+            <a-form-item
+              :label="t('entity.employeeeducation.startDate')"
+              name="startDate"
+            >
               <a-date-picker
                 v-model:value="formState.startDate"
                 value-format="YYYY-MM-DD"
@@ -91,7 +116,10 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeeeducation.endDate')" name="endDate">
+            <a-form-item
+              :label="t('entity.employeeeducation.endDate')"
+              name="endDate"
+            >
               <a-date-picker
                 v-model:value="formState.endDate"
                 value-format="YYYY-MM-DD"
@@ -103,7 +131,10 @@
 
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeeeducation.isHighest')" name="isHighest">
+            <a-form-item
+              :label="t('entity.employeeeducation.isHighest')"
+              name="isHighest"
+            >
               <a-select
                 v-model:value="formState.isHighest"
                 :options="yesNoOptions"

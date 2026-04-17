@@ -55,11 +55,11 @@ public class TaktEmployeeFamilySeedData : ITaktSeedData
         foreach (var (employeeCode, phone) in rows)
         {
             var emp = await dbHr.Queryable<TaktEmployee>()
-                .Where(e => e.EmployeeCode == employeeCode && e.IsDeleted == 0)
+                .Where(e => e.EmployeeCode == employeeCode)
                 .FirstAsync();
 
             var existingList = await dbHr.Queryable<TaktEmployeeFamily>()
-                .Where(f => f.EmployeeId == emp.Id && f.MemberName == SeedEmergencyMemberName && f.IsDeleted == 0)
+                .Where(f => f.EmployeeId == emp.Id && f.MemberName == SeedEmergencyMemberName)
                 .ToListAsync();
             var existing = existingList.FirstOrDefault();
 

@@ -16,12 +16,19 @@
     layout="horizontal"
     label-align="right"
   >
-    <a-tabs v-model:activeKey="activeTab">
+    <a-tabs v-model:active-key="activeTab">
       <!-- 标签1：基础信息 -->
-      <a-tab-pane key="basic" :tab="t('common.form.tabs.basicInfo')" force-render>
+      <a-tab-pane
+        key="basic"
+        :tab="t('common.form.tabs.basicInfo')"
+        force-render
+      >
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeefamily.employeeId')" name="employeeId">
+            <a-form-item
+              :label="t('entity.employeefamily.employeeId')"
+              name="employeeId"
+            >
               <a-input
                 v-model:value="formState.employeeId"
                 allow-clear
@@ -29,7 +36,10 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeefamily.memberName')" name="memberName">
+            <a-form-item
+              :label="t('entity.employeefamily.memberName')"
+              name="memberName"
+            >
               <a-input
                 v-model:value="formState.memberName"
                 allow-clear
@@ -39,7 +49,10 @@
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeefamily.relationType')" name="relationType">
+            <a-form-item
+              :label="t('entity.employeefamily.relationType')"
+              name="relationType"
+            >
               <a-input-number
                 v-model:value="formState.relationType"
                 :min="0"
@@ -48,7 +61,10 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeefamily.phoneNumber')" name="phoneNumber">
+            <a-form-item
+              :label="t('entity.employeefamily.phoneNumber')"
+              name="phoneNumber"
+            >
               <a-input
                 v-model:value="formState.phoneNumber"
                 allow-clear
@@ -58,7 +74,10 @@
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeefamily.workUnit')" name="workUnit">
+            <a-form-item
+              :label="t('entity.employeefamily.workUnit')"
+              name="workUnit"
+            >
               <a-input
                 v-model:value="formState.workUnit"
                 allow-clear
@@ -66,7 +85,10 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeefamily.jobTitle')" name="jobTitle">
+            <a-form-item
+              :label="t('entity.employeefamily.jobTitle')"
+              name="jobTitle"
+            >
               <a-input
                 v-model:value="formState.jobTitle"
                 allow-clear
@@ -76,7 +98,10 @@
         </a-row>
         <a-row :gutter="24">
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeefamily.birthDate')" name="birthDate">
+            <a-form-item
+              :label="t('entity.employeefamily.birthDate')"
+              name="birthDate"
+            >
               <a-date-picker
                 v-model:value="formState.birthDate"
                 value-format="YYYY-MM-DD"
@@ -85,7 +110,10 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item :label="t('entity.employeefamily.isEmergencyContact')" name="isEmergencyContact">
+            <a-form-item
+              :label="t('entity.employeefamily.isEmergencyContact')"
+              name="isEmergencyContact"
+            >
               <a-select
                 v-model:value="formState.isEmergencyContact"
                 :options="yesNoOptions"

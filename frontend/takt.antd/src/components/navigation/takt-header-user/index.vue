@@ -1,5 +1,8 @@
 <template>
-  <a-dropdown :trigger="['click']" placement="bottomRight">
+  <a-dropdown
+    :trigger="['click']"
+    placement="bottomRight"
+  >
     <a-button type="text">
       <template #icon>
         <a-avatar 

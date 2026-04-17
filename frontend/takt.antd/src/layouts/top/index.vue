@@ -14,7 +14,7 @@
             class="logo-image"
             @error="() => { logoError = true }"
             @load="() => {}"
-          />
+          >
           <span class="title-text">{{ settingSafe.logoText }}</span>
         </div>
         <TaktTopMenu />
@@ -57,6 +57,7 @@ import { defaultSetting, useSettingStore } from '@/stores/setting'
 import { useUserStore } from '@/stores/identity/user'
 import { useMenuStore } from '@/stores/identity/menu'
 import { ensureMenuAndRoutesLoaded } from '@/router'
+type HeaderHeight = 32 | 40 | 48
 
 const { setting } = storeToRefs(useSettingStore())
 const userStore = useUserStore()
@@ -83,7 +84,13 @@ const logoUrl = computed(() => {
   }
 })
 
-const headerHeight = computed(() => (settingSafe.value as any)?.headerHeight ?? 40)
+const headerHeight = computed(() => {
+  const headerHeightValue = (settingSafe.value as Record<string, unknown>)?.headerHeight
+  if (headerHeightValue === 32 || headerHeightValue === 40 || headerHeightValue === 48) {
+    return headerHeightValue
+  }
+  return 40 as HeaderHeight
+})
 
 const contentMaxHeight = computed(() => {
   if (settingSafe.value.fixedHeader) {
