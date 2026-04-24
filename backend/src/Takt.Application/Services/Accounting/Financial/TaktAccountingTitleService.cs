@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Accounting.Financial
 // 文件名称：TaktAccountingTitleService.cs
@@ -21,7 +21,6 @@ using Takt.Domain.Validation;
 using Takt.Shared.Exceptions;
 using Takt.Shared.Helpers;
 using Takt.Shared.Models;
-
 namespace Takt.Application.Services.Accounting.Financial;
 
 /// <summary>
@@ -53,7 +52,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktAccountingTitleDto>> GetListAsync(TaktAccountingTitleQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktAccountingTitleDto>> GetAccountingTitleListAsync(TaktAccountingTitleQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
 
@@ -71,7 +70,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// </summary>
     /// <param name="id">科目ID</param>
     /// <returns>会计科目DTO</returns>
-    public async Task<TaktAccountingTitleDto?> GetByIdAsync(long id)
+    public async Task<TaktAccountingTitleDto?> GetAccountingTitleByIdAsync(long id)
     {
         var title = await _titleRepository.GetByIdAsync(id);
         if (title == null) return null;
@@ -83,7 +82,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// 获取会计科目树形选项列表（用于树形下拉框等）
     /// </summary>
     /// <returns>会计科目树形选项列表</returns>
-    public async Task<List<TaktTreeSelectOption>> GetTreeOptionsAsync()
+    public async Task<List<TaktTreeSelectOption>> GetAccountingTitleTreeOptionsAsync()
     {
         var titles = await _titleRepository.FindAsync(t => t.IsDeleted == 0 && t.TitleStatus == 0);
 
@@ -94,7 +93,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
 
         // 转换为树形选项
         var titleOptions = titles
-            .OrderBy(t => t.OrderNum)
+            .OrderBy(t => t.SortOrder)
             .ThenBy(t => t.CreatedAt)
             .Select(t => new TaktTreeSelectOption
             {
@@ -102,7 +101,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
                 DictValue = t.Id,
                 ExtLabel = t.TitleCode,
                 ExtValue = GetTitleTypeString(t.TitleType),
-                OrderNum = t.OrderNum
+                SortOrder = t.SortOrder
             })
             .ToList();
 
@@ -143,7 +142,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// <param name="parentId">父级ID（0表示根节点，默认返回所有根节点）</param>
     /// <param name="includeDisabled">是否包含禁用的科目（默认false）</param>
     /// <returns>会计科目树形列表</returns>
-    public async Task<List<TaktAccountingTitleTreeDto>> GetTreeAsync(long parentId = 0, bool includeDisabled = false)
+    public async Task<List<TaktAccountingTitleTreeDto>> GetAccountingTitleTreeAsync(long parentId = 0, bool includeDisabled = false)
     {
         // 1. 查询所有科目（根据includeDisabled过滤）
         Expression<Func<TaktAccountingTitle, bool>>? predicate = t => t.IsDeleted == 0;
@@ -161,13 +160,13 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
 
         // 转换为DTO
         var titleDtos = allTitles
-            .OrderBy(t => t.OrderNum)
+            .OrderBy(t => t.SortOrder)
             .ThenBy(t => t.CreatedAt)
             .Select(t => t.Adapt<TaktAccountingTitleTreeDto>())
             .ToList();
 
         // 2. 构建树形结构
-        var titleDict = titleDtos.ToDictionary(t => t.TitleId, t => t);
+        var titleDict = titleDtos.ToDictionary(t => t.AccountingTitleId, t => t);
         var rootNodes = new List<TaktAccountingTitleTreeDto>();
 
         foreach (var title in titleDtos)
@@ -198,7 +197,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
         else
         {
             // 查找指定父级ID的节点
-            var targetNode = titleDtos.FirstOrDefault(t => t.TitleId == parentId);
+            var targetNode = titleDtos.FirstOrDefault(t => t.AccountingTitleId == parentId);
             if (targetNode == null)
             {
                 return new List<TaktAccountingTitleTreeDto>();
@@ -213,7 +212,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// <param name="parentId">父级ID（0表示根节点）</param>
     /// <param name="includeDisabled">是否包含禁用的科目（默认false）</param>
     /// <returns>会计科目子节点列表</returns>
-    public async Task<List<TaktAccountingTitleDto>> GetChildrenAsync(long parentId, bool includeDisabled = false)
+    public async Task<List<TaktAccountingTitleDto>> GetAccountingTitleChildrenAsync(long parentId, bool includeDisabled = false)
     {
         // 1. 查询指定父级ID下的直接子节点
         Expression<Func<TaktAccountingTitle, bool>>? predicate = t => t.IsDeleted == 0 && t.ParentId == parentId;
@@ -231,7 +230,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
 
         // 2. 按OrderNum排序
         return children
-            .OrderBy(t => t.OrderNum)
+            .OrderBy(t => t.SortOrder)
             .ThenBy(t => t.CreatedAt)
             .Select(t => t.Adapt<TaktAccountingTitleDto>())
             .ToList();
@@ -242,7 +241,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// </summary>
     /// <param name="dto">创建会计科目DTO</param>
     /// <returns>会计科目DTO</returns>
-    public async Task<TaktAccountingTitleDto> CreateAsync(TaktAccountingTitleCreateDto dto)
+    public async Task<TaktAccountingTitleDto> CreateAccountingTitleAsync(TaktAccountingTitleCreateDto dto)
     {
         // 查重验证（TitleCode唯一）
         await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_titleRepository, t => t.TitleCode, dto.TitleCode, null, null, $"科目编码 {dto.TitleCode} 已存在");
@@ -271,7 +270,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
 
         title = await _titleRepository.CreateAsync(title);
 
-        return await GetByIdAsync(title.Id) ?? title.Adapt<TaktAccountingTitleDto>();
+        return await GetAccountingTitleByIdAsync(title.Id) ?? title.Adapt<TaktAccountingTitleDto>();
     }
 
     /// <summary>
@@ -280,7 +279,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// <param name="id">科目ID</param>
     /// <param name="dto">更新会计科目DTO</param>
     /// <returns>会计科目DTO</returns>
-    public async Task<TaktAccountingTitleDto> UpdateAsync(long id, TaktAccountingTitleUpdateDto dto)
+    public async Task<TaktAccountingTitleDto> UpdateAccountingTitleAsync(long id, TaktAccountingTitleUpdateDto dto)
     {
         var title = await _titleRepository.GetByIdAsync(id);
         if (title == null)
@@ -316,7 +315,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
 
         await _titleRepository.UpdateAsync(title);
 
-        return await GetByIdAsync(id) ?? title.Adapt<TaktAccountingTitleDto>();
+        return await GetAccountingTitleByIdAsync(id) ?? title.Adapt<TaktAccountingTitleDto>();
     }
 
     /// <summary>
@@ -324,7 +323,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// </summary>
     /// <param name="id">科目ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteAccountingTitleByIdAsync(long id)
     {
         // 检查是否有子节点
         var children = await _titleRepository.FindAsync(t => t.ParentId == id && t.IsDeleted == 0);
@@ -342,7 +341,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// </summary>
     /// <param name="ids">科目ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(IEnumerable<long> ids)
+    public async Task DeleteAccountingTitleBatchAsync(IEnumerable<long> ids)
     {
         var idList = ids.ToList();
         if (idList.Count == 0)
@@ -384,9 +383,9 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// </summary>
     /// <param name="dto">会计科目状态DTO</param>
     /// <returns>会计科目DTO</returns>
-    public async Task<TaktAccountingTitleDto> UpdateStatusAsync(TaktAccountingTitleStatusDto dto)
+    public async Task<TaktAccountingTitleDto> UpdateAccountingTitleStatusAsync(TaktAccountingTitleStatusDto dto)
     {
-        var title = await _titleRepository.GetByIdAsync(dto.TitleId);
+        var title = await _titleRepository.GetByIdAsync(dto.AccountingTitleId);
         if (title == null)
             throw new TaktBusinessException("validation.accountingTitleNotFound");
 
@@ -404,7 +403,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> GetTemplateAsync(string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> GetAccountingTitleTemplateAsync(string? sheetName, string? fileName)
     {
         var (excelSheet, excelFile) = await ResolveExcelImportTemplateNamesAsync(sheetName, fileName, nameof(TaktAccountingTitle));
         return await TaktExcelHelper.GenerateTemplateAsync<TaktAccountingTitleTemplateDto>(
@@ -419,7 +418,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// <param name="fileStream">Excel文件流</param>
     /// <param name="sheetName">工作表名称</param>
     /// <returns>导入结果（成功数量、失败数量、错误信息列表）</returns>
-    public async Task<(int success, int fail, List<string> errors)> ImportAsync(Stream fileStream, string? sheetName)
+    public async Task<(int success, int fail, List<string> errors)> ImportAccountingTitleAsync(Stream fileStream, string? sheetName)
     {
         var errors = new List<string>();
         int success = 0;
@@ -477,10 +476,12 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
                         IsCurrency = item.IsCurrency >= 0 ? item.IsCurrency : 0,
                         IsCash = item.IsCash >= 0 ? item.IsCash : 0,
                         IsBank = item.IsBank >= 0 ? item.IsBank : 0,
-                        OrderNum = item.OrderNum,
+                        SortOrder = item.SortOrder,
                         TitleStatus = item.TitleStatus >= 0 ? item.TitleStatus : 0, // 默认为启用（0=启用）
                         TitleLevel = 1, // 导入时默认为1级
                         ParentId = 0, // 导入时默认为根节点
+                        ValidFrom = item.ValidFrom,
+                        ValidTo = item.ValidTo,
                         Remark = item.Remark
                     };
 
@@ -519,7 +520,7 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktAccountingTitleQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportAccountingTitleAsync(TaktAccountingTitleQueryDto query, string? sheetName, string? fileName)
     {
         // 构建查询条件
         var predicate = QueryExpression(query);
@@ -546,20 +547,10 @@ public class TaktAccountingTitleService : TaktServiceBase, ITaktAccountingTitleS
             );
         }
 
-        // 转换为导出DTO（先使用 Adapt 进行基础映射，然后处理需要转换的字段）
+        // 转换为导出DTO（使用 Adapt 自动映射）
         var exportData = titles.Select(t =>
         {
             var dto = t.Adapt<TaktAccountingTitleExportDto>();
-            // 处理需要特殊转换的字段
-            dto.TitleType = GetTitleTypeString(t.TitleType);
-            dto.BalanceDirection = GetBalanceDirectionString(t.BalanceDirection);
-            dto.IsLeaf = t.IsLeaf == 1 ? "是" : "否";
-            dto.IsAuxiliary = t.IsAuxiliary == 1 ? "是" : "否";
-            dto.AuxiliaryType = GetAuxiliaryTypeString(t.AuxiliaryType);
-            dto.IsQuantity = t.IsQuantity == 1 ? "是" : "否";
-            dto.IsCurrency = t.IsCurrency == 1 ? "是" : "否";
-            dto.IsCash = t.IsCash == 1 ? "是" : "否";
-            dto.IsBank = t.IsBank == 1 ? "是" : "否";
             return dto;
         }).ToList();
 

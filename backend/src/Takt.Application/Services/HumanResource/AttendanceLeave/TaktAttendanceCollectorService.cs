@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：TaktAttendanceCollectorService.cs
@@ -37,6 +37,9 @@ public class TaktAttendanceCollectorService : TaktServiceBase, ITaktAttendanceCo
     /// <summary>
     /// 构造函数
     /// </summary>
+    /// <param name="deviceRepository">考勤设备仓储</param>
+    /// <param name="sourceRepository">考勤来源仓储</param>
+    /// <param name="adapterFactory">设备适配器工厂</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
@@ -168,7 +171,7 @@ public class TaktAttendanceCollectorService : TaktServiceBase, ITaktAttendanceCo
     }
 
     /// <inheritdoc />
-    public async Task<TaktAttendanceDeviceStatusDto> GetAttendanceDeviceStatusAsync(long deviceId)
+    public async Task<TaktAttendanceDeviceOnlineStatusDto> GetAttendanceDeviceStatusAsync(long deviceId)
     {
         var device = await _deviceRepository.GetByIdAsync(deviceId);
         if (device == null)

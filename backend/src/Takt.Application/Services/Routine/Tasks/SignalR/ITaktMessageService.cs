@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Routine.SignalR
 // 文件名称：ITaktMessageService.cs
@@ -23,59 +23,40 @@ public interface ITaktMessageService
     /// <summary>
     /// 获取消息列表（分页）
     /// </summary>
-    /// <param name="queryDto">查询DTO</param>
-    /// <returns>分页结果</returns>
-    Task<TaktPagedResult<TaktMessageDto>> GetListAsync(TaktMessageQueryDto queryDto);
+    Task<TaktPagedResult<TaktMessageDto>> GetMessageListAsync(TaktMessageQueryDto queryDto);
 
     /// <summary>
     /// 根据ID获取消息
     /// </summary>
-    /// <param name="id">消息ID</param>
-    /// <returns>消息DTO</returns>
-    Task<TaktMessageDto?> GetByIdAsync(long id);
+    Task<TaktMessageDto?> GetMessageByIdAsync(long id);
 
     /// <summary>
     /// 创建消息
     /// </summary>
-    /// <param name="dto">创建消息DTO</param>
-    /// <returns>消息DTO</returns>
-    Task<TaktMessageDto> CreateAsync(TaktMessageCreateDto dto);
+    Task<TaktMessageDto> CreateMessageAsync(TaktMessageCreateDto dto);
 
     /// <summary>
     /// 更新消息
     /// </summary>
-    /// <param name="id">消息ID</param>
-    /// <param name="dto">更新消息DTO</param>
-    /// <returns>消息DTO</returns>
-    Task<TaktMessageDto> UpdateAsync(long id, TaktMessageUpdateDto dto);
+    Task<TaktMessageDto> UpdateMessageAsync(long id, TaktMessageUpdateDto dto);
 
     /// <summary>
     /// 删除消息
     /// </summary>
-    /// <param name="id">消息ID</param>
-    /// <returns>任务</returns>
-    Task DeleteAsync(long id);
+    Task DeleteMessageByIdAsync(long id);
 
     /// <summary>
     /// 批量删除消息
     /// </summary>
-    /// <param name="ids">消息ID列表</param>
-    /// <returns>任务</returns>
-    Task DeleteAsync(IEnumerable<long> ids);
+    Task DeleteMessageBatchAsync(IEnumerable<long> ids);
 
     /// <summary>
     /// 标记消息为已读
     /// </summary>
-    /// <param name="dto">消息已读DTO</param>
-    /// <returns>消息DTO</returns>
-    Task<TaktMessageDto> MarkAsReadAsync(TaktMessageReadDto dto);
+    Task<TaktMessageDto> MarkMessageAsReadAsync(TaktMessageReadDto dto);
 
     /// <summary>
     /// 导出消息
     /// </summary>
-    /// <param name="query">消息查询DTO（包含查询条件）</param>
-    /// <param name="sheetName">工作表名称</param>
-    /// <param name="fileName">文件名</param>
-    /// <returns>Excel文件信息（文件名和内容）</returns>
-    Task<(string fileName, byte[] content)> ExportAsync(TaktMessageQueryDto query, string? sheetName, string? fileName);
+    Task<(string fileName, byte[] content)> ExportMessageAsync(TaktMessageQueryDto query, string? sheetName, string? fileName);
 }

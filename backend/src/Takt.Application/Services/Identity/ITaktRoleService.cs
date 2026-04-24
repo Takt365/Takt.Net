@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Identity
 // 文件名称：ITaktRoleService.cs
@@ -139,4 +139,44 @@ public interface ITaktRoleService
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
     Task<(string fileName, byte[] content)> ExportRoleAsync(TaktRoleQueryDto query, string? sheetName, string? fileName);
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计角色总数
+    /// </summary>
+    /// <returns>角色总数</returns>
+    Task<long> GetRoleCountAsync();
+
+    /// <summary>
+    /// 统计菜单总数
+    /// </summary>
+    /// <returns>菜单总数</returns>
+    Task<long> GetMenuCountAsync();
+
+    /// <summary>
+    /// 按角色统计用户数分布
+    /// </summary>
+    /// <returns>角色用户数统计列表（Key=角色ID，Value=用户数）</returns>
+    Task<Dictionary<long, int>> GetUserCountByRoleAsync();
+
+    /// <summary>
+    /// 统计各角色用户数及详情
+    /// </summary>
+    /// <returns>角色用户数统计（包含角色ID、角色名称、用户数）</returns>
+    Task<List<(long roleId, string roleName, int userCount)>> GetRoleUserStatsAsync();
+
+    /// <summary>
+    /// 按角色统计菜单数分布
+    /// </summary>
+    /// <returns>角色菜单数统计列表（Key=角色ID，Value=菜单数）</returns>
+    Task<Dictionary<long, int>> GetMenuCountByRoleAsync();
+
+    /// <summary>
+    /// 统计各角色菜单数及详情
+    /// </summary>
+    /// <returns>角色菜单数统计（包含角色ID、角色名称、菜单数）</returns>
+    Task<List<(long roleId, string roleName, int menuCount)>> GetRoleMenuStatsAsync();
+
+    #endregion
 }

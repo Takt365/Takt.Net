@@ -17,7 +17,7 @@
           v-if="loading && !captchaData"
           class="captcha-loading"
         >
-          <a-spin :tip="$t('components.common.captcha.loading')" />
+          <a-spin :tip="$t('components.common.page.captcha.loading')" />
         </div>
 
         <!-- 验证码容器 -->
@@ -31,7 +31,7 @@
             v-if="loading"
             class="captcha-overlay"
           >
-            <a-spin :tip="$t('components.common.captcha.loading')" />
+            <a-spin :tip="$t('components.common.page.captcha.loading')" />
           </div>
           <!-- 滑块区域 -->
           <div
@@ -67,13 +67,13 @@
                 v-if="!verified"
                 class="shine-text"
               >
-                {{ $t('components.common.captcha.slideToTarget', { position: targetPosition }) }}
+                {{ $t('components.common.page.captcha.slidetotarget', { position: targetPosition }) }}
               </a-typography-text>
               <a-typography-text
                 v-else
                 class="success-text"
               >
-                {{ $t('components.common.captcha.success') }}
+                {{ $t('components.common.page.captcha.success') }}
               </a-typography-text>
             </div>
 
@@ -119,7 +119,7 @@
             }"
           >
             <a-alert
-              :message="$t('components.common.captcha.disabled')"
+              :message="$t('components.common.page.captcha.disabled')"
               type="info"
               show-icon
               :banner="true"
@@ -141,7 +141,7 @@
             type="link"
             @click="generate"
           >
-            {{ $t('components.common.captcha.regenerate') }}
+            {{ $t('components.common.page.captcha.regenerate') }}
           </a-button>
         </div>
       </div>
@@ -520,7 +520,7 @@ async function verify(position: number, timeSpent: number) {
       emit('verified', true)
     } else {
       logger.warn('[Captcha Behavior] 验证码验证失败', { captchaId: request.captchaId, position, targetPosition: targetPosition.value, message: result.message })
-      errorMessage.value = result.message || t('components.common.captcha.failed')
+      errorMessage.value = result.message || t('components.common.page.captcha.failed')
       emit('fail', errorMessage.value)
       emit('verified', false)
       // 先关闭 loading，等 DOM 恢复滑块后再执行 resume，否则 ref 为空无法重置
@@ -533,7 +533,7 @@ async function verify(position: number, timeSpent: number) {
     }
   } catch (error: unknown) {
     logger.error('[Captcha Behavior] 验证码验证异常', error)
-    errorMessage.value = getErrorMessage(error, t('components.common.captcha.failed'))
+    errorMessage.value = getErrorMessage(error, t('components.common.page.captcha.failed'))
     emit('fail', errorMessage.value)
     emit('verified', false)
     loading.value = false
@@ -625,7 +625,7 @@ async function generate() {
     logger.debug('[Captcha Behavior] 验证码数据已设置', { targetPosition: targetPosition.value })
   } catch (error: unknown) {
     logger.error('[Captcha Behavior] 生成验证码失败', error)
-    errorMessage.value = getErrorMessage(error, t('components.common.captcha.generateFailed'))
+    errorMessage.value = getErrorMessage(error, t('components.common.page.captcha.generatefailed'))
     emit('fail', errorMessage.value)
     captchaData.value = null
   } finally {

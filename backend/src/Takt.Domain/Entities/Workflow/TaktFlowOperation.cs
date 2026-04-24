@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Workflow
 // 文件名称：TaktFlowOperation.cs
@@ -25,8 +25,6 @@ namespace Takt.Domain.Entities.Workflow;
 [SugarIndex("ix_takt_workflow_operation_instance_id", nameof(InstanceId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_operation_scheme_id", nameof(SchemeId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_operation_operation_type", nameof(OperationType), OrderByType.Asc)]
-[SugarIndex("ix_takt_workflow_operation_operation_time", nameof(OperationTime), OrderByType.Desc)]
-[SugarIndex("ix_takt_workflow_operation_operator_id", nameof(OperatorId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_operation_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_operation_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktFlowOperation : TaktEntityBase
@@ -62,51 +60,19 @@ public class TaktFlowOperation : TaktEntityBase
     /// 流程Key
     /// </summary>
     [SugarColumn(ColumnName = "process_key", ColumnDescription = "流程Key", ColumnDataType = "nvarchar", Length = 100, IsNullable = false)]
-    public string ProcessKey { get; set; } = string.Empty;
+    public string SchemeKey { get; set; } = string.Empty;
 
     /// <summary>
     /// 流程名称
     /// </summary>
     [SugarColumn(ColumnName = "process_name", ColumnDescription = "流程名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
-    public string ProcessName { get; set; } = string.Empty;
+    public string SchemeName { get; set; } = string.Empty;
 
     /// <summary>
     /// 操作类型（0=启动，1=提交，2=退回，3=转办，4=加签，5=减签，6=撤回，7=挂起，8=恢复，9=终止，10=完成）
     /// </summary>
     [SugarColumn(ColumnName = "operation_type", ColumnDescription = "操作类型", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int OperationType { get; set; } = 0;
-
-    /// <summary>
-    /// 操作时间
-    /// </summary>
-    [SugarColumn(ColumnName = "operation_time", ColumnDescription = "操作时间", ColumnDataType = "datetime", IsNullable = false)]
-    public DateTime OperationTime { get; set; } = DateTime.Now;
-
-    /// <summary>
-    /// 操作人ID（序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [SugarColumn(ColumnName = "operator_id", ColumnDescription = "操作人ID", ColumnDataType = "bigint", IsNullable = false)]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long OperatorId { get; set; }
-
-    /// <summary>
-    /// 操作人姓名
-    /// </summary>
-    [SugarColumn(ColumnName = "operator_name", ColumnDescription = "操作人姓名", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
-    public string OperatorName { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 操作部门ID（序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [SugarColumn(ColumnName = "operator_dept_id", ColumnDescription = "操作部门ID", ColumnDataType = "bigint", IsNullable = true)]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long? OperatorDeptId { get; set; }
-
-    /// <summary>
-    /// 操作部门名称
-    /// </summary>
-    [SugarColumn(ColumnName = "operator_dept_name", ColumnDescription = "操作部门名称", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
-    public string? OperatorDeptName { get; set; }
 
     /// <summary>
     /// 操作节点ID（序列化为string以避免Javascript精度问题）
@@ -121,40 +87,16 @@ public class TaktFlowOperation : TaktEntityBase
     public string? NodeName { get; set; }
 
     /// <summary>
-    /// 操作内容
+    /// 操作内容（业务数据摘要，JSON格式）
     /// </summary>
     [SugarColumn(ColumnName = "operation_content", ColumnDescription = "操作内容", ColumnDataType = "nvarchar", Length = 2000, IsNullable = true)]
     public string? OperationContent { get; set; }
 
     /// <summary>
-    /// 操作意见
+    /// 操作意见（人工填写的审批意见等）
     /// </summary>
     [SugarColumn(ColumnName = "operation_comment", ColumnDescription = "操作意见", ColumnDataType = "nvarchar", Length = 2000, IsNullable = true)]
     public string? OperationComment { get; set; }
-
-    /// <summary>
-    /// 操作前状态（JSON格式，存储操作前的流程状态）
-    /// </summary>
-    [SugarColumn(ColumnName = "before_status", ColumnDescription = "操作前状态", ColumnDataType = "nvarchar", Length = 2000, IsNullable = true)]
-    public string? BeforeStatus { get; set; }
-
-    /// <summary>
-    /// 操作后状态（JSON格式，存储操作后的流程状态）
-    /// </summary>
-    [SugarColumn(ColumnName = "after_status", ColumnDescription = "操作后状态", ColumnDataType = "nvarchar", Length = 2000, IsNullable = true)]
-    public string? AfterStatus { get; set; }
-
-    /// <summary>
-    /// 操作IP地址
-    /// </summary>
-    [SugarColumn(ColumnName = "operation_ip", ColumnDescription = "操作IP地址", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? OperationIp { get; set; }
-
-    /// <summary>
-    /// 操作设备信息
-    /// </summary>
-    [SugarColumn(ColumnName = "operation_device", ColumnDescription = "操作设备信息", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
-    public string? OperationDevice { get; set; }
 
     /// <summary>
     /// 操作结果（0=成功，1=失败）

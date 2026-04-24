@@ -1,7 +1,7 @@
 <template>
   <div class="stats-custom-module">
     <a-typography-paragraph class="stats-placeholder">
-      {{ t('dashboard.data-board.customPlaceholder') }}
+      {{ t('dashboard.data-board.customplaceholder') }}
     </a-typography-paragraph>
   </div>
 </template>

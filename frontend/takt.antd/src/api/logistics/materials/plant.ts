@@ -10,12 +10,10 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-import request, { type BlobDownloadWithMeta } from '../../request'
-import type { TaktPagedResult } from '@/types/common'
-
+import request, { type BlobDownloadWithMeta } from '@/api/request'
+import type { TaktPagedResult, TaktSelectOption } from '@/types/common'
 
 import type {
-
 
   Plant,
 
@@ -26,10 +24,11 @@ import type {
   PlantUpdate
 } from '@/types/logistics/materials/plant'
 
+// ========================================
+// 工厂表相关 API（按 table.controller_actions 顺序，与 TaktGenTemplateContext.BuildControllerActions 一致；含 list、{id}、options、增删改、批量删除 POST /delete、导入导出等）
+// ========================================
 
-// ========================================
-// 工厂表相关 API（按后端控制器顺序）
-// ========================================
+const plantUrl = '/api/TaktPlant'
 
 /**
  * 获取工厂表列表（分页）
@@ -39,7 +38,7 @@ export function getPlantList(params: PlantQuery): Promise<TaktPagedResult<Plant>
 
   return request({
 
-    url: '/api/TaktPlant/list',
+    url: `$plantUrl/list`,
 
     method: 'get',
     params
@@ -53,7 +52,20 @@ export function getPlantById(id: string): Promise<Plant> {
 
   return request({
 
-    url: `/api/TaktPlant/${id}`,
+    url: `$plantUrl/${id}`,
+
+    method: 'get'
+  })
+}
+/**
+ * 获取工厂表下拉选项
+ * 对应后端：GetPlantOptionsAsync — GET /options（返回 TaktSelectOption[]，与 getUserOptions 约定一致）
+ */
+export function getPlantOptions(): Promise<TaktSelectOption[]> {
+
+  return request({
+
+    url: `$plantUrl/options`,
 
     method: 'get'
   })
@@ -66,7 +78,7 @@ export function createPlant(data: PlantCreate): Promise<Plant> {
 
   return request({
 
-    url: '/api/TaktPlant',
+    url: plantUrl,
 
     method: 'post',
     data
@@ -80,7 +92,7 @@ export function updatePlant(id: string, data: PlantUpdate): Promise<Plant> {
 
   return request({
 
-    url: `/api/TaktPlant/${id}`,
+    url: `$plantUrl/${id}`,
 
     method: 'put',
     data
@@ -94,7 +106,7 @@ export function deletePlantById(id: string): Promise<void> {
 
   return request({
 
-    url: `/api/TaktPlant/${id}`,
+    url: `$plantUrl/${id}`,
 
     method: 'delete'
   })
@@ -107,9 +119,9 @@ export function deletePlantBatch(ids: string[]): Promise<void> {
 
   return request({
 
-    url: '/api/TaktPlant/batch',
+    url: `$plantUrl/delete`,
 
-    method: 'delete',
+    method: 'post',
     data: ids
   })
 }
@@ -118,8 +130,11 @@ export function deletePlantBatch(ids: string[]): Promise<void> {
  * 对应后端：GetTemplateAsync
  */
 export function getPlantTemplate(sheetName?: string, fileName?: string): Promise<BlobDownloadWithMeta> {
+
   return request({
-    url: '/api/TaktPlant/template',
+
+    url: `$plantUrl/template`,
+
     method: 'get',
     params: { sheetName, fileName },
     responseType: 'blob',
@@ -140,7 +155,7 @@ export function importPlantData(file: File, sheetName?: string): Promise<{ succe
 
   return request({
 
-    url: '/api/TaktPlant/import',
+    url: `$plantUrl/import`,
 
     method: 'post',
     data: formData,
@@ -153,15 +168,16 @@ export function importPlantData(file: File, sheetName?: string): Promise<{ succe
  * 导出工厂表
  * 对应后端：ExportAsync
  */
-export function exportPlantData(query: PlantQuery, sheetName?: string, fileName?: string): Promise<Blob> {
+export function exportPlantData(query: PlantQuery, sheetName?: string, fileName?: string): Promise<BlobDownloadWithMeta> {
 
   return request({
 
-    url: '/api/TaktPlant/export',
+    url: `$plantUrl/export`,
 
     method: 'post',
     data: query,
     params: { sheetName, fileName },
-    responseType: 'blob'
+    responseType: 'blob',
+    blobWithHeaders: true
   })
 }

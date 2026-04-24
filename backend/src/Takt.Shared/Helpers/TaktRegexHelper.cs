@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Takt.Shared.Helpers;
@@ -306,6 +306,34 @@ public static class TaktRegexHelper
     /// </summary>
     public static readonly Regex PostCode = new(@"^[a-zA-Z][a-zA-Z0-9_-]{2,49}$", Opt);
     /// <summary>
+    /// 工厂代码（4位，第1位大写字母或数字，第2位数字，第3-4位固定00）。
+    /// </summary>
+    public static readonly Regex PlantCode = new(@"^[A-Z0-9]\d00$", Opt);
+    /// <summary>
+    /// 公司代码（4位，第1-2位数字，第3-4位固定00）。
+    /// </summary>
+    public static readonly Regex CompanyCode = new(@"^\d{2}00$", Opt);
+    /// <summary>
+    /// 利润中心编码（数值型字符，最大8位）。
+    /// </summary>
+    public static readonly Regex ProfitCenterCode = new(@"^\d{1,8}$", Opt);
+    /// <summary>
+    /// 成本要素编码（数值型字符，最大8位）。
+    /// </summary>
+    public static readonly Regex CostElementCode = new(@"^\d{1,8}$", Opt);
+    /// <summary>
+    /// 成本中心编码（数值型字符，最大8位）。
+    /// </summary>
+    public static readonly Regex CostCenterCode = new(@"^\d{1,8}$", Opt);
+    /// <summary>
+    /// 会计科目编码（数值型字符，最大8位）。
+    /// </summary>
+    public static readonly Regex TitleCode = new(@"^\d{1,8}$", Opt);
+    /// <summary>
+    /// 资产编码（数值型字符，最大8位）。
+    /// </summary>
+    public static readonly Regex AssetCode = new(@"^\d{1,8}$", Opt);
+    /// <summary>
     /// 权限标识（module:resource:action）。
     /// </summary>
     public static readonly Regex Permission = new(@"^[a-z][a-z0-9]*:[a-z0-9]+:[a-z0-9]+$", Opt);
@@ -494,4 +522,39 @@ public static class TaktRegexHelper
         IsValidLicensePlateJp(value) ||
         IsValidLicensePlateTw(value) ||
         IsValidLicensePlateHk(value);
+
+    /// <summary>
+    /// 是否为有效工厂代码（4位，数字或大写字母开头）。
+    /// </summary>
+    public static bool IsValidPlantCode(string? value) => IsMatch(PlantCode, value);
+
+    /// <summary>
+    /// 是否为有效公司代码（4位，数字或大写字母开头）。
+    /// </summary>
+    public static bool IsValidCompanyCode(string? value) => IsMatch(CompanyCode, value);
+
+    /// <summary>
+    /// 是否为有效利润中心编码（数值型字符，最大8位）。
+    /// </summary>
+    public static bool IsValidProfitCenterCode(string? value) => IsMatch(ProfitCenterCode, value);
+
+    /// <summary>
+    /// 是否为有效成本要素编码（数值型字符，最大8位）。
+    /// </summary>
+    public static bool IsValidCostElementCode(string? value) => IsMatch(CostElementCode, value);
+
+    /// <summary>
+    /// 是否为有效成本中心编码（数值型字符，最大8位）。
+    /// </summary>
+    public static bool IsValidCostCenterCode(string? value) => IsMatch(CostCenterCode, value);
+
+    /// <summary>
+    /// 是否为有效会计科目编码（数值型字符，最大8位）。
+    /// </summary>
+    public static bool IsValidTitleCode(string? value) => IsMatch(TitleCode, value);
+
+    /// <summary>
+    /// 是否为有效资产编码（数值型字符，最大8位）。
+    /// </summary>
+    public static bool IsValidAssetCode(string? value) => IsMatch(AssetCode, value);
 }

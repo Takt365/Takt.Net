@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.Workflow
 // 文件名称：TaktFlowAddApprover.cs
@@ -20,7 +20,7 @@ namespace Takt.Domain.Entities.Workflow;
 /// 加签：在既定的审批流程中，临时增加一个审批环节或审批人，需本实体记录。会签为通用流程不另述。
 /// ApproveType：sequential=顺序，all=并行且，one=并行或。关联：N → 1 实例（InstanceId）、按节点（ActivityId）分组。
 /// </remarks>
-[SugarTable("takt_workflow_add_approver", "流程加签审批人表")]
+[SugarTable("takt_workflow_add_approver", "流程加签表")]
 [SugarIndex("ix_takt_workflow_add_approver_instance_id", nameof(InstanceId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_add_approver_activity_id", nameof(ActivityId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_add_approver_approver_id", nameof(ApproverUserId), OrderByType.Asc)]

@@ -10,10 +10,10 @@
     :label-col="{ span: 6 }"
     :wrapper-col="{ span: 16 }"
   >
-    <a-form-item label="数据源">
+    <a-form-item :label="t('common.button.datasource')">
       <a-select
         v-model:value="configId"
-        placeholder="请选择数据源"
+        :placeholder="t('common.form.placeholder.select', { field: t('common.button.datasource') })"
         allow-clear
         style="width: 100%"
         @change="handleConfigChange"
@@ -27,21 +27,21 @@
         </a-select-option>
       </a-select>
     </a-form-item>
-    <a-form-item label="数据表">
+    <a-form-item :label="t('code.generator.page.importtable.datatable')">
       <a-select
         v-model:value="tableName"
-        placeholder="请先选择数据源"
+        :placeholder="t('common.form.placeholder.selectfirst', { field: t('common.button.datasource') })"
         :disabled="!configId"
         :loading="databaseTablesLoading"
         allow-clear
         style="width: 100%"
       >
         <a-select-option
-          v-for="t in databaseTables"
-          :key="t.tableName"
-          :value="t.tableName"
+          v-for="tbl in databaseTables"
+          :key="tbl.tableName"
+          :value="tbl.tableName"
         >
-          {{ t.tableName }} {{ t.tableComment ? `- ${t.tableComment}` : '' }}
+          {{ tbl.tableName }} {{ tbl.tableComment ? `- ${tbl.tableComment}` : '' }}
         </a-select-option>
       </a-select>
     </a-form-item>
@@ -52,7 +52,7 @@
         :disabled="!configId || !tableName"
         @click="handleSubmit"
       >
-        导入
+        {{ t('common.button.import') }}
       </a-button>
     </a-form-item>
   </a-form>
@@ -60,7 +60,10 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { DatabaseConfig, DatabaseTableInfo } from '@/api/generator/table'
+import { useI18n } from 'vue-i18n'
+import type { DatabaseConfig, DatabaseTableInfo } from '@/api/code/generator/table'
+
+const { t } = useI18n()
 
 const props = withDefaults(
   defineProps<{

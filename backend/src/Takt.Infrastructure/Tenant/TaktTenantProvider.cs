@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.Tenant
 // 文件名称：TaktTenantProvider.cs
@@ -149,7 +149,7 @@ public class TaktTenantProvider : ITaktTenantContext
     /// <returns>开始时间，如果未设置则返回null</returns>
     public DateTime? GetCurrentStartTime()
     {
-        return TaktTenantContext.CurrentTenant?.StartTime;
+        return TaktTenantContext.CurrentTenant?.SubscriptionStartTime;
     }
 
     /// <summary>
@@ -158,7 +158,7 @@ public class TaktTenantProvider : ITaktTenantContext
     /// <returns>结束时间，如果未设置则返回null</returns>
     public DateTime? GetCurrentEndTime()
     {
-        return TaktTenantContext.CurrentTenant?.EndTime;
+        return TaktTenantContext.CurrentTenant?.SubscriptionEndTime;
     }
 
     /// <summary>

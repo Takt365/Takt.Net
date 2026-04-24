@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Logistics.Material
 // 文件名称：TaktPurchaseOrdersController.cs
@@ -16,7 +16,7 @@ using Takt.Application.Services.Logistics.Materials;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.Logistics.Materials;
 
@@ -58,9 +58,9 @@ public class TaktPurchaseOrdersController : TaktControllerBase
     /// <returns>分页结果</returns>
     [HttpGet("list")]
     [TaktPermission("logistics:purchaseorder:list", "查询采购订单列表")]
-    public async Task<ActionResult<TaktPagedResult<TaktPurchaseOrderDto>>> GetListAsync([FromQuery] TaktPurchaseOrderQueryDto queryDto)
+    public async Task<ActionResult<TaktPagedResult<TaktPurchaseOrderDto>>> GetPurchaseOrderListAsync([FromQuery] TaktPurchaseOrderQueryDto queryDto)
     {
-        var result = await _orderService.GetListAsync(queryDto);
+        var result = await _orderService.GetPurchaseOrderListAsync(queryDto);
         return Ok(result);
     }
 
@@ -71,9 +71,9 @@ public class TaktPurchaseOrdersController : TaktControllerBase
     /// <returns>采购订单DTO</returns>
     [HttpGet("{id}")]
     [TaktPermission("logistics:purchaseorder:query", "查询采购订单详情")]
-    public async Task<ActionResult<TaktPurchaseOrderDto>> GetByIdAsync(long id)
+    public async Task<ActionResult<TaktPurchaseOrderDto>> GetPurchaseOrderByIdAsync(long id)
     {
-        var order = await _orderService.GetByIdAsync(id);
+        var order = await _orderService.GetPurchaseOrderByIdAsync(id);
         if (order == null)
             return NotFound();
         return Ok(order);
@@ -86,12 +86,12 @@ public class TaktPurchaseOrdersController : TaktControllerBase
     /// <returns>采购订单DTO</returns>
     [HttpPost]
     [TaktPermission("logistics:purchaseorder:create", "创建采购订单")]
-    public async Task<ActionResult<TaktPurchaseOrderDto>> CreateAsync([FromBody] TaktPurchaseOrderCreateDto dto)
+    public async Task<ActionResult<TaktPurchaseOrderDto>> CreatePurchaseOrderAsync([FromBody] TaktPurchaseOrderCreateDto dto)
     {
         try
         {
-            var order = await _orderService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = order.OrderId }, order);
+            var order = await _orderService.CreatePurchaseOrderAsync(dto);
+            return CreatedAtAction(nameof(GetPurchaseOrderByIdAsync), new { id = order.OrderId }, order);
         }
         catch (Exception ex)
         {
@@ -107,11 +107,11 @@ public class TaktPurchaseOrdersController : TaktControllerBase
     /// <returns>采购订单DTO</returns>
     [HttpPut("{id}")]
     [TaktPermission("logistics:purchaseorder:update", "更新采购订单")]
-    public async Task<ActionResult<TaktPurchaseOrderDto>> UpdateAsync(long id, [FromBody] TaktPurchaseOrderUpdateDto dto)
+    public async Task<ActionResult<TaktPurchaseOrderDto>> UpdatePurchaseOrderAsync(long id, [FromBody] TaktPurchaseOrderUpdateDto dto)
     {
         try
         {
-            var order = await _orderService.UpdateAsync(id, dto);
+            var order = await _orderService.UpdatePurchaseOrderAsync(id, dto);
             return Ok(order);
         }
         catch (Exception ex)
@@ -127,11 +127,11 @@ public class TaktPurchaseOrdersController : TaktControllerBase
     /// <returns>操作结果</returns>
     [HttpDelete("{id}")]
     [TaktPermission("logistics:purchaseorder:delete", "删除采购订单")]
-    public async Task<IActionResult> DeleteAsync(long id)
+    public async Task<IActionResult> DeletePurchaseOrderByIdAsync(long id)
     {
         try
         {
-            await _orderService.DeleteAsync(id);
+            await _orderService.DeletePurchaseOrderByIdAsync(id);
             return NoContent();
         }
         catch (Exception ex)
@@ -147,11 +147,11 @@ public class TaktPurchaseOrdersController : TaktControllerBase
     /// <returns>采购订单DTO</returns>
     [HttpPut("status")]
     [TaktPermission("logistics:purchaseorder:status", "更新采购订单状态")]
-    public async Task<ActionResult<TaktPurchaseOrderDto>> UpdateStatusAsync([FromBody] TaktPurchaseOrderStatusDto dto)
+    public async Task<ActionResult<TaktPurchaseOrderDto>> UpdatePurchaseOrderStatusAsync([FromBody] TaktPurchaseOrderStatusDto dto)
     {
         try
         {
-            var order = await _orderService.UpdateStatusAsync(dto);
+            var order = await _orderService.UpdatePurchaseOrderStatusAsync(dto);
             return Ok(order);
         }
         catch (Exception ex)
@@ -168,12 +168,12 @@ public class TaktPurchaseOrdersController : TaktControllerBase
     /// <returns>Excel模板文件</returns>
     [HttpGet("template")]
     [TaktPermission("logistics:purchaseorder:import", "获取导入模板")]
-    public async Task<IActionResult> GetTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> GetPurchaseOrderTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (actualFileName, content) = await _orderService.GetTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, actualFileName);
+            var (actualFileName, content) = await _orderService.GetPurchaseOrderTemplateAsync(sheetName, fileName);
+            return File(content, TaktExcelHelper.ExcelContentType, actualFileName);
         }
         catch (Exception ex)
         {
@@ -189,7 +189,7 @@ public class TaktPurchaseOrdersController : TaktControllerBase
     /// <returns>导入结果</returns>
     [HttpPost("import")]
     [TaktPermission("logistics:purchaseorder:import", "导入采购订单")]
-    public async Task<ActionResult<object>> ImportAsync(IFormFile file, [FromForm] string? sheetName = null)
+    public async Task<ActionResult<object>> ImportPurchaseOrderAsync(IFormFile file, [FromForm] string? sheetName = null)
     {
         try
         {
@@ -199,7 +199,7 @@ public class TaktPurchaseOrdersController : TaktControllerBase
             }
 
             using var stream = file.OpenReadStream();
-            var (success, fail, errors) = await _orderService.ImportAsync(stream, sheetName);
+            var (success, fail, errors) = await _orderService.ImportPurchaseOrderAsync(stream, sheetName);
 
             return Ok(new
             {
@@ -224,12 +224,12 @@ public class TaktPurchaseOrdersController : TaktControllerBase
     /// <returns>Excel 文件；超过 <c>TaktExcelHelper.ExportAsync</c> 单表行数上限时为 zip 打包（基础设施统一逻辑）</returns>
     [HttpPost("export")]
     [TaktPermission("logistics:purchaseorder:export", "导出采购订单")]
-    public async Task<IActionResult> ExportAsync([FromBody] TaktPurchaseOrderQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> ExportPurchaseOrderAsync([FromBody] TaktPurchaseOrderQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (actualFileName, content) = await _orderService.ExportAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(actualFileName), actualFileName);
+            var (actualFileName, content) = await _orderService.ExportPurchaseOrderAsync(query, sheetName, fileName);
+            return File(content, TaktExcelHelper.GetExportContentType(actualFileName), actualFileName);
         }
         catch (Exception ex)
         {

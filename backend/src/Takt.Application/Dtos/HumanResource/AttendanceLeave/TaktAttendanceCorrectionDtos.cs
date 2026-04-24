@@ -2,9 +2,9 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.AttendanceLeave
 // 文件名称：TaktAttendanceCorrectionDtos.cs
-// 创建时间：2026-04-13
-// 创建人：Takt365(Cursor AI)
-// 功能描述：补卡管理 DTO，包含查询、创建、更新、模板、导入、导出（与 TaktWorkShiftDtos 结构一致）。
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：补卡记录表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,9 +17,9 @@ using Takt.Shared.Models;
 namespace Takt.Application.Dtos.HumanResource.AttendanceLeave;
 
 /// <summary>
-/// 补卡管理 DTO（列表/详情）
+/// 补卡记录表Dto
 /// </summary>
-public class TaktAttendanceCorrectionDto : TaktDtoBase
+public partial class TaktAttendanceCorrectionDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -27,53 +27,46 @@ public class TaktAttendanceCorrectionDto : TaktDtoBase
     public TaktAttendanceCorrectionDto()
     {
         Reason = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 补卡记录 ID（适配实体主键 Id，序列化为 string 以避免 Javascript 精度问题）
+    /// 补卡记录表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long CorrectionId { get; set; }
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AttendanceCorrectionId { get; set; }
 
     /// <summary>
-    /// 员工 ID
+    /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
-
     /// <summary>
-    /// 补卡归属日期（日期部分有效）
+    /// 归属日期
     /// </summary>
     public DateTime TargetDate { get; set; }
-
     /// <summary>
-    /// 补卡类型（1=上班 2=下班）
+    /// 补卡类型
     /// </summary>
     public int CorrectionKind { get; set; }
-
     /// <summary>
-    /// 申请补录的打卡时间
+    /// 申请打卡时间
     /// </summary>
     public DateTime RequestPunchTime { get; set; }
-
     /// <summary>
-    /// 申请原因
+    /// 原因
     /// </summary>
     public string Reason { get; set; }
-
     /// <summary>
-    /// 审批状态（0=草稿 1=待审 2=通过 3=驳回）
+    /// 审批状态
     /// </summary>
     public int ApprovalStatus { get; set; }
 }
 
 /// <summary>
-/// 补卡管理分页查询 DTO。
-/// 继承的 <see cref="TaktPagedQuery.KeyWords"/> 在应用服务查询表达式中用于匹配申请原因、备注。
+/// 补卡记录表查询DTO
 /// </summary>
-public class TaktAttendanceCorrectionQueryDto : TaktPagedQuery
+public partial class TaktAttendanceCorrectionQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -82,31 +75,86 @@ public class TaktAttendanceCorrectionQueryDto : TaktPagedQuery
     {
     }
 
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
     /// <summary>
-    /// 员工 ID（精确）
+    /// 补卡记录表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AttendanceCorrectionId { get; set; }
+
+    /// <summary>
+    /// 员工ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? EmployeeId { get; set; }
+    /// <summary>
+    /// 归属日期
+    /// </summary>
+    public DateTime? TargetDate { get; set; }
 
     /// <summary>
-    /// 归属日期起（含，按日期部分比较）
+    /// 归属日期开始时间
     /// </summary>
-    public DateTime? TargetDateFrom { get; set; }
+    public DateTime? TargetDateStart { get; set; }
+    /// <summary>
+    /// 归属日期结束时间
+    /// </summary>
+    public DateTime? TargetDateEnd { get; set; }
+    /// <summary>
+    /// 补卡类型
+    /// </summary>
+    public int? CorrectionKind { get; set; }
+    /// <summary>
+    /// 申请打卡时间
+    /// </summary>
+    public DateTime? RequestPunchTime { get; set; }
 
     /// <summary>
-    /// 归属日期止（含，按日期部分比较）
+    /// 申请打卡时间开始时间
     /// </summary>
-    public DateTime? TargetDateTo { get; set; }
-
+    public DateTime? RequestPunchTimeStart { get; set; }
+    /// <summary>
+    /// 申请打卡时间结束时间
+    /// </summary>
+    public DateTime? RequestPunchTimeEnd { get; set; }
+    /// <summary>
+    /// 原因
+    /// </summary>
+    public string? Reason { get; set; }
     /// <summary>
     /// 审批状态
     /// </summary>
     public int? ApprovalStatus { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// 创建补卡 DTO
+/// Takt创建补卡记录表DTO
 /// </summary>
-public class TaktAttendanceCorrectionCreateDto
+public partial class TaktAttendanceCorrectionCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -116,36 +164,41 @@ public class TaktAttendanceCorrectionCreateDto
         Reason = string.Empty;
     }
 
-    /// <summary>
-    /// 员工 ID
+        /// <summary>
+    /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
-    /// 补卡归属日期
+        /// <summary>
+    /// 归属日期
     /// </summary>
     public DateTime TargetDate { get; set; }
 
-    /// <summary>
-    /// 补卡类型（1=上班 2=下班）
+        /// <summary>
+    /// 补卡类型
     /// </summary>
     public int CorrectionKind { get; set; }
 
-    /// <summary>
-    /// 申请补录的打卡时间
+        /// <summary>
+    /// 申请打卡时间
     /// </summary>
     public DateTime RequestPunchTime { get; set; }
 
-    /// <summary>
-    /// 申请原因
+        /// <summary>
+    /// 原因
     /// </summary>
     public string Reason { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 审批状态
     /// </summary>
     public int ApprovalStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -154,22 +207,54 @@ public class TaktAttendanceCorrectionCreateDto
 }
 
 /// <summary>
-/// 更新补卡 DTO
+/// Takt更新补卡记录表DTO
 /// </summary>
-public class TaktAttendanceCorrectionUpdateDto : TaktAttendanceCorrectionCreateDto
+public partial class TaktAttendanceCorrectionUpdateDto : TaktAttendanceCorrectionCreateDto
 {
     /// <summary>
-    /// 补卡记录 ID（适配实体主键 Id）
+    /// 构造函数
+    /// </summary>
+    public TaktAttendanceCorrectionUpdateDto()
+    {
+    }
+
+        /// <summary>
+    /// 补卡记录表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long CorrectionId { get; set; }
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AttendanceCorrectionId { get; set; }
 }
 
 /// <summary>
-/// 补卡导入模板 DTO（Excel 列）
+/// 补卡记录表审批状态DTO
 /// </summary>
-public class TaktAttendanceCorrectionTemplateDto
+public partial class TaktAttendanceCorrectionApprovalStatusDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktAttendanceCorrectionApprovalStatusDto()
+    {
+    }
+
+        /// <summary>
+    /// 补卡记录表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AttendanceCorrectionId { get; set; }
+
+    /// <summary>
+    /// 审批状态（0=禁用，1=启用）
+    /// </summary>
+    public int ApprovalStatus { get; set; }
+}
+
+/// <summary>
+/// 补卡记录表导入模板DTO
+/// </summary>
+public partial class TaktAttendanceCorrectionTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -179,36 +264,40 @@ public class TaktAttendanceCorrectionTemplateDto
         Reason = string.Empty;
     }
 
-    /// <summary>
-    /// 员工 ID
+        /// <summary>
+    /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
-    /// 补卡归属日期
+        /// <summary>
+    /// 归属日期
     /// </summary>
     public DateTime TargetDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 补卡类型
     /// </summary>
     public int CorrectionKind { get; set; }
 
-    /// <summary>
-    /// 申请补录的打卡时间
+        /// <summary>
+    /// 申请打卡时间
     /// </summary>
     public DateTime RequestPunchTime { get; set; }
 
-    /// <summary>
-    /// 申请原因
+        /// <summary>
+    /// 原因
     /// </summary>
     public string Reason { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 审批状态
     /// </summary>
     public int ApprovalStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -217,60 +306,102 @@ public class TaktAttendanceCorrectionTemplateDto
 }
 
 /// <summary>
-/// 补卡导入行 DTO（与模板列一致）
+/// 补卡记录表导入DTO
 /// </summary>
-public class TaktAttendanceCorrectionImportDto : TaktAttendanceCorrectionTemplateDto
+public partial class TaktAttendanceCorrectionImportDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktAttendanceCorrectionImportDto()
+    {
+        Reason = string.Empty;
+    }
+
+        /// <summary>
+    /// 员工ID
+    /// </summary>
+    public long EmployeeId { get; set; }
+
+        /// <summary>
+    /// 归属日期
+    /// </summary>
+    public DateTime TargetDate { get; set; }
+
+        /// <summary>
+    /// 补卡类型
+    /// </summary>
+    public int CorrectionKind { get; set; }
+
+        /// <summary>
+    /// 申请打卡时间
+    /// </summary>
+    public DateTime RequestPunchTime { get; set; }
+
+        /// <summary>
+    /// 原因
+    /// </summary>
+    public string Reason { get; set; }
+
+        /// <summary>
+    /// 审批状态
+    /// </summary>
+    public int ApprovalStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// 补卡导出 DTO（Excel 列）
+/// 补卡记录表导出DTO
 /// </summary>
-public class TaktAttendanceCorrectionExportDto
+public partial class TaktAttendanceCorrectionExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktAttendanceCorrectionExportDto()
     {
+        CreatedAt = DateTime.Now;
         Reason = string.Empty;
     }
 
-    /// <summary>
-    /// 员工 ID
+        /// <summary>
+    /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
-    /// 补卡归属日期
+        /// <summary>
+    /// 归属日期
     /// </summary>
     public DateTime TargetDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 补卡类型
     /// </summary>
     public int CorrectionKind { get; set; }
 
-    /// <summary>
-    /// 申请补录的打卡时间
+        /// <summary>
+    /// 申请打卡时间
     /// </summary>
     public DateTime RequestPunchTime { get; set; }
 
-    /// <summary>
-    /// 申请原因
+        /// <summary>
+    /// 原因
     /// </summary>
     public string Reason { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 审批状态
     /// </summary>
     public int ApprovalStatus { get; set; }
-
-    /// <summary>
-    /// 备注
-    /// </summary>
-    public string? Remark { get; set; }
 
     /// <summary>
     /// 创建时间

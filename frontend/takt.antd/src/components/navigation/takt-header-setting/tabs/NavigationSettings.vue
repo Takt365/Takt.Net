@@ -5,35 +5,35 @@
       size="large"
       style="width: 100%"
     >
-      <a-form-item :label="$t('components.navigation.systemSetting.menuAccordion')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.menuaccordion')">
         <a-switch
           v-model:checked="setting.menuAccordion"
           @change="handleChange"
         />
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.menuStyle')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.menustyle')">
         <a-radio-group
           v-model:value="setting.menuStyle"
           @change="handleChange"
         >
           <a-radio-button value="plain">
-            {{ $t('components.navigation.systemSetting.plain') }}
+            {{ $t('components.navigation.page.systemsetting.plain') }}
           </a-radio-button>
           <a-radio-button value="rounded">
-            {{ $t('components.navigation.systemSetting.rounded') }}
+            {{ $t('components.navigation.page.systemsetting.rounded') }}
           </a-radio-button>
         </a-radio-group>
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.showBreadcrumb')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.showbreadcrumb')">
         <a-switch
           v-model:checked="setting.showBreadcrumb"
           @change="handleChange"
         />
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.showBreadcrumbIcon')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.showbreadcrumbicon')">
         <a-switch
           v-model:checked="setting.breadcrumbIcon"
           @change="handleChange"

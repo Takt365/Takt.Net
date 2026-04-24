@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：TaktAttendanceSourceService.cs
@@ -81,7 +81,7 @@ public class TaktAttendanceSourceService : TaktServiceBase, ITaktAttendanceSourc
     /// <inheritdoc />
     public async Task<TaktAttendanceSourceDto> UpdateAttendanceSourceAsync(long id, TaktAttendanceSourceUpdateDto dto)
     {
-        if (dto.SourceId != id)
+        if (dto.AttendanceSourceId != id)
             throw new TaktBusinessException("validation.idRouteMismatch");
 
         var entity = await _repository.GetByIdAsync(id);
@@ -283,8 +283,8 @@ public class TaktAttendanceSourceService : TaktServiceBase, ITaktAttendanceSourc
         var exp = Expressionable.Create<TaktAttendanceSource>();
         exp = exp.AndIF(q?.DeviceId != null, x => x.DeviceId == q!.DeviceId!.Value);
         exp = exp.AndIF(q?.EmployeeId != null, x => x.EmployeeId == q!.EmployeeId!.Value);
-        exp = exp.AndIF(q?.RawPunchTimeFrom != null, x => x.RawPunchTime >= q!.RawPunchTimeFrom!.Value);
-        exp = exp.AndIF(q?.RawPunchTimeTo != null, x => x.RawPunchTime <= q!.RawPunchTimeTo!.Value);
+        exp = exp.AndIF(q?.RawPunchTimeStart != null, x => x.RawPunchTime >= q!.RawPunchTimeStart!.Value);
+        exp = exp.AndIF(q?.RawPunchTimeEnd != null, x => x.RawPunchTime <= q!.RawPunchTimeEnd!.Value);
         if (!string.IsNullOrEmpty(q?.KeyWords))
         {
             exp = exp.And(x =>

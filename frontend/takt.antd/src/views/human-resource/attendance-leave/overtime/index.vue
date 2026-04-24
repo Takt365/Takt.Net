@@ -156,8 +156,8 @@
         import-permission="humanresource:attendanceleave:overtime:import"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.overtime._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.overtime._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -437,7 +437,7 @@ const columns = computed<TableColumnsType>(() => [
     key: 'overtimeStatus',
     width: 100
   },
-  CreateActionColumn({
+  CreateActionColumn<Overtime>({
     actions: [
       {
         key: 'update',
@@ -546,7 +546,7 @@ const loadData = async () => {
     total.value = totalCount
   } catch (error: unknown) {
     logger.error('[Overtime] 加载数据失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.loadFail'))
+    message.error(getErrorMessage(error) || t('common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -647,7 +647,7 @@ const handleEdit = (record: Overtime) => {
  */
 const handleUpdate = () => {
   if (selectedRow.value) handleEdit(selectedRow.value)
-  else message.warning(t('common.action.warnSelectToAction', { action: t('common.button.edit'), entity: t('entity.overtime._self') }))
+  else message.warning(t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: t('entity.overtime._self') }))
 }
 
 /**
@@ -662,18 +662,18 @@ const handleDeleteOne = (record: Overtime) => {
     (typeof reason === 'number' ? String(reason) : null) ??
     getOvertimeId(record)
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', { entity: t('entity.overtime._self'), name }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.overtime._self'), name }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await deleteOvertimeById(getOvertimeId(record))
-        message.success(t('common.msg.deleteSuccess', { target: t('entity.overtime._self') }))
+        message.success(t('common.msg.deletesuccess', { target: t('entity.overtime._self') }))
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error) || t('common.msg.deleteFail', { target: t('entity.overtime._self') }))
+        message.error(getErrorMessage(error) || t('common.msg.deletefail', { target: t('entity.overtime._self') }))
       } finally {
         loading.value = false
       }
@@ -686,12 +686,12 @@ const handleDeleteOne = (record: Overtime) => {
  */
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
-    message.warning(t('common.action.warnSelectToAction', { action: t('common.button.delete'), entity: t('entity.overtime._self') }))
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('entity.overtime._self') }))
     return
   }
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', { entity: t('entity.overtime._self'), count: selectedRows.value.length }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { entity: t('entity.overtime._self'), count: selectedRows.value.length }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
@@ -702,13 +702,13 @@ const handleDelete = () => {
         } else {
           await deleteOvertimeBatch(selectedRows.value.map((r) => getOvertimeId(r)))
         }
-        message.success(t('common.msg.deleteSuccess', { target: t('entity.overtime._self') }))
+        message.success(t('common.msg.deletesuccess', { target: t('entity.overtime._self') }))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error) || t('common.msg.deleteFail', { target: t('entity.overtime._self') }))
+        message.error(getErrorMessage(error) || t('common.msg.deletefail', { target: t('entity.overtime._self') }))
       } finally {
         loading.value = false
       }
@@ -731,11 +731,11 @@ const handleFormSubmit = async () => {
       const id = String(formData.value.overtimeId)
       const payload: OvertimeUpdate = { ...formValues, overtimeId: id }
       await updateOvertime(id, payload)
-      message.success(t('common.msg.updateSuccess', { target: t('entity.overtime._self') }))
+      message.success(t('common.msg.updatesuccess', { target: t('entity.overtime._self') }))
     } else {
       const { overtimeId: _omitOvertimeId, ...createPayload } = formValues
       await createOvertime(createPayload as OvertimeCreate)
-      message.success(t('common.msg.createSuccess', { target: t('entity.overtime._self') }))
+      message.success(t('common.msg.createsuccess', { target: t('entity.overtime._self') }))
     }
     formRef.value?.resetFields()
     formData.value = {}
@@ -743,7 +743,7 @@ const handleFormSubmit = async () => {
     loadData()
   } catch (error: unknown) {
     if (typeof error === 'object' && error !== null && 'errorFields' in error) return
-    message.error(getErrorMessage(error) || t('common.msg.operateFail', { action: t('common.action.operation') }))
+    message.error(getErrorMessage(error) || t('common.msg.operatefail', { action: t('common.action.operation') }))
   } finally {
     formLoading.value = false
   }
@@ -847,10 +847,10 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess', { target: t('entity.overtime._self') }))
+    message.success(t('common.msg.exportsuccess', { target: t('entity.overtime._self') }))
   } catch (error: unknown) {
     logger.error('[Overtime] 导出失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.exportFail', { target: t('entity.overtime._self') }))
+    message.error(getErrorMessage(error) || t('common.msg.exportfail', { target: t('entity.overtime._self') }))
   } finally {
     loading.value = false
   }

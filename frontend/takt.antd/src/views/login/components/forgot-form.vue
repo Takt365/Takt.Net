@@ -78,10 +78,10 @@
         <div class="login-box">
           <div class="login-header">
             <a-typography-title :level="3">
-              {{ t('login.forgot.title') }}
+              {{ t('login.page.forgot.title') }}
             </a-typography-title>
             <a-typography-text class="login-subtitle">
-              {{ t('login.forgot.subtitle') }}
+              {{ t('login.page.forgot.subtitle') }}
             </a-typography-text>
           </div>
           <a-form
@@ -94,7 +94,7 @@
             <a-form-item name="userEmail">
               <a-input
                 v-model:value="formState.userEmail"
-                :placeholder="t('login.fields.userEmail.placeholderForgot')"
+                :placeholder="t('login.page.fields.useremail.placeholderforgot')"
                 size="large"
                 autocomplete="email"
               >
@@ -114,12 +114,12 @@
                 <template #icon>
                   <RiLockPasswordLine />
                 </template>
-                {{ t('login.forgot.submit') }}
+                {{ t('login.page.forgot.submit') }}
               </a-button>
             </a-form-item>
             <a-form-item>
               <div class="login-footer-links">
-                <a @click="goToLogin">{{ t('login.forgot.backToLogin') }}</a>
+                <a @click="goToLogin">{{ t('login.page.forgot.backtologin') }}</a>
               </div>
             </a-form-item>
           </a-form>
@@ -129,7 +129,7 @@
 
     <a-modal
       v-model:open="captchaModalVisible"
-      :title="$t('login.fields.captcha.validation.required')"
+      :title="$t('login.page.fields.captcha.validation.required')"
       :footer="null"
       :closable="true"
       :mask-closable="false"
@@ -283,14 +283,14 @@ const formRef = ref()
 /** 邮箱必填与自定义格式（`isValidEmail`） */
 const rules = computed<Record<string, Rule[]>>(() => ({
   userEmail: [
-    { required: true, message: t('login.fields.userEmail.validation.required'), trigger: 'blur' },
+    { required: true, message: t('login.page.fields.useremail.validation.required'), trigger: 'blur' },
     {
       validator: (_rule: Rule, value: string) => {
         if (!value) {
           return Promise.resolve()
         }
         if (!isValidEmail(value)) {
-          return Promise.reject(t('login.fields.userEmail.validation.format'))
+          return Promise.reject(t('login.page.fields.useremail.validation.format'))
         }
         return Promise.resolve()
       },
@@ -306,11 +306,11 @@ async function doForgotPassword() {
     const res = await forgotPassword({ userEmail: formState.userEmail })
 
     if (!res.success) {
-      message.error(res.code === 'ProtectedUser' ? t('login.forgot.protectedUser') : t('login.forgot.emailNotRegistered'))
+      message.error(res.code === 'ProtectedUser' ? t('login.page.forgot.protecteduser') : t('login.page.forgot.emailnotregistered'))
       return
     }
 
-    message.success(t('login.forgot.success'))
+    message.success(t('login.page.forgot.success'))
     formState.userEmail = ''
     const delay = 1500
     setTimeout(() => {
@@ -319,7 +319,7 @@ async function doForgotPassword() {
     }, delay)
   } catch (error: any) {
     logger.error('[Forget Password] 发送密码重置邮件失败:', error)
-    message.error(error.message || t('login.forgot.fail'))
+    message.error(error.message || t('login.page.forgot.fail'))
   } finally {
     loading.value = false
   }
@@ -333,7 +333,7 @@ function onCaptchaModalSuccess() {
 
 /** 验证码失败提示 */
 function onCaptchaModalFail(msg: string) {
-  message.error(msg || t('login.fields.captcha.validation.required'))
+  message.error(msg || t('login.page.fields.captcha.validation.required'))
 }
 
 /** 表单 @finish：校验邮箱后拉验证码配置，必要时弹窗 */
@@ -348,7 +348,7 @@ const handleSubmit = async () => {
     loading.value = true
     const result = await generateCaptchaApi()
     if (!result) {
-      message.error(t('login.fields.captcha.validation.required'))
+      message.error(t('login.page.fields.captcha.validation.required'))
       loading.value = false
       return
     }
@@ -360,7 +360,7 @@ const handleSubmit = async () => {
     }
 
     if (result.type !== 'Slider' && result.type !== 'Behavior') {
-      message.error(t('login.fields.captcha.validation.typeRequired'))
+      message.error(t('login.page.fields.captcha.validation.typerequired'))
       loading.value = false
       return
     }
@@ -370,7 +370,7 @@ const handleSubmit = async () => {
     loading.value = false
   } catch (error: any) {
     logger.error('[Forgot] 获取验证码配置失败', error)
-    message.error(error?.message || t('login.fields.captcha.validation.required'))
+    message.error(error?.message || t('login.page.fields.captcha.validation.required'))
     loading.value = false
   }
 }

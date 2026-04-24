@@ -9,8 +9,8 @@
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
-
-import request from '{{ table.request_import_path }}'
+{{ has_export = false; has_template = false; for a in table.controller_actions; if a.MethodName == "ExportAsync"; has_export = true; end; if a.MethodName == "GetTemplateAsync"; has_template = true; end; end }}
+import request{{ if has_export || has_template }}, { type BlobDownloadWithMeta }{{ end }} from '@/api/request'
 import type { TaktPagedResult, TaktSelectOption } from '@/types/common'
 {{ ts_type_import_count = 0 }}
 {{~ for cat in table.dto_category_descriptors ~}}
@@ -29,15 +29,17 @@ import type {
 {{ end }}
 
 // ========================================
-// {{ table.comment }}相关 API（按后端控制器顺序）
+// {{ table.comment }}相关 API（按 table.controller_actions 顺序，与 TaktGenTemplateContext.BuildControllerActions 一致；含 list、{id}、options、增删改、批量删除 POST /delete、导入导出等）
 // ========================================
+
+const {{ table.entity_name_camel }}Url = '{{ table.api_base_path }}'
 
 {{~ for action in table.controller_actions ~}}
 /**
  * {{ action.Summary }}
- * 对应后端：{{ action.MethodName }}
+ * 对应后端：{{ action.MethodName }}{{ if action.Route == "options" }} — GET /options（返回 TaktSelectOption[]，与 getUserOptions 约定一致）{{ end }}
  */
-export function {{ action.FrontendMethodName }}({{ action.FrontendSignature }}): {{ action.FrontendReturnType }} {
+export function {{ action.FrontendMethodName }}({{ action.FrontendSignature }}): {{ if action.MethodName == "GetTemplateAsync" || action.MethodName == "ExportAsync" }}Promise<BlobDownloadWithMeta>{{ else }}{{ action.FrontendReturnType }}{{ end }} {
 {{ if action.MethodName == "ImportAsync" }}
   const formData = new FormData()
   formData.append('file', file)
@@ -47,11 +49,13 @@ export function {{ action.FrontendMethodName }}({{ action.FrontendSignature }}):
 {{ end }}
   return request({
 {{ if action.Route == "{id}" }}
-    url: {{ "`" }}{{ table.api_base_path }}/${{ "{" }}id{{ "}" }}{{ "`" }},
+    url: {{ "`" }}${{ table.entity_name_camel }}Url/${{ "{" }}id{{ "}" }}{{ "`" }},
 {{ else if action.Route == "" }}
-    url: '{{ table.api_base_path }}',
+    url: {{ table.entity_name_camel }}Url,
+{{ else if action.Route == "options" }}
+    url: {{ "`" }}${{ table.entity_name_camel }}Url/options{{ "`" }},
 {{ else }}
-    url: '{{ table.api_base_path }}/{{ action.Route }}',
+    url: {{ "`" }}${{ table.entity_name_camel }}Url/{{ action.Route }}{{ "`" }},
 {{ end }}
     method: '{{ if action.HttpMethod == "HttpGet" }}get{{ else if action.HttpMethod == "HttpPost" }}post{{ else if action.HttpMethod == "HttpPut" }}put{{ else }}delete{{ end }}'{{ if action.MethodName == "GetTemplateAsync" }},
     params: { sheetName, fileName }{{ else if action.MethodName == "ExportAsync" }},
@@ -64,7 +68,8 @@ export function {{ action.FrontendMethodName }}({{ action.FrontendSignature }}):
     headers: {
       'Content-Type': 'multipart/form-data'
     }{{ end }}{{ if action.MethodName == "GetTemplateAsync" || action.MethodName == "ExportAsync" }},
-    responseType: 'blob'{{ end }}
+    responseType: 'blob',
+    blobWithHeaders: true{{ end }}
   })
 }
 {{~ end ~}}

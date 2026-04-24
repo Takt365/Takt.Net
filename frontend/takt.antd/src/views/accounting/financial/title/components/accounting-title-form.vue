@@ -12,7 +12,7 @@
   <a-tabs v-model:active-key="activeTab">
     <a-tab-pane
       key="basic"
-      :tab="t('common.form.tabs.basicInfo')"
+      :tab="t('common.form.tabs.basicinfo')"
     >
       <div :class="formContentClass">
         <a-form
@@ -174,7 +174,7 @@
               >
                 <a-input-number
                   v-model:value="formState.orderNum"
-                  :placeholder="t('common.form.placeholder.orderNumHint')"
+                  :placeholder="t('common.form.placeholder.ordernumhint')"
                   :min="0"
                   style="width: 100%"
                 />
@@ -315,7 +315,7 @@ const formState = reactive<TitleFormState>(createEmptyTitleForm())
 const titleTypeOptions = computed(() =>
   [0, 1, 2, 3, 4, 5].map((value) => ({
     value,
-    label: t(`accounting.title.titleType${value}`)
+    label: t(`accounting.title.page.titletype${value}`)
   }))
 )
 
@@ -325,7 +325,7 @@ const titleTypeOptions = computed(() =>
 const balanceDirectionOptions = computed(() =>
   [0, 1].map((value) => ({
     value,
-    label: t(`accounting.title.balanceDirection${value}`)
+    label: t(`accounting.title.page.balancedirection${value}`)
   }))
 )
 
@@ -335,7 +335,7 @@ const balanceDirectionOptions = computed(() =>
 const auxiliaryTypeOptions = computed(() =>
   [0, 1, 2, 3, 4, 5, 6].map((value) => ({
     value,
-    label: t(`accounting.title.auxiliaryType${value}`)
+    label: t(`accounting.title.page.auxiliarytype${value}`)
   }))
 )
 

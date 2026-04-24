@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Organization
 // 文件名称：TaktDept.cs
@@ -17,7 +17,7 @@ namespace Takt.Domain.Entities.HumanResource.Organization;
 /// <summary>
 /// Takt部门实体
 /// </summary>
-[SugarTable("takt_humanresource_organization_dept", "部门表")]
+[SugarTable("takt_humanresource_organization_dept", "部门信息表")]
 [SugarIndex("ix_takt_humanresource_organization_dept_DeptCode", nameof(DeptCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_humanresource_organization_dept_ParentId", nameof(ParentId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_organization_dept_DeptHeadId", nameof(DeptHeadId), OrderByType.Asc)]
@@ -86,8 +86,8 @@ public class TaktDept : TaktEntityBase
     /// <summary>
     /// 排序号（越小越靠前）
     /// </summary>
-    [SugarColumn(ColumnName = "order_num", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int OrderNum { get; set; } = 0;
+    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SortOrder { get; set; } = 0;
 
     /// <summary>
     /// 数据范围（0=全部数据，1=本部门数据，2=本部门及以下数据，3=仅本人数据，4=自定义数据范围）

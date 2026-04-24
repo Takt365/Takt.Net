@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.External.Hikvision
 // 文件名称：TaktHikvisionAttendanceDeviceAdapterService.cs
@@ -111,9 +111,9 @@ public class TaktHikvisionAttendanceDeviceAdapterService : ITaktHikvisionAttenda
     }
 
     /// <inheritdoc />
-    public Task<TaktAttendanceDeviceStatusDto> PingAsync(TaktAttendanceDevice device)
+    public Task<TaktAttendanceDeviceOnlineStatusDto> PingAsync(TaktAttendanceDevice device)
     {
-        return Task.FromResult(new TaktAttendanceDeviceStatusDto
+        return Task.FromResult(new TaktAttendanceDeviceOnlineStatusDto
         {
             DeviceId = device.Id,
             IsOnline = device.DeviceStatus == 1,

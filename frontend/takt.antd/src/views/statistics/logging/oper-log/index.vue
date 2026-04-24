@@ -1,15 +1,27 @@
+<!-- ======================================== -->
+<!-- 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)  -->
+<!-- 命名空间：@/views/statistics/logging/oper-log -->
+<!-- 文件名称：index.vue -->
+<!-- 创建时间：2026-04-17 -->
+<!-- 创建人：Takt365(Cursor AI) -->
+<!-- 功能描述：操作日志页面，包含关键字查询、列表分页、批量删除、导出与列设置 -->
+<!--  -->
+<!-- 版权信息：Copyright (c) 2025 Takt  All rights reserved. -->
+<!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->
+<!-- ======================================== -->
+
 <template>
   <div class="logging-oper-log">
     <TaktQueryBar
       v-model="queryKeyword"
-      placeholder="请输入用户名、操作模块或操作方法"
+      :placeholder="searchPlaceholder"
       :loading="loading"
       @search="handleSearch"
       @reset="handleReset"
     />
     <TaktToolsBar
-      delete-permission="logging:operlog:delete"
-      export-permission="logging:operlog:export"
+      delete-permission="statistics:logging:operlog:delete"
+      export-permission="statistics:logging:operlog:export"
       :show-create="false"
       :show-update="false"
       :show-delete="true"
@@ -28,7 +40,6 @@
       @refresh="handleRefresh"
     />
     <TaktSingleTable
-      ref="tableRef"
       :columns="displayColumns"
       :data-source="dataSource"
       :loading="loading"
@@ -44,7 +55,7 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'operStatus'">
           <a-tag :color="record.operStatus === 0 ? 'success' : 'error'">
-            {{ record.operStatus === 0 ? '成功' : '失败' }}
+            {{ record.operStatus === 0 ? t('common.state.success') : t('common.state.failed') }}
           </a-tag>
         </template>
       </template>
@@ -72,16 +83,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import type { TableColumnsType } from 'ant-design-vue'
+import { useI18n } from 'vue-i18n'
 import { CreateActionColumn } from '@/components/business/takt-action-column/index'
 import { mergeDefaultColumns } from '@/utils/table-columns'
-import { useI18n } from 'vue-i18n'
-import TaktSingleTable from '@/components/business/takt-single-table/index.vue'
-import {
-  getOperLogList,
-  deleteOperLog,
-  deleteOperLogBatch,
-  exportOperLog
-} from '@/api/statistics/logging/oper-log'
+import { getOperLogList, deleteOperLogById, deleteOperLogBatch, exportOperLogData } from '@/api/statistics/logging/oper-log'
 import type { OperLog, OperLogQuery } from '@/types/statistics/logging/oper-log'
 import { logger } from '@/utils/logger'
 import { RiDeleteBinLine } from '@remixicon/vue'
@@ -96,52 +101,49 @@ const total = ref(0)
 const selectedRow = ref<OperLog | null>(null)
 const selectedRows = ref<OperLog[]>([])
 const selectedRowKeys = ref<(string | number)[]>([])
-const tableRef = ref<InstanceType<typeof TaktSingleTable> | null>(null)
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
 
-type OperLogColumn = {
-  key?: string | number
-  dataIndex?: string | number
-  title?: string | number
-  width?: number
-}
+type OperLogColumn = { key?: string | number; dataIndex?: string | number; title?: string | number; width?: string | number }
+type TableSorterInfo = { field?: string; order?: string }
 
-type TableSorterInfo = {
-  field?: string
-  order?: string
-}
+const searchPlaceholder = computed(
+  () => t('common.form.placeholder.required', { field: [t('entity.operlog.username'), t('entity.operlog.opermodule'), t('entity.operlog.opermethod')].join('、') }) + t('common.button.query')
+)
 
-function getErrorMessage(error: unknown, fallback: string): string {
+const getErrorMessage = (error: unknown, fallbackKey: string): string => {
   if (typeof error === 'object' && error !== null && 'message' in error) {
-    const message = (error as { message?: unknown }).message
-    if (typeof message === 'string' && message.trim()) return message
+    const messageText = (error as { message?: unknown }).message
+    if (typeof messageText === 'string' && messageText.trim()) return messageText
   }
-  return fallback
+  return t(fallbackKey)
 }
 
-function getColumnKey(column: OperLogColumn): string {
+const getColumnKey = (column: OperLogColumn): string => {
   const key = column.key ?? column.dataIndex ?? column.title
   return key != null ? String(key) : ''
 }
 
-function getSorterInfo(sorter: unknown): TableSorterInfo {
+const getSorterInfo = (sorter: unknown): TableSorterInfo => {
   if (typeof sorter !== 'object' || sorter === null) return {}
   const sorterObj = sorter as { field?: unknown; order?: unknown }
-  return {
-    field: typeof sorterObj.field === 'string' ? sorterObj.field : undefined,
-    order: typeof sorterObj.order === 'string' ? sorterObj.order : undefined
-  }
+  const result: TableSorterInfo = {}
+  if (typeof sorterObj.field === 'string') result.field = sorterObj.field
+  if (typeof sorterObj.order === 'string') result.order = sorterObj.order
+  return result
 }
+
+/** TaktSingleTable 的 rowKey 回调入参为 TableRecord，与 OperLog 形参类型不兼容 */
+const getOperLogId = (record: unknown): string => {
+  if (record == null || typeof record !== 'object') return ''
+  const id = (record as { operLogId?: unknown }).operLogId
+  return id != null ? String(id) : ''
+}
+const getOperLogField = <K extends keyof OperLog>(record: OperLog, field: K): OperLog[K] => record[field]
 
 onMounted(() => {
   loadData()
 })
-
-const getOperLogId = (record: OperLog): string => record?.operLogId != null ? String(record.operLogId) : ''
-function getOperLogField<K extends keyof OperLog>(record: OperLog, field: K): OperLog[K] {
-  return record[field]
-}
 
 const columns = ref<TableColumnsType>([
   {
@@ -154,89 +156,43 @@ const columns = ref<TableColumnsType>([
     fixed: 'left',
     customRender: ({ record }: { record: OperLog }) => getOperLogField(record, 'operLogId') ?? ''
   },
-  {
-    title: '用户名',
-    dataIndex: 'userName',
-    key: 'userName',
-    width: 120,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '操作模块',
-    dataIndex: 'operModule',
-    key: 'operModule',
-    width: 120,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '操作类型',
-    dataIndex: 'operType',
-    key: 'operType',
-    width: 90,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '操作方法',
-    dataIndex: 'operMethod',
-    key: 'operMethod',
-    width: 140,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '请求方式',
-    dataIndex: 'requestMethod',
-    key: 'requestMethod',
-    width: 90
-  },
-  {
-    title: '操作状态',
-    dataIndex: 'operStatus',
-    key: 'operStatus',
-    width: 90
-  },
-  {
-    title: '操作IP',
-    dataIndex: 'operIp',
-    key: 'operIp',
-    width: 130,
-    ellipsis: true
-  },
-  {
-    title: '操作时间',
-    dataIndex: 'operTime',
-    key: 'operTime',
-    width: 170,
-    resizable: true,
-    ellipsis: true
-  },
-  CreateActionColumn({
+  { title: t('entity.operlog.username'), dataIndex: 'userName', key: 'userName', width: 120, resizable: true, ellipsis: true },
+  { title: t('entity.operlog.opermodule'), dataIndex: 'operModule', key: 'operModule', width: 120, resizable: true, ellipsis: true },
+  { title: t('entity.operlog.opertype'), dataIndex: 'operType', key: 'operType', width: 90, resizable: true, ellipsis: true },
+  { title: t('entity.operlog.opermethod'), dataIndex: 'operMethod', key: 'operMethod', width: 140, resizable: true, ellipsis: true },
+  { title: t('entity.operlog.requestmethod'), dataIndex: 'requestMethod', key: 'requestMethod', width: 90 },
+  { title: t('entity.operlog.operstatus'), dataIndex: 'operStatus', key: 'operStatus', width: 90 },
+  { title: t('entity.operlog.operip'), dataIndex: 'operIp', key: 'operIp', width: 130, ellipsis: true },
+  { title: t('entity.operlog.opertime'), dataIndex: 'operTime', key: 'operTime', width: 170, resizable: true, ellipsis: true },
+  CreateActionColumn<OperLog>({
     actions: [
       {
         key: 'delete',
-        label: '删除',
+        label: t('common.button.delete'),
         shape: 'plain',
         icon: RiDeleteBinLine,
-        permission: 'logging:operlog:delete',
+        permission: 'statistics:logging:operlog:delete',
         onClick: (record: OperLog) => handleDeleteOne(record)
       }
     ]
   })
 ])
 
-const mergedColumns = computed<TableColumnsType>(() => mergeDefaultColumns(columns.value, t, true))
-const displayColumns = computed<TableColumnsType>(() => {
+const mergedColumns = computed((): TableColumnsType => {
+  // 避免 mergeDefaultColumns 与 TableColumnsType 泛型组合导致「类型实例化过深」
+  const merged = mergeDefaultColumns(columns.value as never, t, true)
+  return merged as TableColumnsType
+})
+const displayColumns = computed((): TableColumnsType => {
   const keys = visibleColumnKeys.value || []
-  const merged = mergedColumns.value || []
+  const merged = mergedColumns.value
   if (keys.length === 0) return columns.value
   const keysSet = new Set(keys.map(k => String(k)))
-  return merged.filter((col) => {
+  const filtered = merged.filter(col => {
     const colKey = getColumnKey(col as OperLogColumn)
-    return colKey && keysSet.has(colKey)
+    return Boolean(colKey && keysSet.has(colKey))
   })
+  return filtered as TableColumnsType
 })
 
 const rowSelection = computed(() => ({
@@ -244,14 +200,14 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: OperLog[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: OperLog, selected: boolean) => {
     if (selected) selectedRow.value = record
     else if (selectedRow.value && getOperLogId(selectedRow.value) === getOperLogId(record)) selectedRow.value = null
   },
   onSelectAll: (selected: boolean, selectedRowsData: OperLog[]) => {
-    selectedRow.value = selected && selectedRowsData.length === 1 ? selectedRowsData[0] : null
+    selectedRow.value = selected && selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
   }
 }))
 
@@ -262,7 +218,7 @@ const onClickRow = (record: OperLog) => ({
     if (index > -1) selectedRowKeys.value.splice(index, 1)
     else selectedRowKeys.value.push(key)
     selectedRows.value = dataSource.value.filter(item => selectedRowKeys.value.includes(getOperLogId(item)))
-    selectedRow.value = selectedRowKeys.value.length === 1 ? selectedRows.value[0] : null
+    selectedRow.value = selectedRowKeys.value.length === 1 ? (selectedRows.value[0] ?? null) : null
     if (rowSelection.value.onChange) rowSelection.value.onChange(selectedRowKeys.value, selectedRows.value)
   }
 })
@@ -272,17 +228,15 @@ const loadData = async () => {
     loading.value = true
     const params: OperLogQuery = {
       pageIndex: currentPage.value,
-      pageSize: pageSize.value
+      pageSize: pageSize.value,
+      KeyWords: queryKeyword.value || ''
     }
-    if (queryKeyword.value) params.keyWords = queryKeyword.value
     const response = await getOperLogList(params)
-    const items = response?.data ?? []
-    const totalCount = response?.total ?? 0
-    dataSource.value = items
-    total.value = totalCount
+    dataSource.value = response?.data ?? []
+    total.value = response?.total ?? 0
   } catch (error: unknown) {
     logger.error('[OperLog] 加载数据失败:', error)
-    message.error(getErrorMessage(error, '加载数据失败'))
+    message.error(getErrorMessage(error, 'common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -314,60 +268,65 @@ const handleResizeColumn = (w: number, col: OperLogColumn) => {
 const handleDeleteOne = (record: OperLog) => {
   const name = getOperLogField(record, 'userName') || getOperLogId(record)
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除操作日志 "${name}" 吗？`,
-    okText: '删除',
-    cancelText: '取消',
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.operlog._self'), name }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
-        await deleteOperLog(getOperLogId(record))
-        message.success('删除成功')
+        await deleteOperLogById(getOperLogId(record))
+        message.success(t('common.msg.deletesuccess'))
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error, '删除失败'))
+        message.error(getErrorMessage(error, 'common.msg.deletefail'))
       } finally {
         loading.value = false
       }
     }
   })
 }
+
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
-    message.warning('请选择要删除的操作日志')
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('entity.operlog._self') }))
     return
   }
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除选中的 ${selectedRows.value.length} 条操作日志吗？`,
-    okText: '删除',
-    cancelText: '取消',
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { entity: t('entity.operlog._self'), count: selectedRows.value.length }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         const ids = selectedRows.value.map(r => Number(getOperLogId(r))).filter(n => !Number.isNaN(n))
         await deleteOperLogBatch(ids)
-        message.success('删除成功')
+        message.success(t('common.msg.deletesuccess'))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error, '删除失败'))
+        message.error(getErrorMessage(error, 'common.msg.deletefail'))
       } finally {
         loading.value = false
       }
     }
   })
 }
+
 const handleExport = async () => {
   try {
     loading.value = true
-    const params: OperLogQuery = { pageIndex: 1, pageSize: total.value || 99999 }
-    if (queryKeyword.value) params.keyWords = queryKeyword.value
-    const blob = await exportOperLog(params, undefined, '操作日志')
-    const ts = new Date(); const t = (n: number, w = 2) => String(n).padStart(w, '0')
-    const fileName = `操作日志_${ts.getFullYear()}${t(ts.getMonth()+1)}${t(ts.getDate())}${t(ts.getHours())}${t(ts.getMinutes())}${t(ts.getSeconds())}.xlsx`
+    const params: OperLogQuery = {
+      pageIndex: 1,
+      pageSize: total.value || 99999,
+      KeyWords: queryKeyword.value || ''
+    }
+    const blob = await exportOperLogData(params, undefined, t('entity.operlog._self'))
+    const ts = new Date(); const pad = (n: number, w = 2) => String(n).padStart(w, '0')
+    const fileName = `${t('entity.operlog._self')}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -377,14 +336,15 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success('导出成功')
+    message.success(t('common.msg.exportsuccess'))
   } catch (error: unknown) {
     logger.error('[OperLog] 导出失败:', error)
-    message.error(getErrorMessage(error, '导出失败'))
+    message.error(getErrorMessage(error, 'common.msg.exportfail'))
   } finally {
     loading.value = false
   }
 }
+
 const handleColumnSetting = () => { columnSettingVisible.value = true }
 const handleColumnKeysChange = (keys: (string | number)[]) => { visibleColumnKeys.value = keys.map(k => String(k)) }
 const handleColumnSettingReset = () => { visibleColumnKeys.value = [] }

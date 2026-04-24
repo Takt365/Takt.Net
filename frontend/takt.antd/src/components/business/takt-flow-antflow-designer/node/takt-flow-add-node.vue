@@ -26,7 +26,7 @@
             >
               <div class="item-wrapper">
                 <span class="iconfont approver-icon"><RiShieldCheckLine size="20" /></span>
-                <p>{{ t('workflow.designer.approver') }}</p>
+                <p>{{ t('workflow.designer.page.approver') }}</p>
               </div>
             </a>
             <a
@@ -35,7 +35,7 @@
             >
               <div class="item-wrapper">
                 <span class="item-icon parallel-icon"><RiSplitCellsHorizontal size="20" /></span>
-                <p>{{ t('workflow.designer.parallelApproval') }}</p>
+                <p>{{ t('workflow.designer.page.parallelapproval') }}</p>
               </div>
             </a>
             <a
@@ -44,7 +44,7 @@
             >
               <div class="item-wrapper">
                 <span class="iconfont copyer-icon"><RiShareForwardLine size="20" /></span>
-                <p>{{ t('workflow.designer.copyer') }}</p>
+                <p>{{ t('workflow.designer.page.copyer') }}</p>
               </div>
             </a>
           </div>
@@ -55,7 +55,7 @@
             >
               <div class="item-wrapper">
                 <span class="iconfont condition-icon"><RiGitBranchLine size="20" /></span>
-                <p>{{ t('workflow.designer.conditionBranch') }}</p>
+                <p>{{ t('workflow.designer.page.conditionbranch') }}</p>
               </div>
             </a>
             <a
@@ -64,7 +64,7 @@
             >
               <div class="item-wrapper">
                 <span class="iconfont dynamic-icon"><RiPulseLine size="20" /></span>
-                <p>{{ t('workflow.designer.dynamicCondition') }}</p>
+                <p>{{ t('workflow.designer.page.dynamiccondition') }}</p>
               </div>
             </a>
             <a
@@ -73,7 +73,7 @@
             >
               <div class="item-wrapper">
                 <span class="iconfont parallel-cond-icon"><RiOrganizationChart size="20" /></span>
-                <p>{{ t('workflow.designer.conditionParallel') }}</p>
+                <p>{{ t('workflow.designer.page.conditionparallel') }}</p>
               </div>
             </a>
           </div>
@@ -83,7 +83,7 @@
             type="primary"
             shape="circle"
             class="takt-button takt-button-create add-node-popover-trigger"
-            :aria-label="t('workflow.designer.addNodeButton')"
+            :aria-label="t('workflow.designer.page.addnodebutton')"
           >
             <template #icon>
               <RiAddLine />

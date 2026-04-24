@@ -13,7 +13,7 @@
       :virtual="masterVirtual"
       :size="size"
       :bordered="bordered"
-      :row-selection="props.masterRowSelection"
+      v-bind="masterRowSelectionBind"
       :expanded-row-keys="expandedRowKeys"
       v-bind="$attrs"
       @change="handleMasterTableChange"
@@ -313,10 +313,8 @@ const props = withDefaults(defineProps<Props>(), {
   masterDataSource: () => [],
   masterLoading: false,
   masterRowKey: 'id',
-  masterRowClassName: undefined,
   masterStripe: true,
   showMasterPagination: true,
-  masterPagination: undefined,
   masterCurrent: 1,
   masterPageSize: 10,
   masterTotal: 0,
@@ -324,10 +322,8 @@ const props = withDefaults(defineProps<Props>(), {
   detailDataSource: () => [],
   detailLoading: false,
   detailRowKey: 'id',
-  detailRowClassName: undefined,
   detailStripe: true,
   showDetailPagination: true,
-  detailPagination: undefined,
   detailCurrent: 1,
   detailPageSize: 10,
   detailTotal: 0,
@@ -339,14 +335,9 @@ const props = withDefaults(defineProps<Props>(), {
   simplePagination: false,
   masterVirtual: false,
   detailVirtual: false,
-  masterScroll: undefined,
-  detailScroll: undefined,
   size: 'middle',
   bordered: false,
-  masterRowSelection: undefined,
-  detailDrawerTitle: undefined,
   detailDrawerWidth: 800,
-  loadDetailData: undefined,
   defaultEllipsis: true,
   masterDefaultEllipsis: true,
   detailDefaultEllipsis: true,
@@ -362,6 +353,11 @@ const props = withDefaults(defineProps<Props>(), {
   detailSmallScreenColumnCount: 5,
   largeScreenBreakpoint: 1200
 })
+
+/** 无选择列时不传 rowSelection，避免 exactOptionalPropertyTypes 下显式 undefined */
+const masterRowSelectionBind = computed(() =>
+  props.masterRowSelection != null ? { rowSelection: props.masterRowSelection } : {}
+)
 
 const emit = defineEmits<{
   'update:masterCurrent': [page: number]
@@ -426,17 +422,15 @@ const detailPaginationConfig = computed<false>(() => {
   return false
 })
 
-// 处理 showTotal：将 boolean 转换为 Function 或 undefined
-const computedShowTotal = computed(() => {
+// 处理 showTotal：将 boolean 转为函数或 false（勿用 undefined，以满足子组件 exactOptionalPropertyTypes）
+const computedShowTotal = computed((): boolean | ((total: number, range: [number, number]) => string) => {
   if (typeof props.showTotal === 'function') {
     return props.showTotal
   }
   if (props.showTotal === true) {
-    // 默认显示总数函数
-    return (total: number, _range: [number, number]) => t('components.navigation.systemSetting.totalCount', { total })
+    return (total: number, _range: [number, number]) => t('components.navigation.page.systemsetting.totalcount', { total })
   }
-  // showTotal 为 false 或 undefined 时，返回 undefined（不显示总数）
-  return undefined
+  return false
 })
 
 // 响应式检测（大屏/小屏）

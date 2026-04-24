@@ -134,14 +134,14 @@
     >
       <TaktImportFile
         file-type="xlsx"
-        :sheet-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.employeeattachment._self') })"
-        :template-file-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.employeeattachment._self') })"
+        :sheet-name="t('common.action.import.sheetnametemplate', { entity: t('entity.employeeattachment._self') })"
+        :template-file-name="t('common.action.import.sheetnametemplate', { entity: t('entity.employeeattachment._self') })"
         template-permission="humanresource:personnel:employeeattachment:template"
         import-permission="humanresource:personnel:employeeattachment:import"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.employeeattachment._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.employeeattachment._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -229,8 +229,8 @@ const columns = computed<TableColumnsType>(() => [
   { title: t(`${entityKey}.fileType`), dataIndex: 'fileType', key: 'fileType', width: 100 },
   { title: t(`${entityKey}.attachmentType`), dataIndex: 'attachmentType', key: 'attachmentType', width: 100 },
   { title: t(`${entityKey}.orderNum`), dataIndex: 'orderNum', key: 'orderNum', width: 80 },
-  { title: t('common.entity.createTime'), dataIndex: 'createdAt', key: 'createdAt', width: 160, ellipsis: true },
-  CreateActionColumn({
+  { title: t('common.entity.createtime'), dataIndex: 'createdAt', key: 'createdAt', width: 160, ellipsis: true },
+  CreateActionColumn<EmployeeAttachment>({
     actions: [
       { key: 'update', label: t('common.button.edit'), shape: 'plain', icon: RiEditLine, permission: 'humanresource:personnel:employeeattachment:update', onClick: (r: EmployeeAttachment) => handleEdit(r) },
       { key: 'delete', label: t('common.button.delete'), shape: 'plain', icon: RiDeleteBinLine, permission: 'humanresource:personnel:employeeattachment:delete', onClick: (r: EmployeeAttachment) => handleDeleteOne(r) }
@@ -284,7 +284,7 @@ async function loadData() {
     total.value = tot
   } catch (e: any) {
     logger.error('[EmployeeAttachment] loadData:', e)
-    message.error(e?.message || t('common.msg.loadFail'))
+    message.error(e?.message || t('common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -307,24 +307,24 @@ async function handleEdit(record: EmployeeAttachment) {
     const detail = await getEmployeeAttachmentById(getRowId(record))
     formData.value = { ...detail }
     formVisible.value = true
-  } catch (e: any) { message.error(e?.message || t('common.msg.loadFail')) } finally { formLoading.value = false }
+  } catch (e: any) { message.error(e?.message || t('common.msg.loadfail')) } finally { formLoading.value = false }
 }
-function handleUpdate() { if (selectedRow.value) handleEdit(selectedRow.value); else message.warning(t('common.action.warnSelectToAction', { action: t('common.button.edit'), entity: t(`${entityKey}._self`) })) }
+function handleUpdate() { if (selectedRow.value) handleEdit(selectedRow.value); else message.warning(t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: t(`${entityKey}._self`) })) }
 
 function handleDeleteOne(record: EmployeeAttachment) {
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', { entity: t(`${entityKey}._self`), name: getField(record, 'fileName') || getRowId(record) }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t(`${entityKey}._self`), name: getField(record, 'fileName') || getRowId(record) }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
-    onOk: async () => { try { loading.value = true; await deleteEmployeeAttachmentById(getRowId(record)); message.success(t('common.msg.deleteSuccess', { target: t(`${entityKey}._self`) })); loadData() } catch (e: any) { message.error(e?.message || t('common.msg.deleteFail', { target: t(`${entityKey}._self`) })) } finally { loading.value = false } }
+    onOk: async () => { try { loading.value = true; await deleteEmployeeAttachmentById(getRowId(record)); message.success(t('common.msg.deletesuccess', { target: t(`${entityKey}._self`) })); loadData() } catch (e: any) { message.error(e?.message || t('common.msg.deletefail', { target: t(`${entityKey}._self`) })) } finally { loading.value = false } }
   })
 }
 function handleDelete() {
-  if (selectedRows.value.length === 0) { message.warning(t('common.action.warnSelectToAction', { action: t('common.button.delete'), entity: t(`${entityKey}._self`) })); return }
+  if (selectedRows.value.length === 0) { message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t(`${entityKey}._self`) })); return }
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', { entity: t(`${entityKey}._self`), count: selectedRows.value.length }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { entity: t(`${entityKey}._self`), count: selectedRows.value.length }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
@@ -332,10 +332,10 @@ function handleDelete() {
         loading.value = true
         if (selectedRows.value.length === 1) await deleteEmployeeAttachmentById(getRowId(selectedRows.value[0]))
         else await deleteEmployeeAttachmentBatch(selectedRows.value.map((r) => getRowId(r)))
-        message.success(t('common.msg.deleteSuccess', { target: t(`${entityKey}._self`) }))
+        message.success(t('common.msg.deletesuccess', { target: t(`${entityKey}._self`) }))
         selectedRows.value = []; selectedRowKeys.value = []; selectedRow.value = null
         loadData()
-      } catch (e: any) { message.error(e?.message || t('common.msg.deleteFail', { target: t(`${entityKey}._self`) })) } finally { loading.value = false }
+      } catch (e: any) { message.error(e?.message || t('common.msg.deletefail', { target: t(`${entityKey}._self`) })) } finally { loading.value = false }
     }
   })
 }
@@ -348,17 +348,17 @@ async function handleFormSubmit() {
     formLoading.value = true
     if (formData.value?.attachmentId) {
       await updateEmployeeAttachment(formData.value.attachmentId, { ...values, attachmentId: formData.value.attachmentId })
-      message.success(t('common.msg.updateSuccess', { target: t(`${entityKey}._self`) }))
+      message.success(t('common.msg.updatesuccess', { target: t(`${entityKey}._self`) }))
     } else {
       await createEmployeeAttachment(values)
-      message.success(t('common.msg.createSuccess', { target: t(`${entityKey}._self`) }))
+      message.success(t('common.msg.createsuccess', { target: t(`${entityKey}._self`) }))
     }
     formRef.value?.resetFields(); formData.value = {}; formVisible.value = false
     loadData()
   } catch (e: any) {
     // AntD 表单校验失败时会携带 errorFields，不需要弹出重复错误
     if (e?.errorFields) return
-    message.error(e?.message || t('common.msg.operateFail', { action: t('common.action.operation') }))
+    message.error(e?.message || t('common.msg.operatefail', { action: t('common.action.operation') }))
   } finally {
     formLoading.value = false
   }
@@ -379,16 +379,16 @@ async function handleExport() {
     if (queryKeyword.value) queryParams.employeeId = queryKeyword.value
     if (advancedQueryForm.value.employeeId) queryParams.employeeId = advancedQueryForm.value.employeeId
     if (advancedQueryForm.value.attachmentType !== undefined && advancedQueryForm.value.attachmentType !== null) queryParams.attachmentType = advancedQueryForm.value.attachmentType
-    const blob = await exportEmployeeAttachmentData(queryParams, undefined, t(`${entityKey}._self`) + t('common.action.exportDataSuffix'))
+    const blob = await exportEmployeeAttachmentData(queryParams, undefined, t(`${entityKey}._self`) + t('common.action.exportdatasuffix'))
     const data = (blob as any)?.data ?? blob
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
-    const name = `${t(`${entityKey}._self`) + t('common.action.exportDataSuffix')}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
+    const name = `${t(`${entityKey}._self`) + t('common.action.exportdatasuffix')}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
     const url = window.URL.createObjectURL(data)
     const link = document.createElement('a'); link.href = url; link.download = name; link.style.display = 'none'; document.body.appendChild(link); link.click(); document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess', { target: t(`${entityKey}._self`) }))
-  } catch (e: any) { logger.error('[EmployeeAttachment] export:', e); message.error(e?.message || t('common.msg.exportFail', { target: t(`${entityKey}._self`) })) } finally { loading.value = false }
+    message.success(t('common.msg.exportsuccess', { target: t(`${entityKey}._self`) }))
+  } catch (e: any) { logger.error('[EmployeeAttachment] export:', e); message.error(e?.message || t('common.msg.exportfail', { target: t(`${entityKey}._self`) })) } finally { loading.value = false }
 }
 
 function handleAdvancedQuery() { advancedQueryVisible.value = true }

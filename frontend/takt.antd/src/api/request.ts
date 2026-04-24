@@ -16,6 +16,7 @@ import { eventBus, AuthEvents } from '@/utils/eventBus'
 import { TaktResultCode } from '@/utils/enum'
 import { showApiConnectFail, closeApiConnectFailNotification } from '@/utils/notification'
 import { refreshToken as refreshTokenApi } from './identity/auth'
+import type { LoginTokenResult } from '@/types/common'
 import i18n from '@/locales'
 
 /** 获取 API 相关文案（request 在非组件中运行，使用 i18n.global.t） */
@@ -144,7 +145,7 @@ function getHttpErrorMessage(response: { data?: unknown; statusText?: string } |
     dataObj?.detail ??
     dataObj?.error ??
     response?.statusText ??
-    t('common.api.requestFail')
+    t('common.api.requestfail')
   )
 }
 
@@ -238,6 +239,44 @@ function isHealthCheckRequest(url?: string): boolean {
 }
 
 /**
+ * 匿名或无需访问令牌的接口：不在请求头附带 Bearer。
+ * 登录后 access_token（JWE + 大量 permission）可达数百 KB；若仍附加到 TaktHealth 等轻量 GET，
+ * 易拖慢或触发代理/服务端头限制与超时，进而被误判为「全局网络失败」、连接池异常（刷新后仍失败直至重启浏览器）。
+ */
+function shouldOmitBearerToken(url?: string): boolean {
+  if (!url) return false
+  return (
+    url.includes('/api/TaktHealth') ||
+    url.includes('/TaktHealth') ||
+    url.includes('/api/TaktLanguages/options') ||
+    url.includes('/api/TaktTranslations/options') ||
+    url.includes('/api/TaktCaptcha')
+  )
+}
+
+/** 与 Kestrel 默认 MaxRequestHeadersTotalSize 一致（32KiB），与后端 TaktAuthorizationHeaderSizeWarningMiddleware 对齐 */
+const KESTREL_DEFAULT_MAX_REQUEST_HEADERS_BYTES = 32 * 1024
+
+/** 同一 Bearer UTF-8 规模只告警一次，避免每个 API 刷屏 */
+let lastWarnedBearerUtf8Bytes = -1
+
+/** 附加 Bearer 后：若整段 Authorization UTF-8 超过 32KB 则打 Warning（说明为何会超默认头限制） */
+function warnIfBearerHeaderExceedsKestrelDefault(token: string, requestUrl: string | undefined): void {
+  const bearer = `Bearer ${token}`
+  const utf8Bytes = new TextEncoder().encode(bearer).length
+  if (utf8Bytes <= KESTREL_DEFAULT_MAX_REQUEST_HEADERS_BYTES) {
+    return
+  }
+  if (utf8Bytes === lastWarnedBearerUtf8Bytes) {
+    return
+  }
+  lastWarnedBearerUtf8Bytes = utf8Bytes
+  logger.warn(
+    `[Auth] Authorization（Bearer+访问令牌）UTF-8 约 ${utf8Bytes} 字节，已超过 Kestrel 默认请求头总限制 ${KESTREL_DEFAULT_MAX_REQUEST_HEADERS_BYTES}；access_token 字符数约 ${token.length}。常见原因：JWE 且声明过多（旧令牌含全量 permission 或超级管理员全库角色等）；请重新编译后端并重新登录以换新令牌。url=${requestUrl ?? ''}`
+  )
+}
+
+/**
  * 是否正在刷新 token（防止并发刷新）
  */
 let isRefreshing = false
@@ -280,7 +319,7 @@ export async function tryRefreshToken(): Promise<boolean> {
   if (!refreshToken) return false
   try {
     logger.info('[Token Refresh] 开始刷新 token')
-    const result = await refreshTokenApi(refreshToken)
+    const result: LoginTokenResult = await refreshTokenApi(refreshToken)
     _setToken(result.token, result.refreshToken, result.expiresIn)
     logger.info('[Token Refresh] Token 刷新成功')
     eventBus.$emit(AuthEvents.TokenRefreshed)
@@ -296,7 +335,7 @@ export async function tryRefreshToken(): Promise<boolean> {
 type ConfigWithRetry = InternalAxiosRequestConfig & { _retry?: boolean }
 
 /** 401 时统一对用户展示的文案（避免出现「Token 刷新失败」等技术用语） */
-const UNAUTHORIZED_USER_MESSAGE = () => t('common.api.loginExpired')
+const UNAUTHORIZED_USER_MESSAGE = () => t('common.api.loginexpired')
 
 /**
  * 处理 401 未授权错误（统一处理逻辑）
@@ -308,7 +347,7 @@ async function handleUnauthorized(errorMessage: string, config?: InternalAxiosRe
   logger.debug('[Auth] handleUnauthorized:', errorMessage)
   const configWithRetry = config as ConfigWithRetry | undefined
   if (isRedirectingToLogin) {
-    return Promise.reject(new Error(t('common.api.redirectingToLogin')))
+    return Promise.reject(new Error(t('common.api.redirectingtologin')))
   }
   if (configWithRetry?._retry) {
     logger.warn('[Auth] 401 重试后仍失败，跳转登录页')
@@ -351,7 +390,7 @@ async function handleUnauthorized(errorMessage: string, config?: InternalAxiosRe
   const userMsg = UNAUTHORIZED_USER_MESSAGE()
   processQueue(new Error(userMsg))
   if (isRedirectingToLogin) {
-    return Promise.reject(new Error(t('common.api.redirectingToLogin')))
+    return Promise.reject(new Error(t('common.api.redirectingtologin')))
   }
   isRedirectingToLogin = true
   showErrorOnce(userMsg)
@@ -364,7 +403,7 @@ async function handleUnauthorized(errorMessage: string, config?: InternalAxiosRe
  * 直接返回 handleUnauthorized 的 Promise，避免重复发起请求
  */
 function handle401AndRetry(config?: InternalAxiosRequestConfig): Promise<unknown> {
-  return handleUnauthorized(t('common.api.loginExpired'), config)
+  return handleUnauthorized(t('common.api.loginexpired'), config)
 }
 
 /** 启动 token 自动刷新定时器（由 main 订阅 LoginSuccess 后调用） */
@@ -413,7 +452,10 @@ service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // 1. 添加认证 Token：优先读 localStorage（store 的持久化备份），再兜底注入的 getter
     const token = getTokenFromStorage() || _getToken()
-    if (token) config.headers.Authorization = `Bearer ${token}`
+    if (token && !shouldOmitBearerToken(config.url)) {
+      config.headers.Authorization = `Bearer ${token}`
+      warnIfBearerHeaderExceedsKestrelDefault(token, config.url)
+    }
 
     // 1.1 传递当前语言，供后端本地化（RequestCultureProviders 优先 QueryString → Cookie → Accept-Language）
     const locale = typeof localStorage !== 'undefined' ? (localStorage.getItem('locale') || 'zh-CN') : 'zh-CN'
@@ -555,7 +597,7 @@ service.interceptors.response.use(
     // 业务错误处理（status 200 但业务 code 表示失败）
     // 仅当 code 为数字（TaktResultCode）时按统一业务错误 reject；code 为字符串（如忘记密码的 ProtectedUser/EmailNotFound）时返回 res 由调用方处理
     if (isApiResultFormat && typeof code === 'number') {
-      const errorMessage = messageText || t('common.api.requestFail')
+      const errorMessage = messageText || t('common.api.requestfail')
       logger.apiResponse(response.status, requestMethod, url || '', data, errorMessage)
       
       const businessError = new Error(errorMessage) as BusinessError
@@ -591,7 +633,7 @@ service.interceptors.response.use(
     // 处理业务错误（status 200 但业务code表示失败）
     if (error.isBusinessError && error.response) {
       const businessCode = error.businessCode
-      const errorMessage = error.message || t('common.api.requestFail')
+      const errorMessage = error.message || t('common.api.requestfail')
 
       if (shouldShowError) {
         if (businessCode === TaktResultCode.Unauthorized) {
@@ -604,11 +646,11 @@ service.interceptors.response.use(
         } else if (businessCode === TaktResultCode.Forbidden) {
           showErrorOnce(t('common.api.forbidden'))
         } else if (businessCode === TaktResultCode.NotFound) {
-          showErrorOnce(t('common.api.notFound'))
+          showErrorOnce(t('common.api.notfound'))
         } else if (businessCode === TaktResultCode.ServerError) {
-          showErrorOnce(t('common.api.serverError'))
+          showErrorOnce(t('common.api.servererror'))
         } else if (businessCode === TaktResultCode.SystemError) {
-          const msg = errorMessage || t('common.api.systemError')
+          const msg = errorMessage || t('common.api.systemerror')
           logger.error('[System Error] 系统内部错误:', {
             businessCode,
             errorMessage,
@@ -652,7 +694,7 @@ service.interceptors.response.use(
               data?.error?.toLowerCase().includes('csrf')
             if (isCsrfError) {
               logger.error('[CSRF] CSRF 验证失败:', { url, method: requestMethod })
-              showErrorOnce(t('common.api.csrfFail'))
+              showErrorOnce(t('common.api.csrffail'))
             } else {
               logger.warn('[Permission] 无权访问:', { url, method: requestMethod })
               showErrorOnce(t('common.api.forbidden'))
@@ -662,7 +704,7 @@ service.interceptors.response.use(
 
           case 404:
             logger.warn('[Not Found] 请求的资源不存在:', { url, method: requestMethod })
-            showErrorOnce(t('common.api.notFound'))
+            showErrorOnce(t('common.api.notfound'))
             break
 
           case 500:
@@ -670,7 +712,7 @@ service.interceptors.response.use(
           case 503:
           case 504:
             logger.error('[Server Error] 服务器错误:', { status, url, method: requestMethod, message: errorMessage })
-            showErrorOnce(t('common.api.serverError'))
+            showErrorOnce(t('common.api.servererror'))
             break
 
           default: {
@@ -680,20 +722,31 @@ service.interceptors.response.use(
           }
         }
       }
-    } else if (error.request || error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'ETIMEDOUT' || error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
-      // 请求已发出但没有收到响应（网络错误），统一在此处理：提示 + 跳转登录（含健康检查失败）
+    } else if (
+      error.request ||
+      error.code === 'ECONNREFUSED' ||
+      error.code === 'ENOTFOUND' ||
+      error.code === 'ETIMEDOUT' ||
+      error.code === 'ECONNABORTED' ||
+      error.code === 'ERR_NETWORK' ||
+      error.message?.includes('Network Error')
+    ) {
+      // 请求已发出但没有收到响应（网络错误 / 超时）。健康检查失败仅记录日志，不触发全局「连接失败」与跳转标志，避免拖死后续匿名接口（如语言 options）。
       const { url, method } = config || {}
       const requestMethod = method ? method.toUpperCase() : 'UNKNOWN'
       logger.networkError(requestMethod, url || '', error)
 
-      showApiConnectFail()
-      if (!isRedirectingToLogin) {
-        isRedirectingToLogin = true
-        eventBus.$emit(AuthEvents.RedirectToLogin)
+      const isHealth = isHealthCheckRequest(config?.url)
+      if (!isHealth) {
+        showApiConnectFail()
+        if (!isRedirectingToLogin) {
+          isRedirectingToLogin = true
+          eventBus.$emit(AuthEvents.RedirectToLogin)
+        }
       }
     } else {
       logger.error('[Request Error] 请求配置错误:', error.message)
-      if (shouldShowError) showErrorOnce(t('common.api.requestConfigError'))
+      if (shouldShowError) showErrorOnce(t('common.api.requestconfigerror'))
     }
 
     return Promise.reject(error)

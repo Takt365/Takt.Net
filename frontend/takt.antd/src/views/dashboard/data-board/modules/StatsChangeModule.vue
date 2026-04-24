@@ -9,7 +9,7 @@
       </a-col>
       <a-col :span="8">
         <a-statistic
-          :title="t('dashboard.data-board.change.inProgress')"
+          :title="t('dashboard.data-board.change.inprogress')"
           :value="changeData.inProgress"
         />
       </a-col>

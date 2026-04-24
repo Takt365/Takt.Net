@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, watch, computed, nextTick } from 'vue'
-import i18n from '@/locales'
+import i18n, { supportedLocales } from '@/locales'
 import { getLanguageOptions } from '@/api/routine/tasks/i18n/language'
 import { getSetting } from '@/stores/setting'
 
@@ -25,6 +25,19 @@ type LanguageOptionLike = Record<string, unknown> & {
   extLabel?: string
   orderNum?: number
 }
+
+/** 由 `locales` 扫描得到的语言码生成下拉项（无后端或接口失败时仍可选语言，与 `[I18n] 已加载支持的语言` 同源） */
+function languagesFromStaticLocales(codes: readonly string[]): Language[] {
+  return codes.map((code, i) => ({
+    code,
+    name: code,
+    displayName: code,
+    enabled: true,
+    order: i
+  }))
+}
+
+const STATIC_LANGUAGE_LIST: Language[] = languagesFromStaticLocales(supportedLocales)
 
 /**
  * 获取默认语言
@@ -54,9 +67,11 @@ function getDefaultLocale(): Locale {
 export const useLocaleStore = defineStore('locale', () => {
   const locale = ref<Locale>(getDefaultLocale())
   
-  // 语言列表
-  const languages = ref<Language[]>([])
+  // 语言列表：默认与静态 locales 扫描结果一致；`/api/TaktLanguages/options` 成功后再替换为后端启用语言
+  const languages = ref<Language[]>([...STATIC_LANGUAGE_LIST])
   const loading = ref(false)
+  /** 合并并发 `loadLanguages`，避免 `loading` 早退导致其它调用方永远拿不到列表 */
+  let loadLanguagesInFlight: Promise<void> | null = null
 
   // 当前语言信息
   const currentLanguage = computed(() => {
@@ -69,35 +84,44 @@ export const useLocaleStore = defineStore('locale', () => {
   })
 
   // 加载语言列表
-  const loadLanguages = async () => {
-    if (loading.value) return
+  const loadLanguages = async (): Promise<void> => {
+    if (loadLanguagesInFlight) return loadLanguagesInFlight
+    loadLanguagesInFlight = (async () => {
     try {
       loading.value = true
       // 使用 getOptions 获取所有语言选项（不分页）
-      const options = await getLanguageOptions()
-      
-      // 将 TaktSelectOption 转换为 Language 格式
-      // 后端映射：DictLabel=LanguageName(中文名称), DictValue=CultureCode(语言代码), ExtLabel=NativeName(本地化名称), ExtValue=Id(语言ID)
-      // 后端已统一转换为 camelCase
-      languages.value = options.map((option) => {
-        const optionLike = option as LanguageOptionLike
-        // 后端已统一转换为 camelCase
-        const dictValue = optionLike.dictValue
-        const dictLabel = optionLike.dictLabel
-        const extLabel = optionLike.extLabel
-        const orderNum = optionLike.orderNum
-        
-        const mapped = {
-          code: String(dictValue ?? ''), // 语言代码，如：'ar-SA'
-          name: String(dictLabel ?? ''), // 中文名称，如：'阿拉伯语'
-          displayName: String(extLabel ?? dictLabel ?? ''), // 本地化名称，如：'العربية'，如果没有则使用中文名称
-          enabled: true, // getOptions 返回的都是启用的语言（LanguageStatus == 0）
-          order: orderNum || 0,
-          ...optionLike
-        }
-        
-        return mapped
-      }).sort((a, b) => (a.order || 0) - (b.order || 0))
+      const raw = await getLanguageOptions()
+      const options = Array.isArray(raw) ? raw : []
+
+      // 将 TaktSelectOption 转为 Language；兼容 camelCase / PascalCase，并丢弃无 cultureCode 的项
+      const mapped = options
+        .map((option) => {
+          const o = option as Record<string, unknown>
+          const dictValue = o.dictValue ?? o.DictValue
+          const dictLabel = o.dictLabel ?? o.DictLabel
+          const extLabel = o.extLabel ?? o.ExtLabel
+          const orderNum = o.orderNum ?? o.OrderNum
+          const code = String(dictValue ?? '').trim()
+          const name = String(dictLabel ?? '')
+          const displayName = String(extLabel ?? dictLabel ?? '')
+          const optionLike = option as LanguageOptionLike
+          return {
+            code,
+            name,
+            displayName,
+            enabled: true,
+            order: typeof orderNum === 'number' ? orderNum : Number(orderNum) || 0,
+            ...optionLike,
+            dictValue,
+            dictLabel,
+            extLabel,
+            orderNum
+          } as Language
+        })
+        .filter((lang) => lang.code.length > 0)
+        .sort((a, b) => (a.order || 0) - (b.order || 0))
+
+      languages.value = mapped.length > 0 ? mapped : [...STATIC_LANGUAGE_LIST]
       
       // 如果当前语言不在列表中，使用设置中的默认语言，如果没有则优先使用中文（zh-CN），最后使用第一个启用的语言
       if (languages.value.length > 0 && !languages.value.find(lang => lang.code === locale.value)) {
@@ -191,17 +215,13 @@ export const useLocaleStore = defineStore('locale', () => {
         }
       }
     } catch {
-      // logger.error('[Locale Store] 加载语言列表失败:', error)
-      // 如果加载失败，使用默认语言列表
-      if (languages.value.length === 0) {
-        languages.value = [
-          { code: 'zh-CN', name: '中文', displayName: '中文', enabled: true, order: 1 },
-          { code: 'en-US', name: 'English', displayName: 'English', enabled: true, order: 2 }
-        ]
-      }
+      languages.value = [...STATIC_LANGUAGE_LIST]
     } finally {
       loading.value = false
+      loadLanguagesInFlight = null
     }
+    })()
+    return loadLanguagesInFlight
   }
 
   // 监听语言变化：先加载新语言的后端翻译，再切换 i18n locale，避免菜单等依赖 t() 的 computed 在翻译未就绪时重算并触发大量 fallback 警告
@@ -215,6 +235,16 @@ export const useLocaleStore = defineStore('locale', () => {
         const { loadTranslationsFromBackend } = await import('@/locales')
         await loadTranslationsFromBackend(newLocale, 'Frontend')
         await nextTick()
+        // 翻译合并后再拉 userinfo，同步假日等随语言的字段（与登录流程顺序一致）
+        try {
+          const { useUserStore } = await import('@/stores/identity/user')
+          const userStore = useUserStore()
+          if (userStore.token) {
+            await userStore.getUserInfo().catch(() => {})
+          }
+        } catch {
+          /* 忽略 */
+        }
       } catch {
         localeRef.value = newLocale
       }

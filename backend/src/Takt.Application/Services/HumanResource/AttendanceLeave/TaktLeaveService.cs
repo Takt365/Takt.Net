@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：TaktLeaveService.cs
@@ -58,7 +58,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktLeaveDto>> GetListAsync(TaktLeaveQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktLeaveDto>> GetLeaveListAsync(TaktLeaveQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
         var (data, total) = await _leaveRepository.GetPagedAsync(queryDto.PageIndex, queryDto.PageSize, predicate);
@@ -75,7 +75,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
     /// </summary>
     /// <param name="id">请假ID</param>
     /// <returns>请假DTO</returns>
-    public async Task<TaktLeaveDto?> GetByIdAsync(long id)
+    public async Task<TaktLeaveDto?> GetLeaveByIdAsync(long id)
     {
         var leave = await _leaveRepository.GetByIdAsync(id);
         if (leave == null)
@@ -88,7 +88,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
     /// </summary>
     /// <param name="dto">创建请假DTO</param>
     /// <returns>请假DTO</returns>
-    public async Task<TaktLeaveDto> CreateAsync(TaktLeaveCreateDto dto)
+    public async Task<TaktLeaveDto> CreateLeaveAsync(TaktLeaveCreateDto dto)
     {
         // 查重验证（同一员工、同一请假类型、同一开始日期仅允许一条，与 Import 去重一致）
         var exists = await _leaveRepository.ExistsAsync(l =>
@@ -102,7 +102,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
         var leave = dto.Adapt<TaktLeave>();
         leave.LeaveStatus = 0; // 草稿
         leave = await _leaveRepository.CreateAsync(leave);
-        return await GetByIdAsync(leave.Id) ?? leave.Adapt<TaktLeaveDto>();
+        return await GetLeaveByIdAsync(leave.Id) ?? leave.Adapt<TaktLeaveDto>();
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
     /// <param name="id">请假ID</param>
     /// <param name="dto">更新请假DTO</param>
     /// <returns>请假DTO</returns>
-    public async Task<TaktLeaveDto> UpdateAsync(long id, TaktLeaveUpdateDto dto)
+    public async Task<TaktLeaveDto> UpdateLeaveAsync(long id, TaktLeaveUpdateDto dto)
     {
         var leave = await _leaveRepository.GetByIdAsync(id);
         if (leave == null)
@@ -120,7 +120,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
         dto.Adapt(leave, typeof(TaktLeaveUpdateDto), typeof(TaktLeave));
         leave.UpdatedAt = DateTime.Now;
         await _leaveRepository.UpdateAsync(leave);
-        return await GetByIdAsync(id) ?? leave.Adapt<TaktLeaveDto>();
+        return await GetLeaveByIdAsync(id) ?? leave.Adapt<TaktLeaveDto>();
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
     /// </summary>
     /// <param name="id">请假ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteLeaveByIdAsync(long id)
     {
         var leave = await _leaveRepository.GetByIdAsync(id);
         if (leave == null)
@@ -141,7 +141,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
     /// </summary>
     /// <param name="ids">请假ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(IEnumerable<long> ids)
+    public async Task DeleteLeaveBatchAsync(IEnumerable<long> ids)
     {
         var idList = ids.ToList();
         if (idList.Count == 0)
@@ -154,7 +154,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
     /// </summary>
     /// <param name="dto">请假状态DTO</param>
     /// <returns>请假DTO</returns>
-    public async Task<TaktLeaveDto> UpdateStatusAsync(TaktLeaveStatusDto dto)
+    public async Task<TaktLeaveDto> UpdateLeaveStatusAsync(TaktLeaveStatusDto dto)
     {
         var leave = await _leaveRepository.GetByIdAsync(dto.LeaveId);
         if (leave == null)
@@ -166,7 +166,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
         leave.LeaveStatus = dto.LeaveStatus;
         leave.UpdatedAt = DateTime.Now;
         await _leaveRepository.UpdateAsync(leave);
-        return await GetByIdAsync(leave.Id) ?? leave.Adapt<TaktLeaveDto>();
+        return await GetLeaveByIdAsync(leave.Id) ?? leave.Adapt<TaktLeaveDto>();
     }
 
     /// <summary>
@@ -175,7 +175,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
     /// <param name="sheetName">工作表名称（可选）</param>
     /// <param name="fileName">文件名（可选）</param>
     /// <returns>Excel 文件信息</returns>
-    public async Task<(string fileName, byte[] content)> GetTemplateAsync(string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> GetLeaveTemplateAsync(string? sheetName, string? fileName)
     {
         var (excelSheet, excelFile) = await ResolveExcelImportTemplateNamesAsync(sheetName, fileName, nameof(TaktLeave));
         return await TaktExcelHelper.GenerateTemplateAsync<TaktLeaveTemplateDto>(
@@ -187,7 +187,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
     /// <summary>
     /// 导入请假数据
     /// </summary>
-    public async Task<(int success, int fail, List<string> errors)> ImportAsync(Stream fileStream, string? sheetName)
+    public async Task<(int success, int fail, List<string> errors)> ImportLeaveAsync(Stream fileStream, string? sheetName)
     {
         var errors = new List<string>();
         var success = 0;
@@ -303,7 +303,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
     /// <param name="sheetName">工作表名称（可选）</param>
     /// <param name="fileName">文件名（可选）</param>
     /// <returns>Excel 文件信息（文件名与内容）</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktLeaveQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportLeaveAsync(TaktLeaveQueryDto query, string? sheetName, string? fileName)
     {
         var predicate = QueryExpression(query ?? new TaktLeaveQueryDto());
         var leaves = await _leaveRepository.FindAsync(predicate);
@@ -331,7 +331,7 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
     /// </summary>
     public async Task<TaktLeaveSubmitResultDto> SubmitLeaveAsync(TaktLeaveSubmitDto dto)
     {
-        var user = GetCurrentUser();
+        var user = _userContext?.GetCurrentUser();
         if (user == null)
             throw new TaktBusinessException("validation.loginRequiredFirst");
 
@@ -343,9 +343,9 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
             ? dto.ProcessTitle
             : $"请假-{leave.LeaveType}-{leave.StartDate:yyyy-MM-dd}";
 
-        var startResult = await _flowInstanceService.StartAsync(new TaktFlowStartDto
+        var startResult = await _flowInstanceService.StartFlowInstanceAsync(new TaktFlowStartDto
         {
-            ProcessKey = "Leave",
+            SchemeKey = "Leave",
             BusinessKey = leave.Id.ToString(),
             BusinessType = "Leave",
             ProcessTitle = processTitle,
@@ -361,8 +361,8 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
             LeaveId = leave.Id,
             FlowInstanceId = startResult.InstanceId,
             InstanceCode = startResult.InstanceCode,
-            ProcessKey = startResult.ProcessKey,
-            ProcessName = startResult.ProcessName
+            SchemeKey = startResult.SchemeKey,
+            SchemeName = startResult.SchemeName
         };
     }
 
@@ -388,8 +388,8 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
         exp = exp.AndIF(queryDto.LeaveStatus.HasValue, x => x.LeaveStatus == queryDto.LeaveStatus!.Value);
 
         // 开始日期范围
-        exp = exp.AndIF(queryDto.StartDateFrom.HasValue, x => x.StartDate >= queryDto.StartDateFrom!.Value);
-        exp = exp.AndIF(queryDto.StartDateTo.HasValue, x => x.StartDate <= queryDto.StartDateTo!.Value);
+        exp = exp.AndIF(queryDto.StartDateStart.HasValue, x => x.StartDate >= queryDto.StartDateStart!.Value);
+        exp = exp.AndIF(queryDto.StartDateEnd.HasValue, x => x.StartDate <= queryDto.StartDateEnd!.Value);
 
         // 关键词（事由、请假类型）
         if (!string.IsNullOrEmpty(queryDto.KeyWords))
@@ -401,4 +401,25 @@ public class TaktLeaveService : TaktServiceBase, ITaktLeaveService
 
         return exp.ToExpression();
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 按请假类型统计结束日期大于等于今天的请假人员总数
+    /// </summary>
+    public async Task<Dictionary<int, int>> GetActiveLeaveCountByTypeAsync()
+    {
+        var today = DateTime.Now.Date;
+        var leaves = await _leaveRepository.FindAsync(l => 
+            l.IsDeleted == 0 && 
+            l.EndDate >= today);
+        
+        // LeaveType 是字符串，需要转换为字典键
+        return leaves
+            .Where(l => !string.IsNullOrEmpty(l.LeaveType))
+            .GroupBy(l => int.Parse(l.LeaveType))
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+
+    #endregion
 }

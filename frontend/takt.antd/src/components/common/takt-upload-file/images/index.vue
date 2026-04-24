@@ -41,10 +41,10 @@
     <!-- 图片裁剪弹窗 -->
     <a-modal
       v-model:open="cropperVisible"
-      :title="t('components.common.upload.cropImage')"
+      :title="t('components.common.page.upload.cropimage')"
       :width="900"
-      :ok-text="t('components.common.upload.ok')"
-      :cancel-text="t('components.common.upload.cancel')"
+      :ok-text="t('components.common.page.upload.ok')"
+      :cancel-text="t('components.common.page.upload.cancel')"
       class="takt-upload-images-cropper"
       @ok="handleCropConfirm"
       @cancel="handleCropCancel"
@@ -150,7 +150,7 @@ const props = withDefaults(defineProps<Props>(), {
   customRequest: undefined
 })
 
-const uploadTextDisplay = computed(() => props.uploadText ?? t('components.common.upload.upload'))
+const uploadTextDisplay = computed(() => props.uploadText ?? t('components.common.page.upload.upload'))
 
 const emit = defineEmits<{
   'update:modelValue': [fileList: UploadFile[]]
@@ -207,7 +207,7 @@ const handleBeforeUpload = (file: UploadFile | File) => {
   
   // 检查是否为图片文件
   if (!originFile.type?.startsWith('image/')) {
-    message.error(t('components.common.upload.imageOnly'))
+    message.error(t('components.common.page.upload.imageonly'))
     return false
   }
 
@@ -215,7 +215,7 @@ const handleBeforeUpload = (file: UploadFile | File) => {
   if (props.maxSize && originFile.size) {
     const fileSizeMB = originFile.size / 1024 / 1024
     if (fileSizeMB > props.maxSize) {
-      message.error(t('components.common.upload.imageSizeExceed', { max: props.maxSize }))
+      message.error(t('components.common.page.upload.imagesizeexceed', { max: props.maxSize }))
       return false
     }
   }
@@ -253,13 +253,13 @@ const handleCropperCrop = (_blob: Blob, _dataUrl: string) => {
 
 // 裁剪器错误事件
 const handleCropperError = (error: Error) => {
-  message.error(t('components.common.upload.cropFail') + '：' + error.message)
+  message.error(t('components.common.page.upload.cropfail') + '：' + error.message)
 }
 
 // 确认裁剪
 const handleCropConfirm = async () => {
   if (!cropperRef.value || !currentCropFile.value) {
-    message.error(t('components.common.upload.cropperNotInit'))
+    message.error(t('components.common.page.upload.croppernotinit'))
     return
   }
 
@@ -314,8 +314,8 @@ const handleCropConfirm = async () => {
           if (index !== -1) {
             fileList.value[index].status = 'error'
           }
-          const errorMessage = toError(error).message || t('components.common.upload.uploadFail')
-          message.error(t('components.common.upload.uploadImageFail') + '：' + errorMessage)
+          const errorMessage = toError(error).message || t('components.common.page.upload.uploadfail')
+          message.error(t('components.common.page.upload.uploadimagefail') + '：' + errorMessage)
         },
         onProgress: (event: UploadProgress) => {
           const index = fileList.value.findIndex(f => f.uid === uploadFile.uid)
@@ -349,7 +349,7 @@ const handleCropConfirm = async () => {
     currentCropFile.value = null
   } catch (error: unknown) {
     console.error('[TaktUploadImages] 裁剪失败:', error)
-    message.error(toError(error).message || t('components.common.upload.cropFail'))
+    message.error(toError(error).message || t('components.common.page.upload.cropfail'))
   }
 }
 
@@ -367,9 +367,9 @@ const handleChange = (info: UploadChangeParam) => {
 
   const { status } = info.file
   if (status === 'done') {
-    message.success(t('components.common.upload.fileUploadSuccess', { name: info.file.name }))
+    message.success(t('components.common.page.upload.fileuploadsuccess', { name: info.file.name }))
   } else if (status === 'error') {
-    message.error(t('components.common.upload.fileUploadFail', { name: info.file.name }))
+    message.error(t('components.common.page.upload.fileuploadfail', { name: info.file.name }))
   }
 }
 
@@ -381,14 +381,14 @@ const handlePreview = async (file: UploadFile) => {
       file.preview = await getBase64(file.originFileObj)
     } catch (error) {
       console.error('[TaktUploadImages] 生成预览失败:', error)
-      message.error(t('components.common.upload.generatePreviewFail'))
+      message.error(t('components.common.page.upload.generatepreviewfail'))
       return
     }
   }
   
   previewImage.value = file.url || file.preview || ''
   previewVisible.value = true
-  previewTitle.value = file.name || (file.url ? file.url.substring(file.url.lastIndexOf('/') + 1) : t('components.common.upload.preview'))
+  previewTitle.value = file.name || (file.url ? file.url.substring(file.url.lastIndexOf('/') + 1) : t('components.common.page.upload.preview'))
   emit('preview', file)
 }
 

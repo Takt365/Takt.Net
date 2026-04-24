@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.HumanResource.Personnel
 // 文件名称：TaktEmployeeCareersController.cs
@@ -14,7 +14,7 @@ using Takt.Application.Services.HumanResource.Personnel;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.HumanResource.Personnel;
 
@@ -79,7 +79,7 @@ public class TaktEmployeeCareersController : TaktControllerBase
     [TaktPermission("humanresource:personnel:employeecareer:update", "更新员工职业信息")]
     public async Task<ActionResult<TaktEmployeeCareerDto>> UpdateEmployeeCareerAsync(long id, [FromBody] TaktEmployeeCareerUpdateDto dto)
     {
-        if (dto.CareerId != id)
+        if (dto.EmployeeCareerId != id)
             return BadRequest(GetLocalizedString("validation.idRouteMismatch", "Frontend"));
         var updated = await _service.UpdateEmployeeCareerAsync(id, dto);
         return Ok(updated);
@@ -120,7 +120,7 @@ public class TaktEmployeeCareersController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _service.GetEmployeeCareerTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -175,7 +175,7 @@ public class TaktEmployeeCareersController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _service.ExportEmployeeCareerAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {

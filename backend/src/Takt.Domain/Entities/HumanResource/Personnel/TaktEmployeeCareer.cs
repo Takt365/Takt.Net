@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.HumanResource
 // 文件名称：TaktEmployeeCareer.cs
@@ -17,7 +17,7 @@ namespace Takt.Domain.Entities.HumanResource.Personnel;
 /// <summary>
 /// Takt员工职业信息实体
 /// </summary>
-[SugarTable("takt_humanresource_employee_career", "员工职业信息表")]
+[SugarTable("takt_humanresource_employee_career", "员工职业表")]
 [SugarIndex("ix_takt_humanresource_employee_career_employee_id", nameof(EmployeeId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_employee_career_dept_id", nameof(DeptId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_employee_career_post_id", nameof(PostId), OrderByType.Asc)]

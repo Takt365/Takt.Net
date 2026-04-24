@@ -21,80 +21,80 @@
       layout="horizontal"
     >
       <a-form-item
-        label="资源键"
+        :label="t('entity.translation.resourcekey')"
         name="resourceKey"
       >
         <a-input
           v-model:value="formState.resourceKey"
-          placeholder="如：UserNotFound、menu.home._self"
+          :placeholder="t('routine.localization.translation.placeholders.resourceKeyExample')"
         />
       </a-form-item>
       <a-form-item
-        label="语言（子表）"
+        :label="t('routine.localization.translation.form.languageSub')"
         name="cultureCode"
       >
         <TaktSelect
           v-model:value="formState.cultureCode"
           :options="languageOptions"
-          placeholder="请选择语言"
+          :placeholder="t('common.form.placeholder.select', { field: t('entity.translation.culturecode') })"
           :field-names="{ label: 'dictLabel', value: 'dictValue' }"
           :loading="languageOptionsLoading"
           allow-clear
         />
       </a-form-item>
       <a-form-item
-        label="翻译值"
+        :label="t('entity.translation.translationvalue')"
         name="translationValue"
       >
         <a-input
           v-model:value="formState.translationValue"
-          placeholder="该语言下的文本内容"
+          :placeholder="t('routine.localization.translation.placeholders.translationValueInLanguage')"
         />
       </a-form-item>
       <a-form-item
-        label="资源类型"
+        :label="t('entity.translation.resourcetype')"
         name="resourceType"
       >
         <a-select
           v-model:value="formState.resourceType"
-          placeholder="Frontend / Backend"
+          :placeholder="t('routine.localization.translation.placeholders.resourceTypeSelect')"
           allow-clear
         >
           <a-select-option value="Frontend">
-            Frontend
+            {{ t('routine.localization.translation.options.frontend') }}
           </a-select-option>
           <a-select-option value="Backend">
-            Backend
+            {{ t('routine.localization.translation.options.backend') }}
           </a-select-option>
         </a-select>
       </a-form-item>
       <a-form-item
-        label="资源分组"
+        :label="t('entity.translation.resourcegroup')"
         name="resourceGroup"
       >
         <a-input
           v-model:value="formState.resourceGroup"
-          placeholder="如：Validation、Menu（可选）"
+          :placeholder="t('routine.localization.translation.placeholders.resourceGroupOptional')"
         />
       </a-form-item>
       <a-form-item
-        label="排序号"
+        :label="t('entity.translation.ordernum')"
         name="orderNum"
       >
         <a-input-number
           v-model:value="formState.orderNum"
           :min="0"
-          placeholder="越小越靠前"
+          :placeholder="t('routine.localization.translation.placeholders.orderNumHint')"
           style="width: 100%"
         />
       </a-form-item>
       <a-form-item
-        label="备注"
+        :label="t('common.entity.remark')"
         name="remark"
       >
         <a-textarea
           v-model:value="formState.remark"
-          placeholder="可选"
+          :placeholder="t('routine.localization.translation.placeholders.remarkOptional')"
           :rows="2"
         />
       </a-form-item>
@@ -103,7 +103,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from 'vue'
+import { ref, reactive, watch, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Rule } from 'ant-design-vue/es/form'
 import * as languageApi from '@/api/routine/tasks/i18n/language'
 import type { Translation, TranslationCreate, TranslationUpdate } from '@/types/routine/tasks/i18n/translation'
@@ -119,11 +120,19 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false
 })
 
+const { t } = useI18n()
+
 const formRef = ref()
 const languageOptions = ref<TaktSelectOption[]>([])
 const languageOptionsLoading = ref(false)
 
-const formState = reactive<TranslationCreate & { translationId?: string }>({
+type TranslationFormState = Omit<TranslationCreate, 'resourceGroup' | 'remark'> & {
+  translationId?: string
+  resourceGroup: string
+  remark: string
+}
+
+const formState = reactive<TranslationFormState>({
   resourceKey: '',
   languageId: '',
   cultureCode: '',
@@ -134,23 +143,31 @@ const formState = reactive<TranslationCreate & { translationId?: string }>({
   remark: ''
 })
 
-const formRules: Record<string, Rule[]> = {
-  resourceKey: [{ required: true, message: '请输入资源键', trigger: 'blur' }],
-  cultureCode: [{ required: true, message: '请选择语言', trigger: 'change' }],
-  translationValue: [{ required: true, message: '请输入翻译值', trigger: 'blur' }],
-  resourceType: [{ required: true, message: '请选择资源类型', trigger: 'change' }]
-}
+const formRules = computed<Record<string, Rule[]>>(() => ({
+  resourceKey: [{ required: true, message: t('routine.localization.translation.rules.resourceKeyRequired'), trigger: 'blur' }],
+  cultureCode: [{ required: true, message: t('routine.localization.translation.rules.cultureCodeRequired'), trigger: 'change' }],
+  translationValue: [{ required: true, message: t('routine.localization.translation.rules.translationValueRequired'), trigger: 'blur' }],
+  resourceType: [{ required: true, message: t('routine.localization.translation.rules.resourceTypeRequired'), trigger: 'change' }]
+}))
 
 async function loadLanguageOptions() {
   try {
     languageOptionsLoading.value = true
     const list = await languageApi.getLanguageOptions()
-    languageOptions.value = (list || []).map((x: any) => ({
-      dictLabel: `${x.dictLabel} (${x.extLabel ?? x.dictValue})`,
-      dictValue: x.dictValue,
-      extValue: x.extValue,
-      orderNum: x.orderNum ?? 0
-    }))
+    const listRaw = (list || []) as unknown[]
+    languageOptions.value = listRaw.map((x): TaktSelectOption => {
+      const r = x as Record<string, unknown>
+      const ev = r['extValue']
+      const base: TaktSelectOption = {
+        dictLabel: `${String(r['dictLabel'] ?? '')} (${String(r['extLabel'] ?? r['dictValue'] ?? '')})`,
+        dictValue: (r['dictValue'] ?? '') as string | number,
+        orderNum: typeof r['orderNum'] === 'number' ? r['orderNum'] : Number(r['orderNum'] ?? 0)
+      }
+      if (ev != null && String(ev) !== '') {
+        base.extValue = ev as string | number
+      }
+      return base
+    })
   } finally {
     languageOptionsLoading.value = false
   }
@@ -191,8 +208,10 @@ watch(
 watch(
   () => formState.cultureCode,
   (code) => {
-    const opt = languageOptions.value.find((o: any) => o.dictValue === code || o.extValue === code)
-    ;(formState as any).languageId = opt?.extValue ?? ''
+    const opt = languageOptions.value.find(
+      (o) => o.dictValue === code || o.extValue === code
+    )
+    formState.languageId = String(opt?.extValue ?? '')
   }
 )
 
@@ -205,21 +224,28 @@ async function validate() {
 }
 
 function getFormData(): TranslationCreate | TranslationUpdate {
-  const base: any = {
+  const opt = languageOptions.value.find(
+    (o) => o.dictValue === formState.cultureCode || o.extValue === formState.cultureCode
+  )
+  const languageId = String(opt?.extValue ?? formState.languageId ?? '')
+  const base: TranslationCreate = {
     resourceKey: formState.resourceKey,
     cultureCode: formState.cultureCode,
     translationValue: formState.translationValue,
     resourceType: formState.resourceType,
-    resourceGroup: formState.resourceGroup || undefined,
-    orderNum: formState.orderNum,
-    remark: formState.remark || undefined
+    languageId,
+    orderNum: formState.orderNum
   }
-  const opt = languageOptions.value.find((o: any) => o.dictValue === formState.cultureCode || o.extValue === formState.cultureCode)
-  base.languageId = String(opt?.extValue ?? formState.languageId ?? '')
+  if (formState.resourceGroup && formState.resourceGroup.trim() !== '') {
+    base.resourceGroup = formState.resourceGroup
+  }
+  if (formState.remark && formState.remark.trim() !== '') {
+    base.remark = formState.remark
+  }
   if (formState.translationId) {
     return { ...base, translationId: formState.translationId } as TranslationUpdate
   }
-  return base as TranslationCreate
+  return base
 }
 
 defineExpose({ validate, getFormData })

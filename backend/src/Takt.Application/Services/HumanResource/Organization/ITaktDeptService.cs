@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.HumanResource.Organization
 // 文件名称：ITaktDeptService.cs
@@ -26,14 +26,14 @@ public interface ITaktDeptService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    Task<TaktPagedResult<TaktDeptDto>> GetListAsync(TaktDeptQueryDto queryDto);
+    Task<TaktPagedResult<TaktDeptDto>> GetDeptListAsync(TaktDeptQueryDto queryDto);
 
     /// <summary>
     /// 根据ID获取部门
     /// </summary>
     /// <param name="id">部门ID</param>
     /// <returns>部门DTO</returns>
-    Task<TaktDeptDto?> GetByIdAsync(long id);
+    Task<TaktDeptDto?> GetDeptByIdAsync(long id);
 
     /// <summary>
     /// 获取部门树形选项列表（用于树形下拉框等）
@@ -62,7 +62,7 @@ public interface ITaktDeptService
     /// </summary>
     /// <param name="dto">创建部门DTO</param>
     /// <returns>部门DTO</returns>
-    Task<TaktDeptDto> CreateAsync(TaktDeptCreateDto dto);
+    Task<TaktDeptDto> CreateDeptAsync(TaktDeptCreateDto dto);
 
     /// <summary>
     /// 更新部门
@@ -70,28 +70,28 @@ public interface ITaktDeptService
     /// <param name="id">部门ID</param>
     /// <param name="dto">更新部门DTO</param>
     /// <returns>部门DTO</returns>
-    Task<TaktDeptDto> UpdateAsync(long id, TaktDeptUpdateDto dto);
+    Task<TaktDeptDto> UpdateDeptAsync(long id, TaktDeptUpdateDto dto);
 
     /// <summary>
     /// 删除部门
     /// </summary>
     /// <param name="id">部门ID</param>
     /// <returns>任务</returns>
-    Task DeleteAsync(long id);
+    Task DeleteDeptByIdAsync(long id);
 
     /// <summary>
     /// 批量删除部门
     /// </summary>
     /// <param name="ids">部门ID列表</param>
     /// <returns>任务</returns>
-    Task DeleteAsync(IEnumerable<long> ids);
+    Task DeleteDeptBatchAsync(IEnumerable<long> ids);
 
     /// <summary>
     /// 更新部门状态
     /// </summary>
     /// <param name="dto">部门状态DTO</param>
     /// <returns>部门DTO</returns>
-    Task<TaktDeptDto> UpdateStatusAsync(TaktDeptStatusDto dto);
+    Task<TaktDeptDto> UpdateDeptStatusAsync(TaktDeptStatusDto dto);
 
     /// <summary>
     /// 获取部门用户列表
@@ -130,7 +130,7 @@ public interface ITaktDeptService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件信息（文件名和内容）</returns>
-    Task<(string fileName, byte[] content)> GetTemplateAsync(string? sheetName, string? fileName);
+    Task<(string fileName, byte[] content)> GetDeptTemplateAsync(string? sheetName, string? fileName);
 
     /// <summary>
     /// 导入部门
@@ -138,7 +138,7 @@ public interface ITaktDeptService
     /// <param name="fileStream">Excel文件流</param>
     /// <param name="sheetName">工作表名称</param>
     /// <returns>导入结果（成功数量、失败数量、错误信息列表）</returns>
-    Task<(int success, int fail, List<string> errors)> ImportAsync(Stream fileStream, string? sheetName);
+    Task<(int success, int fail, List<string> errors)> ImportDeptAsync(Stream fileStream, string? sheetName);
 
     /// <summary>
     /// 导出部门
@@ -147,5 +147,23 @@ public interface ITaktDeptService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    Task<(string fileName, byte[] content)> ExportAsync(TaktDeptQueryDto query, string? sheetName, string? fileName);
+    Task<(string fileName, byte[] content)> ExportDeptAsync(TaktDeptQueryDto query, string? sheetName, string? fileName);
+
+    /// <summary>
+    /// 统计部门总数
+    /// </summary>
+    /// <returns>部门总数</returns>
+    Task<long> GetDeptCountAsync();
+
+    /// <summary>
+    /// 按部门统计人数分布
+    /// </summary>
+    /// <returns>部门人数统计列表（Key=部门ID，Value=人数）</returns>
+    Task<Dictionary<long, int>> GetEmployeeCountByDeptAsync();
+
+    /// <summary>
+    /// 统计各部门人数及总计
+    /// </summary>
+    /// <returns>部门人数统计（包含部门信息和人数）</returns>
+    Task<List<(long deptId, string deptName, int employeeCount)>> GetDeptEmployeeStatsAsync();
 }

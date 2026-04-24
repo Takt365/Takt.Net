@@ -8,7 +8,7 @@
     </a-typography-paragraph>
     <a-empty
       v-else
-      :description="t('dashboard.workspace.customPlaceholder')"
+      :description="t('dashboard.workspace.customplaceholder')"
       :image="Empty.PRESENTED_IMAGE_SIMPLE"
     />
   </div>

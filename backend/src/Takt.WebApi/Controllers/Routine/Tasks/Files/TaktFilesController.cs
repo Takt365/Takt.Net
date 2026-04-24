@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Routine.Files
 // 文件名称：TaktFilesController.cs
@@ -19,7 +19,7 @@ using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
 using Takt.WebApi.Controllers;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 
 namespace Takt.WebApi.Controllers.Routine.Tasks.Files;
@@ -197,7 +197,7 @@ public class TaktFilesController : TaktControllerBase
     /// <returns>文件DTO</returns>
     [HttpPut("change")]
     [TaktPermission("routine:tasks:file:change", "切换文件公开/私有状态")]
-    public async Task<ActionResult<TaktFileDto>> ChangeIsPublicAsync([FromBody] TaktFileChangeDto dto)
+    public async Task<ActionResult<TaktFileDto>> ChangeIsPublicAsync([FromBody] TaktFilePublicChangeDto dto)
     {
         try
         {
@@ -253,7 +253,7 @@ public class TaktFilesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _fileService.ExportFileAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {

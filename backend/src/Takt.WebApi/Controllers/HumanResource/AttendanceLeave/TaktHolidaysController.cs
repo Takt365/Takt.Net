@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.HumanResource.AttendanceLeave
 // 文件名称：TaktHolidaysController.cs
@@ -15,7 +15,7 @@ using Takt.Application.Services.HumanResource.AttendanceLeave;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.HumanResource.AttendanceLeave;
 
@@ -161,7 +161,7 @@ public class TaktHolidaysController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _holidayService.GetHolidayTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -212,7 +212,7 @@ public class TaktHolidaysController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _holidayService.ExportHolidayAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {
@@ -236,4 +236,32 @@ public class TaktHolidaysController : TaktControllerBase
             return NoContent();
         return Ok(dto);
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计假日总数
+    /// </summary>
+    /// <returns>假日总数</returns>
+    [HttpGet("stats/count")]
+    [TaktPermission("humanresource:attendanceleave:holiday:list", "统计假日总数")]
+    public async Task<ActionResult<long>> GetHolidayCountAsync()
+    {
+        var count = await _holidayService.GetHolidayCountAsync();
+        return Ok(count);
+    }
+
+    /// <summary>
+    /// 按地区统计假日天数分布
+    /// </summary>
+    /// <returns>地区假日统计</returns>
+    [HttpGet("stats/by-region")]
+    [TaktPermission("humanresource:attendanceleave:holiday:list", "按地区统计假日")]
+    public async Task<ActionResult<Dictionary<string, int>>> GetHolidayCountByRegionAsync()
+    {
+        var stats = await _holidayService.GetHolidayCountByRegionAsync();
+        return Ok(stats);
+    }
+
+    #endregion
 }

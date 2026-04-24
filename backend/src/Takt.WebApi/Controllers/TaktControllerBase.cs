@@ -12,8 +12,6 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OpenIddict.Abstractions;
-using System.Security.Claims;
 using Takt.Domain.Entities.Identity;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Tenant;
@@ -224,15 +222,6 @@ public abstract class TaktControllerBase : ControllerBase
     #region 用户上下文方法
 
     /// <summary>
-    /// 获取当前用户实体（完整数据）
-    /// </summary>
-    /// <returns>用户实体，如果未登录则返回null</returns>
-    protected TaktUser? GetCurrentUser()
-    {
-        return _userContext?.GetCurrentUser();
-    }
-
-    /// <summary>
     /// 获取当前用户实体（完整数据，异步）
     /// </summary>
     /// <returns>用户实体，如果未登录则返回null</returns>
@@ -246,54 +235,21 @@ public abstract class TaktControllerBase : ControllerBase
     }
 
     /// <summary>
-    /// 获取当前用户ID
+    /// 获取当前用户ID（委托 <see cref="ITaktUserContext"/>，解析逻辑仅在 <see cref="TaktUserProvider"/>）
     /// </summary>
     /// <returns>当前用户ID，如果未登录或无法解析则返回null</returns>
     protected long? GetCurrentUserId()
     {
-        // 优先从用户上下文获取
-        if (_userContext != null)
-        {
-            var userId = _userContext.GetCurrentUserId();
-            if (userId.HasValue)
-            {
-                return userId;
-            }
-        }
-
-        // 从 HTTP 上下文 Claims 中获取（向后兼容）
-        var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier) 
-            ?? User?.FindFirst("sub") 
-            ?? User?.FindFirst(OpenIddictConstants.Claims.Subject);
-        if (userIdClaim != null && long.TryParse(userIdClaim.Value, out var parsedUserId))
-        {
-            return parsedUserId;
-        }
-
-        return null;
+        return _userContext?.GetCurrentUserId();
     }
 
     /// <summary>
-    /// 获取当前用户名
+    /// 获取当前用户名（委托 <see cref="ITaktUserContext"/>，解析逻辑仅在 <see cref="TaktUserProvider"/>）
     /// </summary>
     /// <returns>当前用户名，如果未登录则返回null</returns>
     protected string? GetCurrentUserName()
     {
-        // 优先从用户上下文获取
-        if (_userContext != null)
-        {
-            var userName = _userContext.GetCurrentUserName();
-            if (!string.IsNullOrEmpty(userName))
-            {
-                return userName;
-            }
-        }
-
-        // 从 HTTP 上下文获取（向后兼容）
-        return User?.Identity?.Name
-            ?? User?.FindFirst(ClaimTypes.Name)?.Value
-            ?? User?.FindFirst(OpenIddictConstants.Claims.Name)?.Value
-            ?? User?.FindFirst(OpenIddictConstants.Claims.PreferredUsername)?.Value;
+        return _userContext?.GetCurrentUserName();
     }
 
     /// <summary>

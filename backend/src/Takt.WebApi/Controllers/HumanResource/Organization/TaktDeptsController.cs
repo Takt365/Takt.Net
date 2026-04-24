@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Organization
 // 文件名称：TaktDeptsController.cs
@@ -17,7 +17,7 @@ using Takt.Application.Services.HumanResource.Organization;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.HumanResource.Organization;
 
@@ -59,9 +59,9 @@ public class TaktDeptsController : TaktControllerBase
     /// <returns>分页结果</returns>
     [HttpGet("list")]
     [TaktPermission("humanresource:organization:dept:list", "查询部门列表")]
-    public async Task<ActionResult<TaktPagedResult<TaktDeptDto>>> GetListAsync([FromQuery] TaktDeptQueryDto queryDto)
+    public async Task<ActionResult<TaktPagedResult<TaktDeptDto>>> GetDeptListAsync([FromQuery] TaktDeptQueryDto queryDto)
     {
-        var result = await _deptService.GetListAsync(queryDto);
+        var result = await _deptService.GetDeptListAsync(queryDto);
         return Ok(result);
     }
 
@@ -72,9 +72,9 @@ public class TaktDeptsController : TaktControllerBase
     /// <returns>部门DTO</returns>
     [HttpGet("{id}")]
     [TaktPermission("humanresource:organization:dept:detail", "查询部门详情")]
-    public async Task<ActionResult<TaktDeptDto>> GetByIdAsync(long id)
+    public async Task<ActionResult<TaktDeptDto>> GetDeptByIdAsync(long id)
     {
-        var dept = await _deptService.GetByIdAsync(id);
+        var dept = await _deptService.GetDeptByIdAsync(id);
         if (dept == null)
             return NotFound();
         return Ok(dept);
@@ -99,10 +99,10 @@ public class TaktDeptsController : TaktControllerBase
     /// <returns>部门DTO</returns>
     [HttpPost]
     [TaktPermission("humanresource:organization:dept:create", "创建部门")]
-    public async Task<ActionResult<TaktDeptDto>> CreateAsync([FromBody] TaktDeptCreateDto dto)
+    public async Task<ActionResult<TaktDeptDto>> CreateDeptAsync([FromBody] TaktDeptCreateDto dto)
     {
-        var dept = await _deptService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = dept.DeptId }, dept);
+        var dept = await _deptService.CreateDeptAsync(dto);
+        return CreatedAtAction(nameof(GetDeptByIdAsync), new { id = dept.DeptId }, dept);
     }
 
     /// <summary>
@@ -113,11 +113,11 @@ public class TaktDeptsController : TaktControllerBase
     /// <returns>部门DTO</returns>
     [HttpPut("{id}")]
     [TaktPermission("humanresource:organization:dept:update", "更新部门")]
-    public async Task<ActionResult<TaktDeptDto>> UpdateAsync(long id, [FromBody] TaktDeptUpdateDto dto)
+    public async Task<ActionResult<TaktDeptDto>> UpdateDeptAsync(long id, [FromBody] TaktDeptUpdateDto dto)
     {
         try
         {
-            var dept = await _deptService.UpdateAsync(id, dto);
+            var dept = await _deptService.UpdateDeptAsync(id, dto);
             return Ok(dept);
         }
         catch (Exception ex)
@@ -133,9 +133,9 @@ public class TaktDeptsController : TaktControllerBase
     /// <returns>操作结果</returns>
     [HttpDelete("{id}")]
     [TaktPermission("humanresource:organization:dept:delete", "删除部门")]
-    public async Task<IActionResult> DeleteAsync(long id)
+    public async Task<IActionResult> DeleteDeptByIdAsync(long id)
     {
-        await _deptService.DeleteAsync(id);
+        await _deptService.DeleteDeptByIdAsync(id);
         return NoContent();
     }
 
@@ -146,11 +146,11 @@ public class TaktDeptsController : TaktControllerBase
     /// <returns>部门DTO</returns>
     [HttpPut("status")]
     [TaktPermission("humanresource:organization:dept:update", "更新部门状态")]
-    public async Task<ActionResult<TaktDeptDto>> UpdateStatusAsync([FromBody] TaktDeptStatusDto dto)
+    public async Task<ActionResult<TaktDeptDto>> UpdateDeptStatusAsync([FromBody] TaktDeptStatusDto dto)
     {
         try
         {
-            var dept = await _deptService.UpdateStatusAsync(dto);
+            var dept = await _deptService.UpdateDeptStatusAsync(dto);
             return Ok(dept);
         }
         catch (Exception ex)
@@ -236,12 +236,12 @@ public class TaktDeptsController : TaktControllerBase
     /// <returns>Excel模板文件</returns>
     [HttpGet("template")]
     [TaktPermission("humanresource:organization:dept:template", "获取导入模板")]
-    public async Task<IActionResult> GetTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> GetDeptTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (resultFileName, content) = await _deptService.GetTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            var (resultFileName, content) = await _deptService.GetDeptTemplateAsync(sheetName, fileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -257,7 +257,7 @@ public class TaktDeptsController : TaktControllerBase
     /// <returns>导入结果</returns>
     [HttpPost("import")]
     [TaktPermission("humanresource:organization:dept:import", "导入部门")]
-    public async Task<ActionResult<object>> ImportAsync(IFormFile file, [FromForm] string? sheetName = null)
+    public async Task<ActionResult<object>> ImportDeptAsync(IFormFile file, [FromForm] string? sheetName = null)
     {
         try
         {
@@ -273,7 +273,7 @@ public class TaktDeptsController : TaktControllerBase
             }
 
             using var stream = file.OpenReadStream();
-            var (success, fail, errors) = await _deptService.ImportAsync(stream, sheetName);
+            var (success, fail, errors) = await _deptService.ImportDeptAsync(stream, sheetName);
             return Ok(new { success, fail, errors });
         }
         catch (Exception ex)
@@ -291,16 +291,44 @@ public class TaktDeptsController : TaktControllerBase
     /// <returns>Excel 文件；超过 <c>TaktExcelHelper.ExportAsync</c> 单表行数上限时为 zip 打包（基础设施统一逻辑）</returns>
     [HttpPost("export")]
     [TaktPermission("humanresource:organization:dept:export", "导出部门")]
-    public async Task<IActionResult> ExportAsync([FromBody] TaktDeptQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> ExportDeptAsync([FromBody] TaktDeptQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (resultFileName, content) = await _deptService.ExportAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            var (resultFileName, content) = await _deptService.ExportDeptAsync(query, sheetName, fileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {
             return BadRequest(GetLocalizedExceptionMessage(ex));
         }
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计部门总数
+    /// </summary>
+    /// <returns>部门总数</returns>
+    [HttpGet("stats/count")]
+    [TaktPermission("humanresource:organization:dept:list", "统计部门总数")]
+    public async Task<ActionResult<long>> GetDeptCountAsync()
+    {
+        var count = await _deptService.GetDeptCountAsync();
+        return Ok(count);
+    }
+
+    /// <summary>
+    /// 统计各部门人数及总计
+    /// </summary>
+    /// <returns>部门人数统计列表</returns>
+    [HttpGet("stats/employee-count")]
+    [TaktPermission("humanresource:organization:dept:list", "统计部门人数")]
+    public async Task<ActionResult<List<(long deptId, string deptName, int employeeCount)>>> GetDeptEmployeeStatsAsync()
+    {
+        var stats = await _deptService.GetDeptEmployeeStatsAsync();
+        return Ok(stats);
+    }
+
+    #endregion
 }

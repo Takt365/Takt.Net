@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.HumanResource.Personnel
 // 文件名称：TaktEmployeeFamiliesController.cs
@@ -14,7 +14,7 @@ using Takt.Application.Services.HumanResource.Personnel;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.HumanResource.Personnel;
 
@@ -110,7 +110,7 @@ public class TaktEmployeeFamiliesController : TaktControllerBase
     public async Task<IActionResult> GetEmployeeFamilyTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         var (resultFileName, content) = await _service.GetEmployeeFamilyTemplateAsync(sheetName, fileName);
-        return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+        return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
     }
 
     /// <summary>
@@ -142,6 +142,6 @@ public class TaktEmployeeFamiliesController : TaktControllerBase
     public async Task<IActionResult> ExportEmployeeFamilyAsync([FromBody] TaktEmployeeFamilyQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         var (resultFileName, content) = await _service.ExportEmployeeFamilyAsync(query, sheetName, fileName);
-        return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+        return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
     }
 }

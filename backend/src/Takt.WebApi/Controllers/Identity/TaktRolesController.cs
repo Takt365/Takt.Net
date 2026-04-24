@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Identity
 // 文件名称：TaktRolesController.cs
@@ -18,7 +18,7 @@ using Takt.Application.Services.Identity;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 using Takt.WebApi.Controllers;
 
 namespace Takt.WebApi.Controllers.Identity;
@@ -263,7 +263,7 @@ public class TaktRolesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _roleService.GetRoleTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -318,11 +318,63 @@ public class TaktRolesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _roleService.ExportRoleAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {
             return BadRequest(GetLocalizedExceptionMessage(ex));
         }
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计角色总数
+    /// </summary>
+    /// <returns>角色总数</returns>
+    [HttpGet("stats/role-count")]
+    [TaktPermission("identity:role:list", "统计角色总数")]
+    public async Task<ActionResult<long>> GetRoleCountAsync()
+    {
+        var count = await _roleService.GetRoleCountAsync();
+        return Ok(count);
+    }
+
+    /// <summary>
+    /// 统计菜单总数
+    /// </summary>
+    /// <returns>菜单总数</returns>
+    [HttpGet("stats/menu-count")]
+    [TaktPermission("identity:role:list", "统计菜单总数")]
+    public async Task<ActionResult<long>> GetMenuCountAsync()
+    {
+        var count = await _roleService.GetMenuCountAsync();
+        return Ok(count);
+    }
+
+    /// <summary>
+    /// 统计各角色用户数及详情
+    /// </summary>
+    /// <returns>角色用户数统计列表</returns>
+    [HttpGet("stats/role-user-count")]
+    [TaktPermission("identity:role:list", "统计各角色用户数")]
+    public async Task<ActionResult<List<(long roleId, string roleName, int userCount)>>> GetRoleUserStatsAsync()
+    {
+        var stats = await _roleService.GetRoleUserStatsAsync();
+        return Ok(stats);
+    }
+
+    /// <summary>
+    /// 统计各角色菜单数及详情
+    /// </summary>
+    /// <returns>角色菜单数统计列表</returns>
+    [HttpGet("stats/role-menu-count")]
+    [TaktPermission("identity:role:list", "统计各角色菜单数")]
+    public async Task<ActionResult<List<(long roleId, string roleName, int menuCount)>>> GetRoleMenuStatsAsync()
+    {
+        var stats = await _roleService.GetRoleMenuStatsAsync();
+        return Ok(stats);
+    }
+
+    #endregion
 }

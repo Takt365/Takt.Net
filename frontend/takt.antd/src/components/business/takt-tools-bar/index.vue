@@ -29,7 +29,7 @@
             <template #icon>
               <RiSendPlane2Line />
             </template>
-            {{ t('common.button.startFlow') }}
+            {{ t('common.button.startflow') }}
           </a-button>
           <a-button
             v-if="canSendMessage"
@@ -41,7 +41,7 @@
             <template #icon>
               <RiMailSendLine />
             </template>
-            {{ t('common.button.sendMessage') }}
+            {{ t('common.button.sendmessage') }}
           </a-button>
           <!-- 新增行按钮：需满足 showCreateRow 与 createRowPermission（与导入/导出逻辑一致） -->
           <a-button
@@ -54,7 +54,7 @@
             <template #icon>
               <RiInsertRowBottom />
             </template>
-            {{ t('common.button.createRow') }}
+            {{ t('common.button.createrow') }}
           </a-button>
           <a-button
             v-if="canUpdate"
@@ -91,7 +91,7 @@
             <template #icon>
               <RiDeleteRow />
             </template>
-            {{ t('common.button.deleteRow') }}
+            {{ t('common.button.deleterow') }}
           </a-button>
           <a-button
             v-if="canImport"
@@ -143,7 +143,7 @@
                   {{ t('common.button.empty30d') }}
                 </a-menu-item>
                 <a-menu-item key="all">
-                  {{ t('common.button.emptyAll') }}
+                  {{ t('common.button.emptyall') }}
                 </a-menu-item>
               </a-menu>
             </template>
@@ -209,7 +209,7 @@
           <!-- 高级查询 -->
           <a-tooltip
             v-if="showAdvancedQuery"
-            :title="t('common.button.advancedQuery')"
+            :title="t('common.button.advancedquery')"
           >
             <a-button
               class="takt-button-query takt-button-plain takt-button-plain-icon-only"
@@ -224,7 +224,7 @@
           <!-- 列设置 -->
           <a-tooltip
             v-if="showColumnSetting"
-            :title="t('common.button.columnSetting')"
+            :title="t('common.button.columnsetting')"
           >
             <a-button
               class="takt-button-config takt-button-plain takt-button-plain-icon-only"
@@ -239,7 +239,7 @@
           <!-- 全屏 -->
           <a-tooltip
             v-if="showFullscreen"
-            :title="isFullscreen ? t('common.button.exitFullscreen') : t('common.button.fullscreen')"
+            :title="isFullscreen ? t('common.button.exitfullscreen') : t('common.button.fullscreen')"
           >
             <a-button
               class="takt-button-fullscreen takt-button-plain takt-button-plain-icon-only"
@@ -255,7 +255,7 @@
           <!-- 转置 -->
           <a-tooltip
             v-if="showTranspose"
-            :title="isTransposed ? t('common.button.toList') : t('common.button.toTranspose')"
+            :title="isTransposed ? t('common.button.tolist') : t('common.button.totranspose')"
           >
             <a-button
               class="takt-button-transpose takt-button-plain takt-button-plain-icon-only"

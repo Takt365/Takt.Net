@@ -2,7 +2,7 @@
 <!-- 项目名称：节拍数字工厂 · Takt Digital Factory (TDF) -->
 <!-- 命名空间：@/views/identity/user/components -->
 <!-- 文件名称：assign-role-menus.vue -->
-<!-- 功能描述：分配角色菜单弹窗。由 user/index.vue 引用；先选用户已有角色再树形 Transfer 分配菜单；getUserRoleIds / getMenuTreeOptions / getRoleMenuIds / assignRoleMenus；v-model:open 与 emit success。 -->
+<!-- 功能描述：分配角色菜单弹窗。由 user/index.vue 引用；先选用户已有角色再树形 Transfer 分配菜单；getUserRoleIds / getMenuTreeOptionsWithButtons / getRoleMenuIds / assignRoleMenus；v-model:open 与 emit success。 -->
 <!-- 版权信息：Copyright (c) 2025 Takt  All rights reserved. -->
 <!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->
 <!-- ======================================== -->
@@ -32,7 +32,7 @@
         <TaktSelect
           v-model:value="selectedRoleId"
           api-url="/api/TaktRoles/options"
-          :placeholder="t('common.form.placeholder.selectFirst', { field: t('entity.role._self') })"
+          :placeholder="t('common.form.placeholder.selectfirst', { field: t('entity.role._self') })"
           :loading="roleOptionsLoading"
           @change="(value) => handleRoleChange(value as string | number | undefined)"
         />
@@ -113,7 +113,7 @@ import { message } from 'ant-design-vue'
 import type { TransferProps } from 'ant-design-vue'
 import { getUserRoleIds } from '@/api/identity/user'
 import { getRoleMenuIds, assignRoleMenus } from '@/api/identity/role'
-import { getMenuTreeOptions } from '@/api/identity/menu'
+import { getMenuTreeOptionsWithButtons } from '@/api/identity/menu'
 import type { User } from '@/types/identity/user'
 import type { TaktTreeSelectOption } from '@/types/common'
 import { logger } from '@/utils/logger'
@@ -309,7 +309,7 @@ const loadUserRoles = async () => {
     const userId = u.userId || u.UserId || ''
     if (!userId) {
       logger.error('[AssignRoleMenus] 用户ID不存在')
-      message.error(t('common.msg.entityIdRequired', { entity: t('entity.user._self') }))
+      message.error(t('common.msg.entityidrequired', { entity: t('entity.user._self') }))
       return
     }
 
@@ -342,7 +342,7 @@ const loadUserRoles = async () => {
     })
   } catch (error: any) {
     logger.error('[AssignRoleMenus] 加载用户角色失败:', error)
-    message.error(error.message || t('common.msg.loadTargetFail', { target: t('entity.user._self') + t('entity.role._self') }))
+    message.error(error.message || t('common.msg.loadtargetfail', { target: t('entity.user._self') + t('entity.role._self') }))
   } finally {
     roleOptionsLoading.value = false
   }
@@ -365,7 +365,7 @@ const loadRoleMenus = async (roleId: string) => {
 
     // 并行加载所有菜单和角色已分配的菜单
     const [allMenusResponse, menuIds] = await Promise.all([
-      getMenuTreeOptions(),
+      getMenuTreeOptionsWithButtons(),
       getRoleMenuIds(roleId)
     ])
     
@@ -386,7 +386,7 @@ const loadRoleMenus = async (roleId: string) => {
     })
   } catch (error: any) {
     logger.error('[AssignRoleMenus] 加载角色菜单失败:', error)
-    message.error(error.message || t('common.msg.loadTargetFail', { target: t('entity.rolemenu._self') }))
+    message.error(error.message || t('common.msg.loadtargetfail', { target: t('entity.rolemenu._self') }))
   } finally {
     menuOptionsLoading.value = false
   }
@@ -395,12 +395,12 @@ const loadRoleMenus = async (roleId: string) => {
 /** 提交 assignRoleMenus */
 const handleSubmit = async () => {
   if (!props.user) {
-    message.error(t('common.msg.entityNotFound', { entity: t('entity.user._self') }))
+    message.error(t('common.msg.entitynotfound', { entity: t('entity.user._self') }))
     return
   }
 
   if (!selectedRoleId.value) {
-    message.warning(t('common.form.placeholder.selectFirst', { field: t('entity.role._self') }))
+    message.warning(t('common.form.placeholder.selectfirst', { field: t('entity.role._self') }))
     return
   }
 
@@ -410,12 +410,12 @@ const handleSubmit = async () => {
     // 调用分配API
     await assignRoleMenus(String(selectedRoleId.value), selectedMenuIds.value)
     
-    message.success(t('common.msg.assignSuccess', { target: t('entity.rolemenu._self') }))
+    message.success(t('common.msg.assignsuccess', { target: t('entity.rolemenu._self') }))
     emit('success')
     handleCancel()
   } catch (error: any) {
     logger.error('[AssignRoleMenus] 分配角色菜单失败:', error)
-    message.error(error.message || t('common.msg.assignFail', { target: t('entity.rolemenu._self') }))
+    message.error(error.message || t('common.msg.assignfail', { target: t('entity.rolemenu._self') }))
   } finally {
     loading.value = false
   }

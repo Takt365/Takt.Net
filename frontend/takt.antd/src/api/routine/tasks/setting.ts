@@ -13,7 +13,7 @@ import type {
   SettingCreate,
   SettingUpdate,
   SettingStatus
-} from '@/types/routine/tasks/setting'
+} from '@/types/routine/tasks/setting/settings'
 import type { TaktSelectOption } from '@/types/common'
 
 const settingUrl = '/api/TaktSettings'

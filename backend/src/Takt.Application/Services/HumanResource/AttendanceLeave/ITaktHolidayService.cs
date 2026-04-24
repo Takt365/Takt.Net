@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：ITaktHolidayService.cs
@@ -102,4 +102,20 @@ public interface ITaktHolidayService
     /// <param name="region">地区（如 CN、US、TW、HK），默认 CN</param>
     /// <returns>假日DTO 或 null</returns>
     Task<TaktHolidayDto?> GetHolidayThemeAsync(DateTime date, string? region = null);
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计假日总数
+    /// </summary>
+    /// <returns>假日总数</returns>
+    Task<long> GetHolidayCountAsync();
+
+    /// <summary>
+    /// 按地区统计假日天数分布
+    /// </summary>
+    /// <returns>地区假日统计（Key=地区，Value=天数）</returns>
+    Task<Dictionary<string, int>> GetHolidayCountByRegionAsync();
+
+    #endregion
 }

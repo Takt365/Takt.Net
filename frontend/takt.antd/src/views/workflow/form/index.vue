@@ -170,8 +170,7 @@ import type {
   FlowFormQuery,
   FlowFormCreate,
   FlowFormUpdate
-} from '@/types/workflow/form'
-import type { TaktPagedResult } from '@/types/common'
+} from '@/types/workflow/flow-form'
 import { RiEditLine, RiDeleteBinLine, RiBrushLine } from '@remixicon/vue'
 
 const { t } = useI18n()
@@ -189,7 +188,11 @@ const formTitle = ref('')
 const formLoading = ref(false)
 const formFormRef = ref<InstanceType<typeof FormForm> | null>(null)
 const advancedQueryVisible = ref(false)
-const advancedQueryForm = ref<{ formCode?: string; formName?: string; formStatus?: number }>({ formCode: '', formName: '', formStatus: undefined })
+const advancedQueryForm = ref<{ formCode: string; formName: string; formStatus: number | undefined }>({
+  formCode: '',
+  formName: '',
+  formStatus: undefined
+})
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
 
@@ -197,7 +200,7 @@ type FlowFormColumn = {
   key?: string | number
   dataIndex?: string | number
   title?: string | number
-  width?: number
+  width?: string | number
 }
 
 type TableSorterInfo = {
@@ -221,10 +224,10 @@ function getColumnKey(column: FlowFormColumn): string {
 function getSorterInfo(sorter: unknown): TableSorterInfo {
   if (typeof sorter !== 'object' || sorter === null) return {}
   const sorterObj = sorter as { field?: unknown; order?: unknown }
-  return {
-    field: typeof sorterObj.field === 'string' ? sorterObj.field : undefined,
-    order: typeof sorterObj.order === 'string' ? sorterObj.order : undefined
-  }
+  const result: TableSorterInfo = {}
+  if (typeof sorterObj.field === 'string') result.field = sorterObj.field
+  if (typeof sorterObj.order === 'string') result.order = sorterObj.order
+  return result
 }
 
 const form = reactive<FlowFormCreate & { formId?: string }>({
@@ -243,7 +246,11 @@ const form = reactive<FlowFormCreate & { formId?: string }>({
   formStatus: 0
 })
 
-const getFormId = (record: FlowForm): string => (record?.formId != null ? String(record.formId) : '')
+const getFormId = (record: unknown): string => {
+  if (!record || typeof record !== 'object' || !('formId' in record)) return ''
+  const formId = (record as { formId?: unknown }).formId
+  return formId != null ? String(formId) : ''
+}
 
 /** 表格列：与 @/types/workflow/form FlowForm 字段一致（列表展示用，不含 formConfig/formTemplate 等大字段） */
 const columns = computed<TableColumnsType>(() => [
@@ -355,14 +362,14 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: FlowForm[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: FlowForm, selected: boolean) => {
     if (selected) selectedRow.value = record
     else if (selectedRow.value && getFormId(selectedRow.value) === getFormId(record)) selectedRow.value = null
   },
   onSelectAll: (selected: boolean, selectedRowsData: FlowForm[]) => {
-    selectedRow.value = selected && selectedRowsData.length === 1 ? selectedRowsData[0] : null
+    selectedRow.value = selected && selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
   }
 }))
 
@@ -373,7 +380,7 @@ const onClickRow = (record: FlowForm) => ({
     if (index > -1) selectedRowKeys.value.splice(index, 1)
     else selectedRowKeys.value.push(key)
     selectedRows.value = dataSource.value.filter(item => selectedRowKeys.value.includes(getFormId(item)))
-    selectedRow.value = selectedRowKeys.value.length === 1 ? selectedRows.value[0] : null
+    selectedRow.value = selectedRowKeys.value.length === 1 ? (selectedRows.value[0] ?? null) : null
     if (rowSelection.value.onChange) rowSelection.value.onChange(selectedRowKeys.value, selectedRows.value)
   }
 })
@@ -405,11 +412,13 @@ async function loadData() {
     loading.value = true
     const query: FlowFormQuery = {
       pageIndex: currentPage.value,
-      pageSize: pageSize.value,
-      formCode: queryKeyword.value || advancedQueryForm.value.formCode || undefined,
-      formName: queryKeyword.value || advancedQueryForm.value.formName || undefined,
-      formStatus: advancedQueryForm.value.formStatus
+      pageSize: pageSize.value
     }
+    const formCode = queryKeyword.value || advancedQueryForm.value.formCode
+    const formName = queryKeyword.value || advancedQueryForm.value.formName
+    if (formCode) query.formCode = formCode
+    if (formName) query.formName = formName
+    if (advancedQueryForm.value.formStatus != null) query.formStatus = advancedQueryForm.value.formStatus
     const res = (await getFlowFormList(query))
     dataSource.value = res.data ?? []
     total.value = res.total ?? 0
@@ -503,7 +512,7 @@ function handleResizeColumn(w: number, col: FlowFormColumn) {
 
 /** 重置表单对象为初始值。仅用于「打开新增」前，不在关闭弹窗时调用。 */
 function resetForm() {
-  form.formId = undefined
+  delete form.formId
   form.formCode = ''
   form.formName = ''
   form.formCategory = 0

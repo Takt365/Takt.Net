@@ -106,8 +106,8 @@
         import-permission="accounting:controlling:costcenter:import"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.costcenter._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.costcenter._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -320,7 +320,7 @@ const columns = computed<TableColumnsType>(() => [
     dataIndex: 'orderNum',
     width: 100
   },
-  CreateActionColumn({
+  CreateActionColumn<CostCenter>({
     actions: [
       {
         key: 'update',
@@ -371,7 +371,7 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: CostCenter[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   }
 }))
 
@@ -391,7 +391,7 @@ const onClickRow = (record: CostCenter) => ({
       selectedRowKeys.value.push(key)
     }
     selectedRows.value = dataSource.value.filter((item) => selectedRowKeys.value.includes(getCostCenterId(item)))
-    selectedRow.value = selectedRows.value.length === 1 ? selectedRows.value[0] : null
+    selectedRow.value = selectedRows.value.length === 1 ? (selectedRows.value[0] ?? null) : null
   }
 })
 
@@ -413,7 +413,7 @@ const loadData = async () => {
     dataSource.value = result?.data ?? []
     total.value = Number(result?.total ?? 0)
   } catch (error: unknown) {
-    message.error(getErrorMessage(error) || t('common.msg.loadFail'))
+    message.error(getErrorMessage(error) || t('common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -503,7 +503,7 @@ const handleUpdate = () => {
     handleEdit(selectedRow.value)
   } else {
     message.warning(
-      t('common.action.warnSelectToAction', {
+      t('common.action.warnselecttoaction', {
         action: t('common.button.edit'),
         entity: t('entity.costcenter._self')
       })
@@ -518,8 +518,8 @@ const handleUpdate = () => {
  */
 const handleDeleteOne = (record: CostCenter) => {
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', {
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', {
       entity: t('entity.costcenter._self'),
       name: record.costCenterName ?? ''
     }),
@@ -527,10 +527,10 @@ const handleDeleteOne = (record: CostCenter) => {
       try {
         loading.value = true
         await deleteCostCenterById(getCostCenterId(record))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deletesuccess'))
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error) || t('common.msg.deleteFail'))
+        message.error(getErrorMessage(error) || t('common.msg.deletefail'))
       } finally {
         loading.value = false
       }
@@ -547,8 +547,8 @@ const handleDelete = () => {
   }
 
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', {
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', {
       count: selectedRows.value.length,
       entity: t('entity.costcenter._self')
     }),
@@ -561,10 +561,10 @@ const handleDelete = () => {
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deletesuccess'))
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error) || t('common.msg.deleteFail'))
+        message.error(getErrorMessage(error) || t('common.msg.deletefail'))
       } finally {
         loading.value = false
       }
@@ -585,10 +585,10 @@ const handleFormSubmit = async () => {
 
     if (formData.value.costCenterId) {
       await updateCostCenter(String(formData.value.costCenterId), values as CostCenterUpdate)
-      message.success(t('common.msg.updateSuccess'))
+      message.success(t('common.msg.updatesuccess'))
     } else {
       await createCostCenter(values)
-      message.success(t('common.msg.createSuccess'))
+      message.success(t('common.msg.createsuccess'))
     }
 
     formVisible.value = false
@@ -597,7 +597,7 @@ const handleFormSubmit = async () => {
     loadData()
   } catch (error: unknown) {
     if (typeof error === 'object' && error !== null && 'errorFields' in error) return
-    message.error(getErrorMessage(error) || t('common.msg.operateFail'))
+    message.error(getErrorMessage(error) || t('common.msg.operatefail'))
   } finally {
     formLoading.value = false
   }
@@ -679,9 +679,9 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess'))
+    message.success(t('common.msg.exportsuccess'))
   } catch (error: unknown) {
-    message.error(getErrorMessage(error) || t('common.msg.exportFail'))
+    message.error(getErrorMessage(error) || t('common.msg.exportfail'))
   } finally {
     loading.value = false
   }

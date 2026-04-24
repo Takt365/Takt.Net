@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.SignalR
 // 文件名称：TaktConnectHub.cs
@@ -17,6 +17,7 @@ using Takt.Application.Services.Routine.Tasks.SignalR;
 using Takt.Domain.Entities.Routine.Tasks.SignalR;
 using Takt.Domain.Interfaces;
 using Takt.Domain.Repositories;
+using Takt.Infrastructure.User;
 using Takt.Shared.Helpers;
 
 namespace Takt.Infrastructure.SignalR;
@@ -29,7 +30,7 @@ public class TaktConnectHub : Hub
 {
     private readonly ITaktOnlineService _onlineService;
     private readonly ITaktRepository<TaktOnline> _onlineRepository;
-    private readonly ITaktUserContext? _userContext;
+    private readonly ITaktUserContext _userContext;
     private readonly ITaktTenantContext? _tenantContext;
 
     /// <summary>
@@ -37,12 +38,12 @@ public class TaktConnectHub : Hub
     /// </summary>
     /// <param name="onlineService">在线用户服务</param>
     /// <param name="onlineRepository">在线用户仓储</param>
-    /// <param name="userContext">用户上下文（可选）</param>
+    /// <param name="userContext">用户上下文（须注入；与 HTTP 管道共用 <see cref="ITaktUserContext"/>）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     public TaktConnectHub(
         ITaktOnlineService onlineService,
         ITaktRepository<TaktOnline> onlineRepository,
-        ITaktUserContext? userContext = null,
+        ITaktUserContext userContext,
         ITaktTenantContext? tenantContext = null)
     {
         _onlineService = onlineService;
@@ -56,6 +57,10 @@ public class TaktConnectHub : Hub
     /// </summary>
     public override async Task OnConnectedAsync()
     {
+        var prevPrincipal = TaktUserContext.HubInvocationPrincipal;
+        TaktUserContext.HubInvocationPrincipal = Context.User;
+        try
+        {
         var connectionId = Context.ConnectionId;
         var httpContext = Context.GetHttpContext();
         
@@ -66,13 +71,15 @@ public class TaktConnectHub : Hub
         
         TaktLogger.Debug("SignalR 连接调试信息: ConnectionId: {ConnectionId}, IsAuthenticated: {IsAuthenticated}, HasAccessTokenFromQuery: {HasAccessToken}, HasAuthHeader: {HasAuthHeader}", 
             connectionId ?? string.Empty, isAuthenticated, !string.IsNullOrEmpty(accessTokenFromQuery), !string.IsNullOrEmpty(authHeader));
-        
-        var userName = _userContext?.GetCurrentUserName() ?? "Anonymous";
+
+        await _userContext.GetCurrentUserAsync();
+        RequireResolvedLoginUser();
+        var userName = _userContext.GetCurrentUserName()!.Trim();
+        var userId = _userContext.GetCurrentUserId()!.Value;
         TaktLogger.Information("开始处理连接 Hub 连接请求，用户: {UserName}, ConnectionId: {ConnectionId}", userName, connectionId ?? string.Empty);
         
         try
         {
-            var userId = _userContext?.GetCurrentUserId();
 
             // 获取客户端信息
             var connectIp = httpContext?.Connection.RemoteIpAddress?.ToString();
@@ -100,7 +107,7 @@ public class TaktConnectHub : Hub
                 ConnectTime = connectTime
             };
 
-            await _onlineService.CreateAsync(createDto);
+            await _onlineService.CreateOnlineAsync(createDto);
 
             // 加入用户组（按用户名分组）
             if (!string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(connectionId))
@@ -109,15 +116,17 @@ public class TaktConnectHub : Hub
             }
 
             // 向当前客户端发送上线欢迎消息
-            var realName = _userContext?.GetCurrentRealName();
+            var realName = _userContext.GetCurrentRealName();
             var welcomeMessage = $"欢迎 {realName ?? userName} 上线！连接成功，当前时间：{connectTime:yyyy-MM-dd HH:mm:ss}";
+            // UserId 用字符串避免前端 JSON 数字精度丢失（雪花 Id 超出 JS 安全整数）
+            var userIdStr = userId.ToString();
             
             await Clients.Caller.SendAsync("OnlineMessage", new
             {
                 Message = welcomeMessage,
                 MessageType = "Online",
                 UserName = userName,
-                UserId = userId,
+                UserId = userIdStr,
                 RealName = realName,
                 ConnectTime = connectTime,
                 ConnectIp = connectIp,
@@ -128,7 +137,7 @@ public class TaktConnectHub : Hub
             await Clients.Others.SendAsync("UserConnected", new
             {
                 UserName = userName,
-                UserId = userId,
+                UserId = userIdStr,
                 ConnectTime = connectTime
             });
 
@@ -143,6 +152,11 @@ public class TaktConnectHub : Hub
                 userName ?? string.Empty, connectionId ?? string.Empty, ex.Message ?? string.Empty);
             throw;
         }
+        }
+        finally
+        {
+            TaktUserContext.HubInvocationPrincipal = prevPrincipal;
+        }
     }
 
     /// <summary>
@@ -150,8 +164,14 @@ public class TaktConnectHub : Hub
     /// </summary>
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
+        var prevPrincipal = TaktUserContext.HubInvocationPrincipal;
+        TaktUserContext.HubInvocationPrincipal = Context.User;
+        try
+        {
         var connectionId = Context.ConnectionId;
-        var userName = _userContext?.GetCurrentUserName() ?? "Anonymous";
+        await _userContext.GetCurrentUserAsync();
+        RequireResolvedLoginUser();
+        var userName = _userContext.GetCurrentUserName()!.Trim();
         
         if (exception != null)
         {
@@ -205,6 +225,11 @@ public class TaktConnectHub : Hub
                 userName, connectionId, ex.Message);
             throw;
         }
+        }
+        finally
+        {
+            TaktUserContext.HubInvocationPrincipal = prevPrincipal;
+        }
     }
 
     /// <summary>
@@ -214,13 +239,18 @@ public class TaktConnectHub : Hub
     {
         try
         {
+            await _userContext.GetCurrentUserAsync();
+            RequireResolvedLoginUser();
             var connectionId = Context.ConnectionId;
             
             // 仓储工厂会自动根据 TaktOnline 实体类型切换到 Routine 数据库
-            await _onlineService.UpdateLastActiveTimeAsync(connectionId);
+            await _onlineService.UpdateOnlineLastActiveTimeAsync(connectionId);
         }
         catch (Exception ex)
         {
+            if (ex is HubException)
+                throw;
+
             TaktLogger.Error(ex, "处理心跳更新时发生错误");
         }
     }
@@ -232,6 +262,9 @@ public class TaktConnectHub : Hub
     {
         try
         {
+            await _userContext.GetCurrentUserAsync();
+            RequireResolvedLoginUser();
+
             // 直接使用仓储查询在线用户，避免复杂的查询表达式导致 SQL 转换错误
             var onlines = await _onlineRepository.FindAsync(o => o.IsDeleted == 0 && o.OnlineStatus == 0);
             
@@ -245,9 +278,26 @@ public class TaktConnectHub : Hub
         }
         catch (Exception ex)
         {
+            if (ex is HubException)
+                throw;
+
             TaktLogger.Error(ex, "获取在线用户列表时发生错误");
             return new List<object>();
         }
+    }
+
+    /// <summary>
+    /// 已认证 Hub 内必须能解析当前用户主键与登录名；否则立即失败，避免静默写入错误数据。
+    /// </summary>
+    private void RequireResolvedLoginUser()
+    {
+        var id = _userContext.GetCurrentUserId();
+        if (!id.HasValue || id.Value <= 0)
+            throw new HubException("无法解析当前登录用户，请重新登录后重试。");
+
+        var name = _userContext.GetCurrentUserName();
+        if (string.IsNullOrWhiteSpace(name))
+            throw new HubException("无法解析当前登录用户名，请重新登录后重试。");
     }
 
     /// <summary>

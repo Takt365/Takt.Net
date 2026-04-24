@@ -71,13 +71,13 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'holidayType'">
           <TaktDictTag
-            :value="getHolidayField(record, 'holidayType')"
+            :value="getHolidayDictTagValue(record, 'holidayType')"
             dict-type="hr_holiday_type"
           />
         </template>
         <template v-else-if="column.key === 'isWorkingDay'">
           <TaktDictTag
-            :value="getHolidayField(record, 'isWorkingDay')"
+            :value="getHolidayDictTagValue(record, 'isWorkingDay')"
             dict-type="hr_holiday_is_working_day"
           />
         </template>
@@ -136,14 +136,14 @@
     >
       <TaktImportFile
         file-type="xlsx"
-        :sheet-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.holiday._self') })"
-        :template-file-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.holiday._self') })"
+        :sheet-name="t('common.action.import.sheetnametemplate', { entity: t('entity.holiday._self') })"
+        :template-file-name="t('common.action.import.sheetnametemplate', { entity: t('entity.holiday._self') })"
         template-permission="humanresource:attendanceleave:holiday:template"
         import-permission="humanresource:attendanceleave:holiday:import"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.holiday._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.holiday._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -168,6 +168,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import type { TableColumnsType } from 'ant-design-vue'
+import type { FilterValue } from 'ant-design-vue/es/table/interface'
 import { CreateActionColumn } from '@/components/business/takt-action-column/index'
 import { mergeDefaultColumns } from '@/utils/table-columns'
 import { useI18n } from 'vue-i18n'
@@ -197,20 +198,13 @@ const { t } = useI18n()
  */
 type HolidayTableColumn = TableColumnsType[number]
 
-/**
- * `a-table` `change` 中排序参数的最小形状；本页仅打日志。
- */
-interface TableSorterLike {
-  /**
-   * 排序列字段。
-   */
-  readonly field?: string | string[]
-
-  /**
-   * 排序方向。
-   */
-  readonly order?: 'ascend' | 'descend' | null
+/** 与 `TaktSingleTable` 的 `@change` 事件参数一致（见 `takt-single-table/index.vue`）。 */
+type TaktTableChangeSorter = {
+  field?: string | number | readonly (string | number)[]
+  order?: string
 }
+type TaktTableChangeFilters = Record<string, FilterValue | null>
+type TaktTableChangePagination = { current?: number; pageSize?: number; total?: number }
 
 /**
  * 从 `catch` 未知错误取可读消息。
@@ -241,7 +235,7 @@ function getHolidayColumnKey(col: HolidayTableColumn): string {
   return key || dataIndex || title ? String(key ?? dataIndex ?? title) : ''
 }
 
-/** 顶部查询关键字，对应 `HolidayQuery.keyWords`。 */
+/** 顶部查询关键字，对应 `HolidayQuery.KeyWords`（与 `TaktPagedQuery` 一致）。 */
 const queryKeyword = ref('')
 
 /** 异步操作 loading。 */
@@ -317,27 +311,44 @@ onMounted(() => {
 })
 
 /**
- * 行主键字符串（`row-key`、删除）。
+ * 行主键字符串（`row-key`、删除）。入参与 `TaktSingleTable` 的 `rowKey` 一致，为 `TableRecord`/`unknown`。
  *
- * @param {Holiday} record - 列表行
+ * @param {unknown} record - 列表行
  * @returns {string}
  */
-const getHolidayId = (record: Holiday): string => {
-  if (record?.holidayId != null && String(record.holidayId) !== '') return String(record.holidayId)
-  const legacyId = getHolidayField(record, 'id')
-  if (legacyId != null && legacyId !== '') return String(legacyId)
+const getHolidayId = (record: unknown): string => {
+  if (record == null || typeof record !== 'object') return ''
+  const r = record as Record<string, unknown>
+  const holidayId = r['holidayId']
+  if (holidayId != null && String(holidayId) !== '') return String(holidayId)
+  const legacyId = r['id']
+  if (legacyId != null && String(legacyId) !== '') return String(legacyId)
   return ''
 }
 
 /**
- * 读取行字段（与用户页 `getUserField` 一致，供 `TaktDictTag` 的 `:value`）。
+ * 读取行字段（供 `#bodyCell` 等使用）。
  *
- * @param {Holiday} record - 列表行
+ * @param {unknown} record - 列表行
  * @param {string} field - 字段名
  * @returns {unknown}
  */
-const getHolidayField = (record: Holiday, field: string): unknown =>
-  (record as unknown as Record<string, unknown>)[field]
+const getHolidayField = (record: unknown, field: string): unknown =>
+  record != null && typeof record === 'object' ? (record as Record<string, unknown>)[field] : undefined
+
+/**
+ * 供 `TaktDictTag` 的 `:value`（`string | number`）。
+ *
+ * @param {unknown} record - 列表行
+ * @param {string} field - 字段名
+ * @returns {string | number}
+ */
+function getHolidayDictTagValue(record: unknown, field: string): string | number {
+  const v = getHolidayField(record, field)
+  if (typeof v === 'number' && Number.isFinite(v)) return v
+  if (typeof v === 'string') return v
+  return String(v ?? '')
+}
 
 /**
  * 列表主列定义。
@@ -416,7 +427,7 @@ const columns = computed<TableColumnsType>(() => [
       key: 'holidayTheme',
       width: 100
     },
-    CreateActionColumn({
+    CreateActionColumn<Holiday>({
       actions: [
         {
           key: 'update',
@@ -465,14 +476,14 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: Holiday[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: Holiday, selected: boolean) => {
     if (selected) selectedRow.value = record
     else if (selectedRow.value && getHolidayId(selectedRow.value) === getHolidayId(record)) selectedRow.value = null
   },
   onSelectAll: (selected: boolean, selectedRowsData: Holiday[]) => {
-    selectedRow.value = selected && selectedRowsData.length === 1 ? selectedRowsData[0] : null
+    selectedRow.value = selected && selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
   }
 }))
 
@@ -489,7 +500,7 @@ const onClickRow = (record: Holiday) => ({
     if (index > -1) selectedRowKeys.value.splice(index, 1)
     else selectedRowKeys.value.push(key)
     selectedRows.value = dataSource.value.filter((item) => selectedRowKeys.value.includes(getHolidayId(item)))
-    selectedRow.value = selectedRowKeys.value.length === 1 ? selectedRows.value[0] : null
+    selectedRow.value = selectedRowKeys.value.length === 1 ? (selectedRows.value[0] ?? null) : null
     if (rowSelection.value.onChange) rowSelection.value.onChange(selectedRowKeys.value, selectedRows.value)
   }
 })
@@ -506,7 +517,7 @@ const loadData = async () => {
       pageIndex: currentPage.value,
       pageSize: pageSize.value
     }
-    if (queryKeyword.value) params.keyWords = queryKeyword.value
+    if (queryKeyword.value) params.KeyWords = queryKeyword.value
     if (advancedQueryForm.value.region) params.region = advancedQueryForm.value.region
     if (advancedQueryForm.value.holidayName) params.holidayName = advancedQueryForm.value.holidayName
 
@@ -515,7 +526,7 @@ const loadData = async () => {
     total.value = response.total ?? 0
   } catch (error: unknown) {
     logger.error('[Holiday] 加载数据失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.loadFail'))
+    message.error(getErrorMessage(error) || t('common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -548,8 +559,13 @@ const handleReset = () => {
  * @param _filters - 未使用
  * @param {TableSorterLike} sorter - 排序状态
  */
-const handleTableChange = (_pagination: unknown, _filters: unknown, sorter: TableSorterLike) => {
-  if (sorter?.order) logger.debug('[Holiday] 排序:', sorter.field, sorter.order)
+const handleTableChange = (
+  _pagination: TaktTableChangePagination,
+  _filters: TaktTableChangeFilters,
+  sorter: TaktTableChangeSorter | TaktTableChangeSorter[]
+) => {
+  const one = Array.isArray(sorter) ? sorter[0] : sorter
+  if (one?.order) logger.debug('[Holiday] 排序:', one.field, one.order)
 }
 
 /**
@@ -616,7 +632,7 @@ const handleEdit = (record: Holiday) => {
  */
 const handleUpdate = () => {
   if (selectedRow.value) handleEdit(selectedRow.value)
-  else message.warning(t('common.action.warnSelectToAction', { action: t('common.button.edit'), entity: t('entity.holiday._self') }))
+  else message.warning(t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: t('entity.holiday._self') }))
 }
 
 /**
@@ -631,18 +647,18 @@ const handleDeleteOne = (record: Holiday) => {
     (typeof hn === 'number' ? String(hn) : null) ??
     getHolidayId(record)
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', { entity: t('entity.holiday._self'), name }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.holiday._self'), name }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await deleteHolidayById(getHolidayId(record))
-        message.success(t('common.msg.deleteSuccess', { target: t('entity.holiday._self') }))
+        message.success(t('common.msg.deletesuccess', { target: t('entity.holiday._self') }))
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error) || t('common.msg.deleteFail', { target: t('entity.holiday._self') }))
+        message.error(getErrorMessage(error) || t('common.msg.deletefail', { target: t('entity.holiday._self') }))
       } finally {
         loading.value = false
       }
@@ -655,29 +671,30 @@ const handleDeleteOne = (record: Holiday) => {
  */
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
-    message.warning(t('common.action.warnSelectToAction', { action: t('common.button.delete'), entity: t('entity.holiday._self') }))
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('entity.holiday._self') }))
     return
   }
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', { entity: t('entity.holiday._self'), count: selectedRows.value.length }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { entity: t('entity.holiday._self'), count: selectedRows.value.length }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         if (selectedRows.value.length === 1) {
-          await deleteHolidayById(getHolidayId(selectedRows.value[0]))
+          const first = selectedRows.value[0]
+          if (first) await deleteHolidayById(getHolidayId(first))
         } else {
           await deleteHolidayBatch(selectedRows.value.map((r) => getHolidayId(r)))
         }
-        message.success(t('common.msg.deleteSuccess', { target: t('entity.holiday._self') }))
+        message.success(t('common.msg.deletesuccess', { target: t('entity.holiday._self') }))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error) || t('common.msg.deleteFail', { target: t('entity.holiday._self') }))
+        message.error(getErrorMessage(error) || t('common.msg.deletefail', { target: t('entity.holiday._self') }))
       } finally {
         loading.value = false
       }
@@ -700,10 +717,10 @@ const handleFormSubmit = async () => {
       const id = formData.value.holidayId
       const payload: HolidayUpdate = { ...(formValues as HolidayCreate), holidayId: id }
       await updateHoliday(id, payload)
-      message.success(t('common.msg.updateSuccess', { target: t('entity.holiday._self') }))
+      message.success(t('common.msg.updatesuccess', { target: t('entity.holiday._self') }))
     } else {
       await createHoliday(formValues as HolidayCreate)
-      message.success(t('common.msg.createSuccess', { target: t('entity.holiday._self') }))
+      message.success(t('common.msg.createsuccess', { target: t('entity.holiday._self') }))
     }
     formRef.value?.resetFields()
     formData.value = {}
@@ -711,7 +728,7 @@ const handleFormSubmit = async () => {
     loadData()
   } catch (error: unknown) {
     if (typeof error === 'object' && error !== null && 'errorFields' in error) return
-    message.error(getErrorMessage(error) || t('common.msg.operateFail', { action: t('common.action.operation') }))
+    message.error(getErrorMessage(error) || t('common.msg.operatefail', { action: t('common.action.operation') }))
   } finally {
     formLoading.value = false
   }
@@ -787,18 +804,18 @@ const handleExport = async () => {
       pageIndex: 1,
       pageSize: 100000
     }
-    if (queryKeyword.value) queryParams.keyWords = queryKeyword.value
+    if (queryKeyword.value) queryParams.KeyWords = queryKeyword.value
     if (advancedQueryForm.value.region) queryParams.region = advancedQueryForm.value.region
     if (advancedQueryForm.value.holidayName) queryParams.holidayName = advancedQueryForm.value.holidayName
 
     const blob = await exportHolidayData(
       queryParams,
       undefined,
-      t('entity.holiday._self') + t('common.action.exportDataSuffix')
+      t('entity.holiday._self') + t('common.action.exportdatasuffix')
     )
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
-    const fileName = `${t('entity.holiday._self') + t('common.action.exportDataSuffix')}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
+    const fileName = `${t('entity.holiday._self') + t('common.action.exportdatasuffix')}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -808,10 +825,10 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess', { target: t('entity.holiday._self') }))
+    message.success(t('common.msg.exportsuccess', { target: t('entity.holiday._self') }))
   } catch (error: unknown) {
     logger.error('[Holiday] 导出失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.exportFail', { target: t('entity.holiday._self') }))
+    message.error(getErrorMessage(error) || t('common.msg.exportfail', { target: t('entity.holiday._self') }))
   } finally {
     loading.value = false
   }

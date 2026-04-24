@@ -1,24 +1,25 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.Application.Dtos.Tenant
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：Takt.Application.Dtos.Identity
 // 文件名称：TaktTenantDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt租户DTO，包含租户相关的数据传输对象（查询、创建、更新）
-// 
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：租户信息表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
+//
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
 using SqlSugar;
 using Takt.Application.Dtos;
+using Takt.Shared.Models;
 
 namespace Takt.Application.Dtos.Identity;
 
 /// <summary>
-/// Takt租户DTO
+/// 租户信息表Dto
 /// </summary>
-public class TaktTenantDto : TaktDtoBase
+public partial class TaktTenantDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -27,11 +28,10 @@ public class TaktTenantDto : TaktDtoBase
     {
         TenantName = string.Empty;
         TenantCode = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 租户ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 租户信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
@@ -41,32 +41,28 @@ public class TaktTenantDto : TaktDtoBase
     /// 租户名称
     /// </summary>
     public string TenantName { get; set; }
-
     /// <summary>
     /// 租户编码
     /// </summary>
     public string TenantCode { get; set; }
-
     /// <summary>
     /// 订阅开始时间
     /// </summary>
-    public DateTime StartTime { get; set; }
-
+    public DateTime SubscriptionStartTime { get; set; }
     /// <summary>
     /// 订阅结束时间
     /// </summary>
-    public DateTime EndTime { get; set; }
-
+    public DateTime SubscriptionEndTime { get; set; }
     /// <summary>
-    /// 租户状态（1=启用，0=禁用）
+    /// 租户状态
     /// </summary>
     public int TenantStatus { get; set; }
 }
 
 /// <summary>
-/// Takt租户查询DTO
+/// 租户信息表查询DTO
 /// </summary>
-public class TaktTenantQueryDto : TaktPagedQuery
+public partial class TaktTenantQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -75,33 +71,81 @@ public class TaktTenantQueryDto : TaktPagedQuery
     {
     }
 
-    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于在租户名称、租户编码中模糊查询
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
+    /// <summary>
+    /// 租户信息表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long TenantId { get; set; }
 
     /// <summary>
     /// 租户名称
     /// </summary>
     public string? TenantName { get; set; }
-
     /// <summary>
     /// 租户编码
     /// </summary>
     public string? TenantCode { get; set; }
-
     /// <summary>
-    /// 租户配置ID（ConfigId）
+    /// 订阅开始时间
     /// </summary>
-    public string? ConfigId { get; set; }
+    public DateTime? SubscriptionStartTime { get; set; }
 
     /// <summary>
-    /// 租户状态（1=启用，0=禁用）
+    /// 订阅开始时间开始时间
+    /// </summary>
+    public DateTime? SubscriptionStartTimeStart { get; set; }
+    /// <summary>
+    /// 订阅开始时间结束时间
+    /// </summary>
+    public DateTime? SubscriptionStartTimeEnd { get; set; }
+    /// <summary>
+    /// 订阅结束时间
+    /// </summary>
+    public DateTime? SubscriptionEndTime { get; set; }
+
+    /// <summary>
+    /// 订阅结束时间开始时间
+    /// </summary>
+    public DateTime? SubscriptionEndTimeStart { get; set; }
+    /// <summary>
+    /// 订阅结束时间结束时间
+    /// </summary>
+    public DateTime? SubscriptionEndTimeEnd { get; set; }
+    /// <summary>
+    /// 租户状态
     /// </summary>
     public int? TenantStatus { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建租户DTO
+/// Takt创建租户信息表DTO
 /// </summary>
-public class TaktTenantCreateDto
+public partial class TaktTenantCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -110,33 +154,37 @@ public class TaktTenantCreateDto
     {
         TenantName = string.Empty;
         TenantCode = string.Empty;
-        ConfigId = "0";
     }
 
-    /// <summary>
+        /// <summary>
     /// 租户名称
     /// </summary>
-    public string TenantName { get; set; } = string.Empty;
+    public string TenantName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 租户编码
     /// </summary>
-    public string TenantCode { get; set; } = string.Empty;
+    public string TenantCode { get; set; }
 
-    /// <summary>
-    /// 租户配置ID（ConfigId，用于多租户数据隔离和数据库切换）
-    /// </summary>
-    public string ConfigId { get; set; } = "0";
-
-    /// <summary>
+        /// <summary>
     /// 订阅开始时间
     /// </summary>
-    public DateTime? StartTime { get; set; }
+    public DateTime SubscriptionStartTime { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 订阅结束时间
     /// </summary>
-    public DateTime? EndTime { get; set; }
+    public DateTime SubscriptionEndTime { get; set; }
+
+        /// <summary>
+    /// 租户状态
+    /// </summary>
+    public int TenantStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -145,9 +193,9 @@ public class TaktTenantCreateDto
 }
 
 /// <summary>
-/// Takt更新租户DTO
+/// Takt更新租户信息表DTO
 /// </summary>
-public class TaktTenantUpdateDto : TaktTenantCreateDto
+public partial class TaktTenantUpdateDto : TaktTenantCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -156,17 +204,18 @@ public class TaktTenantUpdateDto : TaktTenantCreateDto
     {
     }
 
-    /// <summary>
-    /// 租户ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 租户信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
+    [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long TenantId { get; set; }
 }
 
 /// <summary>
-/// Takt租户状态DTO
+/// 租户信息表租户状态DTO
 /// </summary>
-public class TaktTenantStatusDto
+public partial class TaktTenantStatusDto
 {
     /// <summary>
     /// 构造函数
@@ -175,22 +224,23 @@ public class TaktTenantStatusDto
     {
     }
 
-    /// <summary>
-    /// 租户ID（序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 租户信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
+    [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long TenantId { get; set; }
 
     /// <summary>
-    /// 租户状态（1=启用，0=禁用）
+    /// 租户状态（0=禁用，1=启用）
     /// </summary>
     public int TenantStatus { get; set; }
 }
 
 /// <summary>
-/// Takt租户导入模板DTO
+/// 租户信息表导入模板DTO
 /// </summary>
-public class TaktTenantTemplateDto
+public partial class TaktTenantTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -199,51 +249,48 @@ public class TaktTenantTemplateDto
     {
         TenantName = string.Empty;
         TenantCode = string.Empty;
-        ConfigId = "0";
-        TenantStatus = 1;
-        CreatedAt = DateTime.Now;
     }
 
-    /// <summary>
+        /// <summary>
     /// 租户名称
     /// </summary>
     public string TenantName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 租户编码
     /// </summary>
     public string TenantCode { get; set; }
 
-    /// <summary>
-    /// 租户配置ID（ConfigId）
-    /// </summary>
-    public string ConfigId { get; set; }
-
-    /// <summary>
+        /// <summary>
     /// 订阅开始时间
     /// </summary>
-    public DateTime StartTime { get; set; }
+    public DateTime SubscriptionStartTime { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 订阅结束时间
     /// </summary>
-    public DateTime EndTime { get; set; }
+    public DateTime SubscriptionEndTime { get; set; }
 
-    /// <summary>
-    /// 租户状态（1=启用，0=禁用）
+        /// <summary>
+    /// 租户状态
     /// </summary>
     public int TenantStatus { get; set; }
 
     /// <summary>
-    /// 创建时间
+    /// 扩展字段JSON
     /// </summary>
-    public DateTime CreatedAt { get; set; }
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt租户导入DTO
+/// 租户信息表导入DTO
 /// </summary>
-public class TaktTenantImportDto
+public partial class TaktTenantImportDto
 {
     /// <summary>
     /// 构造函数
@@ -252,91 +299,81 @@ public class TaktTenantImportDto
     {
         TenantName = string.Empty;
         TenantCode = string.Empty;
-        ConfigId = "0";
-        TenantStatus = 1;
-        CreatedAt = DateTime.Now;
     }
 
-    /// <summary>
+        /// <summary>
     /// 租户名称
     /// </summary>
     public string TenantName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 租户编码
     /// </summary>
     public string TenantCode { get; set; }
 
-    /// <summary>
-    /// 租户配置ID（ConfigId）
-    /// </summary>
-    public string ConfigId { get; set; }
-
-    /// <summary>
+        /// <summary>
     /// 订阅开始时间
     /// </summary>
-    public DateTime StartTime { get; set; }
+    public DateTime SubscriptionStartTime { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 订阅结束时间
     /// </summary>
-    public DateTime EndTime { get; set; }
+    public DateTime SubscriptionEndTime { get; set; }
 
-    /// <summary>
-    /// 租户状态（1=启用，0=禁用）
+        /// <summary>
+    /// 租户状态
     /// </summary>
     public int TenantStatus { get; set; }
 
     /// <summary>
-    /// 创建时间
+    /// 扩展字段JSON
     /// </summary>
-    public DateTime CreatedAt { get; set; }
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt租户导出DTO
+/// 租户信息表导出DTO
 /// </summary>
-public class TaktTenantExportDto
+public partial class TaktTenantExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktTenantExportDto()
     {
+        CreatedAt = DateTime.Now;
         TenantName = string.Empty;
         TenantCode = string.Empty;
-        ConfigId = "0";
-        TenantStatus = 1;
-        CreatedAt = DateTime.Now;
     }
 
-    /// <summary>
+        /// <summary>
     /// 租户名称
     /// </summary>
     public string TenantName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 租户编码
     /// </summary>
     public string TenantCode { get; set; }
 
-    /// <summary>
-    /// 租户配置ID（ConfigId）
-    /// </summary>
-    public string ConfigId { get; set; }
-
-    /// <summary>
+        /// <summary>
     /// 订阅开始时间
     /// </summary>
-    public DateTime StartTime { get; set; }
+    public DateTime SubscriptionStartTime { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 订阅结束时间
     /// </summary>
-    public DateTime EndTime { get; set; }
+    public DateTime SubscriptionEndTime { get; set; }
 
-    /// <summary>
-    /// 租户状态（1=启用，0=禁用）
+        /// <summary>
+    /// 租户状态
     /// </summary>
     public int TenantStatus { get; set; }
 

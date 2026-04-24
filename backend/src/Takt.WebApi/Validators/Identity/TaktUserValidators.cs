@@ -1,3 +1,15 @@
+// ========================================
+// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
+// 命名空间：Takt.WebApi.Validators.Identity
+// 文件名称：TaktUserValidators.cs
+// 创建时间：2026-04-24
+// 创建人：Takt365(AI Auto-Generated)
+// 功能描述：User DTO 验证器（根据实体 TaktUser 自动生成）
+// 
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
 using FluentValidation;
 using Takt.Application.Dtos.Identity;
 using Takt.Domain.Interfaces;
@@ -7,41 +19,47 @@ using Takt.WebApi.Validation;
 namespace Takt.WebApi.Validators.Identity;
 
 /// <summary>
-/// 用户创建 DTO 验证器。
+/// User创建 DTO 验证器（与 <see cref="Takt.Domain.Entities.Identity.TaktUser"/> 字段对齐）。
 /// </summary>
 public class TaktUserCreateDtoValidator : AbstractValidator<TaktUserCreateDto>
 {
     public TaktUserCreateDtoValidator(ITaktLocalizer? localizer = null)
     {
-        RuleFor(x => x.EmployeeId)
-            .GreaterThan(0)
-            .WithMessage(TaktValidationMessages.Required(localizer, "entity.user.employeeid"));
-
-        // 登录名以关联员工编码为准，创建时由服务端写入；请求中的 UserName 可省略，不作小写用户名规则校验
-        RuleFor(x => x.UserName)
-            .MaximumLength(20).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.user.name", 20));
-
-        RuleFor(x => x.NickName)
-            .MaximumLength(200).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.user.nickname", 200))
-            .Must(v => string.IsNullOrWhiteSpace(v) || TaktRegexHelper.NickName.IsMatch(v.Trim()))
-            .WithMessage(TaktValidationMessages.Pattern(localizer, "validation.patternNickName", "entity.user.nickname"));
-
-        RuleFor(x => x.PasswordHash)
-            .Must(TaktRegexHelper.IsValidPassword).WithMessage(TaktValidationMessages.PatternPasswordStrong(localizer, "entity.user.password"))
-            .When(x => !string.IsNullOrWhiteSpace(x.PasswordHash));
+        RuleFor(x => x.UserType)
+            .InclusiveBetween(0, 2)
+            .WithMessage(TaktValidationMessages.FormatInvalid(localizer, "entity.user.usertype"));
 
         RuleFor(x => x.UserEmail)
-            .Must(TaktRegexHelper.IsValidEmail).WithMessage(TaktValidationMessages.Pattern(localizer, "validation.patternEmail", "entity.user.email"))
+            .Must(TaktRegexHelper.IsValidEmail).WithMessage(TaktValidationMessages.Pattern(localizer, "validation.patternEmail", "entity.user.useremail"))
+            .MaximumLength(100).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.user.useremail", 100))
             .When(x => !string.IsNullOrWhiteSpace(x.UserEmail));
 
         RuleFor(x => x.UserPhone)
-            .Must(TaktRegexHelper.IsValidPhone).WithMessage(TaktValidationMessages.Pattern(localizer, "validation.patternPhone", "entity.user.phone"))
+            .Must(TaktRegexHelper.IsValidPhone).WithMessage(TaktValidationMessages.Pattern(localizer, "validation.patternPhone", "entity.user.userphone"))
+            .MaximumLength(20).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.user.userphone", 20))
             .When(x => !string.IsNullOrWhiteSpace(x.UserPhone));
+
+        RuleFor(x => x.PasswordHash)
+            .Must(TaktRegexHelper.IsValidPassword).WithMessage(TaktValidationMessages.PatternPasswordStrong(localizer, "entity.user.passwordhash"))
+            .MaximumLength(500).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.user.passwordhash", 500))
+            .When(x => !string.IsNullOrWhiteSpace(x.PasswordHash));
+
+        RuleFor(x => x.LockReason)
+            .MaximumLength(500).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.user.lockreason", 500))
+            .When(x => !string.IsNullOrWhiteSpace(x.LockReason));
+
+        RuleFor(x => x.LockBy)
+            .MaximumLength(50).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.user.lockby", 50))
+            .When(x => !string.IsNullOrWhiteSpace(x.LockBy));
+
+        RuleFor(x => x.UserStatus)
+            .InclusiveBetween(0, 2)
+            .WithMessage(TaktValidationMessages.FormatInvalid(localizer, "entity.user.userstatus"));
     }
 }
 
 /// <summary>
-/// 用户更新 DTO 验证器。
+/// User更新 DTO 验证器。
 /// </summary>
 public class TaktUserUpdateDtoValidator : AbstractValidator<TaktUserUpdateDto>
 {
@@ -52,35 +70,28 @@ public class TaktUserUpdateDtoValidator : AbstractValidator<TaktUserUpdateDto>
         RuleFor(x => x.UserId)
             .GreaterThan(0)
             .WithMessage(TaktValidationMessages.Required(localizer, "entity.user.userid"));
-    }
-}
 
-/// <summary>
-/// 用户重置密码 DTO 验证器。
-/// </summary>
-public class TaktUserResetPwdDtoValidator : AbstractValidator<TaktUserResetPwdDto>
-{
-    public TaktUserResetPwdDtoValidator(ITaktLocalizer? localizer = null)
-    {
-        RuleFor(x => x.UserId)
-            .GreaterThan(0)
-            .WithMessage(TaktValidationMessages.Required(localizer, "entity.user.userid"));
-    }
-}
+        RuleFor(x => x.UserEmail)
+            .Must(TaktRegexHelper.IsValidEmail).WithMessage(TaktValidationMessages.Pattern(localizer, "validation.patternEmail", "entity.user.useremail"))
+            .MaximumLength(100).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.user.useremail", 100))
+            .When(x => !string.IsNullOrWhiteSpace(x.UserEmail));
 
-/// <summary>
-/// 用户修改密码 DTO 验证器。
-/// </summary>
-public class TaktUserChangePwdDtoValidator : AbstractValidator<TaktUserChangePwdDto>
-{
-    public TaktUserChangePwdDtoValidator(ITaktLocalizer? localizer = null)
-    {
-        RuleFor(x => x.OldPassword)
-            .NotEmpty().WithMessage(TaktValidationMessages.Required(localizer, "entity.user.oldpassword"));
+        RuleFor(x => x.UserPhone)
+            .Must(TaktRegexHelper.IsValidPhone).WithMessage(TaktValidationMessages.Pattern(localizer, "validation.patternPhone", "entity.user.userphone"))
+            .MaximumLength(20).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.user.userphone", 20))
+            .When(x => !string.IsNullOrWhiteSpace(x.UserPhone));
 
-        RuleFor(x => x.NewPassword)
-            .NotEmpty().WithMessage(TaktValidationMessages.Required(localizer, "entity.user.newpassword"))
-            .Must(TaktRegexHelper.IsValidPassword).WithMessage(TaktValidationMessages.PatternPasswordStrong(localizer, "entity.user.newpassword"))
-            .NotEqual(x => x.OldPassword).WithMessage(TaktValidationMessages.NotEqualFields(localizer, "entity.user.newpassword", "entity.user.oldpassword"));
+        RuleFor(x => x.PasswordHash)
+            .Must(TaktRegexHelper.IsValidPassword).WithMessage(TaktValidationMessages.PatternPasswordStrong(localizer, "entity.user.passwordhash"))
+            .MaximumLength(500).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.user.passwordhash", 500))
+            .When(x => !string.IsNullOrWhiteSpace(x.PasswordHash));
+
+        RuleFor(x => x.LockReason)
+            .MaximumLength(500).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.user.lockreason", 500))
+            .When(x => !string.IsNullOrWhiteSpace(x.LockReason));
+
+        RuleFor(x => x.LockBy)
+            .MaximumLength(50).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.user.lockby", 50))
+            .When(x => !string.IsNullOrWhiteSpace(x.LockBy));
     }
 }

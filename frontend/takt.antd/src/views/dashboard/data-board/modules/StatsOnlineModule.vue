@@ -10,7 +10,7 @@
         </a-col>
         <a-col :span="8">
           <a-statistic
-            :title="t('dashboard.data-board.online.todayVisits')"
+            :title="t('dashboard.data-board.online.todayvisits')"
             :value="onlineStats.todayVisits"
           />
         </a-col>

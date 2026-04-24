@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Identity
 // 文件名称：TaktRoleService.cs
@@ -126,14 +126,14 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
     {
         var roles = await _roleRepository.FindAsync(r => r.IsDeleted == 0 && r.RoleStatus == 1);
         return roles
-            .OrderBy(r => r.OrderNum)
+            .OrderBy(r => r.SortOrder)
             .ThenBy(r => r.CreatedAt)
             .Select(r => new TaktSelectOption
             {
                 DictLabel = r.RoleName,
                 DictValue = r.Id,
                 ExtLabel = r.RoleCode,
-                OrderNum = r.OrderNum
+                SortOrder = r.SortOrder
             })
             .ToList();
     }
@@ -784,7 +784,7 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
                     {
                         RoleName = item.RoleName,
                         RoleCode = item.RoleCode,
-                        OrderNum = item.OrderNum,
+                        SortOrder = item.SortOrder,
                         DataScope = item.DataScope,
                         RoleStatus = item.RoleStatus >= 0 ? item.RoleStatus : 1, // 默认为启用（1=启用）
                         Remark = item.Remark
@@ -868,7 +868,7 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
         {
             var dto = r.Adapt<TaktRoleExportDto>();
             // 处理需要特殊转换的字段
-            dto.DataScope = GetDataScopeString(r.DataScope);
+            dto.DataScopeString = GetDataScopeString(r.DataScope);
             return dto;
         }).ToList();
 
@@ -923,4 +923,94 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
             _ => "未知"
         };
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计角色总数
+    /// </summary>
+    public async Task<long> GetRoleCountAsync()
+    {
+        return await _roleRepository.CountAsync(r => r.IsDeleted == 0);
+    }
+
+    /// <summary>
+    /// 统计菜单总数
+    /// </summary>
+    public async Task<long> GetMenuCountAsync()
+    {
+        return await _menuRepository.CountAsync(m => m.IsDeleted == 0);
+    }
+
+    /// <summary>
+    /// 按角色统计用户数分布
+    /// </summary>
+    public async Task<Dictionary<long, int>> GetUserCountByRoleAsync()
+    {
+        var userRoles = await _userRoleRepository.FindAsync(ur => ur.IsDeleted == 0);
+        
+        return userRoles
+            .GroupBy(ur => ur.RoleId)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+
+    /// <summary>
+    /// 统计各角色用户数及详情
+    /// </summary>
+    public async Task<List<(long roleId, string roleName, int userCount)>> GetRoleUserStatsAsync()
+    {
+        var roles = await _roleRepository.FindAsync(r => r.IsDeleted == 0);
+        var userRoles = await _userRoleRepository.FindAsync(ur => ur.IsDeleted == 0);
+        
+        var roleUserCount = userRoles
+            .GroupBy(ur => ur.RoleId)
+            .ToDictionary(g => g.Key, g => g.Count());
+        
+        var stats = roles
+            .Select(r => (
+                roleId: r.Id,
+                roleName: r.RoleName ?? "",
+                userCount: roleUserCount.ContainsKey(r.Id) ? roleUserCount[r.Id] : 0
+            ))
+            .ToList();
+        
+        return stats;
+    }
+
+    /// <summary>
+    /// 按角色统计菜单数分布
+    /// </summary>
+    public async Task<Dictionary<long, int>> GetMenuCountByRoleAsync()
+    {
+        var roleMenus = await _roleMenuRepository.FindAsync(rm => rm.IsDeleted == 0);
+        
+        return roleMenus
+            .GroupBy(rm => rm.RoleId)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+
+    /// <summary>
+    /// 统计各角色菜单数及详情
+    /// </summary>
+    public async Task<List<(long roleId, string roleName, int menuCount)>> GetRoleMenuStatsAsync()
+    {
+        var roles = await _roleRepository.FindAsync(r => r.IsDeleted == 0);
+        var roleMenus = await _roleMenuRepository.FindAsync(rm => rm.IsDeleted == 0);
+        
+        var roleMenuCount = roleMenus
+            .GroupBy(rm => rm.RoleId)
+            .ToDictionary(g => g.Key, g => g.Count());
+        
+        var stats = roles
+            .Select(r => (
+                roleId: r.Id,
+                roleName: r.RoleName ?? "",
+                menuCount: roleMenuCount.ContainsKey(r.Id) ? roleMenuCount[r.Id] : 0
+            ))
+            .ToList();
+        
+        return stats;
+    }
+
+    #endregion
 }

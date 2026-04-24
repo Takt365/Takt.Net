@@ -18,7 +18,7 @@ const quartzLogUrl = '/api/TaktQuartzLogs'
 
 /**
  * 获取任务日志列表（分页）
- * 对应后端：GetListAsync
+ * 对应后端应用服务：GetQuartzLogListAsync（TaktQuartzLogsController.GetQuartzLogListAsync）
  */
 export function getQuartzLogList(params: QuartzLogQuery): Promise<TaktPagedResult<QuartzLog>> {
   return request({
@@ -30,7 +30,7 @@ export function getQuartzLogList(params: QuartzLogQuery): Promise<TaktPagedResul
 
 /**
  * 根据ID获取任务日志
- * 对应后端：GetByIdAsync
+ * 对应后端应用服务：GetQuartzLogByIdAsync（TaktQuartzLogsController.GetQuartzLogByIdAsync）
  */
 export function getQuartzLogById(id: string): Promise<QuartzLog> {
   return request({
@@ -40,10 +40,10 @@ export function getQuartzLogById(id: string): Promise<QuartzLog> {
 }
 
 /**
- * 删除任务日志
- * 对应后端：DeleteAsync
+ * 删除任务日志（单条）
+ * 对应后端应用服务：DeleteQuartzLogByIdAsync（TaktQuartzLogsController.DeleteQuartzLogByIdAsync）
  */
-export function deleteQuartzLog(id: string): Promise<void> {
+export function deleteQuartzLogById(id: string): Promise<void> {
   return request({
     url: `${quartzLogUrl}/${id}`,
     method: 'delete'
@@ -52,7 +52,7 @@ export function deleteQuartzLog(id: string): Promise<void> {
 
 /**
  * 批量删除任务日志
- * 对应后端：DeleteBatchAsync
+ * 对应后端应用服务：DeleteQuartzLogBatchAsync（TaktQuartzLogsController.DeleteQuartzLogBatchAsync）
  */
 export function deleteQuartzLogBatch(ids: number[]): Promise<void> {
   return request({
@@ -64,9 +64,9 @@ export function deleteQuartzLogBatch(ids: number[]): Promise<void> {
 
 /**
  * 导出任务日志
- * 对应后端：ExportAsync
+ * 对应后端应用服务：ExportQuartzLogAsync（TaktQuartzLogsController.ExportQuartzLogAsync）
  */
-export function exportQuartzLog(query: QuartzLogQuery, sheetName?: string, fileName?: string): Promise<Blob> {
+export function exportQuartzLogData(query: QuartzLogQuery, sheetName?: string, fileName?: string): Promise<Blob> {
   return request({
     url: `${quartzLogUrl}/export`,
     method: 'get',

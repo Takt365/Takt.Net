@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Organization
 // 文件名称：TaktUserPost.cs
@@ -18,7 +18,7 @@ namespace Takt.Domain.Entities.HumanResource.Organization;
 /// Takt用户岗位关联实体（RBAC：登录用户与岗位的多对多，用于权限/数据范围）
 /// 与 TaktEmployeePost（人事：员工档案与岗位）区分。
 /// </summary>
-[SugarTable("takt_humanresource_organization_userpost", "岗位用户关联表(RBAC)")]
+[SugarTable("takt_humanresource_organization_userpost", "岗位用户关联表")]
 [SugarIndex("ix_takt_humanresource_organization_userpost_PostId_UserId", nameof(PostId), OrderByType.Asc, nameof(UserId), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_humanresource_organization_userpost_PostId", nameof(PostId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_organization_userpost_UserId", nameof(UserId), OrderByType.Asc)]

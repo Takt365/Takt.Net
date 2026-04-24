@@ -4,7 +4,7 @@
 // 文件名称：ITaktPlantService.cs
 // 创建时间：2025-02-02
 // 创建人：Takt365
-// 功能描述：工厂表应用服务接口，由 DtoCategory 配置驱动，按 type 判断输出
+// 功能描述：工厂表应用服务接口，由 DtoCategory 配置驱动。实现类校验分层与 TaktUserService 一致：Create/Update 的 DTO 字段由 WebApi FluentValidation 执行，接口方法本身不包含 IValidator。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -21,7 +21,6 @@ namespace Takt.Application.Services.Logistics.Materials;
 public interface ITaktPlantService
 {
 
-
     /// <summary>
     /// 获取工厂表列表（分页）
     /// </summary>
@@ -36,8 +35,15 @@ public interface ITaktPlantService
     Task<TaktPlantDto?> GetPlantByIdAsync(long id);
 
     /// <summary>
+    /// 获取工厂表选项列表（用于下拉框等，与 ITaktUserService.GetUserOptionsAsync 约定一致）
+    /// </summary>
+    /// <returns>选项列表</returns>
+    Task<List<TaktSelectOption>> GetPlantOptionsAsync();
+
+    /// <summary>
     /// 创建工厂表
     /// </summary>
+    /// <remarks>实现类与 TaktUserService 相同：DTO 先由 WebApi 校验器过滤，再执行业务与仓储逻辑。</remarks>
     /// <param name="dto">创建工厂表DTO</param>
     /// <returns>工厂表DTO</returns>
     Task<TaktPlantDto> CreatePlantAsync(TaktPlantCreateDto dto);
@@ -45,6 +51,7 @@ public interface ITaktPlantService
     /// <summary>
     /// 更新工厂表
     /// </summary>
+    /// <remarks>实现类与 TaktUserService 相同：UpdateDto 先由 WebApi 校验器过滤，再执行业务与仓储逻辑。</remarks>
     /// <param name="id">工厂表ID</param>
     /// <param name="dto">更新工厂表DTO</param>
     /// <returns>工厂表DTO</returns>
@@ -62,7 +69,6 @@ public interface ITaktPlantService
     /// <param name="ids">工厂表ID列表</param>
     /// <returns>任务</returns>
     Task DeletePlantBatchAsync(IEnumerable<long> ids);
-
 
     /// <summary>
     /// 获取导入模板

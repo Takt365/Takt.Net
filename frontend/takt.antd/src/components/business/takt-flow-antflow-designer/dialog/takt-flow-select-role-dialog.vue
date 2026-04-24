@@ -12,7 +12,7 @@
 <template>
   <a-modal
     v-model:open="openProxy"
-    :title="t('workflow.designer.selectRoleDialogTitle')"
+    :title="t('workflow.designer.page.selectroledialogtitle')"
     width="800px"
     :confirm-loading="loading"
     destroy-on-close
@@ -22,7 +22,7 @@
     <a-input-search
       v-model:value="keyWords"
       style="width: 280px; margin-bottom: 12px"
-      :placeholder="t('workflow.designer.selectRoleSearchPlaceholder')"
+      :placeholder="t('workflow.designer.page.selectrolesearchplaceholder')"
       allow-clear
       @search="onSearch"
     />
@@ -73,8 +73,8 @@ const selectedRowKeys = ref<string[]>([])
 const nameById = ref<Record<string, string>>({})
 
 const columns = computed(() => [
-  { title: t('workflow.designer.colRoleName'), dataIndex: 'roleName', ellipsis: true },
-  { title: t('workflow.designer.colRoleCode'), dataIndex: 'roleCode', ellipsis: true }
+  { title: t('workflow.designer.page.colrolename'), dataIndex: 'roleName', ellipsis: true },
+  { title: t('workflow.designer.page.colrolecode'), dataIndex: 'roleCode', ellipsis: true }
 ])
 
 const pagination = computed(() => ({
@@ -82,7 +82,7 @@ const pagination = computed(() => ({
   pageSize: pageSize.value,
   total: total.value,
   showSizeChanger: true,
-  showTotal: (n: number) => t('workflow.designer.pageTotal', { total: n })
+  showTotal: (n: number) => t('workflow.designer.page.pagetotal', { total: n })
 }))
 
 function onSelectChange(keys: (string | number)[], rows: Role[]) {

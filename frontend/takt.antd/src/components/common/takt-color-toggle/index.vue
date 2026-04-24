@@ -4,6 +4,7 @@
     v-if="type === 'button'"
     :type="buttonType"
     :size="size"
+    :disabled="isHolidayThemeLocked"
     v-bind="$attrs"
     @click="handleToggle"
   >
@@ -17,7 +18,7 @@
   <div
     v-else-if="type === 'icon'"
     class="color-toggle-group"
-    :class="{ expanded: isExpanded }"
+    :class="{ expanded: isExpanded, locked: isHolidayThemeLocked }"
     @mouseenter="onGroupEnter"
     @mouseleave="onGroupLeave"
   >
@@ -48,6 +49,7 @@
       type="text"
       :size="size"
       class="color-palette-button"
+      :disabled="isHolidayThemeLocked"
       v-bind="$attrs"
     >
       <template #icon>
@@ -59,6 +61,7 @@
   <!-- 下拉菜单样式 -->
   <a-dropdown
     v-else-if="type === 'dropdown'"
+    :disabled="isHolidayThemeLocked"
     :trigger="['click']"
     v-bind="$attrs"
   >
@@ -97,6 +100,7 @@
     v-else-if="type === 'radio'"
     :value="currentThemeType"
     :size="radioSize"
+    :disabled="isHolidayThemeLocked"
     v-bind="$attrs"
     @change="handleRadioChange"
   >
@@ -121,6 +125,7 @@ import { ref, computed, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import type { RadioChangeEvent } from 'ant-design-vue'
 import { useSettingStore, themeColorMap, getThemeColorValue, type ThemeColor } from '@/stores/setting'
+import { useUserStore } from '@/stores/identity/user'
 import { applySettings } from '@/utils/apply-settings'
 import { RiPaletteLine, RiCheckLine } from '@remixicon/vue'
 
@@ -142,6 +147,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const store = useSettingStore()
 const { setting } = storeToRefs(store)
+const { holidayFromToken } = storeToRefs(useUserStore())
 const isExpanded = ref(false)
 const leaveTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
@@ -176,8 +182,16 @@ const currentThemeType = computed(() => {
   return type && type !== 'custom' && type in themeColorMap ? type : 'blue'
 })
 const themeColorValue = computed(() => getThemeColorValue(setting.value?.themeColor ?? { type: 'blue' }))
+const isHolidayThemeLocked = computed(() => {
+  const holiday = holidayFromToken.value
+  return Boolean(
+    holiday?.isHolidayToday === true &&
+    typeof holiday.holidayTheme === 'string' &&
+    holiday.holidayTheme in themeColorMap
+  )
+})
 
-const radioSize = computed<'default' | 'small' | 'large' | undefined>(() =>
+const radioSize = computed<'default' | 'small' | 'large'>(() =>
   props.size === 'middle' ? 'default' : props.size
 )
 
@@ -187,16 +201,20 @@ function setThemeColor(type: ThemePreset) {
 }
 
 const handleToggle = () => {
+  if (isHolidayThemeLocked.value) return
   const idx = themePresetKeys.indexOf(currentThemeType.value)
   const next = themePresetKeys[(idx + 1) % themePresetKeys.length]
+  if (next == null) return
   setThemeColor(next)
 }
 
 const handleMenuClick = ({ key }: { key: string | number }) => {
+  if (isHolidayThemeLocked.value) return
   setThemeColor(String(key) as ThemePreset)
 }
 
 const handleRadioChange = (e: RadioChangeEvent) => {
+  if (isHolidayThemeLocked.value) return
   const value = e.target?.value
   if (value != null && value in themeColorMap) {
     setThemeColor(value as ThemePreset)
@@ -204,6 +222,7 @@ const handleRadioChange = (e: RadioChangeEvent) => {
 }
 
 const handleColorSelect = (color: ThemePreset) => {
+  if (isHolidayThemeLocked.value) return
   setThemeColor(color)
   if (leaveTimer.value != null) {
     clearTimeout(leaveTimer.value)
@@ -228,6 +247,10 @@ const handleColorSelect = (color: ThemePreset) => {
   position: relative;
   display: inline-flex;
   align-items: center;
+}
+
+.color-toggle-group.locked {
+  cursor: not-allowed;
 }
 
 /* 展开时向左延伸感应区，使鼠标从按钮移入颜色圈时仍算在组内，可选中颜色 */
@@ -263,6 +286,10 @@ const handleColorSelect = (color: ThemePreset) => {
   max-width: 320px;
   opacity: 1;
   pointer-events: auto;
+}
+
+.color-toggle-group.locked .color-circles-container {
+  pointer-events: none;
 }
 
 .color-circle-button {

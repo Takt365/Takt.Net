@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Statistics.Logging
 // 文件名称：ITaktOperLogService.cs
@@ -25,35 +25,35 @@ public interface ITaktOperLogService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    Task<TaktPagedResult<TaktOperLogDto>> GetListAsync(TaktOperLogQueryDto queryDto);
+    Task<TaktPagedResult<TaktOperLogDto>> GetOperLogListAsync(TaktOperLogQueryDto queryDto);
 
     /// <summary>
     /// 创建操作日志
     /// </summary>
     /// <param name="dto">创建操作日志DTO</param>
     /// <returns>操作日志DTO</returns>
-    Task<TaktOperLogDto> CreateAsync(TaktCreateOperLogDto dto);
+    Task<TaktOperLogDto> CreateOperLogAsync(TaktOperLogCreateDto dto);
 
     /// <summary>
     /// 根据ID获取操作日志
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>操作日志DTO</returns>
-    Task<TaktOperLogDto?> GetByIdAsync(long id);
+    Task<TaktOperLogDto?> GetOperLogByIdAsync(long id);
 
     /// <summary>
     /// 删除操作日志
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>任务</returns>
-    Task DeleteAsync(long id);
+    Task DeleteOperLogByIdAsync(long id);
 
     /// <summary>
     /// 批量删除操作日志
     /// </summary>
     /// <param name="ids">日志ID列表</param>
     /// <returns>任务</returns>
-    Task DeleteBatchAsync(List<long> ids);
+    Task DeleteOperLogBatchAsync(List<long> ids);
 
     /// <summary>
     /// 导出操作日志
@@ -62,5 +62,5 @@ public interface ITaktOperLogService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    Task<(string fileName, byte[] content)> ExportAsync(TaktOperLogQueryDto query, string? sheetName, string? fileName);
+    Task<(string fileName, byte[] content)> ExportOperLogAsync(TaktOperLogQueryDto query, string? sheetName, string? fileName);
 }

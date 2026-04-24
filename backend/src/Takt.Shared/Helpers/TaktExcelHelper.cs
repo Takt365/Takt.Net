@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Shared.Helpers
 // 文件名称：TaktExcelHelper.cs
@@ -30,6 +30,10 @@ public class TaktExcelHelper
 {
     private static TaktExcelOptions? _options;
     private const int MaxImportRowsPerFile = 1000;
+    /// <summary>
+    /// Excel（.xlsx）模板或单文件导出使用的 Content-Type。
+    /// </summary>
+    public const string ExcelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
     /// <summary>
     /// 时间戳格式：年月日时分秒（_yyyyMMddHHmmss），模板下载与导出统一使用
@@ -94,6 +98,18 @@ public class TaktExcelHelper
         var baseName = NormalizeFileNameBase(baseFileName);
         if (string.IsNullOrWhiteSpace(baseName)) baseName = "Data";
         return $"{baseName}_{GetTimestampString()}.zip";
+    }
+
+    /// <summary>
+    /// 根据服务端生成的最终文件名选择导出 Content-Type（<c>.zip</c> 为分批打包，否则为 Excel）。
+    /// </summary>
+    /// <param name="fileName">含扩展名的文件名</param>
+    public static string GetExportContentType(string fileName)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(fileName);
+        return fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+            ? "application/zip"
+            : ExcelContentType;
     }
 
     /// <summary>

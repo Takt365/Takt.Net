@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Tenant
 // 文件名称：TaktTenant.cs
@@ -17,7 +17,7 @@ namespace Takt.Domain.Entities.Identity;
 /// <summary>
 /// Takt租户实体
 /// </summary>
-[SugarTable("takt_identity_tenant", "租户表")]
+[SugarTable("takt_identity_tenant", "租户信息表")]
 [SugarIndex("ix_takt_identity_tenant_tenant_code", nameof(TenantCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_identity_tenant_config_id", nameof(ConfigId), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_identity_tenant_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
@@ -37,16 +37,22 @@ public class TaktTenant : TaktEntityBase
     public string TenantCode { get; set; } = string.Empty;
 
     /// <summary>
+    /// 允许的数据库配置ID列表（JSON数组格式，如[1,2,3,4,5]）
+    /// </summary>
+    [SugarColumn(ColumnName = "allowed_config_ids", ColumnDescription = "数据库访问列表", ColumnDataType = "nvarchar", Length = 500, IsNullable = false, DefaultValue = "[]")]
+    public string AllowedConfigIds { get; set; } = "[]";
+
+    /// <summary>
     /// 订阅开始时间（默认为当前时间）
     /// </summary>
-    [SugarColumn(ColumnName = "start_time", ColumnDescription = "订阅开始时间", ColumnDataType = "datetime", IsNullable = false)]
-    public DateTime StartTime { get; set; } = DateTime.Now;
+    [SugarColumn(ColumnName = "subscription_start_time", ColumnDescription = "订阅开始时间", ColumnDataType = "datetime", IsNullable = false)]
+    public DateTime SubscriptionStartTime { get; set; } = DateTime.Now;
 
     /// <summary>
     /// 订阅结束时间（默认为9999/12/31，表示长期有效）
     /// </summary>
-    [SugarColumn(ColumnName = "end_time", ColumnDescription = "订阅结束时间", ColumnDataType = "datetime", IsNullable = false)]
-    public DateTime EndTime { get; set; } = new DateTime(9999, 12, 31);
+    [SugarColumn(ColumnName = "subscription_end_time", ColumnDescription = "订阅结束时间", ColumnDataType = "datetime", IsNullable = false)]
+    public DateTime SubscriptionEndTime { get; set; } = new DateTime(9999, 12, 31);
 
     /// <summary>
     /// 租户状态（1=启用，0=禁用）

@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig, loadEnv, type Plugin, type ViteDevServer } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -19,6 +19,23 @@ const { dependencies = {}, devDependencies = {}, name = '', version = '' } = pkg
 const __APP_INFO__ = {
   pkg: { dependencies, devDependencies, name, version },
   lastBuildTime: dayjs().format('YYYY-MM-DD HH:mm:ss')
+}
+
+/** 开发服务器启动后在终端打印实际访问协议，避免 HTTPS/HTTP 与配置不一致导致 ERR_SSL_PROTOCOL_ERROR / ERR_HTTP2_PROTOCOL_ERROR */
+function devServerUrlHintPlugin(useHttps: boolean): Plugin {
+  return {
+    name: 'takt-dev-server-url-hint',
+    configureServer(server: ViteDevServer) {
+      server.httpServer?.once('listening', () => {
+        const { port, host } = server.config.server
+        const p = typeof port === 'number' ? port : 60081
+        const h = host === true || host === undefined || host === '' ? 'localhost' : String(host)
+        const protocol = useHttps ? 'https' : 'http'
+        // eslint-disable-next-line no-console -- 开发时显式提示，避免误用协议
+        console.info(`\n[Takt] 前端开发地址: ${protocol}://${h}:${p}（与 VITE_DEV_SERVER_HTTPS=${useHttps} 一致；勿混用 http/https）\n`)
+      })
+    }
+  }
 }
 
 /** 虚拟模块：应用 import 'virtual:app-info' 即得到 package 信息 JSON 字符串 */
@@ -42,13 +59,16 @@ export default defineConfig(({ mode }) => {
   // 加载环境变量
   const env = loadEnv(mode, process.cwd(), '')
   
+  const useDevHttps = env.VITE_DEV_SERVER_HTTPS === 'true'
+
   return {
     plugins: [
       appInfoPlugin(),
+      devServerUrlHintPlugin(useDevHttps),
       vue(),
       // 启用 HTTPS（使用 vite-plugin-mkcert 生成受信任的本地证书）
       // vite-plugin-mkcert 会自动安装证书到系统信任存储，无需手动接受
-      ...(env.VITE_DEV_SERVER_HTTPS === 'true' ? [mkcert()] : []),
+      ...(useDevHttps ? [mkcert()] : []),
       // PWA 插件配置
       VitePWA({
         registerType: 'autoUpdate',
@@ -177,18 +197,23 @@ export default defineConfig(({ mode }) => {
       }
     },
     server: {
+      // 本地 HTTPS + 代理时，部分浏览器会报 ERR_HTTP2_PROTOCOL_ERROR；默认见 .env.development 使用 HTTP 开发
       port: Number(env.VITE_DEV_SERVER_PORT) || 60081,
       host: env.VITE_DEV_SERVER_HOST || 'localhost',
       // 注意：HTTPS 由 basicSsl 插件自动处理，不需要在这里配置 https
       strictPort: false, // 如果端口被占用，自动尝试下一个可用端口
       // HMR WebSocket 配置：使用 vite-mkcert 后，证书受信任，WebSocket 连接正常
-      // 注意：HMR WebSocket 使用与开发服务器相同的协议和端口
-      hmr: env.VITE_DEV_SERVER_HTTPS === 'true' ? {
-        protocol: 'wss',
-        host: env.VITE_DEV_SERVER_HOST || 'localhost',
-        port: Number(env.VITE_DEV_SERVER_PORT) || 60081,
-        clientPort: Number(env.VITE_DEV_SERVER_PORT) || 60081
-      } : undefined,
+      // 注意：HMR WebSocket 使用与开发服务器相同的协议和端口；不可写 hmr: undefined（与 UserConfig 类型不兼容）
+      ...(useDevHttps
+        ? {
+            hmr: {
+              protocol: 'wss' as const,
+              host: env.VITE_DEV_SERVER_HOST || 'localhost',
+              port: Number(env.VITE_DEV_SERVER_PORT) || 60081,
+              clientPort: Number(env.VITE_DEV_SERVER_PORT) || 60081
+            }
+          }
+        : {}),
       // Vite 开发服务器默认支持 history fallback（所有非 API 请求重定向到 index.html）
       // 这确保了刷新页面时不会出现 404 错误
       proxy: {
@@ -198,7 +223,9 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: env.VITE_API_TARGET || 'https://localhost:60071',
           changeOrigin: true,
-          secure: false // 允许自签名证书
+          secure: false, // 允许自签名证书
+          timeout: 180_000,
+          proxyTimeout: 180_000
         },
         // SignalR Hub 代理配置
         // 前端请求 /hubs/xxx，Vite 代理转发到后端的 /hubs/xxx
@@ -206,7 +233,9 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_API_TARGET || 'https://localhost:60071',
           changeOrigin: true,
           secure: false, // 允许自签名证书
-          ws: true // 启用 WebSocket 代理（SignalR 需要）
+          ws: true, // 启用 WebSocket 代理（SignalR 需要）
+          timeout: 180_000,
+          proxyTimeout: 180_000
         }
       }
     },

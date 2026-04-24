@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Routine.Setting
 // 文件名称：ITaktSettingsService.cs
@@ -81,7 +81,7 @@ public interface ITaktSettingsService
     /// </summary>
     /// <param name="dto">设置状态DTO</param>
     /// <returns>设置DTO</returns>
-    Task<TaktSettingsDto> UpdateSettingsStatusAsync(TaktSettingsStatusDto dto);
+    Task<TaktSettingsDto> UpdateSettingsStatusAsync(TaktSettingsSettingStatusDto dto);
 
     /// <summary>
     /// 获取导入模板

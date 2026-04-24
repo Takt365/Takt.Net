@@ -2,7 +2,7 @@
   <a-tabs v-model:active-key="activeTab">
     <a-tab-pane
       key="basic"
-      :tab="t('common.form.tabs.basicInfo')"
+      :tab="t('common.form.tabs.basicinfo')"
     >
       <div :class="formContentClass">
         <a-form
@@ -51,7 +51,7 @@
               >
                 <a-input-number
                   v-model:value="formState.orderNum"
-                  :placeholder="t('common.form.placeholder.orderNumHint')"
+                  :placeholder="t('common.form.placeholder.ordernumhint')"
                   :min="0"
                   style="width: 100%"
                 />
@@ -84,7 +84,7 @@
               >
                 <a-input
                   v-model:value="formState.customScope"
-                  :placeholder="t('identity.role.placeholder.customScopeHint')"
+                  :placeholder="t('identity.role.page.placeholder.customscopehint')"
                   show-count
                   :maxlength="500"
                 />
@@ -124,11 +124,11 @@ import type { Role, RoleCreate } from '@/types/identity/role'
 const { t } = useI18n()
 
 const dataScopeOptions = computed(() => [
-  { label: t('identity.role.dataScope.all'), value: 0 },
-  { label: t('identity.role.dataScope.dept'), value: 1 },
-  { label: t('identity.role.dataScope.deptAndBelow'), value: 2 },
-  { label: t('identity.role.dataScope.self'), value: 3 },
-  { label: t('identity.role.dataScope.custom'), value: 4 }
+  { label: t('identity.role.page.datascope.all'), value: 0 },
+  { label: t('identity.role.page.datascope.dept'), value: 1 },
+  { label: t('identity.role.page.datascope.deptandbelow'), value: 2 },
+  { label: t('identity.role.page.datascope.self'), value: 3 },
+  { label: t('identity.role.page.datascope.custom'), value: 4 }
 ])
 
 interface Props {
@@ -147,13 +147,14 @@ const activeTab = ref('basic')
 const TOTAL_FIELDS = 6
 const formContentClass = computed(() => (TOTAL_FIELDS >= 30 ? 'takt-form-content-rows-10' : 'takt-form-content-rows-5'))
 
+/** 与 a-input / a-input-number 绑定：字段恒为 string/number，避免 v-model 在 exactOptionalPropertyTypes 下推断出 undefined。 */
 interface FormState {
-  roleName?: string
-  roleCode?: string
-  orderNum?: number
-  dataScope?: number
-  customScope?: string
-  remark?: string
+  roleName: string
+  roleCode: string
+  orderNum: number
+  dataScope: number
+  customScope: string
+  remark: string
 }
 
 const formState = reactive<FormState>({
@@ -198,14 +199,18 @@ const validate = async () => {
   await formRef.value?.validate()
 }
 
-const getValues = (): RoleCreate => ({
-  roleName: formState.roleName ?? '',
-  roleCode: formState.roleCode ?? '',
-  orderNum: formState.orderNum ?? 0,
-  dataScope: formState.dataScope ?? 0,
-  customScope: formState.customScope || undefined,
-  remark: formState.remark || undefined
-})
+const getValues = (): RoleCreate => {
+  const customScope = (formState.customScope ?? '').trim()
+  const remark = (formState.remark ?? '').trim()
+  return {
+    roleName: formState.roleName ?? '',
+    roleCode: formState.roleCode ?? '',
+    orderNum: formState.orderNum ?? 0,
+    dataScope: formState.dataScope ?? 0,
+    ...(customScope.length > 0 ? { customScope } : {}),
+    ...(remark.length > 0 ? { remark } : {})
+  }
+}
 
 const resetFields = () => {
   formRef.value?.resetFields()

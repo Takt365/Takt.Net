@@ -170,8 +170,8 @@
         :template-file-name="employeeExcelNames.fileBase"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.employee._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.employee._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -438,13 +438,13 @@ const columns = computed<TableColumnsType>(() => [
     width: 100
   },
   {
-    title: t('common.entity.createTime'),
+    title: t('common.entity.createtime'),
     dataIndex: 'createdAt',
     key: 'createdAt',
     width: 160,
     ellipsis: true
   },
-  CreateActionColumn({
+  CreateActionColumn<Employee>({
     actions: [
       {
         key: 'update',
@@ -623,7 +623,7 @@ const loadData = async () => {
     total.value = totalCount
   } catch (error: any) {
     logger.error('[Employee Management] 加载数据失败:', error)
-    message.error(error.message || t('common.msg.loadFail'))
+    message.error(error.message || t('common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -699,7 +699,7 @@ const handleEdit = async (record: Employee) => {
     formData.value = { ...detail }
     formVisible.value = true
   } catch (error: any) {
-    message.error(error.message || t('common.msg.loadFail'))
+    message.error(error.message || t('common.msg.loadfail'))
   } finally {
     formLoading.value = false
   }
@@ -711,7 +711,7 @@ const handleUpdate = () => {
     handleEdit(selectedRow.value)
   } else {
     message.warning(
-      t('common.action.warnSelectToAction', {
+      t('common.action.warnselecttoaction', {
         action: t('common.button.edit'),
         entity: t('entity.employee._self')
       })
@@ -723,18 +723,18 @@ const handleUpdate = () => {
 const handleDeleteOne = (record: Employee) => {
   const name = getEmployeeField(record, 'realName') || getEmployeeId(record)
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', { entity: t('entity.employee._self'), name }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.employee._self'), name }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await deleteEmployeeById(getEmployeeId(record))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deletesuccess'))
         loadData()
       } catch (error: any) {
-        message.error(error.message || t('common.msg.deleteFail'))
+        message.error(error.message || t('common.msg.deletefail'))
       } finally {
         loading.value = false
       }
@@ -746,7 +746,7 @@ const handleDeleteOne = (record: Employee) => {
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
     message.warning(
-      t('common.action.warnSelectToAction', {
+      t('common.action.warnselecttoaction', {
         action: t('common.button.delete'),
         entity: t('entity.employee._self')
       })
@@ -755,8 +755,8 @@ const handleDelete = () => {
   }
 
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', {
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', {
       entity: t('entity.employee._self'),
       count: selectedRows.value.length
     }),
@@ -770,13 +770,13 @@ const handleDelete = () => {
         } else {
           await deleteEmployeeBatch(selectedRows.value.map((r) => getEmployeeId(r)))
         }
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deletesuccess'))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: any) {
-        message.error(error.message || t('common.msg.deleteFail'))
+        message.error(error.message || t('common.msg.deletefail'))
       } finally {
         loading.value = false
       }
@@ -884,10 +884,10 @@ const handleExport = async () => {
       window.URL.revokeObjectURL(url)
     }, 100)
 
-    message.success(t('common.msg.exportSuccess'))
+    message.success(t('common.msg.exportsuccess'))
   } catch (error: any) {
     logger.error('[Employee Management] 导出失败:', error)
-    message.error(error.message || t('common.msg.exportFail'))
+    message.error(error.message || t('common.msg.exportfail'))
   } finally {
     loading.value = false
   }
@@ -956,10 +956,10 @@ const handleFormSubmit = async () => {
         ...formValues,
         employeeId: formData.value.employeeId
       })
-      message.success(t('common.msg.updateSuccess'))
+      message.success(t('common.msg.updatesuccess'))
     } else {
       await createEmployee(formValues)
-      message.success(t('common.msg.createSuccess'))
+      message.success(t('common.msg.createsuccess'))
     }
 
     // 重置表单
@@ -977,7 +977,7 @@ const handleFormSubmit = async () => {
       formRef.value?.setServerValidationErrors?.(error.validationErrors)
       return
     }
-    message.error(error.message || t('common.msg.operateFail'))
+    message.error(error.message || t('common.msg.operatefail'))
   } finally {
     formLoading.value = false
   }

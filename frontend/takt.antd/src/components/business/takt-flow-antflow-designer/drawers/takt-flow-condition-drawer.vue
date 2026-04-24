@@ -25,10 +25,10 @@
             placeholder="如：条件1"
           />
         </a-form-item>
-        <a-form-item :label="t('workflow.designer.edgeCondition')">
+        <a-form-item :label="t('workflow.designer.page.edgecondition')">
           <a-textarea
             v-model:value="form.conditionExpr"
-            :placeholder="t('workflow.designer.placeholderEdgeCondition')"
+            :placeholder="t('workflow.designer.page.placeholderedgecondition')"
             :rows="3"
           />
         </a-form-item>

@@ -16,7 +16,7 @@
       <!-- 主表：语言信息 -->
       <a-tab-pane
         key="main"
-        tab="语言信息"
+        :tab="t('routine.localization.language.tabs.main')"
       >
         <a-form
           ref="mainFormRef"
@@ -28,98 +28,104 @@
         >
           <!-- 表单字段顺序与 Language 接口字段顺序一致 -->
           <a-form-item
-            label="语言名称"
+            :label="t('entity.language.name')"
             name="languageName"
           >
             <a-input
               v-model:value="mainFormState.languageName"
-              placeholder="请输入语言名称（中文名称，如：简体中文）"
+              :placeholder="t('routine.localization.language.placeholders.languageName')"
             />
           </a-form-item>
 
           <a-form-item
-            label="语言编码"
+            :label="t('entity.language.culturecode')"
             name="cultureCode"
           >
             <a-input
               v-model:value="mainFormState.cultureCode"
-              placeholder="请输入语言编码（如：zh-CN、en-US）"
+              :placeholder="t('routine.localization.language.placeholders.cultureCode')"
               :disabled="!!props.formData?.languageId"
             />
           </a-form-item>
 
           <a-form-item
-            label="本地化名称"
+            :label="t('entity.language.nativename')"
             name="nativeName"
           >
             <a-input
               v-model:value="mainFormState.nativeName"
-              placeholder="请输入本地化名称（该语言下的名称，如：简体中文、English）"
+              :placeholder="t('routine.localization.language.placeholders.nativeName')"
             />
           </a-form-item>
 
           <a-form-item
-            label="语言图标"
+            :label="t('entity.language.icon')"
             name="languageIcon"
           >
             <a-input
               v-model:value="mainFormState.languageIcon"
-              placeholder="请输入语言图标URL（可选）"
+              :placeholder="t('routine.localization.language.placeholders.languageIcon')"
             />
           </a-form-item>
 
           <a-form-item
-            label="排序号"
+            :label="t('entity.language.ordernum')"
             name="orderNum"
           >
             <a-input-number
               v-model:value="mainFormState.orderNum"
               :min="0"
-              placeholder="请输入排序号"
+              :placeholder="t('routine.localization.language.placeholders.orderNum')"
               style="width: 100%"
             />
           </a-form-item>
 
           <a-form-item
-            label="语言状态"
+            :label="t('entity.language.status')"
             name="languageStatus"
           >
             <TaktSelect
               v-model:value="mainFormState.languageStatus"
-              dict-type="sys_status"
-              placeholder="请选择语言状态"
+              api-url="/api/TaktDictDatas/options?dictTypeCode=sys_status"
+              :field-names="{ label: 'dictLabel', value: 'extLabel' }"
+              allow-clear
+              :placeholder="t('common.form.placeholder.select', { field: t('entity.language.status') })"
             />
           </a-form-item>
 
           <a-form-item
-            label="是否默认"
+            :label="t('entity.language.isdefault')"
             name="isDefault"
           >
             <TaktSelect
               v-model:value="mainFormState.isDefault"
-              dict-type="sys_yes_no"
-              placeholder="请选择是否默认语言"
+              api-url="/api/TaktDictDatas/options?dictTypeCode=sys_yes_no"
+              :field-names="{ label: 'dictLabel', value: 'extLabel' }"
+              allow-clear
+              :placeholder="t('common.form.placeholder.select', { field: t('entity.language.isdefault') })"
             />
           </a-form-item>
 
           <a-form-item
-            label="是否RTL"
+            :label="t('entity.language.isrtl')"
             name="isRtl"
           >
             <TaktSelect
               v-model:value="mainFormState.isRtl"
-              dict-type="sys_yes_no"
-              placeholder="请选择是否启用RTL（从右到左）"
+              api-url="/api/TaktDictDatas/options?dictTypeCode=sys_yes_no"
+              :field-names="{ label: 'dictLabel', value: 'extLabel' }"
+              allow-clear
+              :placeholder="t('routine.localization.language.placeholders.isRtlSelect')"
             />
           </a-form-item>
 
           <a-form-item
-            label="备注"
+            :label="t('common.entity.remark')"
             name="remark"
           >
             <a-textarea
               v-model:value="mainFormState.remark"
-              placeholder="请输入备注"
+              :placeholder="t('routine.localization.language.placeholders.remark')"
               :rows="3"
             />
           </a-form-item>
@@ -129,7 +135,7 @@
       <!-- 子表：翻译列表 -->
       <a-tab-pane
         key="translation"
-        tab="翻译列表"
+        :tab="t('routine.localization.language.tabs.translation')"
       >
         <div class="translation-toolbar">
           <a-button
@@ -139,7 +145,7 @@
             <template #icon>
               <PlusOutlined />
             </template>
-            新增翻译
+            {{ t('routine.localization.language.typeForm.addTranslation') }}
           </a-button>
         </div>
 
@@ -154,14 +160,14 @@
             <template v-if="column.key === 'resourceKey'">
               <a-input
                 v-model:value="record.resourceKey"
-                placeholder="请输入资源键"
+                :placeholder="t('routine.localization.language.placeholders.translationResourceKey')"
                 size="small"
               />
             </template>
             <template v-else-if="column.key === 'cultureCode'">
               <a-input
                 v-model:value="record.cultureCode"
-                placeholder="语言编码"
+                :placeholder="t('routine.localization.language.placeholders.translationCultureCode')"
                 size="small"
                 :disabled="true"
               />
@@ -169,21 +175,21 @@
             <template v-else-if="column.key === 'translationValue'">
               <a-input
                 v-model:value="record.translationValue"
-                placeholder="请输入翻译值"
+                :placeholder="t('routine.localization.language.placeholders.translationValue')"
                 size="small"
               />
             </template>
             <template v-else-if="column.key === 'resourceType'">
               <a-input
                 v-model:value="record.resourceType"
-                placeholder="资源类型（Frontend/Backend）"
+                :placeholder="t('routine.localization.language.placeholders.translationResourceType')"
                 size="small"
               />
             </template>
             <template v-else-if="column.key === 'resourceGroup'">
               <a-input
                 v-model:value="record.resourceGroup"
-                placeholder="请输入资源分组（可选）"
+                :placeholder="t('routine.localization.language.placeholders.translationResourceGroup')"
                 size="small"
               />
             </template>
@@ -202,7 +208,7 @@
                 size="small"
                 @click="handleRemoveTranslation(index)"
               >
-                删除
+                {{ t('common.button.delete') }}
               </a-button>
             </template>
           </template>
@@ -213,12 +219,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import type { TableColumnsType } from 'ant-design-vue'
 import type { Language, LanguageCreate, LanguageUpdate } from '@/types/routine/tasks/i18n/language'
-import type { Translation } from '@/types/routine/tasks/i18n/translation'
+
+/** 子表行：仅编辑所需字段，不要求完整 Translation/TaktEntityBase */
+export interface LanguageTranslationInlineRow {
+  translationId: string
+  resourceKey: string
+  languageId: string
+  cultureCode: string
+  translationValue: string
+  resourceType: string
+  resourceGroup: string
+  orderNum: number
+  remark?: string
+}
+
+type MainFormState = Omit<LanguageCreate, 'languageIcon' | 'remark'> & {
+  languageId?: string
+  languageIcon: string
+  remark: string
+}
 
 // ========================================
 // Props & Emits
@@ -234,16 +259,18 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false
 })
 
+const { t } = useI18n()
+
 // ========================================
 // 数据定义
 // ========================================
 
 const activeTab = ref('main')
 const mainFormRef = ref()
-const translationList = ref<Translation[]>([])
+const translationList = ref<LanguageTranslationInlineRow[]>([])
 
 // 表单状态（与 Language 接口字段顺序一致）
-const mainFormState = reactive<LanguageCreate & { languageId?: string }>({
+const mainFormState = reactive<MainFormState>({
   languageName: '',
   cultureCode: '',
   nativeName: '',
@@ -255,64 +282,64 @@ const mainFormState = reactive<LanguageCreate & { languageId?: string }>({
   remark: ''
 })
 
-const mainFormRules: Record<string, Rule[]> = {
+const mainFormRules = computed<Record<string, Rule[]>>(() => ({
   cultureCode: [
-    { required: true, message: '请输入语言编码', trigger: 'blur' }
+    { required: true, message: t('routine.localization.language.rules.cultureCodeRequired'), trigger: 'blur' }
   ],
   languageName: [
-    { required: true, message: '请输入语言名称', trigger: 'blur' }
+    { required: true, message: t('routine.localization.language.rules.languageNameRequired'), trigger: 'blur' }
   ],
   nativeName: [
-    { required: true, message: '请输入本地化名称', trigger: 'blur' }
+    { required: true, message: t('routine.localization.language.rules.nativeNameRequired'), trigger: 'blur' }
   ]
-}
+}))
 
-// 翻译子表列定义（与 Translation 接口字段顺序一致）
-const translationColumns: TableColumnsType = [
+// 翻译子表列定义（与 Translation 接口字段顺序一致；列标题走后端种子 entity.translation.*）
+const translationColumns = computed<TableColumnsType<LanguageTranslationInlineRow>>(() => [
   {
-    title: '资源键',
+    title: t('entity.translation.resourcekey'),
     dataIndex: 'resourceKey',
     key: 'resourceKey',
     width: 200
   },
   {
-    title: '语言编码',
+    title: t('entity.translation.culturecode'),
     dataIndex: 'cultureCode',
     key: 'cultureCode',
     width: 150
   },
   {
-    title: '翻译值',
+    title: t('entity.translation.translationvalue'),
     dataIndex: 'translationValue',
     key: 'translationValue',
     width: 300
   },
   {
-    title: '资源类型',
+    title: t('entity.translation.resourcetype'),
     dataIndex: 'resourceType',
     key: 'resourceType',
     width: 120
   },
   {
-    title: '资源分组',
+    title: t('entity.translation.resourcegroup'),
     dataIndex: 'resourceGroup',
     key: 'resourceGroup',
     width: 150,
     ellipsis: true
   },
   {
-    title: '排序号',
+    title: t('entity.translation.ordernum'),
     dataIndex: 'orderNum',
     key: 'orderNum',
     width: 100
   },
   {
-    title: '操作',
+    title: t('common.action.operation'),
     key: 'action',
     width: 80,
     fixed: 'right'
   }
-]
+])
 
 // ========================================
 // 方法定义
@@ -338,8 +365,24 @@ watch(
       })
 
       // 填充子表数据
-      translationList.value = newData.translationList
-        ? newData.translationList.map(item => ({ ...item }))
+      translationList.value = Array.isArray(newData.translationList)
+        ? newData.translationList.map((item: unknown) => {
+            const o = item as Record<string, unknown>
+            const row: LanguageTranslationInlineRow = {
+              translationId: String(o.translationId ?? ''),
+              resourceKey: String(o.resourceKey ?? ''),
+              languageId: String(o.languageId ?? ''),
+              cultureCode: String(o.cultureCode ?? ''),
+              translationValue: String(o.translationValue ?? ''),
+              resourceType: String(o.resourceType ?? 'Frontend'),
+              resourceGroup: String(o.resourceGroup ?? ''),
+              orderNum: typeof o.orderNum === 'number' ? o.orderNum : Number(o.orderNum ?? 0)
+            }
+            if (o.remark != null && o.remark !== '') {
+              row.remark = String(o.remark)
+            }
+            return row
+          })
         : []
     } else {
       // 新增模式：重置表单（按 Language 接口字段顺序）
@@ -371,11 +414,8 @@ const handleAddTranslation = () => {
     translationValue: '',
     resourceType: 'Frontend',
     resourceGroup: '',
-    isApproved: 1,
-    approveBy: '',
-    approveTime: '',
     orderNum: translationList.value.length
-  } as Translation)
+  })
 }
 
 // 删除翻译
@@ -390,8 +430,9 @@ const validate = async () => {
   // 验证子表数据
   for (let i = 0; i < translationList.value.length; i++) {
     const item = translationList.value[i]
+    if (!item) continue
     if (!item.resourceKey || !item.translationValue) {
-      throw new Error(`第 ${i + 1} 行翻译：资源键和翻译值不能为空`)
+      throw new Error(t('routine.localization.language.messages.translationRowInvalid', { row: i + 1 }))
     }
   }
 }

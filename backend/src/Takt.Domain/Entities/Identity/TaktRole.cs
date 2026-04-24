@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Identity
 // 文件名称：TaktRole.cs
@@ -18,7 +18,7 @@ namespace Takt.Domain.Entities.Identity;
 /// <summary>
 /// Takt角色实体
 /// </summary>
-[SugarTable("takt_identity_role", "角色表")]
+[SugarTable("takt_identity_role", "角色信息表")]
 [SugarIndex("ix_takt_identity_role_role_code", nameof(RoleCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_identity_role_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_identity_role_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
@@ -40,8 +40,8 @@ public class TaktRole : TaktEntityBase
     /// <summary>
     /// 排序号（越小越靠前）
     /// </summary>
-    [SugarColumn(ColumnName = "order_num", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int OrderNum { get; set; } = 0;
+    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SortOrder { get; set; } = 0;
 
     /// <summary>
     /// 数据范围（0=全部数据，1=本部门数据，2=本部门及以下数据，3=仅本人数据，4=自定义数据范围）

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.Accounting.Controlling
 // 文件名称：TaktCostElement.cs
@@ -25,6 +25,7 @@ namespace Takt.Domain.Entities.Accounting.Controlling;
 [SugarIndex("ix_takt_accounting_controlling_cost_element_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_controlling_cost_element_cost_element_type", nameof(CostElementType), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_controlling_cost_element_cost_element_status", nameof(CostElementStatus), OrderByType.Asc)]
+[SugarIndex("ix_takt_accounting_controlling_cost_element_valid", nameof(ValidFrom), OrderByType.Asc, nameof(ValidTo), OrderByType.Asc)]
 public class TaktCostElement : TaktEntityBase
 {
     /// <summary>
@@ -77,8 +78,20 @@ public class TaktCostElement : TaktEntityBase
     public int CostElementStatus { get; set; } = 0;
 
     /// <summary>
+    /// 生效日期（含当日，默认当前日期）
+    /// </summary>
+    [SugarColumn(ColumnName = "valid_from", ColumnDescription = "生效日期", ColumnDataType = "datetime", IsNullable = false)]
+    public DateTime ValidFrom { get; set; } = DateTime.Today;
+
+    /// <summary>
+    /// 失效日期（含当日，默认 9999-12-31 表示长期有效）
+    /// </summary>
+    [SugarColumn(ColumnName = "valid_to", ColumnDescription = "失效日期", ColumnDataType = "datetime", IsNullable = false)]
+    public DateTime ValidTo { get; set; } = new DateTime(9999, 12, 31);
+
+    /// <summary>
     /// 排序号（越小越靠前）
     /// </summary>
-    [SugarColumn(ColumnName = "order_num", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int OrderNum { get; set; } = 0;
+    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SortOrder { get; set; } = 0;
 }

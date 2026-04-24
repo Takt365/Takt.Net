@@ -12,7 +12,7 @@
   <a-tabs v-model:active-key="activeTab">
     <a-tab-pane
       key="basic"
-      :tab="t('common.form.tabs.basicInfo')"
+      :tab="t('common.form.tabs.basicinfo')"
     >
       <div :class="formContentClass">
         <a-form
@@ -198,23 +198,31 @@ const TOTAL_FIELDS = 6
 const formContentClass = computed(() => (TOTAL_FIELDS >= 30 ? 'takt-form-content-rows-10' : 'takt-form-content-rows-5'))
 
 /**
- * 新增态默认值，类型与 `LeaveCreate` 一致（对应后端 `TaktLeaveCreateDto`）。
- *
- * @returns {LeaveCreate} 空表单初始对象
+ * 表单本地模型：`reason` 等与控件绑定须为 `string`（避免 `exactOptionalPropertyTypes` 下 `a-textarea` 的 `value` 含 undefined）。
+ * 提交时由 `getValues` 组装为 `LeaveCreate`。
  */
-function createEmptyLeaveForm(): LeaveCreate {
+type LeaveFormModel = Omit<LeaveCreate, 'reason' | 'proofAttachmentsJson'> & {
+  reason: string
+  proofAttachmentsJson?: string
+}
+
+/**
+ * 新增态默认值（对应后端 `TaktLeaveCreateDto` 必填字段 + 空事由）。
+ *
+ * @returns {LeaveFormModel} 空表单初始对象
+ */
+function createEmptyLeaveForm(): LeaveFormModel {
   return {
     employeeId: '',
     leaveType: '',
     startDate: '',
     endDate: '',
-    reason: '',
-    proofAttachmentsJson: undefined
+    reason: ''
   }
 }
 
-/** 表单模型：直接使用 `LeaveCreate`，不在本组件重复定义字段 interface。 */
-const formState = reactive<LeaveCreate>(createEmptyLeaveForm())
+/** 表单模型：在 `LeaveCreate` 基础上收紧可选文本字段，便于与 Ant Design Vue 控件类型对齐。 */
+const formState = reactive<LeaveFormModel>(createEmptyLeaveForm())
 
 /**
  * 校验规则：`name` 与 `a-form-item` 的 `name` 一致。
@@ -315,18 +323,35 @@ function buildProofAttachmentsJson(list: UploadFile[]): string | undefined {
     const fileCode = String(raw.fileCode ?? raw.FileCode ?? '')
     if (!fileCode) continue
     items.push({
-      fileId: raw.fileId != null || raw.FileId != null ? String(raw.fileId ?? raw.FileId) : undefined,
+      ...(raw.fileId != null || raw.FileId != null
+        ? { fileId: String(raw.fileId ?? raw.FileId) }
+        : {}),
       fileCode,
       fileName: String(raw.fileName ?? raw.FileName ?? ''),
       fileOriginalName: String(raw.fileOriginalName ?? raw.FileOriginalName ?? f.name ?? ''),
       filePath: String(raw.filePath ?? raw.FilePath ?? ''),
       fileSize: Number(raw.fileSize ?? raw.FileSize ?? 0),
-      fileType: raw.fileType != null ? String(raw.fileType) : raw.FileType != null ? String(raw.FileType) : undefined,
-      fileExtension: raw.fileExtension != null ? String(raw.fileExtension) : raw.FileExtension != null ? String(raw.FileExtension) : undefined,
-      fileHash: raw.fileHash != null ? String(raw.fileHash) : raw.FileHash != null ? String(raw.FileHash) : undefined,
-      fileCategory:
-        raw.fileCategory != null ? Number(raw.fileCategory) : raw.FileCategory != null ? Number(raw.FileCategory) : undefined,
-      accessUrl: raw.accessUrl != null ? String(raw.accessUrl) : raw.AccessUrl != null ? String(raw.AccessUrl) : undefined,
+      ...(raw.fileType != null || raw.FileType != null
+        ? { fileType: raw.fileType != null ? String(raw.fileType) : String(raw.FileType) }
+        : {}),
+      ...(raw.fileExtension != null || raw.FileExtension != null
+        ? {
+            fileExtension:
+              raw.fileExtension != null ? String(raw.fileExtension) : String(raw.FileExtension)
+          }
+        : {}),
+      ...(raw.fileHash != null || raw.FileHash != null
+        ? { fileHash: raw.fileHash != null ? String(raw.fileHash) : String(raw.FileHash) }
+        : {}),
+      ...(raw.fileCategory != null || raw.FileCategory != null
+        ? {
+            fileCategory:
+              raw.fileCategory != null ? Number(raw.fileCategory) : Number(raw.FileCategory)
+          }
+        : {}),
+      ...(raw.accessUrl != null || raw.AccessUrl != null
+        ? { accessUrl: raw.accessUrl != null ? String(raw.accessUrl) : String(raw.AccessUrl) }
+        : {}),
       orderNum: order++
     })
   }
@@ -360,7 +385,7 @@ const handleProofUpload: NonNullable<UploadProps['customRequest']> = async (opti
     )
     const unwrapped = unwrapUploadResult(result)
     if (!unwrapped?.fileCode) {
-      throw new Error(t('components.common.upload.fileInvalid', { name: uploadFile.name }))
+      throw new Error(t('components.common.page.upload.fileinvalid', { name: uploadFile.name }))
     }
     const ext = getFileExtension(uploadFile.name)
     if (!unwrapped.fileExtension) unwrapped.fileExtension = ext
@@ -371,7 +396,7 @@ const handleProofUpload: NonNullable<UploadProps['customRequest']> = async (opti
   } catch (err: unknown) {
     const e = err instanceof Error ? err : new Error(String(err))
     onError?.(e)
-    message.error(e.message || t('components.common.upload.fileUploadFail', { name: uploadFile.name }))
+    message.error(e.message || t('components.common.page.upload.fileuploadfail', { name: uploadFile.name }))
   }
 }
 
@@ -387,12 +412,18 @@ watch(
         leaveType: newData.leaveType ?? '',
         startDate: newData.startDate ? toDateStr(newData.startDate) : '',
         endDate: newData.endDate ? toDateStr(newData.endDate) : '',
-        reason: newData.reason ?? '',
-        proofAttachmentsJson: newData.proofAttachmentsJson
+        reason: newData.reason ?? ''
       })
+      const pj = newData.proofAttachmentsJson
+      if (pj != null && String(pj).trim() !== '') {
+        formState.proofAttachmentsJson = pj
+      } else {
+        Reflect.deleteProperty(formState, 'proofAttachmentsJson')
+      }
       syncProofFilesFromJson(newData.proofAttachmentsJson)
     } else {
       Object.assign(formState, createEmptyLeaveForm())
+      Reflect.deleteProperty(formState, 'proofAttachmentsJson')
       syncProofFilesFromJson('')
     }
     activeTab.value = 'basic'
@@ -419,13 +450,15 @@ const validate = async () => {
  * @returns {LeaveCreate & { leaveId?: string }} 提交体
  */
 const getValues = (): LeaveCreate & { leaveId?: string } => {
+  const reasonTrim = (formState.reason ?? '').trim()
+  const proofJson = buildProofAttachmentsJson(proofFilesList.value)
   const payload: LeaveCreate & { leaveId?: string } = {
     employeeId: formState.employeeId ?? '',
     leaveType: formState.leaveType ?? '',
     startDate: formState.startDate ?? '',
     endDate: formState.endDate ?? '',
-    reason: formState.reason || undefined,
-    proofAttachmentsJson: buildProofAttachmentsJson(proofFilesList.value)
+    ...(reasonTrim.length > 0 ? { reason: reasonTrim } : {}),
+    ...(proofJson !== undefined ? { proofAttachmentsJson: proofJson } : {})
   }
   if (props.formData?.leaveId) {
     payload.leaveId = props.formData.leaveId
@@ -441,6 +474,7 @@ const getValues = (): LeaveCreate & { leaveId?: string } => {
 const resetFields = () => {
   formRef.value?.resetFields()
   Object.assign(formState, createEmptyLeaveForm())
+  Reflect.deleteProperty(formState, 'proofAttachmentsJson')
   proofUploadRef.value?.clearFiles()
   proofFilesList.value = []
   activeTab.value = 'basic'

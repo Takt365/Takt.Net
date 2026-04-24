@@ -1,11 +1,11 @@
-// ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
+﻿// ========================================
+// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktDeptI18nSeedData.cs
 // 创建时间：2025-01-20
 // 创建人：Takt365(Cursor AI)
 // 功能描述：Takt部门本地化种子数据，为 TaktDeptSeedData 中的部门编码创建翻译数据（ResourceKey = dept.{deptcode}，翻译键全部小写）
-// 
+//
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
@@ -75,7 +75,7 @@ public class TaktDeptI18nSeedData : ITaktSeedData
                         TranslationValue = t.TranslationValue,
                         ResourceType = t.ResourceType,
                         ResourceGroup = t.ResourceGroup,
-                        OrderNum = t.OrderNum,
+                        SortOrder = t.SortOrder,
                         IsDeleted = 0
                     });
                     insertCount++;
@@ -111,90 +111,275 @@ public class TaktDeptI18nSeedData : ITaktSeedData
     }
 
     /// <summary>
-    /// 获取所有部门翻译数据（与 TaktDeptSeedData 的 DeptCode 一一对应）
+    /// 获取所有部门翻译数据（与 TaktDeptSeedData 的 DeptCode 一一对应，6 种语言）
     /// </summary>
     private static List<TaktTranslation> GetAllDeptTranslations()
     {
-        const string resourceType = "Frontend";
-        const string resourceGroup = "Dept";
-        const int orderNum = 0;
-
-        var list = new List<TaktTranslation>();
-
-        // 辅助方法：添加单个部门的9种语言翻译。翻译键（ResourceKey）统一小写。
-        void AddDeptTranslations(string deptCode, Dictionary<string, string> translations)
+        return new List<TaktTranslation>
         {
-            var cultures = new[] { "ar-SA", "en-US", "es-ES", "fr-FR", "ja-JP", "ko-KR", "ru-RU", "zh-CN", "zh-TW" };
-            var resourceKey = $"dept.{deptCode.ToLowerInvariant()}".ToLowerInvariant();
-            foreach (var culture in cultures)
-            {
-                if (translations.TryGetValue(culture, out var value))
-                {
-                    list.Add(new TaktTranslation
-                    {
-                        CultureCode = culture,
-                        ResourceKey = resourceKey,
-                        TranslationValue = value,
-                        ResourceType = resourceType,
-                        ResourceGroup = resourceGroup,
-                        OrderNum = orderNum
-                    });
-                }
-            }
-        }
+            // dept.head_office
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.head_office", TranslationValue = "TEAC", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.head_office", TranslationValue = "TEAC", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.head_office", TranslationValue = "TEAC", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.head_office", TranslationValue = "TEAC", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.head_office", TranslationValue = "TEAC", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.head_office", TranslationValue = "TEAC", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
 
-        void Add9(string code, string en, string zhcn, string zhtw, string ja, string ko, string ar, string es, string fr, string ru)
-        {
-            AddDeptTranslations(code, new Dictionary<string, string>
-            {
-                { "en-US", en }, { "zh-CN", zhcn }, { "zh-TW", zhtw },
-                { "ja-JP", ja }, { "ko-KR", ko },
-                { "ar-SA", ar }, { "es-ES", es }, { "fr-FR", fr }, { "ru-RU", ru }
-            });
-        }
+            // dept.d0000
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0000", TranslationValue = "DTA", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0000", TranslationValue = "DTA", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0000", TranslationValue = "DTA", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0000", TranslationValue = "DTA", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0000", TranslationValue = "DTA", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0000", TranslationValue = "DTA", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
 
-        // dept.head_office 总公司 TEAC
-        AddDeptTranslations("HEAD_OFFICE", new Dictionary<string, string>
-        {
-            { "en-US", "TEAC" }, { "zh-CN", "TEAC" }, { "zh-TW", "TEAC" },
-            { "ja-JP", "TEAC" }, { "ko-KR", "TEAC" },
-            { "ar-SA", "TEAC" }, { "es-ES", "TEAC" }, { "fr-FR", "TEAC" }, { "ru-RU", "TEAC" }
-        });
+            // dept.d1000
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d1000", TranslationValue = "General Manager's Room", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d1000", TranslationValue = "総経理室", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d1000", TranslationValue = "총경리실", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d1000", TranslationValue = "总经理室", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d1000", TranslationValue = "總經理室", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d1000", TranslationValue = "總經理室", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
 
-        // —— DTA 组织（DeptCode 与 TaktDeptSeedData 一致）——
-        Add9("D0000", "DTA", "DTA", "DTA", "DTA", "DTA", "DTA", "DTA", "DTA", "DTA");
-        Add9("D1000", "General Manager's Room", "总经理室", "總經理室", "総経理室", "총경리실", "غرفة المدير العام", "Oficina del Director General", "Bureau du Directeur Général", "Кабинет генерального директора");
-        Add9("D0100", "General Affairs Dept", "总务部", "總務部", "総務部", "총무부", "الشؤون العامة", "Asuntos Generales", "Affaires Générales", "Общий отдел");
-        Add9("D0110", "General Affairs Section", "总务课", "總務課", "総務課", "총무과", "قسم الشؤون العامة", "Sección de Asuntos Generales", "Section Affaires Générales", "Отдел общих дел");
-        Add9("D0200", "Finance Dept", "财务部", "財務部", "財務部", "재무부", "المالية", "Finanzas", "Finance", "Финансы");
-        Add9("D0210", "Finance Section", "财务课", "財務課", "財務課", "재무과", "قسم المالية", "Sección de Finanzas", "Section Finance", "Финансовый отдел");
-        Add9("D0300", "IT Dept", "IT部", "IT部", "IT部", "IT부", "تقنية المعلومات", "Departamento IT", "Service IT", "ИТ-отдел");
-        Add9("D0310", "IT Section", "电脑课", "電腦課", "コンピューター課", "컴퓨터과", "قسم الحاسوب", "Sección de Informática", "Section Informatique", "Компьютерный отдел");
-        Add9("D0400", "Management Dept", "管理部", "管理部", "管理部", "관리부", "الإدارة", "Gestión", "Gestion", "Управление");
-        Add9("D0410", "Customhouse Section", "报关课", "報關課", "通関課", "통관과", "قسم الجمارك", "Sección de Aduanas", "Section Douanes", "Таможня");
-        Add9("D0420", "Production Management Section", "生管课", "生管課", "生管課", "생관과", "قسم التخطيط", "Sección PMC", "Section PC", "Отдел ПУП");
-        Add9("D0430", "Materials Control Section", "部管课", "部管課", "部管課", "부관과", "قسم المواد", "Sección de Materiales", "Section Matériaux", "Отдел материалов");
-        Add9("D0500", "Materials Dept", "资材部", "資材部", "資材部", "자재부", "المواد", "Materiales", "Matériaux", "Снабжение");
-        Add9("D0510", "Purchase Section", "采购课", "採購課", "購買課", "구매과", "قسم المشتريات", "Sección de Compras", "Section Achats", "Отдел закупок");
-        Add9("D0600", "Production Dept", "生产部", "生產部", "生産部", "생산부", "الإنتاج", "Producción", "Production", "Производство");
-        Add9("D0610", "Production Section 1", "制造1课", "製造1課", "製造1課", "제조1과", "التصنيع 1", "Sección Producción 1", "Section Production 1", "Участок 1");
-        Add9("D0620", "Production Section 2", "制造2课", "製造2課", "製造2課", "제조2과", "التصنيع 2", "Sección Producción 2", "Section Production 2", "Участок 2");
-        Add9("D0621", "SMT", "SMT", "SMT", "SMT", "SMT", "SMT", "SMT", "SMT", "SMT");
-        Add9("D0622", "Automatic Insertion", "自插", "自插", "自挿入", "자동삽입", "إدراج تلقائي", "Inserción automática", "Insertion automatique", "Автовставка");
-        Add9("D0623", "Revision", "修正", "修正", "修正", "수정", "تصحيح", "Corrección", "Correction", "Ремонт");
-        Add9("D0624", "Manual Insertion", "手插", "手插", "手挿入", "수동삽입", "إدراج يدوي", "Inserción manual", "Insertion manuelle", "Ручная вставка");
-        Add9("D0625", "Materials", "物料", "物料", "物料", "자재", "المواد", "Materiales", "Matériaux", "Материалы");
-        Add9("D0626", "PS2 Indirect", "制造2课-间接", "製造2課-間接", "製造2課-間接", "제조2과-간접", "غير مباشر", "Indirecto", "Indirect", "Косвенный");
-        Add9("D0630", "Production Engineering Section", "制造技术课", "製造技術課", "製造技術課", "제조기술과", "هندسة الإنتاج", "Sección Ingeniería", "Section Ingénierie", "Производственная инженерия");
-        Add9("D0700", "Engineering Dept", "技术部", "技術部", "技術部", "기술부", "الهندسة", "Ingeniería", "Ingénierie", "Технический отдел");
-        Add9("D0710", "Engineering Section", "技术课", "技術課", "技術課", "기술과", "قسم الهندسة", "Sección de Ingeniería", "Section Technique", "Техотдел");
-        Add9("D0800", "Quality Assurance Dept", "品保部", "品保部", "品質保証部", "품질보증부", "الجودة", "Calidad", "Qualité", "ОТК");
-        Add9("D0810", "IQC Section", "受检课", "受檢課", "受検課", "수검과", "الفحص الوارد", "IQC", "IQC", "Входной контроль");
-        Add9("D0820", "QA Section", "品管课", "品管課", "品質管理課", "품질관리과", "مراقبة الجودة", "Control de Calidad", "Contrôle Qualité", "ОТК участок");
-        Add9("D0900", "OEM Dept", "OEM部", "OEM部", "OEM部", "OEM부", "OEM", "OEM", "OEM", "OEM");
-        Add9("D0910", "OEM QA Section", "OEM QA课", "OEM QA課", "OEM QA課", "OEM QA과", "OEM QA", "OEM QA", "OEM QA", "OEM ОТК");
-        Add9("D0920", "OEM Management Section", "OEM管理课", "OEM管理課", "OEM管理課", "OEM 관리과", "OEM إدارة", "OEM Gestión", "OEM Gestion", "OEM управление");
+            // dept.d0100
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0100", TranslationValue = "General Affairs Dept", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0100", TranslationValue = "総務部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0100", TranslationValue = "총무부", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0100", TranslationValue = "总务部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0100", TranslationValue = "總務部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0100", TranslationValue = "總務部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
 
-        return list;
+            // dept.d0110
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0110", TranslationValue = "General Affairs Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0110", TranslationValue = "総務課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0110", TranslationValue = "총무과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0110", TranslationValue = "总务课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0110", TranslationValue = "總務課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0110", TranslationValue = "總務課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0200
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0200", TranslationValue = "Finance Dept", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0200", TranslationValue = "財務部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0200", TranslationValue = "재무부", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0200", TranslationValue = "财务部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0200", TranslationValue = "財務部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0200", TranslationValue = "財務部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0210
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0210", TranslationValue = "Finance Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0210", TranslationValue = "財務課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0210", TranslationValue = "재무과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0210", TranslationValue = "财务课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0210", TranslationValue = "財務課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0210", TranslationValue = "財務課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0300
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0300", TranslationValue = "IT Dept", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0300", TranslationValue = "IT部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0300", TranslationValue = "IT부", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0300", TranslationValue = "IT部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0300", TranslationValue = "IT部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0300", TranslationValue = "IT部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0310
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0310", TranslationValue = "IT Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0310", TranslationValue = "コンピューター課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0310", TranslationValue = "컴퓨터과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0310", TranslationValue = "电脑课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0310", TranslationValue = "電腦課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0310", TranslationValue = "電腦課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0400
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0400", TranslationValue = "Management Dept", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0400", TranslationValue = "管理部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0400", TranslationValue = "관리부", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0400", TranslationValue = "管理部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0400", TranslationValue = "管理部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0400", TranslationValue = "管理部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0410
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0410", TranslationValue = "Customhouse Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0410", TranslationValue = "通関課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0410", TranslationValue = "통관과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0410", TranslationValue = "报关课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0410", TranslationValue = "報關課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0410", TranslationValue = "報關課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0420
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0420", TranslationValue = "Production Management Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0420", TranslationValue = "生管課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0420", TranslationValue = "생관과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0420", TranslationValue = "生管课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0420", TranslationValue = "生管課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0420", TranslationValue = "生管課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0430
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0430", TranslationValue = "Materials Control Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0430", TranslationValue = "部管課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0430", TranslationValue = "부관과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0430", TranslationValue = "部管课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0430", TranslationValue = "部管課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0430", TranslationValue = "部管課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0500
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0500", TranslationValue = "Materials Dept", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0500", TranslationValue = "資材部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0500", TranslationValue = "자재부", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0500", TranslationValue = "资材部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0500", TranslationValue = "資材部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0500", TranslationValue = "資材部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0510
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0510", TranslationValue = "Purchase Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0510", TranslationValue = "購買課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0510", TranslationValue = "구매과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0510", TranslationValue = "采购课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0510", TranslationValue = "採購課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0510", TranslationValue = "採購課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0600
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0600", TranslationValue = "Production Dept", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0600", TranslationValue = "生産部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0600", TranslationValue = "생산부", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0600", TranslationValue = "生产部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0600", TranslationValue = "生產部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0600", TranslationValue = "生產部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0610
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0610", TranslationValue = "Production Section 1", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0610", TranslationValue = "製造1課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0610", TranslationValue = "제조1과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0610", TranslationValue = "制造1课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0610", TranslationValue = "製造1課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0610", TranslationValue = "製造1課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0620
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0620", TranslationValue = "Production Section 2", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0620", TranslationValue = "製造2課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0620", TranslationValue = "제조2과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0620", TranslationValue = "制造2课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0620", TranslationValue = "製造2課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0620", TranslationValue = "製造2課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0621
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0621", TranslationValue = "SMT", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0621", TranslationValue = "SMT", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0621", TranslationValue = "SMT", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0621", TranslationValue = "SMT", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0621", TranslationValue = "SMT", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0621", TranslationValue = "SMT", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0622
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0622", TranslationValue = "Automatic Insertion", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0622", TranslationValue = "自挿入", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0622", TranslationValue = "자동삽입", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0622", TranslationValue = "自插", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0622", TranslationValue = "自插", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0622", TranslationValue = "自插", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0623
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0623", TranslationValue = "Revision", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0623", TranslationValue = "修正", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0623", TranslationValue = "수정", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0623", TranslationValue = "修正", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0623", TranslationValue = "修正", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0623", TranslationValue = "修正", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0624
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0624", TranslationValue = "Manual Insertion", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0624", TranslationValue = "手挿入", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0624", TranslationValue = "수동삽입", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0624", TranslationValue = "手插", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0624", TranslationValue = "手插", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0624", TranslationValue = "手插", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0625
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0625", TranslationValue = "Materials", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0625", TranslationValue = "物料", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0625", TranslationValue = "자재", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0625", TranslationValue = "物料", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0625", TranslationValue = "物料", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0625", TranslationValue = "物料", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0626
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0626", TranslationValue = "PS2 Indirect", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0626", TranslationValue = "製造2課-間接", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0626", TranslationValue = "제조2과-간접", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0626", TranslationValue = "制造2课-间接", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0626", TranslationValue = "製造2課-間接", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0626", TranslationValue = "製造2課-間接", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0630
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0630", TranslationValue = "Production Engineering Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0630", TranslationValue = "製造技術課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0630", TranslationValue = "제조기술과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0630", TranslationValue = "制造技术课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0630", TranslationValue = "製造技術課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0630", TranslationValue = "製造技術課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0700
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0700", TranslationValue = "Engineering Dept", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0700", TranslationValue = "技術部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0700", TranslationValue = "기술부", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0700", TranslationValue = "技术部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0700", TranslationValue = "技術部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0700", TranslationValue = "技術部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0710
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0710", TranslationValue = "Engineering Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0710", TranslationValue = "技術課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0710", TranslationValue = "기술과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0710", TranslationValue = "技术课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0710", TranslationValue = "技術課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0710", TranslationValue = "技術課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0800
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0800", TranslationValue = "Quality Assurance Dept", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0800", TranslationValue = "品質保証部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0800", TranslationValue = "품질보증부", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0800", TranslationValue = "品保部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0800", TranslationValue = "品保部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0800", TranslationValue = "品保部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0810
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0810", TranslationValue = "IQC Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0810", TranslationValue = "受検課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0810", TranslationValue = "수검과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0810", TranslationValue = "受检课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0810", TranslationValue = "受檢課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0810", TranslationValue = "受檢課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0820
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0820", TranslationValue = "QA Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0820", TranslationValue = "品質管理課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0820", TranslationValue = "품질관리과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0820", TranslationValue = "品管课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0820", TranslationValue = "品管課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0820", TranslationValue = "品管課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0900
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0900", TranslationValue = "OEM Dept", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0900", TranslationValue = "OEM部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0900", TranslationValue = "OEM부", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0900", TranslationValue = "OEM部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0900", TranslationValue = "OEM部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0900", TranslationValue = "OEM部", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0910
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0910", TranslationValue = "OEM QA Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0910", TranslationValue = "OEM QA課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0910", TranslationValue = "OEM QA과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0910", TranslationValue = "OEM QA课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0910", TranslationValue = "OEM QA課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0910", TranslationValue = "OEM QA課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+
+            // dept.d0920
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "dept.d0920", TranslationValue = "OEM Management Section", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "dept.d0920", TranslationValue = "OEM管理課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "dept.d0920", TranslationValue = "OEM 관리과", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "dept.d0920", TranslationValue = "OEM管理课", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "dept.d0920", TranslationValue = "OEM管理課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "dept.d0920", TranslationValue = "OEM管理課", ResourceType = "Frontend", ResourceGroup = "Dept", SortOrder = 0 }
+        };
     }
 }

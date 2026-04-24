@@ -166,16 +166,24 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
-import { getMyInstances, getFlowInstanceById, revoke, updateFlowInstance, startFromDraft, exportMy, start, createDraft } from '@/api/workflow/instance'
+import {
+  getFlowInstanceMyList,
+  getFlowInstanceById,
+  revokeFlowInstance,
+  updateFlowInstance,
+  startFlowInstanceFromDraft,
+  exportFlowInstanceMy,
+  startFlowInstance,
+  createFlowInstanceDraft
+} from '@/api/workflow/instance'
 import { getFlowSchemeList } from '@/api/workflow/scheme'
 import { useUserStore } from '@/stores/identity/user'
 import FlowInstanceDetailForm from './components/flow-instance-detail-form.vue'
 import FlowInstanceEditForm from './components/flow-instance-edit-form.vue'
 import FlowStartForm from './components/flow-start-form.vue'
-import type { FlowInstance, FlowInstanceDetail } from '@/types/workflow/instance'
-import type { FlowScheme } from '@/types/workflow/scheme'
-import type { FlowInstanceQuery } from '@/types/workflow/instance'
-import type { TaktPagedResult } from '@/types/common'
+import type { FlowInstance, FlowInstanceDetail, FlowStart as FlowStartRequest } from '@/types/workflow/flow-instance'
+import type { FlowScheme } from '@/types/workflow/flow-scheme'
+import type { FlowInstanceQuery } from '@/types/workflow/flow-instance'
 const toErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error))
 
 const { t } = useI18n()
@@ -194,7 +202,7 @@ const editLoading = ref(false)
 const currentEditRecord = ref<FlowInstance | null>(null)
 const exportLoading = ref(false)
 const startFlowVisible = ref(false)
-const startFlowForm = reactive<{ processKey: string; processTitle?: string; frmData?: string }>({ processKey: '', processTitle: '', frmData: undefined })
+const startFlowForm = reactive<{ processKey: string; processTitle: string; frmData: string }>({ processKey: '', processTitle: '', frmData: '' })
 const schemeOptions = ref<{ label: string; value: string }[]>([])
 const schemeLoading = ref(false)
 const startFormRef = ref<InstanceType<typeof FlowStartForm> | null>(null)
@@ -241,7 +249,7 @@ async function goStartFlow() {
   startFlowFormKey.value += 1
   startFlowForm.processKey = ''
   startFlowForm.processTitle = ''
-  startFlowForm.frmData = undefined
+  startFlowForm.frmData = ''
   startFlowVisible.value = true
   schemeLoading.value = true
   try {
@@ -270,11 +278,12 @@ async function handleStartFlowSubmit() {
   if (!ok || !startFlowForm.processKey?.trim()) return
   startFlowLoading.value = true
   try {
-    const res = await start({
-      processKey: startFlowForm.processKey.trim(),
-      processTitle: startFlowForm.processTitle?.trim() || undefined,
-      frmData: startFlowForm.frmData?.trim() || undefined
-    })
+    const payload: FlowStartRequest = { processKey: startFlowForm.processKey.trim() }
+    const processTitle = startFlowForm.processTitle.trim()
+    const frmData = startFlowForm.frmData.trim()
+    if (processTitle) payload.processTitle = processTitle
+    if (frmData) payload.frmData = frmData
+    const res = await startFlowInstance(payload)
     message.success(t('workflow.instance.startFlowForm.submitSuccess', { code: res.instanceCode }))
     closeStartFlowModal()
     loadList()
@@ -291,11 +300,12 @@ async function handleStartFlowDraft() {
   if (!ok || !startFlowForm.processKey?.trim()) return
   startDraftLoading.value = true
   try {
-    const res = await createDraft({
-      processKey: startFlowForm.processKey.trim(),
-      processTitle: startFlowForm.processTitle?.trim() || undefined,
-      frmData: startFlowForm.frmData?.trim() || undefined
-    })
+    const payload: FlowStartRequest = { processKey: startFlowForm.processKey.trim() }
+    const processTitle = startFlowForm.processTitle.trim()
+    const frmData = startFlowForm.frmData.trim()
+    if (processTitle) payload.processTitle = processTitle
+    if (frmData) payload.frmData = frmData
+    const res = await createFlowInstanceDraft(payload)
     message.success(t('workflow.instance.startFlowForm.saveDraftSuccess', { code: res.instanceCode }))
     closeStartFlowModal()
     loadList()
@@ -307,8 +317,10 @@ async function handleStartFlowDraft() {
 }
 
 /** 实例行 key：取 instanceId 字符串 */
-function getInstanceId(record: FlowInstance): string {
-  return record?.instanceId != null ? String(record.instanceId) : ''
+function getInstanceId(record: unknown): string {
+  if (!record || typeof record !== 'object' || !('instanceId' in record)) return ''
+  const instanceId = (record as { instanceId?: unknown }).instanceId
+  return instanceId != null ? String(instanceId) : ''
 }
 
 /** 拉取我发起的流程列表（分页），结果写入 dataSource 与 total */
@@ -324,7 +336,7 @@ async function loadList() {
       params.processKey = queryKeyword.value.trim()
       params.instanceCode = queryKeyword.value.trim()
     }
-    const res = await getMyInstances(params)
+    const res = await getFlowInstanceMyList(params)
     dataSource.value = res.data ?? []
     total.value = res.total ?? 0
   } finally {
@@ -407,11 +419,12 @@ async function handleEditSubmit() {
   if (!ok || !currentEditRecord.value) return
   try {
     editLoading.value = true
-    await updateFlowInstance({
-      id: currentEditRecord.value.instanceId,
-      processTitle: editForm.processTitle?.trim() || undefined,
-      frmData: editForm.frmData?.trim() || undefined
-    })
+    const payload: { id: string; processTitle?: string; frmData?: string } = { id: currentEditRecord.value.instanceId }
+    const processTitle = editForm.processTitle?.trim()
+    const frmData = editForm.frmData?.trim()
+    if (processTitle) payload.processTitle = processTitle
+    if (frmData) payload.frmData = frmData
+    await updateFlowInstance(payload)
     message.success(t('common.msg.updateSuccess'))
     editVisible.value = false
     currentEditRecord.value = null
@@ -432,7 +445,7 @@ function handleStartFromDraft(record: FlowInstance) {
     onOk: async () => {
       try {
         loading.value = true
-        await startFromDraft(record.instanceId)
+        await startFlowInstanceFromDraft(record.instanceId)
         message.success(t('common.msg.operateSuccess'))
         loadList()
       } catch (error: unknown) {
@@ -453,7 +466,7 @@ async function handleExport() {
       query.processKey = queryKeyword.value.trim()
       query.instanceCode = queryKeyword.value.trim()
     }
-    const blob = await exportMy(query)
+    const blob = await exportFlowInstanceMy(query)
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
     const fileName = `我的流程_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
@@ -483,7 +496,7 @@ function handleRevoke(record: FlowInstance) {
     onOk: async () => {
       try {
         loading.value = true
-        await revoke(record.instanceCode)
+        await revokeFlowInstance(record.instanceCode)
         message.success(t('common.msg.actionSuccess', { action: t('common.button.revoke') }))
         loadList()
       } catch (error: unknown) {

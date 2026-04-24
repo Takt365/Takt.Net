@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.HumanResource.Organization
 // 文件名称：ITaktPostService.cs
@@ -115,4 +115,22 @@ public interface ITaktPostService
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
     Task<(string fileName, byte[] content)> ExportPostAsync(TaktPostQueryDto query, string? sheetName, string? fileName);
+
+    /// <summary>
+    /// 统计岗位总数
+    /// </summary>
+    /// <returns>岗位总数</returns>
+    Task<long> GetPostCountAsync();
+
+    /// <summary>
+    /// 按岗位统计人数分布
+    /// </summary>
+    /// <returns>岗位人数统计列表（Key=岗位ID，Value=人数）</returns>
+    Task<Dictionary<long, int>> GetEmployeeCountByPostAsync();
+
+    /// <summary>
+    /// 统计各岗位人数及总计
+    /// </summary>
+    /// <returns>岗位人数统计（包含岗位信息和人数）</returns>
+    Task<List<(long postId, string postName, int employeeCount)>> GetPostEmployeeStatsAsync();
 }

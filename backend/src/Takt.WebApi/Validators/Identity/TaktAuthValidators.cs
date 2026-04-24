@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 using Takt.Application.Dtos.Identity;
 using Takt.Domain.Interfaces;
 using Takt.WebApi.Validation;

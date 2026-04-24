@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：ITaktShiftScheduleService.cs
@@ -87,4 +87,14 @@ public interface ITaktShiftScheduleService
     /// <param name="fileName">文件名基名（可选）</param>
     /// <returns>最终文件名与文件二进制内容</returns>
     Task<(string fileName, byte[] content)> ExportShiftScheduleAsync(TaktShiftScheduleQueryDto query, string? sheetName, string? fileName);
+
+    #region 统计分析
+
+    /// <summary>
+    /// 根据排班类别统计人员总数
+    /// </summary>
+    /// <returns>排班类别人员统计（Key=排班类别，Value=人员数）</returns>
+    Task<Dictionary<int, int>> GetEmployeeCountByScheduleTypeAsync();
+
+    #endregion
 }

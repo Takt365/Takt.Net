@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.Workflow
 // 文件名称：TaktFlowSchemesController.cs
@@ -15,7 +15,7 @@ using Takt.Application.Services.Workflow;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.Workflow;
 
@@ -56,7 +56,7 @@ public class TaktFlowSchemesController : TaktControllerBase
     [TaktPermission("workflow:scheme:list", "流程方案列表")]
     public async Task<ActionResult<TaktPagedResult<TaktFlowSchemeDto>>> GetList([FromQuery] TaktFlowSchemeQueryDto query)
     {
-        var result = await _schemeService.GetListAsync(query);
+        var result = await _schemeService.GetFlowSchemeListAsync(query);
         return Ok(result);
     }
 
@@ -69,7 +69,7 @@ public class TaktFlowSchemesController : TaktControllerBase
     [TaktPermission("workflow:scheme:detail", "流程方案详情")]
     public async Task<ActionResult<TaktFlowSchemeDto>> GetById(long id)
     {
-        var dto = await _schemeService.GetByIdAsync(id);
+        var dto = await _schemeService.GetFlowSchemeByIdAsync(id);
         if (dto == null) return NotFound();
         return Ok(dto);
     }
@@ -77,13 +77,13 @@ public class TaktFlowSchemesController : TaktControllerBase
     /// <summary>
     /// 根据流程Key获取流程方案
     /// </summary>
-    /// <param name="processKey">流程Key</param>
+    /// <param name="SchemeKey">流程Key</param>
     /// <returns>流程方案DTO</returns>
-    [HttpGet("by-key/{processKey}")]
+    [HttpGet("by-key/{SchemeKey}")]
     [TaktPermission("workflow:scheme:query", "按流程Key查询")]
-    public async Task<ActionResult<TaktFlowSchemeDto>> GetByProcessKey(string processKey)
+    public async Task<ActionResult<TaktFlowSchemeDto>> GetByProcessKey(string SchemeKey)
     {
-        var dto = await _schemeService.GetByProcessKeyAsync(processKey);
+        var dto = await _schemeService.GetFlowSchemeByProcessKeyAsync(SchemeKey);
         if (dto == null) return NotFound();
         return Ok(dto);
     }
@@ -97,7 +97,7 @@ public class TaktFlowSchemesController : TaktControllerBase
     [TaktPermission("workflow:scheme:create", "创建流程方案")]
     public async Task<ActionResult<TaktFlowSchemeDto>> Create([FromBody] TaktFlowSchemeCreateDto dto)
     {
-        var result = await _schemeService.CreateAsync(dto);
+        var result = await _schemeService.CreateFlowSchemeAsync(dto);
         return Ok(result);
     }
 
@@ -111,7 +111,7 @@ public class TaktFlowSchemesController : TaktControllerBase
     [TaktPermission("workflow:scheme:update", "更新流程方案")]
     public async Task<ActionResult<TaktFlowSchemeDto>> Update(long id, [FromBody] TaktFlowSchemeUpdateDto dto)
     {
-        var result = await _schemeService.UpdateAsync(id, dto);
+        var result = await _schemeService.UpdateFlowSchemeAsync(id, dto);
         return Ok(result);
     }
 
@@ -124,7 +124,7 @@ public class TaktFlowSchemesController : TaktControllerBase
     [TaktPermission("workflow:scheme:delete", "删除流程方案")]
     public async Task<IActionResult> Delete(long id)
     {
-        await _schemeService.DeleteAsync(id);
+        await _schemeService.DeleteFlowSchemeByIdAsync(id);
         return NoContent();
     }
 
@@ -139,7 +139,7 @@ public class TaktFlowSchemesController : TaktControllerBase
     {
         if (ids == null || ids.Count == 0)
             return BadRequest(GetLocalizedString("validation.flowSchemeIdsDeleteRequired", "Frontend"));
-        await _schemeService.DeleteAsync(ids);
+        await _schemeService.DeleteFlowSchemeBatchAsync(ids);
         return NoContent();
     }
 
@@ -152,7 +152,7 @@ public class TaktFlowSchemesController : TaktControllerBase
     [TaktPermission("workflow:scheme:update", "更新流程方案状态")]
     public async Task<ActionResult<TaktFlowSchemeDto>> UpdateStatus([FromBody] TaktFlowSchemeStatusDto dto)
     {
-        var result = await _schemeService.UpdateStatusAsync(dto);
+        var result = await _schemeService.UpdateFlowSchemeStatusAsync(dto);
         return Ok(result);
     }
 
@@ -166,8 +166,8 @@ public class TaktFlowSchemesController : TaktControllerBase
     [TaktPermission("workflow:scheme:template", "下载流程方案导入模板")]
     public async Task<IActionResult> GetTemplate([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
-        var (resultFileName, content) = await _schemeService.GetTemplateAsync(sheetName, fileName);
-        return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+        var (resultFileName, content) = await _schemeService.GetFlowSchemeTemplateAsync(sheetName, fileName);
+        return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
     }
 
     /// <summary>
@@ -183,7 +183,7 @@ public class TaktFlowSchemesController : TaktControllerBase
         if (file == null || file.Length == 0)
             return BadRequest(GetLocalizedString("validation.importExcelFileRequired", "Frontend"));
         using var stream = file.OpenReadStream();
-        var (success, fail, errors) = await _schemeService.ImportAsync(stream, sheetName);
+        var (success, fail, errors) = await _schemeService.ImportFlowSchemeAsync(stream, sheetName);
         return Ok(new { success, fail, errors });
     }
 
@@ -198,7 +198,7 @@ public class TaktFlowSchemesController : TaktControllerBase
     [TaktPermission("workflow:scheme:export", "导出流程方案")]
     public async Task<IActionResult> Export([FromBody] TaktFlowSchemeQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
-        var (resultFileName, content) = await _schemeService.ExportAsync(query, sheetName, fileName);
-        return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+        var (resultFileName, content) = await _schemeService.ExportFlowSchemeAsync(query, sheetName, fileName);
+        return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
     }
 }

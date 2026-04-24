@@ -42,8 +42,6 @@ export interface {{ cat.TsInterfaceName }}{{ if cat.TsExtendsName != null && cat
 {{~ end ~}}
 {{~ end ~}}
 {{~ if cat_name_lower == "querydto" || body_kind == "query" ~}}
-  /** 关键词（模糊查询） */
-  keyWords?: string
 {{~ for col in columns ~}}
 {{~ if col.is_query == 1 ~}}
   /** {{ col.comment }} */

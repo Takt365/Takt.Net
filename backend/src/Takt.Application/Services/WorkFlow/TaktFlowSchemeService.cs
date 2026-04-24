@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Workflow
 // 文件名称：TaktFlowSchemeService.cs
@@ -47,13 +47,13 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
     /// </summary>
     /// <param name="query">分页及流程 Key、名称、状态、分类等筛选</param>
     /// <returns>流程方案分页结果</returns>
-    public async Task<TaktPagedResult<TaktFlowSchemeDto>> GetListAsync(TaktFlowSchemeQueryDto query)
+    public async Task<TaktPagedResult<TaktFlowSchemeDto>> GetFlowSchemeListAsync(TaktFlowSchemeQueryDto query)
     {
         var exp = Expressionable.Create<TaktFlowScheme>()
-            .AndIF(!string.IsNullOrWhiteSpace(query.ProcessKey), x => x.ProcessKey.Contains(query.ProcessKey!))
-            .AndIF(!string.IsNullOrWhiteSpace(query.ProcessName), x => x.ProcessName.Contains(query.ProcessName!))
-            .AndIF(query.ProcessStatus.HasValue, x => x.ProcessStatus == query.ProcessStatus!.Value)
-            .AndIF(query.ProcessCategory.HasValue, x => x.ProcessCategory == query.ProcessCategory!.Value)
+            .AndIF(!string.IsNullOrWhiteSpace(query.SchemeKey), x => x.SchemeKey.Contains(query.SchemeKey!))
+            .AndIF(!string.IsNullOrWhiteSpace(query.SchemeName), x => x.SchemeName.Contains(query.SchemeName!))
+            .AndIF(query.SchemeStatus.HasValue, x => x.SchemeStatus == query.SchemeStatus!.Value)
+            .AndIF(query.SchemeCategory.HasValue, x => x.SchemeCategory == query.SchemeCategory!.Value)
             .AndIF(!string.IsNullOrWhiteSpace(query.FormCode), x => x.FormCode != null && x.FormCode == query.FormCode)
             .And(x => x.IsDeleted == 0)
             .ToExpression();
@@ -70,7 +70,7 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
     /// </summary>
     /// <param name="id">方案 ID</param>
     /// <returns>方案 DTO，不存在时返回 null</returns>
-    public async Task<TaktFlowSchemeDto?> GetByIdAsync(long id)
+    public async Task<TaktFlowSchemeDto?> GetFlowSchemeByIdAsync(long id)
     {
         var entity = await _schemeRepository.GetByIdAsync(id);
         return entity?.Adapt<TaktFlowSchemeDto>();
@@ -79,11 +79,11 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
     /// <summary>
     /// 按流程 Key 获取已发布且未删除的流程方案
     /// </summary>
-    /// <param name="processKey">流程 Key</param>
+    /// <param name="SchemeKey">流程 Key</param>
     /// <returns>方案 DTO，不存在时返回 null</returns>
-    public async Task<TaktFlowSchemeDto?> GetByProcessKeyAsync(string processKey)
+    public async Task<TaktFlowSchemeDto?> GetFlowSchemeByProcessKeyAsync(string SchemeKey)
     {
-        var entity = await _schemeRepository.GetAsync(x => x.ProcessKey == processKey && x.IsDeleted == 0);
+        var entity = await _schemeRepository.GetAsync(x => x.SchemeKey == SchemeKey && x.IsDeleted == 0);
         return entity?.Adapt<TaktFlowSchemeDto>();
     }
 
@@ -92,12 +92,12 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
     /// </summary>
     /// <param name="dto">创建参数</param>
     /// <returns>创建后的方案 DTO</returns>
-    public async Task<TaktFlowSchemeDto> CreateAsync(TaktFlowSchemeCreateDto dto)
+    public async Task<TaktFlowSchemeDto> CreateFlowSchemeAsync(TaktFlowSchemeCreateDto dto)
     {
-        ValidateProcessContentOrThrow(dto.ProcessContent);
+        ValidateProcessContentOrThrow(dto.SchemeContent);
         var entity = dto.Adapt<TaktFlowScheme>();
         entity.Id = 0;
-        entity.ProcessVersion = 1;
+        entity.SchemeVersion = 1;
         await _schemeRepository.CreateAsync(entity);
         return entity.Adapt<TaktFlowSchemeDto>();
     }
@@ -108,9 +108,9 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
     /// <param name="id">方案 ID</param>
     /// <param name="dto">更新参数</param>
     /// <returns>更新后的方案 DTO</returns>
-    public async Task<TaktFlowSchemeDto> UpdateAsync(long id, TaktFlowSchemeUpdateDto dto)
+    public async Task<TaktFlowSchemeDto> UpdateFlowSchemeAsync(long id, TaktFlowSchemeUpdateDto dto)
     {
-        ValidateProcessContentOrThrow(dto.ProcessContent);
+        ValidateProcessContentOrThrow(dto.SchemeContent);
         var existing = await _schemeRepository.GetByIdAsync(id);
         if (existing == null)
             throw new TaktBusinessException("validation.flowSchemeNotFound");
@@ -125,7 +125,7 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
     /// </summary>
     /// <param name="id">流程方案ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteFlowSchemeByIdAsync(long id)
     {
         var entity = await _schemeRepository.GetByIdAsync(id);
         if (entity == null) return;
@@ -139,7 +139,7 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
     /// </summary>
     /// <param name="ids">流程方案ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(IEnumerable<long> ids)
+    public async Task DeleteFlowSchemeBatchAsync(IEnumerable<long> ids)
     {
         if (ids == null) return;
         foreach (var id in ids.Distinct())
@@ -157,13 +157,11 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
     /// </summary>
     /// <param name="dto">方案 ID、目标状态及备注</param>
     /// <returns>更新后的方案 DTO</returns>
-    public async Task<TaktFlowSchemeDto> UpdateStatusAsync(TaktFlowSchemeStatusDto dto)
+    public async Task<TaktFlowSchemeDto> UpdateFlowSchemeStatusAsync(TaktFlowSchemeStatusDto dto)
     {
-        var entity = await _schemeRepository.GetByIdAsync(dto.SchemeId);
+        var entity = await _schemeRepository.GetByIdAsync(dto.FlowSchemeId);
         EnsureEntityExists(entity, "validation.flowSchemeNotFound");
-        entity!.ProcessStatus = dto.ProcessStatus;
-        if (!string.IsNullOrEmpty(dto.Remark))
-            entity.Remark = dto.Remark;
+        entity!.SchemeStatus = dto.SchemeStatus;
         await _schemeRepository.UpdateAsync(entity);
         return entity.Adapt<TaktFlowSchemeDto>();
     }
@@ -174,7 +172,7 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
     /// <param name="sheetName">工作表名称，为空时使用默认</param>
     /// <param name="fileName">文件名，为空时使用默认</param>
     /// <returns>文件名与文件二进制内容</returns>
-    public async Task<(string fileName, byte[] content)> GetTemplateAsync(string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> GetFlowSchemeTemplateAsync(string? sheetName, string? fileName)
     {
         var (excelSheet, excelFile) = await ResolveExcelImportTemplateNamesAsync(sheetName, fileName, nameof(TaktFlowScheme));
         return await TaktExcelHelper.GenerateTemplateAsync<TaktFlowSchemeTemplateDto>(
@@ -183,12 +181,12 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
     }
 
     /// <summary>
-    /// 从 Excel 流导入流程方案（仅元数据，不含 ProcessContent）
+    /// 从 Excel 流导入流程方案（仅元数据，不含 SchemeContent）
     /// </summary>
     /// <param name="fileStream">Excel 文件流</param>
     /// <param name="sheetName">工作表名称，为空时使用默认</param>
     /// <returns>成功数、失败数及错误信息列表</returns>
-    public async Task<(int success, int fail, List<string> errors)> ImportAsync(Stream fileStream, string? sheetName)
+    public async Task<(int success, int fail, List<string> errors)> ImportFlowSchemeAsync(Stream fileStream, string? sheetName)
     {
         var errors = new List<string>();
         int success = 0, fail = 0;
@@ -204,30 +202,30 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(item.ProcessKey))
+                if (string.IsNullOrWhiteSpace(item.SchemeKey))
                 {
                     AddImportError(errors, "validation.importRowFlowProcessKeyRequired", index);
                     fail++;
                     continue;
                 }
-                var existing = await _schemeRepository.GetAsync(x => x.ProcessKey == item.ProcessKey && x.IsDeleted == 0);
+                var existing = await _schemeRepository.GetAsync(x => x.SchemeKey == item.SchemeKey && x.IsDeleted == 0);
                 if (existing != null)
                 {
-                    AddImportError(errors, "validation.importRowFlowProcessKeyExists", index, item.ProcessKey);
+                    AddImportError(errors, "validation.importRowFlowProcessKeyExists", index, item.SchemeKey);
                     fail++;
                     continue;
                 }
                 var entity = new TaktFlowScheme
                 {
-                    ProcessKey = item.ProcessKey,
-                    ProcessName = item.ProcessName ?? item.ProcessKey,
-                    ProcessCategory = item.ProcessCategory,
-                    ProcessDescription = item.ProcessDescription,
+                    SchemeKey = item.SchemeKey,
+                    SchemeName = item.SchemeName ?? item.SchemeKey,
+                    SchemeCategory = item.SchemeCategory,
+                    SchemeDescription = item.SchemeDescription,
                     FormCode = item.FormCode,
-                    OrderNum = item.OrderNum,
-                    ProcessStatus = item.ProcessStatus >= 0 ? item.ProcessStatus : 0,
-                    ProcessVersion = 1,
-                    ProcessContent = null
+                    SortOrder = item.SortOrder,
+                    SchemeStatus = item.SchemeStatus >= 0 ? item.SchemeStatus : 0,
+                    SchemeVersion = 1,
+                    SchemeContent = null
                 };
                 await _schemeRepository.CreateAsync(entity);
                 success++;
@@ -248,13 +246,13 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
     /// <param name="sheetName">工作表名称，为空时使用默认</param>
     /// <param name="fileName">文件名，为空时使用默认</param>
     /// <returns>文件名与文件二进制内容</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktFlowSchemeQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportFlowSchemeAsync(TaktFlowSchemeQueryDto query, string? sheetName, string? fileName)
     {
         var exp = Expressionable.Create<TaktFlowScheme>()
-            .AndIF(!string.IsNullOrWhiteSpace(query.ProcessKey), x => x.ProcessKey.Contains(query.ProcessKey!))
-            .AndIF(!string.IsNullOrWhiteSpace(query.ProcessName), x => x.ProcessName.Contains(query.ProcessName!))
-            .AndIF(query.ProcessStatus.HasValue, x => x.ProcessStatus == query.ProcessStatus!.Value)
-            .AndIF(query.ProcessCategory.HasValue, x => x.ProcessCategory == query.ProcessCategory!.Value)
+            .AndIF(!string.IsNullOrWhiteSpace(query.SchemeKey), x => x.SchemeKey.Contains(query.SchemeKey!))
+            .AndIF(!string.IsNullOrWhiteSpace(query.SchemeName), x => x.SchemeName.Contains(query.SchemeName!))
+            .AndIF(query.SchemeStatus.HasValue, x => x.SchemeStatus == query.SchemeStatus!.Value)
+            .AndIF(query.SchemeCategory.HasValue, x => x.SchemeCategory == query.SchemeCategory!.Value)
             .And(x => x.IsDeleted == 0)
             .ToExpression();
         var list = await _schemeRepository.FindAsync(exp);
@@ -264,16 +262,16 @@ public class TaktFlowSchemeService : TaktServiceBase, ITaktFlowSchemeService
     }
 
     /// <summary>
-    /// 校验 ProcessContent 为合法 JSON，且含设计器/引擎所需的 nodes、edges；
+    /// 校验 SchemeContent 为合法 JSON，且含设计器/引擎所需的 nodes、edges；
     /// 若存在 flowTree，则根节点 nodeType 须为 1（发起人），与前端 takt-flow-antflow-designer 一致。
     /// </summary>
-    private void ValidateProcessContentOrThrow(string? processContent)
+    private void ValidateProcessContentOrThrow(string? SchemeContent)
     {
-        if (string.IsNullOrWhiteSpace(processContent))
+        if (string.IsNullOrWhiteSpace(SchemeContent))
             return;
         try
         {
-            using var doc = JsonDocument.Parse(processContent.Trim());
+            using var doc = JsonDocument.Parse(SchemeContent.Trim());
             var root = doc.RootElement;
             if (root.ValueKind != JsonValueKind.Object)
                 ThrowBusinessException("validation.flowProcessContentRootMustBeJsonObject");

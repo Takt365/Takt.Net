@@ -211,16 +211,15 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
-import { getMyTodo, getFlowInstanceById, complete, exportTodo, transfer, addApprovers } from '@/api/workflow/instance'
+import { getFlowInstanceTodoList, getFlowInstanceById, completeFlowInstanceTask, exportFlowInstanceTodo, transferFlowInstance, addFlowInstanceApprovers } from '@/api/workflow/instance'
 import { getUserOptions } from '@/api/identity/user'
 import ApproveForm from './components/flow-approve-form.vue'
 import TransferForm from './components/flow-transfer-form.vue'
 import AddSignForm from './components/flow-add-sign-form.vue'
 import TaskFormContent from './components/flow-task-form-content.vue'
 import FlowPendingAddApproversPanel from '@/views/workflow/components/flow-pending-add-approvers-panel.vue'
-import type { FlowTodoItem, FlowTodoQuery, FlowInstanceDetail } from '@/types/workflow/instance'
-import type { FlowAddApproverItem } from '@/types/workflow/instance'
-import type { TaktPagedResult } from '@/types/common'
+import type { FlowTodoItem, FlowTodoQuery, FlowInstanceDetail } from '@/types/workflow/flow-instance'
+import type { FlowAddApproverItem } from '@/types/workflow/flow-instance'
 import type { TaktSelectOption } from '@/types/common'
 const toErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error))
 
@@ -259,8 +258,10 @@ function asFlowTodoItem(r: Record<string, unknown>): FlowTodoItem {
 }
 
 /** 待办行 key：取 instanceId 字符串 */
-function getTodoRowKey(record: FlowTodoItem): string {
-  return record?.instanceId != null ? String(record.instanceId) : ''
+function getTodoRowKey(record: unknown): string {
+  if (!record || typeof record !== 'object' || !('instanceId' in record)) return ''
+  const row = record as { instanceId?: unknown }
+  return row.instanceId != null ? String(row.instanceId) : ''
 }
 
 const modalVisible = ref(false)
@@ -279,10 +280,12 @@ const addSignVisible = ref(false)
 const currentTransferTask = ref<FlowTodoItem | null>(null)
 const currentAddSignTask = ref<FlowTodoItem | null>(null)
 const transferFormRef = ref<InstanceType<typeof TransferForm> | null>(null)
-const transferForm = reactive({
-  toUserId: undefined as string | undefined,
-  toUserName: '',
-  comment: undefined as string | undefined
+const transferForm = reactive<{
+  toUserId?: string
+  toUserName: string
+  comment?: string
+}>({
+  toUserName: ''
 })
 const addSignFormRef = ref<InstanceType<typeof AddSignForm> | null>(null)
 const addSignForm = reactive({
@@ -300,7 +303,7 @@ async function loadTodo() {
       pageIndex: currentPage.value,
       pageSize: pageSize.value
     }
-    const res = await getMyTodo(params)
+    const res = await getFlowInstanceTodoList(params)
     dataSource.value = res.data ?? []
     total.value = res.total ?? 0
   } finally {
@@ -406,14 +409,22 @@ async function handleApproveOk() {
   }
   loading.value = true
   try {
-    await complete({
+    const payload: {
+      flowInstanceId: string
+      instanceCode: string
+      approved: boolean
+      comment?: string
+      nodeRejectStep?: string
+      frmData?: string
+    } = {
       flowInstanceId: currentTask.value.instanceId,
       instanceCode: currentTask.value.instanceCode,
-      comment: completeForm.comment || undefined,
-      approved: completeForm.approved,
-      nodeRejectStep: completeForm.nodeRejectStep || undefined,
-      frmData: frmDataPayload
-    })
+      approved: completeForm.approved
+    }
+    if (completeForm.comment) payload.comment = completeForm.comment
+    if (completeForm.nodeRejectStep) payload.nodeRejectStep = completeForm.nodeRejectStep
+    if (frmDataPayload) payload.frmData = frmDataPayload
+    await completeFlowInstanceTask(payload)
     message.success('已提交')
     modalVisible.value = false
     taskDetail.value = null
@@ -429,7 +440,7 @@ async function handleApproveOk() {
 async function handleExport() {
   try {
     exportLoading.value = true
-    const blob = await exportTodo({ pageIndex: 1, pageSize: 99999 })
+    const blob = await exportFlowInstanceTodo({ pageIndex: 1, pageSize: 99999 })
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
     const fileName = `待办_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
@@ -476,9 +487,9 @@ function closeAddSignModal() {
 /** 打开转办弹窗：设置当前任务、拉取实例详情、拉取用户选项 */
 async function openTransfer(record: FlowTodoItem) {
   currentTransferTask.value = record
-  transferForm.toUserId = undefined
+  delete transferForm.toUserId
   transferForm.toUserName = ''
-  transferForm.comment = undefined
+  delete transferForm.comment
   taskDetail.value = null
   try {
     taskDetail.value = await getFlowInstanceById(record.instanceId)
@@ -495,7 +506,7 @@ async function handleTransferOk() {
   if (!ok || !currentTransferTask.value || !transferForm.toUserId || !transferForm.toUserName) return
   loading.value = true
   try {
-    await transfer({
+    await transferFlowInstance({
       flowInstanceId: currentTransferTask.value.instanceId,
       instanceCode: currentTransferTask.value.instanceCode,
       toUserId: transferForm.toUserId,
@@ -541,14 +552,22 @@ async function handleAddSignOk() {
   })
   loading.value = true
   try {
-    await addApprovers({
+    const payload: {
+      flowInstanceId: string
+      instanceCode: string
+      approvers: FlowAddApproverItem[]
+      approveType: string
+      returnToSignNode: boolean
+      reason?: string
+    } = {
       flowInstanceId: currentAddSignTask.value.instanceId,
       instanceCode: currentAddSignTask.value.instanceCode,
       approvers,
       approveType: addSignForm.approveType,
-      reason: addSignForm.reason || undefined,
       returnToSignNode: addSignForm.returnToSignNode
-    })
+    }
+    if (addSignForm.reason) payload.reason = addSignForm.reason
+    await addFlowInstanceApprovers(payload)
     message.success('加签成功')
     addSignVisible.value = false
     currentAddSignTask.value = null

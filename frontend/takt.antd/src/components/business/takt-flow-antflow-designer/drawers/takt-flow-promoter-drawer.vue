@@ -12,7 +12,7 @@
 <template>
   <a-drawer
     v-model:open="visible"
-    :title="t('workflow.designer.promoter')"
+    :title="t('workflow.designer.page.promoter')"
     width="480"
     :footer-style="{ textAlign: 'right' }"
     @close="handleClose"

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Organization
 // 文件名称：TaktPostsController.cs
@@ -17,7 +17,7 @@ using Takt.Application.Services.HumanResource.Organization;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.HumanResource.Organization;
 
@@ -206,7 +206,7 @@ public class TaktPostsController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _postService.GetPostTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -261,11 +261,39 @@ public class TaktPostsController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _postService.ExportPostAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {
             return BadRequest(GetLocalizedExceptionMessage(ex));
         }
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计岗位总数
+    /// </summary>
+    /// <returns>岗位总数</returns>
+    [HttpGet("stats/count")]
+    [TaktPermission("humanresource:organization:post:list", "统计岗位总数")]
+    public async Task<ActionResult<long>> GetPostCountAsync()
+    {
+        var count = await _postService.GetPostCountAsync();
+        return Ok(count);
+    }
+
+    /// <summary>
+    /// 统计各岗位人数及总计
+    /// </summary>
+    /// <returns>岗位人数统计列表</returns>
+    [HttpGet("stats/employee-count")]
+    [TaktPermission("humanresource:organization:post:list", "统计岗位人数")]
+    public async Task<ActionResult<List<(long postId, string postName, int employeeCount)>>> GetPostEmployeeStatsAsync()
+    {
+        var stats = await _postService.GetPostEmployeeStatsAsync();
+        return Ok(stats);
+    }
+
+    #endregion
 }

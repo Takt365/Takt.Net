@@ -1,6 +1,6 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.Domain.Entities.Logistics.Material
+// 命名空间：Takt.Domain.Entities.Logistics.Materials
 // 文件名称：TaktPurchasePrice.cs
 // 创建时间：2025-01-20
 // 创建人：Takt365(Cursor AI)
@@ -22,8 +22,8 @@ namespace Takt.Domain.Entities.Logistics.Materials;
 [SugarIndex("ix_takt_logistics_materials_purchase_price_plant_code", nameof(PlantCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_price_supplier_code", nameof(SupplierCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_price_price_type", nameof(PriceType), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_materials_purchase_price_effective_date", nameof(EffectiveDate), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_materials_purchase_price_expiry_date", nameof(ExpiryDate), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_materials_purchase_price_effective_from", nameof(EffectiveFrom), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_materials_purchase_price_effective_to", nameof(EffectiveTo), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_price_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_price_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_price_price_status", nameof(PriceStatus), OrderByType.Asc)]
@@ -48,16 +48,16 @@ public class TaktPurchasePrice : TaktEntityBase
     public int PriceType { get; set; } = 0;
 
     /// <summary>
-    /// 生效日期
+    /// Effective from（生效起始）
     /// </summary>
-    [SugarColumn(ColumnName = "effective_date", ColumnDescription = "生效日期", ColumnDataType = "datetime", IsNullable = false)]
-    public DateTime EffectiveDate { get; set; } = DateTime.Now;
+    [SugarColumn(ColumnName = "effective_from", ColumnDescription = "Effective from", ColumnDataType = "datetime", IsNullable = false)]
+    public DateTime EffectiveFrom { get; set; } = DateTime.Now;
 
     /// <summary>
-    /// 失效日期（如果为空则表示永久有效）
+    /// Effective to（生效截止，空表示长期有效）
     /// </summary>
-    [SugarColumn(ColumnName = "expiry_date", ColumnDescription = "失效日期", ColumnDataType = "datetime", IsNullable = true)]
-    public DateTime? ExpiryDate { get; set; }
+    [SugarColumn(ColumnName = "effective_to", ColumnDescription = "Effective to", ColumnDataType = "datetime", IsNullable = true)]
+    public DateTime? EffectiveTo { get; set; }
 
     /// <summary>
     /// 价格状态（0=草稿，1=已生效，2=已失效，3=已停用）

@@ -25,7 +25,7 @@
           class="zoom-bar__validate"
           @click="runValidateDesign"
         >
-          {{ t('workflow.designer.validateFlow') }}
+          {{ t('workflow.designer.page.validateflow') }}
         </a-button>
         <span
           class="zoom-bar__sep"
@@ -66,7 +66,7 @@
           />
           <div class="end-node">
             <div class="end-node-block">
-              <span class="end-node-text">{{ t('workflow.designer.endNode') }}</span>
+              <span class="end-node-text">{{ t('workflow.designer.page.endnode') }}</span>
             </div>
           </div>
         </div>
@@ -148,12 +148,12 @@ function runValidateDesign() {
  */
 function validateDesign(options?: { silent?: boolean }): boolean {
   if (!nodeConfig.value) {
-    message.warning(t('workflow.designer.validateNoCanvas'))
+    message.warning(t('workflow.designer.page.validatenocanvas'))
     return false
   }
   const rows = collectFlowDesignErrors(nodeConfig.value, t)
   if (!rows.length) {
-    if (!options?.silent) message.success(t('workflow.designer.validateFlowOk'))
+    if (!options?.silent) message.success(t('workflow.designer.page.validateflowok'))
     return true
   }
   errorDialogRows.value = rows

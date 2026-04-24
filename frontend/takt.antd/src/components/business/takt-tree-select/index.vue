@@ -177,7 +177,7 @@ const actionButtonsRef = ref<HTMLElement | null>(null)
 // 内部值，优先使用 value（v-model:value），否则使用 modelValue（v-model）
 const internalValue = computed(() => props.value ?? props.modelValue)
 
-const effectivePlaceholder = computed(() => props.placeholder ?? t('common.form.placeholder.selectOnly'))
+const effectivePlaceholder = computed(() => props.placeholder ?? t('common.form.placeholder.selectonly'))
 
 // 标记 treeSelectRef 已被使用（通过 defineExpose）
 void treeSelectRef.value
@@ -450,8 +450,8 @@ const insertActionButtons = () => {
   }
   
   if (props.multiple && props.showCheckAll) {
-    actionsContainer.appendChild(createButton(t('common.button.checkAll'), handleCheckAll))
-    actionsContainer.appendChild(createButton(t('common.button.uncheckAll'), handleUncheckAll))
+    actionsContainer.appendChild(createButton(t('common.button.checkall'), handleCheckAll))
+    actionsContainer.appendChild(createButton(t('common.button.uncheckall'), handleUncheckAll))
   }
   
   // 查找下拉框内容区域或树容器

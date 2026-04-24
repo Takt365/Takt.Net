@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Statistics.Logging
 // 文件名称：ITaktLoginLogService.cs
@@ -25,35 +25,35 @@ public interface ITaktLoginLogService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    Task<TaktPagedResult<TaktLoginLogDto>> GetListAsync(TaktLoginLogQueryDto queryDto);
+    Task<TaktPagedResult<TaktLoginLogDto>> GetLoginLogListAsync(TaktLoginLogQueryDto queryDto);
 
     /// <summary>
     /// 根据ID获取登录日志
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>登录日志DTO</returns>
-    Task<TaktLoginLogDto?> GetByIdAsync(long id);
+    Task<TaktLoginLogDto?> GetLoginLogByIdAsync(long id);
 
     /// <summary>
     /// 创建登录日志
     /// </summary>
     /// <param name="dto">创建登录日志DTO</param>
     /// <returns>登录日志DTO</returns>
-    Task<TaktLoginLogDto> CreateAsync(TaktCreateLoginLogDto dto);
+    Task<TaktLoginLogDto> CreateLoginLogAsync(TaktLoginLogCreateDto dto);
 
     /// <summary>
     /// 删除登录日志
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>任务</returns>
-    Task DeleteAsync(long id);
+    Task DeleteLoginLogByIdAsync(long id);
 
     /// <summary>
     /// 批量删除登录日志
     /// </summary>
     /// <param name="ids">日志ID列表</param>
     /// <returns>任务</returns>
-    Task DeleteBatchAsync(List<long> ids);
+    Task DeleteLoginLogBatchAsync(List<long> ids);
 
     /// <summary>
     /// 导出登录日志
@@ -62,5 +62,5 @@ public interface ITaktLoginLogService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    Task<(string fileName, byte[] content)> ExportAsync(TaktLoginLogQueryDto query, string? sheetName, string? fileName);
+    Task<(string fileName, byte[] content)> ExportLoginLogAsync(TaktLoginLogQueryDto query, string? sheetName, string? fileName);
 }

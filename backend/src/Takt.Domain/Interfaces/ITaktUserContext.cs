@@ -96,4 +96,5 @@ public interface ITaktUserContext
     /// </summary>
     /// <returns>如果已登录返回true，否则返回false</returns>
     bool IsAuthenticated();
+
 }

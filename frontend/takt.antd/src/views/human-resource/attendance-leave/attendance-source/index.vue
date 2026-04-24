@@ -134,8 +134,8 @@
         import-permission="humanresource:attendanceleave:attendancesource:import"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.attendancesource._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.attendancesource._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -261,7 +261,7 @@ const columns = computed<TableColumnsType>(() => [
   { title: t('entity.attendancesource.enrollnumber'), dataIndex: 'enrollNumber', key: 'enrollNumber', width: 100, resizable: true },
   { title: t('entity.attendancesource.rawpunchtime'), dataIndex: 'rawPunchTime', key: 'rawPunchTime', width: 168, resizable: true },
   { title: t('entity.attendancesource.verifymode'), dataIndex: 'verifyMode', key: 'verifyMode', width: 64, resizable: true },
-  CreateActionColumn({
+  CreateActionColumn<AttendanceSource>({
     actions: [
       {
         key: 'update',
@@ -352,7 +352,7 @@ const loadData = async () => {
     total.value = response.total ?? 0
   } catch (error: unknown) {
     logger.error('[AttendanceSource] 加载数据失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.loadFail'))
+    message.error(getErrorMessage(error) || t('common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -411,23 +411,23 @@ const handleEdit = (record: AttendanceSource) => {
 
 const handleUpdate = () => {
   if (selectedRow.value) handleEdit(selectedRow.value)
-  else message.warning(t('common.action.warnSelectToAction', { action: t('common.button.edit'), entity: entitySelf.value }))
+  else message.warning(t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: entitySelf.value }))
 }
 
 const handleDeleteOne = (record: AttendanceSource) => {
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', { entity: entitySelf.value, name: getSourceId(record) }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: entitySelf.value, name: getSourceId(record) }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await deleteAttendanceSourceById(getSourceId(record))
-        message.success(t('common.msg.deleteSuccess', { target: entitySelf.value }))
+        message.success(t('common.msg.deletesuccess', { target: entitySelf.value }))
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error) || t('common.msg.deleteFail', { target: entitySelf.value }))
+        message.error(getErrorMessage(error) || t('common.msg.deletefail', { target: entitySelf.value }))
       } finally {
         loading.value = false
       }
@@ -437,12 +437,12 @@ const handleDeleteOne = (record: AttendanceSource) => {
 
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
-    message.warning(t('common.action.warnSelectToAction', { action: t('common.button.delete'), entity: entitySelf.value }))
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: entitySelf.value }))
     return
   }
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', { entity: entitySelf.value, count: selectedRows.value.length }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { entity: entitySelf.value, count: selectedRows.value.length }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
@@ -453,13 +453,13 @@ const handleDelete = () => {
         } else {
           await deleteAttendanceSourceBatch(selectedRows.value.map((r) => getSourceId(r)))
         }
-        message.success(t('common.msg.deleteSuccess', { target: entitySelf.value }))
+        message.success(t('common.msg.deletesuccess', { target: entitySelf.value }))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error) || t('common.msg.deleteFail', { target: entitySelf.value }))
+        message.error(getErrorMessage(error) || t('common.msg.deletefail', { target: entitySelf.value }))
       } finally {
         loading.value = false
       }
@@ -478,10 +478,10 @@ const handleFormSubmit = async () => {
       const idStr = String(id)
       const payload: AttendanceSourceUpdate = { ...(formValues as AttendanceSourceCreate), sourceId: idStr }
       await updateAttendanceSource(idStr, payload)
-      message.success(t('common.msg.updateSuccess', { target: entitySelf.value }))
+      message.success(t('common.msg.updatesuccess', { target: entitySelf.value }))
     } else {
       await createAttendanceSource(formValues as AttendanceSourceCreate)
-      message.success(t('common.msg.createSuccess', { target: entitySelf.value }))
+      message.success(t('common.msg.createsuccess', { target: entitySelf.value }))
     }
     formRef.value?.resetFields()
     formData.value = {}
@@ -489,7 +489,7 @@ const handleFormSubmit = async () => {
     loadData()
   } catch (error: unknown) {
     if (typeof error === 'object' && error !== null && 'errorFields' in error) return
-    message.error(getErrorMessage(error) || t('common.msg.operateFail', { action: t('common.action.operation') }))
+    message.error(getErrorMessage(error) || t('common.msg.operatefail', { action: t('common.action.operation') }))
   } finally {
     formLoading.value = false
   }
@@ -564,10 +564,10 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess', { target: entitySelf.value }))
+    message.success(t('common.msg.exportsuccess', { target: entitySelf.value }))
   } catch (error: unknown) {
     logger.error('[AttendanceSource] 导出失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.exportFail', { target: entitySelf.value }))
+    message.error(getErrorMessage(error) || t('common.msg.exportfail', { target: entitySelf.value }))
   } finally {
     loading.value = false
   }

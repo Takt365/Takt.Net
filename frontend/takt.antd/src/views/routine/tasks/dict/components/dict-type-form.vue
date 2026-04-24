@@ -16,112 +16,117 @@
       <!-- 主表：字典类型信息 -->
       <a-tab-pane
         key="main"
-        tab="字典类型信息"
+        :tab="t('routine.dict.type.page.tabmain')"
       >
         <a-form
           ref="mainFormRef"
           :model="mainFormState"
           :rules="mainFormRules"
-          :label-col="{ span: 4 }"
-          :wrapper-col="{ span: 20 }"
           layout="horizontal"
+          label-align="right"
         >
           <a-form-item
-            label="字典类型编码"
+            :label="t('entity.dicttype.code')"
             name="dictTypeCode"
           >
             <a-input
               v-model:value="mainFormState.dictTypeCode"
-              placeholder="请输入字典类型编码"
+              :placeholder="t('routine.dict.type.placeholders.dictTypeCode')"
               :disabled="!!props.formData?.dictTypeId"
             />
           </a-form-item>
 
           <a-form-item
-            label="字典类型名称"
+            :label="t('entity.dicttype.name')"
             name="dictTypeName"
           >
             <a-input
               v-model:value="mainFormState.dictTypeName"
-              placeholder="请输入字典类型名称"
+              :placeholder="t('routine.dict.type.placeholders.dictTypeName')"
             />
           </a-form-item>
 
           <a-form-item
-            label="数据源"
+            :label="t('entity.dicttype.datasource')"
             name="dataSource"
           >
             <TaktSelect
               v-model:value="mainFormState.dataSource"
-              dict-type="sys_data_source"
-              placeholder="请选择数据源"
+              api-url="/api/TaktDictDatas/options?dictTypeCode=sys_data_source"
+              :placeholder="t('common.form.placeholder.select', { field: t('entity.dicttype.datasource') })"
+              allow-clear
+              :field-names="{ label: 'dictLabel', value: 'extLabel' }"
             />
           </a-form-item>
 
           <a-form-item
             v-if="mainFormState.dataSource === 1"
-            label="数据库配置ID"
+            :label="t('entity.dicttype.dataconfigid')"
             name="dataConfigId"
           >
             <a-input
               v-model:value="mainFormState.dataConfigId"
-              placeholder="请输入数据库配置ID（当数据源为SQL查询时）"
+              :placeholder="t('routine.dict.type.placeholders.dataConfigIdSql')"
             />
           </a-form-item>
 
           <a-form-item
             v-if="mainFormState.dataSource === 1"
-            label="SQL脚本"
+            :label="t('entity.dicttype.sqlscript')"
             name="sqlScript"
           >
             <a-textarea
               v-model:value="mainFormState.sqlScript"
-              placeholder="请输入SQL脚本"
+              :placeholder="t('routine.dict.type.placeholders.sqlScript')"
               :rows="4"
             />
           </a-form-item>
 
           <a-form-item
-            label="是否内置"
+            :label="t('entity.dicttype.isbuiltin')"
             name="isBuiltIn"
           >
             <TaktSelect
               v-model:value="mainFormState.isBuiltIn"
-              dict-type="sys_yes_no"
-              placeholder="请选择是否内置"
+              api-url="/api/TaktDictDatas/options?dictTypeCode=sys_yes_no"
+              :placeholder="t('common.form.placeholder.select', { field: t('entity.dicttype.isbuiltin') })"
+              allow-clear
+              :field-names="{ label: 'dictLabel', value: 'extLabel' }"
             />
           </a-form-item>
 
           <a-form-item
-            label="排序号"
+            :label="t('entity.dicttype.ordernum')"
             name="orderNum"
           >
             <a-input-number
               v-model:value="mainFormState.orderNum"
               :min="0"
-              placeholder="请输入排序号"
+              :placeholder="t('routine.dict.type.placeholders.orderNum')"
               style="width: 100%"
             />
           </a-form-item>
 
           <a-form-item
-            label="类型状态"
+            :label="t('entity.dicttype.status')"
             name="dictTypeStatus"
           >
             <TaktSelect
               v-model:value="mainFormState.dictTypeStatus"
-              dict-type="sys_status"
-              placeholder="请选择类型状态"
+              api-url="/api/TaktDictDatas/options?dictTypeCode=sys_status"
+              :placeholder="t('common.form.placeholder.select', { field: t('entity.dicttype.status') })"
+              allow-clear
+              :field-names="{ label: 'dictLabel', value: 'extLabel' }"
             />
           </a-form-item>
 
           <a-form-item
-            label="备注"
+            :label="t('common.entity.remark')"
             name="remark"
           >
             <a-textarea
               v-model:value="mainFormState.remark"
-              placeholder="请输入备注"
+              :placeholder="t('routine.dict.type.placeholders.remark')"
               :rows="3"
             />
           </a-form-item>
@@ -131,7 +136,7 @@
       <!-- 子表：字典数据列表 -->
       <a-tab-pane
         key="data"
-        tab="字典数据"
+        :tab="t('routine.dict.type.page.tabdata')"
       >
         <div class="dict-data-toolbar">
           <a-button
@@ -141,7 +146,7 @@
             <template #icon>
               <PlusOutlined />
             </template>
-            新增字典数据
+            {{ t('routine.dict.type.typeForm.addDictData') }}
           </a-button>
         </div>
 
@@ -319,7 +324,7 @@
                 size="small"
                 @click="handleRemoveDictData(index)"
               >
-                删除
+                {{ t('common.button.delete') }}
               </a-button>
             </template>
           </template>
@@ -330,12 +335,72 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import type { TableColumnsType } from 'ant-design-vue'
-import type { DictType, DictTypeCreate, DictTypeUpdate } from '@/types/routine/tasks/dict/dicttype'
-import type { DictData } from '@/types/routine/tasks/dict/dictdata'
+import type { DictType, DictTypeCreate, DictTypeUpdate } from '@/types/routine/tasks/dict/dict-type'
+import type { DictData } from '@/types/routine/tasks/dict/dict-data'
+
+const { t } = useI18n()
+
+/** 主表表单状态：`DictTypeCreate` 中 `sqlScript`/`remark` 为可选时推断为 `string | undefined`，与 `a-textarea`/`a-input` 在 exactOptionalPropertyTypes 下要求的 `value: string | number` 不兼容，故在此收窄为必填 `string`（空串表示无内容）。 */
+type DictTypeMainFormState = Omit<DictTypeCreate, 'sqlScript' | 'remark'> & {
+  sqlScript: string
+  remark: string
+  dictTypeId?: string
+  dictTypeStatus?: number
+}
+
+/** 子表行内可编辑列（与模板 bodyCell 分支一致） */
+type DictDataEditableField =
+  | 'dictLabel'
+  | 'dictL10nKey'
+  | 'dictValue'
+  | 'cssClass'
+  | 'listClass'
+  | 'extLabel'
+  | 'extValue'
+  | 'orderNum'
+
+/** 子表行内编辑缓冲区：禁止 `Partial<DictData>`，否则 `v-model` 与 exactOptionalPropertyTypes 不兼容 */
+type DictDataInlineEditState = {
+  dictLabel: string
+  dictL10nKey: string
+  dictValue: string
+  cssClass: number
+  listClass: number
+  extLabel: string
+  extValue: string
+  orderNum: number
+}
+
+function dictDataToInlineEditState(r: DictData): DictDataInlineEditState {
+  return {
+    dictLabel: r.dictLabel ?? '',
+    dictL10nKey: r.dictL10nKey ?? '',
+    dictValue: r.dictValue ?? '',
+    cssClass: r.cssClass ?? 0,
+    listClass: r.listClass ?? 0,
+    extLabel: r.extLabel ?? '',
+    extValue: r.extValue ?? '',
+    orderNum: r.orderNum ?? 0
+  }
+}
+
+function emptyDictDataInlineEditState(): DictDataInlineEditState {
+  return {
+    dictLabel: '',
+    dictL10nKey: '',
+    dictValue: '',
+    cssClass: 0,
+    listClass: 0,
+    extLabel: '',
+    extValue: '',
+    orderNum: 0
+  }
+}
 
 // ========================================
 // Props & Emits
@@ -361,10 +426,10 @@ const dictDataList = ref<DictData[]>([])
 
 // 行内编辑状态
 const editingKey = ref<string>('')
-const editingRecord = ref<Partial<DictData>>({})
+const editingRecord = ref<DictDataInlineEditState>(emptyDictDataInlineEditState())
 const editingIndex = ref<number>(-1)
 
-const mainFormState = reactive<DictTypeCreate & { dictTypeId?: string; dictTypeStatus?: number }>({
+const mainFormState = reactive<DictTypeMainFormState>({
   dictTypeCode: '',
   dictTypeName: '',
   dataSource: 0,
@@ -376,101 +441,101 @@ const mainFormState = reactive<DictTypeCreate & { dictTypeId?: string; dictTypeS
   remark: ''
 })
 
-const mainFormRules: Record<string, Rule[]> = {
+const mainFormRules = computed<Record<string, Rule[]>>(() => ({
   dictTypeCode: [
-    { required: true, message: '请输入字典类型编码', trigger: 'blur' }
+    { required: true, message: t('routine.dict.type.rules.dictTypeCodeRequired'), trigger: 'blur' }
   ],
   dictTypeName: [
-    { required: true, message: '请输入字典类型名称', trigger: 'blur' }
+    { required: true, message: t('routine.dict.type.rules.dictTypeNameRequired'), trigger: 'blur' }
   ],
   dataSource: [
-    { required: true, message: '请选择数据源', trigger: 'change' }
+    { required: true, message: t('routine.dict.type.rules.dataSourceRequired'), trigger: 'change' }
   ],
   sqlScript: [
     {
       validator: (_rule, value) => {
         if (mainFormState.dataSource === 1 && !value) {
-          return Promise.reject('数据源为SQL查询时，SQL脚本不能为空')
+          return Promise.reject(t('routine.dict.type.rules.sqlScriptRequired'))
         }
         return Promise.resolve()
       },
       trigger: 'blur'
     }
   ]
-}
+}))
 
-// 字典数据子表列定义（与 DictData 接口字段顺序一致）
-const dictDataColumns: TableColumnsType = [
+// 字典数据子表列定义（与 DictData 接口字段顺序一致；列标题与后端 entity.dictdata 种子对齐）
+const dictDataColumns = computed<TableColumnsType>(() => [
   {
-    title: '字典类型ID',
+    title: t('entity.dictdata.dicttypeid'),
     dataIndex: 'dictTypeId',
     key: 'dictTypeId',
     width: 120
   },
   {
-    title: '字典类型编码',
+    title: t('entity.dictdata.dicttypecode'),
     dataIndex: 'dictTypeCode',
     key: 'dictTypeCode',
     width: 150
   },
   {
-    title: '字典标签',
+    title: t('entity.dictdata.dictlabel'),
     dataIndex: 'dictLabel',
     key: 'dictLabel',
     width: 150
   },
   {
-    title: '字典本地化键',
+    title: t('entity.dictdata.dictl10nkey'),
     dataIndex: 'dictL10nKey',
     key: 'dictL10nKey',
     width: 200,
     ellipsis: true
   },
   {
-    title: '字典值',
+    title: t('entity.dictdata.dictvalue'),
     dataIndex: 'dictValue',
     key: 'dictValue',
     width: 150
   },
   {
-    title: 'CSS类名',
+    title: t('entity.dictdata.cssclass'),
     dataIndex: 'cssClass',
     key: 'cssClass',
     width: 100
   },
   {
-    title: '列表类名',
+    title: t('entity.dictdata.listclass'),
     dataIndex: 'listClass',
     key: 'listClass',
     width: 100
   },
   {
-    title: '扩展标签',
+    title: t('entity.dictdata.extlabel'),
     dataIndex: 'extLabel',
     key: 'extLabel',
     width: 150,
     ellipsis: true
   },
   {
-    title: '扩展值',
+    title: t('entity.dictdata.extvalue'),
     dataIndex: 'extValue',
     key: 'extValue',
     width: 150,
     ellipsis: true
   },
   {
-    title: '排序号',
+    title: t('entity.dictdata.ordernum'),
     dataIndex: 'orderNum',
     key: 'orderNum',
     width: 100
   },
   {
-    title: '操作',
+    title: t('common.action.operation'),
     key: 'action',
     width: 80,
     fixed: 'right'
   }
-]
+])
 
 // ========================================
 // 方法定义
@@ -496,9 +561,7 @@ watch(
       })
 
       // 填充子表数据
-      dictDataList.value = newData.dictDataList
-        ? newData.dictDataList.map(item => ({ ...item }))
-        : []
+      dictDataList.value = ((newData.dictDataList ?? []) as DictData[]).map(item => ({ ...item }))
     } else {
       // 新增模式：重置表单（按 DictType 接口字段顺序）
       Object.assign(mainFormState, {
@@ -548,8 +611,9 @@ const validate = async () => {
   // 验证子表数据
   for (let i = 0; i < dictDataList.value.length; i++) {
     const item = dictDataList.value[i]
+    if (!item) continue
     if (!item.dictLabel || !item.dictValue) {
-      throw new Error(`第 ${i + 1} 行字典数据：字典标签和字典值不能为空`)
+      throw new Error(t('routine.dict.type.rules.dictRowRequired', { row: i + 1 }))
     }
   }
 }
@@ -593,51 +657,47 @@ const getFormData = (): DictTypeCreate | DictTypeUpdate => {
 // 行内编辑方法
 // ========================================
 
-// 开始编辑单元格
-const handleStartEdit = (record: any, index: number, field: keyof DictData) => {
-  const key = `${record.dictDataId || index}-${field}`
+// 开始编辑单元格（表格 bodyCell 的 record 推断为 Record，此处收窄为 DictData）
+const handleStartEdit = (record: Record<string, unknown>, index: number, field: DictDataEditableField) => {
+  const row = record as unknown as DictData
+  const key = `${row.dictDataId || index}-${field}`
   editingKey.value = key
   editingIndex.value = index
-  editingRecord.value = {
-    [field]: record[field]
-  }
+  editingRecord.value = dictDataToInlineEditState(row)
 }
 
 // 保存单元格（表单中的子表，直接更新本地数据，不需要调用API）
-const handleSaveCell = (record: any, index: number, field: keyof DictData) => {
-  const key = `${record.dictDataId || index}-${field}`
+const handleSaveCell = (record: Record<string, unknown>, index: number, field: DictDataEditableField) => {
+  const row = record as unknown as DictData
+  const key = `${row.dictDataId || index}-${field}`
   if (editingKey.value !== key) return
-  
+
   const newValue = editingRecord.value[field]
-  
+
   // 验证必填字段
   if ((field === 'dictLabel' || field === 'dictValue') && !newValue) {
-    // 恢复原值
-    editingRecord.value[field] = record[field]
     handleCancelEdit()
     return
   }
-  
+
   // 更新本地数据
   if (index >= 0 && index < dictDataList.value.length) {
+    const cur = dictDataList.value[index]
+    if (!cur) return
     dictDataList.value[index] = {
-      ...dictDataList.value[index],
+      ...cur,
       [field]: newValue
     } as DictData
   }
-  
+
   // 清除编辑状态
   handleCancelEdit()
 }
 
 // 取消编辑
 const handleCancelEdit = () => {
-  if (editingIndex.value >= 0 && editingIndex.value < dictDataList.value.length) {
-    // 如果取消编辑，恢复原值（如果需要的话，这里直接清除编辑状态即可）
-    // 因为 editingRecord 只是临时值，不会影响原数据
-  }
   editingKey.value = ''
-  editingRecord.value = {}
+  editingRecord.value = emptyDictDataInlineEditState()
   editingIndex.value = -1
 }
 

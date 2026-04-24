@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：TaktAttendanceCorrectionService.cs
@@ -75,7 +75,7 @@ public class TaktAttendanceCorrectionService : TaktServiceBase, ITaktAttendanceC
     /// <inheritdoc />
     public async Task<TaktAttendanceCorrectionDto> UpdateAttendanceCorrectionAsync(long id, TaktAttendanceCorrectionUpdateDto dto)
     {
-        if (dto.CorrectionId != id)
+        if (dto.AttendanceCorrectionId != id)
             throw new TaktBusinessException("validation.idRouteMismatch");
 
         var entity = await _repository.GetByIdAsync(id);
@@ -218,8 +218,8 @@ public class TaktAttendanceCorrectionService : TaktServiceBase, ITaktAttendanceC
         var exp = Expressionable.Create<TaktAttendanceCorrection>();
         exp = exp.AndIF(q?.EmployeeId != null, x => x.EmployeeId == q!.EmployeeId!.Value);
         exp = exp.AndIF(q?.ApprovalStatus != null, x => x.ApprovalStatus == q!.ApprovalStatus!.Value);
-        exp = exp.AndIF(q?.TargetDateFrom != null, x => x.TargetDate >= q!.TargetDateFrom!.Value.Date);
-        exp = exp.AndIF(q?.TargetDateTo != null, x => x.TargetDate <= q!.TargetDateTo!.Value.Date);
+        exp = exp.AndIF(q?.TargetDateStart != null, x => x.TargetDate >= q!.TargetDateStart!.Value.Date);
+        exp = exp.AndIF(q?.TargetDateEnd != null, x => x.TargetDate <= q!.TargetDateEnd!.Value.Date);
         if (!string.IsNullOrEmpty(q?.KeyWords))
             exp = exp.And(x => x.Reason.Contains(q!.KeyWords!) || (x.Remark != null && x.Remark.Contains(q.KeyWords)));
         return exp.ToExpression();

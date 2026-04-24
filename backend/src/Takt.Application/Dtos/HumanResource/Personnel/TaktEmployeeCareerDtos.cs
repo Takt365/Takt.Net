@@ -1,10 +1,10 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.Personnel
 // 文件名称：TaktEmployeeCareerDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt员工职业信息DTO，包含员工职业信息相关的数据传输对象（查询、创建、更新、导入导出）
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：员工职业表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,9 +17,9 @@ using Takt.Shared.Models;
 namespace Takt.Application.Dtos.HumanResource.Personnel;
 
 /// <summary>
-/// Takt员工职业信息DTO
+/// 员工职业表Dto
 /// </summary>
-public class TaktEmployeeCareerDto : TaktDtoBase
+public partial class TaktEmployeeCareerDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -27,100 +27,83 @@ public class TaktEmployeeCareerDto : TaktDtoBase
     public TaktEmployeeCareerDto()
     {
         DeptName = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 职业记录ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 员工职业表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long CareerId { get; set; }
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeCareerId { get; set; }
 
     /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
-
     /// <summary>
     /// 部门ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long DeptId { get; set; }
-
     /// <summary>
     /// 部门名称
     /// </summary>
     public string DeptName { get; set; }
-
     /// <summary>
     /// 岗位ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? PostId { get; set; }
-
     /// <summary>
     /// 岗位名称
     /// </summary>
     public string? PostName { get; set; }
-
     /// <summary>
     /// 职级
     /// </summary>
     public string? JobLevel { get; set; }
-
     /// <summary>
     /// 职位
     /// </summary>
     public string? JobTitle { get; set; }
-
     /// <summary>
     /// 入职日期
     /// </summary>
     public DateTime? JoinDate { get; set; }
-
     /// <summary>
     /// 转正日期
     /// </summary>
     public DateTime? RegularizationDate { get; set; }
-
     /// <summary>
     /// 离职日期
     /// </summary>
     public DateTime? LeaveDate { get; set; }
-
     /// <summary>
     /// 工作年限
     /// </summary>
     public decimal? WorkYears { get; set; }
-
     /// <summary>
     /// 工作地点
     /// </summary>
     public string? WorkLocation { get; set; }
-
     /// <summary>
-    /// 工作性质（0=全职，1=兼职，2=实习，3=外包，4=其他）
+    /// 工作性质
     /// </summary>
     public int WorkNature { get; set; }
-
     /// <summary>
-    /// 用工形式（0=正式，1=合同，2=派遣，3=其他）
+    /// 用工形式
     /// </summary>
     public int EmploymentType { get; set; }
-
     /// <summary>
-    /// 是否主职（0=否，1=是）
+    /// 是否主职
     /// </summary>
     public int IsPrimary { get; set; }
-
     /// <summary>
     /// 直接上级员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? DirectManagerId { get; set; }
-
     /// <summary>
     /// 直接上级姓名
     /// </summary>
@@ -128,9 +111,9 @@ public class TaktEmployeeCareerDto : TaktDtoBase
 }
 
 /// <summary>
-/// Takt员工职业信息查询DTO
+/// 员工职业表查询DTO
 /// </summary>
-public class TaktEmployeeCareerQueryDto : TaktPagedQuery
+public partial class TaktEmployeeCareerQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -139,34 +122,142 @@ public class TaktEmployeeCareerQueryDto : TaktPagedQuery
     {
     }
 
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
     /// <summary>
-    /// 员工ID（精确）
+    /// 员工职业表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeCareerId { get; set; }
+
+    /// <summary>
+    /// 员工ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? EmployeeId { get; set; }
-
     /// <summary>
-    /// 部门ID（精确）
+    /// 部门ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? DeptId { get; set; }
-
     /// <summary>
-    /// 岗位ID（精确）
+    /// 部门名称
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    public string? DeptName { get; set; }
+    /// <summary>
+    /// 岗位ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? PostId { get; set; }
+    /// <summary>
+    /// 岗位名称
+    /// </summary>
+    public string? PostName { get; set; }
+    /// <summary>
+    /// 职级
+    /// </summary>
+    public string? JobLevel { get; set; }
+    /// <summary>
+    /// 职位
+    /// </summary>
+    public string? JobTitle { get; set; }
+    /// <summary>
+    /// 入职日期
+    /// </summary>
+    public DateTime? JoinDate { get; set; }
 
     /// <summary>
-    /// 是否主职（0=否，1=是；null 表示全部）
+    /// 入职日期开始时间
+    /// </summary>
+    public DateTime? JoinDateStart { get; set; }
+    /// <summary>
+    /// 入职日期结束时间
+    /// </summary>
+    public DateTime? JoinDateEnd { get; set; }
+    /// <summary>
+    /// 转正日期
+    /// </summary>
+    public DateTime? RegularizationDate { get; set; }
+
+    /// <summary>
+    /// 转正日期开始时间
+    /// </summary>
+    public DateTime? RegularizationDateStart { get; set; }
+    /// <summary>
+    /// 转正日期结束时间
+    /// </summary>
+    public DateTime? RegularizationDateEnd { get; set; }
+    /// <summary>
+    /// 离职日期
+    /// </summary>
+    public DateTime? LeaveDate { get; set; }
+
+    /// <summary>
+    /// 离职日期开始时间
+    /// </summary>
+    public DateTime? LeaveDateStart { get; set; }
+    /// <summary>
+    /// 离职日期结束时间
+    /// </summary>
+    public DateTime? LeaveDateEnd { get; set; }
+    /// <summary>
+    /// 工作年限
+    /// </summary>
+    public decimal? WorkYears { get; set; }
+    /// <summary>
+    /// 工作地点
+    /// </summary>
+    public string? WorkLocation { get; set; }
+    /// <summary>
+    /// 工作性质
+    /// </summary>
+    public int? WorkNature { get; set; }
+    /// <summary>
+    /// 用工形式
+    /// </summary>
+    public int? EmploymentType { get; set; }
+    /// <summary>
+    /// 是否主职
     /// </summary>
     public int? IsPrimary { get; set; }
+    /// <summary>
+    /// 直接上级员工ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? DirectManagerId { get; set; }
+    /// <summary>
+    /// 直接上级姓名
+    /// </summary>
+    public string? DirectManagerName { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建员工职业信息DTO
+/// Takt创建员工职业表DTO
 /// </summary>
-public class TaktEmployeeCareerCreateDto
+public partial class TaktEmployeeCareerCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -176,100 +267,110 @@ public class TaktEmployeeCareerCreateDto
         DeptName = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 部门ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long DeptId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 部门名称
     /// </summary>
     public string DeptName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 岗位ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? PostId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 岗位名称
     /// </summary>
     public string? PostName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 职级
     /// </summary>
     public string? JobLevel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 职位
     /// </summary>
     public string? JobTitle { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 入职日期
     /// </summary>
     public DateTime? JoinDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 转正日期
     /// </summary>
     public DateTime? RegularizationDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 离职日期
     /// </summary>
     public DateTime? LeaveDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 工作年限
     /// </summary>
     public decimal? WorkYears { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 工作地点
     /// </summary>
     public string? WorkLocation { get; set; }
 
-    /// <summary>
-    /// 工作性质（0=全职，1=兼职，2=实习，3=外包，4=其他）
+        /// <summary>
+    /// 工作性质
     /// </summary>
     public int WorkNature { get; set; }
 
-    /// <summary>
-    /// 用工形式（0=正式，1=合同，2=派遣，3=其他）
+        /// <summary>
+    /// 用工形式
     /// </summary>
     public int EmploymentType { get; set; }
 
-    /// <summary>
-    /// 是否主职（0=否，1=是）
+        /// <summary>
+    /// 是否主职
     /// </summary>
     public int IsPrimary { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 直接上级员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? DirectManagerId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 直接上级姓名
     /// </summary>
     public string? DirectManagerName { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt更新员工职业信息DTO
+/// Takt更新员工职业表DTO
 /// </summary>
-public class TaktEmployeeCareerUpdateDto : TaktEmployeeCareerCreateDto
+public partial class TaktEmployeeCareerUpdateDto : TaktEmployeeCareerCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -278,17 +379,18 @@ public class TaktEmployeeCareerUpdateDto : TaktEmployeeCareerCreateDto
     {
     }
 
-    /// <summary>
-    /// 职业记录ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 员工职业表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long CareerId { get; set; }
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeCareerId { get; set; }
 }
 
 /// <summary>
-/// Takt员工职业信息导入模板DTO
+/// 员工职业表导入模板DTO
 /// </summary>
-public class TaktEmployeeCareerTemplateDto
+public partial class TaktEmployeeCareerTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -296,71 +398,97 @@ public class TaktEmployeeCareerTemplateDto
     public TaktEmployeeCareerTemplateDto()
     {
         DeptName = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 部门ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long DeptId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 部门名称
     /// </summary>
     public string DeptName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 岗位ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long? PostId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 岗位名称
     /// </summary>
     public string? PostName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 职级
     /// </summary>
     public string? JobLevel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 职位
     /// </summary>
     public string? JobTitle { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 入职日期
     /// </summary>
     public DateTime? JoinDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 转正日期
     /// </summary>
     public DateTime? RegularizationDate { get; set; }
 
-    /// <summary>
-    /// 工作性质（0=全职，1=兼职，2=实习，3=外包，4=其他）
+        /// <summary>
+    /// 离职日期
+    /// </summary>
+    public DateTime? LeaveDate { get; set; }
+
+        /// <summary>
+    /// 工作年限
+    /// </summary>
+    public decimal? WorkYears { get; set; }
+
+        /// <summary>
+    /// 工作地点
+    /// </summary>
+    public string? WorkLocation { get; set; }
+
+        /// <summary>
+    /// 工作性质
     /// </summary>
     public int WorkNature { get; set; }
 
-    /// <summary>
-    /// 用工形式（0=正式，1=合同，2=派遣，3=其他）
+        /// <summary>
+    /// 用工形式
     /// </summary>
     public int EmploymentType { get; set; }
 
-    /// <summary>
-    /// 是否主职（0=否，1=是）
+        /// <summary>
+    /// 是否主职
     /// </summary>
     public int IsPrimary { get; set; }
+
+        /// <summary>
+    /// 直接上级员工ID
+    /// </summary>
+    public long? DirectManagerId { get; set; }
+
+        /// <summary>
+    /// 直接上级姓名
+    /// </summary>
+    public string? DirectManagerName { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -369,9 +497,9 @@ public class TaktEmployeeCareerTemplateDto
 }
 
 /// <summary>
-/// Takt员工职业信息导入DTO
+/// 员工职业表导入DTO
 /// </summary>
-public class TaktEmployeeCareerImportDto
+public partial class TaktEmployeeCareerImportDto
 {
     /// <summary>
     /// 构造函数
@@ -379,71 +507,97 @@ public class TaktEmployeeCareerImportDto
     public TaktEmployeeCareerImportDto()
     {
         DeptName = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 部门ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long DeptId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 部门名称
     /// </summary>
     public string DeptName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 岗位ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long? PostId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 岗位名称
     /// </summary>
     public string? PostName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 职级
     /// </summary>
     public string? JobLevel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 职位
     /// </summary>
     public string? JobTitle { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 入职日期
     /// </summary>
     public DateTime? JoinDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 转正日期
     /// </summary>
     public DateTime? RegularizationDate { get; set; }
 
-    /// <summary>
-    /// 工作性质（0=全职，1=兼职，2=实习，3=外包，4=其他）
+        /// <summary>
+    /// 离职日期
+    /// </summary>
+    public DateTime? LeaveDate { get; set; }
+
+        /// <summary>
+    /// 工作年限
+    /// </summary>
+    public decimal? WorkYears { get; set; }
+
+        /// <summary>
+    /// 工作地点
+    /// </summary>
+    public string? WorkLocation { get; set; }
+
+        /// <summary>
+    /// 工作性质
     /// </summary>
     public int WorkNature { get; set; }
 
-    /// <summary>
-    /// 用工形式（0=正式，1=合同，2=派遣，3=其他）
+        /// <summary>
+    /// 用工形式
     /// </summary>
     public int EmploymentType { get; set; }
 
-    /// <summary>
-    /// 是否主职（0=否，1=是）
+        /// <summary>
+    /// 是否主职
     /// </summary>
     public int IsPrimary { get; set; }
+
+        /// <summary>
+    /// 直接上级员工ID
+    /// </summary>
+    public long? DirectManagerId { get; set; }
+
+        /// <summary>
+    /// 直接上级姓名
+    /// </summary>
+    public string? DirectManagerName { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -452,75 +606,103 @@ public class TaktEmployeeCareerImportDto
 }
 
 /// <summary>
-/// Takt员工职业信息导出DTO
+/// 员工职业表导出DTO
 /// </summary>
-public class TaktEmployeeCareerExportDto
+public partial class TaktEmployeeCareerExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktEmployeeCareerExportDto()
     {
-        DeptName = string.Empty;
         CreatedAt = DateTime.Now;
+        DeptName = string.Empty;
     }
 
-    /// <summary>
-    /// 职业记录ID
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long CareerId { get; set; }
-
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 部门ID
+    /// </summary>
+    public long DeptId { get; set; }
+
+        /// <summary>
     /// 部门名称
     /// </summary>
     public string DeptName { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 岗位ID
+    /// </summary>
+    public long? PostId { get; set; }
+
+        /// <summary>
     /// 岗位名称
     /// </summary>
     public string? PostName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 职级
     /// </summary>
     public string? JobLevel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 职位
     /// </summary>
     public string? JobTitle { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 入职日期
     /// </summary>
     public DateTime? JoinDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 转正日期
     /// </summary>
     public DateTime? RegularizationDate { get; set; }
 
-    /// <summary>
-    /// 工作性质（0=全职，1=兼职，2=实习，3=外包，4=其他）
+        /// <summary>
+    /// 离职日期
+    /// </summary>
+    public DateTime? LeaveDate { get; set; }
+
+        /// <summary>
+    /// 工作年限
+    /// </summary>
+    public decimal? WorkYears { get; set; }
+
+        /// <summary>
+    /// 工作地点
+    /// </summary>
+    public string? WorkLocation { get; set; }
+
+        /// <summary>
+    /// 工作性质
     /// </summary>
     public int WorkNature { get; set; }
 
-    /// <summary>
-    /// 用工形式（0=正式，1=合同，2=派遣，3=其他）
+        /// <summary>
+    /// 用工形式
     /// </summary>
     public int EmploymentType { get; set; }
 
-    /// <summary>
-    /// 是否主职（0=否，1=是）
+        /// <summary>
+    /// 是否主职
     /// </summary>
     public int IsPrimary { get; set; }
+
+        /// <summary>
+    /// 直接上级员工ID
+    /// </summary>
+    public long? DirectManagerId { get; set; }
+
+        /// <summary>
+    /// 直接上级姓名
+    /// </summary>
+    public string? DirectManagerName { get; set; }
 
     /// <summary>
     /// 创建时间

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Workflow
 // 文件名称：TaktFlowFormService.cs
@@ -46,7 +46,7 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
     /// </summary>
     /// <param name="query">分页及表单编码、名称、分类、状态等筛选</param>
     /// <returns>流程表单分页结果</returns>
-    public async Task<TaktPagedResult<TaktFlowFormDto>> GetListAsync(TaktFlowFormQueryDto query)
+    public async Task<TaktPagedResult<TaktFlowFormDto>> GetFlowFormListAsync(TaktFlowFormQueryDto query)
     {
         var exp = Expressionable.Create<TaktFlowForm>()
             .AndIF(!string.IsNullOrWhiteSpace(query.FormCode), x => x.FormCode.Contains(query.FormCode!))
@@ -68,7 +68,7 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
     /// </summary>
     /// <param name="id">表单 ID</param>
     /// <returns>表单 DTO，不存在时返回 null</returns>
-    public async Task<TaktFlowFormDto?> GetByIdAsync(long id)
+    public async Task<TaktFlowFormDto?> GetFlowFormByIdAsync(long id)
     {
         var entity = await _formRepository.GetByIdAsync(id);
         return entity?.Adapt<TaktFlowFormDto>();
@@ -79,7 +79,7 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
     /// </summary>
     /// <param name="formCode">表单编码</param>
     /// <returns>表单 DTO，不存在时返回 null</returns>
-    public async Task<TaktFlowFormDto?> GetByFormCodeAsync(string formCode)
+    public async Task<TaktFlowFormDto?> GetFlowFormByFormCodeAsync(string formCode)
     {
         var entity = await _formRepository.GetAsync(x => x.FormCode == formCode && x.IsDeleted == 0);
         return entity?.Adapt<TaktFlowFormDto>();
@@ -90,7 +90,7 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
     /// </summary>
     /// <param name="dto">创建参数</param>
     /// <returns>创建后的表单 DTO</returns>
-    public async Task<TaktFlowFormDto> CreateAsync(TaktFlowFormCreateDto dto)
+    public async Task<TaktFlowFormDto> CreateFlowFormAsync(TaktFlowFormCreateDto dto)
     {
         var existing = await _formRepository.GetAsync(x => x.FormCode == dto.FormCode && x.IsDeleted == 0);
         if (existing != null)
@@ -107,7 +107,7 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
     /// <param name="id">表单 ID</param>
     /// <param name="dto">更新参数</param>
     /// <returns>更新后的表单 DTO</returns>
-    public async Task<TaktFlowFormDto> UpdateAsync(long id, TaktFlowFormUpdateDto dto)
+    public async Task<TaktFlowFormDto> UpdateFlowFormAsync(long id, TaktFlowFormUpdateDto dto)
     {
         var entity = await _formRepository.GetByIdAsync(id);
         EnsureEntityExists(entity, "validation.flowFormNotFound");
@@ -125,7 +125,7 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
     /// </summary>
     /// <param name="id">流程表单ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteFlowFormByIdAsync(long id)
     {
         var entity = await _formRepository.GetByIdAsync(id);
         if (entity == null) return;
@@ -139,7 +139,7 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
     /// </summary>
     /// <param name="ids">流程表单ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(IEnumerable<long> ids)
+    public async Task DeleteFlowFormBatchAsync(IEnumerable<long> ids)
     {
         if (ids == null) return;
         foreach (var id in ids.Distinct())
@@ -157,9 +157,12 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
     /// </summary>
     /// <param name="dto">表单 ID、目标状态及备注</param>
     /// <returns>更新后的表单 DTO</returns>
-    public async Task<TaktFlowFormDto> UpdateStatusAsync(TaktFlowFormStatusDto dto)
+    public async Task<TaktFlowFormDto> UpdateFlowFormStatusAsync(TaktFlowFormStatusDto dto)
     {
-        var entity = await _formRepository.GetByIdAsync(dto.FormId);
+        if (!dto.FormId.HasValue)
+            throw new ArgumentException("表单ID不能为空", nameof(dto.FormId));
+            
+        var entity = await _formRepository.GetByIdAsync(dto.FormId.Value);
         EnsureEntityExists(entity, "validation.flowFormNotFound");
         entity!.FormStatus = dto.FormStatus;
         if (!string.IsNullOrEmpty(dto.Remark))
@@ -174,7 +177,7 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
     /// <param name="sheetName">工作表名称，为空时使用默认</param>
     /// <param name="fileName">文件名，为空时使用默认</param>
     /// <returns>文件名与文件二进制内容</returns>
-    public async Task<(string fileName, byte[] content)> GetTemplateAsync(string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> GetFlowFormTemplateAsync(string? sheetName, string? fileName)
     {
         var (excelSheet, excelFile) = await ResolveExcelImportTemplateNamesAsync(sheetName, fileName, nameof(TaktFlowForm));
         return await TaktExcelHelper.GenerateTemplateAsync<TaktFlowFormTemplateDto>(
@@ -188,7 +191,7 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
     /// <param name="fileStream">Excel 文件流</param>
     /// <param name="sheetName">工作表名称，为空时使用默认</param>
     /// <returns>成功数、失败数及错误信息列表</returns>
-    public async Task<(int success, int fail, List<string> errors)> ImportAsync(Stream fileStream, string? sheetName)
+    public async Task<(int success, int fail, List<string> errors)> ImportFlowFormAsync(Stream fileStream, string? sheetName)
     {
         var errors = new List<string>();
         int success = 0, fail = 0;
@@ -224,7 +227,7 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
                     FormCategory = item.FormCategory,
                     FormType = item.FormType,
                     FormVersion = item.FormVersion ?? "1.0.0",
-                    OrderNum = item.OrderNum,
+                    SortOrder = item.SortOrder,
                     FormStatus = item.FormStatus >= 0 ? item.FormStatus : 0
                 };
                 await _formRepository.CreateAsync(entity);
@@ -246,7 +249,7 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
     /// <param name="sheetName">工作表名称，为空时使用默认</param>
     /// <param name="fileName">文件名，为空时使用默认</param>
     /// <returns>文件名与文件二进制内容</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktFlowFormQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportFlowFormAsync(TaktFlowFormQueryDto query, string? sheetName, string? fileName)
     {
         var exp = Expressionable.Create<TaktFlowForm>()
             .AndIF(!string.IsNullOrWhiteSpace(query.FormCode), x => x.FormCode.Contains(query.FormCode!))
@@ -281,13 +284,13 @@ public class TaktFlowFormService : TaktServiceBase, ITaktFlowFormService
     };
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<TaktFlowFormBindableEntityDto>> GetBindableEntitiesAsync()
+    public Task<IReadOnlyList<TaktFlowFormBindableEntityDto>> GetFlowFormBindableEntitiesAsync()
     {
         return Task.FromResult(BindableEntities);
     }
 
     /// <inheritdoc />
-    public Task<string?> GetEntityFormConfigAsync(string entityKey)
+    public Task<string?> GetFlowFormConfigByEntityKeyAsync(string entityKey)
     {
         if (string.IsNullOrWhiteSpace(entityKey))
             return Task.FromResult<string?>(null);

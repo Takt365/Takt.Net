@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.SignalR
 // 文件名称：TaktNotificationHub.cs
@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.SignalR;
 using Takt.Application.Dtos.Routine.Tasks.SignalR;
 using Takt.Application.Services.Routine.Tasks.SignalR;
 using Takt.Domain.Interfaces;
+using Takt.Infrastructure.User;
 using Takt.Shared.Helpers;
 
 namespace Takt.Infrastructure.SignalR;
@@ -26,18 +27,18 @@ namespace Takt.Infrastructure.SignalR;
 public class TaktNotificationHub : Hub
 {
     private readonly ITaktOnlineService _onlineService;
-    private readonly ITaktUserContext? _userContext;
+    private readonly ITaktUserContext _userContext;
     private readonly ITaktTenantContext? _tenantContext;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="onlineService">在线用户服务（用于查找接收者的连接）</param>
-    /// <param name="userContext">用户上下文（可选）</param>
+    /// <param name="userContext">用户上下文（须注入）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     public TaktNotificationHub(
         ITaktOnlineService onlineService,
-        ITaktUserContext? userContext = null,
+        ITaktUserContext userContext,
         ITaktTenantContext? tenantContext = null)
     {
         _onlineService = onlineService;
@@ -50,42 +51,38 @@ public class TaktNotificationHub : Hub
     /// </summary>
     public override async Task OnConnectedAsync()
     {
+        var prevPrincipal = TaktUserContext.HubInvocationPrincipal;
+        TaktUserContext.HubInvocationPrincipal = Context.User;
+        try
+        {
         var connectionId = Context.ConnectionId;
-        var userName = _userContext?.GetCurrentUserName() ?? "Anonymous";
+        await _userContext.GetCurrentUserAsync();
+        RequireResolvedLoginUser();
+        var userName = _userContext.GetCurrentUserName()!.Trim();
+        var userId = _userContext.GetCurrentUserId()!.Value;
         TaktLogger.Information("开始处理通知 Hub 连接请求，用户: {UserName}, ConnectionId: {ConnectionId}", userName, connectionId);
         
         try
         {
-            if (!string.IsNullOrEmpty(userName) && userName != "Anonymous")
-            {
-                // 加入用户组（按用户名分组，用于接收个人消息）
-                await Groups.AddToGroupAsync(connectionId, $"User_{userName}");
-                
-                // 加入通知组（所有用户都在此组中，用于接收广播消息）
-                await Groups.AddToGroupAsync(connectionId, "Notifications");
+            await Groups.AddToGroupAsync(connectionId ?? string.Empty, $"User_{userName}");
+            await Groups.AddToGroupAsync(connectionId ?? string.Empty, "Notifications");
 
-                // 向当前客户端发送上线欢迎消息
-                var userId = _userContext?.GetCurrentUserId();
-                var realName = _userContext?.GetCurrentRealName();
-                var connectTime = DateTime.Now;
-                var welcomeMessage = $"欢迎 {realName ?? userName} 上线！通知服务连接成功，当前时间：{connectTime:yyyy-MM-dd HH:mm:ss}";
-                
-                await Clients.Caller.SendAsync("OnlineMessage", new
-                {
-                    Message = welcomeMessage,
-                    MessageType = "Online",
-                    UserName = userName,
-                    UserId = userId,
-                    RealName = realName,
-                    ConnectTime = connectTime
-                });
+            var realName = _userContext.GetCurrentRealName();
+            var connectTime = DateTime.Now;
+            var welcomeMessage = $"欢迎 {realName ?? userName} 上线！通知服务连接成功，当前时间：{connectTime:yyyy-MM-dd HH:mm:ss}";
 
-                TaktLogger.Information("通知 Hub 连接成功，用户: {UserName}, ConnectionId: {ConnectionId}", userName, connectionId);
-            }
-            else
+            var userIdStr = userId.ToString();
+            await Clients.Caller.SendAsync("OnlineMessage", new
             {
-                TaktLogger.Warning("通知 Hub 连接：用户名为空，ConnectionId: {ConnectionId}", connectionId);
-            }
+                Message = welcomeMessage,
+                MessageType = "Online",
+                UserName = userName,
+                UserId = userIdStr,
+                RealName = realName,
+                ConnectTime = connectTime
+            });
+
+            TaktLogger.Information("通知 Hub 连接成功，用户: {UserName}, ConnectionId: {ConnectionId}", userName, connectionId);
 
             await base.OnConnectedAsync();
         }
@@ -95,6 +92,11 @@ public class TaktNotificationHub : Hub
                 userName, connectionId, ex.Message);
             throw;
         }
+        }
+        finally
+        {
+            TaktUserContext.HubInvocationPrincipal = prevPrincipal;
+        }
     }
 
     /// <summary>
@@ -102,8 +104,14 @@ public class TaktNotificationHub : Hub
     /// </summary>
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
+        var prevPrincipal = TaktUserContext.HubInvocationPrincipal;
+        TaktUserContext.HubInvocationPrincipal = Context.User;
+        try
+        {
         var connectionId = Context.ConnectionId;
-        var userName = _userContext?.GetCurrentUserName() ?? "Anonymous";
+        await _userContext.GetCurrentUserAsync();
+        RequireResolvedLoginUser();
+        var userName = _userContext.GetCurrentUserName()!.Trim();
         
         if (exception != null)
         {
@@ -118,13 +126,10 @@ public class TaktNotificationHub : Hub
         
         try
         {
-            if (!string.IsNullOrEmpty(userName) && userName != "Anonymous")
-            {
-                await Groups.RemoveFromGroupAsync(connectionId, $"User_{userName}");
-                await Groups.RemoveFromGroupAsync(connectionId, "Notifications");
+            await Groups.RemoveFromGroupAsync(connectionId ?? string.Empty, $"User_{userName}");
+            await Groups.RemoveFromGroupAsync(connectionId ?? string.Empty, "Notifications");
 
-                TaktLogger.Information("通知 Hub 断开连接成功，用户: {UserName}, ConnectionId: {ConnectionId}", userName, connectionId);
-            }
+            TaktLogger.Information("通知 Hub 断开连接成功，用户: {UserName}, ConnectionId: {ConnectionId}", userName, connectionId);
 
             await base.OnDisconnectedAsync(exception);
         }
@@ -133,6 +138,11 @@ public class TaktNotificationHub : Hub
             TaktLogger.Error(ex, "通知 Hub 断开连接处理失败，用户: {UserName}, ConnectionId: {ConnectionId}, 错误: {ErrorMessage}", 
                 userName, connectionId, ex.Message);
             throw;
+        }
+        }
+        finally
+        {
+            TaktUserContext.HubInvocationPrincipal = prevPrincipal;
         }
     }
 
@@ -155,15 +165,17 @@ public class TaktNotificationHub : Hub
     {
         try
         {
-            var fromUserName = _userContext?.GetCurrentUserName() ?? "Takt365";
-            var fromUserId = _userContext?.GetCurrentUserId();
+            await _userContext.GetCurrentUserAsync();
+            RequireResolvedLoginUser();
+            var fromUserName = _userContext.GetCurrentUserName()!.Trim();
+            var fromUserId = _userContext.GetCurrentUserId()!.Value;
             var sendTime = DateTime.Now;
 
             // 创建消息DTO（这里需要消息服务，暂时先发送实时通知）
             var message = new
             {
                 FromUserName = fromUserName,
-                FromUserId = fromUserId,
+                FromUserId = fromUserId.ToString(),
                 ToUserName = toUserName,
                 ToUserId = (long?)null, // 可以通过用户名查询用户ID
                 MessageTitle = messageTitle,
@@ -179,19 +191,19 @@ public class TaktNotificationHub : Hub
             await Clients.Group($"User_{toUserName}").SendAsync("ReceiveMessage", message);
 
             // 如果发送者也在线，也通知发送者消息已发送
-            if (!string.IsNullOrEmpty(fromUserName))
+            await Clients.Caller.SendAsync("MessageSent", new
             {
-                await Clients.Caller.SendAsync("MessageSent", new
-                {
-                    ToUserName = toUserName,
-                    SendTime = sendTime
-                });
-            }
+                ToUserName = toUserName,
+                SendTime = sendTime
+            });
 
             TaktLogger.Information("用户 {FromUserName} 向 {ToUserName} 发送了消息", fromUserName, toUserName);
         }
         catch (Exception ex)
         {
+            if (ex is HubException)
+                throw;
+
             TaktLogger.Error(ex, "发送消息时发生错误");
             await Clients.Caller.SendAsync("Error", new { Message = "发送消息失败" });
         }
@@ -212,7 +224,9 @@ public class TaktNotificationHub : Hub
     {
         try
         {
-            var fromUserName = _userContext?.GetCurrentUserName() ?? "Takt365";
+            await _userContext.GetCurrentUserAsync();
+            RequireResolvedLoginUser();
+            var fromUserName = _userContext.GetCurrentUserName()!.Trim();
             var sendTime = DateTime.Now;
 
             var message = new
@@ -232,6 +246,9 @@ public class TaktNotificationHub : Hub
         }
         catch (Exception ex)
         {
+            if (ex is HubException)
+                throw;
+
             TaktLogger.Error(ex, "发送广播消息时发生错误");
             await Clients.Caller.SendAsync("Error", new { Message = "发送广播消息失败" });
         }
@@ -245,12 +262,9 @@ public class TaktNotificationHub : Hub
     {
         try
         {
-            var userName = _userContext?.GetCurrentUserName();
-            if (string.IsNullOrEmpty(userName))
-            {
-                await Clients.Caller.SendAsync("Error", new { Message = "未登录" });
-                return;
-            }
+            await _userContext.GetCurrentUserAsync();
+            RequireResolvedLoginUser();
+            var userName = _userContext.GetCurrentUserName()!.Trim();
 
             // 这里需要消息服务来更新消息状态
             // await _messageService.MarkAsReadAsync(messageId, userName);
@@ -273,26 +287,42 @@ public class TaktNotificationHub : Hub
     /// <summary>
     /// 获取未读消息数量
     /// </summary>
-    public Task<int> GetUnreadCount()
+    public async Task<int> GetUnreadCount()
     {
         try
         {
-            var userName = _userContext?.GetCurrentUserName();
-            if (string.IsNullOrEmpty(userName))
-            {
-                return Task.FromResult(0);
-            }
+            await _userContext.GetCurrentUserAsync();
+            RequireResolvedLoginUser();
+            var userName = _userContext.GetCurrentUserName()!.Trim();
 
             // 这里需要消息服务来查询未读消息数量
             // var count = await _messageService.GetUnreadCountAsync(userName);
             // return count;
 
-            return Task.FromResult(0);
+            return 0;
         }
         catch (Exception ex)
         {
+            if (ex is HubException)
+                throw;
+
             TaktLogger.Error(ex, "获取未读消息数量时发生错误");
-            return Task.FromResult(0);
+            return 0;
         }
     }
+
+    /// <summary>
+    /// 已认证 Hub 内必须能解析当前用户主键与登录名；否则立即失败。
+    /// </summary>
+    private void RequireResolvedLoginUser()
+    {
+        var id = _userContext.GetCurrentUserId();
+        if (!id.HasValue || id.Value <= 0)
+            throw new HubException("无法解析当前登录用户，请重新登录后重试。");
+
+        var name = _userContext.GetCurrentUserName();
+        if (string.IsNullOrWhiteSpace(name))
+            throw new HubException("无法解析当前登录用户名，请重新登录后重试。");
+    }
+
 }

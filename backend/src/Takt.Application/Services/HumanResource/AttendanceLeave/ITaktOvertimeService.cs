@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：ITaktOvertimeService.cs
@@ -87,4 +87,14 @@ public interface ITaktOvertimeService
     /// <param name="fileName">文件名基名（可选）</param>
     /// <returns>最终文件名与文件二进制内容</returns>
     Task<(string fileName, byte[] content)> ExportOvertimeAsync(TaktOvertimeQueryDto query, string? sheetName, string? fileName);
+
+    #region 统计分析
+
+    /// <summary>
+    /// 按加班类型统计昨天的加班总数（小时数）
+    /// </summary>
+    /// <returns>加班类型统计（Key=加班类型，Value=总小时数）</returns>
+    Task<Dictionary<int, decimal>> GetYesterdayOvertimeHoursByTypeAsync();
+
+    #endregion
 }

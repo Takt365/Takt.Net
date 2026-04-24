@@ -154,8 +154,8 @@
         import-permission="humanresource:attendanceleave:attendancecorrection:import"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.attendancecorrection._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.attendancecorrection._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -342,7 +342,7 @@ const columns = computed<TableColumnsType>(() => [
     width: 100,
     resizable: true
   },
-  CreateActionColumn({
+  CreateActionColumn<AttendanceCorrection>({
     actions: [
       {
         key: 'update',
@@ -430,7 +430,7 @@ const loadData = async () => {
     total.value = response.total ?? 0
   } catch (error: unknown) {
     logger.error('[AttendanceCorrection] 加载数据失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.loadFail'))
+    message.error(getErrorMessage(error) || t('common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -491,7 +491,7 @@ const handleUpdate = () => {
   if (selectedRow.value) handleEdit(selectedRow.value)
   else
     message.warning(
-      t('common.action.warnSelectToAction', {
+      t('common.action.warnselecttoaction', {
         action: t('common.button.edit'),
         entity: t('entity.attendancecorrection._self')
       })
@@ -501,18 +501,18 @@ const handleUpdate = () => {
 const handleDeleteOne = (record: AttendanceCorrection) => {
   const name = record.reason || getCorrectionId(record)
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', { entity: t('entity.attendancecorrection._self'), name }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.attendancecorrection._self'), name }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await deleteAttendanceCorrectionById(getCorrectionId(record))
-        message.success(t('common.msg.deleteSuccess', { target: t('entity.attendancecorrection._self') }))
+        message.success(t('common.msg.deletesuccess', { target: t('entity.attendancecorrection._self') }))
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error) || t('common.msg.deleteFail', { target: t('entity.attendancecorrection._self') }))
+        message.error(getErrorMessage(error) || t('common.msg.deletefail', { target: t('entity.attendancecorrection._self') }))
       } finally {
         loading.value = false
       }
@@ -523,7 +523,7 @@ const handleDeleteOne = (record: AttendanceCorrection) => {
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
     message.warning(
-      t('common.action.warnSelectToAction', {
+      t('common.action.warnselecttoaction', {
         action: t('common.button.delete'),
         entity: t('entity.attendancecorrection._self')
       })
@@ -531,8 +531,8 @@ const handleDelete = () => {
     return
   }
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', {
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', {
       entity: t('entity.attendancecorrection._self'),
       count: selectedRows.value.length
     }),
@@ -546,13 +546,13 @@ const handleDelete = () => {
         } else {
           await deleteAttendanceCorrectionBatch(selectedRows.value.map((r) => getCorrectionId(r)))
         }
-        message.success(t('common.msg.deleteSuccess', { target: t('entity.attendancecorrection._self') }))
+        message.success(t('common.msg.deletesuccess', { target: t('entity.attendancecorrection._self') }))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error) || t('common.msg.deleteFail', { target: t('entity.attendancecorrection._self') }))
+        message.error(getErrorMessage(error) || t('common.msg.deletefail', { target: t('entity.attendancecorrection._self') }))
       } finally {
         loading.value = false
       }
@@ -574,10 +574,10 @@ const handleFormSubmit = async () => {
         correctionId: idStr
       }
       await updateAttendanceCorrection(idStr, payload)
-      message.success(t('common.msg.updateSuccess', { target: t('entity.attendancecorrection._self') }))
+      message.success(t('common.msg.updatesuccess', { target: t('entity.attendancecorrection._self') }))
     } else {
       await createAttendanceCorrection(formValues as AttendanceCorrectionCreate)
-      message.success(t('common.msg.createSuccess', { target: t('entity.attendancecorrection._self') }))
+      message.success(t('common.msg.createsuccess', { target: t('entity.attendancecorrection._self') }))
     }
     formRef.value?.resetFields()
     formData.value = {}
@@ -585,7 +585,7 @@ const handleFormSubmit = async () => {
     loadData()
   } catch (error: unknown) {
     if (typeof error === 'object' && error !== null && 'errorFields' in error) return
-    message.error(getErrorMessage(error) || t('common.msg.operateFail', { action: t('common.action.operation') }))
+    message.error(getErrorMessage(error) || t('common.msg.operatefail', { action: t('common.action.operation') }))
   } finally {
     formLoading.value = false
   }
@@ -657,10 +657,10 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess', { target: t('entity.attendancecorrection._self') }))
+    message.success(t('common.msg.exportsuccess', { target: t('entity.attendancecorrection._self') }))
   } catch (error: unknown) {
     logger.error('[AttendanceCorrection] 导出失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.exportFail', { target: t('entity.attendancecorrection._self') }))
+    message.error(getErrorMessage(error) || t('common.msg.exportfail', { target: t('entity.attendancecorrection._self') }))
   } finally {
     loading.value = false
   }

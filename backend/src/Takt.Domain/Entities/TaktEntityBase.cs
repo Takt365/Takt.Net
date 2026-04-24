@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities
 // 文件名称：TaktEntityBase.cs
@@ -11,6 +11,7 @@
 // ========================================
 
 using SqlSugar;
+using Takt.Shared.Constants;
 
 namespace Takt.Domain.Entities;
 
@@ -52,7 +53,7 @@ public abstract class TaktEntityBase
     public long CreatedById { get; set; }
 
     /// <summary>
-    /// 创建人（用户名，非空；无当前用户时仓储填 Takt365）
+    /// 创建人（用户名，非空；种子等无当前用户时仓储填 <see cref="TaktAppConstants.InitUserName"/>）
     /// </summary>
     [SugarColumn(ColumnName = "created_by", ColumnDescription = "创建人", ColumnDataType = "nvarchar", Length = 50, IsNullable = false, DefaultValue = "")]
     public string CreatedBy { get; set; } = string.Empty;

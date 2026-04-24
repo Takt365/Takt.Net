@@ -23,7 +23,7 @@
         </a-menu-item>
         <a-menu-item @click="handleSettings">
           <SettingOutlined />
-          {{ $t('common.button.personalSettings') }}
+          {{ $t('common.button.personalsettings') }}
         </a-menu-item>
         <a-menu-divider />
         <a-menu-item @click="handleLogout">
@@ -80,8 +80,8 @@ const handleSettings = () => {
 const { t } = useI18n()
 const handleLogout = () => {
   Modal.confirm({
-    title: t('components.navigation.systemSetting.confirmLogout'),
-    content: t('components.navigation.systemSetting.logoutContent'),
+    title: t('components.navigation.page.systemsetting.confirmlogout'),
+    content: t('components.navigation.page.systemsetting.logoutcontent'),
     centered: true,
     okText: t('common.button.ok'),
     cancelText: t('common.button.cancel'),

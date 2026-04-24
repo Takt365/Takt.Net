@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.HumanResource.AttendanceLeave
 // 文件名称：TaktHoliday.cs
@@ -15,7 +15,7 @@ namespace Takt.Domain.Entities.HumanResource.AttendanceLeave;
 /// <summary>
 /// Takt假日实体（假日条目，支撑考勤、薪资计算）
 /// </summary>
-[SugarTable("takt_humanresource_holiday", "假日表")]
+[SugarTable("takt_humanresource_holiday", "假日信息表")]
 [SugarIndex("ix_takt_humanresource_holiday_start_date", nameof(StartDate), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_holiday_end_date", nameof(EndDate), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_holiday_config_id", nameof(ConfigId), OrderByType.Asc)]

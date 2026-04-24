@@ -18,7 +18,7 @@ import type {
   NumberingRuleCreate,
   NumberingRuleUpdate,
   NumberingRuleStatus
-} from '@/types/routine/tasks/numbering-rule'
+} from '@/types/routine/tasks/numbering-rule/numbering-rule'
 
 // ========================================
 // 编码规则相关 API（按后端控制器顺序）

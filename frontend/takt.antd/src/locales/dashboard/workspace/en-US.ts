@@ -2,26 +2,28 @@
  * Workspace · English
  */
 export default {
-  addModule: 'Add Module',
-  removeModule: 'Remove Module',
-  manageShortcuts: 'Manage shortcuts',
-  addSuccess: 'Module added',
-  removeSuccess: 'Module removed',
-  selectModuleType: 'Select module type',
-  currentTimeLabel: 'Current time',
-  dayOfYearLabel: 'Day {n}',
-  todoPlaceholder: 'No todos. Add a Todo module via "Add Module".',
-  noticePlaceholder: 'No notices. Add a Notice module via "Add Module".',
-  customPlaceholder: 'Custom content. Editable in future.',
-  dragToReorder: 'Drag {title} to reorder',
-  layoutLabel: 'Layout',
-  layoutFullRow: 'One row one column',
-  layoutHalfRow: 'One row two columns',
-  modules: {
-    welcome: 'Welcome Greeting',
-    shortcut: 'Shortcuts',
-    todo: 'Todo',
-    notice: 'Notice',
-    custom: 'Custom'
+  page: {
+    addmodule: 'Add Module',
+      removemodule: 'Remove Module',
+      manageshortcuts: 'Manage shortcuts',
+      addsuccess: 'Module added',
+      removesuccess: 'Module removed',
+      selectmoduletype: 'Select module type',
+      currenttimelabel: 'Current time',
+      dayofyearlabel: 'Day {n}',
+      todoplaceholder: 'No todos. Add a Todo module via "Add Module".',
+      noticeplaceholder: 'No notices. Add a Notice module via "Add Module".',
+      customplaceholder: 'Custom content. Editable in future.',
+      dragtoreorder: 'Drag {title} to reorder',
+      layoutlabel: 'Layout',
+      layoutfullrow: 'One row one column',
+      layouthalfrow: 'One row two columns',
+      modules: {
+        welcome: 'Welcome Greeting',
+        shortcut: 'Shortcuts',
+        todo: 'Todo',
+        notice: 'Notice',
+        custom: 'Custom'
+      }
   }
 }

@@ -1,21 +1,25 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.Application.Dtos.Routine.Dict
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：Takt.Application.Dtos.Routine.Tasks.Dict
 // 文件名称：TaktDictTypeDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt字典类型DTO，包含字典类型相关的数据传输对象（查询、创建、更新）
-// 
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：字典类型表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
+//
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
+using SqlSugar;
+using Takt.Application.Dtos;
+using Takt.Shared.Models;
+
 namespace Takt.Application.Dtos.Routine.Tasks.Dict;
 
 /// <summary>
-/// Takt字典类型DTO
+/// 字典类型表Dto
 /// </summary>
-public class TaktDictTypeDto : TaktDtoBase
+public partial class TaktDictTypeDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -24,66 +28,59 @@ public class TaktDictTypeDto : TaktDtoBase
     {
         DictTypeCode = string.Empty;
         DictTypeName = string.Empty;
-        ConfigId = "0";
+        DataConfigId = string.Empty;
     }
 
     /// <summary>
-    /// 字典类型ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 字典类型表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long DictTypeId { get; set; }
 
     /// <summary>
-    /// 字典类型编码（唯一索引）
+    /// 字典类型
     /// </summary>
     public string DictTypeCode { get; set; }
-
     /// <summary>
-    /// 字典类型名称
+    /// 类型名称
     /// </summary>
     public string DictTypeName { get; set; }
-
     /// <summary>
-    /// 数据源（0=系统表，1=SQL查询）
+    /// 数据源
     /// </summary>
     public int DataSource { get; set; }
-
     /// <summary>
-    /// 数据库配置ID（当数据源为SQL查询时，指定在哪个数据库连接上执行SQL脚本）
+    /// 数据库配置ID
     /// </summary>
-    public string DataConfigId { get; set; } = "0";
-
+    public string DataConfigId { get; set; }
     /// <summary>
-    /// SQL脚本（当数据源为SQL查询时使用）
+    /// SQL脚本
     /// </summary>
     public string? SqlScript { get; set; }
-
     /// <summary>
-    /// 是否内置（1=是，0=否）
+    /// 是否内置
     /// </summary>
     public int IsBuiltIn { get; set; }
-
     /// <summary>
-    /// 排序号（越小越靠前）
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
-
+    public int SortOrder { get; set; }
     /// <summary>
-    /// 类型状态（0=启用，1=禁用）
+    /// 类型状态
     /// </summary>
     public int DictTypeStatus { get; set; }
 
     /// <summary>
-    /// 字典数据列表（主子表关系）
+    /// 字典数据列表（外键：子表 TaktDictData.DictTypeId 关联本表 Id）
     /// </summary>
-    public List<TaktDictDataDto>? DictDataList { get; set; }
+    public List<long>? DictDataList { get; set; }
 }
 
 /// <summary>
-/// Takt字典类型查询DTO
+/// 字典类型表查询DTO
 /// </summary>
-public class TaktDictTypeQueryDto : TaktPagedQuery
+public partial class TaktDictTypeQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -92,28 +89,75 @@ public class TaktDictTypeQueryDto : TaktPagedQuery
     {
     }
 
-    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于在字典类型名称、字典类型编码中模糊查询
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
     /// <summary>
-    /// 字典类型名称
+    /// 字典类型表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
-    public string? DictTypeName { get; set; }
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long DictTypeId { get; set; }
 
     /// <summary>
-    /// 字典类型编码
+    /// 字典类型
     /// </summary>
     public string? DictTypeCode { get; set; }
-
     /// <summary>
-    /// 类型状态（0=启用，1=禁用）
+    /// 类型名称
+    /// </summary>
+    public string? DictTypeName { get; set; }
+    /// <summary>
+    /// 数据源
+    /// </summary>
+    public int? DataSource { get; set; }
+    /// <summary>
+    /// 数据库配置ID
+    /// </summary>
+    public string? DataConfigId { get; set; }
+    /// <summary>
+    /// SQL脚本
+    /// </summary>
+    public string? SqlScript { get; set; }
+    /// <summary>
+    /// 是否内置
+    /// </summary>
+    public int? IsBuiltIn { get; set; }
+    /// <summary>
+    /// 排序号
+    /// </summary>
+    public int? SortOrder { get; set; }
+    /// <summary>
+    /// 类型状态
     /// </summary>
     public int? DictTypeStatus { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建字典类型DTO
+/// Takt创建字典类型表DTO
 /// </summary>
-public class TaktDictTypeCreateDto
+public partial class TaktDictTypeCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -122,58 +166,64 @@ public class TaktDictTypeCreateDto
     {
         DictTypeCode = string.Empty;
         DictTypeName = string.Empty;
+        DataConfigId = string.Empty;
     }
 
-    /// <summary>
-    /// 字典类型编码（唯一索引）
+        /// <summary>
+    /// 字典类型
     /// </summary>
-    public string DictTypeCode { get; set; } = string.Empty;
+    public string DictTypeCode { get; set; }
 
-    /// <summary>
-    /// 字典类型名称
+        /// <summary>
+    /// 类型名称
     /// </summary>
-    public string DictTypeName { get; set; } = string.Empty;
+    public string DictTypeName { get; set; }
 
-    /// <summary>
-    /// 数据源（0=系统表，1=SQL查询）
+        /// <summary>
+    /// 数据源
     /// </summary>
-    public int DataSource { get; set; } = 0;
+    public int DataSource { get; set; }
 
-    /// <summary>
-    /// 数据库配置ID（当数据源为SQL查询时，指定在哪个数据库连接上执行SQL脚本）
+        /// <summary>
+    /// 数据库配置ID
     /// </summary>
-    public string DataConfigId { get; set; } = "0";
+    public string DataConfigId { get; set; }
 
-    /// <summary>
-    /// SQL脚本（当数据源为SQL查询时使用）
+        /// <summary>
+    /// SQL脚本
     /// </summary>
     public string? SqlScript { get; set; }
 
-    /// <summary>
-    /// 是否内置（1=是，0=否）
+        /// <summary>
+    /// 是否内置
     /// </summary>
-    public int IsBuiltIn { get; set; } = 1;
+    public int IsBuiltIn { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
+
+        /// <summary>
+    /// 类型状态
+    /// </summary>
+    public int DictTypeStatus { get; set; }
 
     /// <summary>
-    /// 排序号（越小越靠前）
+    /// 扩展字段JSON
     /// </summary>
-    public int OrderNum { get; set; } = 0;
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
     /// </summary>
     public string? Remark { get; set; }
-
-    /// <summary>
-    /// 字典数据列表（主子表关系）
-    /// </summary>
-    public List<TaktDictDataCreateDto>? DictDataList { get; set; }
 }
 
 /// <summary>
-/// Takt更新字典类型DTO
+/// Takt更新字典类型表DTO
 /// </summary>
-public class TaktDictTypeUpdateDto : TaktDictTypeCreateDto
+public partial class TaktDictTypeUpdateDto : TaktDictTypeCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -182,8 +232,8 @@ public class TaktDictTypeUpdateDto : TaktDictTypeCreateDto
     {
     }
 
-    /// <summary>
-    /// 字典类型ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 字典类型表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
@@ -191,9 +241,9 @@ public class TaktDictTypeUpdateDto : TaktDictTypeCreateDto
 }
 
 /// <summary>
-/// Takt字典类型状态DTO
+/// 字典类型表类型状态DTO
 /// </summary>
-public class TaktDictTypeStatusDto
+public partial class TaktDictTypeStatusDto
 {
     /// <summary>
     /// 构造函数
@@ -202,23 +252,23 @@ public class TaktDictTypeStatusDto
     {
     }
 
-    /// <summary>
-    /// 字典类型ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 字典类型表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long DictTypeId { get; set; }
 
     /// <summary>
-    /// 类型状态（0=启用，1=禁用）
+    /// 类型状态（0=禁用，1=启用）
     /// </summary>
     public int DictTypeStatus { get; set; }
 }
 
 /// <summary>
-/// Takt字典类型导入模板DTO
+/// 字典类型表导入模板DTO
 /// </summary>
-public class TaktDictTypeTemplateDto
+public partial class TaktDictTypeTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -227,50 +277,53 @@ public class TaktDictTypeTemplateDto
     {
         DictTypeCode = string.Empty;
         DictTypeName = string.Empty;
-        DataConfigId = "0";
-        SqlScript = string.Empty;
-        Remark = string.Empty;
+        DataConfigId = string.Empty;
     }
 
-    /// <summary>
-    /// 字典类型编码（唯一索引）
+        /// <summary>
+    /// 字典类型
     /// </summary>
     public string DictTypeCode { get; set; }
 
-    /// <summary>
-    /// 字典类型名称
+        /// <summary>
+    /// 类型名称
     /// </summary>
     public string DictTypeName { get; set; }
 
-    /// <summary>
-    /// 数据源（0=系统表，1=SQL查询）
+        /// <summary>
+    /// 数据源
     /// </summary>
     public int DataSource { get; set; }
 
-    /// <summary>
-    /// 数据库配置ID（当数据源为SQL查询时使用）
+        /// <summary>
+    /// 数据库配置ID
     /// </summary>
-    public string DataConfigId { get; set; } = string.Empty;
+    public string DataConfigId { get; set; }
 
-    /// <summary>
-    /// SQL脚本（当数据源为SQL查询时使用）
+        /// <summary>
+    /// SQL脚本
     /// </summary>
-    public string SqlScript { get; set; }
+    public string? SqlScript { get; set; }
 
-    /// <summary>
-    /// 是否内置（1=是，0=否）
+        /// <summary>
+    /// 是否内置
     /// </summary>
     public int IsBuiltIn { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
-    /// <summary>
-    /// 类型状态（0=启用，1=禁用）
+        /// <summary>
+    /// 类型状态
     /// </summary>
     public int DictTypeStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -279,9 +332,9 @@ public class TaktDictTypeTemplateDto
 }
 
 /// <summary>
-/// Takt字典类型导入DTO
+/// 字典类型表导入DTO
 /// </summary>
-public class TaktDictTypeImportDto
+public partial class TaktDictTypeImportDto
 {
     /// <summary>
     /// 构造函数
@@ -290,50 +343,53 @@ public class TaktDictTypeImportDto
     {
         DictTypeCode = string.Empty;
         DictTypeName = string.Empty;
-        DataConfigId = "0";
-        SqlScript = string.Empty;
-        Remark = string.Empty;
+        DataConfigId = string.Empty;
     }
 
-    /// <summary>
-    /// 字典类型编码（唯一索引）
+        /// <summary>
+    /// 字典类型
     /// </summary>
     public string DictTypeCode { get; set; }
 
-    /// <summary>
-    /// 字典类型名称
+        /// <summary>
+    /// 类型名称
     /// </summary>
     public string DictTypeName { get; set; }
 
-    /// <summary>
-    /// 数据源（0=系统表，1=SQL查询）
+        /// <summary>
+    /// 数据源
     /// </summary>
     public int DataSource { get; set; }
 
-    /// <summary>
-    /// 数据库配置ID（当数据源为SQL查询时使用）
+        /// <summary>
+    /// 数据库配置ID
     /// </summary>
-    public string DataConfigId { get; set; } = string.Empty;
+    public string DataConfigId { get; set; }
 
-    /// <summary>
-    /// SQL脚本（当数据源为SQL查询时使用）
+        /// <summary>
+    /// SQL脚本
     /// </summary>
-    public string SqlScript { get; set; }
+    public string? SqlScript { get; set; }
 
-    /// <summary>
-    /// 是否内置（1=是，0=否）
+        /// <summary>
+    /// 是否内置
     /// </summary>
     public int IsBuiltIn { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
-    /// <summary>
-    /// 类型状态（0=启用，1=禁用）
+        /// <summary>
+    /// 类型状态
     /// </summary>
     public int DictTypeStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -342,44 +398,58 @@ public class TaktDictTypeImportDto
 }
 
 /// <summary>
-/// Takt字典类型导出DTO
+/// 字典类型表导出DTO
 /// </summary>
-public class TaktDictTypeExportDto
+public partial class TaktDictTypeExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktDictTypeExportDto()
     {
+        CreatedAt = DateTime.Now;
         DictTypeCode = string.Empty;
         DictTypeName = string.Empty;
-        DataSource = string.Empty;
-        DictTypeStatus = 0;
-        CreatedAt = DateTime.Now;
+        DataConfigId = string.Empty;
     }
 
-    /// <summary>
-    /// 字典类型编码（唯一索引）
+        /// <summary>
+    /// 字典类型
     /// </summary>
     public string DictTypeCode { get; set; }
 
-    /// <summary>
-    /// 字典类型名称
+        /// <summary>
+    /// 类型名称
     /// </summary>
     public string DictTypeName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 数据源
     /// </summary>
-    public string DataSource { get; set; }
+    public int DataSource { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 数据库配置ID
     /// </summary>
-    public int OrderNum { get; set; }
+    public string DataConfigId { get; set; }
 
-    /// <summary>
-    /// 类型状态（0=启用，1=禁用）
+        /// <summary>
+    /// SQL脚本
+    /// </summary>
+    public string? SqlScript { get; set; }
+
+        /// <summary>
+    /// 是否内置
+    /// </summary>
+    public int IsBuiltIn { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
+
+        /// <summary>
+    /// 类型状态
     /// </summary>
     public int DictTypeStatus { get; set; }
 

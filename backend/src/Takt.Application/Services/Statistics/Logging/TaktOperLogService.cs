@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Statistics.Logging
 // 文件名称：TaktOperLogService.cs
@@ -51,7 +51,7 @@ public class TaktOperLogService : TaktServiceBase, ITaktOperLogService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktOperLogDto>> GetListAsync(TaktOperLogQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktOperLogDto>> GetOperLogListAsync(TaktOperLogQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
 
@@ -69,7 +69,7 @@ public class TaktOperLogService : TaktServiceBase, ITaktOperLogService
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>操作日志DTO</returns>
-    public async Task<TaktOperLogDto?> GetByIdAsync(long id)
+    public async Task<TaktOperLogDto?> GetOperLogByIdAsync(long id)
     {
         var log = await _operLogRepository.GetByIdAsync(id);
         if (log == null) return null;
@@ -82,10 +82,22 @@ public class TaktOperLogService : TaktServiceBase, ITaktOperLogService
     /// </summary>
     /// <param name="dto">创建操作日志DTO</param>
     /// <returns>操作日志DTO</returns>
-    public async Task<TaktOperLogDto> CreateAsync(TaktCreateOperLogDto dto)
+    public async Task<TaktOperLogDto> CreateOperLogAsync(TaktOperLogCreateDto dto)
     {
         var log = dto.Adapt<TaktOperLog>();
-        log.OperTime = dto.OperTime ?? DateTime.Now;
+        log.OperTime = dto.OperTime;
+
+        if (!dto.AuditUserId.HasValue || dto.AuditUserId.Value <= 0)
+            throw new InvalidOperationException("创建操作日志必须携带已登录用户主键 AuditUserId。");
+
+        var by = !string.IsNullOrWhiteSpace(dto.AuditUserDisplayName)
+            ? dto.AuditUserDisplayName.Trim()
+            : (!string.IsNullOrWhiteSpace(dto.UserName) ? dto.UserName.Trim() : string.Empty);
+        if (string.IsNullOrWhiteSpace(by))
+            throw new InvalidOperationException("创建操作日志必须携带非空登录名（UserName 或 AuditUserDisplayName）。");
+
+        log.CreatedById = dto.AuditUserId.Value;
+        log.CreatedBy = by;
 
         // 填充IP定位信息
         FillIpLocationInfo(log.OperIp,
@@ -153,7 +165,7 @@ public class TaktOperLogService : TaktServiceBase, ITaktOperLogService
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteOperLogByIdAsync(long id)
     {
         var log = await _operLogRepository.GetByIdAsync(id);
         EnsureEntityExistsLocalized(log, "OperLogNotFound");
@@ -167,7 +179,7 @@ public class TaktOperLogService : TaktServiceBase, ITaktOperLogService
     /// </summary>
     /// <param name="ids">日志ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteBatchAsync(List<long> ids)
+    public async Task DeleteOperLogBatchAsync(List<long> ids)
     {
         if (ids == null || ids.Count == 0)
         {
@@ -193,7 +205,7 @@ public class TaktOperLogService : TaktServiceBase, ITaktOperLogService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktOperLogQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportOperLogAsync(TaktOperLogQueryDto query, string? sheetName, string? fileName)
     {
         // 构建查询条件
         var predicate = QueryExpression(query);
@@ -230,7 +242,7 @@ public class TaktOperLogService : TaktServiceBase, ITaktOperLogService
             dto.OperMethod = l.OperMethod ?? string.Empty;
             dto.RequestMethod = l.RequestMethod ?? string.Empty;
             dto.OperUrl = l.OperUrl ?? string.Empty;
-            dto.OperStatus = GetOperStatusString(l.OperStatus);
+            dto.OperStatusString = GetOperStatusString(l.OperStatus);
             dto.ErrorMsg = l.ErrorMsg ?? string.Empty;
             dto.OperIp = l.OperIp ?? string.Empty;
             dto.OperLocation = l.OperLocation ?? string.Empty;

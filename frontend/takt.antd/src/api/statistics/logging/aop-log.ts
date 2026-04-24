@@ -18,7 +18,7 @@ const aopLogUrl = '/api/TaktAopLogs'
 
 /**
  * 获取差异日志列表（分页）
- * 对应后端：GetListAsync
+ * 对应后端应用服务：GetAopLogListAsync（TaktAopLogsController.GetAopLogListAsync）
  */
 export function getAopLogList(params: AopLogQuery): Promise<TaktPagedResult<AopLog>> {
   return request({
@@ -30,7 +30,7 @@ export function getAopLogList(params: AopLogQuery): Promise<TaktPagedResult<AopL
 
 /**
  * 根据ID获取差异日志
- * 对应后端：GetByIdAsync
+ * 对应后端应用服务：GetAopLogByIdAsync（TaktAopLogsController.GetAopLogByIdAsync）
  */
 export function getAopLogById(id: string): Promise<AopLog> {
   return request({
@@ -40,10 +40,10 @@ export function getAopLogById(id: string): Promise<AopLog> {
 }
 
 /**
- * 删除差异日志
- * 对应后端：DeleteAsync
+ * 删除差异日志（单条）
+ * 对应后端应用服务：DeleteAopLogByIdAsync（TaktAopLogsController.DeleteAopLogByIdAsync）
  */
-export function deleteAopLog(id: string): Promise<void> {
+export function deleteAopLogById(id: string): Promise<void> {
   return request({
     url: `${aopLogUrl}/${id}`,
     method: 'delete'
@@ -52,7 +52,7 @@ export function deleteAopLog(id: string): Promise<void> {
 
 /**
  * 批量删除差异日志
- * 对应后端：DeleteBatchAsync
+ * 对应后端应用服务：DeleteAopLogBatchAsync（TaktAopLogsController.DeleteAopLogBatchAsync）
  */
 export function deleteAopLogBatch(ids: number[]): Promise<void> {
   return request({
@@ -64,9 +64,9 @@ export function deleteAopLogBatch(ids: number[]): Promise<void> {
 
 /**
  * 导出差异日志
- * 对应后端：ExportAsync
+ * 对应后端应用服务：ExportAopLogAsync（TaktAopLogsController.ExportAopLogAsync）
  */
-export function exportAopLog(query: AopLogQuery, sheetName?: string, fileName?: string): Promise<Blob> {
+export function exportAopLogData(query: AopLogQuery, sheetName?: string, fileName?: string): Promise<Blob> {
   return request({
     url: `${aopLogUrl}/export`,
     method: 'get',

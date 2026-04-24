@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Code.Generator.CodeEngine
 // 文件名称：TaktGenTemplateContext.cs
@@ -29,7 +29,7 @@ public class TaktGenControllerActionDescriptor
     /// <summary>路由（如 list、{id}、batch）</summary>
     public string Route { get; set; } = string.Empty;
 
-    /// <summary>权限键（如 app:table:list）</summary>
+    /// <summary>权限键（如 logistics:materials:plant:list，四段小写冒号分隔：领域:目录:实体:key）</summary>
     public string PermissionKey { get; set; } = string.Empty;
 
     /// <summary>权限显示名（如：查询列表）</summary>
@@ -117,7 +117,18 @@ public class TaktSqlTranslationRowItem
     public string TranslationValue { get; set; } = string.Empty;
     /// <summary>资源分组：menu=菜单翻译，page=页面字段翻译</summary>
     public string ResourceGroup { get; set; } = "page";
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
+}
+
+/// <summary>按钮菜单 SQL 单行（<c>takt_identity_menu</c>，<c>menu_type=2</c>），供 menu_and_translation.sql；<c>parent_id</c> 为页面菜单 <see cref="TaktGenTableTemplateModel.SqlMenuId"/>。</summary>
+public class TaktSqlMenuButtonRowItem
+{
+    public long Id { get; set; }
+    public string MenuCode { get; set; } = string.Empty;
+    public string MenuName { get; set; } = string.Empty;
+    public string Permission { get; set; } = string.Empty;
+    public string MenuL10nKey { get; set; } = string.Empty;
+    public int SortOrder { get; set; }
 }
 
 /// <summary>
@@ -150,7 +161,7 @@ public class TaktGenTemplateContext
         {
             Table = TaktGenTableTemplateModel.From(table) ?? new TaktGenTableTemplateModel(),
             Columns = (columns ?? Array.Empty<TaktGenTableColumn>())
-                .OrderBy(c => c.OrderNum)
+                .OrderBy(c => c.SortOrder)
                 .Select(TaktGenColumnTemplateModel.From)
                 .ToList()
         };
@@ -194,7 +205,7 @@ public class TaktGenTableTemplateModel
     public int InDatabase { get; set; }
 
     /// <summary>生成模板类型（crud=单表，tree=树表，sub=主子表）</summary>
-    public string GenTemplate { get; set; } = "crud";
+    public string GenTemplateCategory { get; set; } = "crud";
 
     /// <summary>命名空间前缀（用于生成类名、方法名等的前缀）</summary>
     public string? NamePrefix { get; set; }
@@ -223,10 +234,7 @@ public class TaktGenTableTemplateModel
     /// <summary>传输对象 Dto 类名</summary>
     public string? DtoClassName { get; set; }
 
-    /// <summary>传输对象 Dto 类别（Dto、QueryDto、CreateDto、UpdateDto 等）</summary>
-    public string? DtoCategory { get; set; }
-
-    /// <summary>传输对象 Dto 类别列表（由 DtoCategory 按逗号拆分，供模板循环）</summary>
+    /// <summary>传输对象 Dto 类别列表（由 GenFunction 自动推断，供模板循环）</summary>
     public List<string> DtoCategories { get; set; } = new();
 
     /// <summary>传输对象 Dto 类别描述列表（含名称、基类、BodyKind，供模板按数据循环生成，不写死类型名）</summary>
@@ -295,6 +303,12 @@ public class TaktGenTableTemplateModel
     /// <summary>是否生成删除相关（0=否，1=是，由 GenFunction 解析）</summary>
     public int IsDelete { get; set; }
 
+    /// <summary>是否生成状态相关（0=否，1=是，由 GenFunction 解析）</summary>
+    public int IsStatus { get; set; }
+
+    /// <summary>是否生成排序相关（0=否，1=是，由 GenFunction 解析）</summary>
+    public int IsSort { get; set; }
+
     /// <summary>是否生成模板相关（0=否，1=是，由 GenFunction 解析）</summary>
     public int IsTemplate { get; set; }
 
@@ -322,26 +336,35 @@ public class TaktGenTableTemplateModel
     /// <summary>是否生成翻译（1=是，0=否）</summary>
     public int IsGenTranslation { get; set; }
 
-    /// <summary>排序类型（asc=升序，desc=降序）</summary>
-    public string SortType { get; set; } = "asc";
-
     /// <summary>排序字段（实体列名，帕斯卡）</summary>
     public string SortField { get; set; } = string.Empty;
+
+    /// <summary>排序类型（asc=升序，desc=降序）</summary>
+    public string SortType { get; set; } = "asc";
 
     /// <summary>排序字段驼峰（供前端 API 使用，如 CreatedAt→createdAt）</summary>
     public string TsSortField { get; set; } = string.Empty;
 
-    /// <summary>权限前缀</summary>
+    /// <summary>与 <see cref="TaktGenTable.PermsPrefix"/> 一致，来自生成表配置（数据库原样）。</summary>
     public string PermsPrefix { get; set; } = string.Empty;
 
-    /// <summary>前端模板（1=element plus，2=ant design vue）</summary>
-    public int FrontTemplate { get; set; } = 1;
+    /// <summary>
+    /// 由库表列 <c>perms_prefix</c>（同模型中的 <c>PermsPrefix</c> 属性）规范化得到的三段基点：领域:目录:实体（小写、冒号分隔）。模板中完整权限码一律为「本属性 + 冒号 + key」（如再拼 <c>:list</c>、<c>:update</c>）。
+    /// 计算顺序：<b>先处理 PermsPrefix</b>；仅当其为空或未解析出任何段时，才用 <see cref="GenModuleName"/> 与实体类名推导；非空时只规范化前缀字符串，不以模块名覆盖用户已填段。
+    /// </summary>
+    public string PermsPrefixCanonical { get; set; } = string.Empty;
 
-    /// <summary>前端样式（12=一行一列，24=一行两列）</summary>
-    public int FrontStyle { get; set; } = 24;
+    /// <summary>菜单权限组</summary>
+    public string? MenuButtonGroup { get; set; }
 
-    /// <summary>操作按钮样式（0=文本，1=标准）</summary>
-    public int BtnStyle { get; set; } = 1;
+    /// <summary>前端UI框架（1=element plus，2=ant design vue）</summary>
+    public int FrontUi { get; set; } = 1;
+
+    /// <summary>前端表单布局（12=一行一列，24=一行两列）</summary>
+    public int FrontFormLayout { get; set; } = 24;
+
+    /// <summary>前端操作按钮样式（0=文本，1=标准）</summary>
+    public int FrontBtnStyle { get; set; } = 1;
 
     /// <summary>是否生成代码（1=是，0=否）</summary>
     public int IsGenCode { get; set; } = 1;
@@ -361,14 +384,17 @@ public class TaktGenTableTemplateModel
     /// <summary>SQL 创建人（生成菜单/翻译 SQL 时写入 create_by，如 admin、user01；由生成时当前登录用户名或 GenAuthor 填充）</summary>
     public string SqlCreateBy { get; set; } = "admin";
 
-    /// <summary>菜单 SQL 的雪花 ID（IsGenMenu=0 时由 SnowFlakeSingle.Instance.NextId() 生成，供 INSERT id 列）</summary>
+    /// <summary>菜单 SQL 的雪花 ID（IsGenMenu=1 时由 SnowFlakeSingle.Instance.NextId() 生成，供 INSERT id 列）</summary>
     public long? SqlMenuId { get; set; }
 
-    /// <summary>翻译 SQL 行列表（IsGenTranslation=0 时按模板顺序预生成，每行含雪花 Id、culture、resource_key、translation_value、order_num）</summary>
+    /// <summary>翻译 SQL 行列表（IsGenTranslation=1 时按模板顺序预生成，每行含雪花 Id、culture、resource_key、translation_value、sort_order）</summary>
     public List<TaktSqlTranslationRowItem> SqlTranslationRows { get; set; } = new();
 
+    /// <summary>按钮菜单 SQL 行列表</summary>
+    public List<TaktSqlMenuButtonRowItem> SqlMenuButtonRows { get; set; } = new();
+
     /// <summary>其他生成选项（JSON 格式）</summary>
-    public string? Options { get; set; }
+    public string? OtherGenOptions { get; set; }
 
     /// <summary>控制器 Action 列表，由 GenFunction 解析生成，模板仅循环渲染</summary>
     public List<TaktGenControllerActionDescriptor> ControllerActions { get; set; } = new();
@@ -584,6 +610,105 @@ public class TaktGenTableTemplateModel
         return char.ToLowerInvariant(sortField[0]) + sortField[1..];
     }
 
+    /// <summary>从 <see cref="TaktGenTable.PermsPrefix"/> 解析时，若误将第四段 key 写入前缀则剥离用。</summary>
+    private static readonly HashSet<string> KnownPermissionKeySuffixes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "list", "query", "create", "update", "delete", "import", "export", "page",
+        "status", "info", "resetpwd", "changepwd", "reset", "change", "unlock"
+    };
+
+    private static bool IsKnownPermissionKeySuffix(string segment) =>
+        !string.IsNullOrEmpty(segment) && KnownPermissionKeySuffixes.Contains(segment);
+
+    /// <summary>
+    /// 由表配置 <paramref name="permsPrefix"/> 得到 <see cref="PermsPrefixCanonical"/>（三段、小写、冒号分隔）。<b>非空时仅解析本参数</b>；仅当其为空或未得到任何段时，才用 <paramref name="genModuleName"/> 与 <paramref name="entityClassName"/> 推导。完整权限码 = 返回值 + ":" + key。
+    /// </summary>
+    private static string BuildPermsPrefixCanonical(string? permsPrefix, string? genModuleName, string? entityClassName)
+    {
+        // 权限组合：完整码 = 本方法返回值（模板字段 perms_prefix_canonical / PermsPrefixCanonical）+ ":" + key。
+        // 必须先处理库表 perms_prefix（实参 permsPrefix）：trim 后非空则只解析、规范化该串，不以 genModuleName 覆盖用户已填各段；仅当其为空或未解析出任何段时，才用 genModuleName + 实体名推导三段。
+        var ep = ToEntityNamePascal(entityClassName);
+        var entitySeg = string.IsNullOrEmpty(ep) ? "entity" : ToEntityNameCamel(ep).ToLowerInvariant();
+
+        var raw = (permsPrefix ?? string.Empty).Trim();
+        // 无下划线时：按冒号分段，尊重用户已配置的三段（或误填四段时去掉末尾已知 key 后取前三段）
+        if (!string.IsNullOrEmpty(raw) && !raw.Contains('_'))
+        {
+            var colonParts = raw.Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(s => s.ToLowerInvariant())
+                .Where(s => s.Length > 0)
+                .ToList();
+            while (colonParts.Count >= 3 && IsKnownPermissionKeySuffix(colonParts[^1]))
+                colonParts.RemoveAt(colonParts.Count - 1);
+            if (colonParts.Count >= 3)
+                return string.Join(':', colonParts.Take(3));
+        }
+
+        var segs = new List<string>();
+        if (!string.IsNullOrEmpty(raw))
+        {
+            if (raw.Contains(':'))
+            {
+                foreach (var block in raw.Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    foreach (var part in block.Split(new[] { '_', '.', '/', ' ' }, StringSplitOptions.RemoveEmptyEntries))
+                        segs.Add(part.ToLowerInvariant());
+                }
+            }
+            else if (!raw.Contains('_') && raw.Contains('.'))
+            {
+                foreach (var part in raw.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                    segs.Add(part.ToLowerInvariant());
+            }
+            else
+            {
+                foreach (var part in raw.Split(new[] { '_', '.', ':', '/', ' ' }, StringSplitOptions.RemoveEmptyEntries))
+                    segs.Add(part.ToLowerInvariant());
+            }
+        }
+
+        if (segs.Count == 0)
+        {
+            foreach (var part in (genModuleName ?? string.Empty).Trim().Split(new[] { '_', '.', '/', ' ' }, StringSplitOptions.RemoveEmptyEntries))
+                segs.Add(part.ToLowerInvariant());
+        }
+
+        if (segs.Count == 0)
+            segs.Add("app");
+
+        if (segs.Count == 1)
+        {
+            segs.Add("data");
+            segs.Add(entitySeg);
+        }
+        else if (segs.Count == 2)
+        {
+            if (string.Equals(segs[1], entitySeg, StringComparison.Ordinal))
+                segs.Insert(1, "core");
+            else
+                segs.Add(entitySeg);
+        }
+
+        if (segs.Count > 3)
+            segs = segs.Take(3).ToList();
+
+        while (segs.Count < 3)
+            segs.Add("data");
+
+        return string.Join(':', segs);
+    }
+
+    /// <summary>
+    /// 与属性 <see cref="PermsPrefixCanonical"/> 的计算规则同源（私有 <c>BuildPermsPrefixCanonical</c>）。
+    /// 供导入表等工作流在 <see cref="TaktGenTable.PermsPrefix"/> 为空时写入推荐的三段基点（领域:目录:实体，小写冒号）。
+    /// </summary>
+    /// <param name="permsPrefix">与库表 <c>perms_prefix</c> 一致；传 <see langword="null"/> 或空白表示仅按模块名与实体类名推导。</param>
+    /// <param name="genModuleName">生成模块名（如 <c>logistics_materials</c>）。</param>
+    /// <param name="entityClassName">实体类名（如 <c>TaktPlant</c>）。</param>
+    /// <returns>规范化三段、小写、冒号分隔。</returns>
+    public static string ResolvePermsPrefixCanonical(string? permsPrefix, string? genModuleName, string? entityClassName)
+        => BuildPermsPrefixCanonical(permsPrefix, genModuleName, entityClassName);
+
     /// <summary>控制器类名转 API 基础路径（去掉 Controller 后缀，如 TaktDeptsController→/api/TaktDepts）。</summary>
     private static string ToApiBasePath(string? controllerClassName)
     {
@@ -659,23 +784,24 @@ public class TaktGenTableTemplateModel
         return trimmed.Split(new[] { ',', '，', ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).Where(s => s.Length > 0).ToList();
     }
 
-    /// <summary>功能键列表中是否包含“查询”或“查看”，用于生成查询相关 Action/方法。</summary>
+    /// <summary>功能键列表中是否包含"Query"或"View"，用于生成查询相关 Action/方法。</summary>
     /// <param name="keys">GenFunction 解析得到的功能键列表</param>
     /// <returns>包含查询/查看时返回 true</returns>
     private static bool HasQueryKey(List<string> keys) =>
-        keys.Exists(k => k.Contains("查询", StringComparison.Ordinal) || k.Contains("查看", StringComparison.Ordinal));
+        keys.Exists(k => k.Equals("Query", StringComparison.Ordinal) || k.Equals("View", StringComparison.Ordinal));
 
     /// <summary>根据 GenFunction 功能键列表，向表模型追加控制器 Action 描述符（GetList、GetById、Create、Update、Delete 等）。</summary>
     /// <param name="m">表级模板模型</param>
     /// <param name="keys">功能键列表（如 查询、新增、更新、删除）</param>
     private static void BuildControllerActions(TaktGenTableTemplateModel m, List<string> keys)
     {
-        var permsPrefix = m.PermsPrefix ?? "app";
+        var permBase = m.PermsPrefixCanonical;
         var entity = m.EntityClassName;
         var funcName = m.GenFunctionName ?? m.GenBusinessName ?? string.Empty;
         var entityIdName = (m.EntityClassName.StartsWith("Takt", StringComparison.Ordinal) ? m.EntityClassName[4..] : m.EntityClassName) + "Id";
 
         var ep = m.EntityNamePascal;
+        var ec = m.EntityNameCamel;
         if (HasQueryKey(keys))
         {
             m.ControllerActions.Add(new TaktGenControllerActionDescriptor
@@ -683,7 +809,7 @@ public class TaktGenTableTemplateModel
                 Summary = $"获取{funcName}列表（分页）",
                 HttpMethod = "HttpGet",
                 Route = "list",
-                PermissionKey = $"{permsPrefix}:list",
+                PermissionKey = $"{permBase}:list",
                 PermissionName = $"查询{funcName}列表",
                 MethodName = "GetListAsync",
                 FrontendMethodName = $"get{ep}List",
@@ -699,7 +825,7 @@ public class TaktGenTableTemplateModel
                 Summary = $"根据ID获取{funcName}",
                 HttpMethod = "HttpGet",
                 Route = "{id}",
-                PermissionKey = $"{permsPrefix}:query",
+                PermissionKey = $"{permBase}:query",
                 PermissionName = $"查询{funcName}详情",
                 MethodName = "GetByIdAsync",
                 FrontendMethodName = $"get{ep}ById",
@@ -710,15 +836,31 @@ public class TaktGenTableTemplateModel
                 ResponseType = $"{entity}Dto",
                 Body = "var dto = await _service.GetByIdAsync(id);\n        if (dto == null) return NotFound();\n        return Ok(dto);"
             });
+            m.ControllerActions.Add(new TaktGenControllerActionDescriptor
+            {
+                Summary = $"获取{funcName}下拉选项",
+                HttpMethod = "HttpGet",
+                Route = "options",
+                PermissionKey = $"{permBase}:query",
+                PermissionName = $"查询{funcName}下拉选项",
+                MethodName = $"Get{ep}OptionsAsync",
+                FrontendMethodName = $"get{ep}Options",
+                FrontendSignature = string.Empty,
+                FrontendReturnType = "Promise<TaktSelectOption[]>",
+                FrontendRequestKey = string.Empty,
+                Signature = string.Empty,
+                ResponseType = "List<TaktSelectOption>",
+                Body = $"var result = await _{ec}Service.Get{ep}OptionsAsync();\n        return Ok(result);"
+            });
         }
-        if (keys.Any(k => k.Contains("新增", StringComparison.Ordinal)))
+        if (keys.Any(k => k.Equals("Create", StringComparison.Ordinal)))
         {
             m.ControllerActions.Add(new TaktGenControllerActionDescriptor
             {
                 Summary = $"创建{funcName}",
                 HttpMethod = "HttpPost",
                 Route = "",
-                PermissionKey = $"{permsPrefix}:create",
+                PermissionKey = $"{permBase}:create",
                 PermissionName = $"创建{funcName}",
                 MethodName = "CreateAsync",
                 FrontendMethodName = $"create{ep}",
@@ -730,14 +872,14 @@ public class TaktGenTableTemplateModel
                 Body = "var result = await _service.CreateAsync(dto);\n        return Ok(result);"
             });
         }
-        if (keys.Any(k => k.Contains("更新", StringComparison.Ordinal)))
+        if (keys.Any(k => k.Equals("Update", StringComparison.Ordinal)))
         {
             m.ControllerActions.Add(new TaktGenControllerActionDescriptor
             {
                 Summary = $"更新{funcName}",
                 HttpMethod = "HttpPut",
                 Route = "{id}",
-                PermissionKey = $"{permsPrefix}:update",
+                PermissionKey = $"{permBase}:update",
                 PermissionName = $"更新{funcName}",
                 MethodName = "UpdateAsync",
                 FrontendMethodName = $"update{ep}",
@@ -746,17 +888,17 @@ public class TaktGenTableTemplateModel
                 FrontendRequestKey = "data",
                 Signature = $"long id, [FromBody] {entity}UpdateDto dto",
                 ResponseType = $"{entity}Dto",
-                Body = "try\n        {\n            var result = await _service.UpdateAsync(id, dto);\n            return Ok(result);\n        }\n        catch (TaktBusinessException ex)\n        {\n            return BadRequest(ex.Message);\n        }"
+                Body = "try\n        {\n            var result = await _service.UpdateAsync(id, dto);\n            return Ok(result);\n        }\n        catch (Exception ex)\n        {\n            return BadRequest(GetLocalizedExceptionMessage(ex));\n        }"
             });
         }
-        if (keys.Any(k => k.Contains("删除", StringComparison.Ordinal)))
+        if (keys.Any(k => k.Equals("Delete", StringComparison.Ordinal)))
         {
             m.ControllerActions.Add(new TaktGenControllerActionDescriptor
             {
                 Summary = $"删除{funcName}",
                 HttpMethod = "HttpDelete",
                 Route = "{id}",
-                PermissionKey = $"{permsPrefix}:delete",
+                PermissionKey = $"{permBase}:delete",
                 PermissionName = $"删除{funcName}",
                 MethodName = "DeleteAsync",
                 FrontendMethodName = $"delete{ep}ById",
@@ -770,28 +912,66 @@ public class TaktGenTableTemplateModel
             m.ControllerActions.Add(new TaktGenControllerActionDescriptor
             {
                 Summary = $"批量删除{funcName}",
-                HttpMethod = "HttpDelete",
-                Route = "batch",
-                PermissionKey = $"{permsPrefix}:delete",
+                HttpMethod = "HttpPost",
+                Route = "delete",
+                PermissionKey = $"{permBase}:delete",
                 PermissionName = $"批量删除{funcName}",
                 MethodName = "DeleteBatchAsync",
                 FrontendMethodName = $"delete{ep}Batch",
                 FrontendSignature = "ids: string[]",
                 FrontendReturnType = "Promise<void>",
                 FrontendRequestKey = "data: ids",
-                Signature = "[FromBody] IEnumerable<long> ids",
+                Signature = "[FromBody] List<long> ids",
                 ResponseType = "IActionResult",
-                Body = "await _service.DeleteAsync(ids);\n        return NoContent();"
+                Body = $"if (ids == null || ids.Count == 0)\n            return BadRequest(GetLocalizedString(\"validation.idsDeleteRequired\", \"Frontend\"));\n        await _{ec}Service.Delete{ep}BatchAsync(ids);\n        return NoContent();"
             });
         }
-        if (keys.Any(k => k.Contains("模板", StringComparison.Ordinal)))
+        if (keys.Any(k => k.Equals("Status", StringComparison.Ordinal)))
+        {
+            m.ControllerActions.Add(new TaktGenControllerActionDescriptor
+            {
+                Summary = $"更新{funcName}状态",
+                HttpMethod = "HttpPut",
+                Route = "status",
+                PermissionKey = $"{permBase}:status",
+                PermissionName = $"更新{funcName}状态",
+                MethodName = "UpdateStatusAsync",
+                FrontendMethodName = $"update{ep}Status",
+                FrontendSignature = "id: string, status: number",
+                FrontendReturnType = "Promise<void>",
+                FrontendRequestKey = "data: { id, status }",
+                Signature = "long id, [FromBody] int status",
+                ResponseType = "IActionResult",
+                Body = $"await _{ec}Service.UpdateStatusAsync(id, status);\n        return NoContent();"
+            });
+        }
+        if (keys.Any(k => k.Equals("Sort", StringComparison.Ordinal)))
+        {
+            m.ControllerActions.Add(new TaktGenControllerActionDescriptor
+            {
+                Summary = $"更新{funcName}排序",
+                HttpMethod = "HttpPut",
+                Route = "sort",
+                PermissionKey = $"{permBase}:sort",
+                PermissionName = $"更新{funcName}排序",
+                MethodName = "UpdateSortAsync",
+                FrontendMethodName = $"update{ep}Sort",
+                FrontendSignature = "id: string, sort: number",
+                FrontendReturnType = "Promise<void>",
+                FrontendRequestKey = "data: { id, sort }",
+                Signature = "long id, [FromBody] int sort",
+                ResponseType = "IActionResult",
+                Body = $"await _{ec}Service.UpdateSortAsync(id, sort);\n        return NoContent();"
+            });
+        }
+        if (keys.Any(k => k.Equals("Template", StringComparison.Ordinal)))
         {
             m.ControllerActions.Add(new TaktGenControllerActionDescriptor
             {
                 Summary = "获取导入模板",
                 HttpMethod = "HttpGet",
                 Route = "template",
-                PermissionKey = $"{permsPrefix}:import",
+                PermissionKey = $"{permBase}:import",
                 PermissionName = "获取导入模板",
                 MethodName = "GetTemplateAsync",
                 FrontendMethodName = $"get{ep}Template",
@@ -800,17 +980,17 @@ public class TaktGenTableTemplateModel
                 FrontendRequestKey = "params",
                 Signature = "[FromQuery] string? sheetName = null, [FromQuery] string? fileName = null",
                 ResponseType = "IActionResult",
-                Body = "try\n        {\n            var (resultFileName, content) = await _service.GetTemplateAsync(sheetName, fileName);\n            return File(content, \"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\", resultFileName);\n        }\n        catch (Exception ex)\n        {\n            return BadRequest(ex.Message);\n        }"
+                Body = "try\n        {\n            var (resultFileName, content) = await _service.GetTemplateAsync(sheetName, fileName);\n            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);\n        }\n        catch (Exception ex)\n        {\n            return BadRequest(GetLocalizedExceptionMessage(ex));\n        }"
             });
         }
-        if (keys.Any(k => k.Contains("导入", StringComparison.Ordinal)))
+        if (keys.Any(k => k.Equals("Import", StringComparison.Ordinal)))
         {
             m.ControllerActions.Add(new TaktGenControllerActionDescriptor
             {
                 Summary = $"导入{funcName}",
                 HttpMethod = "HttpPost",
                 Route = "import",
-                PermissionKey = $"{permsPrefix}:import",
+                PermissionKey = $"{permBase}:import",
                 PermissionName = $"导入{funcName}",
                 MethodName = "ImportAsync",
                 FrontendMethodName = $"import{ep}Data",
@@ -819,17 +999,17 @@ public class TaktGenTableTemplateModel
                 FrontendRequestKey = "formData",
                 Signature = "IFormFile file, [FromForm] string? sheetName = null",
                 ResponseType = "IActionResult",
-                Body = "try\n        {\n            if (file == null || file.Length == 0)\n                return BadRequest(\"请选择要导入的Excel文件\");\n            if (!file.FileName.EndsWith(\".xlsx\", StringComparison.OrdinalIgnoreCase) && !file.FileName.EndsWith(\".xls\", StringComparison.OrdinalIgnoreCase))\n                return BadRequest(\"只支持Excel文件（.xlsx或.xls）\");\n            using var stream = file.OpenReadStream();\n            var (success, fail, errors) = await _service.ImportAsync(stream, sheetName);\n            return Ok(new { success, fail, errors });\n        }\n        catch (Exception ex)\n        {\n            return BadRequest(ex.Message);\n        }"
+                Body = "try\n        {\n            if (file == null || file.Length == 0)\n                return BadRequest(GetLocalizedString(\"validation.importExcelFileRequired\", \"Frontend\"));\n            if (!file.FileName.EndsWith(\".xlsx\", StringComparison.OrdinalIgnoreCase) && !file.FileName.EndsWith(\".xls\", StringComparison.OrdinalIgnoreCase))\n                return BadRequest(GetLocalizedString(\"validation.importExcelOnlyXlsxOrXls\", \"Frontend\"));\n            using var stream = file.OpenReadStream();\n            var (success, fail, errors) = await _service.ImportAsync(stream, sheetName);\n            return Ok(new { success, fail, errors });\n        }\n        catch (Exception ex)\n        {\n            return BadRequest(GetLocalizedExceptionMessage(ex));\n        }"
             });
         }
-        if (keys.Any(k => k.Contains("导出", StringComparison.Ordinal)))
+        if (keys.Any(k => k.Equals("Export", StringComparison.Ordinal)))
         {
             m.ControllerActions.Add(new TaktGenControllerActionDescriptor
             {
                 Summary = $"导出{funcName}",
                 HttpMethod = "HttpPost",
                 Route = "export",
-                PermissionKey = $"{permsPrefix}:export",
+                PermissionKey = $"{permBase}:export",
                 PermissionName = $"导出{funcName}",
                 MethodName = "ExportAsync",
                 FrontendMethodName = $"export{ep}Data",
@@ -838,7 +1018,7 @@ public class TaktGenTableTemplateModel
                 FrontendRequestKey = "params",
                 Signature = $"[FromBody] {entity}QueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null",
                 ResponseType = "IActionResult",
-                Body = "try\n        {\n            var (resultFileName, content) = await _service.ExportAsync(query, sheetName, fileName);\n            return File(content, \"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\", resultFileName);\n        }\n        catch (Exception ex)\n        {\n            return BadRequest(ex.Message);\n        }"
+                Body = "try\n        {\n            var (resultFileName, content) = await _service.ExportAsync(query, sheetName, fileName);\n            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);\n        }\n        catch (Exception ex)\n        {\n            return BadRequest(GetLocalizedExceptionMessage(ex));\n        }"
             });
         }
     }
@@ -880,7 +1060,7 @@ public class TaktGenTableTemplateModel
                 IsPrivate = true
             });
         }
-        if (keys.Any(k => k.Contains("新增", StringComparison.Ordinal)))
+        if (keys.Any(k => k.Equals("Create", StringComparison.Ordinal)))
         {
             m.ServiceMethods.Add(new TaktGenServiceMethodDescriptor
             {
@@ -892,7 +1072,7 @@ public class TaktGenTableTemplateModel
                 Body = "var entity = dto.Adapt<" + entity + ">();\n        entity = await _repository.CreateAsync(entity);\n        return entity.Adapt<" + entity + "Dto>();"
             });
         }
-        if (keys.Any(k => k.Contains("更新", StringComparison.Ordinal)))
+        if (keys.Any(k => k.Equals("Update", StringComparison.Ordinal)))
         {
             m.ServiceMethods.Add(new TaktGenServiceMethodDescriptor
             {
@@ -904,7 +1084,7 @@ public class TaktGenTableTemplateModel
                 Body = "var entity = await _repository.GetByIdAsync(id);\n        if (entity == null)\n            throw new TaktBusinessException(\"validation.recordNotFound\");\n        dto.Adapt(entity, typeof(" + entity + "UpdateDto), typeof(" + entity + "));\n        entity.UpdatedAt = DateTime.Now;\n        await _repository.UpdateAsync(entity);\n        return entity.Adapt<" + entity + "Dto>();"
             });
         }
-        if (keys.Any(k => k.Contains("删除", StringComparison.Ordinal)))
+        if (keys.Any(k => k.Equals("Delete", StringComparison.Ordinal)))
         {
             m.ServiceMethods.Add(new TaktGenServiceMethodDescriptor
             {
@@ -925,7 +1105,31 @@ public class TaktGenTableTemplateModel
                 Body = "var idList = ids.ToList();\n        if (idList.Count == 0) return;\n        await _repository.DeleteAsync(idList);"
             });
         }
-        if (keys.Any(k => k.Contains("模板", StringComparison.Ordinal)))
+        if (keys.Any(k => k.Equals("Status", StringComparison.Ordinal)))
+        {
+            m.ServiceMethods.Add(new TaktGenServiceMethodDescriptor
+            {
+                Summary = $"更新{funcName}状态",
+                ParamsXml = $"<param name=\"id\">{funcName}ID</param>\n    /// <param name=\"status\">状态值</param>\n    /// <returns>任务</returns>",
+                MethodName = "UpdateStatusAsync",
+                Signature = "long id, int status",
+                ReturnType = "Task",
+                Body = "var entity = await _repository.GetByIdAsync(id);\n        if (entity == null)\n            throw new TaktBusinessException(\"validation.recordNotFound\");\n        entity.Status = status;\n        entity.UpdatedAt = DateTime.Now;\n        await _repository.UpdateAsync(entity);"
+            });
+        }
+        if (keys.Any(k => k.Equals("Sort", StringComparison.Ordinal)))
+        {
+            m.ServiceMethods.Add(new TaktGenServiceMethodDescriptor
+            {
+                Summary = $"更新{funcName}排序",
+                ParamsXml = $"<param name=\"id\">{funcName}ID</param>\n    /// <param name=\"sort\">排序值</param>\n    /// <returns>任务</returns>",
+                MethodName = "UpdateSortAsync",
+                Signature = "long id, int sort",
+                ReturnType = "Task",
+                Body = "var entity = await _repository.GetByIdAsync(id);\n        if (entity == null)\n            throw new TaktBusinessException(\"validation.recordNotFound\");\n        entity.Sort = sort;\n        entity.UpdatedAt = DateTime.Now;\n        await _repository.UpdateAsync(entity);"
+            });
+        }
+        if (keys.Any(k => k.Equals("Template", StringComparison.Ordinal)))
         {
             m.ServiceMethods.Add(new TaktGenServiceMethodDescriptor
             {
@@ -937,7 +1141,7 @@ public class TaktGenTableTemplateModel
                 Body = "var (excelSheet, excelFile) = await ResolveExcelImportTemplateNamesAsync(sheetName, fileName, nameof(" + entity + "));\n        return await TaktExcelHelper.GenerateTemplateAsync<" + entity + "TemplateDto>(\n            sheetName: excelSheet,\n            fileName: excelFile\n        );"
             });
         }
-        if (keys.Any(k => k.Contains("导入", StringComparison.Ordinal)))
+        if (keys.Any(k => k.Equals("Import", StringComparison.Ordinal)))
         {
             m.ServiceMethods.Add(new TaktGenServiceMethodDescriptor
             {
@@ -949,7 +1153,7 @@ public class TaktGenTableTemplateModel
                 Body = "var errors = new List<string>();\n        int success = 0;\n        int fail = 0;\n        var excelSheet = ResolveExcelSheetName(sheetName, nameof(" + entity + "));\n        var importData = await TaktExcelHelper.ImportAsync<" + entity + "ImportDto>(fileStream, excelSheet);\n        if (importData == null || importData.Count == 0)\n        {\n            AddImportError(errors, \"validation.importExcelNoData\");\n            return (0, 0, errors);\n        }\n        var rowIndex = 0;\n        foreach (var item in importData)\n        {\n            rowIndex++;\n            try\n            {\n                var e = item.Adapt<" + entity + ">();\n                await _repository.CreateAsync(e);\n                success++;\n            }\n            catch (Exception ex)\n            {\n                fail++;\n                AddImportError(errors, \"validation.importRowUnhandledException\", rowIndex, GetLocalizedExceptionMessage(ex));\n            }\n        }\n        return (success, fail, errors);"
             });
         }
-        if (keys.Any(k => k.Contains("导出", StringComparison.Ordinal)))
+        if (keys.Any(k => k.Equals("Export", StringComparison.Ordinal)))
         {
             m.ServiceMethods.Add(new TaktGenServiceMethodDescriptor
             {
@@ -981,7 +1185,7 @@ public class TaktGenTableTemplateModel
             TreeParentCode = table.TreeParentCode,
             TreeName = table.TreeName,
             InDatabase = table.InDatabase,
-            GenTemplate = table.GenTemplate,
+            GenTemplateCategory = table.GenTemplateCategory,
             NamePrefix = table.NamePrefix,
             EntityNamespace = table.EntityNamespace ?? "Takt.Domain.Entities",
             EntityClassName = table.EntityClassName,
@@ -991,11 +1195,9 @@ public class TaktGenTableTemplateModel
             ApiBasePath = ToApiBasePath(table.ControllerClassName),
             DtoNamespace = table.DtoNamespace ?? "Takt.Application.Dtos",
             DtoClassName = table.DtoClassName,
-            DtoCategory = table.DtoCategory,
-            DtoCategories = string.IsNullOrWhiteSpace(table.DtoCategory)
-                ? new List<string>()
-                : table.DtoCategory!.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList(),
-            DtoCategoryDescriptors = BuildDtoCategoryDescriptors(table.EntityClassName, table.DtoCategory, ToEntityNamePascal(table.EntityClassName)),
+            // 从 GenFunction 自动推断 DTO 类别，不再依赖 DtoCategory 字段
+            DtoCategories = new List<string>(),
+            DtoCategoryDescriptors = new List<TaktDtoCategoryDescriptor>(),
             ServiceNamespace = table.ServiceNamespace ?? "Takt.Application.Services",
             IServiceClassName = table.IServiceClassName,
             ServiceClassName = table.ServiceClassName,
@@ -1019,28 +1221,148 @@ public class TaktGenTableTemplateModel
             ParentMenuId = table.ParentMenuId,
             IsGenMenu = table.IsGenMenu,
             IsGenTranslation = table.IsGenTranslation,
-            SortType = table.SortType,
             SortField = table.SortField,
+            SortType = table.SortType,
             TsSortField = ToTsSortField(table.SortField),
             PermsPrefix = table.PermsPrefix,
-            FrontTemplate = table.FrontTemplate,
-            FrontStyle = table.FrontStyle,
-            BtnStyle = table.BtnStyle,
+            PermsPrefixCanonical = BuildPermsPrefixCanonical(table.PermsPrefix, table.GenModuleName, table.EntityClassName),
+            MenuButtonGroup = table.MenuButtonGroup,
+            FrontUi = table.FrontUi,
+            FrontFormLayout = table.FrontFormLayout,
+            FrontBtnStyle = table.FrontBtnStyle,
             IsGenCode = table.IsGenCode,
             GenCodeCount = table.GenCodeCount,
             IsUseTabs = table.IsUseTabs,
             TabsFieldCount = table.TabsFieldCount,
             GenAuthor = table.GenAuthor ?? "Takt365",
-            Options = table.Options
+            OtherGenOptions = table.OtherGenOptions
         };
         var keys = ParseGenFunctionKeys(table.GenFunction);
         m.IsQuery = HasQueryKey(keys) ? 1 : 0;
-        m.IsCreate = keys.Any(k => k.Contains("新增", StringComparison.Ordinal)) ? 1 : 0;
-        m.IsUpdate = keys.Any(k => k.Contains("更新", StringComparison.Ordinal)) ? 1 : 0;
-        m.IsDelete = keys.Any(k => k.Contains("删除", StringComparison.Ordinal)) ? 1 : 0;
-        m.IsTemplate = keys.Any(k => k.Contains("模板", StringComparison.Ordinal)) ? 1 : 0;
-        m.IsImport = keys.Any(k => k.Contains("导入", StringComparison.Ordinal)) ? 1 : 0;
-        m.IsExport = keys.Any(k => k.Contains("导出", StringComparison.Ordinal)) ? 1 : 0;
+        m.IsCreate = keys.Any(k => k.Equals("Create", StringComparison.Ordinal)) ? 1 : 0;
+        m.IsUpdate = keys.Any(k => k.Equals("Update", StringComparison.Ordinal)) ? 1 : 0;
+        m.IsDelete = keys.Any(k => k.Equals("Delete", StringComparison.Ordinal)) ? 1 : 0;
+        m.IsStatus = keys.Any(k => k.Equals("Status", StringComparison.Ordinal)) ? 1 : 0;
+        m.IsSort = keys.Any(k => k.Equals("Sort", StringComparison.Ordinal)) ? 1 : 0;
+        m.IsTemplate = keys.Any(k => k.Equals("Template", StringComparison.Ordinal)) ? 1 : 0;
+        m.IsImport = keys.Any(k => k.Equals("Import", StringComparison.Ordinal)) ? 1 : 0;
+        m.IsExport = keys.Any(k => k.Equals("Export", StringComparison.Ordinal)) ? 1 : 0;
+        
+        // 根据 GenFunction 自动推断 DtoCategoryDescriptors
+        var entityNamePascal = m.EntityNamePascal;
+        var descriptors = new List<TaktDtoCategoryDescriptor>();
+        
+        // 所有功能都生成基础 Dto（Full）
+        descriptors.Add(new TaktDtoCategoryDescriptor
+        {
+            Name = "Dto",
+            BodyKind = "Full",
+            BaseClass = "TaktFullDto",
+            TsInterfaceName = entityNamePascal,
+            TsExtendsName = "TaktEntityBase"
+        });
+        
+        // Query → QueryDto
+        if (m.IsQuery == 1)
+        {
+            descriptors.Add(new TaktDtoCategoryDescriptor
+            {
+                Name = "QueryDto",
+                BodyKind = "Query",
+                BaseClass = "TaktPagedQuery",
+                TsInterfaceName = entityNamePascal + "Query",
+                TsExtendsName = "TaktPagedQuery"
+            });
+        }
+        
+        // Create → CreateDto
+        if (m.IsCreate == 1)
+        {
+            descriptors.Add(new TaktDtoCategoryDescriptor
+            {
+                Name = "CreateDto",
+                BodyKind = "NoId",
+                BaseClass = "TaktNoIdDto",
+                TsInterfaceName = entityNamePascal + "Create",
+                TsExtendsName = string.Empty
+            });
+        }
+        
+        // Update → UpdateDto
+        if (m.IsUpdate == 1)
+        {
+            descriptors.Add(new TaktDtoCategoryDescriptor
+            {
+                Name = "UpdateDto",
+                BodyKind = "OnlyId",
+                BaseClass = "TaktOnlyIdDto",
+                TsInterfaceName = entityNamePascal + "Update",
+                TsExtendsName = "TaktEntityBase"
+            });
+        }
+        
+        // Status → StatusDto
+        if (m.IsStatus == 1)
+        {
+            descriptors.Add(new TaktDtoCategoryDescriptor
+            {
+                Name = "StatusDto",
+                BodyKind = "OnlyId",
+                BaseClass = "TaktOnlyIdDto",
+                TsInterfaceName = entityNamePascal + "Status",
+                TsExtendsName = "TaktEntityBase"
+            });
+        }
+        
+        // Sort → SortDto
+        if (m.IsSort == 1)
+        {
+            descriptors.Add(new TaktDtoCategoryDescriptor
+            {
+                Name = "SortDto",
+                BodyKind = "OnlyId",
+                BaseClass = "TaktOnlyIdDto",
+                TsInterfaceName = entityNamePascal + "Sort",
+                TsExtendsName = "TaktEntityBase"
+            });
+        }
+        
+        // Import → TemplateDto + ImportDto
+        if (m.IsImport == 1)
+        {
+            descriptors.Add(new TaktDtoCategoryDescriptor
+            {
+                Name = "TemplateDto",
+                BodyKind = "NoId",
+                BaseClass = "TaktNoIdDto",
+                TsInterfaceName = entityNamePascal + "Template",
+                TsExtendsName = string.Empty
+            });
+            descriptors.Add(new TaktDtoCategoryDescriptor
+            {
+                Name = "ImportDto",
+                BodyKind = "NoId",
+                BaseClass = "TaktNoIdDto",
+                TsInterfaceName = entityNamePascal + "Import",
+                TsExtendsName = string.Empty
+            });
+        }
+        
+        // Export → ExportDto
+        if (m.IsExport == 1)
+        {
+            descriptors.Add(new TaktDtoCategoryDescriptor
+            {
+                Name = "ExportDto",
+                BodyKind = "NoId",
+                BaseClass = "TaktNoIdDto",
+                TsInterfaceName = entityNamePascal + "Export",
+                TsExtendsName = string.Empty
+            });
+        }
+        
+        m.DtoCategoryDescriptors = descriptors;
+        m.DtoCategories = descriptors.Select(d => d.Name).ToList();
         BuildControllerActions(m, keys);
         BuildServiceMethods(m, keys);
         return m;
@@ -1122,7 +1444,7 @@ public class TaktGenColumnTemplateModel
     public string? DictType { get; set; }
 
     /// <summary>排序序号</summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
     /// <summary>帕斯卡转驼峰（供前端列名使用）。</summary>
     private static string ToTsColumnName(string pascal)
@@ -1174,7 +1496,7 @@ public class TaktGenColumnTemplateModel
             QueryType = column.QueryType,
             HtmlType = column.HtmlType,
             DictType = column.DictType,
-            OrderNum = column.OrderNum
+            SortOrder = column.SortOrder
         };
     }
 }

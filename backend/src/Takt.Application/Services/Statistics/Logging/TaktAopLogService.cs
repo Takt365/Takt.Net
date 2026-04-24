@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Statistics.Logging
 // 文件名称：TaktAopLogService.cs
@@ -51,7 +51,7 @@ public class TaktAopLogService : TaktServiceBase, ITaktAopLogService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktAopLogDto>> GetListAsync(TaktAopLogQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktAopLogDto>> GetAopLogListAsync(TaktAopLogQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
 
@@ -69,7 +69,7 @@ public class TaktAopLogService : TaktServiceBase, ITaktAopLogService
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>差异日志DTO</returns>
-    public async Task<TaktAopLogDto?> GetByIdAsync(long id)
+    public async Task<TaktAopLogDto?> GetAopLogByIdAsync(long id)
     {
         var log = await _aopLogRepository.GetByIdAsync(id);
         if (log == null) return null;
@@ -82,10 +82,22 @@ public class TaktAopLogService : TaktServiceBase, ITaktAopLogService
     /// </summary>
     /// <param name="dto">创建差异日志DTO</param>
     /// <returns>差异日志DTO</returns>
-    public async Task<TaktAopLogDto> CreateAsync(TaktCreateAopLogDto dto)
+    public async Task<TaktAopLogDto> CreateAopLogAsync(TaktAopLogCreateDto dto)
     {
         var log = dto.Adapt<TaktAopLog>();
-        log.OperTime = dto.OperTime ?? DateTime.Now;
+        log.OperTime = dto.OperTime;
+
+        if (!dto.AuditUserId.HasValue || dto.AuditUserId.Value <= 0)
+            throw new InvalidOperationException("创建差异日志必须携带已登录用户主键 AuditUserId。");
+
+        var by = !string.IsNullOrWhiteSpace(dto.AuditUserDisplayName)
+            ? dto.AuditUserDisplayName.Trim()
+            : (!string.IsNullOrWhiteSpace(dto.UserName) ? dto.UserName.Trim() : string.Empty);
+        if (string.IsNullOrWhiteSpace(by))
+            throw new InvalidOperationException("创建差异日志必须携带非空登录名（UserName 或 AuditUserDisplayName）。");
+
+        log.CreatedById = dto.AuditUserId.Value;
+        log.CreatedBy = by;
 
         log = await _aopLogRepository.CreateAsync(log);
         // 移除日志输出，避免在高频操作时产生大量日志影响性能
@@ -99,7 +111,7 @@ public class TaktAopLogService : TaktServiceBase, ITaktAopLogService
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteAopLogByIdAsync(long id)
     {
         var log = await _aopLogRepository.GetByIdAsync(id);
         EnsureEntityExistsLocalized(log, "AopLogNotFound");
@@ -113,7 +125,7 @@ public class TaktAopLogService : TaktServiceBase, ITaktAopLogService
     /// </summary>
     /// <param name="ids">日志ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteBatchAsync(List<long> ids)
+    public async Task DeleteAopLogBatchAsync(List<long> ids)
     {
         if (ids == null || ids.Count == 0)
         {
@@ -139,7 +151,7 @@ public class TaktAopLogService : TaktServiceBase, ITaktAopLogService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktAopLogQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportAopLogAsync(TaktAopLogQueryDto query, string? sheetName, string? fileName)
     {
         // 构建查询条件
         var predicate = QueryExpression(query);

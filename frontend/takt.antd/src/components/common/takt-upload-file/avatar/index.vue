@@ -37,7 +37,7 @@
             <template #icon>
               <upload-outlined />
             </template>
-            {{ uploading ? t('components.common.upload.avatarUploading') : t('components.common.upload.avatarUpload') }}
+            {{ uploading ? t('components.common.page.upload.avataruploading') : t('components.common.page.upload.avatarupload') }}
           </a-button>
         </a-upload>
         <a-button
@@ -56,10 +56,10 @@
     <!-- 裁剪弹窗 -->
     <a-modal
       v-model:open="cropperVisible"
-      :title="t('components.common.upload.cropAvatar')"
+      :title="t('components.common.page.upload.cropavatar')"
       :width="700"
-      :ok-text="t('components.common.upload.ok')"
-      :cancel-text="t('components.common.upload.cancel')"
+      :ok-text="t('components.common.page.upload.ok')"
+      :cancel-text="t('components.common.page.upload.cancel')"
       :confirm-loading="cropping"
       class="takt-upload-avatar-cropper-modal"
       @ok="handleCropConfirm"
@@ -160,7 +160,7 @@ const handleBeforeUpload = (file: UploadFile | File) => {
   
   // 检查是否为图片文件
   if (!originFile.type?.startsWith('image/')) {
-    message.error(t('components.common.upload.imageOnly'))
+    message.error(t('components.common.page.upload.imageonly'))
     return false
   }
 
@@ -168,7 +168,7 @@ const handleBeforeUpload = (file: UploadFile | File) => {
   if (props.maxSize && originFile.size) {
     const fileSizeMB = originFile.size / 1024 / 1024
     if (fileSizeMB > props.maxSize) {
-      message.error(t('components.common.upload.imageSizeExceed', { max: props.maxSize }))
+      message.error(t('components.common.page.upload.imagesizeexceed', { max: props.maxSize }))
       return false
     }
   }
@@ -181,7 +181,7 @@ const handleBeforeUpload = (file: UploadFile | File) => {
     cropperVisible.value = true
   }
   reader.onerror = () => {
-    message.error(t('components.common.upload.imageReadFail'))
+    message.error(t('components.common.page.upload.imagereadfail'))
   }
   reader.readAsDataURL(originFile)
 
@@ -197,13 +197,13 @@ const handleCropperCrop = (_blob: Blob, _dataUrl: string) => {
 
 // 裁剪器错误事件
 const handleCropperError = (error: Error) => {
-  message.error(t('components.common.upload.cropFail') + '：' + error.message)
+  message.error(t('components.common.page.upload.cropfail') + '：' + error.message)
 }
 
 // 确认裁剪并上传
 const handleCropConfirm = async () => {
   if (!cropperRef.value) {
-    message.error(t('components.common.upload.cropperNotInit'))
+    message.error(t('components.common.page.upload.croppernotinit'))
     return
   }
 
@@ -237,14 +237,14 @@ const handleCropConfirm = async () => {
             cropperVisible.value = false
             cropperImage.value = ''
             currentFile.value = null
-            message.success(t('components.common.upload.uploadSuccess'))
+            message.success(t('components.common.page.upload.uploadsuccess'))
             emit('success', url, croppedFile)
             resolve()
           },
           onError: (error: unknown) => {
             uploading.value = false
             const err = toError(error)
-            message.error(t('components.common.upload.uploadFail') + '：' + err.message)
+            message.error(t('components.common.page.upload.uploadfail') + '：' + err.message)
             emit('error', err)
             reject(err)
           },
@@ -278,12 +278,12 @@ const handleCropConfirm = async () => {
         cropperVisible.value = false
         cropperImage.value = ''
         currentFile.value = null
-        message.success(t('components.common.upload.uploadSuccess'))
+        message.success(t('components.common.page.upload.uploadsuccess'))
         emit('success', url, croppedFile)
       } catch (error: unknown) {
         uploading.value = false
         const err = toError(error)
-        message.error(t('components.common.upload.uploadFail') + '：' + err.message)
+        message.error(t('components.common.page.upload.uploadfail') + '：' + err.message)
         emit('error', err)
       }
     } else {
@@ -292,13 +292,13 @@ const handleCropConfirm = async () => {
       cropperVisible.value = false
       cropperImage.value = ''
       currentFile.value = null
-      message.success(t('components.common.upload.cropSuccess'))
+      message.success(t('components.common.page.upload.cropsuccess'))
       emit('success', dataUrl, croppedFile)
     }
   } catch (error: unknown) {
     console.error('[TaktUploadAvatar] 裁剪上传失败:', error)
     const err = toError(error)
-    message.error(t('components.common.upload.operationFail') + '：' + err.message)
+    message.error(t('components.common.page.upload.operationfail') + '：' + err.message)
     emit('error', err)
   } finally {
     cropping.value = false
@@ -324,13 +324,13 @@ const handleCustomRequest = (options: CustomRequestOptions) => {
 // 删除头像
 const handleRemove = () => {
   Modal.confirm({
-    title: t('components.common.upload.confirmDeleteAvatar'),
-    content: t('components.common.upload.confirmDeleteAvatarContent'),
-    okText: t('components.common.upload.ok'),
-    cancelText: t('components.common.upload.cancel'),
+    title: t('components.common.page.upload.confirmdeleteavatar'),
+    content: t('components.common.page.upload.confirmdeleteavatarcontent'),
+    okText: t('components.common.page.upload.ok'),
+    cancelText: t('components.common.page.upload.cancel'),
     onOk: () => {
       avatarUrl.value = ''
-      message.success(t('components.common.upload.deleteSuccess'))
+      message.success(t('components.common.page.upload.deletesuccess'))
       emit('remove')
     }
   })

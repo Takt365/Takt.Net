@@ -54,7 +54,7 @@
             <span
               v-if="!showText"
               class="placeholder"
-            >{{ t('workflow.designer.pleaseSelect') }}{{ defaultText }}</span>
+            >{{ t('workflow.designer.page.pleaseselect') }}{{ defaultText }}</span>
             {{ showText }}
           </div>
           <span
@@ -89,7 +89,7 @@
             class="add-branch"
             @click="addTerm"
           >
-            {{ t('workflow.designer.addCondition') }}
+            {{ t('workflow.designer.page.addcondition') }}
           </button>
           <div
             v-for="(item, index) in nodeConfig.conditionNodes"
@@ -186,7 +186,7 @@
             class="add-branch"
             @click="addTerm"
           >
-            {{ t('workflow.designer.addParallelApprover') }}
+            {{ t('workflow.designer.page.addparallelapprover') }}
           </button>
           <div
             v-for="(item, index) in nodeConfig.parallelNodes"
@@ -221,7 +221,7 @@
                       <span
                         v-if="!parallelShowText(item)"
                         class="placeholder"
-                      >{{ t('workflow.designer.pleaseSelect') }}{{ t('workflow.designer.approver') }}</span>
+                      >{{ t('workflow.designer.page.pleaseselect') }}{{ t('workflow.designer.page.approver') }}</span>
                       {{ parallelShowText(item) }}
                     </div>
                     <span
@@ -317,7 +317,7 @@ const parallelTitleStyle = computed(() => ({ background: `rgb(${bgColors[4]})` }
 
 const defaultText = computed(() => {
   if (!props.nodeConfig) return ''
-  const map: Record<number, string> = { 1: t('workflow.designer.promoter'), 4: t('workflow.designer.approver'), 6: t('workflow.designer.copyer') }
+  const map: Record<number, string> = { 1: t('workflow.designer.page.promoter'), 4: t('workflow.designer.page.approver'), 6: t('workflow.designer.page.copyer') }
   return map[props.nodeConfig.nodeType] ?? ''
 })
 

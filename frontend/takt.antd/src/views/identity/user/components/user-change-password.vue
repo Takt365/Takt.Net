@@ -24,36 +24,36 @@
       />
     </a-form-item>
     <a-form-item
-      :label="t('identity.user.password.old.label')"
+      :label="t('identity.user.page.password.old.label')"
       name="oldPassword"
     >
       <a-input-password
         v-model:value="formState.oldPassword"
-        :placeholder="t('common.form.placeholder.required', { field: t('identity.user.password.old.label') })"
+        :placeholder="t('common.form.placeholder.required', { field: t('identity.user.page.password.old.label') })"
         :disabled="loading"
         show-count
         :maxlength="20"
       />
     </a-form-item>
     <a-form-item
-      :label="t('identity.user.password.new.label')"
+      :label="t('identity.user.page.password.new.label')"
       name="newPassword"
     >
       <a-input-password
         v-model:value="formState.newPassword"
-        :placeholder="t('common.form.placeholder.required', { field: t('identity.user.password.new.label') })"
+        :placeholder="t('common.form.placeholder.required', { field: t('identity.user.page.password.new.label') })"
         :disabled="loading"
         show-count
         :maxlength="20"
       />
     </a-form-item>
     <a-form-item
-      :label="t('identity.user.password.confirm.label')"
+      :label="t('identity.user.page.password.confirm.label')"
       name="confirmPassword"
     >
       <a-input-password
         v-model:value="formState.confirmPassword"
-        :placeholder="t('common.form.placeholder.requiredAgain', { field: t('identity.user.password.new.label') })"
+        :placeholder="t('common.form.placeholder.requiredagain', { field: t('identity.user.page.password.new.label') })"
         :disabled="loading"
         show-count
         :maxlength="20"
@@ -109,10 +109,10 @@ const formState = reactive<UserChangePasswordFormModel>(createEmptyChangePasswor
 /** 确认密码：必填且须与 newPassword 一致 */
 const validateConfirmPassword = (_rule: Rule, value: string) => {
   if (!value) {
-    return Promise.reject(t('common.form.placeholder.requiredAgain', { field: t('identity.user.password.new.label') }))
+    return Promise.reject(t('common.form.placeholder.requiredagain', { field: t('identity.user.page.password.new.label') }))
   }
   if (value !== formState.newPassword) {
-    return Promise.reject(t('identity.user.password.confirm.validation.mismatch'))
+    return Promise.reject(t('identity.user.page.password.confirm.validation.mismatch'))
   }
   return Promise.resolve()
 }
@@ -121,18 +121,18 @@ const validateConfirmPassword = (_rule: Rule, value: string) => {
 const rules: Record<string, Rule[]> = {
   // oldPassword：必填
   oldPassword: [
-    { required: true, message: t('common.form.placeholder.required', { field: t('identity.user.password.old.label') }), trigger: 'blur' }
+    { required: true, message: t('common.form.placeholder.required', { field: t('identity.user.page.password.old.label') }), trigger: 'blur' }
   ],
   // newPassword：必填 + isValidPassword
   newPassword: [
-    { required: true, message: t('common.form.placeholder.required', { field: t('identity.user.password.new.label') }), trigger: 'blur' },
+    { required: true, message: t('common.form.placeholder.required', { field: t('identity.user.page.password.new.label') }), trigger: 'blur' },
     {
       validator: (_rule: Rule, value: string) => {
         if (!value) {
           return Promise.resolve()
         }
         if (!isValidPassword(value)) {
-          return Promise.reject(t('identity.user.password.new.validation.format'))
+          return Promise.reject(t('identity.user.page.password.new.validation.format'))
         }
         return Promise.resolve()
       },
@@ -141,7 +141,7 @@ const rules: Record<string, Rule[]> = {
   ],
   // confirmPassword：必填 + 与 newPassword 一致
   confirmPassword: [
-    { required: true, message: t('common.form.placeholder.requiredAgain', { field: t('identity.user.password.new.label') }), trigger: 'blur' },
+    { required: true, message: t('common.form.placeholder.requiredagain', { field: t('identity.user.page.password.new.label') }), trigger: 'blur' },
     { validator: validateConfirmPassword, trigger: 'blur' }
   ]
 }
@@ -149,7 +149,7 @@ const rules: Record<string, Rule[]> = {
 /** 执行 a-form 校验；父组件提交前 await */
 const validate = async (): Promise<void> => {
   if (!formRef.value) {
-    return Promise.reject(new Error(t('common.form.validation.notFound', { target: t('identity.user.fields.formRef.label') })))
+    return Promise.reject(new Error(t('validation.formRefNotFound', { target: t('identity.user.page.fields.formref.label') })))
   }
   await formRef.value.validate()
 }

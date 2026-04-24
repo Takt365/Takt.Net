@@ -112,7 +112,8 @@
             <TaktFlowAntflowDesigner
               ref="flowDesignerRef"
               :key="'flow-antflow-designer-' + (form.schemeId ?? 'new')"
-              v-model="form.processContent"
+              :model-value="form.processContent || ''"
+              @update:model-value="(v: string) => { form.processContent = v }"
             />
           </div>
         </div>
@@ -145,9 +146,6 @@
 </template>
 
 <script setup lang="ts">
-/**
- * 流程方案表单：步骤 1 基本信息、步骤 2 选择表单、步骤 3 流程图设计、步骤 4 预览；对外暴露 validate、getFormData。
- */
 import { ref, computed, onMounted, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
@@ -155,12 +153,15 @@ import TaktFlowAntflowDesigner from '@/components/business/takt-flow-antflow-des
 import TaktFlowBasicSetting from '@/components/business/takt-flow-antflow-designer/basic-setting/takt-flow-basic-setting.vue'
 import TaktFormDesigner from '@/components/business/takt-form-designer/index.vue'
 import { getFlowFormList, getFlowFormById } from '@/api/workflow/form'
-import type { FlowSchemeCreateOrUpdate } from '@/types/workflow/scheme'
-import type { FlowForm } from '@/types/workflow/form'
+import type { FlowSchemeCreate, FlowSchemeUpdate } from '@/types/workflow/flow-scheme'
+import type { FlowForm } from '@/types/workflow/flow-form'
+import { logger } from '@/utils/logger'
+
+type FlowSchemeCreateOrUpdate = FlowSchemeCreate | FlowSchemeUpdate
 
 const { t } = useI18n()
 
-/** 父组件传入的表单数据（含 schemeId 表示编辑） */
+// 父组件传入的表单数据（含 schemeId 表示编辑）
 interface Props {
   form: FlowSchemeCreateOrUpdate & { schemeId?: string }
 }
@@ -168,13 +169,16 @@ interface Props {
 const props = defineProps<Props>()
 const form = props.form
 
-/** 是否编辑（有 schemeId 为编辑，反之为新增）；编辑时流程由 form.processContent 还原 */
+// 是否编辑（有 schemeId 为编辑，反之为新增）
 const isEdit = computed(() => !!form.schemeId)
+// 当前步骤
 const currentStep = ref(0)
+// Ant Design 表单实例
 const formRef = ref()
+// 流程设计器实例
 const flowDesignerRef = ref<InstanceType<typeof TaktFlowAntflowDesigner> | null>(null)
 
-/** 步骤配置：1 流程信息、2 关联表单、3 流程设计 */
+// 步骤配置：1 流程信息、2 关联表单、3 流程设计
 const steps = computed(() => [
   { title: t('workflow.scheme.step.step1FlowInfo'), content: 0 },
   { title: t('workflow.scheme.step.step2SelectForm'), content: 1 },
@@ -182,12 +186,11 @@ const steps = computed(() => [
 ])
 const stepItems = computed(() => steps.value.map(item => ({ key: item.title, title: item.title })))
 
-/** 步骤2 单选：'link' 关联表单，'new' 新建表单 */
+// 步骤2 单选：'link' 关联表单，'new' 新建表单
 const linkFormMode = ref<'link' | 'new'>('link')
-/** 步骤2 表单设计器绑定内容（关联=选中表单的 formConfig，新建=空） */
+// 步骤2 表单设计器绑定内容
 const formDesignConfig = ref<string>('')
-
-/** 设计器 config（官方 props.config），按文档配置显隐：https://view.form-create.com/props */
+// 设计器 config，按文档配置显隐
 const formDesignerConfig = {
   showSaveBtn: true,
   showPreviewBtn: true,
@@ -196,7 +199,7 @@ const formDesignerConfig = {
   showInputData: true
 }
 
-/** 选择表单：表单列表与当前选中（formCode 用于展示，提交时 form 含 formId/formCode） */
+// 选择表单：列表与当前选中
 const formList = ref<FlowForm[]>([])
 const formListLoading = ref(false)
 const formSelectValue = ref<string | undefined>(form.formCode ?? undefined)
@@ -207,37 +210,46 @@ watch(
   { immediate: true }
 )
 
-/** 表单下拉的 filter-option：按 label 包含输入文本（不区分大小写） */
-function filterFormOption(input: string, option?: { label?: string }) {
+// 表单下拉搜索：按 label 模糊匹配
+const filterFormOption = (input: string, option?: { label?: string }) => {
   const label = option?.label ?? ''
   return label.toLowerCase().includes((input ?? '').toLowerCase())
 }
 
-/** 关联表单选择变化：同步 form.formCode 与 form.formId，并拉取表单详情写入设计器 */
-function onFormSelectChange(value: unknown) {
+// 关联表单选择变化：同步 form.formCode 与 form.formId
+const onFormSelectChange = (value: unknown) => {
   const formCode = typeof value === 'string' ? value : undefined
-  form.formCode = formCode ?? undefined
+  if (formCode) {
+    form.formCode = formCode
+  } else {
+    delete form.formCode
+  }
   const found = formCode ? formList.value.find(f => (f.formCode ?? '') === formCode) : undefined
-  form.formId = found?.formId != null ? String(found.formId) : undefined
+  if (found?.formId != null) {
+    form.formId = String(found.formId)
+  } else {
+    delete form.formId
+  }
   if (linkFormMode.value === 'link') loadFormDetailIntoDesigner()
   else formDesignConfig.value = ''
 }
 
-/** 根据 form.formId 拉取表单详情并写入 formDesignConfig（仅关联表单模式） */
-async function loadFormDetailIntoDesigner() {
+// 根据 form.formId 拉取表单详情并写入 formDesignConfig
+const loadFormDetailIntoDesigner = async () => {
   const id = form.formId
   if (!id || linkFormMode.value !== 'link') return
   try {
     const detail = await getFlowFormById(String(id))
     const raw = detail.formConfig
     formDesignConfig.value = typeof raw === 'string' && raw?.trim() ? raw : ''
-  } catch {
+  } catch (error: any) {
+    logger.error('[Scheme Form] 加载表单详情失败:', error)
     formDesignConfig.value = ''
   }
 }
 
-/** 拉取流程表单列表；有则默认选中已关联的，并加载详情到设计器 */
-async function loadFormList() {
+// 拉取流程表单列表
+const loadFormList = async () => {
   formListLoading.value = true
   try {
     const res = await getFlowFormList({ pageIndex: 1, pageSize: 500 })
@@ -246,6 +258,8 @@ async function loadFormList() {
     if (list.length === 0) linkFormMode.value = 'new'
     else if (linkFormMode.value === 'link' && form.formId) await loadFormDetailIntoDesigner()
     else if (linkFormMode.value === 'new') formDesignConfig.value = ''
+  } catch (error: any) {
+    logger.error('[Scheme Form] 加载表单列表失败:', error)
   } finally {
     formListLoading.value = false
   }
@@ -257,9 +271,12 @@ watch(linkFormMode, mode => {
   else formDesignConfig.value = ''
 })
 
-onMounted(() => loadFormList())
+// 挂载时拉取表单列表
+onMounted(() => {
+  loadFormList()
+})
 
-/** 当前步骤需要校验的字段名 */
+// 当前步骤需要校验的字段名
 const stepFieldNames: Record<number, string[]> = {
   0: ['processKey', 'processName'],
   1: [],
@@ -271,8 +288,8 @@ const formRules = computed(() => ({
   processName: [{ required: true, message: t('common.form.placeholder.required', { field: t('entity.flowscheme.processname') }) }]
 }))
 
-/** 校验当前步骤需校验的字段，通过返回 true */
-async function validateCurrentStep(): Promise<boolean> {
+// 校验当前步骤需校验的字段，通过返回 true
+const validateCurrentStep = async (): Promise<boolean> => {
   const fields = stepFieldNames[currentStep.value]
   if (!fields?.length) return true
   try {
@@ -283,27 +300,27 @@ async function validateCurrentStep(): Promise<boolean> {
   }
 }
 
-/** 下一步：校验通过则 currentStep + 1 */
-async function next() {
+// 下一步
+const next = async () => {
   const ok = await validateCurrentStep()
   if (!ok) return
   currentStep.value++
 }
 
-/** 上一步：currentStep - 1 */
-function prev() {
+// 上一步
+const prev = () => {
   currentStep.value--
 }
 
-/** 完成：校验当前步骤通过则提示成功（提交由父组件处理） */
-async function handleDone() {
+// 完成：校验当前步骤通过则提示成功
+const handleDone = async () => {
   const ok = await validateCurrentStep()
   if (!ok) return
   message.success(t('workflow.scheme.step.done'))
 }
 
-/** 校验所有步骤；未通过时切换到对应步骤并返回 false */
-async function validateAllSteps(): Promise<boolean> {
+// 校验所有步骤；未通过时切换到对应步骤并返回 false
+const validateAllSteps = async (): Promise<boolean> => {
   for (let i = 0; i < steps.value.length; i++) {
     const fields = stepFieldNames[i]
     if (fields?.length) {
@@ -324,8 +341,8 @@ async function validateAllSteps(): Promise<boolean> {
   return true
 }
 
-/** 重置当前步骤为 0（父组件关闭弹窗等时可调用） */
-function resetSteps() {
+// 重置当前步骤为 0
+const resetSteps = () => {
   currentStep.value = 0
 }
 

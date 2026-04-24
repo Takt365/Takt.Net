@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Accounting.Financial
 // 文件名称：TaktAccountingTitle.cs
@@ -25,6 +25,7 @@ namespace Takt.Domain.Entities.Accounting.Financial;
 [SugarIndex("ix_takt_accounting_financial_accounting_title_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_financial_accounting_title_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_financial_accounting_title_title_status", nameof(TitleStatus), OrderByType.Asc)]
+[SugarIndex("ix_takt_accounting_financial_accounting_title_valid", nameof(ValidFrom), OrderByType.Asc, nameof(ValidTo), OrderByType.Asc)]
 public class TaktAccountingTitle : TaktEntityBase
 {
     /// <summary>
@@ -123,12 +124,22 @@ public class TaktAccountingTitle : TaktEntityBase
     /// </summary>
     [SugarColumn(ColumnName = "title_status", ColumnDescription = "科目状态", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int TitleStatus { get; set; } = 0;
-    
+
+    /// <summary>
+    /// 生效日期（含当日，默认当前日期）
+    /// </summary>
+    [SugarColumn(ColumnName = "valid_from", ColumnDescription = "生效日期", ColumnDataType = "datetime", IsNullable = false)]
+    public DateTime ValidFrom { get; set; } = DateTime.Today;
+
+    /// <summary>
+    /// 失效日期（含当日，默认 9999-12-31 表示长期有效）
+    /// </summary>
+    [SugarColumn(ColumnName = "valid_to", ColumnDescription = "失效日期", ColumnDataType = "datetime", IsNullable = false)]
+    public DateTime ValidTo { get; set; } = new DateTime(9999, 12, 31);
+
     /// <summary>
     /// 排序号（越小越靠前）
     /// </summary>
-    [SugarColumn(ColumnName = "order_num", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int OrderNum { get; set; } = 0;
-
-
+    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SortOrder { get; set; } = 0;
 }

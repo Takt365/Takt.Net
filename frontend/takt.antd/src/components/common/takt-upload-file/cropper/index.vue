@@ -20,7 +20,7 @@
       <img
         ref="cropperImgRef"
         :src="imageSrc"
-        :alt="t('components.common.upload.cropImage')"
+        :alt="t('components.common.page.upload.cropimage')"
         class="takt-cropper-img"
       >
     </div>
@@ -28,7 +28,7 @@
       v-else
       class="takt-cropper-empty"
     >
-      <a-empty :description="t('components.common.upload.selectImageFirst')" />
+      <a-empty :description="t('components.common.page.upload.selectimagefirst')" />
     </div>
   </div>
 </template>

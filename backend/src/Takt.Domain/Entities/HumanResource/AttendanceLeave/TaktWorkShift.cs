@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.HumanResource.AttendanceLeave
 // 文件名称：TaktWorkShift.cs
@@ -16,7 +16,7 @@ namespace Takt.Domain.Entities.HumanResource.AttendanceLeave;
 /// <summary>
 /// 班次定义（如早班、中班、夜班）。
 /// </summary>
-[SugarTable("takt_humanresource_work_shift", "班次表")]
+[SugarTable("takt_humanresource_work_shift", "班次信息表")]
 [SugarIndex("ix_takt_humanresource_work_shift_code", nameof(ShiftCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_work_shift_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_work_shift_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
@@ -55,6 +55,6 @@ public class TaktWorkShift : TaktEntityBase
     /// <summary>
     /// 排序号
     /// </summary>
-    [SugarColumn(ColumnName = "order_num", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int OrderNum { get; set; }
+    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SortOrder { get; set; }
 }

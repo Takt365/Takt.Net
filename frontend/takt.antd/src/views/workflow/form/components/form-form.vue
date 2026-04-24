@@ -122,7 +122,7 @@
           <a-col :span="12">
             <a-form-item :label="t('workflow.form.step.dataSource')">
               <TaktSelect
-                v-model="form.relatedDataBaseName"
+                v-model="relatedDataBaseNameModel"
                 :options="databaseConfigOptions"
                 :placeholder="t('workflow.form.dataSourcePlaceholder')"
                 :allow-clear="true"
@@ -138,7 +138,7 @@
           <a-col :span="12">
             <a-form-item :label="t('workflow.form.step.dataTableList')">
               <TaktSelect
-                v-model="form.relatedTableName"
+                v-model="relatedTableNameModel"
                 :options="databaseTableOptions"
                 :placeholder="t('workflow.form.dataTablePlaceholder')"
                 :allow-clear="true"
@@ -222,7 +222,7 @@
           <TaktFormDesigner
             :key="'form-designer-' + (form.formId ?? 'new')"
             ref="designerRef"
-            v-model="form.formConfig"
+            v-model="formConfigModel"
             height="480px"
             :designer-config="formDesignerConfig"
             :sfc-download-basename="sfcDownloadBasename"
@@ -274,7 +274,7 @@ import {
   type TableColumnItem
 } from '@/api/workflow/form'
 import { getDictTypeOptions } from '@/api/routine/tasks/dict/dicttype'
-import type { FlowFormCreate } from '@/types/workflow/form'
+import type { FlowFormCreate } from '@/types/workflow/flow-form'
 const getStringValue = (obj: unknown, key: string): string | undefined => {
   if (!obj || typeof obj !== 'object') return undefined
   const value = (obj as Record<string, unknown>)[key]
@@ -315,6 +315,18 @@ interface Props {
 const props = defineProps<Props>()
 
 const form = props.form
+const relatedDataBaseNameModel = computed<string>({
+  get: () => form.relatedDataBaseName ?? '',
+  set: (value) => { form.relatedDataBaseName = value }
+})
+const relatedTableNameModel = computed<string>({
+  get: () => form.relatedTableName ?? '',
+  set: (value) => { form.relatedTableName = value }
+})
+const formConfigModel = computed<string>({
+  get: () => form.formConfig ?? '',
+  set: (value) => { form.formConfig = value }
+})
 
 /** 当前步骤（0=表单信息，1=数据源+字段网格，2=表单设计），提前声明避免 watch 注册时 TDZ */
 const currentStep = ref(0)

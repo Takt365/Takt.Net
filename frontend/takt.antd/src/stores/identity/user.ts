@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { login, getUserInfo, logout as logoutApi } from '@/api/identity/auth'
-import type { LoginParams, UserInfo } from '@/types/identity/auth'
-import { decodeHolidayFromToken, type HolidayFromToken } from '@/utils/jwt'
+import type { HolidayFromToken, LoginParams, UserInfoWithHoliday } from '@/types/common'
+import type { Holiday } from '@/types/human-resource/attendance-leave/holiday'
+import { useSettingStore, themeColorMap, type ThemeColor } from '@/stores/setting'
+import { applySettings } from '@/utils/apply-settings'
 import { logger } from '@/utils/logger'
 import { eventBus, AuthEvents } from '@/utils/eventBus'
 const toErrorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : String(error)
+type ThemePreset = Exclude<ThemeColor, 'custom'>
 
 /**
  * 认证状态约定：
@@ -33,18 +36,115 @@ function persistAuth(token: string | null, refreshTokenVal: string | null, expir
 export const useUserStore = defineStore('user', () => {
   const token = ref<string | null>(typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null)
   const refreshToken = ref<string | null>(typeof localStorage !== 'undefined' ? localStorage.getItem(REFRESH_TOKEN_KEY) : null)
-  const userInfo = ref<UserInfo | null>(null)
-  /** 从 token 解析的今日假期信息（登录时写入，用于问候语与主色） */
-  const holidayFromToken = ref<HolidayFromToken | null>(
-    typeof localStorage !== 'undefined' ? decodeHolidayFromToken(localStorage.getItem(TOKEN_KEY)) : null
-  )
+  const userInfo = ref<UserInfoWithHoliday | null>(null)
+  /** 今日假日展示信息（优先 `/api/TaktHolidays/theme`；userinfo 若显式返回假日则覆盖） */
+  const holidayFromToken = ref<HolidayFromToken | null>(null)
+  const themeBeforeHoliday = ref<ThemePreset | null>(null)
 
-  /** 仅更新内存中的 token 与假日信息（内部用） */
+  function normalizeHolidayThemeKey(raw: unknown): string {
+    return (typeof raw === 'string' ? raw : '')
+      .replace(/\s+/g, ' ')
+      .replace(/[\u3000-\u303f\uff00-\uffef]/g, '')
+      .trim()
+      .toLowerCase()
+  }
+
+  /** 按当前前端语言解析假日地区码（未匹配时回退 CN，与后端默认一致） */
+  function resolveHolidayRegionByLocale(localeCode: string): string {
+    const normalized = localeCode.trim().toLowerCase()
+    const region = normalized.split('-')[1]?.toUpperCase()
+    if (region && region.length === 2) {
+      return region
+    }
+    return 'CN'
+  }
+
+  /** 将假日 DTO 写入 `holidayFromToken`；`dto` 为空则清空 */
+  function applyHolidayDto(dto: Holiday | null) {
+    if (
+      dto == null ||
+      ((dto.holidayName == null || String(dto.holidayName).trim() === '') &&
+        (dto.holidayGreeting == null || String(dto.holidayGreeting).trim() === '') &&
+        (dto.holidayQuote == null || String(dto.holidayQuote).trim() === '') &&
+        (dto.holidayTheme == null || String(dto.holidayTheme).trim() === ''))
+    ) {
+      holidayFromToken.value = null
+      return
+    }
+    const holidayName = typeof dto.holidayName === 'string' ? dto.holidayName : ''
+    const holidayGreeting = typeof dto.holidayGreeting === 'string' ? dto.holidayGreeting : ''
+    const next: HolidayFromToken = {
+      isHolidayToday: true,
+      holidayName,
+      holidayGreeting,
+      holidayTheme: normalizeHolidayThemeKey(dto.holidayTheme)
+    }
+    const quoteRaw = dto.holidayQuote
+    if (typeof quoteRaw === 'string' && quoteRaw.trim() !== '') {
+      next.holidayQuote = quoteRaw.trim()
+    }
+    holidayFromToken.value = next
+  }
+
+  /** 严格按假日主题色切换；非假日时恢复入节前主题 */
+  function syncAppThemeWithHoliday() {
+    const settingStore = useSettingStore()
+    const currentThemeTypeRaw = String(settingStore.setting?.themeColor?.type ?? 'blue')
+    const currentThemeType: ThemePreset =
+      currentThemeTypeRaw in themeColorMap ? (currentThemeTypeRaw as ThemePreset) : 'blue'
+    const holidayTheme = holidayFromToken.value?.holidayTheme
+    const isHoliday = holidayFromToken.value?.isHolidayToday === true
+    const isHolidayThemeValid =
+      typeof holidayTheme === 'string' &&
+      holidayTheme in themeColorMap
+
+    if (isHoliday && isHolidayThemeValid) {
+      if (themeBeforeHoliday.value == null) {
+        themeBeforeHoliday.value = currentThemeType
+      }
+      if (currentThemeType !== holidayTheme) {
+        settingStore.setSettingTransient({ themeColor: { type: holidayTheme as ThemePreset } })
+        applySettings()
+        logger.info('[User Store] 假日主题已生效(临时覆盖，不持久化): ', holidayTheme)
+      }
+      return
+    }
+
+    if (themeBeforeHoliday.value != null && currentThemeType !== themeBeforeHoliday.value) {
+      settingStore.setSettingTransient({ themeColor: { type: themeBeforeHoliday.value } })
+      applySettings()
+      logger.info('[User Store] 非假日，已恢复原主题(不改持久化): ', themeBeforeHoliday.value)
+    }
+    themeBeforeHoliday.value = null
+  }
+
+  /** 未登录可调用：按当前日期拉取公开假日主题并写入 store */
+  const syncHolidayThemeFromPublicApi = async () => {
+    try {
+      const i18nMod = await import('@/locales')
+      const { unref } = await import('vue')
+      const locale = String(unref(i18nMod.default.global.locale) ?? '')
+      const region = resolveHolidayRegionByLocale(locale)
+      const { getHolidayTheme } = await import('@/api/human-resource/attendance-leave/holiday')
+      const dto = await getHolidayTheme(undefined, region)
+      applyHolidayDto(dto)
+      syncAppThemeWithHoliday()
+      logger.info(
+        '[User Store] 假日主题接口:',
+        dto ? `已同步「${dto.holidayName ?? ''}」` : `今日无假日记录（region=${region}）`
+      )
+    } catch (error: unknown) {
+      logger.warn('[User Store] 拉取假日主题失败:', toErrorMessage(error))
+    }
+  }
+
+  /** 仅更新内存中的 token（内部用）；登出清空假日；登录换 token 时保留已预热的假日主题 */
   function setToken(newToken: string | null) {
     token.value = newToken
-    holidayFromToken.value = decodeHolidayFromToken(newToken)
-    const h = holidayFromToken.value
-    logger.info('[User Store] 假日信息已更新:', h ? `今日假日 ${h.holidayName}，主题 key=${h.holidayTheme}` : '非假日/无')
+    if (newToken == null) {
+      holidayFromToken.value = null
+    }
+    logger.info('[User Store] Token 已更新:', newToken == null ? '已清除会话' : '已写入访问令牌')
   }
 
   /**
@@ -72,18 +172,30 @@ export const useUserStore = defineStore('user', () => {
     persistAuth(null, null, null)
   }
 
-  // 登录
+  // 登录：语言列表 → 当前语言翻译 → 公开假日主题 → 调登录接口 → 成功后全量字典 → userinfo
   const loginAction = async (params: LoginParams) => {
     try {
       logger.info('[User Store] 开始登录，用户名:', params.username)
+      const { useLocaleStore } = await import('@/stores/routine/localization/locale')
+      await useLocaleStore().loadLanguages()
+      const i18nMod = await import('@/locales')
+      const { unref } = await import('vue')
+      const culture = unref(i18nMod.default.global.locale) as string
+      await i18nMod.loadTranslationsFromBackend(culture, 'Frontend')
+
       const data = await login(params)
       const authExtra: { refreshToken?: string; expiresIn?: number } = {}
       if (data.refreshToken != null) authExtra.refreshToken = data.refreshToken
       if (data.expiresIn != null) authExtra.expiresIn = data.expiresIn
       setAuth(data.token, Object.keys(authExtra).length > 0 ? authExtra : undefined)
+
+      const { useDictDataStore } = await import('@/stores/routine/dict/dictdata')
+      await useDictDataStore().loadAllDictData()
+
+      const info = await getUserInfoAction()
       eventBus.$emit(AuthEvents.LoginSuccess)
-      logger.info('[User Store] 登录成功，用户名:', params.username, '用户ID:', data.userInfo?.userId)
-      return data
+      logger.info('[User Store] 登录成功，用户名:', params.username, '用户ID:', info.userId)
+      return { ...data, userInfo: info }
     } catch (error: unknown) {
       logger.error('[User Store] 登录失败，用户名:', params.username, '错误:', toErrorMessage(error))
       throw error
@@ -98,11 +210,18 @@ export const useUserStore = defineStore('user', () => {
     const info = await getUserInfo()
     userInfo.value = info
     if (info.holidayToday === true && (info.holidayName != null || info.holidayGreeting != null || info.holidayQuote != null || info.holidayTheme != null)) {
-      const key = (info.holidayTheme ?? '').replace(/\s+/g, ' ').replace(/[\u3000-\u303f\uff00-\uffef]/g, '').trim().toLowerCase()
+      const holidayThemeRaw = info.holidayTheme
+      const key = (typeof holidayThemeRaw === 'string' ? holidayThemeRaw : '')
+        .replace(/\s+/g, ' ')
+        .replace(/[\u3000-\u303f\uff00-\uffef]/g, '')
+        .trim()
+        .toLowerCase()
+      const holidayName = typeof info.holidayName === 'string' ? info.holidayName : ''
+      const holidayGreeting = typeof info.holidayGreeting === 'string' ? info.holidayGreeting : ''
       const fromUserInfo: HolidayFromToken = {
         isHolidayToday: true,
-        holidayName: info.holidayName ?? '',
-        holidayGreeting: info.holidayGreeting ?? '',
+        holidayName,
+        holidayGreeting,
         holidayTheme: key
       }
       const quoteRaw = info.holidayQuote
@@ -110,10 +229,12 @@ export const useUserStore = defineStore('user', () => {
         fromUserInfo.holidayQuote = quoteRaw.trim()
       }
       holidayFromToken.value = fromUserInfo
-      logger.info('[User Store] 假日信息已从 userinfo 同步: ', info.holidayName, ', 主题 key=', key)
+      syncAppThemeWithHoliday()
+      logger.info('[User Store] 假日信息已从 userinfo 同步: ', holidayName, ', 主题 key=', key)
     } else {
       // 未返回假日或今日非假日时清空，避免切换语言/地区后仍显示旧假日（如 zh-CN 有假日、en-US 无假日）
       holidayFromToken.value = null
+      syncAppThemeWithHoliday()
       logger.info('[User Store] userinfo 无假日信息，假日状态: 非假日/无')
     }
     if (import.meta.env.DEV) {
@@ -122,7 +243,7 @@ export const useUserStore = defineStore('user', () => {
         userName: info.userName,
         roles: info.roles,
         permissions: info.permissions,
-        permissionsCount: info.permissions?.length || 0
+        permissionsCount: Array.isArray(info.permissions) ? info.permissions.length : 0
       })
     }
     return info
@@ -189,6 +310,7 @@ export const useUserStore = defineStore('user', () => {
     clearAuth,
     login: loginAction,
     getUserInfo: getUserInfoAction,
+    syncHolidayThemeFromPublicApi,
     logout
   }
 })

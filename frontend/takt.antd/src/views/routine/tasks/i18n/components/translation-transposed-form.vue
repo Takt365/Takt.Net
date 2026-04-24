@@ -21,54 +21,54 @@
       layout="horizontal"
     >
       <a-form-item
-        label="资源键"
+        :label="t('entity.translation.resourcekey')"
         name="resourceKey"
       >
         <a-input
           v-model:value="formState.resourceKey"
-          placeholder="如：UserNotFound、menu.home._self"
+          :placeholder="t('routine.localization.translation.placeholders.resourceKeyExample')"
           :disabled="isEdit"
         />
       </a-form-item>
       <a-form-item
-        label="资源类型"
+        :label="t('entity.translation.resourcetype')"
         name="resourceType"
       >
         <a-select
           v-model:value="formState.resourceType"
-          placeholder="Frontend / Backend"
+          :placeholder="t('routine.localization.translation.placeholders.resourceTypeSelect')"
           allow-clear
         >
           <a-select-option value="Frontend">
-            Frontend
+            {{ t('routine.localization.translation.options.frontend') }}
           </a-select-option>
           <a-select-option value="Backend">
-            Backend
+            {{ t('routine.localization.translation.options.backend') }}
           </a-select-option>
         </a-select>
       </a-form-item>
       <a-form-item
-        label="资源分组"
+        :label="t('entity.translation.resourcegroup')"
         name="resourceGroup"
       >
         <a-input
           v-model:value="formState.resourceGroup"
-          placeholder="如：Validation、Menu（可选）"
+          :placeholder="t('routine.localization.translation.placeholders.resourceGroupOptional')"
         />
       </a-form-item>
       <a-form-item
-        label="排序号"
+        :label="t('entity.translation.ordernum')"
         name="orderNum"
       >
         <a-input-number
           v-model:value="formState.orderNum"
           :min="0"
-          placeholder="越小越靠前"
+          :placeholder="t('routine.localization.translation.placeholders.orderNumHint')"
           style="width: 100%"
         />
       </a-form-item>
       <a-divider orientation="left">
-        各语言翻译值
+        {{ t('routine.localization.translation.divider.perCultureValues') }}
       </a-divider>
       <a-form-item
         v-for="lang in languageList"
@@ -77,17 +77,18 @@
         :name="['translations', lang.cultureCode]"
       >
         <a-input
-          v-model:value="formState.translations[lang.cultureCode]"
-          :placeholder="`${lang.label} 翻译值`"
+          :value="formState.translations[lang.cultureCode] ?? ''"
+          @update:value="(val) => { formState.translations[lang.cultureCode] = val }"
+          :placeholder="t('routine.localization.translation.placeholders.translationValueForLang', { label: lang.label })"
         />
       </a-form-item>
       <a-form-item
-        label="备注"
+        :label="t('common.entity.remark')"
         name="remark"
       >
         <a-textarea
           v-model:value="formState.remark"
-          placeholder="可选"
+          :placeholder="t('routine.localization.translation.placeholders.remarkOptional')"
           :rows="2"
         />
       </a-form-item>
@@ -97,6 +98,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Rule } from 'ant-design-vue/es/form'
 import * as languageApi from '@/api/routine/tasks/i18n/language'
 import type { Translation } from '@/types/routine/tasks/i18n/translation'
@@ -131,6 +133,8 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false
 })
 
+const { t } = useI18n()
+
 const formRef = ref()
 const languageList = ref<LanguageItem[]>([])
 const languageListLoading = ref(false)
@@ -146,24 +150,25 @@ const formState = reactive<TransposedFormData>({
   languageIds: {}
 })
 
-const isEdit = computed(() => {
-  return props.formData && props.formData.length > 0
-})
+const isEdit = computed(() => Boolean(props.formData && props.formData.length > 0))
 
-const formRules: Record<string, Rule[]> = {
-  resourceKey: [{ required: true, message: '请输入资源键', trigger: 'blur' }],
-  resourceType: [{ required: true, message: '请选择资源类型', trigger: 'change' }]
-}
+const formRules = computed<Record<string, Rule[]>>(() => ({
+  resourceKey: [{ required: true, message: t('routine.localization.translation.rules.resourceKeyRequired'), trigger: 'blur' }],
+  resourceType: [{ required: true, message: t('routine.localization.translation.rules.resourceTypeRequired'), trigger: 'change' }]
+}))
 
 async function loadLanguageList() {
   try {
     languageListLoading.value = true
-    const list = await languageApi.getLanguageOptions()
-    languageList.value = (list || []).map((x: any) => ({
-      languageId: String(x.extValue ?? ''),
-      cultureCode: String(x.dictValue ?? ''),
-      label: `${x.dictLabel} (${x.extLabel ?? x.dictValue})`
-    }))
+    const listRaw = (await languageApi.getLanguageOptions()) as unknown[]
+    languageList.value = listRaw.map((x) => {
+      const r = x as Record<string, unknown>
+      return {
+        languageId: String(r['extValue'] ?? ''),
+        cultureCode: String(r['dictValue'] ?? ''),
+        label: `${String(r['dictLabel'] ?? '')} (${String(r['extLabel'] ?? r['dictValue'] ?? '')})`
+      }
+    })
     // 初始化 translations 对象
     languageList.value.forEach((lang) => {
       if (!(lang.cultureCode in formState.translations)) {
@@ -182,7 +187,7 @@ watch(
   () => props.formData,
   (v) => {
     if (v && v.length > 0) {
-      const first = v[0]
+      const first = v[0]!
       formState.resourceKey = first.resourceKey ?? ''
       formState.resourceType = first.resourceType ?? 'Frontend'
       formState.resourceGroup = first.resourceGroup ?? ''
@@ -192,11 +197,11 @@ watch(
       formState.translations = {}
       formState.translationIds = {}
       formState.languageIds = {}
-      v.forEach((t) => {
-        if (t.cultureCode) {
-          formState.translations[t.cultureCode] = t.translationValue ?? ''
-          formState.translationIds[t.cultureCode] = t.translationId ?? ''
-          formState.languageIds[t.cultureCode] = t.languageId ?? ''
+      v.forEach((tr) => {
+        if (tr.cultureCode) {
+          formState.translations[tr.cultureCode] = tr.translationValue ?? ''
+          formState.translationIds[tr.cultureCode] = tr.translationId ?? ''
+          formState.languageIds[tr.cultureCode] = tr.languageId ?? ''
         }
       })
       // 确保所有语言都有条目

@@ -1,24 +1,25 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Identity
 // 文件名称：TaktRoleDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt角色DTO，包含角色相关的数据传输对象（查询、创建、更新）
-// 
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：角色信息表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
+//
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
 using SqlSugar;
 using Takt.Application.Dtos;
+using Takt.Shared.Models;
 
 namespace Takt.Application.Dtos.Identity;
 
 /// <summary>
-/// Takt角色DTO
+/// 角色信息表Dto
 /// </summary>
-public class TaktRoleDto : TaktDtoBase
+public partial class TaktRoleDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -27,11 +28,10 @@ public class TaktRoleDto : TaktDtoBase
     {
         RoleName = string.Empty;
         RoleCode = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 角色ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 角色信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
@@ -41,52 +41,32 @@ public class TaktRoleDto : TaktDtoBase
     /// 角色名称
     /// </summary>
     public string RoleName { get; set; }
-
     /// <summary>
     /// 角色编码
     /// </summary>
     public string RoleCode { get; set; }
-
     /// <summary>
-    /// 排序号（越小越靠前）
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
-
+    public int SortOrder { get; set; }
     /// <summary>
-    /// 数据范围（0=全部数据，1=本部门数据，2=本部门及以下数据，3=仅本人数据，4=自定义数据范围）
+    /// 数据范围
     /// </summary>
     public int DataScope { get; set; }
-
     /// <summary>
-    /// 自定义范围（当DataScope为4时使用，存储部门ID列表，JSON格式或逗号分隔）
+    /// 自定义范围
     /// </summary>
     public string? CustomScope { get; set; }
-
     /// <summary>
-    /// 角色状态（1=启用，0=禁用）
+    /// 角色状态
     /// </summary>
     public int RoleStatus { get; set; }
-
-    /// <summary>
-    /// 菜单ID列表
-    /// </summary>
-    public List<long>? MenuIds { get; set; }
-
-    /// <summary>
-    /// 用户ID列表
-    /// </summary>
-    public List<long>? UserIds { get; set; }
-
-    /// <summary>
-    /// 部门ID列表
-    /// </summary>
-    public List<long>? DeptIds { get; set; }
 }
 
 /// <summary>
-/// Takt角色查询DTO
+/// 角色信息表查询DTO
 /// </summary>
-public class TaktRoleQueryDto : TaktPagedQuery
+public partial class TaktRoleQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -95,28 +75,67 @@ public class TaktRoleQueryDto : TaktPagedQuery
     {
     }
 
-    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于在角色名称、角色编码中模糊查询
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
+    /// <summary>
+    /// 角色信息表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long RoleId { get; set; }
 
     /// <summary>
     /// 角色名称
     /// </summary>
     public string? RoleName { get; set; }
-
     /// <summary>
     /// 角色编码
     /// </summary>
     public string? RoleCode { get; set; }
-
     /// <summary>
-    /// 角色状态（1=启用，0=禁用）
+    /// 排序号
+    /// </summary>
+    public int? SortOrder { get; set; }
+    /// <summary>
+    /// 数据范围
+    /// </summary>
+    public int? DataScope { get; set; }
+    /// <summary>
+    /// 自定义范围
+    /// </summary>
+    public string? CustomScope { get; set; }
+    /// <summary>
+    /// 角色状态
     /// </summary>
     public int? RoleStatus { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建角色DTO
+/// Takt创建角色信息表DTO
 /// </summary>
-public class TaktRoleCreateDto
+public partial class TaktRoleCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -127,56 +146,51 @@ public class TaktRoleCreateDto
         RoleCode = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 角色名称
     /// </summary>
-    public string RoleName { get; set; } = string.Empty;
+    public string RoleName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 角色编码
     /// </summary>
-    public string RoleCode { get; set; } = string.Empty;
+    public string RoleCode { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; } = 0;
+    public int SortOrder { get; set; }
 
-    /// <summary>
-    /// 数据范围（0=全部数据，1=本部门数据，2=本部门及以下数据，3=仅本人数据，4=自定义数据范围）
+        /// <summary>
+    /// 数据范围
     /// </summary>
-    public int DataScope { get; set; } = 0;
+    public int DataScope { get; set; }
 
-    /// <summary>
-    /// 自定义范围（当DataScope为4时使用，存储部门ID列表，JSON格式或逗号分隔）
+        /// <summary>
+    /// 自定义范围
     /// </summary>
     public string? CustomScope { get; set; }
+
+        /// <summary>
+    /// 角色状态
+    /// </summary>
+    public int RoleStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
     /// </summary>
     public string? Remark { get; set; }
-
-    /// <summary>
-    /// 菜单ID列表
-    /// </summary>
-    public List<long>? MenuIds { get; set; }
-
-    /// <summary>
-    /// 用户ID列表
-    /// </summary>
-    public List<long>? UserIds { get; set; }
-
-    /// <summary>
-    /// 部门ID列表
-    /// </summary>
-    public List<long>? DeptIds { get; set; }
 }
 
 /// <summary>
-/// Takt更新角色DTO
+/// Takt更新角色信息表DTO
 /// </summary>
-public class TaktRoleUpdateDto : TaktRoleCreateDto
+public partial class TaktRoleUpdateDto : TaktRoleCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -185,8 +199,8 @@ public class TaktRoleUpdateDto : TaktRoleCreateDto
     {
     }
 
-    /// <summary>
-    /// 角色ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 角色信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
@@ -194,9 +208,9 @@ public class TaktRoleUpdateDto : TaktRoleCreateDto
 }
 
 /// <summary>
-/// Takt角色状态DTO
+/// 角色信息表角色状态DTO
 /// </summary>
-public class TaktRoleStatusDto
+public partial class TaktRoleStatusDto
 {
     /// <summary>
     /// 构造函数
@@ -205,75 +219,23 @@ public class TaktRoleStatusDto
     {
     }
 
-    /// <summary>
-    /// 角色ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 角色信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long RoleId { get; set; }
 
     /// <summary>
-    /// 角色状态（1=启用，0=禁用）
+    /// 角色状态（0=禁用，1=启用）
     /// </summary>
     public int RoleStatus { get; set; }
 }
 
 /// <summary>
-/// Takt角色分配菜单DTO
+/// 角色信息表导入模板DTO
 /// </summary>
-public class TaktRoleAssignMenusDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktRoleAssignMenusDto()
-    {
-        MenuIds = new List<long>();
-    }
-
-    /// <summary>
-    /// 角色ID（序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long RoleId { get; set; }
-
-    /// <summary>
-    /// 菜单ID列表
-    /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public List<long> MenuIds { get; set; }
-}
-
-/// <summary>
-/// Takt角色分配部门DTO
-/// </summary>
-public class TaktRoleAssignDeptsDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktRoleAssignDeptsDto()
-    {
-        DeptIds = new List<long>();
-    }
-
-    /// <summary>
-    /// 角色ID（序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long RoleId { get; set; }
-
-    /// <summary>
-    /// 部门ID列表
-    /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public List<long> DeptIds { get; set; }
-}
-
-/// <summary>
-/// Takt角色导入模板DTO
-/// </summary>
-public class TaktRoleTemplateDto
+public partial class TaktRoleTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -282,33 +244,42 @@ public class TaktRoleTemplateDto
     {
         RoleName = string.Empty;
         RoleCode = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 角色名称
     /// </summary>
     public string RoleName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 角色编码
     /// </summary>
     public string RoleCode { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
-    /// <summary>
-    /// 数据范围（0=全部数据，1=本部门数据，2=本部门及以下数据，3=仅本人数据，4=自定义数据范围）
+        /// <summary>
+    /// 数据范围
     /// </summary>
     public int DataScope { get; set; }
 
-    /// <summary>
-    /// 角色状态（1=启用，0=禁用）
+        /// <summary>
+    /// 自定义范围
+    /// </summary>
+    public string? CustomScope { get; set; }
+
+        /// <summary>
+    /// 角色状态
     /// </summary>
     public int RoleStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -317,9 +288,9 @@ public class TaktRoleTemplateDto
 }
 
 /// <summary>
-/// Takt角色导入DTO
+/// 角色信息表导入DTO
 /// </summary>
-public class TaktRoleImportDto
+public partial class TaktRoleImportDto
 {
     /// <summary>
     /// 构造函数
@@ -328,33 +299,42 @@ public class TaktRoleImportDto
     {
         RoleName = string.Empty;
         RoleCode = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 角色名称
     /// </summary>
     public string RoleName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 角色编码
     /// </summary>
     public string RoleCode { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
-    /// <summary>
-    /// 数据范围（0=全部数据，1=本部门数据，2=本部门及以下数据，3=仅本人数据，4=自定义数据范围）
+        /// <summary>
+    /// 数据范围
     /// </summary>
     public int DataScope { get; set; }
 
-    /// <summary>
-    /// 角色状态（1=启用，0=禁用）
+        /// <summary>
+    /// 自定义范围
+    /// </summary>
+    public string? CustomScope { get; set; }
+
+        /// <summary>
+    /// 角色状态
     /// </summary>
     public int RoleStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -363,44 +343,47 @@ public class TaktRoleImportDto
 }
 
 /// <summary>
-/// Takt角色导出DTO
+/// 角色信息表导出DTO
 /// </summary>
-public class TaktRoleExportDto
+public partial class TaktRoleExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktRoleExportDto()
     {
+        CreatedAt = DateTime.Now;
         RoleName = string.Empty;
         RoleCode = string.Empty;
-        DataScope = string.Empty;
-        RoleStatus = 1;
-        CreatedAt = DateTime.Now;
     }
 
-    /// <summary>
+        /// <summary>
     /// 角色名称
     /// </summary>
     public string RoleName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 角色编码
     /// </summary>
     public string RoleCode { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 数据范围
     /// </summary>
-    public string DataScope { get; set; }
+    public int DataScope { get; set; }
 
-    /// <summary>
-    /// 角色状态（1=启用，0=禁用）
+        /// <summary>
+    /// 自定义范围
+    /// </summary>
+    public string? CustomScope { get; set; }
+
+        /// <summary>
+    /// 角色状态
     /// </summary>
     public int RoleStatus { get; set; }
 

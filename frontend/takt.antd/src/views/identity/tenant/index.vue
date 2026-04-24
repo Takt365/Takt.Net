@@ -145,8 +145,8 @@
         :template-file-name="tenantExcelNames.fileBase"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.tenant._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.tenant._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -222,15 +222,10 @@ const formLoading = ref(false)
 const formRef = ref()
 // 高级查询抽屉（字段名与请求 DTO 一致，使用 PascalCase）
 const advancedQueryVisible = ref(false)
-const advancedQueryForm = ref<{
-  TenantName?: string
-  TenantCode?: string
-  TenantStatus?: number
-}>({
-  TenantName: '',
-  TenantCode: '',
-  TenantStatus: undefined
-})
+/** TenantName/TenantCode 与 a-input 绑定须为 string；TenantStatus 未选时不出现键（exactOptionalPropertyTypes）。 */
+type TenantAdvancedQueryForm = { TenantName: string; TenantCode: string; TenantStatus?: number }
+const emptyTenantAdvancedQueryForm = (): TenantAdvancedQueryForm => ({ TenantName: '', TenantCode: '' })
+const advancedQueryForm = ref<TenantAdvancedQueryForm>(emptyTenantAdvancedQueryForm())
 // 导入弹窗
 const importVisible = ref(false)
 // 列设置抽屉
@@ -303,7 +298,7 @@ const columns = computed<TableColumnsType>(() => [
     key: 'tenantStatus',
     width: 100
   },
-  CreateActionColumn({
+  CreateActionColumn<Tenant>({
     actions: [
       {
         key: 'update',
@@ -385,7 +380,7 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: Tenant[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: Tenant, selected: boolean) => {
     if (selected) {
@@ -396,7 +391,7 @@ const rowSelection = computed(() => ({
   },
   onSelectAll: (selected: boolean, selectedRowsData: Tenant[]) => {
     if (selected) {
-      selectedRow.value = selectedRowsData.length === 1 ? selectedRowsData[0] : null
+      selectedRow.value = selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
     } else {
       selectedRow.value = null
     }
@@ -415,7 +410,7 @@ const onClickRow = (record: Tenant) => ({
     }
 
     selectedRows.value = dataSource.value.filter(item => selectedRowKeys.value.includes(getTenantId(item)))
-    selectedRow.value = selectedRows.value.length === 1 ? selectedRows.value[0] : null
+    selectedRow.value = selectedRows.value.length === 1 ? (selectedRows.value[0] ?? null) : null
 
     if (rowSelection.value.onChange) {
       rowSelection.value.onChange(selectedRowKeys.value, selectedRows.value)
@@ -454,7 +449,7 @@ const loadData = async () => {
     total.value = totalCount
   } catch (error: any) {
     logger.error('[Tenant Management] 加载数据失败:', error)
-    message.error(error.message || t('common.msg.loadFail'))
+    message.error(error.message || t('common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -471,7 +466,7 @@ const handleSearch = () => {
 // 重置（清空关键字与高级查询，回到第一页）
 const handleReset = () => {
   queryKeyword.value = ''
-  advancedQueryForm.value = { TenantName: '', TenantCode: '', TenantStatus: undefined }
+  advancedQueryForm.value = emptyTenantAdvancedQueryForm()
   currentPage.value = 1
   loadData()
 }
@@ -525,26 +520,26 @@ const handleUpdate = () => {
   if (selectedRow.value) {
     handleEdit(selectedRow.value)
   } else {
-    message.warning(t('common.action.warnSelectToAction', { action: t('common.button.edit'), entity: t('entity.tenant._self') }))
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: t('entity.tenant._self') }))
   }
 }
 
 // 删除单条
 const handleDeleteOne = (record: Tenant) => {
-  const name = getTenantField(record, 'tenantName') || t('common.action.thisTarget', { target: t('entity.tenant._self') })
+  const name = getTenantField(record, 'tenantName') || t('common.action.thistarget', { target: t('entity.tenant._self') })
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', { entity: t('entity.tenant._self'), name }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.tenant._self'), name }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await deleteTenantById(getTenantId(record))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deletesuccess'))
         loadData()
       } catch (error: any) {
-        message.error(error.message || t('common.msg.deleteFail'))
+        message.error(error.message || t('common.msg.deletefail'))
       } finally {
         loading.value = false
       }
@@ -555,12 +550,12 @@ const handleDeleteOne = (record: Tenant) => {
 // 删除（工具栏：批量删除当前勾选）
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
-    message.warning(t('common.action.warnSelectToAction', { action: t('common.button.delete'), entity: t('entity.tenant._self') }))
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('entity.tenant._self') }))
     return
   }
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', { entity: t('entity.tenant._self'), count: selectedRows.value.length }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { entity: t('entity.tenant._self'), count: selectedRows.value.length }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
@@ -569,13 +564,13 @@ const handleDelete = () => {
         for (const row of selectedRows.value) {
           await deleteTenantById(getTenantId(row))
         }
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deletesuccess'))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: any) {
-        message.error(error.message || t('common.msg.deleteFail'))
+        message.error(error.message || t('common.msg.deletefail'))
       } finally {
         loading.value = false
       }
@@ -590,18 +585,18 @@ const handleToggleStatus = (record: Tenant) => {
   const newStatus = currentStatus === 1 ? 0 : 1
   const action = newStatus === 1 ? t('common.button.enable') : t('common.button.disable')
   Modal.confirm({
-    title: t('common.action.confirmAction', { action }),
-    content: t('common.action.confirmAction', { action }) + '？',
+    title: t('common.action.confirmaction', { action }),
+    content: t('common.action.confirmaction', { action }) + '？',
     okText: t('common.button.ok'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await updateTenantStatus({ tenantId: id, tenantStatus: newStatus })
-        message.success(t('common.msg.actionSuccess', { action }))
+        message.success(t('common.msg.actionsuccess', { action }))
         loadData()
       } catch (error: any) {
-        message.error(error.message || t('common.msg.actionFail', { action }))
+        message.error(error.message || t('common.msg.actionfail', { action }))
       } finally {
         loading.value = false
       }
@@ -661,10 +656,10 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess'))
+    message.success(t('common.msg.exportsuccess'))
   } catch (error: any) {
     logger.error('[Tenant Management] 导出失败:', error)
-    message.error(error.message || t('common.msg.exportFail'))
+    message.error(error.message || t('common.msg.exportfail'))
   } finally {
     loading.value = false
   }
@@ -684,7 +679,7 @@ const handleAdvancedQuerySubmit = () => {
 
 // 高级查询表单重置
 const handleAdvancedQueryReset = () => {
-  advancedQueryForm.value = { TenantName: '', TenantCode: '', TenantStatus: undefined }
+  advancedQueryForm.value = emptyTenantAdvancedQueryForm()
 }
 
 const handleColumnSetting = () => {
@@ -726,7 +721,7 @@ const handleFormSubmit = async () => {
         remark: formValues.remark || ''
       }
       await updateTenant(formData.value.tenantId, updatePayload)
-      message.success(t('common.msg.updateSuccess'))
+      message.success(t('common.msg.updatesuccess'))
     } else {
       const createPayload = {
         tenantName: formValues.tenantName || '',
@@ -737,7 +732,7 @@ const handleFormSubmit = async () => {
         remark: formValues.remark || ''
       }
       await createTenant(createPayload)
-      message.success(t('common.msg.createSuccess'))
+      message.success(t('common.msg.createsuccess'))
     }
 
     formRef.value?.resetFields()
@@ -746,7 +741,7 @@ const handleFormSubmit = async () => {
     loadData()
   } catch (error: any) {
     if (error.errorFields) return
-    message.error(error.message || t('common.msg.operateFail'))
+    message.error(error.message || t('common.msg.operatefail'))
   } finally {
     formLoading.value = false
   }

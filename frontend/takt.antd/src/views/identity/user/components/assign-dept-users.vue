@@ -264,7 +264,7 @@ const loadUserDepts = async () => {
     const u = props.user as User & { UserId?: string; UserName?: string; NickName?: string }
     const userId = u.userId || u.UserId || ''
     if (!userId) {
-      message.error(t('common.msg.entityIdRequired', { entity: t('entity.user._self') }))
+      message.error(t('common.msg.entityidrequired', { entity: t('entity.user._self') }))
       return
     }
 
@@ -296,7 +296,7 @@ const loadUserDepts = async () => {
     })
   } catch (error: any) {
     logger.error('[AssignDeptUsers] 加载用户部门失败:', error)
-    message.error(error.message || t('common.msg.loadTargetFail', { target: t('entity.user._self') + t('entity.dept._self') }))
+    message.error(error.message || t('common.msg.loadtargetfail', { target: t('entity.user._self') + t('entity.dept._self') }))
   } finally {
     loading.value = false
     optionsLoading.value = false
@@ -306,7 +306,7 @@ const loadUserDepts = async () => {
 /** 弹窗确定：调用 assignUserDepts 后 emit success 并关闭 */
 const handleSubmit = async () => {
   if (!props.user) {
-    message.error(t('common.msg.entityNotFound', { entity: t('entity.user._self') }))
+    message.error(t('common.msg.entitynotfound', { entity: t('entity.user._self') }))
     return
   }
 
@@ -316,19 +316,19 @@ const handleSubmit = async () => {
     // 获取用户ID
     const userId = props.user.userId || (props.user as any).UserId || ''
     if (!userId) {
-      message.error(t('common.msg.entityIdRequired', { entity: t('entity.user._self') }))
+      message.error(t('common.msg.entityidrequired', { entity: t('entity.user._self') }))
       return
     }
 
     // 调用分配API
     await assignUserDepts(String(userId), targetKeys.value)
     
-    message.success(t('common.msg.assignSuccess', { target: t('entity.dept._self') }))
+    message.success(t('common.msg.assignsuccess', { target: t('entity.dept._self') }))
     emit('success')
     handleCancel()
   } catch (error: any) {
     logger.error('[AssignDeptUsers] 分配部门失败:', error)
-    message.error(error.message || t('common.msg.assignFail', { target: t('entity.dept._self') }))
+    message.error(error.message || t('common.msg.assignfail', { target: t('entity.dept._self') }))
   } finally {
     loading.value = false
   }

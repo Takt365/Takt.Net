@@ -170,11 +170,11 @@ const formState = reactive<FormState>({
 const rules: Record<string, Rule[]> = {
   tenantName: [
     { required: true, message: t('common.form.placeholder.required', { field: t('entity.tenant.tenantname') }), trigger: 'blur' },
-    { min: 2, max: 50, message: t('tenant.fields.tenantName.validation.format'), trigger: 'blur' }
+    { min: 2, max: 50, message: t('tenant.page.fields.tenantname.validation.format'), trigger: 'blur' }
   ],
   tenantCode: [
     { required: true, message: t('common.form.placeholder.required', { field: t('entity.tenant.tenantcode') }), trigger: 'blur' },
-    { min: 2, max: 30, message: t('tenant.fields.tenantCode.validation.format'), trigger: 'blur' }
+    { min: 2, max: 30, message: t('tenant.page.fields.tenantcode.validation.format'), trigger: 'blur' }
   ],
   configId: [
     { required: true, message: t('common.form.placeholder.required', { field: t('entity.tenant.configid') }), trigger: 'blur' }

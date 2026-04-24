@@ -15,7 +15,7 @@
     <!-- 查询栏 -->
     <TaktQueryBar
       v-model="queryKeyword"
-      placeholder="请输入文件编码或文件名称"
+      :placeholder="t('routine.tasks.files.page.listSearch')"
       :loading="loading"
       @search="handleSearch"
       @reset="handleReset"
@@ -58,7 +58,7 @@
       :data-source="dataSource"
       :loading="loading"
       :stripe="true"
-      :row-key="(record: any) => record.fileId || ''"
+      :row-key="getFileRowKey"
       :row-selection="rowSelection"
       :custom-row="onClickRow"
       :pagination="false"
@@ -82,9 +82,9 @@
         <template v-else-if="column.key === 'fileStatus'">
           <a-switch
             :checked="record.fileStatus === 0"
-            checked-children="正常"
-            un-checked-children="禁用"
-            @change="(checked: any) => handleFileStatusChange(record, !!checked)"
+            :checked-children="t('routine.tasks.files.switches.fileStatusOn')"
+            :un-checked-children="t('routine.tasks.files.switches.fileStatusOff')"
+            @change="(checked) => handleFileStatusChange(record, checked)"
           />
         </template>
         <template v-else-if="column.key === 'fileCategory'">
@@ -99,10 +99,10 @@
         <template v-else-if="column.key === 'isPublic'">
           <a-switch
             :checked="record.isPublic === 0"
-            checked-children="公开"
-            un-checked-children="私有"
+            :checked-children="t('routine.tasks.files.switches.publicOn')"
+            :un-checked-children="t('routine.tasks.files.switches.publicOff')"
             :disabled="record.fileStatus !== 0"
-            @change="(checked: any) => handleIsPublicChange(record, !!checked)"
+            @change="(checked) => handleIsPublicChange(record, checked)"
           />
         </template>
       </template>
@@ -140,41 +140,41 @@
       @submit="handleAdvancedQuerySubmit"
       @reset="handleAdvancedQueryReset"
     >
-      <a-form-item label="文件编码">
+      <a-form-item :label="t('entity.file.code')">
         <a-input v-model:value="advancedQueryForm.fileCode" />
       </a-form-item>
-      <a-form-item label="文件名称">
+      <a-form-item :label="t('entity.file.name')">
         <a-input v-model:value="advancedQueryForm.fileName" />
       </a-form-item>
-      <a-form-item label="文件分类">
+      <a-form-item :label="t('entity.file.category')">
         <TaktSelect
           v-model:value="advancedQueryForm.fileCategory"
           dict-type="sys_file_category"
-          placeholder="请选择文件分类"
+          :placeholder="t('routine.tasks.files.placeholders.selectFileCategory')"
           allow-clear
         />
       </a-form-item>
-      <a-form-item label="存储方式">
+      <a-form-item :label="t('entity.file.storagetype')">
         <TaktSelect
           v-model:value="advancedQueryForm.storageType"
           dict-type="sys_storage_type"
-          placeholder="请选择存储方式"
+          :placeholder="t('routine.tasks.files.placeholders.selectStorageType')"
           allow-clear
         />
       </a-form-item>
-      <a-form-item label="文件状态">
+      <a-form-item :label="t('entity.file.status')">
         <TaktSelect
           v-model:value="advancedQueryForm.fileStatus"
           dict-type="sys_file_status"
-          placeholder="请选择文件状态"
+          :placeholder="t('routine.tasks.files.placeholders.selectFileStatus')"
           allow-clear
         />
       </a-form-item>
-      <a-form-item label="是否公开">
+      <a-form-item :label="t('entity.file.ispublic')">
         <TaktSelect
           v-model:value="advancedQueryForm.isPublic"
           dict-type="sys_is_public"
-          placeholder="请选择是否公开"
+          :placeholder="t('routine.tasks.files.placeholders.selectIsPublic')"
           allow-clear
         />
       </a-form-item>
@@ -202,13 +202,21 @@ import { mergeDefaultColumns } from '@/utils/table-columns'
 import { useI18n } from 'vue-i18n'
 import FileForm from './components/file-form.vue'
 import { getFileList, createFile, updateFile, deleteFile, updateFileStatus, download, changeIsPublic, exportFiles } from '@/api/routine/tasks/file'
-import type { File, FileCreate } from '@/types/routine/tasks/file'
+import type { File, FileCreate } from '@/types/routine/tasks/files/file'
 import { RiEditLine, RiDeleteBinLine, RiDownloadLine,  } from '@remixicon/vue'
 import { logger } from '@/utils/logger'
 import { CreateActionColumn } from '@/components/business/takt-action-column'
 
 const { t } = useI18n()
 const queryKeyword = ref('')
+
+/** TaktSingleTable 的 rowKey 入参为 TableRecord，与 File 标注不兼容，按 unknown 解析 fileId。 */
+const getFileRowKey = (record: unknown): string => {
+  if (record == null || typeof record !== 'object') return ''
+  const r = record as Record<string, unknown>
+  const id = r['fileId']
+  return id != null && String(id) !== '' ? String(id) : ''
+}
 const loading = ref(false)
 const dataSource = ref<File[]>([])
 const currentPage = ref(1)
@@ -218,7 +226,7 @@ const selectedRow = ref<File | null>(null)
 const selectedRows = ref<File[]>([])
 const selectedRowKeys = ref<(string | number)[]>([])
 const formVisible = ref(false)
-const formTitle = ref('新增文件')
+const formTitle = ref('')
 const formData = ref<Partial<File>>({})
 const formLoading = ref(false)
 const formRef = ref()
@@ -235,29 +243,29 @@ const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
 
 // 表格列配置（与 File 接口字段一一对应，字段名为小驼峰）
-const columns = ref<TableColumnsType>([
+const columns = computed<TableColumnsType>(() => [
   {
-    title: '文件ID',
+    title: t('common.entity.id'),
     dataIndex: 'fileId',
     key: 'fileId',
     width: 120,
     fixed: 'left'
   },
   {
-    title: '文件编码',
+    title: t('entity.file.code'),
     dataIndex: 'fileCode',
     key: 'fileCode',
     width: 150,
     ellipsis: true,
     resizable: true,
-    sorter: (a: any, b: any) => {
+    sorter: (a: File, b: File) => {
       const aCode = a.fileCode || ''
       const bCode = b.fileCode || ''
       return aCode.localeCompare(bCode)
     }
   },
   {
-    title: '文件名称',
+    title: t('entity.file.name'),
     dataIndex: 'fileName',
     key: 'fileName',
     width: 180,
@@ -265,7 +273,7 @@ const columns = ref<TableColumnsType>([
     resizable: true
   },
   {
-    title: '原始名称',
+    title: t('entity.file.originalname'),
     dataIndex: 'fileOriginalName',
     key: 'fileOriginalName',
     width: 180,
@@ -273,7 +281,7 @@ const columns = ref<TableColumnsType>([
     resizable: true
   },
   {
-    title: '文件路径',
+    title: t('entity.file.path'),
     dataIndex: 'filePath',
     key: 'filePath',
     width: 220,
@@ -281,52 +289,52 @@ const columns = ref<TableColumnsType>([
     resizable: true
   },
   {
-    title: '文件大小',
+    title: t('entity.file.size'),
     dataIndex: 'fileSize',
     key: 'fileSize',
     width: 120
   },
   {
-    title: '文件类型',
+    title: t('entity.file.mimetype'),
     dataIndex: 'fileType',
     key: 'fileType',
     width: 140,
     ellipsis: true
   },
   {
-    title: '扩展名',
+    title: t('entity.file.extension'),
     dataIndex: 'fileExtension',
     key: 'fileExtension',
     width: 100
   },
   {
-    title: '文件哈希',
+    title: t('entity.file.hash'),
     dataIndex: 'fileHash',
     key: 'fileHash',
     width: 220,
     ellipsis: true
   },
   {
-    title: '文件分类',
+    title: t('entity.file.category'),
     dataIndex: 'fileCategory',
     key: 'fileCategory',
     width: 120
   },
   {
-    title: '存储方式',
+    title: t('entity.file.storagetype'),
     dataIndex: 'storageType',
     key: 'storageType',
     width: 120
   },
   {
-    title: '存储配置',
+    title: t('entity.file.storageconfig'),
     dataIndex: 'storageConfig',
     key: 'storageConfig',
     width: 200,
     ellipsis: true
   },
   {
-    title: '访问地址',
+    title: t('entity.file.accessurl'),
     dataIndex: 'accessUrl',
     key: 'accessUrl',
     width: 220,
@@ -334,68 +342,68 @@ const columns = ref<TableColumnsType>([
     resizable: true
   },
   {
-    title: '下载次数',
+    title: t('entity.file.downloadcount'),
     dataIndex: 'downloadCount',
     key: 'downloadCount',
     width: 100
   },
   {
-    title: '最后下载时间',
+    title: t('entity.file.lastdownloadtime'),
     dataIndex: 'lastDownloadTime',
     key: 'lastDownloadTime',
     width: 180
   },
   {
-    title: '文件状态',
+    title: t('entity.file.status'),
     dataIndex: 'fileStatus',
     key: 'fileStatus',
     width: 120
   },
   {
-    title: '是否公开',
+    title: t('entity.file.ispublic'),
     dataIndex: 'isPublic',
     key: 'isPublic',
     width: 120
   },
   {
-    title: '访问权限配置',
+    title: t('entity.file.accesspermissionconfig'),
     dataIndex: 'accessPermissionConfig',
     key: 'accessPermissionConfig',
     width: 200,
     ellipsis: true
   },
   {
-    title: '文件描述',
+    title: t('entity.file.description'),
     dataIndex: 'fileDescription',
     key: 'fileDescription',
     width: 200,
     ellipsis: true
   },
   {
-    title: '文件标签',
+    title: t('entity.file.tags'),
     dataIndex: 'fileTags',
     key: 'fileTags',
     width: 160,
     ellipsis: true
   },
   {
-    title: 'IP 地址',
+    title: t('entity.file.ipaddress'),
     dataIndex: 'ipAddress',
     key: 'ipAddress',
     width: 160
   },
   {
-    title: '位置',
+    title: t('entity.file.location'),
     dataIndex: 'location',
     key: 'location',
     width: 180,
     ellipsis: true
   },
-  CreateActionColumn({
+  CreateActionColumn<File>({
     actions: [
       {
         key: 'update',
-        label: '编辑',
+        label: t('common.action.edit'),
         shape: 'plain',
         icon: RiEditLine,
         permission: 'routine:tasks:file:update',
@@ -403,7 +411,7 @@ const columns = ref<TableColumnsType>([
       },
       {
         key: 'download',
-        label: '下载',
+        label: t('common.action.download'),
         shape: 'plain',
         icon: RiDownloadLine,
         permission: 'routine:tasks:file:download',
@@ -411,7 +419,7 @@ const columns = ref<TableColumnsType>([
       },
       {
         key: 'delete',
-        label: '删除',
+        label: t('common.action.delete'),
         shape: 'plain',
         icon: RiDeleteBinLine,
         permission: 'routine:tasks:file:delete',
@@ -472,7 +480,7 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: File[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: File, selected: boolean) => {
     if (selected) {
@@ -483,7 +491,7 @@ const rowSelection = computed(() => ({
   },
   onSelectAll: (selected: boolean, selectedRowsData: File[]) => {
     if (selected) {
-      selectedRow.value = selectedRowsData.length === 1 ? selectedRowsData[0] : null
+      selectedRow.value = selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
     } else {
       selectedRow.value = null
     }
@@ -503,12 +511,12 @@ const onClickRow = (record: File) => {
         selectedRowKeys.value.push(key)
       }
       
-      selectedRows.value = dataSource.value.filter(item => 
+      selectedRows.value = dataSource.value.filter((item: File) =>
         selectedRowKeys.value.includes(item.fileId || '')
       )
       
       if (selectedRowKeys.value.length === 1) {
-        selectedRow.value = selectedRows.value[0]
+        selectedRow.value = selectedRows.value[0] ?? null
       } else {
         selectedRow.value = null
       }
@@ -565,7 +573,7 @@ const loadData = async () => {
     total.value = totalCount
   } catch (error: any) {
     logger.error('[File Management] 加载数据失败:', error)
-    message.error(error.message || '加载数据失败')
+    message.error(error.message || t('routine.tasks.files.messages.loadFail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -630,14 +638,14 @@ const handlePaginationSizeChange = (current: number, size: number) => {
 
 // 新增
 const handleCreate = () => {
-  formTitle.value = '新增文件'
+  formTitle.value = t('routine.tasks.files.page.formCreate')
   formData.value = {}
   formVisible.value = true
 }
 
 // 编辑
 const handleEdit = (record: File) => {
-  formTitle.value = '编辑文件'
+  formTitle.value = t('routine.tasks.files.page.formEdit')
   formData.value = { ...record }
   formVisible.value = true
 }
@@ -647,7 +655,7 @@ const handleUpdate = () => {
   if (selectedRow.value) {
     handleEdit(selectedRow.value)
   } else {
-    message.warning('请选择要编辑的文件')
+    message.warning(t('routine.tasks.files.messages.selectEdit'))
   }
 }
 
@@ -656,7 +664,7 @@ const handleDownload = async (record: File) => {
   const fileId = record.fileId
   
   if (!fileId) {
-    message.warning('文件ID不存在')
+    message.warning(t('routine.tasks.files.messages.fileIdMissing'))
     return
   }
   
@@ -667,7 +675,7 @@ const handleDownload = async (record: File) => {
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = record.fileOriginalName || record.fileName || 'download'
+    link.download = record.fileOriginalName || record.fileName || t('routine.tasks.files.messages.downloadFallback')
     link.style.display = 'none'
     document.body.appendChild(link)
     link.click()
@@ -678,26 +686,28 @@ const handleDownload = async (record: File) => {
       window.URL.revokeObjectURL(url)
     }, 100)
     
-    message.success('下载成功')
+    message.success(t('routine.tasks.files.messages.downloadSuccess'))
     // 刷新数据以更新下载次数
     loadData()
   } catch (error: any) {
     logger.error('[File Management] 下载失败:', error)
-    message.error(error.message || '下载失败')
+    message.error(error.message || t('routine.tasks.files.messages.downloadFail'))
   } finally {
     loading.value = false
   }
 }
 
 // 切换文件状态（正常/禁用）
-const handleFileStatusChange = async (record: File, checked: boolean) => {
+const handleFileStatusChange = async (record: File, checked: unknown) => {
+  const on = Boolean(checked)
   const oldStatus = record.fileStatus
-  const newStatus = checked ? 0 : 1 // checked=true 表示正常(0)，checked=false 表示禁用(1)
+  const newStatus = on ? 0 : 1 // checked=true 表示正常(0)，checked=false 表示禁用(1)
   
   // 乐观更新：立即更新本地数据
-  const fileIndex = dataSource.value.findIndex(f => f.fileId === record.fileId)
+  const fileIndex = dataSource.value.findIndex((f: File) => f.fileId === record.fileId)
   if (fileIndex !== -1) {
-    dataSource.value[fileIndex].fileStatus = newStatus
+    const row = dataSource.value[fileIndex]
+    if (row) row.fileStatus = newStatus
   }
   
   try {
@@ -705,34 +715,37 @@ const handleFileStatusChange = async (record: File, checked: boolean) => {
       fileId: record.fileId,
       fileStatus: newStatus
     })
-    message.success(checked ? '已恢复正常' : '已禁用')
+    message.success(on ? t('routine.tasks.files.messages.statusNormal') : t('routine.tasks.files.messages.statusDisabled'))
     // 可选：刷新数据以确保数据一致性
     // loadData()
   } catch (error: any) {
     logger.error('[File Management] 切换文件状态失败:', error)
-    message.error(error.message || '切换失败')
+    message.error(error.message || t('routine.tasks.files.messages.toggleFail'))
     // 回滚：恢复原始状态
     if (fileIndex !== -1) {
-      dataSource.value[fileIndex].fileStatus = oldStatus
+      const row = dataSource.value[fileIndex]
+      if (row) row.fileStatus = oldStatus
     }
   }
 }
 
 // 切换公开/私有状态
-const handleIsPublicChange = async (record: File, checked: boolean) => {
+const handleIsPublicChange = async (record: File, checked: unknown) => {
   // 检查文件状态：只有正常状态（0）才允许切换公开/私有
   if (record.fileStatus !== 0) {
-    message.warning('文件状态为禁用时不允许切换公开/私有状态')
+    message.warning(t('routine.tasks.files.messages.publicWhenDisabled'))
     return
   }
   
+  const on = Boolean(checked)
   const oldIsPublic = record.isPublic
-  const newIsPublic = checked ? 0 : 1 // checked=true 表示公开(0)，checked=false 表示私有(1)
+  const newIsPublic = on ? 0 : 1 // checked=true 表示公开(0)，checked=false 表示私有(1)
   
   // 乐观更新：立即更新本地数据
-  const fileIndex = dataSource.value.findIndex(f => f.fileId === record.fileId)
+  const fileIndex = dataSource.value.findIndex((f: File) => f.fileId === record.fileId)
   if (fileIndex !== -1) {
-    dataSource.value[fileIndex].isPublic = newIsPublic
+    const row = dataSource.value[fileIndex]
+    if (row) row.isPublic = newIsPublic
   }
   
   try {
@@ -740,33 +753,34 @@ const handleIsPublicChange = async (record: File, checked: boolean) => {
       fileId: record.fileId,
       isPublic: newIsPublic
     })
-    message.success(checked ? '已设为公开' : '已设为私有')
+    message.success(on ? t('routine.tasks.files.messages.setPublic') : t('routine.tasks.files.messages.setPrivate'))
     // 可选：刷新数据以确保数据一致性
     // loadData()
   } catch (error: any) {
     logger.error('[File Management] 切换公开/私有状态失败:', error)
-    message.error(error.message || '切换失败')
+    message.error(error.message || t('routine.tasks.files.messages.toggleFail'))
     // 回滚：恢复原始状态
     if (fileIndex !== -1) {
-      dataSource.value[fileIndex].isPublic = oldIsPublic
+      const row = dataSource.value[fileIndex]
+      if (row) row.isPublic = oldIsPublic
     }
   }
 }
 
 // 删除单个
 const handleDeleteOne = (record: File) => {
-  const fileName = record.fileName || '该文件'
+  const fileName = record.fileName || t('routine.tasks.files.messages.thisFile')
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除文件 "${fileName}" 吗？`,
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.file._self'), name: fileName }),
     onOk: async () => {
       try {
         loading.value = true
         await deleteFile(record.fileId)
-        message.success('删除成功')
+        message.success(t('routine.tasks.files.messages.deleteSuccess'))
         loadData()
       } catch (error: any) {
-        message.error(error.message || '删除失败')
+        message.error(error.message || t('routine.tasks.files.messages.deleteFail'))
       } finally {
         loading.value = false
       }
@@ -777,25 +791,28 @@ const handleDeleteOne = (record: File) => {
 // 删除（工具栏按钮）
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
-    message.warning('请选择要删除的文件')
+    message.warning(t('routine.tasks.files.messages.selectDelete'))
     return
   }
 
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除选中的 ${selectedRows.value.length} 个文件吗？`,
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', {
+      count: selectedRows.value.length,
+      entity: t('entity.file._self')
+    }),
     onOk: async () => {
       try {
         loading.value = true
-        const deletePromises = selectedRows.value.map(file => deleteFile(file.fileId))
+        const deletePromises = selectedRows.value.map((file: File) => deleteFile(file.fileId))
         await Promise.all(deletePromises)
-        message.success('删除成功')
+        message.success(t('routine.tasks.files.messages.deleteSuccess'))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: any) {
-        message.error(error.message || '删除失败')
+        message.error(error.message || t('routine.tasks.files.messages.deleteFail'))
       } finally {
         loading.value = false
       }
@@ -885,9 +902,11 @@ const handleExport = async () => {
       queryParams.isPublic = advancedQueryForm.value.isPublic
     }
     
-    const blob = await exportFiles(queryParams, undefined, '文件数据')
-    const ts = new Date(); const t = (n: number, w = 2) => String(n).padStart(w, '0')
-    const fileName = `文件数据_${ts.getFullYear()}${t(ts.getMonth()+1)}${t(ts.getDate())}${t(ts.getHours())}${t(ts.getMinutes())}${t(ts.getSeconds())}.xlsx`
+    const exportLabel = t('routine.tasks.files.page.exportDataLabel')
+    const blob = await exportFiles(queryParams, undefined, exportLabel)
+    const ts = new Date()
+    const padNum = (n: number, w = 2) => String(n).padStart(w, '0')
+    const fileName = `${exportLabel}_${ts.getFullYear()}${padNum(ts.getMonth() + 1)}${padNum(ts.getDate())}${padNum(ts.getHours())}${padNum(ts.getMinutes())}${padNum(ts.getSeconds())}.xlsx`
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -902,10 +921,10 @@ const handleExport = async () => {
       window.URL.revokeObjectURL(url)
     }, 100)
     
-    message.success('导出成功')
+    message.success(t('routine.tasks.files.messages.exportSuccess'))
   } catch (error: any) {
     logger.error('[File Management] 导出失败:', error)
-    message.error(error.message || '导出失败')
+    message.error(error.message || t('routine.tasks.files.messages.exportFail'))
   } finally {
     loading.value = false
   }
@@ -929,7 +948,7 @@ const handleFormSubmit = async () => {
     
     // 新增时：必须先上传文件，获取 fileCode 等信息
     if (!isEdit && !hasFileToUpload) {
-      message.error('请先选择要上传的文件')
+      message.error(t('routine.tasks.files.messages.selectUploadFirst'))
       return
     }
     
@@ -946,7 +965,7 @@ const handleFormSubmit = async () => {
         
         // 验证文件信息是否已正确填充（新增时必须有 fileCode）
         if (!isEdit && !updatedValues.fileCode) {
-          message.error('文件上传后未获取到文件信息，请重试')
+          message.error(t('routine.tasks.files.messages.uploadMetaMissing'))
           return
         }
         
@@ -962,7 +981,7 @@ const handleFormSubmit = async () => {
       } catch (error: any) {
         // 文件上传失败，阻止提交
         logger.error('[FileSubmit] 文件上传失败:', error)
-        message.error(error?.message || '文件上传失败，请重试')
+        message.error(error?.message || t('routine.tasks.files.messages.uploadFailRetry'))
         return
       }
     }
@@ -970,15 +989,15 @@ const handleFormSubmit = async () => {
     // 验证必需字段（新增时必须有的字段）
     if (!isEdit) {
       if (!formValues.fileCode) {
-        message.error('文件编码缺失，请重新上传文件')
+        message.error(t('routine.tasks.files.messages.fileCodeMissing'))
         return
       }
       if (!formValues.filePath) {
-        message.error('文件路径缺失，请重新上传文件')
+        message.error(t('routine.tasks.files.messages.filePathMissing'))
         return
       }
       if (!formValues.fileName) {
-        message.error('文件名称不能为空')
+        message.error(t('routine.tasks.files.messages.fileNameEmpty'))
         return
       }
     }
@@ -990,14 +1009,14 @@ const handleFormSubmit = async () => {
         // 更新：使用 update API 更新数据库记录
         const fileId = formData.value.fileId
         if (!fileId) {
-          message.error('文件ID缺失')
+          message.error(t('routine.tasks.files.messages.fileIdMissingSubmit'))
           formLoading.value = false
           return
         }
         const updateData = { ...formValues, fileId }
         logger.debug('[FileSubmit] 开始更新文件记录:', updateData)
         await updateFile(String(fileId), updateData)
-        message.success('更新成功')
+        message.success(t('routine.tasks.files.messages.updateSuccess'))
       } else {
         // 新增：使用 create API 创建数据库记录
         // 确保所有必需字段都已填充
@@ -1027,7 +1046,7 @@ const handleFormSubmit = async () => {
           fileDescriptionValue: createData.fileDescription
         })
         await createFile(createData)
-        message.success('创建成功')
+        message.success(t('routine.tasks.files.messages.createSuccess'))
       }
 
       // 只有 create/update 成功后才关闭对话框并刷新列表
@@ -1060,9 +1079,8 @@ const handleFormSubmit = async () => {
       })
       
       // 显示更详细的错误信息
-      const displayMessage = responseData?.message || errorMessage || '保存失败，请重试'
+      const displayMessage = responseData?.message || errorMessage || t('routine.tasks.files.messages.saveRetry')
       message.error(displayMessage)
-      throw createUpdateError // 重新抛出，让外层 catch 处理
     } finally {
       formLoading.value = false
     }
@@ -1071,10 +1089,7 @@ const handleFormSubmit = async () => {
       // 表单验证错误
       return
     }
-    // 错误消息已经在各个步骤中显示，这里只显示未处理的错误
-    if (error?.message && !error.message.includes('上传失败') && !error.message.includes('保存失败') && !error.message.includes('文件ID缺失')) {
-      message.error(error.message || '操作失败')
-    }
+    message.error(error.message || t('routine.tasks.files.messages.operateFail'))
   } finally {
     formLoading.value = false
   }
@@ -1090,72 +1105,18 @@ const handleFormCancel = () => {
   }
 }
 
-// 状态颜色
-const getStatusColor = (status: number) => {
-  switch (status) {
-    case 0:
-      return 'success' // 正常
-    case 1:
-      return 'warning' // 已锁定
-    case 2:
-      return 'processing' // 已归档
-    case 3:
-      return 'error' // 已删除
-    default:
-      return 'default'
-  }
-}
-
-// 状态文本
-const getStatusText = (status: number) => {
-  switch (status) {
-    case 0:
-      return '正常'
-    case 1:
-      return '已锁定'
-    case 2:
-      return '已归档'
-    case 3:
-      return '已删除'
-    default:
-      return '未知'
-  }
-}
-
-// 文件分类文本
+// 文件分类展示（数值枚举文案在 routine.tasks.files.category）
 const getCategoryText = (category: number) => {
-  switch (category) {
-    case 0:
-      return '文档'
-    case 1:
-      return '图片'
-    case 2:
-      return '视频'
-    case 3:
-      return '音频'
-    case 4:
-      return '压缩包'
-    case 5:
-      return '其他'
-    default:
-      return '未知'
-  }
+  const key = `routine.tasks.files.category.${category}` as const
+  const translated = t(key)
+  return translated === key ? t('routine.tasks.files.category.unknown') : translated
 }
 
-// 存储方式文本
+// 存储方式展示
 const getStorageTypeText = (storageType: number) => {
-  switch (storageType) {
-    case 0:
-      return '本地存储'
-    case 1:
-      return 'OSS对象存储'
-    case 2:
-      return 'FTP'
-    case 3:
-      return '其他'
-    default:
-      return '未知'
-  }
+  const key = `routine.tasks.files.storage.${storageType}` as const
+  const translated = t(key)
+  return translated === key ? t('routine.tasks.files.storage.unknown') : translated
 }
 
 // 格式化文件大小

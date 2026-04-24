@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Routine.Setting
 // 文件名称：TaktSettingsService.cs
@@ -98,7 +98,7 @@ public class TaktSettingsService : TaktServiceBase, ITaktSettingsService
     {
         var settings = await _settingsRepository.FindAsync(s => s.IsDeleted == 0 && s.SettingStatus == 0);
         return settings
-            .OrderBy(s => s.OrderNum)
+            .OrderBy(s => s.SortOrder)
             .ThenBy(s => s.CreatedAt)
             .Select(s => new TaktSelectOption
             {
@@ -106,7 +106,7 @@ public class TaktSettingsService : TaktServiceBase, ITaktSettingsService
                 DictValue = s.Id,
                 ExtLabel = s.SettingKey,
                 ExtValue = s.SettingGroup ?? string.Empty,
-                OrderNum = s.OrderNum
+                SortOrder = s.SortOrder
             })
             .ToList();
     }
@@ -229,9 +229,9 @@ public class TaktSettingsService : TaktServiceBase, ITaktSettingsService
     /// </summary>
     /// <param name="dto">设置状态DTO</param>
     /// <returns>设置DTO</returns>
-    public async Task<TaktSettingsDto> UpdateSettingsStatusAsync(TaktSettingsStatusDto dto)
+    public async Task<TaktSettingsDto> UpdateSettingsStatusAsync(TaktSettingsSettingStatusDto dto)
     {
-        var settings = await _settingsRepository.GetByIdAsync(dto.SettingId);
+        var settings = await _settingsRepository.GetByIdAsync(dto.SettingsId);
         if (settings == null)
             throw new TaktBusinessException("validation.settingNotFound");
 
@@ -313,7 +313,7 @@ public class TaktSettingsService : TaktServiceBase, ITaktSettingsService
                         SettingGroup = string.IsNullOrWhiteSpace(item.SettingGroup) ? null : item.SettingGroup,
                         IsBuiltIn = item.IsBuiltIn >= 0 ? item.IsBuiltIn : 1,
                         IsEncrypted = item.IsEncrypted >= 0 ? item.IsEncrypted : 1,
-                        OrderNum = item.OrderNum,
+                        SortOrder = item.SortOrder,
                         SettingStatus = item.SettingStatus >= 0 ? item.SettingStatus : 0, // 默认为启用（0=启用）
                         Remark = item.Remark
                     };

@@ -1,7 +1,7 @@
 <template>
   <div class="todo-module">
     <a-empty
-      :description="t('dashboard.workspace.todoPlaceholder')"
+      :description="t('dashboard.workspace.todoplaceholder')"
       :image="Empty.PRESENTED_IMAGE_SIMPLE"
     />
   </div>

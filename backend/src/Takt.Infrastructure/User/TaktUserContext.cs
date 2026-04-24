@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.User
 // 文件名称：TaktUserContext.cs
@@ -10,6 +10,7 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
+using System.Security.Claims;
 using Takt.Domain.Entities.HumanResource.Personnel;
 using Takt.Domain.Entities.Identity;
 using Takt.Shared.Helpers;
@@ -23,6 +24,17 @@ public class TaktUserContext
 {
     private static readonly AsyncLocal<TaktUser?> _currentUser = new();
     private static readonly AsyncLocal<TaktEmployee?> _currentEmployee = new();
+    private static readonly AsyncLocal<ClaimsPrincipal?> _hubInvocationPrincipal = new();
+
+    /// <summary>
+    /// SignalR Hub 生命周期或客户端调用时由 Hub / <c>IHubFilter</c> 写入当前连接的 <see cref="ClaimsPrincipal"/>，
+    /// 使 <see cref="TaktUserProvider"/> 与 HTTP 请求共用同一套 Claims 解析（不依赖 <see cref="Microsoft.AspNetCore.Http.IHttpContextAccessor"/> 在 WebSocket 下是否可用）。
+    /// </summary>
+    public static ClaimsPrincipal? HubInvocationPrincipal
+    {
+        get => _hubInvocationPrincipal.Value;
+        set => _hubInvocationPrincipal.Value = value;
+    }
 
     /// <summary>
     /// 当前用户关联的员工档案（由 <c>TaktUserMiddleware</c> 异步加载；仅内存上下文，非 Claims）
@@ -115,4 +127,31 @@ public class TaktUserContext
     /// 是否已登录
     /// </summary>
     public static bool IsAuthenticated => CurrentUser != null && CurrentUser.Id > 0;
+
+    /// <summary>
+    /// 当前登录用户用于日志、<c>CreatedBy</c> 等与 <c>user_name</c> 一致的可读名称：登录名 → 昵称 → 人事姓名 → 手机 → 邮箱；绝不使用用户主键数字串作为名称。
+    /// <see cref="CurrentEmployee"/> 由 <c>TaktUserMiddleware</c> 在已认证请求中加载。
+    /// </summary>
+    public static string GetCurrentUserDisplayName()
+    {
+        var u = CurrentUser;
+        if (u == null)
+            return string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(u.UserName))
+            return u.UserName.Trim();
+        if (!string.IsNullOrWhiteSpace(u.NickName))
+            return u.NickName.Trim();
+
+        var emp = CurrentEmployee;
+        if (emp != null && !string.IsNullOrWhiteSpace(emp.RealName))
+            return emp.RealName.Trim();
+
+        if (!string.IsNullOrWhiteSpace(u.UserPhone))
+            return u.UserPhone.Trim();
+        if (!string.IsNullOrWhiteSpace(u.UserEmail))
+            return u.UserEmail.Trim();
+
+        return string.Empty;
+    }
 }

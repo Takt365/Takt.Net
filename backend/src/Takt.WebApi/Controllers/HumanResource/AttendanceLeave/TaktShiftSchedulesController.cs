@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.HumanResource.AttendanceLeave
 // 文件名称：TaktShiftSchedulesController.cs
@@ -16,7 +16,7 @@ using Takt.Application.Services.HumanResource.AttendanceLeave;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.HumanResource.AttendanceLeave;
 
@@ -147,7 +147,7 @@ public class TaktShiftSchedulesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _service.GetShiftScheduleTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -196,11 +196,27 @@ public class TaktShiftSchedulesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _service.ExportShiftScheduleAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {
             return BadRequest(GetLocalizedExceptionMessage(ex));
         }
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 根据排班类别统计人员总数
+    /// </summary>
+    /// <returns>排班类别人员统计</returns>
+    [HttpGet("stats/by-schedule-type")]
+    [TaktPermission("humanresource:attendanceleave:schedule:list", "统计排班人员")]
+    public async Task<ActionResult<Dictionary<int, int>>> GetEmployeeCountByScheduleTypeAsync()
+    {
+        var stats = await _service.GetEmployeeCountByScheduleTypeAsync();
+        return Ok(stats);
+    }
+
+    #endregion
 }

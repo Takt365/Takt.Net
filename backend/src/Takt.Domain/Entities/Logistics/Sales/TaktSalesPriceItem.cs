@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Logistics.Sales
 // 文件名称：TaktSalesPriceItem.cs
@@ -65,8 +65,8 @@ public class TaktSalesPriceItem : TaktEntityBase
     /// <summary>
     /// 排序号（越小越靠前）
     /// </summary>
-    [SugarColumn(ColumnName = "order_num", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int OrderNum { get; set; } = 0;
+    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SortOrder { get; set; } = 0;
 
     /// <summary>
     /// 价格阶梯列表（主子表关系，一个物料价格可以有多个阶梯）

@@ -5,21 +5,21 @@
       class="theme-settings-space"
       style="width: 100%"
     >
-      <a-form-item :label="$t('components.navigation.systemSetting.themeMode')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.thememode')">
         <a-radio-group
           v-model:value="setting.theme"
           @change="handleChange"
         >
           <a-radio-button value="light">
-            {{ $t('components.navigation.systemSetting.light') }}
+            {{ $t('components.navigation.page.systemsetting.light') }}
           </a-radio-button>
           <a-radio-button value="dark">
-            {{ $t('components.navigation.systemSetting.dark') }}
+            {{ $t('components.navigation.page.systemsetting.dark') }}
           </a-radio-button>
         </a-radio-group>
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.themeColor')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.themecolor')">
         <div class="theme-color-picker">
           <a-tooltip
             v-for="(color, key) in themeColorMap"
@@ -40,7 +40,7 @@
             </div>
           </a-tooltip>
           <a-tooltip
-            :title="$t('components.navigation.systemSetting.custom')"
+            :title="$t('components.navigation.page.systemsetting.custom')"
             placement="top"
           >
             <div
@@ -73,7 +73,7 @@
         </div>
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.borderRadius')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.borderradius')">
         <a-radio-group
           v-model:value="setting.borderRadius"
           @change="handleChange"
@@ -96,7 +96,7 @@
         </a-radio-group>
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.fontSize')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.fontsize')">
         <a-slider
           v-model:value="setting.fontSize"
           :min="15"
@@ -107,14 +107,14 @@
         <span style="margin-left: 8px">{{ setting.fontSize }}px</span>
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.colorWeak')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.colorweak')">
         <a-switch
           v-model:checked="setting.colorWeak"
           @change="handleChange"
         />
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.grayMode')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.graymode')">
         <a-switch
           v-model:checked="setting.grayscale"
           @change="handleChange"

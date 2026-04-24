@@ -74,7 +74,7 @@ const props = withDefaults(defineProps<Props>(), {
   maxLength: undefined
 })
 
-const placeholderDisplay = computed(() => props.placeholder ?? t('common.form.placeholder.searchKeyword'))
+const placeholderDisplay = computed(() => props.placeholder ?? t('common.form.placeholder.searchkeyword'))
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]

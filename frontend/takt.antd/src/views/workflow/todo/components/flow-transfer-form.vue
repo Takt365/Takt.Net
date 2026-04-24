@@ -40,7 +40,7 @@
       name="comment"
     >
       <a-textarea
-        v-model:value="form.comment"
+        v-model:value="commentModel"
         :rows="2"
       />
     </a-form-item>
@@ -53,6 +53,7 @@
  */
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { SelectValue } from 'ant-design-vue/es/select'
 import type { TaktSelectOption } from '@/types/common'
 
 const { t } = useI18n()
@@ -73,6 +74,10 @@ interface Props {
 const props = defineProps<Props>()
 const form = props.form
 const formRef = ref()
+const commentModel = computed<string>({
+  get: () => form.comment ?? '',
+  set: (value) => { form.comment = value }
+})
 
 const formRules = computed(() => ({
   toUserId: [
@@ -89,8 +94,11 @@ function filterUserOption(input: string, option: unknown) {
 }
 
 /** 转办用户选择变化时同步 toUserName */
-function onUserChange(val: string) {
-  const opt = props.userOptions.find(o => String(o.dictValue) === String(val))
+function onUserChange(value: SelectValue) {
+  const selected = value == null || Array.isArray(value) || typeof value === 'object'
+    ? ''
+    : String(value)
+  const opt = props.userOptions.find(o => String(o.dictValue) === selected)
   form.toUserName = opt?.dictLabel ?? ''
 }
 

@@ -2,7 +2,7 @@
   <a-button
     type="text"
     class="takt-header-setting"
-    :title="$t('components.navigation.systemSetting.title')"
+    :title="$t('components.navigation.page.systemsetting.title')"
     @click="handleClick"
   >
     <template #icon>
@@ -11,7 +11,7 @@
   </a-button>
   <a-drawer
     v-model:open="visible"
-    :title="$t('components.navigation.systemSetting.systemTitle')"
+    :title="$t('components.navigation.page.systemsetting.systemtitle')"
     placement="right"
     :width="600"
     class="takt-header-setting-drawer"
@@ -44,31 +44,31 @@
       <a-tabs v-model:active-key="activeTab">
         <a-tab-pane
           key="layout"
-          :tab="$t('components.navigation.systemSetting.layout')"
+          :tab="$t('components.navigation.page.systemsetting.layout')"
         >
           <LayoutSettings @change="handleSettingChange" />
         </a-tab-pane>
         <a-tab-pane
           key="theme"
-          :tab="$t('components.navigation.systemSetting.theme')"
+          :tab="$t('components.navigation.page.systemsetting.theme')"
         >
           <ThemeSettings @change="handleSettingChange" />
         </a-tab-pane>
         <a-tab-pane
           key="navigation"
-          :tab="$t('components.navigation.systemSetting.navigation')"
+          :tab="$t('components.navigation.page.systemsetting.navigation')"
         >
           <NavigationSettings @change="handleSettingChange" />
         </a-tab-pane>
         <a-tab-pane
           key="tabs"
-          :tab="$t('components.navigation.systemSetting.tabs')"
+          :tab="$t('components.navigation.page.systemsetting.tabs')"
         >
           <TabsSettings @change="handleSettingChange" />
         </a-tab-pane>
         <a-tab-pane
           key="other"
-          :tab="$t('components.navigation.systemSetting.other')"
+          :tab="$t('components.navigation.page.systemsetting.other')"
         >
           <OtherSettings @change="handleSettingChange" />
         </a-tab-pane>
@@ -127,10 +127,10 @@ const handleCopy = async () => {
   try {
     const settingJson = JSON.stringify(currentSetting, null, 2)
     await navigator.clipboard.writeText(settingJson)
-    message.success(t('components.navigation.systemSetting.preferencesCopied'))
+    message.success(t('components.navigation.page.systemsetting.preferencescopied'))
   } catch (error) {
     console.error('[TaktHeaderSetting] copy failed:', error)
-    message.error(t('components.navigation.systemSetting.copyFail'))
+    message.error(t('components.navigation.page.systemsetting.copyfail'))
   }
 }
 
@@ -140,7 +140,7 @@ const handleReset = () => {
   useSettingStore().resetSetting()
   applySettings()
   notifySettingsChanged()
-  message.success(t('components.navigation.systemSetting.resetToDefault'))
+  message.success(t('components.navigation.page.systemsetting.resettodefault'))
 }
 </script>
 

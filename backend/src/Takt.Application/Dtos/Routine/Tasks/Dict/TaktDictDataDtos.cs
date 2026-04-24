@@ -1,108 +1,90 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.Application.Dtos.Routine.Dict
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：Takt.Application.Dtos.Routine.Tasks.Dict
 // 文件名称：TaktDictDataDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt字典数据DTO，包含字典数据相关的数据传输对象（查询、创建、更新）
-// 
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：字典数据表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
+//
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-
-// ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.Application.Dtos.Routine.Dict
-// 文件名称：TaktDictDataDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt字典数据DTO，包含字典数据相关的数据传输对象（查询、创建、更新）
-// 
-// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
-// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
-// ========================================
+using SqlSugar;
+using Takt.Application.Dtos;
+using Takt.Shared.Models;
 
 namespace Takt.Application.Dtos.Routine.Tasks.Dict;
 
 /// <summary>
-/// Takt字典数据DTO
+/// 字典数据表Dto
 /// </summary>
-public class TaktDictDataDto : TaktDtoBase
+public partial class TaktDictDataDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktDictDataDto()
     {
+        DictTypeCode = string.Empty;
         DictLabel = string.Empty;
         DictValue = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 字典数据ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 字典数据表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long DictDataId { get; set; }
 
     /// <summary>
-    /// 字典类型ID（外键，关联 TaktDictType.Id）
+    /// 字典类型ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long DictTypeId { get; set; }
-
     /// <summary>
     /// 字典类型编码
     /// </summary>
-    public string DictTypeCode { get; set; } = string.Empty;
-
+    public string DictTypeCode { get; set; }
     /// <summary>
-    /// 字典标签（在同一个字典类型下唯一）
+    /// 字典标签
     /// </summary>
     public string DictLabel { get; set; }
-
     /// <summary>
-    /// 字典本地化键（用于多语言翻译）
+    /// 字典本地化键
     /// </summary>
     public string? DictL10nKey { get; set; }
-
     /// <summary>
-    /// 字典值（显示值）
+    /// 字典标签
     /// </summary>
     public string DictValue { get; set; }
-
     /// <summary>
     /// CSS类名
     /// </summary>
     public int CssClass { get; set; }
-
     /// <summary>
     /// 列表类名
     /// </summary>
     public int ListClass { get; set; }
-
     /// <summary>
     /// 扩展标签
     /// </summary>
     public string? ExtLabel { get; set; }
-
     /// <summary>
     /// 扩展值
     /// </summary>
     public string? ExtValue { get; set; }
-
     /// <summary>
-    /// 排序号（越小越靠前）
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 }
 
 /// <summary>
-/// Takt字典数据查询DTO
+/// 字典数据表查询DTO
 /// </summary>
-public class TaktDictDataQueryDto : TaktPagedQuery
+public partial class TaktDictDataQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -111,94 +93,150 @@ public class TaktDictDataQueryDto : TaktPagedQuery
     {
     }
 
-    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于在字典标签、字典值中模糊查询
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
     /// <summary>
-    /// 字典类型ID（外键，关联字典类型）
+    /// 字典数据表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long DictDataId { get; set; }
+
+    /// <summary>
+    /// 字典类型ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? DictTypeId { get; set; }
-
     /// <summary>
     /// 字典类型编码
     /// </summary>
     public string? DictTypeCode { get; set; }
-
     /// <summary>
     /// 字典标签
     /// </summary>
     public string? DictLabel { get; set; }
-
     /// <summary>
-    /// 字典值
+    /// 字典本地化键
+    /// </summary>
+    public string? DictL10nKey { get; set; }
+    /// <summary>
+    /// 字典标签
     /// </summary>
     public string? DictValue { get; set; }
+    /// <summary>
+    /// CSS类名
+    /// </summary>
+    public int? CssClass { get; set; }
+    /// <summary>
+    /// 列表类名
+    /// </summary>
+    public int? ListClass { get; set; }
+    /// <summary>
+    /// 扩展标签
+    /// </summary>
+    public string? ExtLabel { get; set; }
+    /// <summary>
+    /// 扩展值
+    /// </summary>
+    public string? ExtValue { get; set; }
+    /// <summary>
+    /// 排序号
+    /// </summary>
+    public int? SortOrder { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建字典数据DTO
+/// Takt创建字典数据表DTO
 /// </summary>
-public class TaktDictDataCreateDto
+public partial class TaktDictDataCreateDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktDictDataCreateDto()
     {
+        DictTypeCode = string.Empty;
         DictLabel = string.Empty;
         DictValue = string.Empty;
     }
 
-    /// <summary>
-    /// 字典类型ID（外键，关联 TaktDictType.Id）
+        /// <summary>
+    /// 字典类型ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long DictTypeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 字典类型编码
     /// </summary>
-    public string DictTypeCode { get; set; } = string.Empty;
+    public string DictTypeCode { get; set; }
 
-    /// <summary>
-    /// 字典标签（在同一个字典类型下唯一）
+        /// <summary>
+    /// 字典标签
     /// </summary>
-    public string DictLabel { get; set; } = string.Empty;
+    public string DictLabel { get; set; }
 
-    /// <summary>
-    /// 字典本地化键（用于多语言翻译）
+        /// <summary>
+    /// 字典本地化键
     /// </summary>
     public string? DictL10nKey { get; set; }
 
-    /// <summary>
-    /// 字典值（显示值）
+        /// <summary>
+    /// 字典标签
     /// </summary>
-    public string DictValue { get; set; } = string.Empty;
+    public string DictValue { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// CSS类名
     /// </summary>
-    public int CssClass { get; set; } = 0;
+    public int CssClass { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 列表类名
     /// </summary>
-    public int ListClass { get; set; } = 0;
+    public int ListClass { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 扩展标签
     /// </summary>
     public string? ExtLabel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 扩展值
     /// </summary>
     public string? ExtValue { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; } = 0;
+    public int SortOrder { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -207,9 +245,9 @@ public class TaktDictDataCreateDto
 }
 
 /// <summary>
-/// Takt更新字典数据DTO
+/// Takt更新字典数据表DTO
 /// </summary>
-public class TaktDictDataUpdateDto : TaktDictDataCreateDto
+public partial class TaktDictDataUpdateDto : TaktDictDataCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -218,8 +256,8 @@ public class TaktDictDataUpdateDto : TaktDictDataCreateDto
     {
     }
 
-    /// <summary>
-    /// 字典数据ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 字典数据表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
@@ -227,72 +265,74 @@ public class TaktDictDataUpdateDto : TaktDictDataCreateDto
 }
 
 /// <summary>
-/// Takt字典数据导入模板DTO
+/// 字典数据表导入模板DTO
 /// </summary>
-public class TaktDictDataTemplateDto
+public partial class TaktDictDataTemplateDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktDictDataTemplateDto()
     {
+        DictTypeCode = string.Empty;
         DictLabel = string.Empty;
         DictValue = string.Empty;
-        ExtLabel = string.Empty;
-        ExtValue = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
-    /// 字典类型ID（外键，关联 TaktDictType.Id）
+        /// <summary>
+    /// 字典类型ID
     /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long DictTypeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 字典类型编码
     /// </summary>
-    public string DictTypeCode { get; set; } = string.Empty;
+    public string DictTypeCode { get; set; }
 
-    /// <summary>
-    /// 字典标签（在同一个字典类型下唯一）
+        /// <summary>
+    /// 字典标签
     /// </summary>
     public string DictLabel { get; set; }
 
-    /// <summary>
-    /// 字典本地化键（用于多语言翻译）
+        /// <summary>
+    /// 字典本地化键
     /// </summary>
     public string? DictL10nKey { get; set; }
 
-    /// <summary>
-    /// 字典值（显示值）
+        /// <summary>
+    /// 字典标签
     /// </summary>
     public string DictValue { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// CSS类名
     /// </summary>
     public int CssClass { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 列表类名
     /// </summary>
     public int ListClass { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 扩展标签
     /// </summary>
-    public string ExtLabel { get; set; }
+    public string? ExtLabel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 扩展值
     /// </summary>
-    public string ExtValue { get; set; }
+    public string? ExtValue { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
 
     /// <summary>
-    /// 排序号（越小越靠前）
+    /// 扩展字段JSON
     /// </summary>
-    public int OrderNum { get; set; }
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -301,72 +341,74 @@ public class TaktDictDataTemplateDto
 }
 
 /// <summary>
-/// Takt字典数据导入DTO
+/// 字典数据表导入DTO
 /// </summary>
-public class TaktDictDataImportDto
+public partial class TaktDictDataImportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktDictDataImportDto()
     {
+        DictTypeCode = string.Empty;
         DictLabel = string.Empty;
         DictValue = string.Empty;
-        ExtLabel = string.Empty;
-        ExtValue = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
-    /// 字典类型ID（外键，关联 TaktDictType.Id）
+        /// <summary>
+    /// 字典类型ID
     /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long DictTypeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 字典类型编码
     /// </summary>
-    public string DictTypeCode { get; set; } = string.Empty;
+    public string DictTypeCode { get; set; }
 
-    /// <summary>
-    /// 字典标签（在同一个字典类型下唯一）
+        /// <summary>
+    /// 字典标签
     /// </summary>
     public string DictLabel { get; set; }
 
-    /// <summary>
-    /// 字典本地化键（用于多语言翻译）
+        /// <summary>
+    /// 字典本地化键
     /// </summary>
     public string? DictL10nKey { get; set; }
 
-    /// <summary>
-    /// 字典值（显示值）
+        /// <summary>
+    /// 字典标签
     /// </summary>
     public string DictValue { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// CSS类名
     /// </summary>
     public int CssClass { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 列表类名
     /// </summary>
     public int ListClass { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 扩展标签
     /// </summary>
-    public string ExtLabel { get; set; }
+    public string? ExtLabel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 扩展值
     /// </summary>
-    public string ExtValue { get; set; }
+    public string? ExtValue { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
 
     /// <summary>
-    /// 排序号（越小越靠前）
+    /// 扩展字段JSON
     /// </summary>
-    public int OrderNum { get; set; }
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -375,56 +417,70 @@ public class TaktDictDataImportDto
 }
 
 /// <summary>
-/// Takt字典数据导出DTO
+/// 字典数据表导出DTO
 /// </summary>
-public class TaktDictDataExportDto
+public partial class TaktDictDataExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktDictDataExportDto()
     {
+        CreatedAt = DateTime.Now;
+        DictTypeCode = string.Empty;
         DictLabel = string.Empty;
         DictValue = string.Empty;
-        ExtLabel = string.Empty;
-        ExtValue = string.Empty;
-        CreatedAt = DateTime.Now;
     }
 
-    /// <summary>
-    /// 字典标签（在同一个字典类型下唯一）
+        /// <summary>
+    /// 字典类型ID
+    /// </summary>
+    public long DictTypeId { get; set; }
+
+        /// <summary>
+    /// 字典类型编码
+    /// </summary>
+    public string DictTypeCode { get; set; }
+
+        /// <summary>
+    /// 字典标签
     /// </summary>
     public string DictLabel { get; set; }
 
-    /// <summary>
-    /// 字典值（显示值）
+        /// <summary>
+    /// 字典本地化键
+    /// </summary>
+    public string? DictL10nKey { get; set; }
+
+        /// <summary>
+    /// 字典标签
     /// </summary>
     public string DictValue { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// CSS类名
     /// </summary>
     public int CssClass { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 列表类名
     /// </summary>
     public int ListClass { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 扩展标签
     /// </summary>
-    public string ExtLabel { get; set; }
+    public string? ExtLabel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 扩展值
     /// </summary>
-    public string ExtValue { get; set; }
+    public string? ExtValue { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
     /// <summary>
     /// 创建时间

@@ -92,7 +92,7 @@
         <div class="login-box">
           <div class="login-header">
             <a-typography-title :level="3">
-              {{ $t('login.login.title') }}
+              {{ $t('login.page.login.title') }}
             </a-typography-title>
           </div>
           <a-form
@@ -105,7 +105,7 @@
             <a-form-item name="username">
               <a-input
                 v-model:value="formState.username"
-                :placeholder="$t('login.fields.username.placeholder')"
+                :placeholder="$t('login.page.fields.username.placeholder')"
                 size="large"
                 autocomplete="username"
               >
@@ -117,10 +117,10 @@
             <a-form-item name="password">
               <a-input-password
                 v-model:value="formState.password"
-                :placeholder="$t('login.fields.password.placeholder')"
+                :placeholder="$t('login.page.fields.password.placeholder')"
                 size="large"
                 autocomplete="current-password"
-                :input-attrs="{ autocomplete: 'current-password' }"
+                :input-attrs="passwordInputAttrs"
               >
                 <template #prefix>
                   <RiLockLine />
@@ -130,7 +130,7 @@
             <a-form-item>
               <div class="login-form-options">
                 <a-checkbox v-model:checked="formState.rememberMe">
-                  {{ $t('login.login.rememberMe') }}
+                  {{ $t('login.page.login.rememberme') }}
                 </a-checkbox>
                 <a
                   v-if="showForgotPassword"
@@ -138,7 +138,7 @@
                   class="login-forgot-link"
                   @click.prevent="switchView('forget')"
                 >
-                  {{ $t('login.forgot.title') }}
+                  {{ $t('login.page.forgot.title') }}
                 </a>
               </div>
             </a-form-item>
@@ -153,7 +153,7 @@
                 <template #icon>
                   <RiLoginBoxLine />
                 </template>
-                {{ $t('login.login.login') }}
+                {{ $t('login.page.login.login') }}
               </a-button>
             </a-form-item>
             <a-form-item
@@ -165,7 +165,7 @@
                 class="login-register-link"
                 @click.prevent="switchView('register')"
               >
-                {{ $t('login.login.noAccountRegister', { register: $t('login.sign.title') }) }}
+                {{ $t('login.page.login.noaccountregister', { register: $t('login.page.sign.title') }) }}
               </a>
             </a-form-item>
           </a-form>
@@ -176,7 +176,7 @@
     <!-- 验证码弹窗：位置跟随登录表单（居左/居中/居右），固定 500x250 -->
     <a-modal
       v-model:open="captchaModalVisible"
-      :title="$t('login.fields.captcha.validation.required')"
+      :title="$t('login.page.fields.captcha.validation.required')"
       :footer="null"
       :closable="true"
       :mask-closable="false"
@@ -340,6 +340,17 @@ const formState = reactive({
   rememberMe: false
 })
 
+/** 密码框底层 input：禁止复制、粘贴、剪切（剪贴板事件在 input 上拦截） */
+function blockPasswordClipboard(e: Event) {
+  e.preventDefault()
+}
+const passwordInputAttrs = {
+  autocomplete: 'current-password',
+  onPaste: blockPasswordClipboard,
+  onCopy: blockPasswordClipboard,
+  onCut: blockPasswordClipboard
+}
+
 /** 提交与 `doLogin` 过程中的 loading */
 const loading = ref(false)
 
@@ -349,11 +360,11 @@ const formRef = ref()
 /** 用户名、密码校验规则 */
 const rules = computed<Record<string, Rule[]>>(() => ({
   username: [
-    { required: true, message: t('login.fields.username.validation.required'), trigger: 'blur' }
+    { required: true, message: t('login.page.fields.username.validation.required'), trigger: 'blur' }
   ],
   password: [
-    { required: true, message: t('login.fields.password.validation.required'), trigger: 'blur' },
-    { min: 6, message: t('login.fields.password.validation.min'), trigger: 'blur' }
+    { required: true, message: t('login.page.fields.password.validation.required'), trigger: 'blur' },
+    { min: 6, message: t('login.page.fields.password.validation.min'), trigger: 'blur' }
   ]
 }))
 
@@ -367,6 +378,9 @@ async function doLogin() {
     try {
       const { clearDynamicRoutes } = await import('@/router')
       clearDynamicRoutes()
+      const { useMenuStore } = await import('@/stores/identity/menu')
+      const menuStore = useMenuStore()
+      await menuStore.reset()
     } catch (error) {
       logger.error('[Login] 清除路由失败:', error)
     }
@@ -383,7 +397,9 @@ async function doLogin() {
       logger.error('[Login] 重置跳转登录页标志失败:', error)
     }
 
-    const redirect = (route.query.redirect as string) || '/dashboard/workspace'
+    const redirectRaw = typeof route.query.redirect === 'string' ? route.query.redirect : ''
+    const invalidRedirectSet = new Set(['/login', '/401', '/403', '/404', '/500', '/503'])
+    const redirect = redirectRaw && !invalidRedirectSet.has(redirectRaw) ? redirectRaw : '/dashboard/workspace'
     await router.push(redirect)
     message.success('登录成功')
     loading.value = false
@@ -403,7 +419,7 @@ function onCaptchaModalSuccess() {
 
 /** 验证码校验失败提示 */
 function onCaptchaModalFail(msg: string) {
-  message.error(msg || t('login.fields.captcha.validation.required'))
+  message.error(msg || t('login.page.fields.captcha.validation.required'))
 }
 
 /** 表单提交：先校验再拉验证码配置 */
@@ -418,7 +434,7 @@ const handleSubmit = async () => {
     loading.value = true
     const result = await generateCaptchaApi()
     if (!result) {
-      message.error(t('login.fields.captcha.validation.required'))
+      message.error(t('login.page.fields.captcha.validation.required'))
       loading.value = false
       return
     }
@@ -430,7 +446,7 @@ const handleSubmit = async () => {
     }
 
     if (result.type !== 'Slider' && result.type !== 'Behavior') {
-      message.error(t('login.fields.captcha.validation.typeRequired'))
+      message.error(t('login.page.fields.captcha.validation.typerequired'))
       loading.value = false
       return
     }
@@ -440,7 +456,7 @@ const handleSubmit = async () => {
     loading.value = false
   } catch (error: any) {
     logger.error('[Login] 获取验证码配置失败', error)
-    message.error(error?.message || t('login.fields.captcha.validation.required'))
+    message.error(error?.message || t('login.page.fields.captcha.validation.required'))
     loading.value = false
   }
 }
@@ -449,6 +465,12 @@ onBeforeUnmount(() => {})
 
 /** 挂载时请求健康检查以携带 Cookie，利于 CSRF 场景 */
 onMounted(async () => {
+  try {
+    const { resetRedirectingToLoginFlag } = await import('@/api/request')
+    resetRedirectingToLoginFlag()
+  } catch {
+    /* 忽略 */
+  }
   try {
     const axios = (await import('axios')).default
     await axios.get('/api/TaktHealth', {

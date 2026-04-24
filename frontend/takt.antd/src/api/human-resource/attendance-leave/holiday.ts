@@ -160,15 +160,18 @@ export function exportHolidayData(
 
 /**
  * 获取指定日期的假日主题色（用于前端根据假日动态显示主色调，支持未登录访问）
- * 对应后端：GetHolidayThemeAsync
+ * 对应后端：GetHolidayThemeAsync；无假日时 HTTP 204，此处统一为 `null`。
  */
-export function getHolidayTheme(
-  date?: string,
-  region?: string
-): Promise<Holiday | null> {
-  return request({
+export async function getHolidayTheme(date?: string, region?: string): Promise<Holiday | null> {
+  const params: Record<string, string> = {}
+  if (date != null && date !== '') params.date = date
+  if (region != null && region !== '') params.region = region
+  const raw = await request({
     url: '/api/TaktHolidays/theme',
     method: 'get',
-    params: { date, region }
+    params: Object.keys(params).length > 0 ? params : undefined
   })
+  if (raw == null) return null
+  if (typeof raw === 'object' && !Array.isArray(raw)) return raw as unknown as Holiday
+  return null
 }

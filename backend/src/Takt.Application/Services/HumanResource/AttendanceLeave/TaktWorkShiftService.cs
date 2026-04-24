@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：TaktWorkShiftService.cs
@@ -69,14 +69,14 @@ public class TaktWorkShiftService : TaktServiceBase, ITaktWorkShiftService
     {
         var list = await _repository.FindAsync(x => x.IsDeleted == 0);
         return list
-            .OrderBy(x => x.OrderNum)
+            .OrderBy(x => x.SortOrder)
             .ThenBy(x => x.ShiftName)
             .Select(x => new TaktSelectOption
             {
                 DictLabel = x.ShiftName,
                 DictValue = x.Id,
                 ExtLabel = x.ShiftCode,
-                OrderNum = x.OrderNum
+                SortOrder = x.SortOrder
             })
             .ToList();
     }

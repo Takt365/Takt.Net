@@ -2,9 +2,9 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.AttendanceLeave
 // 文件名称：TaktAttendanceExceptionDtos.cs
-// 创建时间：2026-04-13
-// 创建人：Takt365(Cursor AI)
-// 功能描述：考勤异常 DTO，包含查询、创建、更新、模板、导入、导出（与 TaktWorkShiftDtos 结构一致）。
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：考勤异常表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,9 +17,9 @@ using Takt.Shared.Models;
 namespace Takt.Application.Dtos.HumanResource.AttendanceLeave;
 
 /// <summary>
-/// 考勤异常 DTO（列表/详情）
+/// 考勤异常表Dto
 /// </summary>
-public class TaktAttendanceExceptionDto : TaktDtoBase
+public partial class TaktAttendanceExceptionDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -27,48 +27,42 @@ public class TaktAttendanceExceptionDto : TaktDtoBase
     public TaktAttendanceExceptionDto()
     {
         Summary = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 异常记录 ID（适配实体主键 Id，序列化为 string 以避免 Javascript 精度问题）
+    /// 考勤异常表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long ExceptionId { get; set; }
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AttendanceExceptionId { get; set; }
 
     /// <summary>
-    /// 员工 ID
+    /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
-
     /// <summary>
-    /// 异常归属日期（日期部分有效）
+    /// 异常日期
     /// </summary>
     public DateTime ExceptionDate { get; set; }
-
     /// <summary>
-    /// 异常类型（1=上班缺卡 2=下班缺卡 3=迟到 4=早退 5=旷工 9=其他）
+    /// 异常类型
     /// </summary>
     public int ExceptionType { get; set; }
-
     /// <summary>
     /// 说明
     /// </summary>
     public string Summary { get; set; }
-
     /// <summary>
-    /// 处理状态（0=待处理 1=已处理 2=已忽略）
+    /// 处理状态
     /// </summary>
     public int HandleStatus { get; set; }
 }
 
 /// <summary>
-/// 考勤异常分页查询 DTO。
-/// 继承的 <see cref="TaktPagedQuery.KeyWords"/> 在应用服务查询表达式中用于匹配说明（Summary）、备注。
+/// 考勤异常表查询DTO
 /// </summary>
-public class TaktAttendanceExceptionQueryDto : TaktPagedQuery
+public partial class TaktAttendanceExceptionQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -77,36 +71,73 @@ public class TaktAttendanceExceptionQueryDto : TaktPagedQuery
     {
     }
 
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
     /// <summary>
-    /// 员工 ID（精确）
+    /// 考勤异常表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AttendanceExceptionId { get; set; }
+
+    /// <summary>
+    /// 员工ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? EmployeeId { get; set; }
+    /// <summary>
+    /// 异常日期
+    /// </summary>
+    public DateTime? ExceptionDate { get; set; }
 
     /// <summary>
-    /// 异常日期起（含，按日期部分比较）
+    /// 异常日期开始时间
     /// </summary>
-    public DateTime? ExceptionDateFrom { get; set; }
-
+    public DateTime? ExceptionDateStart { get; set; }
     /// <summary>
-    /// 异常日期止（含，按日期部分比较）
+    /// 异常日期结束时间
     /// </summary>
-    public DateTime? ExceptionDateTo { get; set; }
-
+    public DateTime? ExceptionDateEnd { get; set; }
     /// <summary>
     /// 异常类型
     /// </summary>
     public int? ExceptionType { get; set; }
-
+    /// <summary>
+    /// 说明
+    /// </summary>
+    public string? Summary { get; set; }
     /// <summary>
     /// 处理状态
     /// </summary>
     public int? HandleStatus { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// 创建考勤异常 DTO
+/// Takt创建考勤异常表DTO
 /// </summary>
-public class TaktAttendanceExceptionCreateDto
+public partial class TaktAttendanceExceptionCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -116,31 +147,36 @@ public class TaktAttendanceExceptionCreateDto
         Summary = string.Empty;
     }
 
-    /// <summary>
-    /// 员工 ID
+        /// <summary>
+    /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
-    /// 异常归属日期
+        /// <summary>
+    /// 异常日期
     /// </summary>
     public DateTime ExceptionDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 异常类型
     /// </summary>
     public int ExceptionType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 说明
     /// </summary>
     public string Summary { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 处理状态
     /// </summary>
     public int HandleStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -149,22 +185,54 @@ public class TaktAttendanceExceptionCreateDto
 }
 
 /// <summary>
-/// 更新考勤异常 DTO
+/// Takt更新考勤异常表DTO
 /// </summary>
-public class TaktAttendanceExceptionUpdateDto : TaktAttendanceExceptionCreateDto
+public partial class TaktAttendanceExceptionUpdateDto : TaktAttendanceExceptionCreateDto
 {
     /// <summary>
-    /// 异常记录 ID（适配实体主键 Id）
+    /// 构造函数
+    /// </summary>
+    public TaktAttendanceExceptionUpdateDto()
+    {
+    }
+
+        /// <summary>
+    /// 考勤异常表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long ExceptionId { get; set; }
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AttendanceExceptionId { get; set; }
 }
 
 /// <summary>
-/// 考勤异常导入模板 DTO（Excel 列）
+/// 考勤异常表处理状态DTO
 /// </summary>
-public class TaktAttendanceExceptionTemplateDto
+public partial class TaktAttendanceExceptionHandleStatusDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktAttendanceExceptionHandleStatusDto()
+    {
+    }
+
+        /// <summary>
+    /// 考勤异常表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AttendanceExceptionId { get; set; }
+
+    /// <summary>
+    /// 处理状态（0=禁用，1=启用）
+    /// </summary>
+    public int HandleStatus { get; set; }
+}
+
+/// <summary>
+/// 考勤异常表导入模板DTO
+/// </summary>
+public partial class TaktAttendanceExceptionTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -174,31 +242,35 @@ public class TaktAttendanceExceptionTemplateDto
         Summary = string.Empty;
     }
 
-    /// <summary>
-    /// 员工 ID
+        /// <summary>
+    /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
-    /// 异常归属日期
+        /// <summary>
+    /// 异常日期
     /// </summary>
     public DateTime ExceptionDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 异常类型
     /// </summary>
     public int ExceptionType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 说明
     /// </summary>
     public string Summary { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 处理状态
     /// </summary>
     public int HandleStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -207,55 +279,92 @@ public class TaktAttendanceExceptionTemplateDto
 }
 
 /// <summary>
-/// 考勤异常导入行 DTO（与模板列一致）
+/// 考勤异常表导入DTO
 /// </summary>
-public class TaktAttendanceExceptionImportDto : TaktAttendanceExceptionTemplateDto
+public partial class TaktAttendanceExceptionImportDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktAttendanceExceptionImportDto()
+    {
+        Summary = string.Empty;
+    }
+
+        /// <summary>
+    /// 员工ID
+    /// </summary>
+    public long EmployeeId { get; set; }
+
+        /// <summary>
+    /// 异常日期
+    /// </summary>
+    public DateTime ExceptionDate { get; set; }
+
+        /// <summary>
+    /// 异常类型
+    /// </summary>
+    public int ExceptionType { get; set; }
+
+        /// <summary>
+    /// 说明
+    /// </summary>
+    public string Summary { get; set; }
+
+        /// <summary>
+    /// 处理状态
+    /// </summary>
+    public int HandleStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// 考勤异常导出 DTO（Excel 列）
+/// 考勤异常表导出DTO
 /// </summary>
-public class TaktAttendanceExceptionExportDto
+public partial class TaktAttendanceExceptionExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktAttendanceExceptionExportDto()
     {
+        CreatedAt = DateTime.Now;
         Summary = string.Empty;
     }
 
-    /// <summary>
-    /// 员工 ID
+        /// <summary>
+    /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
-    /// 异常归属日期
+        /// <summary>
+    /// 异常日期
     /// </summary>
     public DateTime ExceptionDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 异常类型
     /// </summary>
     public int ExceptionType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 说明
     /// </summary>
     public string Summary { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 处理状态
     /// </summary>
     public int HandleStatus { get; set; }
-
-    /// <summary>
-    /// 备注
-    /// </summary>
-    public string? Remark { get; set; }
 
     /// <summary>
     /// 创建时间

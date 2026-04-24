@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.HumanResource
 // 文件名称：TaktEmployeeEducation.cs
@@ -18,7 +18,7 @@ namespace Takt.Domain.Entities.HumanResource.Personnel;
 /// <summary>
 /// Takt员工教育经历实体
 /// </summary>
-[SugarTable("takt_humanresource_employee_education", "员工教育经历表")]
+[SugarTable("takt_humanresource_employee_education", "员工教育履历表")]
 [SugarIndex("ix_takt_humanresource_employee_education_employee_id", nameof(EmployeeId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_employee_education_is_highest", nameof(IsHighest), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_employee_education_config_id", nameof(ConfigId), OrderByType.Asc)]

@@ -4,7 +4,7 @@
 // 文件名称：TaktPlantService.cs
 // 创建时间：2025-02-02
 // 创建人：Takt365
-// 功能描述：工厂表应用服务，由 DtoCategory 配置驱动，按 type 判断输出
+// 功能描述：工厂表应用服务，由 DtoCategory 配置驱动。校验分层与 Identity.TaktUserService 一致：① WebApi 入参由 TaktFluentValidationActionFilter + 本模块 TaktPlantValidators.cs（Create/Update DTO）校验；② 本类无 IValidator 注入，仅含 TaktUniqueValidatorExtensions、TaktBusinessException 键、以及导入时 AddImportError / GetLocalizedExceptionMessage（同 TaktUserService.ImportUserAsync 结构）。跨表/敏感词等须在生成后手写。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -25,7 +25,7 @@ using Takt.Shared.Models;
 namespace Takt.Application.Services.Logistics.Materials;
 
 /// <summary>
-/// 工厂表应用服务
+/// 工厂表应用服务（与 <c>TaktUserService</c> 相同约定：不在 Application 注入 FluentValidation；DTO 字段校验在 WebApi 过滤器 + 同模块 Validators；此处为仓储查重与 Excel 导入导出流程。）
 /// </summary>
 public class TaktPlantService : TaktServiceBase, ITaktPlantService
 {
@@ -47,9 +47,6 @@ public class TaktPlantService : TaktServiceBase, ITaktPlantService
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     }
-
-
-
 
     /// <summary>
     /// 获取工厂表列表（分页）
@@ -78,26 +75,34 @@ public class TaktPlantService : TaktServiceBase, ITaktPlantService
         return entity?.Adapt<TaktPlantDto>();
     }
 
+    /// <summary>
+    /// 获取工厂表选项列表（用于下拉框等）
+    /// </summary>
+    /// <returns>选项列表</returns>
+    public async Task<List<TaktSelectOption>> GetPlantOptionsAsync()
+    {
+        var list = await _repository.FindAsync(x => x.IsDeleted == 0);
+        return list
+            .OrderBy(x => x.Id)
+            .Select(x => new TaktSelectOption
+            {
+                DictLabel = (Convert.ToString(x.PlantCode) ?? string.Empty).Trim(),
+                DictValue = x.Id,
+                SortOrder = 0
+            })
+            .ToList();
+    }
 
     /// <summary>
     /// 创建工厂表
     /// </summary>
+    /// <remarks>
+    /// 与 <c>TaktUserService.CreateUserAsync</c> 分工一致：经 Controller 调用时，<c>TaktPlantCreateDtoValidator</c>（见同模块 Validators）已由 <c>TaktFluentValidationActionFilter</c> 对 <c>CreateDto</c> 执行；本方法内不注入 <c>IValidator</c>，仅保留 <c>TaktUniqueValidatorExtensions</c> 与写库。模块特有校验请在生成代码中补充。
+    /// </remarks>
     /// <param name="dto">创建工厂表DTO</param>
     /// <returns>工厂表DTO</returns>
     public async Task<TaktPlantDto> CreatePlantAsync(TaktPlantCreateDto dto)
     {
-
-
-        // 查重：唯一字段组合校验
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(
-            _repository,
-            x =>
-
-                x.PlantCode == dto.PlantCode
-&& x.PlantShortName == dto.PlantShortName
-,
-            null,
-            "工厂表唯一字段组合已存在");
 
         var entity = dto.Adapt<TaktPlant>();
         entity = await _repository.CreateAsync(entity);
@@ -107,6 +112,9 @@ public class TaktPlantService : TaktServiceBase, ITaktPlantService
     /// <summary>
     /// 更新工厂表
     /// </summary>
+    /// <remarks>
+    /// 与创建相同：WebApi 已对 <c>UpdateDto</c> 执行 <c>TaktPlantUpdateDtoValidator</c>（含 Create 规则时通过 <c>Include</c>）；此处负责存在性（<c>validation.recordNotFound</c>）、可选唯一性校验与 <c>UpdatedAt</c> 更新。
+    /// </remarks>
     /// <param name="id">工厂表ID</param>
     /// <param name="dto">更新工厂表DTO</param>
     /// <returns>工厂表DTO</returns>
@@ -114,21 +122,10 @@ public class TaktPlantService : TaktServiceBase, ITaktPlantService
     {
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
-            throw new TaktBusinessException("validation.plantNotFound");
-
-
-        // 查重（排除当前记录）：唯一字段组合校验
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(
-            _repository,
-            x =>
-
-                x.PlantCode == dto.PlantCode
-&& x.PlantShortName == dto.PlantShortName
-,
-            id,
-            "工厂表唯一字段组合已存在");
+            throw new TaktBusinessException("validation.recordNotFound");
 
         dto.Adapt(entity, typeof(TaktPlantUpdateDto), typeof(TaktPlant));
+        entity.UpdatedAt = DateTime.Now;
         await _repository.UpdateAsync(entity);
         return entity.Adapt<TaktPlantDto>();
     }
@@ -155,10 +152,10 @@ public class TaktPlantService : TaktServiceBase, ITaktPlantService
         await _repository.DeleteAsync(idList);
     }
 
-
     /// <summary>
     /// 获取导入模板
     /// </summary>
+    /// <remarks>与 <c>TaktUserService.GetUserTemplateAsync</c> 相同：<c>ResolveExcelImportTemplateNamesAsync</c> + <c>GenerateTemplateAsync</c>。</remarks>
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件信息（文件名和内容）</returns>
@@ -174,6 +171,9 @@ public class TaktPlantService : TaktServiceBase, ITaktPlantService
     /// <summary>
     /// 导入工厂表
     /// </summary>
+    /// <remarks>
+    /// 与 <c>TaktUserService.ImportUserAsync</c> 相同结构：外层 <c>try</c>、<c>ResolveExcelSheetName</c>、空数据 <c>AddImportError(validation.importExcelNoData)</c>、按行 <c>index + 3</c>、<c>TaktBusinessException</c> 与 <c>Exception</c> 分支、<c>GetLocalizedExceptionMessage</c>、过程失败 <c>validation.importProcessFailedWithReason</c>。行级业务校验键需与种子 <c>validation.import*</c> 一致时请生成后补全。
+    /// </remarks>
     /// <param name="fileStream">Excel文件流</param>
     /// <param name="sheetName">工作表名称</param>
     /// <returns>导入结果（成功数量、失败数量、错误信息列表）</returns>
@@ -182,46 +182,52 @@ public class TaktPlantService : TaktServiceBase, ITaktPlantService
         var errors = new List<string>();
         int success = 0;
         int fail = 0;
-        var excelSheet = ResolveExcelSheetName(sheetName, nameof(TaktPlant));
-        var importData = await TaktExcelHelper.ImportAsync<TaktPlantImportDto>(fileStream, excelSheet);
-        if (importData == null || importData.Count == 0)
+
+        try
         {
-            AddImportError(errors, "validation.importExcelNoData");
-            return (0, 0, errors);
+            var excelSheet = ResolveExcelSheetName(sheetName, nameof(TaktPlant));
+            var importData = await TaktExcelHelper.ImportAsync<TaktPlantImportDto>(fileStream, excelSheet);
+
+            if (importData == null || importData.Count == 0)
+            {
+                AddImportError(errors, "validation.importExcelNoData");
+                return (0, 0, errors);
+            }
+
+            foreach (var (item, index) in importData.Select((item, index) => (item, index + 3)))
+            {
+                try
+                {
+
+                    var e = item.Adapt<TaktPlant>();
+                    await _repository.CreateAsync(e);
+                    success++;
+                }
+                catch (TaktBusinessException ex)
+                {
+                    AddImportError(errors, "validation.importRowUnhandledException", index, GetLocalizedExceptionMessage(ex));
+                    fail++;
+                }
+                catch (Exception ex)
+                {
+                    AddImportError(errors, "validation.importRowFailedWithReason", index, GetLocalizedExceptionMessage(ex));
+                    fail++;
+                }
+            }
         }
-        foreach (var (item, index) in importData.Select((item, index) => (item, index + 3)))
+        catch (Exception ex)
         {
-            try
-            {
-
-
-                // 导入查重：唯一字段组合校验
-                await TaktUniqueValidatorExtensions.ValidateUniqueAsync(
-                    _repository,
-                    x =>
-
-                        x.PlantCode == item.PlantCode
-&& x.PlantShortName == item.PlantShortName
-,
-                    null,
-                    GetLocalizedString("validation.importPlantUniqueCombinationExists", "Frontend"));
-
-                var e = item.Adapt<TaktPlant>();
-                await _repository.CreateAsync(e);
-                success++;
-            }
-            catch (Exception ex)
-            {
-                fail++;
-                AddImportError(errors, "validation.importRowUnhandledException", index, GetLocalizedExceptionMessage(ex));
-            }
+            AddImportError(errors, "validation.importProcessFailedWithReason", GetLocalizedExceptionMessage(ex));
+            fail++;
         }
+
         return (success, fail, errors);
     }
 
     /// <summary>
     /// 导出工厂表
     /// </summary>
+    /// <remarks>与 <c>TaktUserService.ExportUserAsync</c> 相同：<c>ResolveExcelExportNamesAsync</c>，无数据时仍导出空表。</remarks>
     /// <param name="query">工厂表查询DTO（包含查询条件）</param>
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
@@ -230,11 +236,17 @@ public class TaktPlantService : TaktServiceBase, ITaktPlantService
     {
         var predicate = QueryExpression(query);
         var data = predicate != null ? await _repository.FindAsync(predicate) : await _repository.GetAllAsync();
-        var dtos = data?.Adapt<List<TaktPlantExportDto>>() ?? new List<TaktPlantExportDto>();
         var (excelSheet, excelFile) = await ResolveExcelExportNamesAsync(sheetName, fileName, nameof(TaktPlant));
-        return await TaktExcelHelper.ExportAsync(dtos,
-            excelSheet,
-            excelFile);
+        if (data == null || data.Count == 0)
+        {
+            return await TaktExcelHelper.ExportAsync(
+                new List<TaktPlantExportDto>(),
+                excelSheet,
+                excelFile);
+        }
+
+        var dtos = data.Adapt<List<TaktPlantExportDto>>();
+        return await TaktExcelHelper.ExportAsync(dtos, excelSheet, excelFile);
     }
 
     /// <summary>
@@ -253,7 +265,6 @@ public class TaktPlantService : TaktServiceBase, ITaktPlantService
 
                 x.PlantCode.Contains(queryDto.KeyWords)
 || x.PlantName.Contains(queryDto.KeyWords)
-|| x.PlantShortName.Contains(queryDto.KeyWords)
 
             );
         }
@@ -262,8 +273,6 @@ public class TaktPlantService : TaktServiceBase, ITaktPlantService
         exp = exp.AndIF(!string.IsNullOrEmpty(queryDto?.PlantCode), x => x.PlantCode.Contains(queryDto!.PlantCode!));
         // 工厂名称
         exp = exp.AndIF(!string.IsNullOrEmpty(queryDto?.PlantName), x => x.PlantName.Contains(queryDto!.PlantName!));
-        // 工厂简称
-        exp = exp.AndIF(!string.IsNullOrEmpty(queryDto?.PlantShortName), x => x.PlantShortName.Contains(queryDto!.PlantShortName!));
 
         return exp.ToExpression();
     }

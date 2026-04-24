@@ -118,9 +118,9 @@ public class TaktGenTablesController : TaktControllerBase
     /// <returns>分页结果</returns>
     [HttpGet("list")]
     [TaktPermission("code:generator:list", "查询代码生成表配置列表")]
-    public async Task<ActionResult<TaktPagedResult<TaktGenTableDto>>> GetListAsync([FromQuery] TaktGenTableQueryDto queryDto)
+    public async Task<ActionResult<TaktPagedResult<TaktGenTableDto>>> GetGenTableListAsync([FromQuery] TaktGenTableQueryDto queryDto)
     {
-        var result = await _genTableService.GetListAsync(queryDto);
+        var result = await _genTableService.GetGenTableListAsync(queryDto);
         return Ok(result);
     }
 
@@ -131,9 +131,9 @@ public class TaktGenTablesController : TaktControllerBase
     /// <returns>代码生成表配置DTO</returns>
     [HttpGet("{id}")]
     [TaktPermission("code:generator:query", "查询代码生成表配置详情")]
-    public async Task<ActionResult<TaktGenTableDto>> GetByIdAsync(long id)
+    public async Task<ActionResult<TaktGenTableDto>> GetGenTableByIdAsync(long id)
     {
-        var genTable = await _genTableService.GetByIdAsync(id);
+        var genTable = await _genTableService.GetGenTableByIdAsync(id);
         if (genTable == null)
             return NotFound();
         return Ok(genTable);
@@ -146,9 +146,9 @@ public class TaktGenTablesController : TaktControllerBase
     /// <returns>代码生成表配置DTO</returns>
     [HttpPost]
     [TaktPermission("code:generator:create", "创建代码生成表配置")]
-    public async Task<ActionResult<TaktGenTableDto>> CreateAsync([FromBody] TaktGenTableCreateDto dto)
+    public async Task<ActionResult<TaktGenTableDto>> CreateGenTableAsync([FromBody] TaktGenTableCreateDto dto)
     {
-        var genTable = await _genTableService.CreateAsync(dto);
+        var genTable = await _genTableService.CreateGenTableAsync(dto);
         return Ok(genTable);
     }
 
@@ -160,11 +160,11 @@ public class TaktGenTablesController : TaktControllerBase
     /// <returns>代码生成表配置DTO</returns>
     [HttpPut("{id}")]
     [TaktPermission("code:generator:update", "更新代码生成表配置")]
-    public async Task<ActionResult<TaktGenTableDto>> UpdateAsync(long id, [FromBody] TaktGenTableUpdateDto dto)
+    public async Task<ActionResult<TaktGenTableDto>> UpdateGenTableAsync(long id, [FromBody] TaktGenTableUpdateDto dto)
     {
         try
         {
-            var genTable = await _genTableService.UpdateAsync(id, dto);
+            var genTable = await _genTableService.UpdateGenTableAsync(id, dto);
             return Ok(genTable);
         }
         catch (Exception ex)
@@ -180,9 +180,9 @@ public class TaktGenTablesController : TaktControllerBase
     /// <returns>操作结果</returns>
     [HttpDelete("{id}")]
     [TaktPermission("code:generator:delete", "删除代码生成表配置")]
-    public async Task<IActionResult> DeleteAsync(long id)
+    public async Task<IActionResult> DeleteGenTableByIdAsync(long id)
     {
-        await _genTableService.DeleteAsync(id);
+        await _genTableService.DeleteGenTableByIdAsync(id);
         return NoContent();
     }
 
@@ -275,16 +275,7 @@ public class TaktGenTablesController : TaktControllerBase
         if (!Directory.Exists(generatorRoot))
             return Ok(new { files = Array.Empty<string>(), existingFiles = Array.Empty<string>(), previewFiles = Array.Empty<object>() });
 
-        var templates = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var path in Directory.EnumerateFiles(generatorRoot, "*.sbn", SearchOption.AllDirectories))
-        {
-            var relativePath = Path.GetRelativePath(generatorRoot, path);
-            var key = relativePath.EndsWith(".sbn", StringComparison.OrdinalIgnoreCase)
-                ? relativePath[..^4]
-                : relativePath;
-            var content = await System.IO.File.ReadAllTextAsync(path, Encoding.UTF8).ConfigureAwait(false);
-            templates[key] = content;
-        }
+        var templates = await LoadGeneratorTemplatesAsync(generatorRoot, tableEntity.GenTemplateCategory).ConfigureAwait(false);
 
         var previewResult = await _workflow.GeneratePreviewFilesAsync(
             id,
@@ -323,7 +314,7 @@ public class TaktGenTablesController : TaktControllerBase
         if (tableEntity == null)
             return NotFound();
 
-        var table = await _genTableService.GetByIdAsync(id).ConfigureAwait(false);
+        var table = await _genTableService.GetGenTableByIdAsync(id).ConfigureAwait(false);
         if (table == null)
             return NotFound();
 
@@ -331,16 +322,7 @@ public class TaktGenTablesController : TaktControllerBase
         if (!Directory.Exists(generatorRoot))
             return BadRequest(GetLocalizedString("validation.generatorTemplateDirectoryNotFound", "Frontend"));
 
-        var templates = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var path in Directory.EnumerateFiles(generatorRoot, "*.sbn", SearchOption.AllDirectories))
-        {
-            var relativePath = Path.GetRelativePath(generatorRoot, path);
-            var key = relativePath.EndsWith(".sbn", StringComparison.OrdinalIgnoreCase)
-                ? relativePath[..^4]
-                : relativePath;
-            var content = await System.IO.File.ReadAllTextAsync(path, Encoding.UTF8).ConfigureAwait(false);
-            templates[key] = content;
-        }
+        var templates = await LoadGeneratorTemplatesAsync(generatorRoot, tableEntity.GenTemplateCategory).ConfigureAwait(false);
 
         if (templates.Count == 0)
             return BadRequest(GetLocalizedString("validation.generatorNoSbnTemplates", "Frontend"));
@@ -413,14 +395,16 @@ public class TaktGenTablesController : TaktControllerBase
     {
         if (string.IsNullOrWhiteSpace(templateKey)) return null;
         var key = templateKey.Replace('\\', '/');
+        var templateFolder = ResolveTemplateFolderName(table.GenTemplateCategory);
 
         // 后端：项目目录为 Takt.Application / Takt.Domain / Takt.WebApi，命名空间其余部分为路径
         if (key.StartsWith("Backend/", StringComparison.OrdinalIgnoreCase))
         {
             var backendSrc = Path.Combine("backend", "src");
-            if (key.StartsWith("Backend/Crud/Csharp/", StringComparison.OrdinalIgnoreCase))
+            var backendCsharpPrefix = $"Backend/{templateFolder}/Csharp/";
+            if (key.StartsWith(backendCsharpPrefix, StringComparison.OrdinalIgnoreCase))
             {
-                var file = key.Substring("Backend/Crud/Csharp/".Length);
+                var file = key.Substring(backendCsharpPrefix.Length);
                 var entityName = table.EntityClassName ?? "Entity";
                 if (file.Equals("Entity.cs", StringComparison.OrdinalIgnoreCase))
                     return Path.Combine(backendSrc, NamespaceToBackendPath(table.EntityNamespace), entityName + ".cs");
@@ -432,10 +416,17 @@ public class TaktGenTablesController : TaktControllerBase
                     return Path.Combine(backendSrc, NamespaceToBackendPath(table.ServiceNamespace), (!string.IsNullOrWhiteSpace(table.ServiceClassName) ? table.ServiceClassName : entityName + "Service") + ".cs");
                 if (file.Equals("Controller.cs", StringComparison.OrdinalIgnoreCase))
                     return Path.Combine(backendSrc, NamespaceToBackendPath(table.ControllerNamespace), (!string.IsNullOrWhiteSpace(table.ControllerClassName) ? table.ControllerClassName : entityName + "sController") + ".cs");
+                if (file.Equals("Validators.cs", StringComparison.OrdinalIgnoreCase))
+                {
+                    var validatorNamespace = (table.ControllerNamespace ?? "Takt.WebApi.Controllers")
+                        .Replace(".Controllers.", ".Validators.", StringComparison.Ordinal);
+                    return Path.Combine(backendSrc, NamespaceToBackendPath(validatorNamespace), entityName + "Validators.cs");
+                }
             }
-            if (key.StartsWith("Backend/Crud/Sql/", StringComparison.OrdinalIgnoreCase))
+            // SQL 模板目录仅允许 Backend/Sql/
+            if (key.StartsWith("Backend/Sql/", StringComparison.OrdinalIgnoreCase))
             {
-                var file = key.Substring("Backend/Crud/Sql/".Length);
+                var file = key.Substring("Backend/Sql/".Length);
                 return Path.Combine("backend", "sql", file);
             }
         }
@@ -443,14 +434,15 @@ public class TaktGenTablesController : TaktControllerBase
         // 前端：模块路径 = GenModuleName 转小写、下划线改路径分隔符（如 accounting_financial → accounting/financial）；实体目录与文件名为 kebab
         if (key.StartsWith("Frontend/", StringComparison.OrdinalIgnoreCase))
         {
-            var frontDir = table.FrontTemplate == 1 ? "takt.ele" : "takt.antd";
+            var frontDir = table.FrontUi == 1 ? "takt.ele" : "takt.antd";
             var frontBase = Path.Combine("frontend", frontDir, "src");
             var modulePath = ToFrontendModulePath(table.GenModuleName);
             var entityKebab = ToEntityNameKebab(table.EntityClassName ?? "Entity");
 
-            if (key.StartsWith("Frontend/Antdv/crud/", StringComparison.OrdinalIgnoreCase))
+            var frontAntdvPrefix = $"Frontend/Antdv/{templateFolder}/";
+            if (key.StartsWith(frontAntdvPrefix, StringComparison.OrdinalIgnoreCase))
             {
-                var rest = key.Substring("Frontend/Antdv/crud/".Length);
+                var rest = key.Substring(frontAntdvPrefix.Length);
                 if (rest.Equals("api/api.ts", StringComparison.OrdinalIgnoreCase))
                     return Path.Combine(frontBase, "api", modulePath, entityKebab + ".ts");
                 if (rest.Equals("views/index.vue", StringComparison.OrdinalIgnoreCase))
@@ -459,14 +451,57 @@ public class TaktGenTablesController : TaktControllerBase
                     return Path.Combine(frontBase, "views", modulePath, entityKebab, "components", entityKebab + "-form.vue");
                 if (rest.Equals("types/types.d.ts", StringComparison.OrdinalIgnoreCase))
                     return Path.Combine(frontBase, "types", modulePath, entityKebab + ".d.ts");
-                if (rest.Equals("locales/zh-CN.ts", StringComparison.OrdinalIgnoreCase))
-                    return Path.Combine(frontBase, "locales", modulePath, entityKebab, "zh-CN.ts");
-                if (rest.Equals("locales/en-US.ts", StringComparison.OrdinalIgnoreCase))
-                    return Path.Combine(frontBase, "locales", modulePath, entityKebab, "en-US.ts");
+                if (rest.StartsWith("locales/", StringComparison.OrdinalIgnoreCase) &&
+                    rest.EndsWith(".ts", StringComparison.OrdinalIgnoreCase))
+                {
+                    var localeFileName = Path.GetFileName(rest);
+                    if (!string.IsNullOrWhiteSpace(localeFileName))
+                        return Path.Combine(frontBase, "locales", modulePath, entityKebab, localeFileName);
+                }
             }
         }
 
         return null;
+    }
+
+    /// <summary>加载生成模板：统一将模板键规范为使用 '/'，并按 GenTemplate 选择对应模板目录（同时包含 Backend/Sql）。</summary>
+    private static async Task<Dictionary<string, string>> LoadGeneratorTemplatesAsync(string generatorRoot, string? genTemplate)
+    {
+        var templateFolder = ResolveTemplateFolderName(genTemplate);
+        var templates = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var path in Directory.EnumerateFiles(generatorRoot, "*.sbn", SearchOption.AllDirectories))
+        {
+            var relativePath = Path.GetRelativePath(generatorRoot, path).Replace('\\', '/');
+            var key = relativePath.EndsWith(".sbn", StringComparison.OrdinalIgnoreCase)
+                ? relativePath[..^4]
+                : relativePath;
+            if (!ShouldIncludeTemplateKey(key, templateFolder))
+                continue;
+            var content = await System.IO.File.ReadAllTextAsync(path, Encoding.UTF8).ConfigureAwait(false);
+            templates[key] = content;
+        }
+        return templates;
+    }
+
+    /// <summary>模板目录名标准化：仅允许 crud/tree/sub，其它值回退为 crud。</summary>
+    private static string ResolveTemplateFolderName(string? genTemplate)
+    {
+        var folder = (genTemplate ?? string.Empty).Trim().ToLowerInvariant();
+        return folder is "crud" or "tree" or "sub" ? folder : "crud";
+    }
+
+    /// <summary>判断模板键是否属于当前模板目录或 SQL 目录。</summary>
+    private static bool ShouldIncludeTemplateKey(string key, string templateFolder)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return false;
+        if (key.StartsWith("Backend/Sql/", StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (key.StartsWith($"Backend/{templateFolder}/", StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (key.StartsWith($"Frontend/Antdv/{templateFolder}/", StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 
     /// <summary>命名空间转后端路径：前两段为项目名（Takt.XXX），其余为路径。如 Takt.Application.Dtos.Accounting.Financial → Takt.Application/Dtos/Accounting/Financial。</summary>

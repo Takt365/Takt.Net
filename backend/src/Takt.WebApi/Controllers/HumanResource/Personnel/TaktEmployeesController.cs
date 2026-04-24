@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.HumanResource.Personnel
 // 文件名称：TaktEmployeesController.cs
@@ -15,7 +15,7 @@ using Takt.Application.Services.HumanResource.Personnel;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.HumanResource.Personnel;
 
@@ -124,7 +124,7 @@ public class TaktEmployeesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _employeeService.GetEmployeeTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -179,7 +179,7 @@ public class TaktEmployeesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _employeeService.ExportEmployeeAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {
@@ -264,4 +264,104 @@ public class TaktEmployeesController : TaktControllerBase
             return BadRequest(GetLocalizedExceptionMessage(ex));
         }
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计人员总数
+    /// </summary>
+    /// <returns>人员总数</returns>
+    [HttpGet("stats/count")]
+    [TaktPermission("humanresource:personnel:employee:list", "统计人员总数")]
+    public async Task<ActionResult<long>> GetEmployeeCountAsync()
+    {
+        var count = await _employeeService.GetEmployeeCountAsync();
+        return Ok(count);
+    }
+
+    /// <summary>
+    /// 统计人员平均年龄
+    /// </summary>
+    /// <returns>平均年龄（年）</returns>
+    [HttpGet("stats/average-age")]
+    [TaktPermission("humanresource:personnel:employee:list", "统计人员平均年龄")]
+    public async Task<ActionResult<double?>> GetAverageAgeAsync()
+    {
+        var avgAge = await _employeeService.GetAverageAgeAsync();
+        return Ok(avgAge);
+    }
+
+    /// <summary>
+    /// 统计人员平均工龄
+    /// </summary>
+    /// <returns>平均工龄（年）</returns>
+    [HttpGet("stats/average-work-years")]
+    [TaktPermission("humanresource:personnel:employee:list", "统计人员平均工龄")]
+    public async Task<ActionResult<double?>> GetAverageWorkYearsAsync()
+    {
+        var avgWorkYears = await _employeeService.GetAverageWorkYearsAsync();
+        return Ok(avgWorkYears);
+    }
+
+    /// <summary>
+    /// 统计最大年龄
+    /// </summary>
+    /// <returns>最大年龄（年）</returns>
+    [HttpGet("stats/max-age")]
+    [TaktPermission("humanresource:personnel:employee:list", "统计最大年龄")]
+    public async Task<ActionResult<int?>> GetMaxAgeAsync()
+    {
+        var maxAge = await _employeeService.GetMaxAgeAsync();
+        return Ok(maxAge);
+    }
+
+    /// <summary>
+    /// 统计最小年龄
+    /// </summary>
+    /// <returns>最小年龄（年）</returns>
+    [HttpGet("stats/min-age")]
+    [TaktPermission("humanresource:personnel:employee:list", "统计最小年龄")]
+    public async Task<ActionResult<int?>> GetMinAgeAsync()
+    {
+        var minAge = await _employeeService.GetMinAgeAsync();
+        return Ok(minAge);
+    }
+
+    /// <summary>
+    /// 统计最长工龄
+    /// </summary>
+    /// <returns>最长工龄（年）</returns>
+    [HttpGet("stats/max-work-years")]
+    [TaktPermission("humanresource:personnel:employee:list", "统计最长工龄")]
+    public async Task<ActionResult<int?>> GetMaxWorkYearsAsync()
+    {
+        var maxWorkYears = await _employeeService.GetMaxWorkYearsAsync();
+        return Ok(maxWorkYears);
+    }
+
+    /// <summary>
+    /// 统计最短工龄
+    /// </summary>
+    /// <returns>最短工龄（年）</returns>
+    [HttpGet("stats/min-work-years")]
+    [TaktPermission("humanresource:personnel:employee:list", "统计最短工龄")]
+    public async Task<ActionResult<int?>> GetMinWorkYearsAsync()
+    {
+        var minWorkYears = await _employeeService.GetMinWorkYearsAsync();
+        return Ok(minWorkYears);
+    }
+
+    /// <summary>
+    /// 按籍贯统计人员分布
+    /// </summary>
+    /// <returns>籍贯统计列表</returns>
+    [HttpGet("stats/by-native-place")]
+    [TaktPermission("humanresource:personnel:employee:list", "按籍贯统计人员")]
+    public async Task<ActionResult<Dictionary<string, int>>> GetEmployeeCountByNativePlaceAsync()
+    {
+        var stats = await _employeeService.GetEmployeeCountByNativePlaceAsync();
+        return Ok(stats);
+    }
+
+    #endregion
 }

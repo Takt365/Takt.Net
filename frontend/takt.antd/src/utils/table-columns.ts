@@ -54,14 +54,14 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
     {
       key: 'configId',
       dataIndex: 'configId',
-      title: t('common.entity.configId'),
+      title: t('common.entity.configid'),
       width: 120,
       ellipsis: true
     },
     {
       key: 'extFieldJson',
       dataIndex: 'extFieldJson',
-      title: t('common.entity.extFieldJson'),
+      title: t('common.entity.extfieldjson'),
       width: 150,
       ellipsis: true
     },
@@ -75,21 +75,21 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
     {
       key: 'createdById',
       dataIndex: 'createdById',
-      title: t('common.entity.createdById'),
+      title: t('common.entity.createdbyid'),
       width: 120,
       ellipsis: true
     },
     {
       key: 'createdBy',
       dataIndex: 'createdBy',
-      title: t('common.entity.createBy'),
+      title: t('common.entity.createby'),
       width: 120,
       ellipsis: true
     },
     {
       key: 'createdAt',
       dataIndex: 'createdAt',
-      title: t('common.entity.createTime'),
+      title: t('common.entity.createtime'),
       width: 180,
       ellipsis: true,
       sorter: (a: RowRecord, b: RowRecord) => {
@@ -101,21 +101,21 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
     {
       key: 'updatedById',
       dataIndex: 'updatedById',
-      title: t('common.entity.updatedById'),
+      title: t('common.entity.updatedbyid'),
       width: 120,
       ellipsis: true
     },
     {
       key: 'updatedBy',
       dataIndex: 'updatedBy',
-      title: t('common.entity.updateBy'),
+      title: t('common.entity.updateby'),
       width: 120,
       ellipsis: true
     },
     {
       key: 'updatedAt',
       dataIndex: 'updatedAt',
-      title: t('common.entity.updateTime'),
+      title: t('common.entity.updatetime'),
       width: 180,
       ellipsis: true,
       sorter: (a: RowRecord, b: RowRecord) => {
@@ -127,7 +127,7 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
     {
       key: 'isDeleted',
       dataIndex: 'isDeleted',
-      title: t('common.entity.isDeleted'),
+      title: t('common.entity.isdeleted'),
       width: 100,
       ellipsis: true,
       sorter: (a: RowRecord, b: RowRecord) => {
@@ -139,21 +139,21 @@ export function getDefaultEntityColumns(t: (key: string) => string, includeAudit
     {
       key: 'deletedById',
       dataIndex: 'deletedById',
-      title: t('common.entity.deletedById'),
+      title: t('common.entity.deletedbyid'),
       width: 120,
       ellipsis: true
     },
     {
       key: 'deletedBy',
       dataIndex: 'deletedBy',
-      title: t('common.entity.deletedBy'),
+      title: t('common.entity.deletedby'),
       width: 120,
       ellipsis: true
     },
     {
       key: 'deletedAt',
       dataIndex: 'deletedAt',
-      title: t('common.entity.deletedTime'),
+      title: t('common.entity.deletedtime'),
       width: 180,
       ellipsis: true,
       sorter: (a: RowRecord, b: RowRecord) => {

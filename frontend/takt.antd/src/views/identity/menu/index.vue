@@ -80,7 +80,6 @@
         @tree-drop="handleMenuTreeDrop"
       />
       <TaktTreeRightTable
-        ref="tableRef"
         v-model:expanded-row-keys="tableExpandedRowKeys"
         :columns="displayColumns"
         :data-source="tableTreeData"
@@ -101,28 +100,28 @@
           <template v-else-if="column.key === 'menuStatus'">
             <a-switch
               :checked="getMenuField(record, 'menuStatus') === 1"
-              :loading="switchLoadingMap.get(getMenuId(record) + ':menuStatus')"
+              :loading="Boolean(switchLoadingMap.get(getMenuId(record) + ':menuStatus'))"
               @change="(checked) => handleMenuStatusSwitch(record, checked ? 1 : 0)"
             />
           </template>
           <template v-else-if="column.key === 'isVisible'">
             <a-switch
               :checked="getMenuField(record, 'isVisible') === 1"
-              :loading="switchLoadingMap.get(getMenuId(record) + ':isVisible')"
+              :loading="Boolean(switchLoadingMap.get(getMenuId(record) + ':isVisible'))"
               @change="(checked) => handleMenuSwitch(record, 'isVisible', checked ? 1 : 0)"
             />
           </template>
           <template v-else-if="column.key === 'isCache'">
             <a-switch
               :checked="getMenuField(record, 'isCache') === 1"
-              :loading="switchLoadingMap.get(getMenuId(record) + ':isCache')"
+              :loading="Boolean(switchLoadingMap.get(getMenuId(record) + ':isCache'))"
               @change="(checked) => handleMenuSwitch(record, 'isCache', checked ? 1 : 0)"
             />
           </template>
           <template v-else-if="column.key === 'isExternal'">
             <a-switch
               :checked="getMenuField(record, 'isExternal') === 1"
-              :loading="switchLoadingMap.get(getMenuId(record) + ':isExternal')"
+              :loading="Boolean(switchLoadingMap.get(getMenuId(record) + ':isExternal'))"
               @change="(checked) => handleMenuSwitch(record, 'isExternal', checked ? 1 : 0)"
             />
           </template>
@@ -190,8 +189,8 @@
         :template-file-name="menuExcelNames.fileBase"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.menu._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.menu._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -245,7 +244,6 @@ const dataSource = ref<Menu[]>([])
 const fullTableTree = ref<any[]>([])
 const selectedTreeKeys = ref<(string | number)[]>([])
 const currentPage = ref(1)
-const pageSize = ref(20)
 const total = ref(0)
 const selectedRow = ref<Menu | null>(null)
 const selectedRows = ref<Menu[]>([])
@@ -255,14 +253,11 @@ const formTitle = ref('')
 const formData = ref<Partial<Menu>>({})
 const formLoading = ref(false)
 const formRef = ref()
-const tableRef = ref()
 const advancedQueryVisible = ref(false)
-const advancedQueryForm = ref<{ menuName: string; menuCode: string; menuType?: number; menuStatus?: number }>({
-  menuName: '',
-  menuCode: '',
-  menuType: undefined,
-  menuStatus: undefined
-})
+/** 高级查询：menuType/menuStatus 未选时不出现键（exactOptionalPropertyTypes 下不能写 undefined）。 */
+type MenuAdvancedQueryForm = { menuName: string; menuCode: string; menuType?: number; menuStatus?: number }
+const emptyMenuAdvancedQueryForm = (): MenuAdvancedQueryForm => ({ menuName: '', menuCode: '' })
+const advancedQueryForm = ref<MenuAdvancedQueryForm>(emptyMenuAdvancedQueryForm())
 const importVisible = ref(false)
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
@@ -281,11 +276,15 @@ function mapFullTableTreeToTreeData(nodes: any[]): TreeDataItem[] {
   if (!nodes?.length) return []
   return nodes
     .filter((n: any) => !isMenuTypeButton(n))
-    .map((n: any) => ({
-      title: n.menuName ?? n.title ?? '',
-      key: String(n.menuId ?? n.key ?? n.id ?? ''),
-      children: n.children?.length ? mapFullTableTreeToTreeData(n.children) : undefined
-    }))
+    .map((n: any): TreeDataItem => {
+      const title = n.menuName ?? n.title ?? ''
+      const key = String(n.menuId ?? n.key ?? n.id ?? '')
+      if (!n.children?.length) {
+        return { title, key }
+      }
+      const children = mapFullTableTreeToTreeData(n.children)
+      return children.length > 0 ? { title, key, children } : { title, key }
+    })
 }
 
 /** 将平铺菜单列表转为树（parentId 为根标识） */
@@ -325,9 +324,13 @@ function filterTreeByKeyword(nodes: TreeDataItem[], keyword: string): TreeDataIt
         const title = String(node.title ?? '').toLowerCase()
         const matched = title.includes(k)
         const filteredChildren = node.children?.length ? filter(node.children) : undefined
-        const hasMatchInChildren = filteredChildren && filteredChildren.length > 0
+        const hasMatchInChildren = filteredChildren != null && filteredChildren.length > 0
         if (matched || hasMatchInChildren) {
-          return { ...node, children: filteredChildren } as TreeDataItem
+          if (filteredChildren != null && filteredChildren.length > 0) {
+            return { ...node, children: filteredChildren } as TreeDataItem
+          }
+          const { children: _omitChildren, ...rest } = node
+          return rest as TreeDataItem
         }
         return null
       })
@@ -399,7 +402,9 @@ const tableTreeData = computed(() => {
   if (!tree?.length) return []
   const keys = selectedTreeKeys.value
   if (keys.length !== 1) return []
-  const sub = getSubtree(tree, keys[0])
+  const onlyKey = keys[0]
+  if (onlyKey === undefined) return []
+  const sub = getSubtree(tree, onlyKey)
   return sub.length ? sub : []
 })
 
@@ -446,10 +451,10 @@ const handleMenuTreeDrop = async (payload: TreeDropPayload) => {
   try {
     loading.value = true
     await updateMenu(String(dragKey), { parentId: pos.parentId, orderNum: pos.orderNum } as Partial<MenuUpdate>)
-    message.success(t('identity.menu.msg.orderUpdated'))
+    message.success(t('identity.menu.page.msg.orderupdated'))
     loadData()
   } catch (error: any) {
-    message.error(error?.message ?? t('common.msg.operateFail'))
+    message.error(error?.message ?? t('common.msg.operatefail'))
     loadData()
   } finally {
     loading.value = false
@@ -471,10 +476,10 @@ async function handleMenuSwitch(record: any, field: 'isVisible' | 'isCache' | 'i
   setSwitchLoading(id, field, true)
   try {
     await updateMenu(id, { [field]: value } as Partial<MenuUpdate>)
-    message.success(t('common.msg.updateSuccess'))
+    message.success(t('common.msg.updatesuccess'))
     await loadData()
   } catch (error: any) {
-    message.error(error?.message ?? t('common.msg.operateFail'))
+    message.error(error?.message ?? t('common.msg.operatefail'))
   } finally {
     setSwitchLoading(id, field, false)
   }
@@ -487,10 +492,10 @@ async function handleMenuStatusSwitch(record: any, menuStatus: number) {
   setSwitchLoading(id, 'menuStatus', true)
   try {
     await updateMenuStatus({ menuId: id, menuStatus })
-    message.success(t('common.msg.updateSuccess'))
+    message.success(t('common.msg.updatesuccess'))
     await loadData()
   } catch (error: any) {
-    message.error(error?.message ?? t('common.msg.operateFail'))
+    message.error(error?.message ?? t('common.msg.operatefail'))
   } finally {
     setSwitchLoading(id, 'menuStatus', false)
   }
@@ -621,7 +626,7 @@ const columns = computed<TableColumnsType>(() => [
     key: 'menuStatus',
     width: 80
   },
-  CreateActionColumn({
+  CreateActionColumn<Menu>({
     actions: [
       { key: 'update', label: t('common.button.edit'), shape: 'plain', icon: RiEditLine, permission: 'identity:menu:update', onClick: (record: Menu) => handleEdit(record) },
       { key: 'delete', label: t('common.button.delete'), shape: 'plain', icon: RiDeleteBinLine, permission: 'identity:menu:delete', onClick: (record: Menu) => handleDeleteOne(record) }
@@ -647,14 +652,14 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: Menu[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: Menu, selected: boolean) => {
     if (selected) selectedRow.value = record
     else if (selectedRow.value && getMenuId(selectedRow.value) === getMenuId(record)) selectedRow.value = null
   },
   onSelectAll: (selected: boolean, selectedRowsData: Menu[]) => {
-    selectedRow.value = selected && selectedRowsData.length === 1 ? selectedRowsData[0] : null
+    selectedRow.value = selected && selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
   }
 }))
 
@@ -680,7 +685,7 @@ const loadData = async () => {
     fullTableTree.value = flatToTree(items)
   } catch (error: any) {
     logger.error('[Menu] 加载数据失败:', error)
-    message.error(error?.message || t('common.msg.loadFail'))
+    message.error(error?.message || t('common.msg.loadfail'))
     dataSource.value = []
     fullTableTree.value = []
     total.value = 0
@@ -696,7 +701,7 @@ const handleSearch = () => {
 
 const handleReset = () => {
   queryKeyword.value = ''
-  advancedQueryForm.value = { menuName: '', menuCode: '', menuType: undefined, menuStatus: undefined }
+  advancedQueryForm.value = emptyMenuAdvancedQueryForm()
   currentPage.value = 1
   loadData()
 }
@@ -728,24 +733,24 @@ const handleEdit = (record: Menu) => {
 
 const handleUpdate = () => {
   if (selectedRow.value) handleEdit(selectedRow.value)
-  else message.warning(t('common.action.warnSelectToAction', { action: t('common.button.edit'), entity: t('entity.menu._self') }))
+  else message.warning(t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: t('entity.menu._self') }))
 }
 
 const handleDeleteOne = (record: Menu) => {
   const name = getMenuField(record, 'menuName') || getMenuId(record)
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', { entity: t('entity.menu._self'), name }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.menu._self'), name }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await deleteMenuById(getMenuId(record))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deletesuccess'))
         loadData()
       } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+        message.error(error?.message || t('common.msg.deletefail'))
       } finally {
         loading.value = false
       }
@@ -755,25 +760,25 @@ const handleDeleteOne = (record: Menu) => {
 
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
-    message.warning(t('common.action.warnSelectToAction', { action: t('common.button.delete'), entity: t('entity.menu._self') }))
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('entity.menu._self') }))
     return
   }
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', { count: selectedRows.value.length, entity: t('entity.menu._self') }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { count: selectedRows.value.length, entity: t('entity.menu._self') }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await Promise.all(selectedRows.value.map(record => deleteMenuById(getMenuId(record))))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deletesuccess'))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+        message.error(error?.message || t('common.msg.deletefail'))
       } finally {
         loading.value = false
       }
@@ -789,10 +794,10 @@ const handleFormSubmit = async () => {
     formLoading.value = true
     if (formData.value?.menuId) {
       await updateMenu(formData.value.menuId, { ...formValues, menuId: formData.value.menuId })
-      message.success(t('common.msg.updateSuccess'))
+      message.success(t('common.msg.updatesuccess'))
     } else {
       await createMenu(formValues)
-      message.success(t('common.msg.createSuccess'))
+      message.success(t('common.msg.createsuccess'))
     }
     formRef.value?.resetFields()
     formData.value = {}
@@ -800,7 +805,7 @@ const handleFormSubmit = async () => {
     loadData()
   } catch (error: any) {
     if (error?.errorFields) return
-    message.error(error?.message || t('common.msg.operateFail'))
+    message.error(error?.message || t('common.msg.operatefail'))
   } finally {
     formLoading.value = false
   }
@@ -847,9 +852,9 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess'))
+    message.success(t('common.msg.exportsuccess'))
   } catch (error: any) {
-    message.error(error?.message || t('common.msg.exportFail'))
+    message.error(error?.message || t('common.msg.exportfail'))
   } finally {
     loading.value = false
   }
@@ -862,7 +867,7 @@ const handleAdvancedQuerySubmit = () => {
   advancedQueryVisible.value = false
 }
 const handleAdvancedQueryReset = () => {
-  advancedQueryForm.value = { menuName: '', menuCode: '', menuType: undefined, menuStatus: undefined }
+  advancedQueryForm.value = emptyMenuAdvancedQueryForm()
 }
 
 const handleColumnSetting = () => { columnSettingVisible.value = true }

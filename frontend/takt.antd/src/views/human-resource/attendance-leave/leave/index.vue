@@ -71,13 +71,13 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'leaveType'">
           <TaktDictTag
-            :value="getLeaveField(record, 'leaveType')"
+            :value="getLeaveDictTagValue(record, 'leaveType')"
             dict-type="sys_leave_category"
           />
         </template>
         <template v-else-if="column.key === 'leaveStatus'">
           <TaktDictTag
-            :value="getLeaveField(record, 'leaveStatus')"
+            :value="getLeaveDictTagValue(record, 'leaveStatus')"
             dict-type="hr_leave_status"
           />
         </template>
@@ -157,8 +157,8 @@
         import-permission="humanresource:attendanceleave:leave:import"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.leave._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.leave._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -183,6 +183,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import type { TableColumnsType } from 'ant-design-vue'
+import type { FilterValue } from 'ant-design-vue/es/table/interface'
 import { CreateActionColumn } from '@/components/business/takt-action-column/index'
 import { mergeDefaultColumns } from '@/utils/table-columns'
 import { useI18n } from 'vue-i18n'
@@ -221,21 +222,13 @@ const leaveExcelNames = taktExcelEntityNames('TaktLeave')
  */
 type LeaveTableColumn = TableColumnsType[number]
 
-/**
- * `a-table` 的 `change` 事件第三参数中，与排序相关的最小可用字段集合。
- * 本页未把排序传给后端，仅在有 `order` 时写调试日志。
- */
-interface TableSorterLike {
-  /**
-   * 当前排序列标识，对应列配置上的 `dataIndex` 或 `key`。
-   */
-  readonly field?: string | string[]
-
-  /**
-   * 排序方向：`ascend` 升序、`descend` 降序；未排序时常为 `null` 或缺省。
-   */
-  readonly order?: 'ascend' | 'descend' | null
+/** 与 `TaktSingleTable` 的 `@change` 第三参数一致（见 `takt-single-table/index.vue` 内 `TableSorter`） */
+type TaktTableChangeSorter = {
+  field?: string | number | readonly (string | number)[]
+  order?: string
 }
+type TaktTableChangeFilters = Record<string, FilterValue | null>
+type TaktTableChangePagination = { current?: number; pageSize?: number; total?: number }
 
 /**
  * 从 `catch` 的未知错误中取出可读消息。
@@ -266,7 +259,7 @@ function getLeaveColumnKey(col: LeaveTableColumn): string {
   return key || dataIndex || title ? String(key ?? dataIndex ?? title) : ''
 }
 
-/** 顶部查询栏绑定的关键字，映射列表请求 `LeaveQuery.keyWords`。 */
+/** 顶部查询栏绑定的关键字，映射列表请求 `LeaveQuery.KeyWords`（继承 `TaktPagedQuery`）。 */
 const queryKeyword = ref('')
 
 /** 列表请求、删除、导出等异步操作进行中的互斥标志。 */
@@ -325,10 +318,14 @@ const advancedQueryVisible = ref(false)
 /**
  * 高级查询表单模型，提交时合并进 `LeaveQuery`（员工、类型、状态）。
  */
-const advancedQueryForm = ref<{ employeeId?: string; leaveType?: string; leaveStatus?: string | number }>({
+const advancedQueryForm = ref<{
+  employeeId: string
+  leaveType: string | number
+  leaveStatus: string | number
+}>({
   employeeId: '',
-  leaveType: undefined,
-  leaveStatus: undefined
+  leaveType: '',
+  leaveStatus: ''
 })
 
 /** Excel 导入弹窗是否可见。 */
@@ -349,14 +346,18 @@ onMounted(() => {
 
 /**
  * 从表格行解析主键字符串（`row-key`、删除、导出）。
+ * TaktSingleTable 的 rowKey 回调入参为 TableRecord，此处用 unknown 承接后再读字段。
  *
- * @param {Leave} record - 列表行
+ * @param {unknown} record - 列表行
  * @returns {string} 优先 `leaveId`，否则兼容历史 JSON 中的 `id`
  */
-const getLeaveId = (record: Leave): string => {
-  if (record?.leaveId != null && String(record.leaveId) !== '') return String(record.leaveId)
-  const legacyId = getLeaveField(record, 'id')
-  if (legacyId != null && legacyId !== '') return String(legacyId)
+const getLeaveId = (record: unknown): string => {
+  if (record == null || typeof record !== 'object') return ''
+  const r = record as Record<string, unknown>
+  const leaveId = r['leaveId']
+  if (leaveId != null && String(leaveId) !== '') return String(leaveId)
+  const legacyId = r['id']
+  if (legacyId != null && String(legacyId) !== '') return String(legacyId)
   return ''
 }
 
@@ -369,6 +370,20 @@ const getLeaveId = (record: Leave): string => {
  */
 const getLeaveField = (record: Leave, field: string): unknown =>
   (record as unknown as Record<string, unknown>)[field]
+
+/**
+ * 供 `TaktDictTag` 的 `:value`（`string | number`），从行记录读字段并收窄类型。
+ *
+ * @param {Leave} record - 表格行
+ * @param {string} field - 字段名
+ * @returns {string | number} 字典展示用值
+ */
+function getLeaveDictTagValue(record: Leave, field: string): string | number {
+  const v = getLeaveField(record, field)
+  if (typeof v === 'number' && Number.isFinite(v)) return v
+  if (typeof v === 'string') return v
+  return String(v ?? '')
+}
 
 /**
  * 高级查询中「请假状态」绑定值（字典可能为 string）转为 `LeaveQuery.leaveStatus`（number）。
@@ -454,7 +469,7 @@ const columns = computed<TableColumnsType>(() => [
     width: 140,
     ellipsis: true
   },
-  CreateActionColumn({
+  CreateActionColumn<Leave>({
     actions: [
       {
         key: 'update',
@@ -511,14 +526,14 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: Leave[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: Leave, selected: boolean) => {
     if (selected) selectedRow.value = record
     else if (selectedRow.value && getLeaveId(selectedRow.value) === getLeaveId(record)) selectedRow.value = null
   },
   onSelectAll: (selected: boolean, selectedRowsData: Leave[]) => {
-    selectedRow.value = selected && selectedRowsData.length === 1 ? selectedRowsData[0] : null
+    selectedRow.value = selected && selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
   }
 }))
 
@@ -535,7 +550,7 @@ const onClickRow = (record: Leave) => ({
     if (index > -1) selectedRowKeys.value.splice(index, 1)
     else selectedRowKeys.value.push(key)
     selectedRows.value = dataSource.value.filter((item) => selectedRowKeys.value.includes(getLeaveId(item)))
-    selectedRow.value = selectedRowKeys.value.length === 1 ? selectedRows.value[0] : null
+    selectedRow.value = selectedRowKeys.value.length === 1 ? (selectedRows.value[0] ?? null) : null
     if (rowSelection.value.onChange) rowSelection.value.onChange(selectedRowKeys.value, selectedRows.value)
   }
 })
@@ -552,9 +567,11 @@ const loadData = async () => {
       pageIndex: currentPage.value,
       pageSize: pageSize.value
     }
-    if (queryKeyword.value) params.keyWords = queryKeyword.value
+    if (queryKeyword.value) params.KeyWords = queryKeyword.value
     if (advancedQueryForm.value.employeeId) params.employeeId = advancedQueryForm.value.employeeId
-    if (advancedQueryForm.value.leaveType) params.leaveType = advancedQueryForm.value.leaveType
+    if (advancedQueryForm.value.leaveType !== '' && advancedQueryForm.value.leaveType != null) {
+      params.leaveType = String(advancedQueryForm.value.leaveType)
+    }
     const advLeaveStatus = coerceAdvancedLeaveStatus(advancedQueryForm.value.leaveStatus)
     if (advLeaveStatus !== undefined) params.leaveStatus = advLeaveStatus
 
@@ -563,7 +580,7 @@ const loadData = async () => {
     total.value = response.total ?? 0
   } catch (error: unknown) {
     logger.error('[Leave] 加载数据失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.loadFail'))
+    message.error(getErrorMessage(error) || t('common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -584,20 +601,22 @@ const handleSearch = () => {
  */
 const handleReset = () => {
   queryKeyword.value = ''
-  advancedQueryForm.value = { employeeId: '', leaveType: undefined, leaveStatus: undefined }
+  advancedQueryForm.value = { employeeId: '', leaveType: '', leaveStatus: '' }
   currentPage.value = 1
   loadData()
 }
 
 /**
  * 表格变更（分页/筛选/排序）；当前仅记录排序便于后续接后端排序。
- *
- * @param _pagination - 未使用
- * @param _filters - 未使用
- * @param {TableSorterLike} sorter - 排序状态
+ * 签名须与 `TaktSingleTable` 的 `change` 事件一致，否则在 `exactOptionalPropertyTypes` 下与 AntD `SorterResult.field` 不兼容。
  */
-const handleTableChange = (_pagination: unknown, _filters: unknown, sorter: TableSorterLike) => {
-  if (sorter?.order) logger.debug('[Leave] 排序:', sorter.field, sorter.order)
+const handleTableChange = (
+  _pagination: TaktTableChangePagination,
+  _filters: TaktTableChangeFilters,
+  sorter: TaktTableChangeSorter | TaktTableChangeSorter[]
+) => {
+  const one = Array.isArray(sorter) ? sorter[0] : sorter
+  if (one?.order) logger.debug('[Leave] 排序:', one.field, one.order)
 }
 
 /**
@@ -677,7 +696,7 @@ const handleEdit = (record: Leave) => {
  */
 const handleUpdate = () => {
   if (selectedRow.value) handleEdit(selectedRow.value)
-  else message.warning(t('common.action.warnSelectToAction', { action: t('common.button.edit'), entity: t('entity.leave._self') }))
+  else message.warning(t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: t('entity.leave._self') }))
 }
 
 /**
@@ -692,18 +711,18 @@ const handleDeleteOne = (record: Leave) => {
     (typeof reason === 'number' ? String(reason) : null) ??
     getLeaveId(record)
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', { entity: t('entity.leave._self'), name }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.leave._self'), name }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await deleteLeaveById(getLeaveId(record))
-        message.success(t('common.msg.deleteSuccess', { target: t('entity.leave._self') }))
+        message.success(t('common.msg.deletesuccess', { target: t('entity.leave._self') }))
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error) || t('common.msg.deleteFail', { target: t('entity.leave._self') }))
+        message.error(getErrorMessage(error) || t('common.msg.deletefail', { target: t('entity.leave._self') }))
       } finally {
         loading.value = false
       }
@@ -716,12 +735,12 @@ const handleDeleteOne = (record: Leave) => {
  */
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
-    message.warning(t('common.action.warnSelectToAction', { action: t('common.button.delete'), entity: t('entity.leave._self') }))
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('entity.leave._self') }))
     return
   }
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', { entity: t('entity.leave._self'), count: selectedRows.value.length }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { entity: t('entity.leave._self'), count: selectedRows.value.length }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
@@ -732,13 +751,13 @@ const handleDelete = () => {
         } else {
           await deleteLeaveBatch(selectedRows.value.map((r) => getLeaveId(r)))
         }
-        message.success(t('common.msg.deleteSuccess', { target: t('entity.leave._self') }))
+        message.success(t('common.msg.deletesuccess', { target: t('entity.leave._self') }))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error) || t('common.msg.deleteFail', { target: t('entity.leave._self') }))
+        message.error(getErrorMessage(error) || t('common.msg.deletefail', { target: t('entity.leave._self') }))
       } finally {
         loading.value = false
       }
@@ -761,10 +780,10 @@ const handleFormSubmit = async () => {
       const id = formData.value.leaveId
       const payload: LeaveUpdate = { ...(formValues as LeaveCreate), leaveId: id }
       await updateLeave(id, payload)
-      message.success(t('common.msg.updateSuccess', { target: t('entity.leave._self') }))
+      message.success(t('common.msg.updatesuccess', { target: t('entity.leave._self') }))
     } else {
       await createLeave(formValues as LeaveCreate)
-      message.success(t('common.msg.createSuccess', { target: t('entity.leave._self') }))
+      message.success(t('common.msg.createsuccess', { target: t('entity.leave._self') }))
     }
     formRef.value?.resetFields()
     formData.value = {}
@@ -777,7 +796,7 @@ const handleFormSubmit = async () => {
       const u = (error as { isProofUploading?: unknown }).isProofUploading
       if (u === true) return
     }
-    message.error(getErrorMessage(error) || t('common.msg.operateFail', { action: t('common.action.operation') }))
+    message.error(getErrorMessage(error) || t('common.msg.operatefail', { action: t('common.action.operation') }))
   } finally {
     formLoading.value = false
   }
@@ -853,9 +872,11 @@ const handleExport = async () => {
       pageIndex: 1,
       pageSize: 100000
     }
-    if (queryKeyword.value) queryParams.keyWords = queryKeyword.value
+    if (queryKeyword.value) queryParams.KeyWords = queryKeyword.value
     if (advancedQueryForm.value.employeeId) queryParams.employeeId = advancedQueryForm.value.employeeId
-    if (advancedQueryForm.value.leaveType) queryParams.leaveType = advancedQueryForm.value.leaveType
+    if (advancedQueryForm.value.leaveType !== '' && advancedQueryForm.value.leaveType != null) {
+      queryParams.leaveType = String(advancedQueryForm.value.leaveType)
+    }
     const advLeaveStatus = coerceAdvancedLeaveStatus(advancedQueryForm.value.leaveStatus)
     if (advLeaveStatus !== undefined) queryParams.leaveStatus = advLeaveStatus
 
@@ -880,10 +901,10 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess', { target: t('entity.leave._self') }))
+    message.success(t('common.msg.exportsuccess', { target: t('entity.leave._self') }))
   } catch (error: unknown) {
     logger.error('[Leave] 导出失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.exportFail', { target: t('entity.leave._self') }))
+    message.error(getErrorMessage(error) || t('common.msg.exportfail', { target: t('entity.leave._self') }))
   } finally {
     loading.value = false
   }
@@ -909,7 +930,7 @@ const handleAdvancedQuerySubmit = () => {
  * 高级查询抽屉重置：恢复表单默认值（不自动请求，由用户再次提交或关闭后自行刷新）。
  */
 const handleAdvancedQueryReset = () => {
-  advancedQueryForm.value = { employeeId: '', leaveType: undefined, leaveStatus: undefined }
+  advancedQueryForm.value = { employeeId: '', leaveType: '', leaveStatus: '' }
 }
 
 /**

@@ -1,27 +1,27 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
-// 命名空间：@/api/workflow/instance
-// 文件名称：instance.ts
-// 创建时间：2025-02-27
-// 创建人：Takt365(Cursor AI)
-// 功能描述：流程实例与待办 API，对应后端 TaktFlowInstancesController
+// ????????????�Takt Digital Factory (TDF)
+// ?????@/api/workflow/instance
+// ?????instance.ts
+// ??????025-02-27
+// ????Takt365(Cursor AI)
+// ???????????? API??????TaktFlowInstancesController
 //
-// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
-// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ?????Copyright (c) 2025 Takt  All rights reserved.
+// ?????????? MIT License??????????????
 // ========================================
 
 import request from '@/api/request'
 import type { TaktPagedResult } from '@/types/common'
 import type {
-  FlowStartRequest,
+  FlowStart as FlowStartRequest,
   FlowStartResult,
   FlowInstance,
   FlowInstanceDetail,
   FlowInstanceQuery,
   FlowTodoItem,
   FlowTodoQuery,
-  FlowCompleteRequest,
-  FlowOperateBase,
+  FlowComplete as FlowCompleteRequest,
+  FlowInstanceOperate as FlowOperateBase,
   FlowInstanceUpdate,
   FlowUndoVerification,
   FlowSuspend,
@@ -31,17 +31,17 @@ import type {
   FlowAddApprovers,
   FlowReduceApproval,
   FlowOperationHistoryItem
-} from '@/types/workflow/instance'
+} from '@/types/workflow/flow-instance'
 
 // ========================================
-// 流程实例相关 API（按后端控制器顺序）
+// ?????? API??????????
 // ========================================
 
 const instanceUrl = '/api/TaktFlowInstances'
 
 /**
- * 获取流程实例列表（分页）
- * 对应后端：GetList
+ * ????????????
+ * ?????????GetFlowInstanceListAsync?TaktFlowInstancesController.GetList??
  */
 export function getFlowInstanceList(params: FlowInstanceQuery): Promise<TaktPagedResult<FlowInstance>> {
   return request({
@@ -52,11 +52,11 @@ export function getFlowInstanceList(params: FlowInstanceQuery): Promise<TaktPage
 }
 
 /**
- * 根据 ID 获取流程实例详情
- * 对应后端：GetDetail
+ * ?? ID ????????
+ * ?????????GetFlowInstanceByIdAsync?TaktFlowInstancesController.GetDetail??
  *
- * @param {string} id - 流程实例 ID
- * @returns {Promise<FlowInstanceDetail>} 实例详情
+ * @param {string} id - ???? ID
+ * @returns {Promise<FlowInstanceDetail>} ????
  */
 export function getFlowInstanceById(id: string): Promise<FlowInstanceDetail> {
   return request({
@@ -66,10 +66,10 @@ export function getFlowInstanceById(id: string): Promise<FlowInstanceDetail> {
 }
 
 /**
- * 获取流程实例操作历史
- * 对应后端：GetInstanceHistories
+ * ??????????
+ * ?????????GetFlowInstanceOperationHistoriesAsync?TaktFlowInstancesController.GetInstanceHistories??
  */
-export function getInstanceHistories(id: string): Promise<FlowOperationHistoryItem[]> {
+export function getFlowInstanceOperationHistories(id: string): Promise<FlowOperationHistoryItem[]> {
   return request({
     url: `${instanceUrl}/${id}/histories`,
     method: 'get'
@@ -77,10 +77,10 @@ export function getInstanceHistories(id: string): Promise<FlowOperationHistoryIt
 }
 
 /**
- * 获取待办列表（分页）
- * 对应后端：GetMyTodo
+ * ??????????
+ * ?????????GetFlowInstanceTodoListAsync?TaktFlowInstancesController.GetMyTodo??
  */
-export function getMyTodo(params: FlowTodoQuery): Promise<TaktPagedResult<FlowTodoItem>> {
+export function getFlowInstanceTodoList(params: FlowTodoQuery): Promise<TaktPagedResult<FlowTodoItem>> {
   return request({
     url: `${instanceUrl}/todo`,
     method: 'get',
@@ -89,10 +89,10 @@ export function getMyTodo(params: FlowTodoQuery): Promise<TaktPagedResult<FlowTo
 }
 
 /**
- * 获取我的流程列表（分页）
- * 对应后端：GetMyInstances
+ * ????????????
+ * ?????????GetFlowInstanceMyListAsync?TaktFlowInstancesController.GetMyInstances??
  */
-export function getMyInstances(params: FlowInstanceQuery): Promise<TaktPagedResult<FlowInstance>> {
+export function getFlowInstanceMyList(params: FlowInstanceQuery): Promise<TaktPagedResult<FlowInstance>> {
   return request({
     url: `${instanceUrl}/my`,
     method: 'get',
@@ -101,10 +101,10 @@ export function getMyInstances(params: FlowInstanceQuery): Promise<TaktPagedResu
 }
 
 /**
- * 获取已办列表（分页）
- * 对应后端：GetMyProcessed
+ * ??????????
+ * ?????????GetFlowInstanceProcessedListAsync?TaktFlowInstancesController.GetMyProcessed??
  */
-export function getMyProcessed(params: FlowInstanceQuery): Promise<TaktPagedResult<FlowInstance>> {
+export function getFlowInstanceProcessedList(params: FlowInstanceQuery): Promise<TaktPagedResult<FlowInstance>> {
   return request({
     url: `${instanceUrl}/processed`,
     method: 'get',
@@ -113,8 +113,8 @@ export function getMyProcessed(params: FlowInstanceQuery): Promise<TaktPagedResu
 }
 
 /**
- * 导出流程实例列表（Excel）
- * 对应后端：Export
+ * ?????????Excel??
+ * ?????????ExportFlowInstanceAsync?TaktFlowInstancesController.Export??
  */
 export function exportFlowInstanceData(params: FlowInstanceQuery & { sheetName?: string; fileName?: string }): Promise<Blob> {
   return request({
@@ -126,10 +126,10 @@ export function exportFlowInstanceData(params: FlowInstanceQuery & { sheetName?:
 }
 
 /**
- * 导出待办列表（Excel）
- * 对应后端：ExportTodo
+ * ???????Excel??
+ * ?????????ExportFlowInstanceTodoAsync?TaktFlowInstancesController.ExportTodo??
  */
-export function exportTodo(params: FlowTodoQuery & { sheetName?: string; fileName?: string }): Promise<Blob> {
+export function exportFlowInstanceTodo(params: FlowTodoQuery & { sheetName?: string; fileName?: string }): Promise<Blob> {
   return request({
     url: `${instanceUrl}/todo/export`,
     method: 'get',
@@ -139,10 +139,10 @@ export function exportTodo(params: FlowTodoQuery & { sheetName?: string; fileNam
 }
 
 /**
- * 导出我的流程列表（Excel）
- * 对应后端：ExportMy
+ * ?????????Excel??
+ * ?????????ExportFlowInstanceMyAsync?TaktFlowInstancesController.ExportMy??
  */
-export function exportMy(params: FlowInstanceQuery & { sheetName?: string; fileName?: string }): Promise<Blob> {
+export function exportFlowInstanceMy(params: FlowInstanceQuery & { sheetName?: string; fileName?: string }): Promise<Blob> {
   return request({
     url: `${instanceUrl}/my/export`,
     method: 'get',
@@ -152,10 +152,10 @@ export function exportMy(params: FlowInstanceQuery & { sheetName?: string; fileN
 }
 
 /**
- * 导出已办列表（Excel）
- * 对应后端：ExportProcessed
+ * ???????Excel??
+ * ?????????ExportFlowInstanceProcessedAsync?TaktFlowInstancesController.ExportProcessed??
  */
-export function exportProcessed(params: FlowInstanceQuery & { sheetName?: string; fileName?: string }): Promise<Blob> {
+export function exportFlowInstanceProcessed(params: FlowInstanceQuery & { sheetName?: string; fileName?: string }): Promise<Blob> {
   return request({
     url: `${instanceUrl}/processed/export`,
     method: 'get',
@@ -165,10 +165,10 @@ export function exportProcessed(params: FlowInstanceQuery & { sheetName?: string
 }
 
 /**
- * 启动流程（新建并启动，或传入 FlowInstanceId 从草稿启动）
- * 对应后端：Start
+ * ?????????????? FlowInstanceId ??????
+ * ?????????StartFlowInstanceAsync?TaktFlowInstancesController.Start??
  */
-export function start(data: FlowStartRequest): Promise<FlowStartResult> {
+export function startFlowInstance(data: FlowStartRequest): Promise<FlowStartResult> {
   return request({
     url: `${instanceUrl}/start`,
     method: 'post',
@@ -177,10 +177,10 @@ export function start(data: FlowStartRequest): Promise<FlowStartResult> {
 }
 
 /**
- * 创建草稿实例
- * 对应后端：CreateDraft
+ * ??????
+ * ?????????CreateFlowInstanceDraftAsync?TaktFlowInstancesController.CreateDraft??
  */
-export function createDraft(data: FlowStartRequest): Promise<FlowStartResult> {
+export function createFlowInstanceDraft(data: FlowStartRequest): Promise<FlowStartResult> {
   return request({
     url: `${instanceUrl}/create-draft`,
     method: 'post',
@@ -189,10 +189,10 @@ export function createDraft(data: FlowStartRequest): Promise<FlowStartResult> {
 }
 
 /**
- * 从草稿启动
- * 对应后端：StartFromDraft
+ * ??????
+ * ?????????StartFlowInstanceFromDraftAsync?TaktFlowInstancesController.StartFromDraft??
  */
-export function startFromDraft(id: string): Promise<FlowStartResult> {
+export function startFlowInstanceFromDraft(id: string): Promise<FlowStartResult> {
   return request({
     url: `${instanceUrl}/start-from-draft/${id}`,
     method: 'post'
@@ -200,10 +200,10 @@ export function startFromDraft(id: string): Promise<FlowStartResult> {
 }
 
 /**
- * 办结任务
- * 对应后端：Complete
+ * ????
+ * ?????????CompleteFlowInstanceTaskAsync?TaktFlowInstancesController.Complete??
  */
-export function complete(data: FlowCompleteRequest): Promise<void> {
+export function completeFlowInstanceTask(data: FlowCompleteRequest): Promise<void> {
   return request({
     url: `${instanceUrl}/complete`,
     method: 'post',
@@ -211,16 +211,16 @@ export function complete(data: FlowCompleteRequest): Promise<void> {
   })
 }
 
-/** 撤回请求参数（InstanceCode 与 FlowInstanceId 二选一） */
+/** ???????InstanceCode ??FlowInstanceId ?????*/
 export interface RevokeRequest extends FlowOperateBase {
   description?: string
 }
 
 /**
- * 撤回流程
- * 对应后端：Revoke
+ * ????
+ * ?????????ResolveFlowInstanceCodeAsync + RevokeFlowInstanceAsync?TaktFlowInstancesController.Revoke??
  */
-export function revoke(payload: RevokeRequest | string): Promise<void> {
+export function revokeFlowInstance(payload: RevokeRequest | string): Promise<void> {
   const data = typeof payload === 'string' ? { instanceCode: payload } : payload
   return request({
     url: `${instanceUrl}/revoke`,
@@ -230,10 +230,10 @@ export function revoke(payload: RevokeRequest | string): Promise<void> {
 }
 
 /**
- * 挂起流程
- * 对应后端：Suspend
+ * ????
+ * ?????????SuspendFlowInstanceAsync?TaktFlowInstancesController.Suspend??
  */
-export function suspend(data: FlowSuspend): Promise<void> {
+export function suspendFlowInstance(data: FlowSuspend): Promise<void> {
   return request({
     url: `${instanceUrl}/suspend`,
     method: 'post',
@@ -242,10 +242,10 @@ export function suspend(data: FlowSuspend): Promise<void> {
 }
 
 /**
- * 恢复流程
- * 对应后端：Resume
+ * ????
+ * ?????????ResumeFlowInstanceAsync?TaktFlowInstancesController.Resume??
  */
-export function resume(data: FlowResume): Promise<void> {
+export function resumeFlowInstance(data: FlowResume): Promise<void> {
   return request({
     url: `${instanceUrl}/resume`,
     method: 'post',
@@ -254,10 +254,10 @@ export function resume(data: FlowResume): Promise<void> {
 }
 
 /**
- * 终止流程
- * 对应后端：Terminate
+ * ????
+ * ?????????TerminateFlowInstanceAsync?TaktFlowInstancesController.Terminate??
  */
-export function terminate(data: FlowTerminate): Promise<void> {
+export function terminateFlowInstance(data: FlowTerminate): Promise<void> {
   return request({
     url: `${instanceUrl}/terminate`,
     method: 'post',
@@ -266,10 +266,10 @@ export function terminate(data: FlowTerminate): Promise<void> {
 }
 
 /**
- * 转办
- * 对应后端：Transfer
+ * ??
+ * ?????????TransferFlowInstanceAsync?TaktFlowInstancesController.Transfer??
  */
-export function transfer(data: FlowTransfer): Promise<void> {
+export function transferFlowInstance(data: FlowTransfer): Promise<void> {
   return request({
     url: `${instanceUrl}/transfer`,
     method: 'post',
@@ -278,10 +278,10 @@ export function transfer(data: FlowTransfer): Promise<void> {
 }
 
 /**
- * 加签
- * 对应后端：AddApprovers
+ * ??
+ * ?????????AddFlowInstanceApproversAsync?TaktFlowInstancesController.AddApprovers??
  */
-export function addApprovers(data: FlowAddApprovers): Promise<void> {
+export function addFlowInstanceApprovers(data: FlowAddApprovers): Promise<void> {
   return request({
     url: `${instanceUrl}/add-sign`,
     method: 'post',
@@ -290,10 +290,10 @@ export function addApprovers(data: FlowAddApprovers): Promise<void> {
 }
 
 /**
- * 减签
- * 对应后端：ReduceApproval
+ * ??
+ * ?????????ReduceFlowInstanceApprovalAsync?TaktFlowInstancesController.ReduceApproval??
  */
-export function reduceApproval(data: FlowReduceApproval): Promise<void> {
+export function reduceFlowInstanceApproval(data: FlowReduceApproval): Promise<void> {
   return request({
     url: `${instanceUrl}/reduce-sign`,
     method: 'post',
@@ -302,8 +302,8 @@ export function reduceApproval(data: FlowReduceApproval): Promise<void> {
 }
 
 /**
- * 更新流程实例（仅运行中且发起人可更新流程标题与表单数据）
- * 对应后端：Update
+ * ????????????????????????????
+ * ?????????UpdateFlowInstanceAsync?TaktFlowInstancesController.Update??
  */
 export function updateFlowInstance(data: FlowInstanceUpdate): Promise<void> {
   return request({
@@ -314,10 +314,10 @@ export function updateFlowInstance(data: FlowInstanceUpdate): Promise<void> {
 }
 
 /**
- * 撤销当前节点审批
- * 对应后端：UndoVerification
+ * ????????
+ * ?????????UndoFlowInstanceVerificationAsync?TaktFlowInstancesController.UndoVerification??
  */
-export function undoVerification(data: FlowUndoVerification): Promise<void> {
+export function undoFlowInstanceVerification(data: FlowUndoVerification): Promise<void> {
   return request({
     url: `${instanceUrl}/undo-verification`,
     method: 'post',
@@ -326,8 +326,8 @@ export function undoVerification(data: FlowUndoVerification): Promise<void> {
 }
 
 /**
- * 删除流程实例（单条）
- * 对应后端：Delete
+ * ??????????
+ * ?????????DeleteFlowInstanceByIdAsync?TaktFlowInstancesController.Delete??
  */
 export function deleteFlowInstanceById(id: string): Promise<void> {
   return request({
@@ -337,8 +337,8 @@ export function deleteFlowInstanceById(id: string): Promise<void> {
 }
 
 /**
- * 批量删除流程实例
- * 对应后端：DeleteBatch
+ * ????????
+ * ?????????DeleteFlowInstanceBatchAsync?TaktFlowInstancesController.DeleteBatch??
  */
 export function deleteFlowInstanceBatch(ids: string[]): Promise<void> {
   return request({
@@ -349,8 +349,8 @@ export function deleteFlowInstanceBatch(ids: string[]): Promise<void> {
 }
 
 /**
- * 工作流验证（按流程 Key 启动并办结，校验引擎）
- * 对应后端：Verify
+ * ??????????Key ????????????
+ * ?????TaktFlowInstancesController.Verify??????StartFlowInstanceAsync?GetFlowInstanceTodoListAsync?CompleteFlowInstanceTaskAsync?GetFlowInstanceByIdAsync ??
  */
 export function verify(processKey: string, processTitle?: string): Promise<{ ok: boolean; message?: string; instanceCode?: string; instanceId?: number; steps: string[] }> {
   return request({
@@ -360,7 +360,7 @@ export function verify(processKey: string, processTitle?: string): Promise<{ ok:
   })
 }
 
-/** 单条 CCFLOW 对照验证场景结果 */
+/** ?? CCFLOW ???????? */
 export interface FlowVerifyScenarioResult {
   scenarioName: string
   ok: boolean
@@ -368,7 +368,7 @@ export interface FlowVerifyScenarioResult {
   steps: string[]
 }
 
-/** 当前工作流与 CCFLOW 对照验证报告 */
+/** ?????? CCFLOW ?????? */
 export interface FlowVerifyCcflowReport {
   processKey: string
   verifyTime: string
@@ -377,8 +377,8 @@ export interface FlowVerifyCcflowReport {
 }
 
 /**
- * 当前工作流与 CCFLOW 对照验证（多场景执行并返回报告）
- * 对应后端：VerifyCcflow
+ * ?????? CCFLOW ????????????????
+ * ?????TaktFlowInstancesController.VerifyCcflow??????StartFlowInstanceAsync?GetFlowInstanceTodoListAsync?CompleteFlowInstanceTaskAsync?RevokeFlowInstanceAsync ??
  */
 export function verifyCcflow(processKey: string, processTitle?: string): Promise<FlowVerifyCcflowReport> {
   return request({
@@ -387,3 +387,4 @@ export function verifyCcflow(processKey: string, processTitle?: string): Promise
     params: { processKey, processTitle }
   })
 }
+

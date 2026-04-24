@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Routine.Files
 // 文件名称：ITaktFileService.cs
@@ -82,7 +82,7 @@ public interface ITaktFileService
     /// </summary>
     /// <param name="dto">文件切换DTO</param>
     /// <returns>文件DTO</returns>
-    Task<TaktFileDto> ChangeIsPublicAsync(TaktFileChangeDto dto);
+    Task<TaktFileDto> ChangeIsPublicAsync(TaktFilePublicChangeDto dto);
 
     /// <summary>
     /// 增加下载次数

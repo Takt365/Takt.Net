@@ -12,7 +12,7 @@
   <a-tabs v-model:active-key="activeTab">
     <a-tab-pane
       key="basic"
-      :tab="t('common.form.tabs.basicInfo')"
+      :tab="t('common.form.tabs.basicinfo')"
     >
       <div :class="formContentClass">
         <a-form
@@ -64,9 +64,9 @@
                 name="parentId"
               >
                 <TaktSelect
-                  v-model="formState.parentId"
+                  v-model="parentIdModel"
                   api-url="/api/TaktCostCenters/options"
-                  :placeholder="t('accounting.controlling.cost-center.parentSelectPlaceholder')"
+                  :placeholder="t('accounting.controlling.cost-center.page.parentselectplaceholder')"
                   allow-clear
                   :field-names="{ label: 'dictLabel', value: 'dictValue' }"
                 />
@@ -113,10 +113,7 @@
                 name="managerId"
               >
                 <a-input-number
-                  v-model:value="managerIdModel"
-                  :placeholder="t('accounting.controlling.cost-center.managerIdPlaceholder')"
-                  :min="0"
-                  style="width: 100%"
+                  v-bind="managerIdInputBindings"
                 />
               </a-form-item>
             </a-col>
@@ -127,7 +124,7 @@
               >
                 <a-input
                   v-model:value="formState.managerName"
-                  :placeholder="t('accounting.controlling.cost-center.managerNamePlaceholder')"
+                  :placeholder="t('accounting.controlling.cost-center.page.managernameplaceholder')"
                   :maxlength="50"
                   allow-clear
                 />
@@ -144,7 +141,7 @@
                 <a-input-number
                   v-model:value="formState.orderNum"
                   :min="0"
-                  :placeholder="t('common.form.placeholder.orderNumHint')"
+                  :placeholder="t('common.form.placeholder.ordernumhint')"
                   style="width: 100%"
                 />
               </a-form-item>
@@ -162,7 +159,7 @@
                 <a-textarea
                   v-model:value="formState.remark"
                   :rows="2"
-                  :placeholder="t('accounting.controlling.cost-center.remarkPlaceholder')"
+                  :placeholder="t('accounting.controlling.cost-center.page.remarkplaceholder')"
                   show-count
                   :maxlength="500"
                   allow-clear
@@ -269,22 +266,45 @@ const formState = reactive<CostCenterFormState>(createEmptyCostCenterForm())
 /**
  * `a-input-number` 与 `formState.managerId` 的桥接：控件清空时为 `null`，DTO 侧使用 `undefined`。
  */
-const managerIdModel = computed({
-  get(): number | undefined {
-    return formState.managerId
+/**
+ * `TaktSelect` 与 `formState.parentId` 的桥接：`exactOptionalPropertyTypes` 下不能把 `undefined` 直接作为 `modelValue` 传入子组件。
+ */
+const parentIdModel = computed({
+  get(): string | number {
+    return formState.parentId ?? ''
   },
-  set(v: number | null | undefined) {
+  set(v: string | number | null | undefined) {
+    formState.parentId = v === '' || v == null ? undefined : v
+  }
+})
+
+/**
+ * `a-input-number`：`exactOptionalPropertyTypes` 下不能传入显式 `value: undefined`，无值时省略 `value` 键。
+ * 返回 `Record<string, unknown>` 以便 `v-bind` 与 Ant Design Vue 的宽类型入参兼容。
+ */
+const managerIdInputBindings = computed((): Record<string, unknown> => {
+  const onUpdate = (v: number | null | undefined) => {
     formState.managerId = v == null ? undefined : v
   }
+  const base: Record<string, unknown> = {
+    placeholder: t('accounting.controlling.cost-center.page.manageridplaceholder'),
+    min: 0,
+    style: { width: '100%' },
+    'onUpdate:value': onUpdate
+  }
+  if (formState.managerId !== undefined) {
+    base.value = formState.managerId
+  }
+  return base
 })
 
 /**
  * 成本中心类型下拉项（0/1/2 与后端 `TaktCostCenter` 注释一致）；标签来自模块静态文案。
  */
 const costCenterTypeOptions = computed(() => [
-  { label: t('accounting.controlling.cost-center.costCenterTypeOption0'), value: 0 },
-  { label: t('accounting.controlling.cost-center.costCenterTypeOption1'), value: 1 },
-  { label: t('accounting.controlling.cost-center.costCenterTypeOption2'), value: 2 }
+  { label: t('accounting.controlling.cost-center.page.costcentertypeoption0'), value: 0 },
+  { label: t('accounting.controlling.cost-center.page.costcentertypeoption1'), value: 1 },
+  { label: t('accounting.controlling.cost-center.page.costcentertypeoption2'), value: 2 }
 ])
 
 /**

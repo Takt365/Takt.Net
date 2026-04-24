@@ -10,7 +10,7 @@ export type { ThemeColor, ThemeColorConfig, AppSetting } from '@/types/global-se
 export const defaultSetting: AppSetting = {
   layout: 'side',
   theme: 'dark',
-  themeColor: { type: 'blue', customColor: undefined },
+  themeColor: { type: 'blue' },
   borderRadius: 5,
   fontSize: 15,
   colorWeak: false,
@@ -50,16 +50,16 @@ export const STORAGE_KEY = 'app-setting'
  * Less: mars-green, tiffany-blue, chinese-red, titian-red, burgundy, bordeaux, klein-blue, van-dyke-brown, prussian-blue, sennelier-yellow, memorial-gray
  */
 export const themeColorMap: Record<Exclude<ThemeColor, 'custom'>, string> = {
-  blue: '#002FA7',   // 克莱因蓝 @klein-blue
   green: '#2e8b57',  // 马尔斯绿 @mars-green
+  cyan: '#00a0b0',   // 蒂芙尼蓝 @tiffany-blue
   red: '#FF0000',    // 中国红 @chinese-red
   orange: '#FF6347', // 提香红 @titian-red
   purple: '#990033', // 勃艮第红 @burgundy
-  cyan: '#00a0b0',   // 蒂芙尼蓝 @tiffany-blue
   pink: '#8c1515',   // 波尔多红 @bordeaux
-  yellow: '#F9DC24', // 申布伦黄 @sennelier-yellow
-  indigo: '#003153', // 普鲁士蓝 @prussian-blue
+  blue: '#002FA7',   // 克莱因蓝 @klein-blue
   brown: '#4c2b18',  // 凡戴克棕 @van-dyke-brown
+  indigo: '#003153', // 普鲁士蓝 @prussian-blue
+  yellow: '#F9DC24', // 申布伦黄 @sennelier-yellow
   gray: '#808080'    // 纪念灰 @memorial-gray
 }
 

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Routine.Dict
 // 文件名称：TaktDictDataService.cs
@@ -138,7 +138,7 @@ public class TaktDictDataService : TaktServiceBase, ITaktDictDataService
                 }
                 
                 result = dictDataList
-                    .OrderBy(d => d.OrderNum)
+                    .OrderBy(d => d.SortOrder)
                     .ThenBy(d => d.CreatedAt)
                     .Select(d => new TaktSelectOption
                     {
@@ -149,7 +149,7 @@ public class TaktDictDataService : TaktServiceBase, ITaktDictDataService
                         DictL10nKey = d.DictL10nKey,
                         CssClass = d.CssClass,
                         ListClass = d.ListClass,
-                        OrderNum = d.OrderNum
+                        SortOrder = d.SortOrder
                     })
                     .ToList();
                 
@@ -174,7 +174,7 @@ public class TaktDictDataService : TaktServiceBase, ITaktDictDataService
             
             result = dictDataList
                 .OrderBy(d => d.DictTypeCode)
-                .ThenBy(d => d.OrderNum)
+                .ThenBy(d => d.SortOrder)
                 .ThenBy(d => d.CreatedAt)
                 .Select(d => new TaktSelectOption
                 {
@@ -186,7 +186,7 @@ public class TaktDictDataService : TaktServiceBase, ITaktDictDataService
                     DictTypeCode = d.DictTypeCode,  // 字典类型编码：用于前端按字典类型分组
                     CssClass = d.CssClass,
                     ListClass = d.ListClass,
-                    OrderNum = d.OrderNum
+                    SortOrder = d.SortOrder
                 })
                 .ToList();
             
@@ -402,7 +402,7 @@ public class TaktDictDataService : TaktServiceBase, ITaktDictDataService
                         ListClass = item.ListClass >= 0 ? item.ListClass : 0,
                         ExtLabel = string.IsNullOrWhiteSpace(item.ExtLabel) ? null : item.ExtLabel,
                         ExtValue = string.IsNullOrWhiteSpace(item.ExtValue) ? null : item.ExtValue,
-                        OrderNum = item.OrderNum,
+                        SortOrder = item.SortOrder,
                         Remark = item.Remark
                     };
 

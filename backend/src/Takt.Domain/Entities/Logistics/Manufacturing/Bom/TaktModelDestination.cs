@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.Logistics.Manufacturing
 // 文件名称：TaktModelDestination.cs
@@ -22,7 +22,7 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.Bom;
 [SugarIndex("ix_takt_logistics_manufacturing_model_destination_plant_code", nameof(PlantCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_model_destination_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_model_destination_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_manufacturing_model_destination_order_num", nameof(OrderNum), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_manufacturing_model_destination_order_num", nameof(SortOrder), OrderByType.Asc)]
 public class TaktModelDestination : TaktEntityBase
 {
     /// <summary>
@@ -52,6 +52,6 @@ public class TaktModelDestination : TaktEntityBase
     /// <summary>
     /// 排序号（越小越靠前）
     /// </summary>
-    [SugarColumn(ColumnName = "order_num", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int OrderNum { get; set; } = 0;
+    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SortOrder { get; set; } = 0;
 }

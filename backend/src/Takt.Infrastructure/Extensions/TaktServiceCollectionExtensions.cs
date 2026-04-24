@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.Extensions
 // 文件名称：TaktServiceCollectionExtensions.cs
@@ -163,7 +163,7 @@ public static class TaktServiceCollectionExtensions
         // 注册通用仓储（开放泛型）
         // 注意：TaktRepository<TaktUser> 和 TaktRepository<TaktTenant> 已经在上面单独注册
         // Autofac 会优先使用特定注册，不会使用这个泛型注册来创建它们
-        // 其他实体类型的仓储会使用这个泛型注册，可以正常注入 ITaktUserContext
+        // 其他实体类型的仓储使用此泛型注册（审计用户仅通过 ITaktUserContext / TaktUserProvider 解析）
         builder.RegisterGeneric(typeof(TaktRepository<>))
             .As(typeof(ITaktRepository<>))
             .InstancePerLifetimeScope();

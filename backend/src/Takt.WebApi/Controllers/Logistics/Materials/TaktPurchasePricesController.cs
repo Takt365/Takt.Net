@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Logistics.Material
 // 文件名称：TaktPurchasePricesController.cs
@@ -16,7 +16,7 @@ using Takt.Application.Services.Logistics.Materials;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.Logistics.Materials;
 
@@ -58,9 +58,9 @@ public class TaktPurchasePricesController : TaktControllerBase
     /// <returns>分页结果</returns>
     [HttpGet("list")]
     [TaktPermission("logistics:purchaseprice:list", "查询采购价格列表")]
-    public async Task<ActionResult<TaktPagedResult<TaktPurchasePriceDto>>> GetListAsync([FromQuery] TaktPurchasePriceQueryDto queryDto)
+    public async Task<ActionResult<TaktPagedResult<TaktPurchasePriceDto>>> GetPurchasePriceListAsync([FromQuery] TaktPurchasePriceQueryDto queryDto)
     {
-        var result = await _priceService.GetListAsync(queryDto);
+        var result = await _priceService.GetPurchasePriceListAsync(queryDto);
         return Ok(result);
     }
 
@@ -71,9 +71,9 @@ public class TaktPurchasePricesController : TaktControllerBase
     /// <returns>采购价格DTO</returns>
     [HttpGet("{id}")]
     [TaktPermission("logistics:purchaseprice:query", "查询采购价格详情")]
-    public async Task<ActionResult<TaktPurchasePriceDto>> GetByIdAsync(long id)
+    public async Task<ActionResult<TaktPurchasePriceDto>> GetPurchasePriceByIdAsync(long id)
     {
-        var price = await _priceService.GetByIdAsync(id);
+        var price = await _priceService.GetPurchasePriceByIdAsync(id);
         if (price == null)
             return NotFound();
         return Ok(price);
@@ -86,12 +86,12 @@ public class TaktPurchasePricesController : TaktControllerBase
     /// <returns>采购价格DTO</returns>
     [HttpPost]
     [TaktPermission("logistics:purchaseprice:create", "创建采购价格")]
-    public async Task<ActionResult<TaktPurchasePriceDto>> CreateAsync([FromBody] TaktPurchasePriceCreateDto dto)
+    public async Task<ActionResult<TaktPurchasePriceDto>> CreatePurchasePriceAsync([FromBody] TaktPurchasePriceCreateDto dto)
     {
         try
         {
-            var price = await _priceService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = price.PriceId }, price);
+            var price = await _priceService.CreatePurchasePriceAsync(dto);
+            return CreatedAtAction(nameof(GetPurchasePriceByIdAsync), new { id = price.PriceId }, price);
         }
         catch (Exception ex)
         {
@@ -107,11 +107,11 @@ public class TaktPurchasePricesController : TaktControllerBase
     /// <returns>采购价格DTO</returns>
     [HttpPut("{id}")]
     [TaktPermission("logistics:purchaseprice:update", "更新采购价格")]
-    public async Task<ActionResult<TaktPurchasePriceDto>> UpdateAsync(long id, [FromBody] TaktPurchasePriceUpdateDto dto)
+    public async Task<ActionResult<TaktPurchasePriceDto>> UpdatePurchasePriceAsync(long id, [FromBody] TaktPurchasePriceUpdateDto dto)
     {
         try
         {
-            var price = await _priceService.UpdateAsync(id, dto);
+            var price = await _priceService.UpdatePurchasePriceAsync(id, dto);
             return Ok(price);
         }
         catch (Exception ex)
@@ -127,11 +127,11 @@ public class TaktPurchasePricesController : TaktControllerBase
     /// <returns>操作结果</returns>
     [HttpDelete("{id}")]
     [TaktPermission("logistics:purchaseprice:delete", "删除采购价格")]
-    public async Task<IActionResult> DeleteAsync(long id)
+    public async Task<IActionResult> DeletePurchasePriceByIdAsync(long id)
     {
         try
         {
-            await _priceService.DeleteAsync(id);
+            await _priceService.DeletePurchasePriceByIdAsync(id);
             return NoContent();
         }
         catch (Exception ex)
@@ -147,11 +147,11 @@ public class TaktPurchasePricesController : TaktControllerBase
     /// <returns>采购价格DTO</returns>
     [HttpPut("status")]
     [TaktPermission("logistics:purchaseprice:status", "更新采购价格状态")]
-    public async Task<ActionResult<TaktPurchasePriceDto>> UpdateStatusAsync([FromBody] TaktPurchasePriceStatusDto dto)
+    public async Task<ActionResult<TaktPurchasePriceDto>> UpdatePurchasePriceStatusAsync([FromBody] TaktPurchasePriceStatusDto dto)
     {
         try
         {
-            var price = await _priceService.UpdateStatusAsync(dto);
+            var price = await _priceService.UpdatePurchasePriceStatusAsync(dto);
             return Ok(price);
         }
         catch (Exception ex)
@@ -168,12 +168,12 @@ public class TaktPurchasePricesController : TaktControllerBase
     /// <returns>Excel模板文件</returns>
     [HttpGet("template")]
     [TaktPermission("logistics:purchaseprice:import", "获取导入模板")]
-    public async Task<IActionResult> GetTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> GetPurchasePriceTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (actualFileName, content) = await _priceService.GetTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, actualFileName);
+            var (actualFileName, content) = await _priceService.GetPurchasePriceTemplateAsync(sheetName, fileName);
+            return File(content, TaktExcelHelper.ExcelContentType, actualFileName);
         }
         catch (Exception ex)
         {
@@ -189,7 +189,7 @@ public class TaktPurchasePricesController : TaktControllerBase
     /// <returns>导入结果</returns>
     [HttpPost("import")]
     [TaktPermission("logistics:purchaseprice:import", "导入采购价格")]
-    public async Task<ActionResult<object>> ImportAsync(IFormFile file, [FromForm] string? sheetName = null)
+    public async Task<ActionResult<object>> ImportPurchasePriceAsync(IFormFile file, [FromForm] string? sheetName = null)
     {
         try
         {
@@ -199,7 +199,7 @@ public class TaktPurchasePricesController : TaktControllerBase
             }
 
             using var stream = file.OpenReadStream();
-            var (success, fail, errors) = await _priceService.ImportAsync(stream, sheetName);
+            var (success, fail, errors) = await _priceService.ImportPurchasePriceAsync(stream, sheetName);
 
             return Ok(new
             {
@@ -221,15 +221,15 @@ public class TaktPurchasePricesController : TaktControllerBase
     /// <param name="query">查询条件</param>
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
-    /// <returns>Excel 文件；超过 <c>TaktExcelHelper.ExportAsync</c> 单表行数上限时为 zip 打包（基础设施统一逻辑）</returns>
+    /// <returns>Excel 文件；超过 <c>TaktExcelHelper.ExportPurchasePriceAsync</c> 单表行数上限时为 zip 打包（基础设施统一逻辑）</returns>
     [HttpPost("export")]
     [TaktPermission("logistics:purchaseprice:export", "导出采购价格")]
-    public async Task<IActionResult> ExportAsync([FromBody] TaktPurchasePriceQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> ExportPurchasePriceAsync([FromBody] TaktPurchasePriceQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (actualFileName, content) = await _priceService.ExportAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(actualFileName), actualFileName);
+            var (actualFileName, content) = await _priceService.ExportPurchasePriceAsync(query, sheetName, fileName);
+            return File(content, TaktExcelHelper.GetExportContentType(actualFileName), actualFileName);
         }
         catch (Exception ex)
         {

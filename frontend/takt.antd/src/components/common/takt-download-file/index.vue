@@ -72,7 +72,7 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false
 })
 
-const textDisplay = computed(() => props.text ?? t('components.common.download.downloadFile'))
+const textDisplay = computed(() => props.text ?? t('components.common.page.download.downloadfile'))
 
 const emit = defineEmits<{
   'success': [fileName: string]
@@ -137,7 +137,7 @@ const downloadBlob = (blob: Blob, fileName: string) => {
 // 处理下载
 const handleDownload = async () => {
   if (!props.download && !props.url) {
-    message.warning(t('components.common.download.noProvider'))
+    message.warning(t('components.common.page.download.noprovider'))
     return
   }
 
@@ -182,12 +182,12 @@ const handleDownload = async () => {
     // 执行下载
     downloadBlob(blob, finalFileName)
 
-    message.success(t('components.common.download.success', { name: finalFileName }))
+    message.success(t('components.common.page.download.success', { name: finalFileName }))
     emit('success', finalFileName)
   } catch (error: unknown) {
     console.error('[TaktDownloadFile] 下载失败:', error)
     const err = error instanceof Error ? error : new Error(String(error))
-    message.error(err.message || t('components.common.download.fail'))
+    message.error(err.message || t('components.common.page.download.fail'))
     emit('error', err)
   } finally {
     internalLoading.value = false

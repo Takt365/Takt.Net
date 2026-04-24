@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.Middleware
 // 文件名称：TaktUserMiddleware.cs
@@ -78,7 +78,11 @@ public class TaktUserMiddleware
             }
         }
         else
+        {
             TaktUserContext.CurrentEmployee = null;
+            // 匿名请求必须清空 AsyncLocal，避免同一线程/上下文复用时把上一请求用户带到操作日志
+            TaktUserContext.CurrentUser = null;
+        }
 
         await _next(context);
     }

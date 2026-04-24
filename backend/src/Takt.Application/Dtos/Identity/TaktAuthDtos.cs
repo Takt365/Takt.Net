@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Dtos.Identity
 // 文件名称：TaktAuthDtos.cs
@@ -150,12 +150,12 @@ public class TaktUserInfoDto
     /// <summary>
     /// 角色列表
     /// </summary>
-    public List<string> Roles { get; set; } = new();
+    public List<string> Roles { get; set; } = [];
 
     /// <summary>
     /// 权限列表
     /// </summary>
-    public List<string> Permissions { get; set; } = new();
+    public List<string> Permissions { get; set; } = [];
 
     /// <summary>
     /// 用户类型（0=普通用户，1=管理员，2=超级管理员）

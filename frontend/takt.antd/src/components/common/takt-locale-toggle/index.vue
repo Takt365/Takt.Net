@@ -67,11 +67,9 @@ const handleMenuClick = ({ key }: { key: string | number }) => {
   localeStore.setLocale(String(key))
 }
 
-// 组件挂载时确保语言列表已加载，并确保默认选中正确的语言
+// 组件挂载时向后端拉取语言列表（store 内已有占位项，避免请求挂起期间下拉为空；并发调用会合并为同一请求）
 onMounted(async () => {
-  if (localeStore.enabledLanguages.length === 0) {
-    await localeStore.loadLanguages()
-  }
+  await localeStore.loadLanguages()
   
   // 确保默认语言已设置（如果当前语言未设置或不在列表中）
   if (!localeStore.locale || !localeStore.enabledLanguages.find(lang => lang.code === localeStore.locale)) {

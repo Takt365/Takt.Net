@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services
 // 文件名称：TaktServiceBase.cs
@@ -339,15 +339,6 @@ public abstract class TaktServiceBase
     #endregion
 
     #region 用户上下文方法
-
-    /// <summary>
-    /// 获取当前用户实体（完整数据）
-    /// </summary>
-    /// <returns>用户实体，如果未登录则返回null</returns>
-    protected TaktUser? GetCurrentUser()
-    {
-        return _userContext?.GetCurrentUser();
-    }
 
     /// <summary>
     /// 获取当前用户实体（完整数据，异步）

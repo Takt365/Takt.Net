@@ -2,105 +2,208 @@
 <!-- 项目名称：节拍数字工厂 · Takt Digital Factory (TDF) -->
 <!-- 命名空间：@/views/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}/components -->
 <!-- 文件名称：{{ table.entity_name_kebab }}-form.vue -->
-<!-- 功能描述：{{ table.comment }}表单组件，由 DtoCategory/IsCreate 列驱动 -->
+<!-- 功能描述：{{ table.comment }}维护弹窗内嵌表单。由同目录上级 index.vue 引用；defineExpose 提供 validate、getValues、resetFields、setServerValidationErrors。a-form 内 a-tabs：每标签最多 10 个 IsCreate 字段；布局由表配置 front_form_layout 决定——与实体 TaktGenTable.FrontFormLayout 及字典 gen_frontend_form_layout 一致：12=一行一列（普通字段与 textarea 均为 a-col span 24），24=一行两列（普通字段 span 12，textarea span 24）。与 identity/user/components/user-form.vue 的表单骨架风格一致。 -->
 <!-- 版权信息：Copyright (c) 2025 Takt  All rights reserved. -->
 <!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->
 <!-- ======================================== -->
 
 <template>
+  <!-- 根：a-form 包裹 a-tabs；formRef 供父级 validate、resetFields -->
+{{~ create_col_count = 0 ~}}
+{{~ for col in columns ~}}{{~ if col.is_create == 1 ~}}{{~ create_col_count = create_col_count + 1 ~}}{{~ end ~}}{{~ end ~}}
+{{~ tab_count = 1 ~}}
+{{~ if create_col_count > 0 ~}}
+{{~ tab_count = 0 ~}}
+{{~ n = create_col_count ~}}
+{{~ while n > 0 ~}}{{~ tab_count = tab_count + 1 ~}}{{~ n = n - 10 ~}}{{~ end ~}}
+{{~ end ~}}
   <a-form
     ref="formRef"
     :model="formState"
     :rules="rules"
-    :label-col="{ span: 6 }"
-    :wrapper-col="{ span: 18 }"
     layout="horizontal"
+    label-align="right"
   >
-    <a-row :gutter="24">
+    <a-tabs
+      v-model:active-key="activeTab"
+      class="{{ table.entity_name_kebab }}-form-tabs"
+    >
+{{~ for tab_index in 1..tab_count ~}}
+      <!-- 标签 {{ tab_index }}：本页字段序号区间 [{{ (tab_index - 1) * 10 }}, {{ tab_index * 10 - 1 }}]（每标签最多 10 项） -->
+      <a-tab-pane
+        key="tab-{{ tab_index - 1 }}"
+        :tab="t('common.form.tabs.basicinfo'){{ if tab_count > 1 }} + ' ({{ tab_index }}/{{ tab_count }})'{{ end }}"
+        force-render
+      >
+        <div :class="formContentClass">
+          <a-row :gutter="24">
+{{~ field_idx = 0 ~}}
 {{~ for col in columns ~}}
 {{~ if col.is_create == 1 ~}}
-      <a-col :span="12">
-        <a-form-item label="{{ col.comment }}" name="{{ col.ts_column_name }}">
+{{~ if field_idx >= (tab_index - 1) * 10 && field_idx < tab_index * 10 ~}}
+            <a-col :span="{{ if table.front_form_layout == 12 }}24{{ else }}{{ if col.html_type == "textarea" }}24{{ else }}12{{ end }}{{ end }}">
+              <a-form-item
+                :label="t('entity.{{ table.entity_name_camel }}.{{ col.ts_column_name | string.downcase }}')"
+                name="{{ col.ts_column_name }}"
+              >
 {{~ if col.html_type == "select" && col.dict_type ~}}
-          <TaktSelect
-            v-model:value="formState.{{ col.ts_column_name }}"
-            dict-type="{{ col.dict_type }}"
-            placeholder="请选择{{ col.comment }}"
-          />
+                <TaktSelect
+                  v-model:value="formState.{{ col.ts_column_name }}"
+                  dict-type="{{ col.dict_type }}"
+                  :placeholder="t('common.form.placeholder.select', { field: t('entity.{{ table.entity_name_camel }}.{{ col.ts_column_name | string.downcase }}') })"
+                />
 {{~ else if col.html_type == "textarea" ~}}
-          <a-textarea
-            v-model:value="formState.{{ col.ts_column_name }}"
-            placeholder="请输入{{ col.comment }}"
-            :rows="3"
-          />
+                <a-textarea
+                  v-model:value="formState.{{ col.ts_column_name }}"
+                  :placeholder="t('common.form.placeholder.required', { field: t('entity.{{ table.entity_name_camel }}.{{ col.ts_column_name | string.downcase }}') })"
+                  :rows="4"
+                  show-count
+                  {{ if col.length > 0 }}:maxlength="{{ col.length }}"{{ else }}:maxlength="500"{{ end }}
+                />
 {{~ else if col.csharp_data_type == "bool" || col.csharp_data_type == "Boolean" ~}}
-          <a-switch v-model:checked="formState.{{ col.ts_column_name }}" />
+                <a-switch v-model:checked="formState.{{ col.ts_column_name }}" />
 {{~ else ~}}
-          <a-input
-            v-model:value="formState.{{ col.ts_column_name }}"
-            placeholder="请输入{{ col.comment }}"
-            {{ if col.length > 0 }}:maxlength="{{ col.length }}"{{ end }}
-          />
+                <a-input
+                  v-model:value="formState.{{ col.ts_column_name }}"
+                  :placeholder="t('common.form.placeholder.required', { field: t('entity.{{ table.entity_name_camel }}.{{ col.ts_column_name | string.downcase }}') })"
+                  {{ if col.length > 0 }}show-count
+                  :maxlength="{{ col.length }}"{{ end }}
+                />
 {{~ end ~}}
-        </a-form-item>
-      </a-col>
+              </a-form-item>
+            </a-col>
+{{~ end ~}}
+{{~ field_idx = field_idx + 1 ~}}
 {{~ end ~}}
 {{~ end ~}}
-    </a-row>
+          </a-row>
+        </div>
+      </a-tab-pane>
+{{~ end ~}}
+    </a-tabs>
   </a-form>
 </template>
 
 <script setup lang="ts">
 /**
- * {{ table.comment }}表单组件 · 表单项由 DtoCategory/IsCreate 列驱动
+ * {{ table.comment }}维护表单脚本：与上级 `index.vue` 中表单 ref 配合；
+ * 父组件通过 `validate`、`getValues`、`resetFields`、`setServerValidationErrors` 完成弹窗提交流程（与 identity/user/components/user-form.vue 暴露能力一致）。
+ * 布局：每标签最多 10 个 IsCreate 字段；`front_form_layout===12` 为一行一列（栅格 24），`front_form_layout===24` 为一行两列（普通 12、textarea 24），与 `TaktGenTable.FrontFormLayout` / `gen_frontend_form_layout` 一致。
  * @module views/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}/components
  */
-import { ref, watch, computed } from 'vue'
+import { reactive, watch, computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FormInstance } from 'ant-design-vue'
+import type { Rule } from 'ant-design-vue/es/form'
 import type { {{ table.entity_name_pascal }} } from '@/types/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
 
 const { t } = useI18n()
-/** 当前模块 locale 命名空间，用于校验文案 t(localeNs + '.required_xxx') */
-const localeNs = '{{ table.frontend_module_path | string.replace "/" "." }}.{{ table.entity_name_kebab }}'
+
+/** 表单内容区纵向布局类名（与弹窗内其它表单一致，同 user-form.vue） */
+const formContentClass = 'takt-form-content-rows-10'
+
+/** 当前激活的标签 key（tab-0、tab-1…），与 a-tab-pane 的 key 一致 */
+const activeTab = ref('tab-0')
 
 /**
- * @param formData 表单数据（新增为空对象，编辑为当前行）
- * @param loading 提交中状态
+ * 组件入参：由列表页传入当前编辑行或空对象（新增）。
  */
-const props = defineProps<{
+interface Props {
+  /** 当前实体数据（编辑时含主键字段），与 `@/types/.../{{ table.entity_name_kebab }}` 中类型一致 */
   formData?: Partial<{{ table.entity_name_pascal }}> | null
+  /** 提交中状态，由父级传入 */
   loading?: boolean
-}>()
+}
 
-/** 表单实例（用于校验与提交） */
-const formRef = ref<FormInstance>()
-/** 表单数据（双向同步自 formData，用于 v-model 绑定） */
-const formState = ref<Record<string, any>>({})
+/**
+ * 声明组件入参并设置默认值：与 `user-form.vue` 一致——新增时 `formData` 默认为空对象，`loading` 默认为 false，避免子组件对 undefined 分支处理不一致。
+ */
+const props = withDefaults(defineProps<Props>(), {
+  formData: () => ({}),
+  loading: false
+})
 
-/** 监听 formData 变化，同步到 formState */
-watch(() => props.formData, (val) => {
-  formState.value = val ? { ...val } : {}
-}, { immediate: true, deep: true })
+/**
+ * 服务端返回的字段级校验错误（供 `setServerValidationErrors` 映射为 Ant Design Vue `setFields` 入参）。
+ */
+interface ValidationErrorItem {
+  /** 对应 `a-form-item` 的 `name`，须与表单字段名一致 */
+  field?: string
+  /** 展示在该表单项下的错误提示文案 */
+  message?: string
+}
 
-/** 校验规则：IsCreate 且 IsRequired 的列必填，提示文案来自 locale 的 required_xxx */
-const rules = computed(() => ({
+/** Ant Design Vue 表单实例，用于 validate、resetFields、setFields */
+const formRef = ref()
+
+/** a-form 绑定模型（动态字段，由生成列驱动） */
+const formState = reactive<Record<string, any>>({})
+
+/** 监听 formData：编辑回填；新增重置；immediate + deep 与父级异步赋行对齐（同 user-form 策略） */
+watch(
+  () => props.formData,
+  (val) => {
+    const next = val ? { ...val } : {}
+    Object.keys(formState).forEach((k) => delete formState[k])
+    Object.assign(formState, next)
+  },
+  { immediate: true, deep: true }
+)
+
+/** 校验规则：IsCreate 且 IsRequired 的列必填；文案使用 common.form.placeholder.* + entity.*（与 user-form 一致） */
+const rules = computed<Record<string, Rule[]>>(() => ({
 {{~ for col in columns ~}}
 {{~ if col.is_create == 1 && col.is_required == 1 ~}}
-  {{ col.ts_column_name }}: [{ required: true, message: t(`${localeNs}.required_{{ col.ts_column_name }}`), trigger: '{{ if col.html_type == "select" && col.dict_type }}change{{ else }}blur{{ end }}' }],
+  {{ col.ts_column_name }}: [
+    {
+      required: true,
+      message: t('{{ if col.html_type == "select" && col.dict_type }}common.form.placeholder.select{{ else }}common.form.placeholder.required{{ end }}', { field: t('entity.{{ table.entity_name_camel }}.{{ col.ts_column_name | string.downcase }}') }),
+      trigger: '{{ if col.html_type == "select" && col.dict_type }}change{{ else }}blur{{ end }}'
+    }
+  ],
 {{~ end ~}}
 {{~ end ~}}
 }))
 
-/**
- * 校验表单并返回当前表单值
- * @returns 校验通过后返回 formState
- */
+/** 执行 a-form 校验；父组件在提交前 await 本方法；通过后返回当前 formState（便于与旧生成页兼容） */
 async function validate() {
   await formRef.value?.validate()
-  return formState.value
+  return formState
 }
 
-/** 暴露给父组件：validate、formState */
-defineExpose({ validate, formState })
+/** 返回当前表单字段快照，供父级组装 Create/Update DTO */
+function getValues(): Record<string, any> {
+  return { ...formState }
+}
+
+/** 重置 Ant 校验与本地 model；Tab 回到第一页（同 user-form 重置策略） */
+function resetFields() {
+  formRef.value?.resetFields()
+  Object.keys(formState).forEach((k) => delete formState[k])
+  activeTab.value = 'tab-0'
+}
+
+/** 将后端校验错误写入对应表单项 */
+function setServerValidationErrors(errors: ValidationErrorItem[]) {
+  if (!Array.isArray(errors) || errors.length === 0) return
+  const fields = errors
+    .filter((e) => e?.field && e?.message)
+    .map((e) => ({ name: e.field as string, errors: [e.message as string] }))
+  if (fields.length > 0) {
+    formRef.value?.setFields(fields as any)
+  }
+}
+
+/** 暴露给上级列表页弹窗 ref：validate、getValues、resetFields、setServerValidationErrors */
+defineExpose({ validate, getValues, resetFields, setServerValidationErrors })
 </script>
+
+<style scoped lang="less">
+/* 标签页内容区最小高度，与 user-form 弹窗内多 Tab 表单一致 */
+:deep(.ant-tabs-content-holder) {
+  min-height: 50vh;
+}
+
+:deep(.ant-tabs-tabpane) {
+  min-height: 50vh;
+}
+</style>

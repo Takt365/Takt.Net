@@ -20,7 +20,7 @@
               <template #headActions>
                 <a-tooltip
                   v-if="item.moduleKey === 'shortcut'"
-                  :title="t('dashboard.workspace.manageShortcuts')"
+                  :title="t('dashboard.workspace.manageshortcuts')"
                   placement="right"
                 >
                   <a-button
@@ -47,7 +47,7 @@
                 <template #icon>
                   <RiAddLine />
                 </template>
-                {{ t('dashboard.workspace.addModule') }}
+                {{ t('dashboard.workspace.addmodule') }}
               </a-menu-item>
               <a-menu-item
                 v-if="item.moduleKey !== 'welcome' && item.moduleKey !== 'shortcut'"
@@ -57,7 +57,7 @@
                 <template #icon>
                   <RiDeleteBinLine />
                 </template>
-                {{ t('dashboard.workspace.removeModule') }}
+                {{ t('dashboard.workspace.removemodule') }}
               </a-menu-item>
             </a-menu>
           </template>
@@ -67,12 +67,12 @@
 
     <a-modal
       v-model:open="showAddModal"
-      :title="t('dashboard.workspace.addModule')"
+      :title="t('dashboard.workspace.addmodule')"
       :width="520"
       @ok="onAddModule"
     >
       <p class="workspace-add-tip">
-        {{ t('dashboard.workspace.selectModuleType') }}
+        {{ t('dashboard.workspace.selectmoduletype') }}
       </p>
       <a-checkbox-group v-model:value="addingKeys">
         <a-row :gutter="[8, 8]">
@@ -151,7 +151,10 @@ const shortcutRefs = ref<Record<string, { openManage: () => void }>>({})
 
 function setShortcutRef(id: string, moduleKey: WorkspaceModuleKey, el: unknown) {
   if (moduleKey !== 'shortcut') return
-  if (el) shortcutRefs.value[id] = el
+  if (el && typeof el === 'object' && 'openManage' in el && typeof (el as { openManage?: unknown }).openManage === 'function') {
+    shortcutRefs.value[id] = el as { openManage: () => void }
+    return
+  }
   else delete shortcutRefs.value[id]
 }
 
@@ -221,13 +224,13 @@ function addModule(key: WorkspaceModuleKey) {
   }
   modules.value = [...modules.value, newItem]
   saveModules(modules.value)
-  message.success(t('dashboard.workspace.addSuccess'))
+  message.success(t('dashboard.workspace.addsuccess'))
 }
 
 function removeModule(id: string) {
   modules.value = modules.value.filter(m => m.id !== id)
   saveModules(modules.value)
-  message.success(t('dashboard.workspace.removeSuccess'))
+  message.success(t('dashboard.workspace.removesuccess'))
 }
 
 /** 切换模块占位：独占一行(24) 或 半行/一行两列(12) */

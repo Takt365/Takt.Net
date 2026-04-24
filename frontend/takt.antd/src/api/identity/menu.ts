@@ -26,11 +26,21 @@ export function getMenuById(id: string): Promise<Menu> {
 }
 
 /**
- * 获取菜单树形选项列表（用于业务组件：components/business/takt-tree-select）
+ * 获取菜单树形选项（目录与页面，不含按钮），用于上级菜单、树选择等。
  */
 export function getMenuTreeOptions() {
   return request<TaktTreeSelectOption[]>({
     url: `${menuUrl}/tree-options`,
+    method: 'get'
+  })
+}
+
+/**
+ * 获取菜单树形选项（含按钮），用于角色分配菜单等需勾选按钮权限的场景。
+ */
+export function getMenuTreeOptionsWithButtons() {
+  return request<TaktTreeSelectOption[]>({
+    url: `${menuUrl}/tree-options/with-buttons`,
     method: 'get'
   })
 }

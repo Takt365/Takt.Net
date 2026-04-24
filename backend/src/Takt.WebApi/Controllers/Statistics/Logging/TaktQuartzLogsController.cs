@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Logging
 // 文件名称：TaktQuartzLogsController.cs
@@ -17,7 +17,7 @@ using Takt.Application.Services.Statistics.Logging;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.Statistics.Logging;
 
@@ -32,7 +32,7 @@ namespace Takt.WebApi.Controllers.Statistics.Logging;
 [Route("api/[controller]", Name = "任务日志")]
 [ApiModule("Statistics", "统计看板")]
 [Authorize]
-[TaktPermission("statistics:quartzlog", "任务日志管理")]
+[TaktPermission("statistics:logging:quartzlog", "任务日志管理")]
 public class TaktQuartzLogsController : TaktControllerBase
 {
     private readonly ITaktQuartzLogService _quartzLogService;
@@ -60,12 +60,12 @@ public class TaktQuartzLogsController : TaktControllerBase
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
     [HttpGet("list")]
-    [TaktPermission("statistics:quartzlog:list", "查询任务日志列表")]
-    public async Task<ActionResult<TaktPagedResult<TaktQuartzLogDto>>> GetListAsync([FromQuery] TaktQuartzLogQueryDto queryDto)
+    [TaktPermission("statistics:logging:quartzlog:list", "查询任务日志列表")]
+    public async Task<ActionResult<TaktPagedResult<TaktQuartzLogDto>>> GetQuartzLogListAsync([FromQuery] TaktQuartzLogQueryDto queryDto)
     {
         try
         {
-            var result = await _quartzLogService.GetListAsync(queryDto);
+            var result = await _quartzLogService.GetQuartzLogListAsync(queryDto);
             return Ok(result);
         }
         catch (Exception ex)
@@ -80,12 +80,12 @@ public class TaktQuartzLogsController : TaktControllerBase
     /// <param name="id">日志ID</param>
     /// <returns>任务日志DTO</returns>
     [HttpGet("{id}")]
-    [TaktPermission("statistics:quartzlog:query", "查询任务日志详情")]
-    public async Task<ActionResult<TaktQuartzLogDto>> GetByIdAsync(long id)
+    [TaktPermission("statistics:logging:quartzlog:query", "查询任务日志详情")]
+    public async Task<ActionResult<TaktQuartzLogDto>> GetQuartzLogByIdAsync(long id)
     {
         try
         {
-            var log = await _quartzLogService.GetByIdAsync(id);
+            var log = await _quartzLogService.GetQuartzLogByIdAsync(id);
             if (log == null)
                 return NotFound();
             return Ok(log);
@@ -102,13 +102,13 @@ public class TaktQuartzLogsController : TaktControllerBase
     /// <param name="dto">创建任务日志DTO</param>
     /// <returns>任务日志DTO</returns>
     [HttpPost]
-    [TaktPermission("statistics:quartzlog:create", "创建任务日志")]
-    public async Task<ActionResult<TaktQuartzLogDto>> CreateAsync([FromBody] TaktCreateQuartzLogDto dto)
+    [TaktPermission("statistics:logging:quartzlog:create", "创建任务日志")]
+    public async Task<ActionResult<TaktQuartzLogDto>> CreateQuartzLogAsync([FromBody] TaktQuartzLogCreateDto dto)
     {
         try
         {
-            var log = await _quartzLogService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = log.QuartzLogId }, log);
+            var log = await _quartzLogService.CreateQuartzLogAsync(dto);
+            return CreatedAtAction(nameof(GetQuartzLogByIdAsync), new { id = log.QuartzLogId }, log);
         }
         catch (Exception ex)
         {
@@ -122,12 +122,12 @@ public class TaktQuartzLogsController : TaktControllerBase
     /// <param name="id">日志ID</param>
     /// <returns>任务</returns>
     [HttpDelete("{id}")]
-    [TaktPermission("statistics:quartzlog:delete", "删除任务日志")]
-    public async Task<ActionResult> DeleteAsync(long id)
+    [TaktPermission("statistics:logging:quartzlog:delete", "删除任务日志")]
+    public async Task<ActionResult> DeleteQuartzLogByIdAsync(long id)
     {
         try
         {
-            await _quartzLogService.DeleteAsync(id);
+            await _quartzLogService.DeleteQuartzLogByIdAsync(id);
             return NoContent();
         }
         catch (Exception ex)
@@ -142,12 +142,12 @@ public class TaktQuartzLogsController : TaktControllerBase
     /// <param name="ids">日志ID列表</param>
     /// <returns>任务</returns>
     [HttpDelete("batch")]
-    [TaktPermission("statistics:quartzlog:delete", "批量删除任务日志")]
-    public async Task<ActionResult> DeleteBatchAsync([FromBody] List<long> ids)
+    [TaktPermission("statistics:logging:quartzlog:delete", "批量删除任务日志")]
+    public async Task<ActionResult> DeleteQuartzLogBatchAsync([FromBody] List<long> ids)
     {
         try
         {
-            await _quartzLogService.DeleteBatchAsync(ids);
+            await _quartzLogService.DeleteQuartzLogBatchAsync(ids);
             return NoContent();
         }
         catch (Exception ex)
@@ -164,16 +164,16 @@ public class TaktQuartzLogsController : TaktControllerBase
     /// <param name="fileName">文件名</param>
     /// <returns>Excel 文件；超过 <c>TaktExcelHelper.ExportAsync</c> 单表行数上限时为 zip 打包（基础设施统一逻辑）</returns>
     [HttpGet("export")]
-    [TaktPermission("statistics:quartzlog:export", "导出任务日志")]
-    public async Task<ActionResult> ExportAsync(
+    [TaktPermission("statistics:logging:quartzlog:export", "导出任务日志")]
+    public async Task<ActionResult> ExportQuartzLogAsync(
         [FromQuery] TaktQuartzLogQueryDto queryDto,
         [FromQuery] string? sheetName = null,
         [FromQuery] string? fileName = null)
     {
         try
         {
-            var (exportFileName, content) = await _quartzLogService.ExportAsync(queryDto, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(exportFileName), exportFileName);
+            var (exportFileName, content) = await _quartzLogService.ExportQuartzLogAsync(queryDto, sheetName, fileName);
+            return File(content, TaktExcelHelper.GetExportContentType(exportFileName), exportFileName);
         }
         catch (Exception ex)
         {

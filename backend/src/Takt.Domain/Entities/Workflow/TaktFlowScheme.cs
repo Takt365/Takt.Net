@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Workflow
 // 文件名称：TaktFlowScheme.cs
@@ -24,7 +24,7 @@ namespace Takt.Domain.Entities.Workflow;
 /// 发布后（ProcessStatus=1）可被启动生成实例。
 /// </para>
 /// <para>
-/// <b>ProcessContent</b> 与前端流程设计器 <c>frontend/takt.antd/src/components/business/takt-flow-antflow-designer</c>（<c>index.vue</c> 中
+/// <b>SchemeContent</b> 与前端流程设计器 <c>frontend/takt.antd/src/components/business/takt-flow-antflow-designer</c>（<c>index.vue</c> 中
 /// <c>parseProcessContent</c> / <c>toProcessContent</c>）及流程引擎解析使用<strong>同一套 JSON</strong>，推荐持久化形态为：
 /// </para>
 /// <list type="bullet">
@@ -37,76 +37,76 @@ namespace Takt.Domain.Entities.Workflow;
 /// 当 <c>flowTree</c> 存在且根节点 <c>nodeType == 1</c>（发起人）时，设计器以 <c>flowTree</c> 为权威画布结构；否则由 <c>nodes</c>/<c>edges</c> 经 <c>graphToTree</c> 还原，网关汇合可能与仅保存图时不一致，故<strong>建议始终写入 flowTree</strong>（与种子数据一致）。
 /// </description></item>
 /// <item><description>
-/// 设计器输出仍包含 <c>nodes</c>/<c>edges</c> 以便引擎消费；表单绑定见 <c>scheme-form.vue</c> 中 <c>v-model="form.processContent"</c>。
+/// 设计器输出仍包含 <c>nodes</c>/<c>edges</c> 以便引擎消费；表单绑定见 <c>scheme-form.vue</c> 中 <c>v-model="form.SchemeContent"</c>。
 /// </description></item>
 /// </list>
 /// </remarks>
 [SugarTable("takt_workflow_scheme", "流程方案表")]
-[SugarIndex("ix_takt_workflow_scheme_process_key", nameof(ProcessKey), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_workflow_scheme_process_category", nameof(ProcessCategory), OrderByType.Asc)]
+[SugarIndex("ix_takt_workflow_scheme_scheme_key", nameof(SchemeKey), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_workflow_scheme_scheme_category", nameof(SchemeCategory), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_scheme_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_scheme_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
-[SugarIndex("ix_takt_workflow_scheme_process_status", nameof(ProcessStatus), OrderByType.Asc)]
+[SugarIndex("ix_takt_workflow_scheme_scheme_status", nameof(SchemeStatus), OrderByType.Asc)]
 public class TaktFlowScheme : TaktEntityBase
 {
     /// <summary>
-    /// 流程Key（唯一索引，用于标识流程类型）
+    /// 方案Key（唯一索引，用于标识流程类型）
     /// </summary>
-    [SugarColumn(ColumnName = "process_key", ColumnDescription = "流程Key", ColumnDataType = "nvarchar", Length = 100, IsNullable = false)]
-    public string ProcessKey { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "scheme_key", ColumnDescription = "方案Key", ColumnDataType = "nvarchar", Length = 100, IsNullable = false)]
+    public string SchemeKey { get; set; } = string.Empty;
 
     /// <summary>
-    /// 流程名称
+    /// 方案名称
     /// </summary>
-    [SugarColumn(ColumnName = "process_name", ColumnDescription = "流程名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
-    public string ProcessName { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "scheme_name", ColumnDescription = "方案名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
+    public string SchemeName { get; set; } = string.Empty;
 
     /// <summary>
-    /// 流程分类（0=通用流程，1=业务流程，2=系统流程）
+    /// 方案分类（0=通用流程，1=业务流程，2=系统流程）
     /// </summary>
-    [SugarColumn(ColumnName = "process_category", ColumnDescription = "流程分类", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int ProcessCategory { get; set; } = 0;
+    [SugarColumn(ColumnName = "scheme_category", ColumnDescription = "方案分类", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SchemeCategory { get; set; } = 0;
 
     /// <summary>
-    /// 流程版本号
+    /// 方案版本号
     /// </summary>
-    [SugarColumn(ColumnName = "process_version", ColumnDescription = "流程版本号", ColumnDataType = "int", IsNullable = false, DefaultValue = "1")]
-    public int ProcessVersion { get; set; } = 1;
+    [SugarColumn(ColumnName = "scheme_version", ColumnDescription = "方案版本号", ColumnDataType = "int", IsNullable = false, DefaultValue = "1")]
+    public int SchemeVersion { get; set; } = 1;
 
     /// <summary>
-    /// 流程描述
+    /// 方案描述
     /// </summary>
-    [SugarColumn(ColumnName = "process_description", ColumnDescription = "流程描述", ColumnDataType = "nvarchar", Length = 500, IsNullable = true)]
-    public string? ProcessDescription { get; set; }
+    [SugarColumn(ColumnName = "scheme_description", ColumnDescription = "方案描述", ColumnDataType = "nvarchar", Length = 500, IsNullable = true)]
+    public string? SchemeDescription { get; set; }
 
     /// <summary>
-    /// 流程表单ID（序列化为string以避免Javascript精度问题）
+    /// 方案表单ID（序列化为string以避免Javascript精度问题）
     /// </summary>
-    [SugarColumn(ColumnName = "form_id", ColumnDescription = "流程表单ID", ColumnDataType = "bigint", IsNullable = true)]
+    [SugarColumn(ColumnName = "form_id", ColumnDescription = "方案表单ID", ColumnDataType = "bigint", IsNullable = true)]
     [JsonConverter(typeof(ValueToStringConverter))]
     public long? FormId { get; set; }
 
     /// <summary>
-    /// 流程表单编码
+    /// 方案表单编码
     /// </summary>
-    [SugarColumn(ColumnName = "form_code", ColumnDescription = "流程表单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
+    [SugarColumn(ColumnName = "form_code", ColumnDescription = "方案表单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
     public string? FormCode { get; set; }
 
     /// <summary>
-    /// 流程内容（JSON：nodes、edges、可选 flowTree；与 takt-flow-antflow-designer 及引擎一致，见类备注）
+    /// 方案内容（JSON：nodes、edges、可选 flowTree；与 takt-flow-antflow-designer 及引擎一致，见类备注）
     /// </summary>
-    [SugarColumn(ColumnName = "process_content", ColumnDescription = "流程内容", ColumnDataType = "nvarchar", Length = -1, IsNullable = true)]
-    public string? ProcessContent { get; set; }
+    [SugarColumn(ColumnName = "scheme_content", ColumnDescription = "方案内容", ColumnDataType = "nvarchar", Length = -1, IsNullable = true)]
+    public string? SchemeContent { get; set; }
 
     /// <summary>
     /// 排序号（越小越靠前）
     /// </summary>
-    [SugarColumn(ColumnName = "order_num", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int OrderNum { get; set; } = 0;
+    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SortOrder { get; set; } = 0;
 
     /// <summary>
-    /// 流程状态（0=草稿，1=已发布，2=已停用）
+    /// 方案状态（0=草稿，1=已发布，2=已停用）
     /// </summary>
-    [SugarColumn(ColumnName = "process_status", ColumnDescription = "流程状态", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int ProcessStatus { get; set; } = 0;
+    [SugarColumn(ColumnName = "scheme_status", ColumnDescription = "方案状态", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SchemeStatus { get; set; } = 0;
 }

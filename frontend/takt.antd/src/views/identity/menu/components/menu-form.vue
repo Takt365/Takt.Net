@@ -2,7 +2,7 @@
   <a-tabs v-model:active-key="activeTab">
     <a-tab-pane
       key="basic"
-      :tab="t('common.form.tabs.basicInfo')"
+      :tab="t('common.form.tabs.basicinfo')"
     >
       <div :class="formContentClass">
         <a-form
@@ -54,7 +54,7 @@
                 <TaktTreeSelect
                   v-model:value="formState.parentId"
                   api-url="/api/TaktMenus/tree-options"
-                  :placeholder="t('identity.menu.placeholder.parentMenuHint')"
+                  :placeholder="t('identity.menu.page.placeholder.parentmenuhint')"
                   allow-clear
                   :field-names="{ label: 'dictLabel', value: 'dictValue' }"
                 />
@@ -110,7 +110,7 @@
               >
                 <a-input-number
                   v-model:value="formState.orderNum"
-                  :placeholder="t('common.form.placeholder.orderNumHint')"
+                  :placeholder="t('common.form.placeholder.ordernumhint')"
                   :min="0"
                   style="width: 100%"
                 />
@@ -227,7 +227,7 @@
               >
                 <a-input
                   v-model:value="formState.menuL10nKey"
-                  :placeholder="t('identity.menu.placeholder.l10nHint')"
+                  :placeholder="t('identity.menu.page.placeholder.l10nhint')"
                   show-count
                   :maxlength="100"
                 />

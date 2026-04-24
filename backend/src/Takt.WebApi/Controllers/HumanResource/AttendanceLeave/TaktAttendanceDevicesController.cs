@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.HumanResource.AttendanceLeave
 // 文件名称：TaktAttendanceDevicesController.cs
@@ -16,7 +16,7 @@ using Takt.Application.Services.HumanResource.AttendanceLeave;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.HumanResource.AttendanceLeave;
 
@@ -96,7 +96,7 @@ public class TaktAttendanceDevicesController : TaktControllerBase
     [TaktPermission("humanresource:attendanceleave:attendancedevice:update", "更新考勤设备")]
     public async Task<ActionResult<TaktAttendanceDeviceDto>> UpdateAsync(long id, [FromBody] TaktAttendanceDeviceUpdateDto dto)
     {
-        if (dto.DeviceId != id)
+        if (dto.AttendanceDeviceId != id)
             return BadRequest(GetLocalizedString("validation.idRouteMismatch", "Frontend"));
         try
         {
@@ -147,7 +147,7 @@ public class TaktAttendanceDevicesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _service.GetAttendanceDeviceTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -196,7 +196,7 @@ public class TaktAttendanceDevicesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _service.ExportAttendanceDeviceAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {

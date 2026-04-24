@@ -1,5 +1,6 @@
 import request from '@/api/request'
-import type { LoginParams, LoginResponse, UserInfo } from '@/types/identity/auth'
+import type { LoginParams, LoginTokenResult, UserInfoWithHoliday } from '@/types/common'
+import { logger } from '@/utils/logger'
 
 const authUrl = '/api/TaktAuth'
 
@@ -46,20 +47,18 @@ function createErrorWithCause(message: string, cause: unknown): Error {
 }
 
 async function ensureCsrfToken(axios: typeof import('axios').default): Promise<string> {
-  // 获取 CSRF Token，如果不存在则先发送 GET 请求获取
+  // 获取 CSRF：对匿名 GET 发 Cookie；勿打无 token 的 userinfo（无意义 401 且易与登录后 userinfo 混淆）
   let csrfToken = getCsrfTokenFromCookie()
   if (!csrfToken) {
     logger.warn('[CSRF] CSRF Token 不存在，正在获取...')
     try {
-      await axios.get(`${authUrl}/userinfo`, {
+      await axios.get('/api/TaktHealth', {
         baseURL: '',
-        withCredentials: true
+        withCredentials: true,
+        timeout: 15_000
       })
     } catch (error: unknown) {
-      const status = (error as { response?: { status?: number } })?.response?.status
-      if (status !== 401) {
-        logger.warn('[CSRF] 获取 CSRF Token 失败:', error)
-      }
+      logger.warn('[CSRF] 通过健康检查获取 CSRF Cookie 失败:', error)
     }
     csrfToken = getCsrfTokenFromCookie()
   }
@@ -71,7 +70,7 @@ async function ensureCsrfToken(axios: typeof import('axios').default): Promise<s
 }
 
 // 登录
-export async function login(params: LoginParams): Promise<LoginResponse> {
+export async function login(params: LoginParams): Promise<LoginTokenResult> {
   // OpenIddict token 端点需要 application/x-www-form-urlencoded 格式
   const formData = new URLSearchParams()
   formData.append('grant_type', 'password')
@@ -94,39 +93,31 @@ export async function login(params: LoginParams): Promise<LoginResponse> {
       {
         baseURL: '',
         headers,
-        withCredentials: true
+        withCredentials: true,
+        timeout: 120_000
       }
     )
-
-    if (import.meta.env.DEV) {
-      logger.debug('[Login] 响应数据:', response.data)
-      logger.debug('[Login] 响应状态:', response.status)
-      logger.debug('[Login] 响应头:', response.headers)
-    }
 
     const token = response.data?.access_token
     if (!token) {
-      logger.error('[Login] Token 未找到，响应数据:', response.data)
+      logger.error('[Login] Token 未找到（connect/token 响应缺少 access_token）')
       throw new Error('登录失败：未获取到访问令牌')
     }
 
-    const userInfoResponse = await axios.get<UserInfo>(
-      `${authUrl}/userinfo`,
-      {
-        baseURL: '',
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        withCredentials: true
-      }
-    )
+    if (import.meta.env.DEV) {
+      const len = typeof token === 'string' ? token.length : 0
+      logger.debug('[Login] connect/token 成功', {
+        status: response.status,
+        expiresIn: response.data?.expires_in,
+        accessTokenLength: len
+      })
+    }
 
     return {
       token,
       refreshToken: response.data?.refresh_token,
       tokenType: response.data?.token_type,
-      expiresIn: response.data?.expires_in,
-      userInfo: userInfoResponse.data
+      expiresIn: response.data?.expires_in
     }
   } catch (error: unknown) {
     throw createErrorWithCause(getErrorMessage(error, '登录失败'), error)
@@ -137,18 +128,21 @@ export async function login(params: LoginParams): Promise<LoginResponse> {
  * 获取用户信息
  * 对应后端：GetUserInfoAsync
  */
-export function getUserInfo(): Promise<UserInfo> {
-  return request<UserInfo>({
+export function getUserInfo(): Promise<UserInfoWithHoliday> {
+  const base = Number(import.meta.env.VITE_API_TIMEOUT) || 30_000
+  return request<UserInfoWithHoliday>({
     url: `${authUrl}/userinfo`,
-    method: 'get'
-  }) as unknown as Promise<UserInfo>
+    method: 'get',
+    // 登录后首包可能较大；与全局默认取较大值，避免略慢即超时
+    timeout: Math.max(base, 120_000)
+  }) as unknown as Promise<UserInfoWithHoliday>
 }
 
 /**
  * 刷新访问令牌
  * 对应后端：RefreshTokenAsync
  */
-export function refreshToken(refreshToken: string): Promise<LoginResponse> {
+export function refreshToken(refreshToken: string): Promise<LoginTokenResult> {
   // 使用 OpenIddict 的刷新令牌流程
   const formData = new URLSearchParams()
   formData.append('grant_type', 'refresh_token')
@@ -173,7 +167,8 @@ export function refreshToken(refreshToken: string): Promise<LoginResponse> {
         {
           baseURL: '',
           headers,
-          withCredentials: true
+          withCredentials: true,
+          timeout: 120_000
         }
       )
 
@@ -182,23 +177,11 @@ export function refreshToken(refreshToken: string): Promise<LoginResponse> {
         throw new Error('刷新令牌失败：未获取到访问令牌')
       }
 
-      const userInfoResponse = await axios.get<UserInfo>(
-        `${authUrl}/userinfo`,
-        {
-          baseURL: '',
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          withCredentials: true
-        }
-      )
-
       return {
         token,
         refreshToken: response.data?.refresh_token || refreshToken,
         tokenType: response.data?.token_type,
-        expiresIn: response.data?.expires_in,
-        userInfo: userInfoResponse.data
+        expiresIn: response.data?.expires_in
       }
     } catch (error: unknown) {
       throw createErrorWithCause(getErrorMessage(error, '刷新令牌失败'), error)

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.HumanResource.AttendanceLeave
 // 文件名称：TaktLeave.cs
@@ -16,7 +16,7 @@ namespace Takt.Domain.Entities.HumanResource.AttendanceLeave;
 /// <summary>
 /// 请假实体（考勤请假）。FlowInstanceId 存流程实例 Id，由业务方在发起流程后写入；流程引擎不识别本表，BusinessKey/BusinessType 与“请假”的对应关系由调用方（请假业务模块）约定并实现。
 /// </summary>
-[SugarTable("takt_humanresource_leave", "请假表")]
+[SugarTable("takt_humanresource_leave", "请假信息表")]
 [SugarIndex("ix_takt_humanresource_leave_employee_id", nameof(EmployeeId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_leave_flow_instance_id", nameof(FlowInstanceId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_leave_leave_status", nameof(LeaveStatus), OrderByType.Asc)]
@@ -58,8 +58,8 @@ public class TaktLeave : TaktEntityBase
 
     /// <summary>
     /// 证明附件 JSON。上传证明文件（如住院 PDF）后，将文件服务返回的信息按条存入数组。
-    /// 单条格式（与 TaktFile 对齐，用于展示与下载）：FileId、FileCode、FileName、FileOriginalName（上传时文件名，如「住院证明.pdf」）、FilePath、FileSize、FileType（如 application/pdf）、FileExtension（如 .pdf）、AccessUrl（可选，下载/预览地址）；业务扩展：AttachmentType（0=病假证明 1=事假证明 2=其他）、AttachmentDescription（如「住院证明」）、OrderNum。
-    /// 示例（一条住院 PDF）：[{ "FileId": 123, "FileCode": "xxx", "FileName": "xxx.pdf", "FileOriginalName": "住院证明.pdf", "FilePath": "/uploads/2025/xx/xxx.pdf", "FileSize": 102400, "FileType": "application/pdf", "FileExtension": ".pdf", "AccessUrl": "/api/files/xxx/download", "AttachmentType": 0, "AttachmentDescription": "住院证明", "OrderNum": 0 }]
+    /// 单条格式（与 TaktFile 对齐，用于展示与下载）：FileId、FileCode、FileName、FileOriginalName（上传时文件名，如「住院证明.pdf」）、FilePath、FileSize、FileType（如 application/pdf）、FileExtension（如 .pdf）、AccessUrl（可选，下载/预览地址）；业务扩展：AttachmentType（0=病假证明 1=事假证明 2=其他）、AttachmentDescription（如「住院证明」）、SortOrder。
+    /// 示例（一条住院 PDF）：[{ "FileId": 123, "FileCode": "xxx", "FileName": "xxx.pdf", "FileOriginalName": "住院证明.pdf", "FilePath": "/uploads/2025/xx/xxx.pdf", "FileSize": 102400, "FileType": "application/pdf", "FileExtension": ".pdf", "AccessUrl": "/api/files/xxx/download", "AttachmentType": 0, "AttachmentDescription": "住院证明", "SortOrder": 0 }]
     /// </summary>
     [SugarColumn(ColumnName = "proof_attachments_json", ColumnDescription = "证明附件JSON", ColumnDataType = "nvarchar", Length = -1, IsNullable = true)]
     public string? ProofAttachmentsJson { get; set; }

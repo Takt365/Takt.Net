@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktRoleSeedData.cs
@@ -43,8 +43,8 @@ public class TaktRoleSeedData : ITaktSeedData
         // 定义角色数据
         var roles = new[]
         {
-            new { RoleCode = "SUPER_ADMIN", RoleName = "超级管理员", OrderNum = 1, RoleStatus = 1, DataScope = 0 },
-            new { RoleCode = "GUEST", RoleName = "来宾", OrderNum = 2, RoleStatus = 1, DataScope = 3 }
+            new { RoleCode = "SUPER_ADMIN", RoleName = "超级管理员", SortOrder = 1, RoleStatus = 1, DataScope = 0 },
+            new { RoleCode = "GUEST", RoleName = "来宾", SortOrder = 2, RoleStatus = 1, DataScope = 3 }
         };
 
         // 初始化每个角色
@@ -59,7 +59,7 @@ public class TaktRoleSeedData : ITaktSeedData
                 {
                     RoleName = role.RoleName,
                     RoleCode = role.RoleCode,
-                    OrderNum = role.OrderNum,
+                    SortOrder = role.SortOrder,
                     RoleStatus = role.RoleStatus,
                     DataScope = role.DataScope,
                     IsDeleted = 0
@@ -71,7 +71,7 @@ public class TaktRoleSeedData : ITaktSeedData
             {
                 // 存在则更新
                 existing.RoleName = role.RoleName;
-                existing.OrderNum = role.OrderNum;
+                existing.SortOrder = role.SortOrder;
                 existing.RoleStatus = role.RoleStatus;
                 existing.DataScope = role.DataScope;
                 await roleRepository.UpdateAsync(existing);

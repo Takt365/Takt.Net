@@ -1,10 +1,10 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Routine.Business.Announcement
 // 文件名称：TaktAnnouncementDtos.cs
-// 创建时间：2025-02-27
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt公告通知DTO，包含公告相关的数据传输对象（查询、创建、更新、导出）
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：公告表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,9 +17,9 @@ using Takt.Shared.Models;
 namespace Takt.Application.Dtos.Routine.Business.Announcement;
 
 /// <summary>
-/// Takt公告通知DTO
+/// 公告表Dto
 /// </summary>
-public class TaktAnnouncementDto : TaktDtoBase
+public partial class TaktAnnouncementDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -30,118 +30,108 @@ public class TaktAnnouncementDto : TaktDtoBase
         AnnouncementTitle = string.Empty;
         AnnouncementContent = string.Empty;
         PublisherName = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 公告ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 公告表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long AnnouncementId { get; set; }
 
     /// <summary>
-    /// 公告编码（唯一）
+    /// 公告编码
     /// </summary>
     public string AnnouncementCode { get; set; }
-
     /// <summary>
     /// 公告标题
     /// </summary>
     public string AnnouncementTitle { get; set; }
-
+    /// <summary>
+    /// 公告类型
+    /// </summary>
+    public int AnnouncementType { get; set; }
     /// <summary>
     /// 公告内容
     /// </summary>
     public string AnnouncementContent { get; set; }
-
     /// <summary>
-    /// 公告类型（0=通知，1=公告，2=新闻，3=活动）
+    /// 附件列表JSON
     /// </summary>
-    public int AnnouncementType { get; set; }
-
+    public string? AttachmentsJson { get; set; }
     /// <summary>
-    /// 发布人ID（序列化为string以避免Javascript精度问题）
+    /// 阅读记录JSON
     /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long PublisherId { get; set; }
-
-    /// <summary>
-    /// 发布人姓名
-    /// </summary>
-    public string PublisherName { get; set; }
-
-    /// <summary>
-    /// 发布部门ID（序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long? DeptId { get; set; }
-
-    /// <summary>
-    /// 发布部门名称
-    /// </summary>
-    public string? DeptName { get; set; }
-
-    /// <summary>
-    /// 发布范围（0=全部，1=指定部门，2=指定用户，3=指定角色）
-    /// </summary>
-    public int PublishScope { get; set; }
-
-    /// <summary>
-    /// 发布范围配置（JSON）
-    /// </summary>
-    public string? PublishScopeConfig { get; set; }
-
-    /// <summary>
-    /// 是否置顶（0=否，1=是）
-    /// </summary>
-    public int IsTop { get; set; }
-
-    /// <summary>
-    /// 是否紧急（0=一般，1=紧急，2=非常紧急）
-    /// </summary>
-    public int IsUrgent { get; set; }
-
-    /// <summary>
-    /// 发布时间
-    /// </summary>
-    public DateTime? PublishTime { get; set; }
-
-    /// <summary>
-    /// 生效时间
-    /// </summary>
-    public DateTime? EffectiveTime { get; set; }
-
-    /// <summary>
-    /// 失效时间
-    /// </summary>
-    public DateTime? ExpireTime { get; set; }
-
+    public string? ReadRecordsJson { get; set; }
     /// <summary>
     /// 阅读次数
     /// </summary>
     public int ReadCount { get; set; }
-
     /// <summary>
-    /// 附件数量
+    /// 发布范围
     /// </summary>
-    public int AttachmentCount { get; set; }
-
+    public int PublishScope { get; set; }
+    /// <summary>
+    /// 发布范围配置
+    /// </summary>
+    public string? PublishScopeConfig { get; set; }
+    /// <summary>
+    /// 是否置顶
+    /// </summary>
+    public int IsTop { get; set; }
+    /// <summary>
+    /// 是否紧急
+    /// </summary>
+    public int IsUrgent { get; set; }
+    /// <summary>
+    /// 生效时间
+    /// </summary>
+    public DateTime? EffectiveTime { get; set; }
+    /// <summary>
+    /// 失效时间
+    /// </summary>
+    public DateTime? ExpireTime { get; set; }
     /// <summary>
     /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
-
+    public int SortOrder { get; set; }
     /// <summary>
-    /// 公告状态（0=草稿，1=已发布，2=已撤回，3=已过期）
+    /// 流程实例ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? FlowInstanceId { get; set; }
+    /// <summary>
+    /// 发布部门ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? DeptId { get; set; }
+    /// <summary>
+    /// 发布部门名称
+    /// </summary>
+    public string? DeptName { get; set; }
+    /// <summary>
+    /// 发布人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long PublisherId { get; set; }
+    /// <summary>
+    /// 发布人姓名
+    /// </summary>
+    public string PublisherName { get; set; }
+    /// <summary>
+    /// 发布时间
+    /// </summary>
+    public DateTime? PublishTime { get; set; }
+    /// <summary>
+    /// 公告状态
     /// </summary>
     public int AnnouncementStatus { get; set; }
 }
 
 /// <summary>
-/// Takt公告通知查询DTO
+/// 公告表查询DTO
 /// </summary>
-public class TaktAnnouncementQueryDto : TaktPagedQuery
+public partial class TaktAnnouncementQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -150,33 +140,157 @@ public class TaktAnnouncementQueryDto : TaktPagedQuery
     {
     }
 
-    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于在公告编码、公告标题中模糊查询
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
+    /// <summary>
+    /// 公告表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AnnouncementId { get; set; }
 
     /// <summary>
     /// 公告编码
     /// </summary>
     public string? AnnouncementCode { get; set; }
-
     /// <summary>
     /// 公告标题
     /// </summary>
     public string? AnnouncementTitle { get; set; }
-
     /// <summary>
-    /// 公告类型（0=通知，1=公告，2=新闻，3=活动）
+    /// 公告类型
     /// </summary>
     public int? AnnouncementType { get; set; }
+    /// <summary>
+    /// 公告内容
+    /// </summary>
+    public string? AnnouncementContent { get; set; }
+    /// <summary>
+    /// 附件列表JSON
+    /// </summary>
+    public string? AttachmentsJson { get; set; }
+    /// <summary>
+    /// 阅读记录JSON
+    /// </summary>
+    public string? ReadRecordsJson { get; set; }
+    /// <summary>
+    /// 阅读次数
+    /// </summary>
+    public int? ReadCount { get; set; }
+    /// <summary>
+    /// 发布范围
+    /// </summary>
+    public int? PublishScope { get; set; }
+    /// <summary>
+    /// 发布范围配置
+    /// </summary>
+    public string? PublishScopeConfig { get; set; }
+    /// <summary>
+    /// 是否置顶
+    /// </summary>
+    public int? IsTop { get; set; }
+    /// <summary>
+    /// 是否紧急
+    /// </summary>
+    public int? IsUrgent { get; set; }
+    /// <summary>
+    /// 生效时间
+    /// </summary>
+    public DateTime? EffectiveTime { get; set; }
 
     /// <summary>
-    /// 公告状态（0=草稿，1=已发布，2=已撤回，3=已过期）
+    /// 生效时间开始时间
+    /// </summary>
+    public DateTime? EffectiveTimeStart { get; set; }
+    /// <summary>
+    /// 生效时间结束时间
+    /// </summary>
+    public DateTime? EffectiveTimeEnd { get; set; }
+    /// <summary>
+    /// 失效时间
+    /// </summary>
+    public DateTime? ExpireTime { get; set; }
+
+    /// <summary>
+    /// 失效时间开始时间
+    /// </summary>
+    public DateTime? ExpireTimeStart { get; set; }
+    /// <summary>
+    /// 失效时间结束时间
+    /// </summary>
+    public DateTime? ExpireTimeEnd { get; set; }
+    /// <summary>
+    /// 排序号
+    /// </summary>
+    public int? SortOrder { get; set; }
+    /// <summary>
+    /// 流程实例ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? FlowInstanceId { get; set; }
+    /// <summary>
+    /// 发布部门ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? DeptId { get; set; }
+    /// <summary>
+    /// 发布部门名称
+    /// </summary>
+    public string? DeptName { get; set; }
+    /// <summary>
+    /// 发布人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? PublisherId { get; set; }
+    /// <summary>
+    /// 发布人姓名
+    /// </summary>
+    public string? PublisherName { get; set; }
+    /// <summary>
+    /// 发布时间
+    /// </summary>
+    public DateTime? PublishTime { get; set; }
+
+    /// <summary>
+    /// 发布时间开始时间
+    /// </summary>
+    public DateTime? PublishTimeStart { get; set; }
+    /// <summary>
+    /// 发布时间结束时间
+    /// </summary>
+    public DateTime? PublishTimeEnd { get; set; }
+    /// <summary>
+    /// 公告状态
     /// </summary>
     public int? AnnouncementStatus { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建公告通知DTO
+/// Takt创建公告表DTO
 /// </summary>
-public class TaktAnnouncementCreateDto
+public partial class TaktAnnouncementCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -186,73 +300,121 @@ public class TaktAnnouncementCreateDto
         AnnouncementCode = string.Empty;
         AnnouncementTitle = string.Empty;
         AnnouncementContent = string.Empty;
+        PublisherName = string.Empty;
     }
 
-    /// <summary>
-    /// 公告编码（唯一）
+        /// <summary>
+    /// 公告编码
     /// </summary>
-    public string AnnouncementCode { get; set; } = string.Empty;
+    public string AnnouncementCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 公告标题
     /// </summary>
-    public string AnnouncementTitle { get; set; } = string.Empty;
+    public string AnnouncementTitle { get; set; }
 
-    /// <summary>
-    /// 公告内容
-    /// </summary>
-    public string AnnouncementContent { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 公告类型（0=通知，1=公告，2=新闻，3=活动）
+        /// <summary>
+    /// 公告类型
     /// </summary>
     public int AnnouncementType { get; set; }
 
-    /// <summary>
-    /// 发布部门ID（可选）
+        /// <summary>
+    /// 公告内容
+    /// </summary>
+    public string AnnouncementContent { get; set; }
+
+        /// <summary>
+    /// 附件列表JSON
+    /// </summary>
+    public string? AttachmentsJson { get; set; }
+
+        /// <summary>
+    /// 阅读记录JSON
+    /// </summary>
+    public string? ReadRecordsJson { get; set; }
+
+        /// <summary>
+    /// 阅读次数
+    /// </summary>
+    public int ReadCount { get; set; }
+
+        /// <summary>
+    /// 发布范围
+    /// </summary>
+    public int PublishScope { get; set; }
+
+        /// <summary>
+    /// 发布范围配置
+    /// </summary>
+    public string? PublishScopeConfig { get; set; }
+
+        /// <summary>
+    /// 是否置顶
+    /// </summary>
+    public int IsTop { get; set; }
+
+        /// <summary>
+    /// 是否紧急
+    /// </summary>
+    public int IsUrgent { get; set; }
+
+        /// <summary>
+    /// 生效时间
+    /// </summary>
+    public DateTime? EffectiveTime { get; set; }
+
+        /// <summary>
+    /// 失效时间
+    /// </summary>
+    public DateTime? ExpireTime { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
+
+        /// <summary>
+    /// 流程实例ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? FlowInstanceId { get; set; }
+
+        /// <summary>
+    /// 发布部门ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? DeptId { get; set; }
 
-    /// <summary>
-    /// 发布部门名称（可选）
+        /// <summary>
+    /// 发布部门名称
     /// </summary>
     public string? DeptName { get; set; }
 
-    /// <summary>
-    /// 发布范围（0=全部，1=指定部门，2=指定用户，3=指定角色）
+        /// <summary>
+    /// 发布人ID
     /// </summary>
-    public int PublishScope { get; set; } = 0;
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long PublisherId { get; set; }
+
+        /// <summary>
+    /// 发布人姓名
+    /// </summary>
+    public string PublisherName { get; set; }
+
+        /// <summary>
+    /// 发布时间
+    /// </summary>
+    public DateTime? PublishTime { get; set; }
+
+        /// <summary>
+    /// 公告状态
+    /// </summary>
+    public int AnnouncementStatus { get; set; }
 
     /// <summary>
-    /// 发布范围配置（JSON，可选）
+    /// 扩展字段JSON
     /// </summary>
-    public string? PublishScopeConfig { get; set; }
-
-    /// <summary>
-    /// 是否置顶（0=否，1=是）
-    /// </summary>
-    public int IsTop { get; set; } = 0;
-
-    /// <summary>
-    /// 是否紧急（0=一般，1=紧急，2=非常紧急）
-    /// </summary>
-    public int IsUrgent { get; set; } = 0;
-
-    /// <summary>
-    /// 生效时间（可选）
-    /// </summary>
-    public DateTime? EffectiveTime { get; set; }
-
-    /// <summary>
-    /// 失效时间（可选）
-    /// </summary>
-    public DateTime? ExpireTime { get; set; }
-
-    /// <summary>
-    /// 排序号
-    /// </summary>
-    public int OrderNum { get; set; } = 0;
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -261,9 +423,9 @@ public class TaktAnnouncementCreateDto
 }
 
 /// <summary>
-/// Takt更新公告通知DTO
+/// Takt更新公告表DTO
 /// </summary>
-public class TaktAnnouncementUpdateDto : TaktAnnouncementCreateDto
+public partial class TaktAnnouncementUpdateDto : TaktAnnouncementCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -272,8 +434,8 @@ public class TaktAnnouncementUpdateDto : TaktAnnouncementCreateDto
     {
     }
 
-    /// <summary>
-    /// 公告ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 公告表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
@@ -281,9 +443,9 @@ public class TaktAnnouncementUpdateDto : TaktAnnouncementCreateDto
 }
 
 /// <summary>
-/// Takt公告通知状态DTO
+/// 公告表公告状态DTO
 /// </summary>
-public class TaktAnnouncementStatusDto
+public partial class TaktAnnouncementStatusDto
 {
     /// <summary>
     /// 构造函数
@@ -292,92 +454,404 @@ public class TaktAnnouncementStatusDto
     {
     }
 
-    /// <summary>
-    /// 公告ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 公告表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long AnnouncementId { get; set; }
 
     /// <summary>
-    /// 公告状态（0=草稿，1=已发布，2=已撤回，3=已过期）
+    /// 公告状态（0=禁用，1=启用）
     /// </summary>
     public int AnnouncementStatus { get; set; }
 }
 
 /// <summary>
-/// Takt公告通知导出DTO
+/// 公告表导入模板DTO
 /// </summary>
-public class TaktAnnouncementExportDto
+public partial class TaktAnnouncementTemplateDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktAnnouncementTemplateDto()
+    {
+        AnnouncementCode = string.Empty;
+        AnnouncementTitle = string.Empty;
+        AnnouncementContent = string.Empty;
+        PublisherName = string.Empty;
+    }
+
+        /// <summary>
+    /// 公告编码
+    /// </summary>
+    public string AnnouncementCode { get; set; }
+
+        /// <summary>
+    /// 公告标题
+    /// </summary>
+    public string AnnouncementTitle { get; set; }
+
+        /// <summary>
+    /// 公告类型
+    /// </summary>
+    public int AnnouncementType { get; set; }
+
+        /// <summary>
+    /// 公告内容
+    /// </summary>
+    public string AnnouncementContent { get; set; }
+
+        /// <summary>
+    /// 附件列表JSON
+    /// </summary>
+    public string? AttachmentsJson { get; set; }
+
+        /// <summary>
+    /// 阅读记录JSON
+    /// </summary>
+    public string? ReadRecordsJson { get; set; }
+
+        /// <summary>
+    /// 阅读次数
+    /// </summary>
+    public int ReadCount { get; set; }
+
+        /// <summary>
+    /// 发布范围
+    /// </summary>
+    public int PublishScope { get; set; }
+
+        /// <summary>
+    /// 发布范围配置
+    /// </summary>
+    public string? PublishScopeConfig { get; set; }
+
+        /// <summary>
+    /// 是否置顶
+    /// </summary>
+    public int IsTop { get; set; }
+
+        /// <summary>
+    /// 是否紧急
+    /// </summary>
+    public int IsUrgent { get; set; }
+
+        /// <summary>
+    /// 生效时间
+    /// </summary>
+    public DateTime? EffectiveTime { get; set; }
+
+        /// <summary>
+    /// 失效时间
+    /// </summary>
+    public DateTime? ExpireTime { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
+
+        /// <summary>
+    /// 流程实例ID
+    /// </summary>
+    public long? FlowInstanceId { get; set; }
+
+        /// <summary>
+    /// 发布部门ID
+    /// </summary>
+    public long? DeptId { get; set; }
+
+        /// <summary>
+    /// 发布部门名称
+    /// </summary>
+    public string? DeptName { get; set; }
+
+        /// <summary>
+    /// 发布人ID
+    /// </summary>
+    public long PublisherId { get; set; }
+
+        /// <summary>
+    /// 发布人姓名
+    /// </summary>
+    public string PublisherName { get; set; }
+
+        /// <summary>
+    /// 发布时间
+    /// </summary>
+    public DateTime? PublishTime { get; set; }
+
+        /// <summary>
+    /// 公告状态
+    /// </summary>
+    public int AnnouncementStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
+}
+
+/// <summary>
+/// 公告表导入DTO
+/// </summary>
+public partial class TaktAnnouncementImportDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktAnnouncementImportDto()
+    {
+        AnnouncementCode = string.Empty;
+        AnnouncementTitle = string.Empty;
+        AnnouncementContent = string.Empty;
+        PublisherName = string.Empty;
+    }
+
+        /// <summary>
+    /// 公告编码
+    /// </summary>
+    public string AnnouncementCode { get; set; }
+
+        /// <summary>
+    /// 公告标题
+    /// </summary>
+    public string AnnouncementTitle { get; set; }
+
+        /// <summary>
+    /// 公告类型
+    /// </summary>
+    public int AnnouncementType { get; set; }
+
+        /// <summary>
+    /// 公告内容
+    /// </summary>
+    public string AnnouncementContent { get; set; }
+
+        /// <summary>
+    /// 附件列表JSON
+    /// </summary>
+    public string? AttachmentsJson { get; set; }
+
+        /// <summary>
+    /// 阅读记录JSON
+    /// </summary>
+    public string? ReadRecordsJson { get; set; }
+
+        /// <summary>
+    /// 阅读次数
+    /// </summary>
+    public int ReadCount { get; set; }
+
+        /// <summary>
+    /// 发布范围
+    /// </summary>
+    public int PublishScope { get; set; }
+
+        /// <summary>
+    /// 发布范围配置
+    /// </summary>
+    public string? PublishScopeConfig { get; set; }
+
+        /// <summary>
+    /// 是否置顶
+    /// </summary>
+    public int IsTop { get; set; }
+
+        /// <summary>
+    /// 是否紧急
+    /// </summary>
+    public int IsUrgent { get; set; }
+
+        /// <summary>
+    /// 生效时间
+    /// </summary>
+    public DateTime? EffectiveTime { get; set; }
+
+        /// <summary>
+    /// 失效时间
+    /// </summary>
+    public DateTime? ExpireTime { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
+
+        /// <summary>
+    /// 流程实例ID
+    /// </summary>
+    public long? FlowInstanceId { get; set; }
+
+        /// <summary>
+    /// 发布部门ID
+    /// </summary>
+    public long? DeptId { get; set; }
+
+        /// <summary>
+    /// 发布部门名称
+    /// </summary>
+    public string? DeptName { get; set; }
+
+        /// <summary>
+    /// 发布人ID
+    /// </summary>
+    public long PublisherId { get; set; }
+
+        /// <summary>
+    /// 发布人姓名
+    /// </summary>
+    public string PublisherName { get; set; }
+
+        /// <summary>
+    /// 发布时间
+    /// </summary>
+    public DateTime? PublishTime { get; set; }
+
+        /// <summary>
+    /// 公告状态
+    /// </summary>
+    public int AnnouncementStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
+}
+
+/// <summary>
+/// 公告表导出DTO
+/// </summary>
+public partial class TaktAnnouncementExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktAnnouncementExportDto()
     {
+        CreatedAt = DateTime.Now;
         AnnouncementCode = string.Empty;
         AnnouncementTitle = string.Empty;
+        AnnouncementContent = string.Empty;
         PublisherName = string.Empty;
-        AnnouncementStatus = 0;
-        ReadCount = 0;
-        OrderNum = 0;
-        CreatedAt = DateTime.Now;
     }
 
-    /// <summary>
+        /// <summary>
     /// 公告编码
     /// </summary>
     public string AnnouncementCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 公告标题
     /// </summary>
     public string AnnouncementTitle { get; set; }
 
-    /// <summary>
-    /// 公告类型（0=通知，1=公告，2=新闻，3=活动）
+        /// <summary>
+    /// 公告类型
     /// </summary>
     public int AnnouncementType { get; set; }
 
-    /// <summary>
-    /// 公告状态（0=草稿，1=已发布，2=已撤回，3=已过期）
+        /// <summary>
+    /// 公告内容
     /// </summary>
-    public int AnnouncementStatus { get; set; }
+    public string AnnouncementContent { get; set; }
 
-    /// <summary>
-    /// 发布人姓名
+        /// <summary>
+    /// 附件列表JSON
     /// </summary>
-    public string PublisherName { get; set; }
+    public string? AttachmentsJson { get; set; }
 
-    /// <summary>
-    /// 发布部门名称
+        /// <summary>
+    /// 阅读记录JSON
     /// </summary>
-    public string? DeptName { get; set; }
+    public string? ReadRecordsJson { get; set; }
 
-    /// <summary>
-    /// 发布时间
-    /// </summary>
-    public DateTime? PublishTime { get; set; }
-
-    /// <summary>
-    /// 生效时间
-    /// </summary>
-    public DateTime? EffectiveTime { get; set; }
-
-    /// <summary>
-    /// 失效时间
-    /// </summary>
-    public DateTime? ExpireTime { get; set; }
-
-    /// <summary>
+        /// <summary>
     /// 阅读次数
     /// </summary>
     public int ReadCount { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 发布范围
+    /// </summary>
+    public int PublishScope { get; set; }
+
+        /// <summary>
+    /// 发布范围配置
+    /// </summary>
+    public string? PublishScopeConfig { get; set; }
+
+        /// <summary>
+    /// 是否置顶
+    /// </summary>
+    public int IsTop { get; set; }
+
+        /// <summary>
+    /// 是否紧急
+    /// </summary>
+    public int IsUrgent { get; set; }
+
+        /// <summary>
+    /// 生效时间
+    /// </summary>
+    public DateTime? EffectiveTime { get; set; }
+
+        /// <summary>
+    /// 失效时间
+    /// </summary>
+    public DateTime? ExpireTime { get; set; }
+
+        /// <summary>
     /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
+
+        /// <summary>
+    /// 流程实例ID
+    /// </summary>
+    public long? FlowInstanceId { get; set; }
+
+        /// <summary>
+    /// 发布部门ID
+    /// </summary>
+    public long? DeptId { get; set; }
+
+        /// <summary>
+    /// 发布部门名称
+    /// </summary>
+    public string? DeptName { get; set; }
+
+        /// <summary>
+    /// 发布人ID
+    /// </summary>
+    public long PublisherId { get; set; }
+
+        /// <summary>
+    /// 发布人姓名
+    /// </summary>
+    public string PublisherName { get; set; }
+
+        /// <summary>
+    /// 发布时间
+    /// </summary>
+    public DateTime? PublishTime { get; set; }
+
+        /// <summary>
+    /// 公告状态
+    /// </summary>
+    public int AnnouncementStatus { get; set; }
 
     /// <summary>
     /// 创建时间

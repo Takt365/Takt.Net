@@ -15,7 +15,16 @@
     <!-- 查询栏 -->
     <TaktQueryBar
       v-model="queryKeyword"
-      :placeholder="t('common.form.placeholder.required', { field: [t('entity.user.name'), t('entity.user.email'), t('entity.user.phone')].join('、') }) + t('common.button.query')"
+      :placeholder="
+        t('common.form.placeholder.search', {
+          keyword:
+            t('entity.user.name') +
+            t('common.action.or') +
+            t('entity.user.email') +
+            t('common.action.or') +
+            t('entity.user.phone')
+        })
+      "
       :loading="loading"
       @search="handleSearch"
       @reset="handleReset"
@@ -33,12 +42,10 @@
       :show-delete="true"
       :show-import="true"
       :show-export="true"
-      :show-expand="true"
       :show-advanced-query="true"
       :show-column-setting="true"
       :show-fullscreen="true"
       :show-refresh="true"
-      :create-disabled="false"
       :update-disabled="updateDisabled"
       :delete-disabled="deleteDisabled"
       :create-loading="loading"
@@ -137,20 +144,21 @@
       @reset="handleAdvancedQueryReset"
     >
       <a-form-item :label="t('entity.user.name')">
-        <a-input v-model:value="advancedQueryForm.UserName" />
+        <a-input v-model:value="advancedQueryForm.userName" />
       </a-form-item>
       <a-form-item :label="t('entity.user.email')">
-        <a-input v-model:value="advancedQueryForm.UserEmail" />
+        <a-input v-model:value="advancedQueryForm.userEmail" />
       </a-form-item>
       <a-form-item :label="t('entity.user.phone')">
-        <a-input v-model:value="advancedQueryForm.UserPhone" />
+        <a-input v-model:value="advancedQueryForm.userPhone" />
       </a-form-item>
       <a-form-item :label="t('entity.user.status')">
         <TaktSelect
-          v-model:value="advancedQueryForm.UserStatus"
-          dict-type="sys_normal_disable"
+          v-model:value="advancedQueryForm.userStatus"
+          api-url="/api/TaktDictDatas/options?dictTypeCode=sys_normal_disable"
           :placeholder="t('common.form.placeholder.select', { field: t('entity.user.status') })"
           allow-clear
+          :field-names="{ label: 'dictLabel', value: 'extLabel' }"
         />
       </a-form-item>
     </TaktQueryDrawer>
@@ -170,8 +178,8 @@
         :template-file-name="userExcelNames.fileBase"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.user._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.user._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -242,7 +250,8 @@ import AssignUserTenants from './components/assign-user-tenants.vue'
 import AssignRoleMenus from './components/assign-role-menus.vue'
 import UserChangePassword from './components/user-change-password.vue'
 import { getUserList, createUser, updateUser, deleteUserById, deleteUserBatch, unlock, exportUserData, getUserTemplate, importUserData, resetPassword, changePassword } from '@/api/identity/user'
-import type { User, UserCreate, UserFormValues } from '@/types/identity/user'
+import type { User, UserCreate } from '@/types/identity/user'
+import type { UserFormValues } from '@/types/identity/user-form-view'
 import { logger } from '@/utils/logger'
 import { resolveExportDownloadFileName } from '@/utils/export-download-name'
 import { taktExcelEntityNames } from '@/utils/naming'
@@ -289,13 +298,17 @@ const changePasswordFormRef = ref()
 const changePasswordVisible = ref(false)
 const changePasswordLoading = ref(false)
 const currentChangePasswordUser = ref<User | null>(null)
-// 高级查询抽屉
+// 高级查询抽屉（字段 camelCase 与 `UserQuery` 一致；`loadData` / `handleExport` 中映射为请求 PascalCase）
 const advancedQueryVisible = ref(false)
-const advancedQueryForm = ref({
-  UserName: '',
-  UserEmail: '',
-  UserPhone: '',
-  UserStatus: undefined as number | undefined
+const advancedQueryForm = ref<{
+  userName: string
+  userEmail: string
+  userPhone: string
+  userStatus?: number
+}>({
+  userName: '',
+  userEmail: '',
+  userPhone: ''
 })
 // 导入弹窗
 const importVisible = ref(false)
@@ -384,7 +397,7 @@ const columns = computed<TableColumnsType>(() => [
     key: 'userStatus',
     width: 100
   },
-  CreateActionColumn({
+  CreateActionColumn<User>({
     actions: [
       {
         key: 'update',
@@ -392,8 +405,8 @@ const columns = computed<TableColumnsType>(() => [
         shape: 'plain',
         icon: RiEditLine,
         permission: 'identity:user:update',
-        visible: (record: User) => !isAdminUser(record),
-        onClick: (record: User) => handleEdit(record)
+        visible: (record) => !isAdminUser(record),
+        onClick: (record) => handleEdit(record)
       },
       {
         key: 'changepwd',
@@ -401,8 +414,8 @@ const columns = computed<TableColumnsType>(() => [
         shape: 'plain',
         icon: RiLockPasswordLine,
         permission: 'identity:user:changepwd',
-        visible: (record: User) => !isAdminUser(record),
-        onClick: (record: User) => handleUpdatePassword(record)
+        visible: (record) => !isAdminUser(record),
+        onClick: (record) => handleUpdatePassword(record)
       },
       {
         key: 'resetpwd',
@@ -410,8 +423,8 @@ const columns = computed<TableColumnsType>(() => [
         shape: 'plain',
         icon: RiRestartLine,
         permission: 'identity:user:resetpwd',
-        visible: (record: User) => !isAdminUser(record),
-        onClick: (record: User) => handleResetPassword(record)
+        visible: (record) => !isAdminUser(record),
+        onClick: (record) => handleResetPassword(record)
       },
       {
         key: 'delete',
@@ -419,8 +432,8 @@ const columns = computed<TableColumnsType>(() => [
         shape: 'plain',
         icon: RiDeleteBinLine,
         permission: 'identity:user:delete',
-        visible: (record: User) => !isAdminUser(record),
-        onClick: (record: User) => handleDeleteOne(record)
+        visible: (record) => !isAdminUser(record),
+        onClick: (record) => handleDeleteOne(record)
       },
       {
         key: 'allocate-user-role',
@@ -428,8 +441,8 @@ const columns = computed<TableColumnsType>(() => [
         shape: 'plain',
         icon: RiUserSettingsLine,
         permission: 'identity:user:allocate',
-        visible: (record: User) => !isAdminUser(record),
-        onClick: (record: User) => handleRole(record)
+        visible: (record) => !isAdminUser(record),
+        onClick: (record) => handleRole(record)
       },
       {
         key: 'allocate-role-menu',
@@ -437,8 +450,8 @@ const columns = computed<TableColumnsType>(() => [
         shape: 'plain',
         icon: RiShieldUserLine,
         permission: 'identity:user:authorize',
-        visible: (record: User) => !isAdminUser(record),
-        onClick: (record: User) => handleRoleMenu(record)
+        visible: (record) => !isAdminUser(record),
+        onClick: (record) => handleRoleMenu(record)
       },
       {
         key: 'allocate-dept-user',
@@ -446,8 +459,8 @@ const columns = computed<TableColumnsType>(() => [
         shape: 'plain',
         icon: RiBuildingLine,
         permission: 'identity:user:allocate',
-        visible: (record: User) => !isAdminUser(record),
-        onClick: (record: User) => handleDept(record)
+        visible: (record) => !isAdminUser(record),
+        onClick: (record) => handleDept(record)
       },
       {
         key: 'allocate-post-user',
@@ -455,8 +468,8 @@ const columns = computed<TableColumnsType>(() => [
         shape: 'plain',
         icon: RiBriefcaseLine,
         permission: 'identity:user:allocate',
-        visible: (record: User) => !isAdminUser(record),
-        onClick: (record: User) => handlePost(record)
+        visible: (record) => !isAdminUser(record),
+        onClick: (record) => handlePost(record)
       },
       {
         key: 'allocate-tenant-user',
@@ -464,8 +477,8 @@ const columns = computed<TableColumnsType>(() => [
         shape: 'plain',
         icon: RiCommunityLine,
         permission: 'identity:user:allocate',
-        visible: (record: User) => !isAdminUser(record),
-        onClick: (record: User) => handleTenant(record)
+        visible: (record) => !isAdminUser(record),
+        onClick: (record) => handleTenant(record)
       },
       {
         key: 'unlock',
@@ -473,11 +486,11 @@ const columns = computed<TableColumnsType>(() => [
         shape: 'plain',
         icon: RiLockUnlockLine,
         permission: 'identity:user:unlock',
-        visible: (record: User) => {
+        visible: (record) => {
           if (isAdminUser(record)) return false
           return record.userStatus === 2
         },
-        onClick: (record: User) => handleUnlock(record)
+        onClick: (record) => handleUnlock(record)
       }
     ]
   })
@@ -506,7 +519,8 @@ const isAdminUser = (user: User | null): boolean => {
 // 删除：仅当至少选中 1 行且选中里无管理员时可点
 const updateDisabled = computed(
   () =>
-    selectedRows.value.length !== 1 || (selectedRows.value.length === 1 && isAdminUser(selectedRows.value[0]))
+    selectedRows.value.length !== 1 ||
+    (selectedRows.value.length === 1 && isAdminUser(selectedRows.value[0] ?? null))
 )
 const deleteDisabled = computed(
   () => selectedRows.value.length === 0 || selectedRows.value.some((u) => isAdminUser(u))
@@ -548,7 +562,7 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: User[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: User, selected: boolean) => {
     if (selected) {
@@ -559,7 +573,7 @@ const rowSelection = computed(() => ({
   },
   onSelectAll: (selected: boolean, selectedRowsData: User[]) => {
     if (selected) {
-      selectedRow.value = selectedRowsData.length === 1 ? selectedRowsData[0] : null
+      selectedRow.value = selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
     } else {
       selectedRow.value = null
     }
@@ -590,11 +604,8 @@ const onClickRow = (record: User) => {
       )
       
       // 更新 selectedRow
-      if (selectedRowKeys.value.length === 1) {
-        selectedRow.value = selectedRows.value[0]
-      } else {
-        selectedRow.value = null
-      }
+      selectedRow.value =
+        selectedRowKeys.value.length === 1 ? (selectedRows.value[0] ?? null) : null
       
       // 触发 rowSelection.onChange 以同步 checkbox 状态
       if (rowSelection.value.onChange) {
@@ -618,18 +629,18 @@ const loadData = async () => {
       params.KeyWords = queryKeyword.value
     }
 
-    // 高级查询
-    if (advancedQueryForm.value.UserName) {
-      params.UserName = advancedQueryForm.value.UserName
+    // 高级查询（表单 camelCase → 与角色页一致的后端 Query PascalCase）
+    if (advancedQueryForm.value.userName) {
+      params.UserName = advancedQueryForm.value.userName
     }
-    if (advancedQueryForm.value.UserEmail) {
-      params.UserEmail = advancedQueryForm.value.UserEmail
+    if (advancedQueryForm.value.userEmail) {
+      params.UserEmail = advancedQueryForm.value.userEmail
     }
-    if (advancedQueryForm.value.UserPhone) {
-      params.UserPhone = advancedQueryForm.value.UserPhone
+    if (advancedQueryForm.value.userPhone) {
+      params.UserPhone = advancedQueryForm.value.userPhone
     }
-    if (advancedQueryForm.value.UserStatus !== undefined) {
-      params.UserStatus = advancedQueryForm.value.UserStatus
+    if (advancedQueryForm.value.userStatus !== undefined) {
+      params.UserStatus = advancedQueryForm.value.userStatus
     }
 
     const response = await getUserList(params)
@@ -644,7 +655,7 @@ const loadData = async () => {
     total.value = totalCount
   } catch (error: any) {
     logger.error('[User Management] 加载数据失败:', error)
-    message.error(error.message || t('common.msg.loadFail'))
+    message.error(error.message || t('common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -662,10 +673,9 @@ const handleSearch = () => {
 const handleReset = () => {
   queryKeyword.value = ''
   advancedQueryForm.value = {
-    UserName: '',
-    UserEmail: '',
-    UserPhone: '',
-    UserStatus: undefined
+    userName: '',
+    userEmail: '',
+    userPhone: ''
   }
   currentPage.value = 1
   loadData()
@@ -714,7 +724,7 @@ const handleCreate = () => {
 // 编辑
 const handleEdit = (record: User) => {
   if (isAdminUser(record)) {
-    message.warning(t('common.action.warnSubjectCannot', { subject: t('common.action.superUser'), action: t('common.button.update') }))
+    message.warning(t('common.action.warnsubjectcannot', { subject: t('common.action.superuser'), action: t('common.button.update') }))
     return
   }
   formTitle.value = t('common.button.edit') + t('entity.user._self')
@@ -726,35 +736,35 @@ const handleEdit = (record: User) => {
 const handleUpdate = () => {
   if (selectedRow.value) {
     if (isAdminUser(selectedRow.value)) {
-      message.warning(t('common.action.warnSubjectCannot', { subject: t('common.action.superUser'), action: t('common.button.update') }))
+      message.warning(t('common.action.warnsubjectcannot', { subject: t('common.action.superuser'), action: t('common.button.update') }))
       return
     }
     handleEdit(selectedRow.value)
   } else {
-    message.warning(t('common.action.warnSelectToAction', { action: t('common.button.edit'), entity: t('entity.user._self') }))
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: t('entity.user._self') }))
   }
 }
 
 // 删除单个
 const handleDeleteOne = (record: User) => {
   if (isAdminUser(record)) {
-    message.warning(t('common.action.warnSubjectCannot', { subject: t('common.action.superUser'), action: t('common.button.delete') }))
+    message.warning(t('common.action.warnsubjectcannot', { subject: t('common.action.superuser'), action: t('common.button.delete') }))
     return
   }
-  const userName = getUserField(record, 'userName') || t('common.action.thisTarget', { target: t('entity.user._self') })
+  const userName = getUserField(record, 'userName') || t('common.action.thistarget', { target: t('entity.user._self') })
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', { entity: t('entity.user._self'), name: userName }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.user._self'), name: userName }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await deleteUserById(getUserId(record))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deletesuccess'))
         loadData()
       } catch (error: any) {
-        message.error(error.message || t('common.msg.deleteFail'))
+        message.error(error.message || t('common.msg.deletefail'))
       } finally {
         loading.value = false
       }
@@ -765,33 +775,33 @@ const handleDeleteOne = (record: User) => {
 // 删除（工具栏按钮）
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
-    message.warning(t('common.action.warnSelectToAction', { action: t('common.button.delete'), entity: t('entity.user._self') }))
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('entity.user._self') }))
     return
   }
 
   // 检查是否包含admin用户
   const adminUsers = selectedRows.value.filter(u => isAdminUser(u))
   if (adminUsers.length > 0) {
-    message.warning(t('common.action.warnSubjectCannot', { subject: t('common.action.superUser'), action: t('common.button.delete') }))
+    message.warning(t('common.action.warnsubjectcannot', { subject: t('common.action.superuser'), action: t('common.button.delete') }))
     return
   }
 
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', { entity: t('entity.user._self'), count: selectedRows.value.length }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { entity: t('entity.user._self'), count: selectedRows.value.length }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await deleteUserBatch(selectedRows.value.map(user => getUserId(user)))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deletesuccess'))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: any) {
-        message.error(error.message || t('common.msg.deleteFail'))
+        message.error(error.message || t('common.msg.deletefail'))
       } finally {
         loading.value = false
       }
@@ -804,7 +814,7 @@ const handleRoleMenu = (record: User) => {
   logger.debug('[User Management] handleRoleMenu 被调用:', { record })
   if (isAdminUser(record)) {
     logger.warn('[User Management] 超级管理员admin不允许分配角色菜单')
-    message.warning(t('common.action.warnSubjectCannot', { subject: t('common.action.superUser'), action: t('common.button.allocate') + t('entity.rolemenu._self') }))
+    message.warning(t('common.action.warnsubjectcannot', { subject: t('common.action.superuser'), action: t('common.button.allocate') + t('entity.rolemenu._self') }))
     return
   }
   logger.debug('[User Management] 设置 currentAssignUser 和打开对话框')
@@ -816,7 +826,7 @@ const handleRoleMenu = (record: User) => {
 // 分配角色
 const handleRole = (record: User) => {
   if (isAdminUser(record)) {
-    message.warning(t('common.action.warnSubjectCannot', { subject: t('common.action.superUser'), action: t('common.button.allocate') + t('entity.role._self') }))
+    message.warning(t('common.action.warnsubjectcannot', { subject: t('common.action.superuser'), action: t('common.button.allocate') + t('entity.role._self') }))
     return
   }
   currentAssignUser.value = record
@@ -826,7 +836,7 @@ const handleRole = (record: User) => {
 // 分配部门
 const handleDept = (record: User) => {
   if (isAdminUser(record)) {
-    message.warning(t('common.action.warnSubjectCannot', { subject: t('common.action.superUser'), action: t('common.button.allocate') + t('entity.dept._self') }))
+    message.warning(t('common.action.warnsubjectcannot', { subject: t('common.action.superuser'), action: t('common.button.allocate') + t('entity.dept._self') }))
     return
   }
   currentAssignUser.value = record
@@ -836,7 +846,7 @@ const handleDept = (record: User) => {
 // 分配岗位
 const handlePost = (record: User) => {
   if (isAdminUser(record)) {
-    message.warning(t('common.action.warnSubjectCannot', { subject: t('common.action.superUser'), action: t('common.button.allocate') + t('entity.post._self') }))
+    message.warning(t('common.action.warnsubjectcannot', { subject: t('common.action.superuser'), action: t('common.button.allocate') + t('entity.post._self') }))
     return
   }
   currentAssignUser.value = record
@@ -846,7 +856,7 @@ const handlePost = (record: User) => {
 // 分配租户
 const handleTenant = (record: User) => {
   if (isAdminUser(record)) {
-    message.warning(t('common.action.warnSubjectCannot', { subject: t('common.action.superUser'), action: t('common.button.allocate') + t('entity.tenant._self') }))
+    message.warning(t('common.action.warnsubjectcannot', { subject: t('common.action.superuser'), action: t('common.button.allocate') + t('entity.tenant._self') }))
     return
   }
   currentAssignUser.value = record
@@ -857,7 +867,7 @@ const handleTenant = (record: User) => {
 // 更新密码
 const handleUpdatePassword = (record: User) => {
   if (isAdminUser(record)) {
-    message.warning(t('common.action.warnSubjectCannot', { subject: t('common.action.superUser'), action: t('common.button.changepwd') }))
+    message.warning(t('common.action.warnsubjectcannot', { subject: t('common.action.superuser'), action: t('common.button.changepwd') }))
     return
   }
   currentChangePasswordUser.value = record
@@ -875,14 +885,14 @@ const handleChangePasswordSubmit = async () => {
     const formValues = changePasswordFormRef.value.getValues()
     
     if (!currentChangePasswordUser.value) {
-      message.error(t('common.msg.entityNotFound', { entity: t('entity.user._self') }))
+      message.error(t('common.msg.entitynotfound', { entity: t('entity.user._self') }))
       return
     }
     
     changePasswordLoading.value = true
     
     await changePassword(formValues)
-    message.success(t('common.msg.actionSuccess', { action: t('common.button.changepwd') }))
+    message.success(t('common.msg.actionsuccess', { action: t('common.button.changepwd') }))
     changePasswordVisible.value = false
     currentChangePasswordUser.value = null
     changePasswordFormRef.value?.resetFields()
@@ -891,7 +901,7 @@ const handleChangePasswordSubmit = async () => {
       // 表单验证错误
       return
     }
-    message.error(error.message || t('common.msg.actionFail', { action: t('common.button.changepwd') }))
+    message.error(error.message || t('common.msg.actionfail', { action: t('common.button.changepwd') }))
   } finally {
     changePasswordLoading.value = false
   }
@@ -907,26 +917,27 @@ const handleChangePasswordCancel = () => {
 // 重置密码
 const handleResetPassword = (record: User) => {
   if (isAdminUser(record)) {
-    message.warning(t('common.action.warnSubjectCannot', { subject: t('common.action.superUser'), action: t('common.button.reset') + ' ' + t('common.button.password') }))
+    message.warning(t('common.action.warnsubjectcannot', { subject: t('common.action.superuser'), action: t('common.button.reset') + ' ' + t('common.button.password') }))
     return
   }
-  const userName = getUserField(record, 'userName') || t('common.action.thisTarget', { target: t('entity.user._self') })
+  const userName = getUserField(record, 'userName') || t('common.action.thistarget', { target: t('entity.user._self') })
   Modal.confirm({
     title: t('common.button.reset') + ' ' + t('common.button.password'),
-    content: t('common.confirm.resetPwdContent', { entity: t('entity.user._self'), name: userName }),
+    content: t('common.confirm.resetpwdcontent', { entity: t('entity.user._self'), name: userName }),
     okText: t('common.button.ok'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
+        // newPassword：契约必填；后端 ResetPasswordAsync 忽略该值，仅用配置 DefaultPassword
         await resetPassword({
-          userId: getUserId(record)
-          // 不传递 newPassword，后端会从配置中读取默认密码（PasswordPolicy:DefaultPassword）
+          userId: getUserId(record),
+          newPassword: ''
         })
-        message.success(t('common.msg.actionSuccess', { action: t('common.button.reset') + ' ' + t('common.button.password') }))
+        message.success(t('common.msg.actionsuccess', { action: t('common.button.reset') + ' ' + t('common.button.password') }))
         loadData()
       } catch (error: any) {
-        message.error(error.message || t('common.msg.actionFail', { action: t('common.button.reset') + ' ' + t('common.button.password') }))
+        message.error(error.message || t('common.msg.actionfail', { action: t('common.button.reset') + ' ' + t('common.button.password') }))
       } finally {
         loading.value = false
       }
@@ -937,13 +948,13 @@ const handleResetPassword = (record: User) => {
 // 解除锁定
 const handleUnlock = (record: User) => {
   if (isAdminUser(record)) {
-    message.warning(t('common.action.warnSubjectCannot', { subject: t('common.action.superUser'), action: t('common.button.unlock') }))
+    message.warning(t('common.action.warnsubjectcannot', { subject: t('common.action.superuser'), action: t('common.button.unlock') }))
     return
   }
-  const userName = getUserField(record, 'userName') || t('common.action.thisTarget', { target: t('entity.user._self') })
+  const userName = getUserField(record, 'userName') || t('common.action.thistarget', { target: t('entity.user._self') })
   Modal.confirm({
-    title: t('common.action.confirmAction', { action: t('common.button.unlock') }),
-    content: t('common.confirm.unlockContent', { entity: t('entity.user._self'), name: userName }),
+    title: t('common.action.confirmaction', { action: t('common.button.unlock') }),
+    content: t('common.confirm.unlockcontent', { entity: t('entity.user._self'), name: userName }),
     okText: t('common.button.unlock'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
@@ -953,10 +964,10 @@ const handleUnlock = (record: User) => {
           userId: getUserId(record),
           userStatus: 1
         })
-        message.success(t('common.msg.actionSuccess', { action: t('common.button.unlock') }))
+        message.success(t('common.msg.actionsuccess', { action: t('common.button.unlock') }))
         loadData()
       } catch (error: any) {
-        message.error(error.message || t('common.msg.actionFail', { action: t('common.button.unlock') }))
+        message.error(error.message || t('common.msg.actionfail', { action: t('common.button.unlock') }))
       } finally {
         loading.value = false
       }
@@ -1016,18 +1027,18 @@ const handleExport = async () => {
       queryParams.KeyWords = queryKeyword.value
     }
     
-    // 高级查询
-    if (advancedQueryForm.value.UserName) {
-      queryParams.UserName = advancedQueryForm.value.UserName
+    // 高级查询（与列表 loadData 条件一致）
+    if (advancedQueryForm.value.userName) {
+      queryParams.UserName = advancedQueryForm.value.userName
     }
-    if (advancedQueryForm.value.UserEmail) {
-      queryParams.UserEmail = advancedQueryForm.value.UserEmail
+    if (advancedQueryForm.value.userEmail) {
+      queryParams.UserEmail = advancedQueryForm.value.userEmail
     }
-    if (advancedQueryForm.value.UserPhone) {
-      queryParams.UserPhone = advancedQueryForm.value.UserPhone
+    if (advancedQueryForm.value.userPhone) {
+      queryParams.UserPhone = advancedQueryForm.value.userPhone
     }
-    if (advancedQueryForm.value.UserStatus !== undefined) {
-      queryParams.UserStatus = advancedQueryForm.value.UserStatus
+    if (advancedQueryForm.value.userStatus !== undefined) {
+      queryParams.UserStatus = advancedQueryForm.value.userStatus
     }
     
     // 调用导出 API；本地文件名仅按服务端 Content-Disposition / Content-Type 还原（是否 zip 由后端 TaktExcelHelper 决定）
@@ -1036,8 +1047,8 @@ const handleExport = async () => {
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
     const fallbackBase = `${userExcelNames.fileBase}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}`
     const fileName = resolveExportDownloadFileName({
-      contentDisposition: exportMeta.contentDisposition,
-      contentType: exportMeta.contentType,
+      contentDisposition: exportMeta.contentDisposition ?? null,
+      contentType: exportMeta.contentType ?? null,
       fallbackBase
     })
 
@@ -1055,10 +1066,10 @@ const handleExport = async () => {
       window.URL.revokeObjectURL(url)
     }, 100)
     
-    message.success(t('common.msg.exportSuccess'))
+    message.success(t('common.msg.exportsuccess'))
   } catch (error: any) {
     logger.error('[User Management] 导出失败:', error)
-    message.error(error.message || t('common.msg.exportFail'))
+    message.error(error.message || t('common.msg.exportfail'))
   } finally {
     loading.value = false
   }
@@ -1079,14 +1090,12 @@ const handleAdvancedQuerySubmit = (_values?: Record<string, any>) => {
 // 高级查询重置
 const handleAdvancedQueryReset = () => {
   advancedQueryForm.value = {
-    UserName: '',
-    UserEmail: '',
-    UserPhone: '',
-    UserStatus: undefined
+    userName: '',
+    userEmail: '',
+    userPhone: ''
   }
 }
 
-// 列设置
 // 列设置
 const handleColumnSetting = () => {
   columnSettingVisible.value = true
@@ -1126,7 +1135,7 @@ const handleFormSubmit = async () => {
       const currentUser = dataSource.value.find(u => getUserId(u) === getUserId(formData.value))
       if (currentUser && isAdminUser(currentUser)) {
         const userName = getUserField(currentUser, 'userName') || 'admin'
-        message.warning(t('common.action.warnUserCannot', { name: userName, action: t('common.button.update') }))
+        message.warning(t('common.action.warnusercannot', { name: userName, action: t('common.button.update') }))
         formLoading.value = false
         return
       }
@@ -1162,7 +1171,7 @@ const handleFormSubmit = async () => {
       
       logger.debug('[User Management] 更新用户数据:', JSON.stringify(updateData, null, 2))
       await updateUser(formData.value.userId, updateData)
-      message.success(t('common.msg.updateSuccess'))
+      message.success(t('common.msg.updatesuccess'))
     } else {
       const fv = formValues as UserFormValues
       const resolvedEmployeeId = String(fv.employeeId || '')
@@ -1183,7 +1192,7 @@ const handleFormSubmit = async () => {
         tenantIds: mapIds(fv.tenantIds)
       }
       await createUser(createData)
-      message.success(t('common.msg.createSuccess'))
+      message.success(t('common.msg.createsuccess'))
     }
 
     // 重置表单
@@ -1201,7 +1210,7 @@ const handleFormSubmit = async () => {
       formRef.value?.setServerValidationErrors?.(error.validationErrors)
       return
     }
-    message.error(error.message || t('common.msg.operateFail'))
+    message.error(error.message || t('common.msg.operatefail'))
   } finally {
     formLoading.value = false
   }

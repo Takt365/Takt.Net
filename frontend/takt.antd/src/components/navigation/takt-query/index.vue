@@ -1,7 +1,7 @@
 <template>
   <a-input-search
     v-model:value="query"
-    :placeholder="$t('common.form.placeholder.searchMenu')"
+    :placeholder="$t('common.form.placeholder.searchmenu')"
     class="takt-query"
     allow-clear
     @search="handleSearch"
@@ -34,7 +34,7 @@
         v-else
         class="no-results"
       >
-        {{ $t('common.msg.noSearchResult') }}
+        {{ $t('common.msg.nosearchresult') }}
       </div>
     </template>
   </a-dropdown>

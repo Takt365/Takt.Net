@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Identity
 // 文件名称：TaktUser.cs
@@ -22,7 +22,7 @@ namespace Takt.Domain.Entities.Identity;
 /// 用户名 UserName 通过员工选项列表选择绑定（新建/编辑用户时从 TaktEmployee 选项选择后带出或约束）。
 /// 姓名、性别、头像等人事信息以 TaktEmployee 为准。
 /// </summary>
-[SugarTable("takt_identity_user", "用户表")]
+[SugarTable("takt_identity_user", "用户信息表")]
 [SugarIndex("ix_takt_identity_user_user_name", nameof(UserName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_identity_user_user_email", nameof(UserEmail), OrderByType.Asc)]
 [SugarIndex("ix_takt_identity_user_user_phone", nameof(UserPhone), OrderByType.Asc)]

@@ -127,14 +127,14 @@
     >
       <TaktImportFile
         file-type="xlsx"
-        :sheet-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.employeeeducation._self') })"
-        :template-file-name="t('common.action.import.sheetNameTemplate', { entity: t('entity.employeeeducation._self') })"
+        :sheet-name="t('common.action.import.sheetnametemplate', { entity: t('entity.employeeeducation._self') })"
+        :template-file-name="t('common.action.import.sheetnametemplate', { entity: t('entity.employeeeducation._self') })"
         template-permission="humanresource:personnel:employeeeducation:template"
         import-permission="humanresource:personnel:employeeeducation:import"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.employeeeducation._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.employeeeducation._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -227,8 +227,8 @@ const columns = computed<TableColumnsType>(() => [
   { title: t(`${entityKey}.educationLevel`), dataIndex: 'educationLevel', key: 'educationLevel', width: 100 },
   { title: t(`${entityKey}.degreeLevel`), dataIndex: 'degreeLevel', key: 'degreeLevel', width: 100 },
   { title: t(`${entityKey}.isHighest`), dataIndex: 'isHighest', key: 'isHighest', width: 100 },
-  { title: t('common.entity.createTime'), dataIndex: 'createdAt', key: 'createdAt', width: 160, ellipsis: true },
-  CreateActionColumn({
+  { title: t('common.entity.createtime'), dataIndex: 'createdAt', key: 'createdAt', width: 160, ellipsis: true },
+  CreateActionColumn<EmployeeEducation>({
     actions: [
       {
         key: 'update',
@@ -312,7 +312,7 @@ async function loadData() {
     total.value = responseAny?.total ?? responseAny?.Total ?? 0
   } catch (error: any) {
     logger.error('[EmployeeEducation] loadData:', error)
-    message.error(error?.message || t('common.msg.loadFail'))
+    message.error(error?.message || t('common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -361,7 +361,7 @@ async function handleEdit(record: EmployeeEducation) {
     formData.value = { ...(await getEmployeeEducationById(getRowId(record))) }
     formVisible.value = true
   } catch (error: any) {
-    message.error(error?.message || t('common.msg.loadFail'))
+    message.error(error?.message || t('common.msg.loadfail'))
   } finally {
     formLoading.value = false
   }
@@ -373,7 +373,7 @@ function handleUpdate() {
     return
   }
   message.warning(
-    t('common.action.warnSelectToAction', {
+    t('common.action.warnselecttoaction', {
       action: t('common.button.edit'),
       entity: t(`${entityKey}._self`)
     })
@@ -382,8 +382,8 @@ function handleUpdate() {
 
 function handleDeleteOne(record: EmployeeEducation) {
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', {
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', {
       entity: t(`${entityKey}._self`),
       name: record.schoolName || getRowId(record)
     }),
@@ -393,10 +393,10 @@ function handleDeleteOne(record: EmployeeEducation) {
       try {
         loading.value = true
         await deleteEmployeeEducationById(getRowId(record))
-        message.success(t('common.msg.deleteSuccess', { target: t(`${entityKey}._self`) }))
+        message.success(t('common.msg.deletesuccess', { target: t(`${entityKey}._self`) }))
         loadData()
       } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail', { target: t(`${entityKey}._self`) }))
+        message.error(error?.message || t('common.msg.deletefail', { target: t(`${entityKey}._self`) }))
       } finally {
         loading.value = false
       }
@@ -407,7 +407,7 @@ function handleDeleteOne(record: EmployeeEducation) {
 function handleDelete() {
   if (selectedRows.value.length === 0) {
     message.warning(
-      t('common.action.warnSelectToAction', {
+      t('common.action.warnselecttoaction', {
         action: t('common.button.delete'),
         entity: t(`${entityKey}._self`)
       })
@@ -416,8 +416,8 @@ function handleDelete() {
   }
 
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', {
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', {
       entity: t(`${entityKey}._self`),
       count: selectedRows.value.length
     }),
@@ -431,13 +431,13 @@ function handleDelete() {
         } else {
           await deleteEmployeeEducationBatch(selectedRows.value.map((row) => getRowId(row)))
         }
-        message.success(t('common.msg.deleteSuccess', { target: t(`${entityKey}._self`) }))
+        message.success(t('common.msg.deletesuccess', { target: t(`${entityKey}._self`) }))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail', { target: t(`${entityKey}._self`) }))
+        message.error(error?.message || t('common.msg.deletefail', { target: t(`${entityKey}._self`) }))
       } finally {
         loading.value = false
       }
@@ -457,10 +457,10 @@ async function handleFormSubmit() {
         ...values,
         employeeEducationId: formData.value.employeeEducationId
       })
-      message.success(t('common.msg.updateSuccess', { target: t(`${entityKey}._self`) }))
+      message.success(t('common.msg.updatesuccess', { target: t(`${entityKey}._self`) }))
     } else {
       await createEmployeeEducation(values)
-      message.success(t('common.msg.createSuccess', { target: t(`${entityKey}._self`) }))
+      message.success(t('common.msg.createsuccess', { target: t(`${entityKey}._self`) }))
     }
 
     formRef.value?.resetFields()
@@ -469,7 +469,7 @@ async function handleFormSubmit() {
     loadData()
   } catch (error: any) {
     if (error?.errorFields) return
-    message.error(error?.message || t('common.msg.operateFail', { action: t('common.action.operation') }))
+    message.error(error?.message || t('common.msg.operatefail', { action: t('common.action.operation') }))
   } finally {
     formLoading.value = false
   }
@@ -519,12 +519,12 @@ async function handleExport() {
     const blob = await exportEmployeeEducationData(
       queryParams,
       undefined,
-      t(`${entityKey}._self`) + t('common.action.exportDataSuffix')
+      t(`${entityKey}._self`) + t('common.action.exportdatasuffix')
     )
     const data = (blob as any)?.data ?? blob
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
-    const fileName = `${t(`${entityKey}._self`) + t('common.action.exportDataSuffix')}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
+    const fileName = `${t(`${entityKey}._self`) + t('common.action.exportdatasuffix')}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
     const url = window.URL.createObjectURL(data)
     const link = document.createElement('a')
     link.href = url
@@ -534,10 +534,10 @@ async function handleExport() {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess', { target: t(`${entityKey}._self`) }))
+    message.success(t('common.msg.exportsuccess', { target: t(`${entityKey}._self`) }))
   } catch (error: any) {
     logger.error('[EmployeeEducation] export:', error)
-    message.error(error?.message || t('common.msg.exportFail', { target: t(`${entityKey}._self`) }))
+    message.error(error?.message || t('common.msg.exportfail', { target: t(`${entityKey}._self`) }))
   } finally {
     loading.value = false
   }

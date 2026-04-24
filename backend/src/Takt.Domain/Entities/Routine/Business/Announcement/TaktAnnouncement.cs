@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Routine.Announcement
 // 文件名称：TaktAnnouncement.cs
@@ -53,7 +53,7 @@ public class TaktAnnouncement : TaktEntityBase
     public string AnnouncementContent { get; set; } = string.Empty;
 
     /// <summary>
-    /// 附件列表 JSON。格式：[{ "FileId": 0, "FileName": "", "FilePath": "", "FileSize": 0, "FileType": "", "FileExtension": "", "OrderNum": 0 }]
+    /// 附件列表 JSON。格式：[{ "FileId": 0, "FileName": "", "FilePath": "", "FileSize": 0, "FileType": "", "FileExtension": "", "SortOrder": 0 }]
     /// </summary>
     [SugarColumn(ColumnName = "attachments_json", ColumnDescription = "附件列表JSON", ColumnDataType = "nvarchar", Length = -1, IsNullable = true)]
     public string? AttachmentsJson { get; set; }
@@ -109,8 +109,8 @@ public class TaktAnnouncement : TaktEntityBase
     /// <summary>
     /// 排序号（越小越靠前）
     /// </summary>
-    [SugarColumn(ColumnName = "order_num", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int OrderNum { get; set; } = 0;
+    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SortOrder { get; set; } = 0;
 
     /// <summary>
     /// 流程实例ID（关联工作流，如发布审批流程；流程侧 BusinessType=Announcement、BusinessKey=本表 Id）

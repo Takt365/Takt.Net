@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktDictI18nSeedData.cs
@@ -64,7 +64,7 @@ public class TaktDictI18nSeedData : ITaktSeedData
 
             // 按键去重，避免重复键产生重复翻译写入。
             var dictItems = dictDataList
-                .OrderBy(d => d.OrderNum)
+                .OrderBy(d => d.SortOrder)
                 .ThenBy(d => d.Id)
                 .GroupBy(d => d.DictL10nKey!)
                 .Select(g => g.First())
@@ -92,7 +92,7 @@ public class TaktDictI18nSeedData : ITaktSeedData
                             TranslationValue = translationValue,
                             ResourceType = "Frontend",
                             ResourceGroup = "Dict",
-                            OrderNum = dictItem.OrderNum,
+                            SortOrder = dictItem.SortOrder,
                             IsDeleted = 0
                         });
                         insertCount++;
@@ -100,14 +100,14 @@ public class TaktDictI18nSeedData : ITaktSeedData
                     else if (existing.TranslationValue != translationValue ||
                              existing.ResourceType != "Frontend" ||
                              existing.ResourceGroup != "Dict" ||
-                             existing.OrderNum != dictItem.OrderNum ||
+                             existing.SortOrder != dictItem.SortOrder ||
                              existing.LanguageId != language.Id)
                     {
                         existing.LanguageId = language.Id;
                         existing.TranslationValue = translationValue;
                         existing.ResourceType = "Frontend";
                         existing.ResourceGroup = "Dict";
-                        existing.OrderNum = dictItem.OrderNum;
+                        existing.SortOrder = dictItem.SortOrder;
                         await translationRepository.UpdateAsync(existing);
                         updateCount++;
                     }

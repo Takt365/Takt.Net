@@ -69,6 +69,18 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
+    // JWE 访问令牌内含大量 permission claim 时，Authorization 头可达数百 KB；Kestrel 默认请求头总大小约 32KB，
+    // 超限会导致请求在到达 MVC 前失败，前端表现为 userinfo 超时/网络错误（与 connect/token 体在 body 中无关）。
+    const int kestrelMaxRequestHeadersTotalSize = 512 * 1024;
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.Limits.MaxRequestHeadersTotalSize = kestrelMaxRequestHeadersTotalSize;
+        options.Limits.MaxRequestLineSize = 64 * 1024;
+    });
+    Log.Information(
+        "Kestrel MaxRequestHeadersTotalSize 已设为 {Configured} 字节（框架默认 32768）。访问令牌为 JWE 且含大量 permission 时 Authorization 头会超过 32KB。",
+        kestrelMaxRequestHeadersTotalSize);
+
     // 邮件模板标准位置：wwwroot/Email/Templates（与 TaktCaptchaInitializer 等一致，先取 wwwroot 再组合子路径）
     if (string.IsNullOrEmpty(builder.Configuration["Email:TemplatesPath"]))
     {
@@ -433,6 +445,9 @@ try
     // 用户上下文中间件（必须在认证之后，但在端点映射之前）
     // 注意：此中间件只设置用户上下文，不会拦截请求
     app.UseMiddleware<Takt.Infrastructure.Middleware.TaktUserMiddleware>();
+
+    // 菜单权限串校验（须在用户上下文之后，以便读取 CurrentUser）
+    app.UseMiddleware<Takt.Infrastructure.Middleware.TaktPermissionMiddleware>();
 
     // 操作日志中间件（必须在用户上下文中间件之后，记录用户操作）
     app.UseMiddleware<Takt.Infrastructure.Middleware.TaktOperLogMiddleware>();

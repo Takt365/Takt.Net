@@ -119,8 +119,8 @@ const props = withDefaults(defineProps<Props>(), {
   autoUpload: true
 })
 
-const textDisplay = computed(() => props.text ?? t('components.common.upload.filesText'))
-const hintDisplay = computed(() => props.hint ?? t('components.common.upload.filesHint'))
+const textDisplay = computed(() => props.text ?? t('components.common.page.upload.filestext'))
+const hintDisplay = computed(() => props.hint ?? t('components.common.page.upload.fileshint'))
 
 const emit = defineEmits<{
   'update:modelValue': [fileList: UploadFile[]]
@@ -158,7 +158,7 @@ const handleBeforeUpload = (file: UploadFile | File) => {
   if (props.maxSize && originFile.size) {
     const fileSizeMB = originFile.size / 1024 / 1024
     if (fileSizeMB > props.maxSize) {
-      message.error(t('components.common.upload.fileSizeExceed', { max: props.maxSize }))
+      message.error(t('components.common.page.upload.filesizeexceed', { max: props.maxSize }))
       return false
     }
   }
@@ -185,9 +185,9 @@ const handleChange = (info: UploadChangeParam) => {
     console.log('[TaktUploadFiles] 文件状态变化:', info.file, info.fileList)
   }
   if (status === 'done') {
-    message.success(t('components.common.upload.fileUploadSuccess', { name: info.file.name }))
+    message.success(t('components.common.page.upload.fileuploadsuccess', { name: info.file.name }))
   } else if (status === 'error') {
-    message.error(t('components.common.upload.fileUploadFail', { name: info.file.name }))
+    message.error(t('components.common.page.upload.fileuploadfail', { name: info.file.name }))
   }
 }
 
@@ -211,7 +211,7 @@ const handlePreview = (file: UploadFile) => {
   } else if (file.preview) {
     window.open(file.preview, '_blank')
   } else {
-    message.warning(t('components.common.upload.previewFail'))
+    message.warning(t('components.common.page.upload.previewfail'))
   }
 }
 
@@ -237,7 +237,7 @@ const uploadFiles = async (): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
       const originFile = file.originFileObj as File | undefined
       if (!originFile) {
-        reject(new Error(t('components.common.upload.fileInvalid', { name: file.name })))
+        reject(new Error(t('components.common.page.upload.fileinvalid', { name: file.name })))
         return
       }
       
@@ -290,10 +290,10 @@ const uploadFiles = async (): Promise<void> => {
   
   try {
     await Promise.all(uploadPromises)
-    message.success(t('components.common.upload.allUploadSuccess'))
+    message.success(t('components.common.page.upload.alluploadsuccess'))
   } catch (error: unknown) {
     const err = error instanceof Error ? error : new Error(String(error))
-    const errorMessage = err.message || t('components.common.upload.partialUploadFail')
+    const errorMessage = err.message || t('components.common.page.upload.partialuploadfail')
     logger.error('[TaktUploadFiles] 批量上传失败:', {
       error: errorMessage,
       filesCount: filesToUpload.length,

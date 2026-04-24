@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Logistics.Materials
 // 文件名称：TaktPurchaseOrderService.cs
@@ -52,7 +52,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktPurchaseOrderDto>> GetListAsync(TaktPurchaseOrderQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktPurchaseOrderDto>> GetPurchaseOrderListAsync(TaktPurchaseOrderQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
 
@@ -63,7 +63,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
         // 加载明细数据
         if (orderDtos.Any())
         {
-            var orderIds = orderDtos.Select(o => o.OrderId).ToList();
+            var orderIds = orderDtos.Select(o => o.OrderId).Where(id => id.HasValue).Select(id => id!.Value).ToList();
             await LoadItemsAsync(orderDtos, orderIds);
         }
 
@@ -80,7 +80,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
     /// </summary>
     /// <param name="id">订单ID</param>
     /// <returns>采购订单DTO</returns>
-    public async Task<TaktPurchaseOrderDto?> GetByIdAsync(long id)
+    public async Task<TaktPurchaseOrderDto?> GetPurchaseOrderByIdAsync(long id)
     {
         var order = await _orderRepository.GetByIdAsync(id);
         if (order == null) return null;
@@ -98,7 +98,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
     /// </summary>
     /// <param name="dto">创建采购订单DTO</param>
     /// <returns>采购订单DTO</returns>
-    public async Task<TaktPurchaseOrderDto> CreateAsync(TaktPurchaseOrderCreateDto dto)
+    public async Task<TaktPurchaseOrderDto> CreatePurchaseOrderAsync(TaktPurchaseOrderCreateDto dto)
     {
         // 1. 生成订单编码（如果未提供）
         if (string.IsNullOrWhiteSpace(dto.OrderCode))
@@ -115,8 +115,8 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
         order.OrderStatus = 0; // 0=草稿
         order.PaymentStatus = 0; // 0=未支付
 
-        // 计算订单总金额
-        CalculateOrderAmounts(order, dto.Items);
+        // 计算订单总金额（CreateDto使用CreateDto类型）
+        CalculateOrderAmounts(order, dto.Items?.Select(i => i.Adapt<TaktPurchaseOrderItemCreateDto>()).ToList());
 
         order = await _orderRepository.CreateAsync(order);
 
@@ -138,7 +138,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
             }
         }
 
-        return await GetByIdAsync(order.Id) ?? order.Adapt<TaktPurchaseOrderDto>();
+        return await GetPurchaseOrderByIdAsync(order.Id) ?? order.Adapt<TaktPurchaseOrderDto>();
     }
 
     /// <summary>
@@ -147,7 +147,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
     /// <param name="id">订单ID</param>
     /// <param name="dto">更新采购订单DTO</param>
     /// <returns>采购订单DTO</returns>
-    public async Task<TaktPurchaseOrderDto> UpdateAsync(long id, TaktPurchaseOrderUpdateDto dto)
+    public async Task<TaktPurchaseOrderDto> UpdatePurchaseOrderAsync(long id, TaktPurchaseOrderUpdateDto dto)
     {
         var order = await _orderRepository.GetByIdAsync(id);
         if (order == null)
@@ -170,7 +170,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
         order.UpdatedAt = DateTime.Now;
 
         // 重新计算订单总金额
-        CalculateOrderAmounts(order, dto.Items);
+        CalculateOrderAmountsFromDto(order, dto.Items);
 
         await _orderRepository.UpdateAsync(order);
 
@@ -199,7 +199,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
             }
         }
 
-        return await GetByIdAsync(id) ?? order.Adapt<TaktPurchaseOrderDto>();
+        return await GetPurchaseOrderByIdAsync(id) ?? order.Adapt<TaktPurchaseOrderDto>();
     }
 
     /// <summary>
@@ -207,7 +207,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
     /// </summary>
     /// <param name="id">订单ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeletePurchaseOrderByIdAsync(long id)
     {
         var order = await _orderRepository.GetByIdAsync(id);
         if (order == null)
@@ -235,7 +235,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
     /// </summary>
     /// <param name="ids">订单ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(IEnumerable<long> ids)
+    public async Task DeletePurchaseOrderBatchAsync(IEnumerable<long> ids)
     {
         var idList = ids.ToList();
         if (idList.Count == 0)
@@ -268,9 +268,12 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
     /// </summary>
     /// <param name="dto">采购订单状态DTO</param>
     /// <returns>采购订单DTO</returns>
-    public async Task<TaktPurchaseOrderDto> UpdateStatusAsync(TaktPurchaseOrderStatusDto dto)
+    public async Task<TaktPurchaseOrderDto> UpdatePurchaseOrderStatusAsync(TaktPurchaseOrderStatusDto dto)
     {
-        var order = await _orderRepository.GetByIdAsync(dto.OrderId);
+        if (!dto.OrderId.HasValue)
+            throw new ArgumentException("订单ID不能为空", nameof(dto.OrderId));
+            
+        var order = await _orderRepository.GetByIdAsync(dto.OrderId.Value);
         if (order == null)
             throw new TaktBusinessException("validation.purchaseOrderNotFound");
 
@@ -279,7 +282,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
 
         await _orderRepository.UpdateAsync(order);
 
-        return await GetByIdAsync(dto.OrderId) ?? order.Adapt<TaktPurchaseOrderDto>();
+        return await GetPurchaseOrderByIdAsync(dto.OrderId!.Value) ?? order.Adapt<TaktPurchaseOrderDto>();
     }
 
     /// <summary>
@@ -301,7 +304,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
         var itemDict = itemDtos.GroupBy(i => i.OrderId).ToDictionary(g => g.Key, g => g.ToList());
         foreach (var orderDto in orderDtos)
         {
-            if (itemDict.TryGetValue(orderDto.OrderId, out var orderItems))
+            if (orderDto.OrderId.HasValue && itemDict.TryGetValue(orderDto.OrderId.Value, out var orderItems))
             {
                 orderDto.Items = orderItems;
             }
@@ -376,12 +379,56 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
     }
 
     /// <summary>
+    /// 计算订单总金额（从Dto版本）
+    /// </summary>
+    /// <param name="order">订单实体</param>
+    /// <param name="items">订单明细Dto列表</param>
+    private void CalculateOrderAmountsFromDto(TaktPurchaseOrder order, List<TaktPurchaseOrderItemDto>? items)
+    {
+        if (items == null || !items.Any())
+        {
+            order.TotalQuantity = 0;
+            order.TotalAmount = 0;
+            order.DiscountAmount = 0;
+            order.TaxAmount = 0;
+            order.ActualAmount = 0;
+            return;
+        }
+
+        decimal totalQuantity = 0;
+        decimal totalAmount = 0;
+        decimal totalDiscountAmount = 0;
+        decimal totalTaxAmount = 0;
+
+        foreach (var itemDto in items)
+        {
+            totalQuantity += itemDto.OrderQuantity;
+
+            // 计算明细金额
+            decimal subtotal = itemDto.OrderQuantity * itemDto.UnitPrice;
+            decimal discountAmount = subtotal * itemDto.DiscountRate / 100;
+            decimal afterDiscount = subtotal - discountAmount;
+            decimal taxAmount = afterDiscount * itemDto.TaxRate / 100;
+
+            totalAmount += subtotal;
+            totalDiscountAmount += discountAmount;
+            totalTaxAmount += taxAmount;
+        }
+
+        order.TotalQuantity = totalQuantity;
+        order.TotalAmount = totalAmount;
+        order.DiscountAmount = totalDiscountAmount;
+        order.TaxAmount = totalTaxAmount;
+        order.ActualAmount = totalAmount - totalDiscountAmount + totalTaxAmount;
+    }
+
+    /// <summary>
     /// 获取导入模板
     /// </summary>
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> GetTemplateAsync(string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> GetPurchaseOrderTemplateAsync(string? sheetName, string? fileName)
     {
         var (excelSheet, excelFile) = await ResolveExcelImportTemplateNamesAsync(sheetName, fileName, nameof(TaktPurchaseOrder));
         return await TaktExcelHelper.GenerateTemplateAsync<TaktPurchaseOrderTemplateDto>(
@@ -396,7 +443,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
     /// <param name="fileStream">Excel文件流</param>
     /// <param name="sheetName">工作表名称</param>
     /// <returns>导入结果（成功数量、失败数量、错误信息列表）</returns>
-    public async Task<(int success, int fail, List<string> errors)> ImportAsync(Stream fileStream, string? sheetName)
+    public async Task<(int success, int fail, List<string> errors)> ImportPurchaseOrderAsync(Stream fileStream, string? sheetName)
     {
         var errors = new List<string>();
         int success = 0;
@@ -503,7 +550,7 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktPurchaseOrderQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportPurchaseOrderAsync(TaktPurchaseOrderQueryDto query, string? sheetName, string? fileName)
     {
         // 构建查询条件
         var predicate = QueryExpression(query);
@@ -535,10 +582,10 @@ public class TaktPurchaseOrderService : TaktServiceBase, ITaktPurchaseOrderServi
         {
             var dto = o.Adapt<TaktPurchaseOrderExportDto>();
             // 处理需要特殊转换的字段
-            dto.OrderStatus = GetOrderStatusString(o.OrderStatus);
-            dto.PaymentStatus = GetPaymentStatusString(o.PaymentStatus);
-            dto.PaymentMethod = GetPaymentMethodString(o.PaymentMethod);
-            dto.DeliveryMethod = GetDeliveryMethodString(o.DeliveryMethod);
+            dto.OrderStatusString = GetOrderStatusString(o.OrderStatus);
+            dto.PaymentStatusString = GetPaymentStatusString(o.PaymentStatus);
+            dto.PaymentMethodString = GetPaymentMethodString(o.PaymentMethod);
+            dto.DeliveryMethodString = GetDeliveryMethodString(o.DeliveryMethod);
             return dto;
         }).ToList();
 

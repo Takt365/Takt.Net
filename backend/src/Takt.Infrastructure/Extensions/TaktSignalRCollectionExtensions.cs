@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.Extensions
 // 文件名称：TaktSignalRCollectionExtensions.cs
@@ -13,6 +13,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
+using Takt.Infrastructure.User;
 
 namespace Takt.Infrastructure.Extensions;
 
@@ -35,6 +36,9 @@ public static class TaktSignalRCollectionExtensions
             options.EnableDetailedErrors = true;
             options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
             options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+
+            // Hub 客户端调用时同步当前连接的 ClaimsPrincipal，供 TaktUserProvider 与 HTTP 请求共用解析逻辑
+            options.AddFilter<TaktHubUserPrincipalFilter>();
             
             // 自定义配置
             configure?.Invoke(options);
@@ -55,5 +59,25 @@ public static class TaktSignalRCollectionExtensions
     {
         app.MapHub<THub>(pattern);
         return app;
+    }
+}
+
+/// <summary>
+/// SignalR 客户端调用 Hub 方法时，将 <see cref="HubCallerContext.User"/> 挂到 <see cref="TaktUserContext.HubInvocationPrincipal"/>，避免仅依赖 IHttpContextAccessor。
+/// </summary>
+internal sealed class TaktHubUserPrincipalFilter : IHubFilter
+{
+    public async ValueTask<object?> InvokeMethodAsync(HubInvocationContext invocationContext, Func<HubInvocationContext, ValueTask<object?>> next)
+    {
+        var previous = TaktUserContext.HubInvocationPrincipal;
+        try
+        {
+            TaktUserContext.HubInvocationPrincipal = invocationContext.Context.User;
+            return await next(invocationContext);
+        }
+        finally
+        {
+            TaktUserContext.HubInvocationPrincipal = previous;
+        }
     }
 }

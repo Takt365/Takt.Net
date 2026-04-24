@@ -20,7 +20,7 @@
       <!-- 标签1：基础信息 -->
       <a-tab-pane
         key="basic"
-        :tab="t('common.form.tabs.basicInfo')"
+        :tab="t('common.form.tabs.basicinfo')"
         force-render
       >
         <a-row :gutter="24">

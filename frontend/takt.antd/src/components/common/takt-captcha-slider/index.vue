@@ -14,7 +14,7 @@
           v-if="loading && !captchaData"
           class="captcha-loading"
         >
-          <a-spin :tip="$t('components.common.captcha.loading')" />
+          <a-spin :tip="$t('components.common.page.captcha.loading')" />
         </div>
 
         <!-- 验证码容器 -->
@@ -28,7 +28,7 @@
             v-if="loading"
             class="captcha-overlay"
           >
-            <a-spin :tip="$t('components.common.captcha.loading')" />
+            <a-spin :tip="$t('components.common.page.captcha.loading')" />
           </div>
           <!-- 图片区域：按 400x100 等比缩放 -->
           <div
@@ -51,7 +51,7 @@
                 <img
                   v-if="captchaData.backgroundImage"
                   :src="captchaData.backgroundImage"
-                  :alt="$t('components.common.captcha.slide')"
+                  :alt="$t('components.common.page.captcha.slide')"
                   class="bg-image"
                   :class="{ 'clickable': !verified }"
                   @click="refresh"
@@ -59,7 +59,7 @@
                 <img
                   v-if="captchaData.sliderImage"
                   :src="captchaData.sliderImage"
-                  :alt="$t('components.common.captcha.slideToVerify')"
+                  :alt="$t('components.common.page.captcha.slidetoverify')"
                   class="slider-image"
                   :style="{ left: `${sliderLeft}px` }"
                 >
@@ -84,7 +84,7 @@
                 }"
               >
                 <a-alert
-                  :message="$t('components.common.captcha.disabled')"
+                  :message="$t('components.common.page.captcha.disabled')"
                   type="info"
                   show-icon
                   :banner="true"
@@ -151,13 +151,13 @@
                     v-if="!verified"
                     class="shine-text"
                   >
-                    {{ $t('components.common.captcha.slideToVerify') }}
+                    {{ $t('components.common.page.captcha.slidetoverify') }}
                   </a-typography-text>
                   <a-typography-text
                     v-else
                     class="success-text"
                   >
-                    {{ $t('components.common.captcha.success') }}
+                    {{ $t('components.common.page.captcha.success') }}
                   </a-typography-text>
                 </div>
               </div>
@@ -189,7 +189,7 @@
             type="link"
             @click="generate"
           >
-            {{ $t('components.common.captcha.regenerate') }}
+            {{ $t('components.common.page.captcha.regenerate') }}
           </a-button>
         </div>
       </div>
@@ -372,7 +372,7 @@ const generate = async () => {
     }
   } catch (error: unknown) {
     logger.error('[Captcha Slider] 生成验证码失败', error)
-    errorMessage.value = getErrorMessage(error, t('components.common.captcha.generateFailed'))
+    errorMessage.value = getErrorMessage(error, t('components.common.page.captcha.generatefailed'))
     emit('fail', errorMessage.value)
     captchaData.value = null
   } finally {
@@ -531,7 +531,7 @@ const verify = async (position: number, timeSpent: number) => {
       emit('verified', true)
     } else {
       logger.warn('[Captcha Slider] 验证码验证失败', { captchaId: request.captchaId, position, message: result.message })
-      errorMessage.value = result.message || t('components.common.captcha.failed')
+      errorMessage.value = result.message || t('components.common.page.captcha.failed')
       emit('fail', errorMessage.value)
       emit('verified', false)
       // 验证失败后重置
@@ -542,7 +542,7 @@ const verify = async (position: number, timeSpent: number) => {
     }
   } catch (error: unknown) {
     logger.error('[Captcha Slider] 验证码验证异常', error)
-    errorMessage.value = getErrorMessage(error, t('components.common.captcha.failed'))
+    errorMessage.value = getErrorMessage(error, t('components.common.page.captcha.failed'))
     emit('fail', errorMessage.value)
     emit('verified', false)
     await resetSlider()

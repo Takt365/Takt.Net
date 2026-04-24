@@ -38,7 +38,15 @@ export interface NotifyOptions {
 /** 通用通知 */
 export function notify(options: NotifyOptions): void {
   const { type = 'info', message, description, duration, placement, key, onClose, ...rest } = options
-  notification[type]({ message, description, duration, placement, key, onClose, ...rest })
+  notification[type]({
+    message,
+    ...rest,
+    ...(description !== undefined ? { description } : {}),
+    ...(duration !== undefined ? { duration } : {}),
+    ...(placement !== undefined ? { placement } : {}),
+    ...(key !== undefined ? { key } : {}),
+    ...(onClose !== undefined ? { onClose } : {})
+  })
 }
 
 export const API_CONNECT_FAIL_KEY = 'api-connect-fail'
@@ -49,8 +57,8 @@ export function closeApiConnectFailNotification(): void {
 
 export function showApiConnectFail(options?: Partial<NotifyOptions>): void {
   notification.error({
-    message: t('common.api.connectFail'),
-    description: t('common.api.connectFailDescription'),
+    message: t('common.api.connectfail'),
+    description: t('common.api.connectfaildescription'),
     placement: 'topRight',
     duration: 4.5,
     key: API_CONNECT_FAIL_KEY,
@@ -74,7 +82,7 @@ export function showApiError(message: string, description?: string): void {
 export function showSignalrConnectFail(options?: Partial<NotifyOptions>): void {
   notify({
     type: 'error',
-    message: t('stores.signalr.connectFail'),
+    message: t('stores.page.signalr.connectfail'),
     placement: 'topRight',
     ...options
   })
@@ -83,7 +91,7 @@ export function showSignalrConnectFail(options?: Partial<NotifyOptions>): void {
 export function showOnlineNotify(options: Partial<NotifyOptions> & { description: string }): void {
   notify({
     type: 'success',
-    message: t('stores.signalr.onlineNotify'),
+    message: t('stores.page.signalr.onlinenotify'),
     placement: 'topRight',
     duration: 4.5,
     ...options

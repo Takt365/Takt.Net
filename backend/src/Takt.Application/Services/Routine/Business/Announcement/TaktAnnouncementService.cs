@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Routine.Business.Announcement
 // 文件名称：TaktAnnouncementService.cs
@@ -87,7 +87,7 @@ public class TaktAnnouncementService : TaktServiceBase, ITaktAnnouncementService
         var entity = dto.Adapt<TaktAnnouncement>();
         entity.AnnouncementStatus = 0; // 草稿
         entity.ReadCount = 0;
-        var user = GetCurrentUser();
+        var user = _userContext?.GetCurrentUser();
         entity.PublisherId = user?.Id ?? 999;
         entity.PublisherName = GetCurrentRealName() ?? user?.UserName ?? "Takt365";
 

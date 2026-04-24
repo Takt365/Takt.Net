@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Routine.SignalR
 // 文件名称：TaktOnlineService.cs
@@ -51,7 +51,7 @@ public class TaktOnlineService : TaktServiceBase, ITaktOnlineService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktOnlineDto>> GetListAsync(TaktOnlineQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktOnlineDto>> GetOnlineListAsync(TaktOnlineQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
 
@@ -69,7 +69,7 @@ public class TaktOnlineService : TaktServiceBase, ITaktOnlineService
     /// </summary>
     /// <param name="id">在线用户ID</param>
     /// <returns>在线用户DTO</returns>
-    public async Task<TaktOnlineDto?> GetByIdAsync(long id)
+    public async Task<TaktOnlineDto?> GetOnlineByIdAsync(long id)
     {
         var online = await _onlineRepository.GetByIdAsync(id);
         if (online == null) return null;
@@ -82,7 +82,7 @@ public class TaktOnlineService : TaktServiceBase, ITaktOnlineService
     /// </summary>
     /// <param name="connectionId">连接ID</param>
     /// <returns>在线用户DTO</returns>
-    public async Task<TaktOnlineDto?> GetByConnectionIdAsync(string connectionId)
+    public async Task<TaktOnlineDto?> GetOnlineByConnectionIdAsync(string connectionId)
     {
         var online = await _onlineRepository.GetAsync(o => o.ConnectionId == connectionId && o.IsDeleted == 0);
         if (online == null) return null;
@@ -95,10 +95,10 @@ public class TaktOnlineService : TaktServiceBase, ITaktOnlineService
     /// </summary>
     /// <param name="dto">创建在线用户DTO</param>
     /// <returns>在线用户DTO</returns>
-    public async Task<TaktOnlineDto> CreateAsync(TaktOnlineCreateDto dto)
+    public async Task<TaktOnlineDto> CreateOnlineAsync(TaktOnlineCreateDto dto)
     {
         var online = dto.Adapt<TaktOnline>();
-        online.ConnectTime = dto.ConnectTime ?? DateTime.Now;
+        online.ConnectTime = dto.ConnectTime;
 
         // 填充IP定位信息
         FillIpLocationInfo(online.ConnectIp,
@@ -165,7 +165,7 @@ public class TaktOnlineService : TaktServiceBase, ITaktOnlineService
     /// </summary>
     /// <param name="id">在线用户ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteOnlineByIdAsync(long id)
     {
         var online = await _onlineRepository.GetByIdAsync(id);
         EnsureEntityExistsLocalized(online, "OnlineNotFound");
@@ -179,7 +179,7 @@ public class TaktOnlineService : TaktServiceBase, ITaktOnlineService
     /// </summary>
     /// <param name="connectionId">连接ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteByConnectionIdAsync(string connectionId)
+    public async Task DeleteOnlineByConnectionIdAsync(string connectionId)
     {
         var online = await _onlineRepository.GetAsync(o => o.ConnectionId == connectionId && o.IsDeleted == 0);
         if (online != null)
@@ -194,7 +194,7 @@ public class TaktOnlineService : TaktServiceBase, ITaktOnlineService
     /// </summary>
     /// <param name="ids">在线用户ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteBatchAsync(List<long> ids)
+    public async Task DeleteOnlineBatchAsync(List<long> ids)
     {
         if (ids == null || ids.Count == 0)
         {
@@ -218,7 +218,7 @@ public class TaktOnlineService : TaktServiceBase, ITaktOnlineService
     /// </summary>
     /// <param name="connectionId">连接ID</param>
     /// <returns>任务</returns>
-    public async Task UpdateLastActiveTimeAsync(string connectionId)
+    public async Task UpdateOnlineLastActiveTimeAsync(string connectionId)
     {
         var online = await _onlineRepository.GetAsync(o => o.ConnectionId == connectionId && o.IsDeleted == 0);
         if (online != null)
@@ -235,7 +235,7 @@ public class TaktOnlineService : TaktServiceBase, ITaktOnlineService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktOnlineQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportOnlineAsync(TaktOnlineQueryDto query, string? sheetName, string? fileName)
     {
         // 构建查询条件
         var predicate = QueryExpression(query);
@@ -267,7 +267,7 @@ public class TaktOnlineService : TaktServiceBase, ITaktOnlineService
         {
             var dto = o.Adapt<TaktOnlineExportDto>();
             // 处理需要特殊转换的字段
-            dto.OnlineStatus = GetOnlineStatusString(o.OnlineStatus);
+            dto.OnlineStatusString = GetOnlineStatusString(o.OnlineStatus);
             dto.ConnectIp = o.ConnectIp ?? string.Empty;
             dto.ConnectLocation = o.ConnectLocation ?? string.Empty;
             dto.DeviceType = o.DeviceType ?? string.Empty;

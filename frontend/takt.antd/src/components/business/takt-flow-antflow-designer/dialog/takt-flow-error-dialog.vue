@@ -12,7 +12,7 @@
 <template>
   <a-modal
     v-model:open="openProxy"
-    :title="t('workflow.designer.errorDialogTitle')"
+    :title="t('workflow.designer.page.errordialogtitle')"
     width="640px"
     :footer="null"
     destroy-on-close
@@ -55,9 +55,9 @@ const openProxy = computed({
 })
 
 const columns = computed(() => [
-  { title: t('workflow.designer.errorColIndex'), dataIndex: 'index', width: 64 },
-  { title: t('workflow.designer.errorColNode'), dataIndex: 'nodeName', ellipsis: true },
-  { title: t('workflow.designer.errorColMessage'), dataIndex: 'message', ellipsis: true }
+  { title: t('workflow.designer.page.errorcolindex'), dataIndex: 'index', width: 64 },
+  { title: t('workflow.designer.page.errorcolnode'), dataIndex: 'nodeName', ellipsis: true },
+  { title: t('workflow.designer.page.errorcolmessage'), dataIndex: 'message', ellipsis: true }
 ])
 
 const rows = computed(() =>

@@ -1,10 +1,10 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.Personnel
 // 文件名称：TaktEmployeeContractDtos.cs
-// 创建时间：2026-04-14
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt员工合同DTO，包含员工合同相关的数据传输对象（查询、创建、更新、导入导出）
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：员工合同表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,9 +17,9 @@ using Takt.Shared.Models;
 namespace Takt.Application.Dtos.HumanResource.Personnel;
 
 /// <summary>
-/// Takt员工合同DTO
+/// 员工合同表Dto
 /// </summary>
-public class TaktEmployeeContractDto : TaktDtoBase
+public partial class TaktEmployeeContractDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -27,57 +27,48 @@ public class TaktEmployeeContractDto : TaktDtoBase
     public TaktEmployeeContractDto()
     {
         ContractNo = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 员工合同ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 员工合同表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeContractId { get; set; }
 
     /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
-
     /// <summary>
     /// 合同编号
     /// </summary>
     public string ContractNo { get; set; }
-
     /// <summary>
     /// 合同类型
     /// </summary>
     public int ContractType { get; set; }
-
     /// <summary>
     /// 开始日期
     /// </summary>
     public DateTime? StartDate { get; set; }
-
     /// <summary>
     /// 结束日期
     /// </summary>
     public DateTime? EndDate { get; set; }
-
     /// <summary>
     /// 试用期结束日期
     /// </summary>
     public DateTime? ProbationEndDate { get; set; }
-
     /// <summary>
     /// 签订日期
     /// </summary>
     public DateTime? SignDate { get; set; }
-
     /// <summary>
     /// 合同状态
     /// </summary>
     public int ContractStatus { get; set; }
-
     /// <summary>
     /// 签约主体
     /// </summary>
@@ -85,31 +76,127 @@ public class TaktEmployeeContractDto : TaktDtoBase
 }
 
 /// <summary>
-/// Takt员工合同查询DTO
+/// 员工合同表查询DTO
 /// </summary>
-public class TaktEmployeeContractQueryDto : TaktPagedQuery
+public partial class TaktEmployeeContractQueryDto : TaktPagedQuery
 {
     /// <summary>
-    /// 员工ID（精确）
+    /// 构造函数
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    public TaktEmployeeContractQueryDto()
+    {
+    }
+
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
+    /// <summary>
+    /// 员工合同表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeContractId { get; set; }
+
+    /// <summary>
+    /// 员工ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? EmployeeId { get; set; }
-
     /// <summary>
-    /// 合同状态（精确）
-    /// </summary>
-    public int? ContractStatus { get; set; }
-
-    /// <summary>
-    /// 合同编号（模糊）
+    /// 合同编号
     /// </summary>
     public string? ContractNo { get; set; }
+    /// <summary>
+    /// 合同类型
+    /// </summary>
+    public int? ContractType { get; set; }
+    /// <summary>
+    /// 开始日期
+    /// </summary>
+    public DateTime? StartDate { get; set; }
+
+    /// <summary>
+    /// 开始日期开始时间
+    /// </summary>
+    public DateTime? StartDateStart { get; set; }
+    /// <summary>
+    /// 开始日期结束时间
+    /// </summary>
+    public DateTime? StartDateEnd { get; set; }
+    /// <summary>
+    /// 结束日期
+    /// </summary>
+    public DateTime? EndDate { get; set; }
+
+    /// <summary>
+    /// 结束日期开始时间
+    /// </summary>
+    public DateTime? EndDateStart { get; set; }
+    /// <summary>
+    /// 结束日期结束时间
+    /// </summary>
+    public DateTime? EndDateEnd { get; set; }
+    /// <summary>
+    /// 试用期结束日期
+    /// </summary>
+    public DateTime? ProbationEndDate { get; set; }
+
+    /// <summary>
+    /// 试用期结束日期开始时间
+    /// </summary>
+    public DateTime? ProbationEndDateStart { get; set; }
+    /// <summary>
+    /// 试用期结束日期结束时间
+    /// </summary>
+    public DateTime? ProbationEndDateEnd { get; set; }
+    /// <summary>
+    /// 签订日期
+    /// </summary>
+    public DateTime? SignDate { get; set; }
+
+    /// <summary>
+    /// 签订日期开始时间
+    /// </summary>
+    public DateTime? SignDateStart { get; set; }
+    /// <summary>
+    /// 签订日期结束时间
+    /// </summary>
+    public DateTime? SignDateEnd { get; set; }
+    /// <summary>
+    /// 合同状态
+    /// </summary>
+    public int? ContractStatus { get; set; }
+    /// <summary>
+    /// 签约主体
+    /// </summary>
+    public string? SignCompany { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建员工合同DTO
+/// Takt创建员工合同表DTO
 /// </summary>
-public class TaktEmployeeContractCreateDto
+public partial class TaktEmployeeContractCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -119,82 +206,307 @@ public class TaktEmployeeContractCreateDto
         ContractNo = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 合同编号
     /// </summary>
     public string ContractNo { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 合同类型
     /// </summary>
     public int ContractType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 开始日期
     /// </summary>
     public DateTime? StartDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 结束日期
     /// </summary>
     public DateTime? EndDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 试用期结束日期
     /// </summary>
     public DateTime? ProbationEndDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 签订日期
     /// </summary>
     public DateTime? SignDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 合同状态
     /// </summary>
     public int ContractStatus { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 签约主体
     /// </summary>
     public string? SignCompany { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt更新员工合同DTO
+/// Takt更新员工合同表DTO
 /// </summary>
-public class TaktEmployeeContractUpdateDto : TaktEmployeeContractCreateDto
+public partial class TaktEmployeeContractUpdateDto : TaktEmployeeContractCreateDto
 {
     /// <summary>
-    /// 员工合同ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 构造函数
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    public TaktEmployeeContractUpdateDto()
+    {
+    }
+
+        /// <summary>
+    /// 员工合同表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeContractId { get; set; }
 }
 
 /// <summary>
-/// Takt员工合同导入模板DTO
+/// 员工合同表合同状态DTO
 /// </summary>
-public class TaktEmployeeContractTemplateDto : TaktEmployeeContractCreateDto
+public partial class TaktEmployeeContractStatusDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktEmployeeContractStatusDto()
+    {
+    }
+
+        /// <summary>
+    /// 员工合同表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeContractId { get; set; }
+
+    /// <summary>
+    /// 合同状态（0=禁用，1=启用）
+    /// </summary>
+    public int ContractStatus { get; set; }
 }
 
 /// <summary>
-/// Takt员工合同导入DTO
+/// 员工合同表导入模板DTO
 /// </summary>
-public class TaktEmployeeContractImportDto : TaktEmployeeContractTemplateDto
+public partial class TaktEmployeeContractTemplateDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktEmployeeContractTemplateDto()
+    {
+        ContractNo = string.Empty;
+    }
+
+        /// <summary>
+    /// 员工ID
+    /// </summary>
+    public long EmployeeId { get; set; }
+
+        /// <summary>
+    /// 合同编号
+    /// </summary>
+    public string ContractNo { get; set; }
+
+        /// <summary>
+    /// 合同类型
+    /// </summary>
+    public int ContractType { get; set; }
+
+        /// <summary>
+    /// 开始日期
+    /// </summary>
+    public DateTime? StartDate { get; set; }
+
+        /// <summary>
+    /// 结束日期
+    /// </summary>
+    public DateTime? EndDate { get; set; }
+
+        /// <summary>
+    /// 试用期结束日期
+    /// </summary>
+    public DateTime? ProbationEndDate { get; set; }
+
+        /// <summary>
+    /// 签订日期
+    /// </summary>
+    public DateTime? SignDate { get; set; }
+
+        /// <summary>
+    /// 合同状态
+    /// </summary>
+    public int ContractStatus { get; set; }
+
+        /// <summary>
+    /// 签约主体
+    /// </summary>
+    public string? SignCompany { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt员工合同导出DTO
+/// 员工合同表导入DTO
 /// </summary>
-public class TaktEmployeeContractExportDto : TaktEmployeeContractDto
+public partial class TaktEmployeeContractImportDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktEmployeeContractImportDto()
+    {
+        ContractNo = string.Empty;
+    }
+
+        /// <summary>
+    /// 员工ID
+    /// </summary>
+    public long EmployeeId { get; set; }
+
+        /// <summary>
+    /// 合同编号
+    /// </summary>
+    public string ContractNo { get; set; }
+
+        /// <summary>
+    /// 合同类型
+    /// </summary>
+    public int ContractType { get; set; }
+
+        /// <summary>
+    /// 开始日期
+    /// </summary>
+    public DateTime? StartDate { get; set; }
+
+        /// <summary>
+    /// 结束日期
+    /// </summary>
+    public DateTime? EndDate { get; set; }
+
+        /// <summary>
+    /// 试用期结束日期
+    /// </summary>
+    public DateTime? ProbationEndDate { get; set; }
+
+        /// <summary>
+    /// 签订日期
+    /// </summary>
+    public DateTime? SignDate { get; set; }
+
+        /// <summary>
+    /// 合同状态
+    /// </summary>
+    public int ContractStatus { get; set; }
+
+        /// <summary>
+    /// 签约主体
+    /// </summary>
+    public string? SignCompany { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
+}
+
+/// <summary>
+/// 员工合同表导出DTO
+/// </summary>
+public partial class TaktEmployeeContractExportDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktEmployeeContractExportDto()
+    {
+        CreatedAt = DateTime.Now;
+        ContractNo = string.Empty;
+    }
+
+        /// <summary>
+    /// 员工ID
+    /// </summary>
+    public long EmployeeId { get; set; }
+
+        /// <summary>
+    /// 合同编号
+    /// </summary>
+    public string ContractNo { get; set; }
+
+        /// <summary>
+    /// 合同类型
+    /// </summary>
+    public int ContractType { get; set; }
+
+        /// <summary>
+    /// 开始日期
+    /// </summary>
+    public DateTime? StartDate { get; set; }
+
+        /// <summary>
+    /// 结束日期
+    /// </summary>
+    public DateTime? EndDate { get; set; }
+
+        /// <summary>
+    /// 试用期结束日期
+    /// </summary>
+    public DateTime? ProbationEndDate { get; set; }
+
+        /// <summary>
+    /// 签订日期
+    /// </summary>
+    public DateTime? SignDate { get; set; }
+
+        /// <summary>
+    /// 合同状态
+    /// </summary>
+    public int ContractStatus { get; set; }
+
+        /// <summary>
+    /// 签约主体
+    /// </summary>
+    public string? SignCompany { get; set; }
+
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime CreatedAt { get; set; }
 }

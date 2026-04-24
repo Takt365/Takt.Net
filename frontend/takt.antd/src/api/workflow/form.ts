@@ -28,7 +28,7 @@ const formUrl = '/api/TaktFlowForms'
 
 /**
  * 获取流程表单列表（分页）
- * 对应后端：GetList
+ * 对应后端应用服务：GetFlowFormListAsync（TaktFlowFormsController.GetList）
  */
 export function getFlowFormList(params: FlowFormQuery): Promise<TaktPagedResult<FlowForm>> {
   return request({
@@ -40,7 +40,7 @@ export function getFlowFormList(params: FlowFormQuery): Promise<TaktPagedResult<
 
 /**
  * 根据ID获取流程表单
- * 对应后端：GetById
+ * 对应后端应用服务：GetFlowFormByIdAsync（TaktFlowFormsController.GetById）
  */
 export function getFlowFormById(id: string): Promise<FlowForm> {
   return request({
@@ -51,7 +51,7 @@ export function getFlowFormById(id: string): Promise<FlowForm> {
 
 /**
  * 根据表单编码获取流程表单
- * 对应后端：GetByFormCode
+ * 对应后端应用服务：GetFlowFormByFormCodeAsync（TaktFlowFormsController.GetByFormCode）
  */
 export function getFlowFormByCode(formCode: string): Promise<FlowForm> {
   return request({
@@ -62,7 +62,7 @@ export function getFlowFormByCode(formCode: string): Promise<FlowForm> {
 
 /**
  * 创建流程表单
- * 对应后端：Create
+ * 对应后端应用服务：CreateFlowFormAsync（TaktFlowFormsController.Create）
  */
 export function createFlowForm(data: FlowFormCreate): Promise<FlowForm> {
   return request({
@@ -74,7 +74,7 @@ export function createFlowForm(data: FlowFormCreate): Promise<FlowForm> {
 
 /**
  * 更新流程表单
- * 对应后端：Update
+ * 对应后端应用服务：UpdateFlowFormAsync（TaktFlowFormsController.Update）
  */
 export function updateFlowForm(id: string, data: FlowFormUpdate): Promise<FlowForm> {
   return request({
@@ -86,7 +86,7 @@ export function updateFlowForm(id: string, data: FlowFormUpdate): Promise<FlowFo
 
 /**
  * 删除流程表单（单条）
- * 对应后端：Delete
+ * 对应后端应用服务：DeleteFlowFormByIdAsync（TaktFlowFormsController.Delete）
  */
 export function deleteFlowFormById(id: string): Promise<void> {
   return request({
@@ -97,7 +97,7 @@ export function deleteFlowFormById(id: string): Promise<void> {
 
 /**
  * 批量删除流程表单
- * 对应后端：DeleteBatch
+ * 对应后端应用服务：DeleteFlowFormBatchAsync（TaktFlowFormsController.DeleteBatch）
  */
 export function deleteFlowFormBatch(ids: string[]): Promise<void> {
   return request({
@@ -121,7 +121,7 @@ export function updateFlowFormStatus(data: FlowFormStatusUpdate): Promise<FlowFo
 
 /**
  * 获取导入模板
- * 对应后端：GetTemplate
+ * 对应后端应用服务：GetFlowFormTemplateAsync（TaktFlowFormsController.GetTemplate）
  */
 export function getFlowFormTemplate(sheetName?: string, fileName?: string): Promise<BlobDownloadWithMeta> {
   return request({
@@ -135,7 +135,7 @@ export function getFlowFormTemplate(sheetName?: string, fileName?: string): Prom
 
 /**
  * 导入流程表单
- * 对应后端：Import
+ * 对应后端应用服务：ImportFlowFormAsync（TaktFlowFormsController.Import）
  */
 export function importFlowFormData(file: File, sheetName?: string): Promise<{ success: number; fail: number; errors: string[] }> {
   const formData = new FormData()
@@ -151,7 +151,7 @@ export function importFlowFormData(file: File, sheetName?: string): Promise<{ su
 
 /**
  * 导出流程表单
- * 对应后端：Export
+ * 对应后端应用服务：ExportFlowFormAsync（TaktFlowFormsController.Export）
  */
 export function exportFlowFormData(query: FlowFormQuery, sheetName?: string, fileName?: string): Promise<Blob> {
   return request({
@@ -197,7 +197,7 @@ export interface TableColumnItem {
   csharpType?: string
   csharpColumnName?: string
   isRequired?: number          // 0=是,1=否（对齐 sys_yes_no）
-  displayType?: string         // 对齐 sys_display_type 的 DictValue，如 input/select
+  displayType?: string         // 对齐 gen_display_type 的 DictValue，如 input/select
   dictTypeCode?: string        // 绑定字典类型编码
 }
 
@@ -246,7 +246,7 @@ export function getTableColumns(configId: string, tableName: string): Promise<Ta
 
 /**
  * 根据数据源与表名获取表单配置 JSON（选中数据表后，将该表所有列还原成表单格式）
- * 对应后端：GetFormConfigFromTableAsync
+ * 对应后端：TaktFlowFormsController.GetFormConfigFromTableAsync（控制器内组装，非 ITaktFlowFormService）
  */
 export function getFormConfigFromTable(configId: string, tableName: string): Promise<string> {
   return request({

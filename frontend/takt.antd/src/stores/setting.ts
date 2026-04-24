@@ -25,6 +25,16 @@ export const useSettingStore = defineStore('setting', () => {
     }
   }
 
+  /** 仅更新内存配置（不写入 localStorage），用于假日等临时覆盖场景 */
+  function setSettingTransient(partial: Partial<AppSetting>) {
+    const current = setting.value ?? defaultSetting
+    const next = { ...current, ...partial }
+    if (partial.themeColor && typeof partial.themeColor === 'object') {
+      next.themeColor = { ...current.themeColor, ...partial.themeColor }
+    }
+    setting.value = normalizeSetting(next)
+  }
+
   function resetSetting() {
     setting.value = { ...defaultSetting }
     if (typeof window !== 'undefined' && localStorage) {
@@ -43,5 +53,5 @@ export const useSettingStore = defineStore('setting', () => {
     })
   }
 
-  return { setting, setSetting, resetSetting, syncFromStorage }
+  return { setting, setSetting, setSettingTransient, resetSetting, syncFromStorage }
 })

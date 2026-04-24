@@ -40,14 +40,14 @@
       </a-descriptions-item>
       <a-descriptions-item :label="t('workflow.instance.transitionHistory')">
         <div
-          v-for="(h, i) in detail.history"
+          v-for="(h, i) in historyItems"
           :key="i"
           class="history-item"
         >
           {{ h.fromNodeName }} → {{ h.toNodeName }}（{{ h.transitionUserName }}，{{ h.transitionTime }}）
           <span v-if="h.transitionComment">：{{ h.transitionComment }}</span>
         </div>
-        <span v-if="!detail.history?.length">{{ t('workflow.instance.noHistory') }}</span>
+        <span v-if="!historyItems.length">{{ t('workflow.instance.noHistory') }}</span>
       </a-descriptions-item>
     </a-descriptions>
     <FlowPendingAddApproversPanel
@@ -62,8 +62,9 @@
 /**
  * 我的流程·实例详情展示（只读）：实例编码、流程名、标题、状态、当前节点、发起人、发起时间、流转历史；未处理加签与减签。
  */
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FlowInstanceDetail } from '@/types/workflow/instance'
+import type { FlowHistoryItem, FlowInstanceDetail } from '@/types/workflow/flow-instance'
 import FlowPendingAddApproversPanel from '@/views/workflow/components/flow-pending-add-approvers-panel.vue'
 
 /** 父组件传入的实例详情 */
@@ -71,10 +72,23 @@ interface Props {
   detail: FlowInstanceDetail | null
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 defineEmits<{ refresh: [] }>()
 
 const { t } = useI18n()
+
+const historyItems = computed<FlowHistoryItem[]>(() => {
+  const list = props.detail?.history
+  if (!Array.isArray(list)) return []
+  return list.filter((item): item is FlowHistoryItem => {
+    if (!item || typeof item !== 'object') return false
+    const row = item as Record<string, unknown>
+    return typeof row.fromNodeName === 'string'
+      && typeof row.toNodeName === 'string'
+      && typeof row.transitionUserName === 'string'
+      && typeof row.transitionTime === 'string'
+  })
+})
 
 /** 实例状态码转展示文案（走 i18n workflow.instance.status.*） */
 function statusText(s: number) {

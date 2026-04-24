@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.HumanResource.Personnel
 // 文件名称：TaktEmployee.cs
@@ -20,7 +20,7 @@ namespace Takt.Domain.Entities.HumanResource.Personnel;
 /// 人事相关信息（姓名、性别、联系方式、头像等）以此实体为准；登录账号在 TaktUser，由 TaktUser.EmployeeId 关联本表。
 /// 紧急联系人不在本表维护，请在 <see cref="TaktEmployeeFamily"/> 中通过 <see cref="TaktEmployeeFamily.IsEmergencyContact"/> 标记家庭成员为紧急联系人。
 /// </summary>
-[SugarTable("takt_humanresource_employee", "员工表")]
+[SugarTable("takt_humanresource_employee", "员工信息表")]
 [SugarIndex("ix_takt_humanresource_employee_employee_code", nameof(EmployeeCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_humanresource_employee_id_card", nameof(IdCard), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_employee_phone", nameof(Phone), OrderByType.Asc)]
@@ -155,4 +155,52 @@ public class TaktEmployee : TaktEntityBase
     /// </summary>
     [Navigate(NavigateType.OneToMany, nameof(TaktEmployeeDelegate.EmployeeId))]
     public List<TaktEmployeeDelegate>? EmployeeDelegates { get; set; }
+
+    /// <summary>
+    /// 员工职业信息列表（外键在子表 <see cref="TaktEmployeeCareer.EmployeeId"/>）
+    /// </summary>
+    [Navigate(NavigateType.OneToMany, nameof(TaktEmployeeCareer.EmployeeId))]
+    public List<TaktEmployeeCareer>? EmployeeCareers { get; set; }
+
+    /// <summary>
+    /// 员工附件列表（外键在子表 <see cref="TaktEmployeeAttachment.EmployeeId"/>）
+    /// </summary>
+    [Navigate(NavigateType.OneToMany, nameof(TaktEmployeeAttachment.EmployeeId))]
+    public List<TaktEmployeeAttachment>? EmployeeAttachments { get; set; }
+
+    /// <summary>
+    /// 员工合同列表（外键在子表 <see cref="TaktEmployeeContract.EmployeeId"/>）
+    /// </summary>
+    [Navigate(NavigateType.OneToMany, nameof(TaktEmployeeContract.EmployeeId))]
+    public List<TaktEmployeeContract>? EmployeeContracts { get; set; }
+
+    /// <summary>
+    /// 员工教育经历列表（外键在子表 <see cref="TaktEmployeeEducation.EmployeeId"/>）
+    /// </summary>
+    [Navigate(NavigateType.OneToMany, nameof(TaktEmployeeEducation.EmployeeId))]
+    public List<TaktEmployeeEducation>? EmployeeEducations { get; set; }
+
+    /// <summary>
+    /// 员工家庭成员列表（外键在子表 <see cref="TaktEmployeeFamily.EmployeeId"/>）
+    /// </summary>
+    [Navigate(NavigateType.OneToMany, nameof(TaktEmployeeFamily.EmployeeId))]
+    public List<TaktEmployeeFamily>? EmployeeFamilies { get; set; }
+
+    /// <summary>
+    /// 员工业务技能列表（外键在子表 <see cref="TaktEmployeeSkill.EmployeeId"/>）
+    /// </summary>
+    [Navigate(NavigateType.OneToMany, nameof(TaktEmployeeSkill.EmployeeId))]
+    public List<TaktEmployeeSkill>? EmployeeSkills { get; set; }
+
+    /// <summary>
+    /// 员工调动记录列表（外键在子表 <see cref="TaktEmployeeTransfer.EmployeeId"/>）
+    /// </summary>
+    [Navigate(NavigateType.OneToMany, nameof(TaktEmployeeTransfer.EmployeeId))]
+    public List<TaktEmployeeTransfer>? EmployeeTransfers { get; set; }
+
+    /// <summary>
+    /// 员工工作履历列表（外键在子表 <see cref="TaktEmployeeWork.EmployeeId"/>）
+    /// </summary>
+    [Navigate(NavigateType.OneToMany, nameof(TaktEmployeeWork.EmployeeId))]
+    public List<TaktEmployeeWork>? EmployeeWorks { get; set; }
 }

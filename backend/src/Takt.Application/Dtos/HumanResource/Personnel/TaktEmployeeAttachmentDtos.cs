@@ -1,10 +1,10 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.Personnel
 // 文件名称：TaktEmployeeAttachmentDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt员工附件DTO，包含员工附件相关的数据传输对象（查询、创建、更新、导入导出）
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：员工附件表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,9 +17,9 @@ using Takt.Shared.Models;
 namespace Takt.Application.Dtos.HumanResource.Personnel;
 
 /// <summary>
-/// Takt员工附件DTO
+/// 员工附件表Dto
 /// </summary>
-public class TaktEmployeeAttachmentDto : TaktDtoBase
+public partial class TaktEmployeeAttachmentDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -29,73 +29,63 @@ public class TaktEmployeeAttachmentDto : TaktDtoBase
         FileCode = string.Empty;
         FileName = string.Empty;
         FilePath = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 附件ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 员工附件表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long AttachmentId { get; set; }
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeAttachmentId { get; set; }
 
     /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
-
     /// <summary>
-    /// 文件ID（关联TaktFile）
+    /// 文件ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long FileId { get; set; }
-
     /// <summary>
     /// 文件编码
     /// </summary>
     public string FileCode { get; set; }
-
     /// <summary>
     /// 文件名称
     /// </summary>
     public string FileName { get; set; }
-
     /// <summary>
     /// 文件路径
     /// </summary>
     public string FilePath { get; set; }
-
     /// <summary>
     /// 文件大小（字节）
     /// </summary>
     public long FileSize { get; set; }
-
     /// <summary>
-    /// 文件类型（MIME类型）
+    /// 文件类型
     /// </summary>
     public string? FileType { get; set; }
-
     /// <summary>
-    /// 附件类型（0=身份证，1=学历证书，2=学位证书，3=资格证书，4=劳动合同，5=其他）
+    /// 附件类型
     /// </summary>
     public int AttachmentType { get; set; }
-
     /// <summary>
     /// 附件描述
     /// </summary>
     public string? AttachmentDescription { get; set; }
-
     /// <summary>
-    /// 排序号（越小越靠前）
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 }
 
 /// <summary>
-/// Takt员工附件查询DTO
+/// 员工附件表查询DTO
 /// </summary>
-public class TaktEmployeeAttachmentQueryDto : TaktPagedQuery
+public partial class TaktEmployeeAttachmentQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -104,28 +94,85 @@ public class TaktEmployeeAttachmentQueryDto : TaktPagedQuery
     {
     }
 
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
     /// <summary>
-    /// 员工ID（精确）
+    /// 员工附件表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeAttachmentId { get; set; }
+
+    /// <summary>
+    /// 员工ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? EmployeeId { get; set; }
-
     /// <summary>
-    /// 文件ID（精确）
+    /// 文件ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? FileId { get; set; }
-
     /// <summary>
-    /// 附件类型（0=身份证，1=学历证书，2=学位证书，3=资格证书，4=劳动合同，5=其他；null 表示全部）
+    /// 文件编码
+    /// </summary>
+    public string? FileCode { get; set; }
+    /// <summary>
+    /// 文件名称
+    /// </summary>
+    public string? FileName { get; set; }
+    /// <summary>
+    /// 文件路径
+    /// </summary>
+    public string? FilePath { get; set; }
+    /// <summary>
+    /// 文件大小（字节）
+    /// </summary>
+    public long? FileSize { get; set; }
+    /// <summary>
+    /// 文件类型
+    /// </summary>
+    public string? FileType { get; set; }
+    /// <summary>
+    /// 附件类型
     /// </summary>
     public int? AttachmentType { get; set; }
+    /// <summary>
+    /// 附件描述
+    /// </summary>
+    public string? AttachmentDescription { get; set; }
+    /// <summary>
+    /// 排序号
+    /// </summary>
+    public int? SortOrder { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建员工附件DTO
+/// Takt创建员工附件表DTO
 /// </summary>
-public class TaktEmployeeAttachmentCreateDto
+public partial class TaktEmployeeAttachmentCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -137,63 +184,73 @@ public class TaktEmployeeAttachmentCreateDto
         FilePath = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
-    /// 文件ID（关联TaktFile）
+        /// <summary>
+    /// 文件ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long FileId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 文件编码
     /// </summary>
     public string FileCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 文件名称
     /// </summary>
     public string FileName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 文件路径
     /// </summary>
     public string FilePath { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 文件大小（字节）
     /// </summary>
     public long FileSize { get; set; }
 
-    /// <summary>
-    /// 文件类型（MIME类型）
+        /// <summary>
+    /// 文件类型
     /// </summary>
     public string? FileType { get; set; }
 
-    /// <summary>
-    /// 附件类型（0=身份证，1=学历证书，2=学位证书，3=资格证书，4=劳动合同，5=其他）
+        /// <summary>
+    /// 附件类型
     /// </summary>
     public int AttachmentType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 附件描述
     /// </summary>
     public string? AttachmentDescription { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt更新员工附件DTO
+/// Takt更新员工附件表DTO
 /// </summary>
-public class TaktEmployeeAttachmentUpdateDto : TaktEmployeeAttachmentCreateDto
+public partial class TaktEmployeeAttachmentUpdateDto : TaktEmployeeAttachmentCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -202,17 +259,18 @@ public class TaktEmployeeAttachmentUpdateDto : TaktEmployeeAttachmentCreateDto
     {
     }
 
-    /// <summary>
-    /// 附件ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 员工附件表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long AttachmentId { get; set; }
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeAttachmentId { get; set; }
 }
 
 /// <summary>
-/// Takt员工附件导入模板DTO
+/// 员工附件表导入模板DTO
 /// </summary>
-public class TaktEmployeeAttachmentTemplateDto
+public partial class TaktEmployeeAttachmentTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -222,44 +280,62 @@ public class TaktEmployeeAttachmentTemplateDto
         FileCode = string.Empty;
         FileName = string.Empty;
         FilePath = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 文件ID
+    /// </summary>
+    public long FileId { get; set; }
+
+        /// <summary>
     /// 文件编码
     /// </summary>
     public string FileCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 文件名称
     /// </summary>
     public string FileName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 文件路径
     /// </summary>
     public string FilePath { get; set; }
 
-    /// <summary>
-    /// 附件类型（0=身份证，1=学历证书，2=学位证书，3=资格证书，4=劳动合同，5=其他）
+        /// <summary>
+    /// 文件大小（字节）
+    /// </summary>
+    public long FileSize { get; set; }
+
+        /// <summary>
+    /// 文件类型
+    /// </summary>
+    public string? FileType { get; set; }
+
+        /// <summary>
+    /// 附件类型
     /// </summary>
     public int AttachmentType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 附件描述
     /// </summary>
     public string? AttachmentDescription { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -268,9 +344,9 @@ public class TaktEmployeeAttachmentTemplateDto
 }
 
 /// <summary>
-/// Takt员工附件导入DTO
+/// 员工附件表导入DTO
 /// </summary>
-public class TaktEmployeeAttachmentImportDto
+public partial class TaktEmployeeAttachmentImportDto
 {
     /// <summary>
     /// 构造函数
@@ -280,44 +356,62 @@ public class TaktEmployeeAttachmentImportDto
         FileCode = string.Empty;
         FileName = string.Empty;
         FilePath = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 文件ID
+    /// </summary>
+    public long FileId { get; set; }
+
+        /// <summary>
     /// 文件编码
     /// </summary>
     public string FileCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 文件名称
     /// </summary>
     public string FileName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 文件路径
     /// </summary>
     public string FilePath { get; set; }
 
-    /// <summary>
-    /// 附件类型（0=身份证，1=学历证书，2=学位证书，3=资格证书，4=劳动合同，5=其他）
+        /// <summary>
+    /// 文件大小（字节）
+    /// </summary>
+    public long FileSize { get; set; }
+
+        /// <summary>
+    /// 文件类型
+    /// </summary>
+    public string? FileType { get; set; }
+
+        /// <summary>
+    /// 附件类型
     /// </summary>
     public int AttachmentType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 附件描述
     /// </summary>
     public string? AttachmentDescription { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -326,62 +420,70 @@ public class TaktEmployeeAttachmentImportDto
 }
 
 /// <summary>
-/// Takt员工附件导出DTO
+/// 员工附件表导出DTO
 /// </summary>
-public class TaktEmployeeAttachmentExportDto
+public partial class TaktEmployeeAttachmentExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktEmployeeAttachmentExportDto()
     {
+        CreatedAt = DateTime.Now;
         FileCode = string.Empty;
         FileName = string.Empty;
         FilePath = string.Empty;
-        CreatedAt = DateTime.Now;
     }
 
-    /// <summary>
-    /// 附件ID
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long AttachmentId { get; set; }
-
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 文件ID
+    /// </summary>
+    public long FileId { get; set; }
+
+        /// <summary>
     /// 文件编码
     /// </summary>
     public string FileCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 文件名称
     /// </summary>
     public string FileName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 文件路径
     /// </summary>
     public string FilePath { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 文件大小（字节）
     /// </summary>
     public long FileSize { get; set; }
 
-    /// <summary>
-    /// 附件类型（0=身份证，1=学历证书，2=学位证书，3=资格证书，4=劳动合同，5=其他）
+        /// <summary>
+    /// 文件类型
+    /// </summary>
+    public string? FileType { get; set; }
+
+        /// <summary>
+    /// 附件类型
     /// </summary>
     public int AttachmentType { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 附件描述
+    /// </summary>
+    public string? AttachmentDescription { get; set; }
+
+        /// <summary>
     /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
     /// <summary>
     /// 创建时间

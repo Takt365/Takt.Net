@@ -102,25 +102,28 @@
                       v-model:value="(frmDataModel as Record<string, string>)[(item.field as string)]"
                       :options="selectOptionsForFormRuleItem(item)"
                       :show-search="isEmployeeIdFormField(item)"
-                      :filter-option="isEmployeeIdFormField(item) ? filterEmployeeOption : undefined"
+                      :filter-option="isEmployeeIdFormField(item) ? filterEmployeeOption : false"
                       allow-clear
                       style="width: 100%"
                     />
                     <a-date-picker
                       v-else-if="item.type === 'datePicker'"
-                      v-model:value="(frmDataModel as Record<string, string>)[(item.field as string)]"
+                      :value="(frmDataModel as Record<string, string>)[(item.field as string)] ?? ''"
+                      @update:value="(v: string | Dayjs) => { (frmDataModel as Record<string, string>)[(item.field as string)] = typeof v === 'string' ? v : v.format('YYYY-MM-DD') }"
                       value-format="YYYY-MM-DD"
                       style="width: 100%"
                     />
                     <a-textarea
                       v-else-if="item.type === 'textarea'"
-                      v-model:value="(frmDataModel as Record<string, string>)[(item.field as string)]"
+                      :value="(frmDataModel as Record<string, string>)[(item.field as string)] ?? ''"
+                      @update:value="(v: string | number) => { (frmDataModel as Record<string, string>)[(item.field as string)] = String(v ?? '') }"
                       :rows="((item.props as { rows?: number })?.rows) ?? 3"
                       style="width: 100%"
                     />
                     <a-input
                       v-else
-                      v-model:value="(frmDataModel as Record<string, string>)[(item.field as string)]"
+                      :value="(frmDataModel as Record<string, string>)[(item.field as string)] ?? ''"
+                      @update:value="(v: string | number) => { (frmDataModel as Record<string, string>)[(item.field as string)] = String(v ?? '') }"
                       allow-clear
                       style="width: 100%"
                     />
@@ -172,14 +175,14 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
+import type { Dayjs } from 'dayjs'
 import { useUserStore } from '@/stores/identity/user'
-import { getByProcessKey } from '@/api/workflow/scheme'
+import { getFlowSchemeByProcessKey } from '@/api/workflow/scheme'
 import { getFlowFormById, getFlowFormByCode } from '@/api/workflow/form'
 import { getEmployeeOptions } from '@/api/human-resource/personnel/employee'
 import TaktFlowLogicDesigner from '@/components/business/takt-flow-logic-designer/index.vue'
-import type { FlowStartRequest } from '@/types/workflow/instance'
-import type { FlowScheme } from '@/types/workflow/scheme'
-import type { FlowForm } from '@/types/workflow/form'
+import type { FlowScheme } from '@/types/workflow/flow-scheme'
+import type { FlowForm } from '@/types/workflow/flow-form'
 
 const { t } = useI18n()
 
@@ -187,10 +190,10 @@ const { t } = useI18n()
 type FormConfigRule = Record<string, unknown>[]
 
 /** 发起流程表单数据：流程 Key、标题、表单数据 JSON */
-export interface FlowStartFormModel extends Pick<FlowStartRequest, 'processKey' | 'processTitle' | 'frmData'> {
+export interface FlowStartFormModel {
   processKey: string
-  processTitle?: string
-  frmData?: string
+  processTitle: string
+  frmData: string
 }
 
 /** 父组件传入的表单绑定、流程下拉选项及加载态 */
@@ -208,9 +211,9 @@ const { userInfo } = storeToRefs(useUserStore())
 const currentUserDisplayName = computed(() => {
   const u = userInfo.value
   if (!u) return ''
-  return (u.realName?.trim() || u.nickName?.trim() || u.nickname?.trim() || u.userName || '').trim() || ''
+  return (u.realName?.trim() || u.nickName?.trim() || u.userName || '').trim() || ''
 })
-const applicantEmployeeId = ref<string | undefined>(undefined)
+const applicantEmployeeId = ref<string>('')
 const employeeOptions = ref<{ dictLabel: string; dictValue: string | number }[]>([])
 const employeeOptionsLoading = ref(false)
 const employeeSelectOptions = computed(() =>
@@ -234,10 +237,17 @@ function selectOptionsForFormRuleItem(item: Record<string, unknown>): { label: s
   if (isEmployeeIdFormField(item)) return employeeSelectOptions.value
   return ((item.props as { options?: { label: string; value: string }[] })?.options) ?? []
 }
+function normalizeFrmDataModel(input: unknown): Record<string, string> {
+  if (!input || typeof input !== 'object') return {}
+  return Object.entries(input as Record<string, unknown>).reduce<Record<string, string>>((acc, [k, v]) => {
+    acc[k] = v == null ? '' : String(v)
+    return acc
+  }, {})
+}
 const formConfigRule = ref<FormConfigRule>([])
 const formConfigLoading = ref(false)
 /** 动态表单项数据（与 formConfigRule 的 field 对应），同步到 form.frmData JSON */
-const frmDataModel = ref<Record<string, unknown>>({})
+const frmDataModel = ref<Record<string, string>>({})
 const processContentForPreview = ref('')
 
 const formRules = computed(() => ({
@@ -260,13 +270,15 @@ async function loadFormConfig(processKey: string): Promise<void> {
     let flowForm: FlowForm | null = null
     let scheme: FlowScheme | null = null
     try {
-      scheme = await getByProcessKey(key)
-      const formId = scheme.formId != null ? String(scheme.formId) : undefined
-      const formCode = scheme.formCode?.trim()
-      if (formId) {
-        flowForm = await getFlowFormById(formId)
-      } else if (formCode) {
-        flowForm = await getFlowFormByCode(formCode)
+      scheme = await getFlowSchemeByProcessKey(key)
+      if (scheme) {
+        const formId = scheme.formId != null ? String(scheme.formId) : undefined
+        const formCode = scheme.formCode?.trim()
+        if (formId) {
+          flowForm = await getFlowFormById(formId)
+        } else if (formCode) {
+          flowForm = await getFlowFormByCode(formCode)
+        }
       }
     } catch {
       // ignore
@@ -290,7 +302,7 @@ async function loadFormConfig(processKey: string): Promise<void> {
     if (!Array.isArray(rule) || !rule.length) return
     formConfigRule.value = rule
     try {
-      frmDataModel.value = form.frmData?.trim() ? { ...(JSON.parse(form.frmData) as Record<string, unknown>) } : {}
+      frmDataModel.value = form.frmData?.trim() ? normalizeFrmDataModel(JSON.parse(form.frmData)) : {}
     } catch {
       frmDataModel.value = {}
     }
@@ -315,7 +327,7 @@ watch(
     if (!key?.trim()) {
       formConfigRule.value = []
       frmDataModel.value = {}
-      form.frmData = undefined
+      form.frmData = ''
       processContentForPreview.value = ''
       return
     }
@@ -325,7 +337,7 @@ watch(
 
 watch(applicantEmployeeId, (id) => {
   if (!formConfigRule.value.some((r) => (r as { field?: string }).field === 'employeeId')) return
-  frmDataModel.value = { ...frmDataModel.value, employeeId: id }
+  frmDataModel.value = { ...frmDataModel.value, employeeId: id || '' }
 })
 
 /** 申请人默认当前登录用户：优先 userInfo.employeeId 与员工选项 dictValue 对齐；否则按姓名匹配 */
@@ -340,7 +352,7 @@ function applyDefaultApplicant(list: { dictLabel?: string; dictValue?: string | 
     }
   }
   const u = userInfo.value
-  const displayName = (u?.realName?.trim() || u?.nickName?.trim() || u?.nickname?.trim() || u?.userName || '').trim()
+  const displayName = (u?.realName?.trim() || u?.nickName?.trim() || u?.userName || '').trim()
   if (!displayName) return
   const found = opts.find((o) => (o.dictLabel ?? '').trim() === displayName)
   if (found) applicantEmployeeId.value = String(found.dictValue ?? '')

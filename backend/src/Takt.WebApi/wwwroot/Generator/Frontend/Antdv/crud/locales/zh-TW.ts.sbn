@@ -1,0 +1,14 @@
+export default {
+  page: {
+    /** 欄位文字（僅 IsRequired 欄位的 placeholder） */
+    fields: {
+{{~ for col in columns ~}}
+{{~ if col.is_required == 1 ~}}
+      {{ col.ts_column_name }}: {
+        placeholder: '{{ if col.html_type == "select" && col.dict_type }}請選擇 {{ col.comment }}{{ else }}請輸入 {{ col.comment }}{{ end }}'
+      },
+{{~ end ~}}
+{{~ end ~}}
+    }
+  }
+}

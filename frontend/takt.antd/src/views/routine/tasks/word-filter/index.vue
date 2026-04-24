@@ -1,22 +1,11 @@
-<!-- ======================================== -->
-<!-- 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)  -->
-<!-- 命名空间：@/views/routine/word-filter -->
-<!-- 文件名称：index.vue -->
-<!-- 创建时间：2025-01-22 -->
-<!-- 创建人：Takt365(Cursor AI) -->
-<!-- 功能描述：敏感词过滤管理页面，包含文本检查、查找、替换、高亮、敏感词管理等功能 -->
-<!--  -->
-<!-- 版权信息：Copyright (c) 2025 Takt  All rights reserved. -->
-<!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->
-<!-- ======================================== -->
-
+<!-- 敏感词过滤管理：文本检查 / 查找 / 替换 / 高亮 / 词库管理 -->
 <template>
   <div class="routine-word-filter">
     <a-card>
       <template #title>
         <a-space>
           <SecurityScanOutlined />
-          <span>敏感词过滤管理</span>
+          <span>{{ t('routine.wordfilter.page.title') }}</span>
         </a-space>
       </template>
 
@@ -24,10 +13,9 @@
         v-model:active-key="activeTab"
         type="card"
       >
-        <!-- 文本检查标签页 -->
         <a-tab-pane
           key="check"
-          tab="文本检查"
+          :tab="t('routine.wordfilter.tabs.check')"
         >
           <a-card>
             <a-form
@@ -36,13 +24,13 @@
               @finish="handleCheck"
             >
               <a-form-item
-                label="待检查文本"
+                :label="t('routine.wordfilter.check.textLabel')"
                 required
               >
                 <a-textarea
                   v-model:value="checkForm.text"
                   :rows="6"
-                  placeholder="请输入要检查的文本"
+                  :placeholder="t('routine.wordfilter.check.placeholder')"
                   :maxlength="5000"
                   show-count
                 />
@@ -56,13 +44,13 @@
                   <template #icon>
                     <SearchOutlined />
                   </template>
-                  检查
+                  {{ t('routine.wordfilter.check.button') }}
                 </a-button>
                 <a-button
                   style="margin-left: 8px"
                   @click="handleCheckReset"
                 >
-                  重置
+                  {{ t('routine.wordfilter.check.reset') }}
                 </a-button>
               </a-form-item>
             </a-form>
@@ -72,13 +60,17 @@
             <div v-if="checkResult">
               <a-alert
                 :type="checkResult.containsIllegalWords ? 'error' : 'success'"
-                :message="checkResult.containsIllegalWords ? '检测到敏感词' : '未检测到敏感词'"
-                :description="checkResult.containsIllegalWords ? `发现 ${checkResult.illegalWords.length} 个敏感词` : '文本安全'"
+                :message="checkResult.containsIllegalWords ? t('routine.wordfilter.check.alertContains') : t('routine.wordfilter.check.alertNotContains')"
+                :description="
+                  checkResult.containsIllegalWords
+                    ? t('routine.wordfilter.check.foundDescription', { count: checkResult.illegalWords.length })
+                    : t('routine.wordfilter.check.safeDescription')
+                "
                 show-icon
                 style="margin-bottom: 16px"
               />
               <div v-if="checkResult.illegalWords.length > 0">
-                <h4>敏感词列表：</h4>
+                <h4>{{ t('routine.wordfilter.check.illegalWordsTitle') }}</h4>
                 <a-tag
                   v-for="(word, index) in checkResult.illegalWords"
                   :key="index"
@@ -92,10 +84,9 @@
           </a-card>
         </a-tab-pane>
 
-        <!-- 查找敏感词标签页 -->
         <a-tab-pane
           key="find"
-          tab="查找敏感词"
+          :tab="t('routine.wordfilter.tabs.find')"
         >
           <a-card>
             <a-form
@@ -104,20 +95,20 @@
               @finish="handleFind"
             >
               <a-form-item
-                label="待查找文本"
+                :label="t('routine.wordfilter.find.textLabel')"
                 required
               >
                 <a-textarea
                   v-model:value="findForm.text"
                   :rows="6"
-                  placeholder="请输入要查找敏感词的文本"
+                  :placeholder="t('routine.wordfilter.find.placeholder')"
                   :maxlength="5000"
                   show-count
                 />
               </a-form-item>
               <a-form-item>
                 <a-checkbox v-model:checked="findForm.includeDetails">
-                  包含位置信息
+                  {{ t('routine.wordfilter.find.includeDetails') }}
                 </a-checkbox>
               </a-form-item>
               <a-form-item>
@@ -129,13 +120,13 @@
                   <template #icon>
                     <SearchOutlined />
                   </template>
-                  查找
+                  {{ t('routine.wordfilter.find.button') }}
                 </a-button>
                 <a-button
                   style="margin-left: 8px"
                   @click="handleFindReset"
                 >
-                  重置
+                  {{ t('routine.wordfilter.find.reset') }}
                 </a-button>
               </a-form-item>
             </a-form>
@@ -145,12 +136,12 @@
             <div v-if="findResult">
               <a-alert
                 type="info"
-                :message="`找到 ${findResult.illegalWords.length} 个敏感词`"
+                :message="t('routine.wordfilter.find.foundMessage', { count: findResult.illegalWords.length })"
                 show-icon
                 style="margin-bottom: 16px"
               />
               <div v-if="findResult.illegalWords.length > 0">
-                <h4>敏感词列表：</h4>
+                <h4>{{ t('routine.wordfilter.find.illegalWordsTitle') }}</h4>
                 <a-tag
                   v-for="(word, index) in findResult.illegalWords"
                   :key="index"
@@ -164,17 +155,17 @@
                 v-if="findResult.illegalWordDetails && findResult.illegalWordDetails.length > 0"
                 style="margin-top: 16px"
               >
-                <h4>位置信息：</h4>
+                <h4>{{ t('routine.wordfilter.find.detailsTitle') }}</h4>
                 <a-table
                   :columns="detailColumns"
                   :data-source="findResult.illegalWordDetails"
                   :pagination="false"
                   size="small"
-                  :row-key="(record, index) => `${record.keyword}-${index}`"
+                  :row-key="detailRowKey"
                 >
                   <template #bodyCell="{ column, record }">
                     <template v-if="column.key === 'position'">
-                      <span>第 {{ record.start }} - {{ record.end }} 个字符</span>
+                      <span>{{ t('routine.wordfilter.find.positionRange', { start: record.start, end: record.end }) }}</span>
                     </template>
                   </template>
                 </a-table>
@@ -183,10 +174,9 @@
           </a-card>
         </a-tab-pane>
 
-        <!-- 替换敏感词标签页 -->
         <a-tab-pane
           key="replace"
-          tab="替换敏感词"
+          :tab="t('routine.wordfilter.tabs.replace')"
         >
           <a-card>
             <a-form
@@ -195,45 +185,45 @@
               @finish="handleReplace"
             >
               <a-form-item
-                label="待替换文本"
+                :label="t('routine.wordfilter.replace.textLabel')"
                 required
               >
                 <a-textarea
                   v-model:value="replaceForm.text"
                   :rows="6"
-                  placeholder="请输入要替换敏感词的文本"
+                  :placeholder="t('routine.wordfilter.replace.placeholder')"
                   :maxlength="5000"
                   show-count
                 />
               </a-form-item>
-              <a-form-item label="替换方式">
+              <a-form-item :label="t('routine.wordfilter.replace.modeLabel')">
                 <a-radio-group v-model:value="replaceForm.replaceMode">
                   <a-radio value="char">
-                    使用字符替换
+                    {{ t('routine.wordfilter.replace.modeChar') }}
                   </a-radio>
                   <a-radio value="text">
-                    使用文本替换
+                    {{ t('routine.wordfilter.replace.modeText') }}
                   </a-radio>
                 </a-radio-group>
               </a-form-item>
               <a-form-item
                 v-if="replaceForm.replaceMode === 'char'"
-                label="替换字符"
+                :label="t('routine.wordfilter.replace.charLabel')"
               >
                 <a-input
                   v-model:value="replaceForm.replaceChar"
-                  placeholder="请输入替换字符（如：*）"
+                  :placeholder="t('routine.wordfilter.replace.charPlaceholder')"
                   :maxlength="1"
                   style="width: 200px"
                 />
               </a-form-item>
               <a-form-item
                 v-if="replaceForm.replaceMode === 'text'"
-                label="替换文本"
+                :label="t('routine.wordfilter.replace.textLabelValue')"
               >
                 <a-input
                   v-model:value="replaceForm.replaceText"
-                  placeholder="请输入替换文本（如：***）"
+                  :placeholder="t('routine.wordfilter.replace.textPlaceholder')"
                   style="width: 200px"
                 />
               </a-form-item>
@@ -246,13 +236,13 @@
                   <template #icon>
                     <EditOutlined />
                   </template>
-                  替换
+                  {{ t('routine.wordfilter.replace.button') }}
                 </a-button>
                 <a-button
                   style="margin-left: 8px"
                   @click="handleReplaceReset"
                 >
-                  重置
+                  {{ t('routine.wordfilter.replace.reset') }}
                 </a-button>
               </a-form-item>
             </a-form>
@@ -262,18 +252,18 @@
             <div v-if="replaceResult">
               <a-alert
                 type="success"
-                :message="`已替换 ${replaceResult.replacedCount} 个敏感词`"
+                :message="t('routine.wordfilter.replace.replacedMessage', { count: replaceResult.replacedCount })"
                 show-icon
                 style="margin-bottom: 16px"
               />
-              <a-form-item label="原始文本">
+              <a-form-item :label="t('routine.wordfilter.replace.originalLabel')">
                 <a-textarea
                   :value="replaceResult.originalText"
                   :rows="4"
                   readonly
                 />
               </a-form-item>
-              <a-form-item label="替换后文本">
+              <a-form-item :label="t('routine.wordfilter.replace.replacedLabel')">
                 <a-textarea
                   :value="replaceResult.replacedText"
                   :rows="4"
@@ -284,10 +274,9 @@
           </a-card>
         </a-tab-pane>
 
-        <!-- 高亮敏感词标签页 -->
         <a-tab-pane
           key="highlight"
-          tab="高亮敏感词"
+          :tab="t('routine.wordfilter.tabs.highlight')"
         >
           <a-card>
             <a-form
@@ -296,21 +285,21 @@
               @finish="handleHighlight"
             >
               <a-form-item
-                label="待高亮文本"
+                :label="t('routine.wordfilter.highlight.textLabel')"
                 required
               >
                 <a-textarea
                   v-model:value="highlightForm.text"
                   :rows="6"
-                  placeholder="请输入要高亮敏感词的文本"
+                  :placeholder="t('routine.wordfilter.highlight.placeholder')"
                   :maxlength="5000"
                   show-count
                 />
               </a-form-item>
-              <a-form-item label="高亮样式类名">
+              <a-form-item :label="t('routine.wordfilter.highlight.classLabel')">
                 <a-input
                   v-model:value="highlightForm.highlightClass"
-                  placeholder="默认：illegal-word"
+                  :placeholder="t('routine.wordfilter.highlight.classPlaceholder')"
                   style="width: 200px"
                 />
               </a-form-item>
@@ -323,13 +312,13 @@
                   <template #icon>
                     <EditOutlined />
                   </template>
-                  高亮
+                  {{ t('routine.wordfilter.highlight.button') }}
                 </a-button>
                 <a-button
                   style="margin-left: 8px"
                   @click="handleHighlightReset"
                 >
-                  重置
+                  {{ t('routine.wordfilter.highlight.reset') }}
                 </a-button>
               </a-form-item>
             </a-form>
@@ -339,18 +328,18 @@
             <div v-if="highlightResult">
               <a-alert
                 type="success"
-                :message="`已高亮 ${highlightResult.highlightedCount} 个敏感词`"
+                :message="t('routine.wordfilter.highlight.highlightedMessage', { count: highlightResult.highlightedCount })"
                 show-icon
                 style="margin-bottom: 16px"
               />
-              <a-form-item label="原始文本">
+              <a-form-item :label="t('routine.wordfilter.highlight.originalLabel')">
                 <a-textarea
                   :value="highlightResult.originalText"
                   :rows="4"
                   readonly
                 />
               </a-form-item>
-              <a-form-item label="高亮后文本（HTML）">
+              <a-form-item :label="t('routine.wordfilter.highlight.resultLabel')">
                 <div
                   class="highlight-preview"
                   v-html="highlightResult.highlightedText"
@@ -360,10 +349,9 @@
           </a-card>
         </a-tab-pane>
 
-        <!-- 敏感词管理标签页 -->
         <a-tab-pane
           key="manage"
-          tab="敏感词管理"
+          :tab="t('routine.wordfilter.tabs.manage')"
         >
           <a-card>
             <a-space style="margin-bottom: 16px">
@@ -375,7 +363,7 @@
                 <template #icon>
                   <ReloadOutlined />
                 </template>
-                刷新列表
+                {{ t('routine.wordfilter.manage.refresh') }}
               </a-button>
               <a-button
                 type="primary"
@@ -385,7 +373,7 @@
                 <template #icon>
                   <PlusOutlined />
                 </template>
-                添加敏感词
+                {{ t('routine.wordfilter.manage.add') }}
               </a-button>
               <a-button
                 danger
@@ -396,7 +384,7 @@
                 <template #icon>
                   <DeleteOutlined />
                 </template>
-                移除选中
+                {{ t('routine.wordfilter.manage.remove') }}
               </a-button>
               <a-button
                 danger
@@ -406,7 +394,7 @@
                 <template #icon>
                   <DeleteOutlined />
                 </template>
-                清空词库
+                {{ t('routine.wordfilter.manage.clear') }}
               </a-button>
               <a-button
                 :loading="statsLoading"
@@ -415,14 +403,21 @@
                 <template #icon>
                   <InfoCircleOutlined />
                 </template>
-                查看统计
+                {{ t('routine.wordfilter.manage.stats') }}
               </a-button>
             </a-space>
 
             <a-alert
               v-if="stats"
               type="info"
-              :message="`敏感词总数：${stats.totalCount}，状态：${stats.isInitialized ? '已初始化' : '未初始化'}`"
+              :message="
+                t('routine.wordfilter.manage.statsMessage', {
+                  total: stats.totalCount,
+                  status: stats.isInitialized
+                    ? t('routine.wordfilter.manage.statusInitialized')
+                    : t('routine.wordfilter.manage.statusNotInitialized')
+                })
+              "
               show-icon
               style="margin-bottom: 16px"
             />
@@ -433,7 +428,7 @@
               :loading="wordsLoading"
               :pagination="wordsPagination"
               :row-selection="wordsRowSelection"
-              :row-key="(record, index) => record || index"
+              :row-key="wordsRowKey"
               @change="handleWordsTableChange"
             >
               <template #bodyCell="{ column, record }">
@@ -449,20 +444,19 @@
       </a-tabs>
     </a-card>
 
-    <!-- 添加敏感词对话框 -->
     <a-modal
       v-model:open="addWordsVisible"
-      title="添加敏感词"
+      :title="t('routine.wordfilter.manage.modalAddTitle')"
       :width="600"
       :confirm-loading="addLoading"
       @ok="handleAddWordsSubmit"
       @cancel="handleAddWordsCancel"
     >
       <a-form layout="vertical">
-        <a-form-item label="词库组（可选）">
+        <a-form-item :label="t('routine.wordfilter.manage.groupLabel')">
           <a-select
             v-model:value="selectedGroup"
-            placeholder="选择词库组（不选择则只添加到内存词库）"
+            :placeholder="t('routine.wordfilter.manage.groupPlaceholder')"
             allow-clear
             :loading="groupsLoading"
             show-search
@@ -473,28 +467,28 @@
               :key="group.fileName"
               :value="group.fileName"
             >
-              {{ group.displayName }} ({{ group.wordCount }} 词)
+              {{ t('routine.wordfilter.manage.optionDisplay', { name: group.displayName, count: group.wordCount }) }}
             </a-select-option>
           </a-select>
           <div style="margin-top: 8px; color: #999; font-size: 12px">
-            选择词库组后，敏感词将同时添加到内存词库和对应的词库文件中
+            {{ t('routine.wordfilter.manage.groupHint') }}
           </div>
         </a-form-item>
         <a-form-item
-          label="敏感词（每行一个）"
+          :label="t('routine.wordfilter.manage.addWordsLabel')"
           required
         >
           <a-textarea
             v-model:value="addWordsText"
             :rows="10"
-            placeholder="请输入敏感词，每行一个"
+            :placeholder="t('routine.wordfilter.manage.addWordsPlaceholder')"
           />
         </a-form-item>
         <a-form-item>
           <a-alert
             type="info"
-            message="提示"
-            description="可以一次添加多个敏感词，每行一个。重复的敏感词会被自动忽略。"
+            :message="t('routine.wordfilter.manage.tipTitle')"
+            :description="t('routine.wordfilter.manage.tipDescription')"
             show-icon
           />
         </a-form-item>
@@ -506,7 +500,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
-import type { TableColumnsType } from 'ant-design-vue'
+import type { TableColumnsType, TablePaginationConfig } from 'ant-design-vue'
+import type { DefaultOptionType } from 'ant-design-vue/es/select'
+import { useI18n } from 'vue-i18n'
 import {
   SecurityScanOutlined,
   SearchOutlined,
@@ -542,13 +538,31 @@ import type {
   WordFilterStatsDto,
   IllegalWordDetailDto,
   WordLibraryFileDto
-} from '@/types/routine/tasks/wordfilter'
+} from '@/types/routine/tasks/wordfilter/word-filter'
 import { logger } from '@/utils/logger'
 
-// 当前激活的标签页
+const { t } = useI18n()
+
+function pickErrorMessage(err: unknown, fallback: string): string {
+  if (err !== null && typeof err === 'object' && 'message' in err) {
+    const m = (err as { message?: unknown }).message
+    if (typeof m === 'string' && m.length > 0) {
+      return m
+    }
+  }
+  return fallback
+}
+
+/** 表单绑定用必填 string，避免 ReplaceWordsDto 可选字段在 EOPT 下与 a-input 不兼容 */
+type ReplaceFormState = {
+  text: string
+  replaceChar: string
+  replaceText: string
+  replaceMode: 'char' | 'text'
+}
+
 const activeTab = ref('check')
 
-// ========== 文本检查 ==========
 const checkForm = ref<CheckTextDto>({
   text: ''
 })
@@ -557,16 +571,16 @@ const checkResult = ref<CheckTextResultDto | null>(null)
 
 const handleCheck = async () => {
   if (!checkForm.value.text.trim()) {
-    message.warning('请输入要检查的文本')
+    message.warning(t('routine.wordfilter.messages.checkWarning'))
     return
   }
 
   try {
     checkLoading.value = true
     checkResult.value = await checkText(checkForm.value)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[Word Filter] 检查文本失败:', error)
-    message.error(error.message || '检查失败')
+    message.error(pickErrorMessage(error, t('routine.wordfilter.messages.checkFail')))
   } finally {
     checkLoading.value = false
   }
@@ -577,7 +591,6 @@ const handleCheckReset = () => {
   checkResult.value = null
 }
 
-// ========== 查找敏感词 ==========
 const findForm = ref<FindWordsDto>({
   text: '',
   includeDetails: false
@@ -585,31 +598,34 @@ const findForm = ref<FindWordsDto>({
 const findLoading = ref(false)
 const findResult = ref<FindWordsResultDto | null>(null)
 
-const detailColumns: TableColumnsType = [
+const detailColumns = computed<TableColumnsType>(() => [
   {
-    title: '敏感词',
+    title: t('routine.wordfilter.find.columnKeyword'),
     dataIndex: 'keyword',
     key: 'keyword'
   },
   {
-    title: '位置',
+    title: t('routine.wordfilter.find.columnPosition'),
     key: 'position',
     width: 200
   }
-]
+])
+
+const detailRowKey = (record: IllegalWordDetailDto, index?: number): string =>
+  `${record.keyword}-${index ?? 0}`
 
 const handleFind = async () => {
   if (!findForm.value.text.trim()) {
-    message.warning('请输入要查找的文本')
+    message.warning(t('routine.wordfilter.messages.findWarning'))
     return
   }
 
   try {
     findLoading.value = true
     findResult.value = await findWords(findForm.value)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[Word Filter] 查找敏感词失败:', error)
-    message.error(error.message || '查找失败')
+    message.error(pickErrorMessage(error, t('routine.wordfilter.messages.findFail')))
   } finally {
     findLoading.value = false
   }
@@ -620,8 +636,7 @@ const handleFindReset = () => {
   findResult.value = null
 }
 
-// ========== 替换敏感词 ==========
-const replaceForm = ref<ReplaceWordsDto & { replaceMode: 'char' | 'text' }>({
+const replaceForm = ref<ReplaceFormState>({
   text: '',
   replaceChar: '*',
   replaceText: '',
@@ -632,7 +647,7 @@ const replaceResult = ref<ReplaceWordsResultDto | null>(null)
 
 const handleReplace = async () => {
   if (!replaceForm.value.text.trim()) {
-    message.warning('请输入要替换的文本')
+    message.warning(t('routine.wordfilter.messages.replaceWarning'))
     return
   }
 
@@ -649,9 +664,9 @@ const handleReplace = async () => {
     }
 
     replaceResult.value = await replaceWords(requestData)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[Word Filter] 替换敏感词失败:', error)
-    message.error(error.message || '替换失败')
+    message.error(pickErrorMessage(error, t('routine.wordfilter.messages.replaceFail')))
   } finally {
     replaceLoading.value = false
   }
@@ -667,7 +682,6 @@ const handleReplaceReset = () => {
   replaceResult.value = null
 }
 
-// ========== 高亮敏感词 ==========
 const highlightForm = ref<HighlightWordsDto>({
   text: '',
   highlightClass: 'illegal-word'
@@ -677,16 +691,16 @@ const highlightResult = ref<HighlightWordsResultDto | null>(null)
 
 const handleHighlight = async () => {
   if (!highlightForm.value.text.trim()) {
-    message.warning('请输入要高亮的文本')
+    message.warning(t('routine.wordfilter.messages.highlightWarning'))
     return
   }
 
   try {
     highlightLoading.value = true
     highlightResult.value = await highlightWords(highlightForm.value)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[Word Filter] 高亮敏感词失败:', error)
-    message.error(error.message || '高亮失败')
+    message.error(pickErrorMessage(error, t('routine.wordfilter.messages.highlightFail')))
   } finally {
     highlightLoading.value = false
   }
@@ -700,7 +714,6 @@ const handleHighlightReset = () => {
   highlightResult.value = null
 }
 
-// ========== 敏感词管理 ==========
 const wordsList = ref<string[]>([])
 const wordsLoading = ref(false)
 const stats = ref<WordFilterStatsDto | null>(null)
@@ -715,9 +728,9 @@ const addLoading = ref(false)
 const removeLoading = ref(false)
 const clearLoading = ref(false)
 
-const wordsColumns: TableColumnsType = [
+const wordsColumns = computed<TableColumnsType>(() => [
   {
-    title: '序号',
+    title: t('routine.wordfilter.manage.columnIndex'),
     key: 'index',
     width: 80,
     customRender: ({ index }: { index: number }) => {
@@ -725,30 +738,34 @@ const wordsColumns: TableColumnsType = [
     }
   },
   {
-    title: '敏感词',
+    title: t('routine.wordfilter.manage.columnWord'),
     dataIndex: 'word',
     key: 'word'
   }
-]
+])
 
 const wordsPagination = ref({
   current: 1,
   pageSize: 20,
   total: 0,
   showSizeChanger: true,
-  showTotal: (total: number) => `共 ${total} 条`
+  showTotal: (total: number) => t('routine.wordfilter.manage.paginationTotal', { total })
 })
+
+/** 行键与选中项一致，为敏感词字符串本身（列表中词唯一），供 removeWords 使用。 */
+const wordsRowKey = (record: unknown): string => (typeof record === 'string' ? record : String(record ?? ''))
 
 const wordsRowSelection = computed(() => ({
   selectedRowKeys: selectedWords.value,
   onChange: (keys: (string | number)[]) => {
-    selectedWords.value = keys as string[]
+    selectedWords.value = keys.map(k => String(k))
   },
-  onSelectAll: (selected: boolean, selectedRows: string[], changeRows: string[]) => {
+  onSelectAll: (selected: boolean, _selectedRows: readonly unknown[], changeRows: readonly unknown[]) => {
+    const changed = changeRows.map(w => String(w))
     if (selected) {
-      selectedWords.value = [...selectedWords.value, ...changeRows]
+      selectedWords.value = [...new Set([...selectedWords.value, ...changed])]
     } else {
-      selectedWords.value = selectedWords.value.filter(word => !changeRows.includes(word))
+      selectedWords.value = selectedWords.value.filter(word => !changed.includes(word))
     }
   }
 }))
@@ -759,9 +776,9 @@ const handleLoadWords = async () => {
     const words = await getAllWords()
     wordsList.value = words
     wordsPagination.value.total = words.length
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[Word Filter] 加载敏感词列表失败:', error)
-    message.error(error.message || '加载失败')
+    message.error(pickErrorMessage(error, t('routine.wordfilter.messages.loadFail')))
   } finally {
     wordsLoading.value = false
   }
@@ -771,10 +788,10 @@ const handleLoadStats = async () => {
   try {
     statsLoading.value = true
     stats.value = await getStats()
-    message.success('统计信息已更新')
-  } catch (error: any) {
+    message.success(t('routine.wordfilter.messages.statsSuccess'))
+  } catch (error: unknown) {
     logger.error('[Word Filter] 加载统计信息失败:', error)
-    message.error(error.message || '加载失败')
+    message.error(pickErrorMessage(error, t('routine.wordfilter.messages.loadFail')))
   } finally {
     statsLoading.value = false
   }
@@ -784,8 +801,7 @@ const handleAddWords = async () => {
   addWordsText.value = ''
   selectedGroup.value = undefined
   addWordsVisible.value = true
-  
-  // 加载词库组列表
+
   if (wordLibraryGroups.value.length === 0) {
     await loadWordLibraryGroups()
   }
@@ -795,22 +811,26 @@ const loadWordLibraryGroups = async () => {
   try {
     groupsLoading.value = true
     wordLibraryGroups.value = await getWordLibraryFiles()
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[Word Filter] 加载词库组列表失败:', error)
-    message.error(error.message || '加载词库组列表失败')
+    message.error(pickErrorMessage(error, t('routine.wordfilter.messages.loadGroupsFail')))
   } finally {
     groupsLoading.value = false
   }
 }
 
-const filterGroupOption = (input: string, option: any) => {
-  const displayName = option.children?.[0]?.children || option.label || ''
-  return displayName.toLowerCase().includes(input.toLowerCase())
+const filterGroupOption = (input: string, option?: DefaultOptionType): boolean => {
+  const q = input.trim().toLowerCase()
+  const v = option?.value
+  const fileName = v != null ? String(v) : ''
+  const group = wordLibraryGroups.value.find(g => g.fileName === fileName)
+  const label = group?.displayName ?? fileName
+  return label.toLowerCase().includes(q)
 }
 
 const handleAddWordsSubmit = async () => {
   if (!addWordsText.value.trim()) {
-    message.warning('请输入敏感词')
+    message.warning(t('routine.wordfilter.messages.addWarning'))
     return
   }
 
@@ -820,7 +840,7 @@ const handleAddWordsSubmit = async () => {
     .filter(w => w.length > 0)
 
   if (words.length === 0) {
-    message.warning('请输入至少一个敏感词')
+    message.warning(t('routine.wordfilter.messages.addWarningEmpty'))
     return
   }
 
@@ -830,22 +850,36 @@ const handleAddWordsSubmit = async () => {
     if (selectedGroup.value) {
       requestData.group = selectedGroup.value
     }
-    
+
     const result = await addWords(requestData)
-    const groupInfo = selectedGroup.value 
-      ? `（已添加到词库组：${wordLibraryGroups.value.find(g => g.fileName === selectedGroup.value)?.displayName || selectedGroup.value}）`
-      : '（仅添加到内存词库）'
-    message.success(`成功添加 ${result.addedCount} 个敏感词，当前总数：${result.totalCount} ${groupInfo}`)
+    const groupName = selectedGroup.value
+      ? wordLibraryGroups.value.find(g => g.fileName === selectedGroup.value)?.displayName ?? selectedGroup.value
+      : ''
+    if (selectedGroup.value) {
+      message.success(
+        t('routine.wordfilter.messages.addSuccessGroup', {
+          count: result.addedCount,
+          total: result.totalCount,
+          group: groupName
+        })
+      )
+    } else {
+      message.success(
+        t('routine.wordfilter.messages.addSuccessMemory', {
+          count: result.addedCount,
+          total: result.totalCount
+        })
+      )
+    }
     addWordsVisible.value = false
     addWordsText.value = ''
     selectedGroup.value = undefined
     await handleLoadWords()
     await handleLoadStats()
-    // 重新加载词库组列表以更新词数
     await loadWordLibraryGroups()
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[Word Filter] 添加敏感词失败:', error)
-    message.error(error.message || '添加失败')
+    message.error(pickErrorMessage(error, t('routine.wordfilter.messages.addFail')))
   } finally {
     addLoading.value = false
   }
@@ -859,24 +893,31 @@ const handleAddWordsCancel = () => {
 
 const handleRemoveWords = () => {
   if (selectedWords.value.length === 0) {
-    message.warning('请选择要移除的敏感词')
+    message.warning(t('routine.wordfilter.messages.removeWarning'))
     return
   }
 
   Modal.confirm({
-    title: '确认移除',
-    content: `确定要移除选中的 ${selectedWords.value.length} 个敏感词吗？`,
+    title: t('routine.wordfilter.manage.removeConfirmTitle'),
+    content: t('routine.wordfilter.manage.removeConfirmContent', { count: selectedWords.value.length }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         removeLoading.value = true
-        const result = await removeWords({ words: selectedWords.value })
-        message.success(`成功移除 ${result.removedCount} 个敏感词，剩余：${result.remainingCount}`)
+        const result: RemoveWordsResultDto = await removeWords({ words: selectedWords.value })
+        message.success(
+          t('routine.wordfilter.messages.removeSuccess', {
+            count: result.removedCount,
+            remaining: result.remainingCount
+          })
+        )
         selectedWords.value = []
         await handleLoadWords()
         await handleLoadStats()
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error('[Word Filter] 移除敏感词失败:', error)
-        message.error(error.message || '移除失败')
+        message.error(pickErrorMessage(error, t('routine.wordfilter.messages.removeFail')))
       } finally {
         removeLoading.value = false
       }
@@ -886,21 +927,23 @@ const handleRemoveWords = () => {
 
 const handleClearWords = () => {
   Modal.confirm({
-    title: '确认清空',
-    content: '确定要清空所有敏感词吗？此操作不可恢复！',
+    title: t('routine.wordfilter.manage.clearConfirmTitle'),
+    content: t('routine.wordfilter.manage.clearConfirmContent'),
     okType: 'danger',
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         clearLoading.value = true
         await clearWords()
-        message.success('敏感词库已清空')
+        message.success(t('routine.wordfilter.messages.clearSuccess'))
         wordsList.value = []
         wordsPagination.value.total = 0
         selectedWords.value = []
         await handleLoadStats()
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error('[Word Filter] 清空敏感词库失败:', error)
-        message.error(error.message || '清空失败')
+        message.error(pickErrorMessage(error, t('routine.wordfilter.messages.clearFail')))
       } finally {
         clearLoading.value = false
       }
@@ -908,12 +951,16 @@ const handleClearWords = () => {
   })
 }
 
-const handleWordsTableChange = (pagination: any) => {
-  wordsPagination.value.current = pagination.current
-  wordsPagination.value.pageSize = pagination.pageSize
+const handleWordsTableChange = (pagination?: TablePaginationConfig) => {
+  if (pagination == null) return
+  if (pagination.current != null) {
+    wordsPagination.value.current = pagination.current
+  }
+  if (pagination.pageSize != null) {
+    wordsPagination.value.pageSize = pagination.pageSize
+  }
 }
 
-// 初始化
 onMounted(async () => {
   await handleLoadStats()
   await handleLoadWords()

@@ -12,35 +12,35 @@
 <template>
   <a-drawer
     v-model:open="visible"
-    :title="t('workflow.designer.approver')"
+    :title="t('workflow.designer.page.approver')"
     width="480"
     :footer-style="{ textAlign: 'right' }"
     @close="handleClose"
   >
     <template v-if="config && config.nodeType === 4">
       <a-form layout="vertical">
-        <a-form-item :label="t('workflow.designer.propAssigneeType')">
+        <a-form-item :label="t('workflow.designer.page.propassigneetype')">
           <a-radio-group v-model:value="form.setType">
             <a-radio :value="1">
-              {{ t('workflow.designer.assigneeAssignee') }}
+              {{ t('workflow.designer.page.assigneeassignee') }}
             </a-radio>
             <a-radio :value="2">
               直接主管
             </a-radio>
             <a-radio :value="3">
-              {{ t('workflow.designer.assigneeRole') }}
+              {{ t('workflow.designer.page.assigneerole') }}
             </a-radio>
             <a-radio :value="4">
-              {{ t('workflow.designer.assigneeDept') }}
+              {{ t('workflow.designer.page.assigneedept') }}
             </a-radio>
             <a-radio :value="5">
-              {{ t('workflow.designer.assigneeSelfSelect') }}
+              {{ t('workflow.designer.page.assigneeselfselect') }}
             </a-radio>
           </a-radio-group>
         </a-form-item>
         <a-form-item
           v-if="form.setType === 1"
-          :label="t('workflow.designer.propAssignees')"
+          :label="t('workflow.designer.page.propassignees')"
         >
           <div class="takt-flow-drawer-pick-row">
             <a-select
@@ -49,7 +49,7 @@
               show-search
               :filter-option="filterOption"
               :options="userOptions"
-              :placeholder="t('workflow.designer.placeholderSelectUsers')"
+              :placeholder="t('workflow.designer.page.placeholderselectusers')"
               class="takt-flow-drawer-pick-row__select"
               :field-names="{ label: 'dictLabel', value: 'dictValue' }"
             />
@@ -58,13 +58,13 @@
               ghost
               @click="selectUserOpen = true"
             >
-              {{ t('workflow.designer.openSelectUserList') }}
+              {{ t('workflow.designer.page.openselectuserlist') }}
             </a-button>
           </div>
         </a-form-item>
         <a-form-item
           v-if="form.setType === 3"
-          :label="t('workflow.designer.propRoles')"
+          :label="t('workflow.designer.page.proproles')"
         >
           <div class="takt-flow-drawer-pick-row">
             <a-select
@@ -73,7 +73,7 @@
               show-search
               :filter-option="filterOption"
               :options="roleOptions"
-              :placeholder="t('workflow.designer.placeholderSelectRoles')"
+              :placeholder="t('workflow.designer.page.placeholderselectroles')"
               class="takt-flow-drawer-pick-row__select"
               :field-names="{ label: 'dictLabel', value: 'dictValue' }"
             />
@@ -82,13 +82,13 @@
               ghost
               @click="selectRoleOpen = true"
             >
-              {{ t('workflow.designer.openSelectRoleList') }}
+              {{ t('workflow.designer.page.openselectrolelist') }}
             </a-button>
           </div>
         </a-form-item>
         <a-form-item
           v-if="form.setType === 4"
-          :label="t('workflow.designer.propDepartments')"
+          :label="t('workflow.designer.page.propdepartments')"
         >
           <a-tree-select
             v-model:value="form.deptIds"
@@ -96,7 +96,7 @@
             show-search
             tree-node-filter-property="dictLabel"
             :tree-data="deptTreeOptions"
-            :placeholder="t('workflow.designer.placeholderSelectDepts')"
+            :placeholder="t('workflow.designer.page.placeholderselectdepts')"
             style="width: 100%"
             :field-names="{ label: 'dictLabel', value: 'dictValue' }"
           />

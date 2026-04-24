@@ -166,8 +166,8 @@
         :template-file-name="deptExcelNames.fileBase"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.dept._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.dept._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -507,7 +507,7 @@ const columns = ref<TableColumnsType>([
     key: 'deptStatus',
     width: 80
   },
-  CreateActionColumn({
+  CreateActionColumn<Dept>({
     actions: [
       { key: 'update', label: '编辑', shape: 'plain', icon: RiEditLine, permission: 'humanresource:organization:dept:update', onClick: (record: Dept) => handleEdit(record) },
       { key: 'delete', label: '删除', shape: 'plain', icon: RiDeleteBinLine, permission: 'humanresource:organization:dept:delete', onClick: (record: Dept) => handleDeleteOne(record) }

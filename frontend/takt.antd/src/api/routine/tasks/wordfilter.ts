@@ -26,7 +26,7 @@ import type {
   RemoveWordsResultDto,
   WordFilterStatsDto,
   WordLibraryFileDto
-} from '@/types/routine/tasks/wordfilter'
+} from '@/types/routine/tasks/wordfilter/word-filter'
 
 // ========================================
 // 敏感词过滤相关 API（按后端控制器顺序）

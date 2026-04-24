@@ -86,7 +86,7 @@
       <a-tab-pane
         v-if="visibleTabs.includes('avatar')"
         key="avatar"
-        :tab="t('components.common.upload.avatar')"
+        :tab="t('components.common.page.upload.avatar')"
       >
         <takt-upload-avatar
           v-model="avatarUrl"
@@ -104,7 +104,7 @@
       <a-tab-pane
         v-if="visibleTabs.includes('images')"
         key="images"
-        :tab="t('components.common.upload.images')"
+        :tab="t('components.common.page.upload.images')"
       >
         <takt-upload-images
           v-model="imagesFileList"
@@ -134,7 +134,7 @@
       <a-tab-pane
         v-if="visibleTabs.includes('files')"
         key="files"
-        :tab="t('components.common.upload.files')"
+        :tab="t('components.common.page.upload.files')"
       >
         <takt-upload-files
           ref="filesUploadRef"
@@ -312,9 +312,9 @@ const props = withDefaults(defineProps<Props>(), {
   filesAutoUpload: true
 })
 
-const imagesUploadTextDisplay = computed(() => props.imagesUploadText ?? t('components.common.upload.upload'))
-const filesTextDisplay = computed(() => props.filesText ?? t('components.common.upload.filesText'))
-const filesHintDisplay = computed(() => props.filesHint ?? t('components.common.upload.filesHint'))
+const imagesUploadTextDisplay = computed(() => props.imagesUploadText ?? t('components.common.page.upload.upload'))
+const filesTextDisplay = computed(() => props.filesText ?? t('components.common.page.upload.filestext'))
+const filesHintDisplay = computed(() => props.filesHint ?? t('components.common.page.upload.fileshint'))
 type FilesUploadRef = {
   uploadFiles: () => Promise<void>
   clearFiles: () => void

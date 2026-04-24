@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.External.ZKTeco
 // 文件名称：TaktZKTecoAttendanceDeviceAdapterService.cs
@@ -84,8 +84,8 @@ public class TaktZKTecoAttendanceDeviceAdapterService : ITaktZKTecoAttendanceDev
     public Task<IReadOnlyList<TaktAttendanceSourceIngestRowDto>> ParsePushAsync(TaktAttendanceDevice device, TaktAttendancePushRequestDto request)
         => Task.FromResult<IReadOnlyList<TaktAttendanceSourceIngestRowDto>>(new List<TaktAttendanceSourceIngestRowDto>());
 
-    public Task<TaktAttendanceDeviceStatusDto> PingAsync(TaktAttendanceDevice device)
-        => Task.FromResult(new TaktAttendanceDeviceStatusDto
+    public Task<TaktAttendanceDeviceOnlineStatusDto> PingAsync(TaktAttendanceDevice device)
+        => Task.FromResult(new TaktAttendanceDeviceOnlineStatusDto
         {
             DeviceId = device.Id,
             IsOnline = device.DeviceStatus == 1,

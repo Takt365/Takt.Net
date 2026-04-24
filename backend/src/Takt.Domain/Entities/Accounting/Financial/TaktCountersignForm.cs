@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.Accounting.Financial
 // 文件名称：TaktCountersignForm.cs
@@ -21,7 +21,7 @@ namespace Takt.Domain.Entities.Accounting.Financial;
 /// <remarks>
 /// 归属财务管理模块，与 TaktFlowForm 无直接关系。业务上如需审批，由流程在发起时引用本表（如会签编号），流程仅负责审批环节。
 /// </remarks>
-[SugarTable("takt_accounting_financial_countersign_form", "会签单表")]
+[SugarTable("takt_accounting_financial_countersign_form", "会签表单表")]
 [SugarIndex("ix_takt_accounting_financial_countersign_form_countersign_code", nameof(CountersignCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_financial_countersign_form_company_code", nameof(CompanyCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_financial_countersign_form_application_date", nameof(ApplicationDate), OrderByType.Desc)]

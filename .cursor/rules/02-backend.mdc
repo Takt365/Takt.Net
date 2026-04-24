@@ -40,7 +40,7 @@ alwaysApply: false
 
 - 继承 `TaktControllerBase`，异常统一通过 `HandleException(ex)` 处理。
 - 分页列表统一返回 `TaktPagedResult<T>`，与前端分页组件对齐。
-- 需要权限控制的方法必须加 `[TaktPermission("module:resource:action", "描述")]`；公共接口使用 `[AllowAnonymous]`。
+- 需要权限控制的方法必须加 `[TaktPermission("领域:目录:实体:key", "描述")]`（四段小写英文，分隔符为冒号 `:`，如 `logistics:materials:plant:list`；段内禁止下划线）；公共接口使用 `[AllowAnonymous]`。
 - **控制器方法命名（强制）**：必须使用“实体前缀 + 语义”的唯一命名，禁止 `GetList` / `GetById` / `Create` / `Update` / `Delete` 这类无实体前缀命名。示例：`GetUserListAsync`、`GetUserByIdAsync`、`CreateUserAsync`、`UpdateUserAsync`、`DeleteUserByIdAsync`、`DeleteUserBatchAsync`、`GetUserTemplateAsync`、`ImportUserAsync`、`ExportUserAsync`、`UpdateUserStatusAsync`。
 - REST 约定：
   - `[HttpGet("list")]`：分页列表
@@ -169,7 +169,8 @@ alwaysApply: false
 - **实体翻译种子（本地化强制 1:1）**
   - 每个业务持久化实体（`public class TaktXxx : TaktEntityBase`，**单文件单实体**）**必须**有且仅有 **一个** 对应的 **`TaktXxxEntitiesSeedData`**，用于向 `TaktTranslation` 写入前端可用的 `ResourceKey`（如 `entity.xxx._self`、`entity.xxx.字段名`，段名与字段名与前端 `t('entity.xxx')` 约定一致，一般为小写连续段）。
   - **禁止**在一个 `*EntitiesSeedData` 中混入多个无关实体的键；**禁止**多个实体合并为一个翻译种子类（关联桥实体如 `TaktRoleMenu` 仍使用 **`TaktRoleMenuEntitiesSeedData`**，与实体名一一对应）。
-  - 实现体例以 `Takt.Infrastructure/Data/Seeds/SeedI18nData/TaktRoleDeptEntitiesSeedData.cs`、`TaktPostDelegateEntitiesSeedData.cs` 为准：**类内完整 `SeedAsync`** + **内联** 各文化 `new TaktTranslation { ... }`；**不得**用集中式 Executor/行工厂替代「一实体一种子类」的可读结构与独立维护边界。
+  - **目录与命名空间**：`TaktXxxEntitiesSeedData.cs` 放在 `SeedI18nData` 下与实体分库一致的子目录中（与 `TaktEntityDatabaseMapping.GetConfigIdByEntityNamespace` 一致：`Identity`→ConfigId 0、`HumanResource`→1、`Routine`→2、`Code`（含 Workflow/Generator）→3、`Accounting`→4、`Logistics` 与 `Statistics` 同属 ConfigId 5 时分目录存放），命名空间为 `Takt.Infrastructure.Data.Seeds.SeedI18nData.{子目录名}`。
+  - 实现体例以 `Takt.Infrastructure/Data/Seeds/SeedI18nData/HumanResource/TaktRoleDeptEntitiesSeedData.cs`、`HumanResource/TaktPostDelegateEntitiesSeedData.cs` 为准：**类内完整 `SeedAsync`** + **内联** 各文化 `new TaktTranslation { ... }`；**不得**用集中式 Executor/行工厂替代「一实体一种子类」的可读结构与独立维护边界。
   - 每个 `TaktXxxEntitiesSeedData` **必须**出现在 `Takt.Infrastructure/Extensions/TaktSeedsCollectionExtensions.cs` 的 **`AddTaktSeeds`** 中（**Autofac `RegisterType` 与 `IServiceCollection.AddScoped` 两处都要**），否则初始化不会写入翻译表。
   - 各实现的 `Order` 与仓库内已有 `ITaktSeedData` 错开，避免同序执行冲突。
 
@@ -200,7 +201,7 @@ alwaysApply: false
 - **所有 `public` / `protected` 类型与成员**（含应用服务、仓储接口、DTO、枚举、控制器 Action）：必须有 `/// <summary>…</summary>`。
 - **方法**：除 `<summary>` 外，**每个参数**写 `<param name="…">…</param>`；有返回值写 `<returns>…</returns>`；异步方法在摘要或 `<returns>` 中体现 `Task` / `Task<T>` 语义。
 - **构造函数**：类上已有说明时，构造函数仍须 **`/// <summary>` + 每个参数的 `<param>`**（与 `TaktUserService` 一致）。
-- **控制器 Action**：每个公开 Action 须有 `<summary>`；与 `[TaktPermission("module:resource:action", "说明")]` 中的文字**互补不矛盾**（XML 偏技术语义，特性偏权限粒度）。
+- **控制器 Action**：每个公开 Action 须有 `<summary>`；与 `[TaktPermission("领域:目录:实体:key", "说明")]` 中的文字**互补不矛盾**（XML 偏技术语义，特性偏权限粒度）。
 
 ### 应用服务与私有成员
 

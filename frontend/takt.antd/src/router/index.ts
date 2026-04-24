@@ -61,11 +61,47 @@ const routes: RouteRecordRaw[] = [
     children: []
   },
   {
+    path: '/401',
+    name: 'Unauthorized',
+    component: () => import('@/views/error/401.vue'),
+    meta: {
+      title: 'error.unauthorized.title',
+      requiresAuth: false
+    }
+  },
+  {
     path: '/403',
     name: 'Forbidden',
     component: () => import('@/views/error/403.vue'),
     meta: {
-      title: '403',
+      title: 'error.forbidden.title',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/500',
+    name: 'ServerError',
+    component: () => import('@/views/error/500.vue'),
+    meta: {
+      title: 'error.servererror.title',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/503',
+    name: 'ServiceUnavailable',
+    component: () => import('@/views/error/503.vue'),
+    meta: {
+      title: 'error.serviceunavailable.title',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/404',
+    name: 'NotFoundPage',
+    component: () => import('@/views/error/404.vue'),
+    meta: {
+      title: 'error.notfound.title',
       requiresAuth: false
     }
   },
@@ -74,7 +110,8 @@ const routes: RouteRecordRaw[] = [
     name: 'NotFound',
     component: () => import('@/views/error/404.vue'),
     meta: {
-      title: '404'
+      title: 'error.notfound.title',
+      requiresAuth: false
     }
   }
 ]
@@ -219,20 +256,13 @@ router.beforeEach(async (to, _from, next) => {
     // 检查是否已加载用户信息
     if (!userStore.userInfo) {
       try {
+        // 先加载翻译与字典，再拉 userinfo（含 holiday_*）；假日展示依赖 TaktTranslation 合并完成后再取 userinfo
+        await Promise.all([loadBackendTranslations(), loadDictData()])
+        logger.info('[Router Guard] 翻译和字典数据加载完成')
         const userInfo = await userStore.getUserInfo()
-        // 获取用户信息后，设置权限列表
         if (userInfo?.permissions) {
           permissionStore.permissions = userInfo.permissions
         }
-        
-        // 获取用户信息后，优先加载翻译和字典数据
-        await Promise.all([
-          loadBackendTranslations(),
-          loadDictData()
-        ])
-        logger.info('[Router Guard] 翻译和字典数据加载完成')
-        
-        // 连接 SignalR（登录成功后）
         await connectSignalR()
       } catch {
         userStore.logout()
@@ -393,6 +423,55 @@ router.beforeEach(async (to, _from, next) => {
       // 如果访问的是根路径，重定向到 /dashboard/workspace（由后端菜单数据生成）
       if (to.path === '/') {
         handleRootRedirect(next)
+        return
+      }
+    }
+  }
+
+  // 刷新页面时，动态路由尚未加载，所有非静态路径都会匹配 catch-all (NotFound)
+  // catch-all 的 requiresAuth: false 导致上方认证块被跳过，直接渲染 404
+  // 此处补载：若用户已登录且命中 NotFound，先加载动态路由再重新导航
+  if (to.name === 'NotFound' && userStore.token) {
+    if (!userStore.userInfo) {
+      try {
+        await Promise.all([loadBackendTranslations(), loadDictData()])
+        logger.info('[Router Guard] 翻译和字典数据加载完成')
+        const userInfo = await userStore.getUserInfo()
+        if (userInfo?.permissions) {
+          permissionStore.permissions = userInfo.permissions
+        }
+        await connectSignalR()
+      } catch {
+        userStore.logout()
+        redirectToLogin(next, to.fullPath)
+        return
+      }
+    }
+
+    const rootRoute = getRootRoute()
+    const hasDynamicRoutes = rootRoute?.children && rootRoute.children.length > 0
+
+    if (!menuStore.isRoutesLoaded && !hasDynamicRoutes) {
+      try {
+        await menuStore.generateRoutes()
+        logger.info('[Router Guard] 权限路由加载成功，路由数量:', menuStore.routes.length)
+
+        const registered = registerDynamicRoutes(menuStore.routes)
+        if (!registered) {
+          menuStore.routes.forEach((route) => {
+            router.addRoute('/', route)
+          })
+        }
+
+        await nextTick()
+        await nextTick()
+
+        next({ path: to.fullPath, replace: true })
+        NProgress.done()
+        return
+      } catch (error) {
+        logger.error('[Router Guard] 加载权限路由失败:', error)
+        redirectToLogin(next)
         return
       }
     }

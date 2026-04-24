@@ -134,8 +134,8 @@
         :template-file-name="roleExcelNames.fileBase"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.role._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.role._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -190,8 +190,7 @@ const tableRef = ref()
 const advancedQueryVisible = ref(false)
 const advancedQueryForm = ref<{ roleName: string; roleCode: string; roleStatus?: number }>({
   roleName: '',
-  roleCode: '',
-  roleStatus: undefined
+  roleCode: ''
 })
 const importVisible = ref(false)
 const columnSettingVisible = ref(false)
@@ -217,11 +216,11 @@ const deleteDisabled = computed(() => {
 
 function getDataScopeLabel(v: number | undefined): string {
   const map: Record<number, string> = {
-    0: t('identity.role.dataScope.all'),
-    1: t('identity.role.dataScope.dept'),
-    2: t('identity.role.dataScope.deptAndBelow'),
-    3: t('identity.role.dataScope.self'),
-    4: t('identity.role.dataScope.custom')
+    0: t('identity.role.page.datascope.all'),
+    1: t('identity.role.page.datascope.dept'),
+    2: t('identity.role.page.datascope.deptandbelow'),
+    3: t('identity.role.page.datascope.self'),
+    4: t('identity.role.page.datascope.custom')
   }
   return v !== undefined && v !== null ? (map[v] ?? '-') : '-'
 }
@@ -285,7 +284,7 @@ const columns = computed<TableColumnsType>(() => [
     width: 160,
     ellipsis: true
   },
-  CreateActionColumn({
+  CreateActionColumn<Role>({
     actions: [
       {
         key: 'update',
@@ -327,14 +326,14 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: Role[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: Role, selected: boolean) => {
     if (selected) selectedRow.value = record
     else if (selectedRow.value && getRoleId(selectedRow.value) === getRoleId(record)) selectedRow.value = null
   },
   onSelectAll: (selected: boolean, selectedRowsData: Role[]) => {
-    selectedRow.value = selected && selectedRowsData.length === 1 ? selectedRowsData[0] : null
+    selectedRow.value = selected && selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
   }
 }))
 
@@ -345,7 +344,7 @@ const onClickRow = (record: Role) => ({
     if (index > -1) selectedRowKeys.value.splice(index, 1)
     else selectedRowKeys.value.push(key)
     selectedRows.value = dataSource.value.filter(item => selectedRowKeys.value.includes(getRoleId(item)))
-    selectedRow.value = selectedRowKeys.value.length === 1 ? selectedRows.value[0] : null
+    selectedRow.value = selectedRowKeys.value.length === 1 ? (selectedRows.value[0] ?? null) : null
     if (rowSelection.value.onChange) rowSelection.value.onChange(selectedRowKeys.value, selectedRows.value)
   }
 })
@@ -370,7 +369,7 @@ const loadData = async () => {
     total.value = totalCount
   } catch (error: any) {
     logger.error('[Role] 加载数据失败:', error)
-    message.error(error?.message || t('common.msg.loadFail'))
+    message.error(error?.message || t('common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -381,7 +380,7 @@ const loadData = async () => {
 const handleSearch = () => { currentPage.value = 1; loadData() }
 const handleReset = () => {
   queryKeyword.value = ''
-  advancedQueryForm.value = { roleName: '', roleCode: '', roleStatus: undefined }
+  advancedQueryForm.value = { roleName: '', roleCode: '' }
   currentPage.value = 1
   loadData()
 }
@@ -428,7 +427,7 @@ const handleEdit = (record: Role) => {
 
 const handleUpdate = () => {
   if (selectedRow.value) handleEdit(selectedRow.value)
-  else message.warning(t('common.action.warnSelectToAction', { action: t('common.button.edit'), entity: t('entity.role._self') }))
+  else message.warning(t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: t('entity.role._self') }))
 }
 
 const handleDeleteOne = (record: Role) => {
@@ -438,18 +437,18 @@ const handleDeleteOne = (record: Role) => {
   }
   const name = getRoleField(record, 'roleName') || getRoleId(record)
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', { entity: t('entity.role._self'), name }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.role._self'), name }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await deleteRoleById(getRoleId(record))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deletesuccess'))
         loadData()
       } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+        message.error(error?.message || t('common.msg.deletefail'))
       } finally {
         loading.value = false
       }
@@ -459,25 +458,25 @@ const handleDeleteOne = (record: Role) => {
 
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
-    message.warning(t('common.action.warnSelectToAction', { action: t('common.button.delete'), entity: t('entity.role._self') }))
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('entity.role._self') }))
     return
   }
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', { count: selectedRows.value.length, entity: t('entity.role._self') }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { count: selectedRows.value.length, entity: t('entity.role._self') }),
     okText: t('common.button.delete'),
     cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await Promise.all(selectedRows.value.map(record => deleteRoleById(getRoleId(record))))
-        message.success(t('common.msg.deleteSuccess'))
+        message.success(t('common.msg.deletesuccess'))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: any) {
-        message.error(error?.message || t('common.msg.deleteFail'))
+        message.error(error?.message || t('common.msg.deletefail'))
       } finally {
         loading.value = false
       }
@@ -493,10 +492,10 @@ const handleFormSubmit = async () => {
     formLoading.value = true
     if (formData.value?.roleId) {
       await updateRole(formData.value.roleId, { ...formValues, roleId: formData.value.roleId })
-      message.success(t('common.msg.updateSuccess'))
+      message.success(t('common.msg.updatesuccess'))
     } else {
-    await create(formValues)
-    message.success(t('common.msg.createSuccess'))
+      await createRole(formValues)
+      message.success(t('common.msg.createsuccess'))
     }
     formRef.value?.resetFields()
     formData.value = {}
@@ -504,7 +503,7 @@ const handleFormSubmit = async () => {
     loadData()
   } catch (error: any) {
     if (error?.errorFields) return
-    message.error(error?.message || t('common.msg.operateFail'))
+    message.error(error?.message || t('common.msg.operatefail'))
   } finally {
     formLoading.value = false
   }
@@ -554,9 +553,9 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess'))
+    message.success(t('common.msg.exportsuccess'))
   } catch (error: any) {
-    message.error(error?.message || t('common.msg.exportFail'))
+    message.error(error?.message || t('common.msg.exportfail'))
   } finally {
     loading.value = false
   }
@@ -569,7 +568,7 @@ const handleAdvancedQuerySubmit = () => {
   advancedQueryVisible.value = false
 }
 const handleAdvancedQueryReset = () => {
-  advancedQueryForm.value = { roleName: '', roleCode: '', roleStatus: undefined }
+  advancedQueryForm.value = { roleName: '', roleCode: '' }
 }
 
 const handleColumnSetting = () => { columnSettingVisible.value = true }

@@ -110,11 +110,9 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   open: false,
-  title: undefined,
   placement: 'right',
   width: 400,
-  resetText: undefined,
-  checkedKeys: () => [],
+  checkedKeys: (): string[] => [],
   idColumnKey: 'id',
   actionColumnKey: 'action'
 })
@@ -126,7 +124,7 @@ const emit = defineEmits<{
   'close': []
 }>()
 
-const title = computed(() => props.title ?? t('common.button.columnSetting'))
+const title = computed(() => props.title ?? t('common.button.columnsetting'))
 const resetText = computed(() => props.resetText ?? t('common.button.reset'))
 
 // 审计字段统一在 TaktColumnDrawer 中处理，合并到列配置中

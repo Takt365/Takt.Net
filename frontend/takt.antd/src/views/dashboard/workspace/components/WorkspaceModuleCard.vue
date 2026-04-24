@@ -55,7 +55,7 @@
                   <template #icon>
                     <RiLayoutRowLine />
                   </template>
-                  {{ t('dashboard.workspace.layoutFullRow') }}
+                  {{ t('dashboard.workspace.layoutfullrow') }}
                 </a-menu-item>
                 <a-menu-item
                   key="half"
@@ -64,7 +64,7 @@
                   <template #icon>
                     <RiLayoutColumnLine />
                   </template>
-                  {{ t('dashboard.workspace.layoutHalfRow') }}
+                  {{ t('dashboard.workspace.layouthalfrow') }}
                 </a-menu-item>
               </a-menu>
             </template>
@@ -73,7 +73,7 @@
         <slot name="headActions" />
         <a-tooltip
           v-if="showRemoveButton"
-          :title="t('dashboard.workspace.removeModule')"
+          :title="t('dashboard.workspace.removemodule')"
           placement="right"
         >
           <a-button
@@ -127,15 +127,15 @@ const displayTitle = computed(() => {
   return meta ? t(meta.titleKey) : props.module.moduleKey
 })
 
-const dragTooltip = computed(() => t('dashboard.workspace.dragToReorder', { title: displayTitle.value }))
+const dragTooltip = computed(() => t('dashboard.workspace.dragtoreorder', { title: displayTitle.value }))
 
 /** 布局切换：独占一行(24) / 半行(12)，未设置时按 24 */
 const moduleSpan = computed(() => props.module.span ?? 24)
 const currentLayoutKey = computed(() => (moduleSpan.value === 24 ? 'full' : 'half'))
 const currentLayoutLabel = computed(() =>
-  moduleSpan.value === 24 ? t('dashboard.workspace.layoutFullRow') : t('dashboard.workspace.layoutHalfRow')
+  moduleSpan.value === 24 ? t('dashboard.workspace.layoutfullrow') : t('dashboard.workspace.layouthalfrow')
 )
-const layoutTooltip = computed(() => `${t('dashboard.workspace.layoutLabel')}：${currentLayoutLabel.value}`)
+const layoutTooltip = computed(() => `${t('dashboard.workspace.layoutlabel')}：${currentLayoutLabel.value}`)
 const showLayoutSwitch = true
 
 function onLayoutMenuClick(info: MenuInfo) {

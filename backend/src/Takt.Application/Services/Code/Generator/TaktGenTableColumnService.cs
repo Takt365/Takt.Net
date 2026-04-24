@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Code.Generator
 // 文件名称：TaktGenTableColumnService.cs
@@ -50,7 +50,7 @@ public class TaktGenTableColumnService : TaktServiceBase, ITaktGenTableColumnSer
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktGenTableColumnDto>> GetListAsync(TaktGenTableColumnQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktGenTableColumnDto>> GetGenTableColumnListAsync(TaktGenTableColumnQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
 
@@ -68,7 +68,7 @@ public class TaktGenTableColumnService : TaktServiceBase, ITaktGenTableColumnSer
     /// </summary>
     /// <param name="id">字段ID</param>
     /// <returns>代码生成字段配置DTO</returns>
-    public async Task<TaktGenTableColumnDto?> GetByIdAsync(long id)
+    public async Task<TaktGenTableColumnDto?> GetGenTableColumnByIdAsync(long id)
     {
         var genTableColumn = await _genTableColumnRepository.GetByIdAsync(id);
         if (genTableColumn == null) return null;
@@ -81,11 +81,11 @@ public class TaktGenTableColumnService : TaktServiceBase, ITaktGenTableColumnSer
     /// </summary>
     /// <param name="tableId">表ID</param>
     /// <returns>字段配置列表</returns>
-    public async Task<List<TaktGenTableColumnDto>> GetListByTableIdAsync(long tableId)
+    public async Task<List<TaktGenTableColumnDto>> GetGenTableColumnsByTableIdAsync(long tableId)
     {
         var columns = await _genTableColumnRepository.FindAsync(c => c.TableId == tableId && c.IsDeleted == 0);
         return columns
-            .OrderBy(c => c.OrderNum)
+            .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.CreatedAt)
             .Adapt<List<TaktGenTableColumnDto>>();
     }
@@ -95,7 +95,7 @@ public class TaktGenTableColumnService : TaktServiceBase, ITaktGenTableColumnSer
     /// </summary>
     /// <param name="dto">创建代码生成字段配置DTO</param>
     /// <returns>代码生成字段配置DTO</returns>
-    public async Task<TaktGenTableColumnDto> CreateAsync(TaktGenTableColumnCreateDto dto)
+    public async Task<TaktGenTableColumnDto> CreateGenTableColumnAsync(TaktGenTableColumnCreateDto dto)
     {
         // 使用Mapster映射DTO到实体
         var genTableColumn = dto.Adapt<TaktGenTableColumn>();
@@ -110,7 +110,7 @@ public class TaktGenTableColumnService : TaktServiceBase, ITaktGenTableColumnSer
     /// </summary>
     /// <param name="dtos">创建代码生成字段配置DTO列表</param>
     /// <returns>字段配置列表</returns>
-    public async Task<List<TaktGenTableColumnDto>> CreateBatchAsync(List<TaktGenTableColumnCreateDto> dtos)
+    public async Task<List<TaktGenTableColumnDto>> CreateGenTableColumnBatchAsync(List<TaktGenTableColumnCreateDto> dtos)
     {
         var genTableColumns = dtos.Adapt<List<TaktGenTableColumn>>();
         
@@ -128,7 +128,7 @@ public class TaktGenTableColumnService : TaktServiceBase, ITaktGenTableColumnSer
     /// <param name="id">字段ID</param>
     /// <param name="dto">更新代码生成字段配置DTO</param>
     /// <returns>代码生成字段配置DTO</returns>
-    public async Task<TaktGenTableColumnDto> UpdateAsync(long id, TaktGenTableColumnUpdateDto dto)
+    public async Task<TaktGenTableColumnDto> UpdateGenTableColumnAsync(long id, TaktGenTableColumnUpdateDto dto)
     {
         var genTableColumn = await _genTableColumnRepository.GetByIdAsync(id);
         if (genTableColumn == null)
@@ -148,7 +148,7 @@ public class TaktGenTableColumnService : TaktServiceBase, ITaktGenTableColumnSer
     /// </summary>
     /// <param name="id">字段ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteGenTableColumnByIdAsync(long id)
     {
         await _genTableColumnRepository.DeleteAsync(id);
     }
@@ -158,7 +158,7 @@ public class TaktGenTableColumnService : TaktServiceBase, ITaktGenTableColumnSer
     /// </summary>
     /// <param name="ids">字段ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(IEnumerable<long> ids)
+    public async Task DeleteGenTableColumnBatchAsync(IEnumerable<long> ids)
     {
         var idList = ids.ToList();
         if (idList.Count == 0)
@@ -173,7 +173,7 @@ public class TaktGenTableColumnService : TaktServiceBase, ITaktGenTableColumnSer
     /// </summary>
     /// <param name="tableId">表ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteByTableIdAsync(long tableId)
+    public async Task DeleteGenTableColumnsByTableIdAsync(long tableId)
     {
         var columns = await _genTableColumnRepository.FindAsync(c => c.TableId == tableId && c.IsDeleted == 0);
         foreach (var column in columns)

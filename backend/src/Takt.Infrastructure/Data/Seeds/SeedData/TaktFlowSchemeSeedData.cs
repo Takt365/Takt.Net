@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktFlowSchemeSeedData.cs
@@ -59,28 +59,28 @@ public class TaktFlowSchemeSeedData : ITaktSeedData
 """;
 
         // 1. 请假流程：发起人→部门审批→天数分支→分管领导审批/公司领导审批→人事核定→结束，关联表单 leave_form
-        var leave = await repo.GetAsync(x => x.ProcessKey == "Leave");
+        var leave = await repo.GetAsync(x => x.SchemeKey == "Leave");
         if (leave == null)
         {
             await repo.CreateAsync(new TaktFlowScheme
             {
-                ProcessKey = "Leave",
-                ProcessName = "请假流程",
-                ProcessCategory = 1,
-                ProcessVersion = 1,
-                ProcessDescription = "发起人→部门审批→天数分支→分管领导审批/公司领导审批→人事核定→结束",
-                ProcessStatus = 1,
+                SchemeKey = "Leave",
+                SchemeName = "请假流程",
+                SchemeCategory = 1,
+                SchemeVersion = 1,
+                SchemeDescription = "发起人→部门审批→天数分支→分管领导审批/公司领导审批→人事核定→结束",
+                SchemeStatus = 1,
                 FormId = leaveForm?.Id,
                 FormCode = "leave_form",
-                ProcessContent = leaveProcessContent,
-                OrderNum = 0
+                SchemeContent = leaveProcessContent,
+                SortOrder = 0
             });
             insertCount++;
         }
         else
         {
-            leave.ProcessDescription = "发起人→部门审批→天数分支→分管领导审批/公司领导审批→人事核定→结束";
-            leave.ProcessContent = leaveProcessContent;
+            leave.SchemeDescription = "发起人→部门审批→天数分支→分管领导审批/公司领导审批→人事核定→结束";
+            leave.SchemeContent = leaveProcessContent;
             leave.FormId = leaveForm?.Id;
             leave.FormCode = "leave_form";
             await repo.UpdateAsync(leave);
@@ -88,28 +88,28 @@ public class TaktFlowSchemeSeedData : ITaktSeedData
         }
 
         // 2. 报销流程：发起人→部门审批→金额网关→(≥阈值会签：财务→相关部门发起人指定→公司领导)→财务复核→出纳分支→结束，关联 reimburse_form
-        var reimburse = await repo.GetAsync(x => x.ProcessKey == "Reimburse");
+        var reimburse = await repo.GetAsync(x => x.SchemeKey == "Reimburse");
         if (reimburse == null)
         {
             await repo.CreateAsync(new TaktFlowScheme
             {
-                ProcessKey = "Reimburse",
-                ProcessName = "报销流程",
-                ProcessCategory = 1,
-                ProcessVersion = 1,
-                ProcessDescription = "发起人→部门审批→金额分支(<3000直批；≥3000会签)→财务复核→出纳确认(待办选payoutChannel)→银行/现金/归还借款→结束",
-                ProcessStatus = 1,
+                SchemeKey = "Reimburse",
+                SchemeName = "报销流程",
+                SchemeCategory = 1,
+                SchemeVersion = 1,
+                SchemeDescription = "发起人→部门审批→金额分支(<3000直批；≥3000会签)→财务复核→出纳确认(待办选payoutChannel)→银行/现金/归还借款→结束",
+                SchemeStatus = 1,
                 FormId = reimburseForm?.Id,
                 FormCode = "reimburse_form",
-                ProcessContent = reimburseProcessContent,
-                OrderNum = 1
+                SchemeContent = reimburseProcessContent,
+                SortOrder = 1
             });
             insertCount++;
         }
         else
         {
-            reimburse.ProcessDescription = "发起人→部门审批→金额分支(<3000直批；≥3000会签)→财务复核→出纳确认(待办选payoutChannel)→银行/现金/归还借款→结束";
-            reimburse.ProcessContent = reimburseProcessContent;
+            reimburse.SchemeDescription = "发起人→部门审批→金额分支(<3000直批；≥3000会签)→财务复核→出纳确认(待办选payoutChannel)→银行/现金/归还借款→结束";
+            reimburse.SchemeContent = reimburseProcessContent;
             reimburse.FormId = reimburseForm?.Id;
             reimburse.FormCode = "reimburse_form";
             await repo.UpdateAsync(reimburse);
@@ -117,29 +117,29 @@ public class TaktFlowSchemeSeedData : ITaktSeedData
         }
 
         // 3. 设变流程：发起人→抄送各部门→结束，全自动（无默认业务表单，FormId/FormCode 为空）
-        var ecn = await repo.GetAsync(x => x.ProcessKey == "Ecn");
+        var ecn = await repo.GetAsync(x => x.SchemeKey == "Ecn");
         if (ecn == null)
         {
             await repo.CreateAsync(new TaktFlowScheme
             {
-                ProcessKey = "Ecn",
-                ProcessName = "设变流程",
-                ProcessCategory = 1,
-                ProcessVersion = 1,
-                ProcessDescription = "发起人→抄送各部门→结束（全自动）",
-                ProcessStatus = 1,
+                SchemeKey = "Ecn",
+                SchemeName = "设变流程",
+                SchemeCategory = 1,
+                SchemeVersion = 1,
+                SchemeDescription = "发起人→抄送各部门→结束（全自动）",
+                SchemeStatus = 1,
                 FormId = null,
                 FormCode = null,
-                ProcessContent = ecnProcessContent,
-                OrderNum = 2
+                SchemeContent = ecnProcessContent,
+                SortOrder = 2
             });
             insertCount++;
         }
         else
         {
-            ecn.ProcessName = "设变流程";
-            ecn.ProcessDescription = "发起人→抄送各部门→结束（全自动）";
-            ecn.ProcessContent = ecnProcessContent;
+            ecn.SchemeName = "设变流程";
+            ecn.SchemeDescription = "发起人→抄送各部门→结束（全自动）";
+            ecn.SchemeContent = ecnProcessContent;
             ecn.FormId = null;
             ecn.FormCode = null;
             await repo.UpdateAsync(ecn);
@@ -147,29 +147,29 @@ public class TaktFlowSchemeSeedData : ITaktSeedData
         }
 
         // 4. 通知流程：部门审批→相关部门会签→管理层→最终发布→抄送各部门（无默认业务表单）
-        var notice = await repo.GetAsync(x => x.ProcessKey == "Notice");
+        var notice = await repo.GetAsync(x => x.SchemeKey == "Notice");
         if (notice == null)
         {
             await repo.CreateAsync(new TaktFlowScheme
             {
-                ProcessKey = "Notice",
-                ProcessName = "通知流程",
-                ProcessCategory = 1,
-                ProcessVersion = 1,
-                ProcessDescription = "发起人→部门审批→会签(指定相关部门)→管理层批准→最终发布→抄送各部门",
-                ProcessStatus = 1,
+                SchemeKey = "Notice",
+                SchemeName = "通知流程",
+                SchemeCategory = 1,
+                SchemeVersion = 1,
+                SchemeDescription = "发起人→部门审批→会签(指定相关部门)→管理层批准→最终发布→抄送各部门",
+                SchemeStatus = 1,
                 FormId = null,
                 FormCode = null,
-                ProcessContent = noticeProcessContent,
-                OrderNum = 3
+                SchemeContent = noticeProcessContent,
+                SortOrder = 3
             });
             insertCount++;
         }
         else
         {
-            notice.ProcessName = "通知流程";
-            notice.ProcessDescription = "发起人→部门审批→会签(指定相关部门)→管理层批准→最终发布→抄送各部门";
-            notice.ProcessContent = noticeProcessContent;
+            notice.SchemeName = "通知流程";
+            notice.SchemeDescription = "发起人→部门审批→会签(指定相关部门)→管理层批准→最终发布→抄送各部门";
+            notice.SchemeContent = noticeProcessContent;
             notice.FormId = null;
             notice.FormCode = null;
             await repo.UpdateAsync(notice);

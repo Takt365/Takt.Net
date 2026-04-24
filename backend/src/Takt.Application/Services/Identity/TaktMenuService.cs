@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Identity
 // 文件名称：TaktMenuService.cs
@@ -52,7 +52,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktMenuDto>> GetListAsync(TaktMenuQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktMenuDto>> GetMenuListAsync(TaktMenuQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
 
@@ -70,7 +70,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     /// </summary>
     /// <param name="id">菜单ID</param>
     /// <returns>菜单DTO</returns>
-    public async Task<TaktMenuDto?> GetByIdAsync(long id)
+    public async Task<TaktMenuDto?> GetMenuByIdAsync(long id)
     {
         var menu = await _menuRepository.GetByIdAsync(id);
         if (menu == null) return null;
@@ -79,21 +79,32 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     }
 
     /// <summary>
-    /// 获取菜单树形选项列表（用于业务组件：components/business/takt-tree-select 和 takt-select）
+    /// 获取菜单树形选项（目录与页面；不含按钮 MenuType=2），用于上级菜单、树选择等。
     /// </summary>
-    /// <returns>菜单树形选项列表</returns>
-    public async Task<List<TaktTreeSelectOption>> GetTreeOptionsAsync()
+    /// <returns>菜单树形选项根节点集合</returns>
+    public async Task<List<TaktTreeSelectOption>> GetMenuTreeOptionsAsync()
+    {
+        var menus = await _menuRepository.FindAsync(m => m.IsDeleted == 0 && m.MenuStatus == 1 && m.MenuType != 2);
+        return BuildMenuTreeOptionList(menus);
+    }
+
+    /// <inheritdoc />
+    public async Task<List<TaktTreeSelectOption>> GetMenuTreeOptionsWithButtonAsync()
     {
         var menus = await _menuRepository.FindAsync(m => m.IsDeleted == 0 && m.MenuStatus == 1);
-        
-        if (menus == null || menus.Count == 0)
-        {
-            return new List<TaktTreeSelectOption>();
-        }
+        return BuildMenuTreeOptionList(menus);
+    }
 
-        // 转换为树形选项（包含 MenuL10nKey）
+    /// <summary>
+    /// 由菜单实体列表构建树形 <see cref="TaktTreeSelectOption"/>（父子关系按 <see cref="TaktMenu.ParentId"/>）。
+    /// </summary>
+    private static List<TaktTreeSelectOption> BuildMenuTreeOptionList(List<TaktMenu>? menus)
+    {
+        if (menus == null || menus.Count == 0)
+            return new List<TaktTreeSelectOption>();
+
         var menuOptions = menus
-            .OrderBy(m => m.OrderNum)
+            .OrderBy(m => m.SortOrder)
             .ThenBy(m => m.CreatedAt)
             .Select(m => new TaktTreeSelectOption
             {
@@ -101,12 +112,11 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
                 DictValue = m.Id,
                 ExtLabel = m.MenuCode,
                 ExtValue = m.Path ?? string.Empty,
-                DictL10nKey = m.MenuL10nKey, // 使用 DictL10nKey 存储 MenuL10nKey（用于多语言翻译）
-                OrderNum = m.OrderNum
+                DictL10nKey = m.MenuL10nKey,
+                SortOrder = m.SortOrder
             })
             .ToList();
 
-        // 构建树形结构
         var menuDict = menuOptions.ToDictionary(m => (long)m.DictValue, m => m);
         var menuEntityDict = menus.ToDictionary(m => m.Id, m => m);
         var rootNodes = new List<TaktTreeSelectOption>();
@@ -114,23 +124,16 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
         foreach (var menuOption in menuOptions)
         {
             var menuId = (long)menuOption.DictValue;
-            if (menuEntityDict.TryGetValue(menuId, out var menuEntity))
+            if (!menuEntityDict.TryGetValue(menuId, out var menuEntity))
+                continue;
+
+            if (menuEntity.ParentId == 0 || !menuDict.ContainsKey(menuEntity.ParentId))
+                rootNodes.Add(menuOption);
+            else
             {
-                if (menuEntity.ParentId == 0 || !menuDict.ContainsKey(menuEntity.ParentId))
-                {
-                    // 根节点或父节点不存在
-                    rootNodes.Add(menuOption);
-                }
-                else
-                {
-                    // 添加到父节点的Children中
-                    var parent = menuDict[menuEntity.ParentId];
-                    if (parent.Children == null)
-                    {
-                        parent.Children = new List<TaktTreeSelectOption>();
-                    }
-                    parent.Children.Add(menuOption);
-                }
+                var parent = menuDict[menuEntity.ParentId];
+                parent.Children ??= new List<TaktTreeSelectOption>();
+                parent.Children.Add(menuOption);
             }
         }
 
@@ -138,16 +141,16 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     }
 
     /// <summary>
-    /// 获取模块名称选项列表（仅 MenuType=0 目录），用于代码生成中的模块列表。返回树形 TaktMenuTreeDto（含 MenuName、Path 等）。
+    /// 获取模块名称用目录树（仅 MenuType=0），用于代码生成中的模块列表；元素为 <see cref="TaktMenuTreeDto"/>。
     /// </summary>
-    /// <returns>目录级菜单树形列表</returns>
-    public async Task<List<TaktMenuTreeDto>> GetModuleNameOptionsAsync()
+    /// <returns>目录级菜单树根节点集合</returns>
+    public async Task<List<TaktMenuTreeDto>> GetMenuDirectoryTreeAsync()
     {
         var menus = await _menuRepository.FindAsync(m => m.IsDeleted == 0 && m.MenuStatus == 1 && m.MenuType == 0);
         if (menus == null || menus.Count == 0)
             return new List<TaktMenuTreeDto>();
         var menuDtos = menus
-            .OrderBy(m => m.OrderNum)
+            .OrderBy(m => m.SortOrder)
             .ThenBy(m => m.CreatedAt)
             .Select(m => m.Adapt<TaktMenuTreeDto>())
             .ToList();
@@ -171,12 +174,12 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     }
 
     /// <summary>
-    /// 获取菜单树形列表
+    /// 获取菜单树（管理端）。
     /// </summary>
     /// <param name="parentId">父级ID（0表示根节点，默认返回所有根节点）</param>
     /// <param name="includeDisabled">是否包含禁用的菜单（默认false）</param>
-    /// <returns>菜单树形列表</returns>
-    public async Task<List<TaktMenuTreeDto>> GetTreeAsync(long parentId = 0, bool includeDisabled = false)
+    /// <returns>菜单树根节点或指定父级子树</returns>
+    public async Task<List<TaktMenuTreeDto>> GetMenuTreeAsync(long parentId = 0, bool includeDisabled = false)
     {
         // 1. 查询所有菜单（根据includeDisabled过滤）
         Expression<Func<TaktMenu, bool>>? predicate = m => m.IsDeleted == 0;
@@ -194,7 +197,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
 
         // 转换为DTO
         var menuDtos = allMenus
-            .OrderBy(m => m.OrderNum)
+            .OrderBy(m => m.SortOrder)
             .ThenBy(m => m.CreatedAt)
             .Select(m => m.Adapt<TaktMenuTreeDto>())
             .ToList();
@@ -241,10 +244,10 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     }
 
     /// <summary>
-    /// 获取当前用户的菜单树形列表（根据用户权限过滤）
+    /// 获取当前用户可见的菜单树（按权限过滤）。
     /// </summary>
-    /// <returns>当前用户的菜单树形列表</returns>
-    public async Task<List<TaktMenuTreeDto>> GetCurrentTreeMenuAsync()
+    /// <returns>当前用户菜单树根节点集合</returns>
+    public async Task<List<TaktMenuTreeDto>> GetCurrentUserMenuTreeAsync()
     {
         // 1. 获取当前用户
         var currentUser = await GetCurrentUserAsync();
@@ -269,7 +272,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
         {
             // 转换为DTO
             var menuDtos = allMenus
-                .OrderBy(m => m.OrderNum)
+                .OrderBy(m => m.SortOrder)
                 .ThenBy(m => m.CreatedAt)
                 .Select(m => m.Adapt<TaktMenuTreeDto>())
                 .ToList();
@@ -305,7 +308,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
         // TODO: 实现权限过滤逻辑
         // 这里先返回所有可见的菜单，后续需要根据用户角色和权限进行过滤
         var menuDtosFiltered = allMenus
-            .OrderBy(m => m.OrderNum)
+            .OrderBy(m => m.SortOrder)
             .ThenBy(m => m.CreatedAt)
             .Select(m => m.Adapt<TaktMenuTreeDto>())
             .ToList();
@@ -338,12 +341,12 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     }
 
     /// <summary>
-    /// 获取菜单子节点列表
+    /// 获取指定父级下的直接子菜单。
     /// </summary>
     /// <param name="parentId">父级ID（0表示根节点）</param>
     /// <param name="includeDisabled">是否包含禁用的菜单（默认false）</param>
-    /// <returns>菜单子节点列表</returns>
-    public async Task<List<TaktMenuDto>> GetChildrenAsync(long parentId, bool includeDisabled = false)
+    /// <returns>子菜单 DTO 集合</returns>
+    public async Task<List<TaktMenuDto>> GetMenuChildrenAsync(long parentId, bool includeDisabled = false)
     {
         // 1. 查询指定父级ID下的直接子节点
         Expression<Func<TaktMenu, bool>>? predicate = m => m.IsDeleted == 0 && m.ParentId == parentId;
@@ -362,7 +365,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
         // 2. 根据includeDisabled过滤（已在查询中处理）
         // 3. 按OrderNum排序
         return children
-            .OrderBy(m => m.OrderNum)
+            .OrderBy(m => m.SortOrder)
             .ThenBy(m => m.CreatedAt)
             .Select(m => m.Adapt<TaktMenuDto>())
             .ToList();
@@ -373,7 +376,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     /// </summary>
     /// <param name="dto">创建菜单DTO</param>
     /// <returns>菜单DTO</returns>
-    public async Task<TaktMenuDto> CreateAsync(TaktMenuCreateDto dto)
+    public async Task<TaktMenuDto> CreateMenuAsync(TaktMenuCreateDto dto)
     {
         // 查重：菜单名称+菜单编码+菜单类型 组合唯一
         var menuName = dto.MenuName;
@@ -400,7 +403,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     /// <param name="id">菜单ID</param>
     /// <param name="dto">更新菜单DTO</param>
     /// <returns>菜单DTO</returns>
-    public async Task<TaktMenuDto> UpdateAsync(long id, TaktMenuUpdateDto dto)
+    public async Task<TaktMenuDto> UpdateMenuAsync(long id, TaktMenuUpdateDto dto)
     {
         var menu = await _menuRepository.GetByIdAsync(id);
         if (menu == null)
@@ -430,7 +433,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     /// </summary>
     /// <param name="id">菜单ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteMenuByIdAsync(long id)
     {
         var menu = await _menuRepository.GetByIdAsync(id);
         if (menu == null)
@@ -450,7 +453,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     /// </summary>
     /// <param name="ids">菜单ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(IEnumerable<long> ids)
+    public async Task DeleteMenuBatchAsync(IEnumerable<long> ids)
     {
         var idList = ids.ToList();
         if (idList.Count == 0)
@@ -476,7 +479,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     /// </summary>
     /// <param name="dto">菜单状态DTO</param>
     /// <returns>菜单DTO</returns>
-    public async Task<TaktMenuDto> UpdateStatusAsync(TaktMenuStatusDto dto)
+    public async Task<TaktMenuDto> UpdateMenuStatusAsync(TaktMenuStatusDto dto)
     {
         var menu = await _menuRepository.GetByIdAsync(dto.MenuId);
         if (menu == null)
@@ -499,7 +502,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> GetTemplateAsync(string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> GetMenuTemplateAsync(string? sheetName, string? fileName)
     {
         var (excelSheet, excelFile) = await ResolveExcelImportTemplateNamesAsync(sheetName, fileName, nameof(TaktMenu));
         return await TaktExcelHelper.GenerateTemplateAsync<TaktMenuTemplateDto>(
@@ -514,7 +517,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     /// <param name="fileStream">Excel文件流</param>
     /// <param name="sheetName">工作表名称</param>
     /// <returns>导入结果（成功数量、失败数量、错误信息列表）</returns>
-    public async Task<(int success, int fail, List<string> errors)> ImportAsync(Stream fileStream, string? sheetName)
+    public async Task<(int success, int fail, List<string> errors)> ImportMenuAsync(Stream fileStream, string? sheetName)
     {
         var errors = new List<string>();
         int success = 0;
@@ -583,7 +586,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
                         Path = string.IsNullOrWhiteSpace(item.Path) ? null : item.Path,
                         Component = string.IsNullOrWhiteSpace(item.Component) ? null : item.Component,
                         MenuIcon = string.IsNullOrWhiteSpace(item.MenuIcon) ? null : item.MenuIcon,
-                        OrderNum = item.OrderNum,
+                        SortOrder = item.SortOrder,
                         MenuType = item.MenuType,
                         Permission = string.IsNullOrWhiteSpace(item.Permission) ? null : item.Permission,
                         IsVisible = item.IsVisible >= 0 ? item.IsVisible : 1,
@@ -640,7 +643,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktMenuQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportMenuAsync(TaktMenuQueryDto query, string? sheetName, string? fileName)
     {
         // 构建查询条件
         var predicate = QueryExpression(query);
@@ -672,7 +675,7 @@ public class TaktMenuService : TaktServiceBase, ITaktMenuService
         {
             var dto = m.Adapt<TaktMenuExportDto>();
             // 处理需要特殊转换的字段
-            dto.MenuType = GetMenuTypeString(m.MenuType);
+            dto.MenuTypeString = GetMenuTypeString(m.MenuType);
             return dto;
         }).ToList();
 

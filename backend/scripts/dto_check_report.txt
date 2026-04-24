@@ -1,0 +1,2381 @@
+找到 135 个实体文件
+
+
+检查: TaktCostCenter
+============================================================
+实体字段数: 15
+DTO文件: Accounting\Controlling\TaktCostCenterDtos.cs
+DTO类数: 3
+  - TaktCostCenterDto: 14 个字段
+  - TaktCostCenterQueryDto: 5 个字段
+  - TaktCostCenterUpdateDto: 1 个字段
+
+  TaktCostCenterDto:
+    ❌ 缺失字段 (2):
+       - CompanyCode (string?)
+       - RelatedPlant (string?)
+
+  TaktCostCenterQueryDto:
+    ❌ 缺失字段 (10):
+       - CompanyCode (string?)
+       - ManagerId (long?)
+       - ManagerName (string?)
+       - DeptId (long?)
+       - DeptName (string?)
+       - CostCenterLevel (int)
+       - RelatedPlant (string?)
+       - ValidFrom (DateTime)
+       - ValidTo (DateTime)
+       - OrderNum (int)
+
+检查: TaktCostElement
+============================================================
+实体字段数: 11
+❌ 未找到DTO文件
+
+检查: TaktProfitCenter
+============================================================
+实体字段数: 14
+❌ 未找到DTO文件
+
+检查: TaktStandardWageRate
+============================================================
+实体字段数: 15
+❌ 未找到DTO文件
+
+检查: TaktAccountingTitle
+============================================================
+实体字段数: 19
+DTO文件: Accounting\Financial\TaktAccountingTitleDtos.cs
+DTO类数: 4
+  - TaktAccountingTitleDto: 18 个字段
+  - TaktAccountingTitleTreeDto: 0 个字段
+  - TaktAccountingTitleQueryDto: 5 个字段
+  - TaktAccountingTitleUpdateDto: 1 个字段
+
+  TaktAccountingTitleDto:
+    ❌ 缺失字段 (2):
+       - CompanyCode (string?)
+       - RelatedPlant (string?)
+
+  TaktAccountingTitleTreeDto:
+    ❌ 缺失字段 (19):
+       - CompanyCode (string?)
+       - TitleCode (string)
+       - TitleName (string)
+       - ParentId (long)
+       - TitleType (int)
+       - BalanceDirection (int)
+       - TitleLevel (int)
+       - IsLeaf (int)
+       - IsAuxiliary (int)
+       - AuxiliaryType (int)
+       - IsQuantity (int)
+       - IsCurrency (int)
+       - IsCash (int)
+       - IsBank (int)
+       - RelatedPlant (string?)
+       - TitleStatus (int)
+       - ValidFrom (DateTime)
+       - ValidTo (DateTime)
+       - OrderNum (int)
+
+  TaktAccountingTitleQueryDto:
+    ❌ 缺失字段 (14):
+       - CompanyCode (string?)
+       - BalanceDirection (int)
+       - TitleLevel (int)
+       - IsLeaf (int)
+       - IsAuxiliary (int)
+       - AuxiliaryType (int)
+       - IsQuantity (int)
+       - IsCurrency (int)
+       - IsCash (int)
+       - IsBank (int)
+       - RelatedPlant (string?)
+       - ValidFrom (DateTime)
+       - ValidTo (DateTime)
+       - OrderNum (int)
+
+检查: TaktAsset
+============================================================
+实体字段数: 25
+❌ 未找到DTO文件
+
+检查: TaktCompany
+============================================================
+实体字段数: 28
+❌ 未找到DTO文件
+
+检查: TaktCountersignForm
+============================================================
+实体字段数: 23
+❌ 未找到DTO文件
+
+检查: TaktGenTable
+============================================================
+实体字段数: 47
+DTO文件: Code\Generator\TaktGenTableDtos.cs
+DTO类数: 3
+  - TaktGenTableDto: 48 个字段
+  - TaktGenTableQueryDto: 4 个字段
+  - TaktGenTableUpdateDto: 1 个字段
+
+  TaktGenTableQueryDto:
+    ❌ 缺失字段 (43):
+       - DataSource (string?)
+       - TableComment (string?)
+       - SubTableName (string?)
+       - SubTableFkName (string?)
+       - TreeCode (string?)
+       - TreeParentCode (string?)
+       - TreeName (string?)
+       - InDatabase (int)
+       - GenTemplateCategory (string)
+       - GenFunctionName (string?)
+       - PermsPrefix (string)
+       - MenuButtonGroup (string?)
+       - NamePrefix (string?)
+       - EntityNamespace (string?)
+       - DtoNamespace (string?)
+       - DtoClassName (string?)
+       - ServiceNamespace (string?)
+       - IServiceClassName (string?)
+       - ServiceClassName (string?)
+       - ControllerNamespace (string?)
+       - ControllerClassName (string?)
+       - IsRepository (int)
+       - RepositoryInterfaceNamespace (string?)
+       - IRepositoryClassName (string?)
+       - RepositoryNamespace (string?)
+       - RepositoryClassName (string?)
+       - GenFunction (string?)
+       - GenMethod (int)
+       - GenPath (string)
+       - IsGenMenu (int)
+       - ParentMenuId (long)
+       - IsGenTranslation (int)
+       - SortField (string)
+       - SortType (string)
+       - FrontUi (int)
+       - FrontFormLayout (int)
+       - FrontBtnStyle (int)
+       - IsGenCode (int)
+       - GenCodeCount (int)
+       - IsUseTabs (int)
+       - TabsFieldCount (int)
+       - GenAuthor (string)
+       - OtherGenOptions (string?)
+
+检查: TaktGenTableColumn
+============================================================
+实体字段数: 23
+DTO文件: Code\Generator\TaktGenTableColumnDtos.cs
+DTO类数: 3
+  - TaktGenTableColumnDto: 23 个字段
+  - TaktGenTableColumnQueryDto: 5 个字段
+  - TaktGenTableColumnUpdateDto: 1 个字段
+
+  TaktGenTableColumnDto:
+    ❌ 缺失字段 (1):
+       - Table (TaktGenTable?)
+
+  TaktGenTableColumnQueryDto:
+    ❌ 缺失字段 (18):
+       - ColumnComment (string?)
+       - DatabaseDataType (string)
+       - CsharpDataType (string)
+       - CsharpColumnName (string)
+       - Length (int)
+       - DecimalDigits (int)
+       - IsIncrement (int)
+       - IsRequired (int)
+       - IsCreate (int)
+       - IsUpdate (int)
+       - IsList (int)
+       - IsExport (int)
+       - IsSort (int)
+       - QueryType (string)
+       - HtmlType (string)
+       - DictType (string?)
+       - OrderNum (int)
+       - Table (TaktGenTable?)
+
+检查: TaktAttendanceCorrection
+============================================================
+实体字段数: 6
+DTO文件: HumanResource\AttendanceLeave\TaktAttendanceCorrectionDtos.cs
+DTO类数: 4
+  - TaktAttendanceCorrectionDto: 7 个字段
+  - TaktAttendanceCorrectionQueryDto: 4 个字段
+  - TaktAttendanceCorrectionUpdateDto: 1 个字段
+  - TaktAttendanceCorrectionImportDto: 0 个字段
+
+  TaktAttendanceCorrectionQueryDto:
+    ❌ 缺失字段 (4):
+       - TargetDate (DateTime)
+       - CorrectionKind (int)
+       - RequestPunchTime (DateTime)
+       - Reason (string)
+
+  TaktAttendanceCorrectionImportDto:
+    ❌ 缺失字段 (6):
+       - EmployeeId (long)
+       - TargetDate (DateTime)
+       - CorrectionKind (int)
+       - RequestPunchTime (DateTime)
+       - Reason (string)
+       - ApprovalStatus (int)
+
+检查: TaktAttendanceDevice
+============================================================
+实体字段数: 13
+DTO文件: HumanResource\AttendanceLeave\TaktAttendanceDeviceDtos.cs
+DTO类数: 3
+  - TaktAttendanceDeviceDto: 13 个字段
+  - TaktAttendanceDeviceQueryDto: 5 个字段
+  - TaktAttendanceDeviceUpdateDto: 1 个字段
+
+  TaktAttendanceDeviceDto:
+    ❌ 缺失字段 (1):
+       - ApiSecret (string?)
+
+  TaktAttendanceDeviceQueryDto:
+    ❌ 缺失字段 (8):
+       - IpAddress (string?)
+       - Port (int?)
+       - DeviceModel (string?)
+       - ApiSecret (string?)
+       - ConfigJson (string?)
+       - IsPushEnabled (int)
+       - LastPullAt (DateTime?)
+       - LastPushAt (DateTime?)
+
+检查: TaktAttendanceException
+============================================================
+实体字段数: 5
+DTO文件: HumanResource\AttendanceLeave\TaktAttendanceExceptionDtos.cs
+DTO类数: 4
+  - TaktAttendanceExceptionDto: 6 个字段
+  - TaktAttendanceExceptionQueryDto: 5 个字段
+  - TaktAttendanceExceptionUpdateDto: 1 个字段
+  - TaktAttendanceExceptionImportDto: 0 个字段
+
+  TaktAttendanceExceptionQueryDto:
+    ❌ 缺失字段 (2):
+       - ExceptionDate (DateTime)
+       - Summary (string)
+
+  TaktAttendanceExceptionImportDto:
+    ❌ 缺失字段 (5):
+       - EmployeeId (long)
+       - ExceptionDate (DateTime)
+       - ExceptionType (int)
+       - Summary (string)
+       - HandleStatus (int)
+
+检查: TaktAttendancePunch
+============================================================
+实体字段数: 5
+DTO文件: HumanResource\AttendanceLeave\TaktAttendancePunchDtos.cs
+DTO类数: 3
+  - TaktAttendancePunchDto: 6 个字段
+  - TaktAttendancePunchQueryDto: 4 个字段
+  - TaktAttendancePunchUpdateDto: 1 个字段
+
+  TaktAttendancePunchQueryDto:
+    ❌ 缺失字段 (3):
+       - PunchTime (DateTime)
+       - PunchSource (int)
+       - PunchAddress (string?)
+
+检查: TaktAttendanceResult
+============================================================
+实体字段数: 8
+DTO文件: HumanResource\AttendanceLeave\TaktAttendanceResultDtos.cs
+DTO类数: 4
+  - TaktAttendanceResultDto: 9 个字段
+  - TaktAttendanceResultQueryDto: 4 个字段
+  - TaktAttendanceResultUpdateDto: 1 个字段
+  - TaktAttendanceResultImportDto: 0 个字段
+
+  TaktAttendanceResultQueryDto:
+    ❌ 缺失字段 (6):
+       - AttendanceDate (DateTime)
+       - ShiftScheduleId (long?)
+       - FirstInTime (DateTime?)
+       - LastOutTime (DateTime?)
+       - WorkMinutes (int)
+       - CalculatedAt (DateTime?)
+
+  TaktAttendanceResultImportDto:
+    ❌ 缺失字段 (8):
+       - EmployeeId (long)
+       - AttendanceDate (DateTime)
+       - ShiftScheduleId (long?)
+       - AttendanceStatus (int)
+       - FirstInTime (DateTime?)
+       - LastOutTime (DateTime?)
+       - WorkMinutes (int)
+       - CalculatedAt (DateTime?)
+
+检查: TaktAttendanceSetting
+============================================================
+实体字段数: 8
+DTO文件: HumanResource\AttendanceLeave\TaktAttendanceSettingDtos.cs
+DTO类数: 3
+  - TaktAttendanceSettingDto: 9 个字段
+  - TaktAttendanceSettingQueryDto: 2 个字段
+  - TaktAttendanceSettingUpdateDto: 1 个字段
+
+  TaktAttendanceSettingQueryDto:
+    ❌ 缺失字段 (6):
+       - WorkStartTime (string)
+       - WorkEndTime (string)
+       - LateGraceMinutes (int)
+       - EarlyLeaveGraceMinutes (int)
+       - IsDefault (int)
+       - OrderNum (int)
+
+检查: TaktAttendanceSource
+============================================================
+实体字段数: 8
+DTO文件: HumanResource\AttendanceLeave\TaktAttendanceSourceDtos.cs
+DTO类数: 3
+  - TaktAttendanceSourceDto: 10 个字段
+  - TaktAttendanceSourceQueryDto: 4 个字段
+  - TaktAttendanceSourceUpdateDto: 1 个字段
+
+  TaktAttendanceSourceDto:
+    ⚠️  多余字段 (1):
+       - DeviceCode (string?)
+
+  TaktAttendanceSourceQueryDto:
+    ❌ 缺失字段 (6):
+       - EnrollNumber (string)
+       - RawPunchTime (DateTime)
+       - VerifyMode (int)
+       - ExternalRecordKey (string?)
+       - DownloadBatchNo (string?)
+       - RawPayloadJson (string?)
+
+检查: TaktHoliday
+============================================================
+实体字段数: 9
+DTO文件: HumanResource\AttendanceLeave\TaktHolidayDtos.cs
+DTO类数: 3
+  - TaktHolidayDto: 10 个字段
+  - TaktHolidayQueryDto: 2 个字段
+  - TaktHolidayUpdateDto: 1 个字段
+
+  TaktHolidayDto:
+    ❌ 可空性错误 (2):
+       - HolidayGreeting: string? -> string (可空性必须与实体一致（实体IsNullable=false）)
+       - HolidayQuote: string? -> string (可空性必须与实体一致（实体IsNullable=false）)
+
+  TaktHolidayQueryDto:
+    ❌ 缺失字段 (7):
+       - HolidayType (int)
+       - StartDate (DateTime)
+       - EndDate (DateTime)
+       - IsWorkingDay (int)
+       - HolidayGreeting (string)
+       - HolidayQuote (string)
+       - HolidayTheme (string)
+
+检查: TaktLeave
+============================================================
+实体字段数: 8
+DTO文件: HumanResource\AttendanceLeave\TaktLeaveDtos.cs
+DTO类数: 3
+  - TaktLeaveDto: 9 个字段
+  - TaktLeaveQueryDto: 5 个字段
+  - TaktLeaveUpdateDto: 1 个字段
+
+  TaktLeaveDto:
+    ❌ 可空性错误 (1):
+       - Reason: string? -> string (可空性必须与实体一致（实体IsNullable=false）)
+
+  TaktLeaveQueryDto:
+    ❌ 缺失字段 (5):
+       - StartDate (DateTime)
+       - EndDate (DateTime)
+       - Reason (string)
+       - ProofAttachmentsJson (string?)
+       - FlowInstanceId (long?)
+
+检查: TaktOvertime
+============================================================
+实体字段数: 7
+DTO文件: HumanResource\AttendanceLeave\TaktOvertimeDtos.cs
+DTO类数: 3
+  - TaktOvertimeDto: 7 个字段
+  - TaktOvertimeQueryDto: 4 个字段
+  - TaktOvertimeUpdateDto: 1 个字段
+
+  TaktOvertimeDto:
+    ❌ 缺失字段 (1):
+       - OvertimeType (int)
+
+  TaktOvertimeQueryDto:
+    ❌ 缺失字段 (5):
+       - OvertimeDate (DateTime)
+       - PlannedHours (decimal)
+       - ActualHours (decimal?)
+       - OvertimeType (int)
+       - Reason (string)
+
+检查: TaktShiftSchedule
+============================================================
+实体字段数: 5
+DTO文件: HumanResource\AttendanceLeave\TaktShiftScheduleDtos.cs
+DTO类数: 3
+  - TaktShiftScheduleDto: 7 个字段
+  - TaktShiftScheduleQueryDto: 6 个字段
+  - TaktShiftScheduleUpdateDto: 1 个字段
+
+  TaktShiftScheduleDto:
+    ⚠️  多余字段 (1):
+       - ShiftName (string?)
+
+  TaktShiftScheduleQueryDto:
+    ❌ 缺失字段 (1):
+       - ScheduleDate (DateTime)
+
+检查: TaktWorkShift
+============================================================
+实体字段数: 6
+DTO文件: HumanResource\AttendanceLeave\TaktWorkShiftDtos.cs
+DTO类数: 3
+  - TaktWorkShiftDto: 7 个字段
+  - TaktWorkShiftQueryDto: 2 个字段
+  - TaktWorkShiftUpdateDto: 1 个字段
+
+  TaktWorkShiftQueryDto:
+    ❌ 缺失字段 (4):
+       - StartTime (string)
+       - EndTime (string)
+       - CrossMidnight (int)
+       - OrderNum (int)
+
+检查: TaktDept
+============================================================
+实体字段数: 13
+DTO文件: HumanResource\Organization\TaktDeptDtos.cs
+DTO类数: 4
+  - TaktDeptDto: 16 个字段
+  - TaktDeptTreeDto: 0 个字段
+  - TaktDeptQueryDto: 4 个字段
+  - TaktDeptUpdateDto: 1 个字段
+
+  TaktDeptDto:
+    ⚠️  多余字段 (2):
+       - DeptHead (string?)
+       - DeptCostCenterName (string?)
+
+  TaktDeptTreeDto:
+    ❌ 缺失字段 (13):
+       - DeptName (string)
+       - DeptCode (string)
+       - ParentId (long)
+       - DeptHeadId (long)
+       - CostCenterCode (string?)
+       - DeptType (int)
+       - DeptPhone (string?)
+       - DeptMail (string?)
+       - DeptAddr (string?)
+       - OrderNum (int)
+       - DataScope (int)
+       - CustomScope (string?)
+       - DeptStatus (int)
+
+  TaktDeptQueryDto:
+    ❌ 缺失字段 (9):
+       - DeptHeadId (long)
+       - CostCenterCode (string?)
+       - DeptType (int)
+       - DeptPhone (string?)
+       - DeptMail (string?)
+       - DeptAddr (string?)
+       - OrderNum (int)
+       - DataScope (int)
+       - CustomScope (string?)
+
+检查: TaktDeptDelegate
+============================================================
+实体字段数: 6
+❌ 未找到DTO文件
+
+检查: TaktEmployeeDept
+============================================================
+实体字段数: 2
+DTO文件: HumanResource\Organization\TaktEmployeeDeptDtos.cs
+DTO类数: 1
+  - TaktEmployeeDeptDto: 7 个字段
+
+  TaktEmployeeDeptDto:
+    ⚠️  多余字段 (4):
+       - EmployeeName (string)
+       - EmployeeCode (string)
+       - DeptName (string)
+       - DeptCode (string)
+
+检查: TaktEmployeePost
+============================================================
+实体字段数: 2
+DTO文件: HumanResource\Organization\TaktEmployeePostDtos.cs
+DTO类数: 1
+  - TaktEmployeePostDto: 7 个字段
+
+  TaktEmployeePostDto:
+    ⚠️  多余字段 (4):
+       - EmployeeName (string)
+       - EmployeeCode (string)
+       - PostName (string)
+       - PostCode (string)
+
+检查: TaktPost
+============================================================
+实体字段数: 10
+DTO文件: HumanResource\Organization\TaktPostDtos.cs
+DTO类数: 3
+  - TaktPostDto: 11 个字段
+  - TaktPostQueryDto: 4 个字段
+  - TaktPostUpdateDto: 1 个字段
+
+  TaktPostDto:
+    ❌ 可空性错误 (1):
+       - PostCategory: string? -> string (可空性必须与实体一致（实体IsNullable=false）)
+
+  TaktPostQueryDto:
+    ❌ 缺失字段 (6):
+       - PostCategory (string)
+       - PostLevel (int)
+       - PostDuty (string?)
+       - OrderNum (int)
+       - DataScope (int)
+       - CustomScope (string?)
+
+检查: TaktPostDelegate
+============================================================
+实体字段数: 6
+❌ 未找到DTO文件
+
+检查: TaktRoleDept
+============================================================
+实体字段数: 2
+DTO文件: HumanResource\Organization\TaktRoleDeptDtos.cs
+DTO类数: 1
+  - TaktRoleDeptDto: 7 个字段
+
+  TaktRoleDeptDto:
+    ⚠️  多余字段 (4):
+       - RoleName (string)
+       - RoleCode (string)
+       - DeptName (string)
+       - DeptCode (string)
+
+检查: TaktUserDept
+============================================================
+实体字段数: 2
+DTO文件: HumanResource\Organization\TaktUserDeptDtos.cs
+DTO类数: 1
+  - TaktUserDeptDto: 7 个字段
+
+  TaktUserDeptDto:
+    ⚠️  多余字段 (4):
+       - UserName (string)
+       - RealName (string)
+       - DeptName (string)
+       - DeptCode (string)
+
+检查: TaktUserPost
+============================================================
+实体字段数: 2
+DTO文件: HumanResource\Organization\TaktUserPostDtos.cs
+DTO类数: 1
+  - TaktUserPostDto: 7 个字段
+
+  TaktUserPostDto:
+    ⚠️  多余字段 (4):
+       - UserName (string)
+       - RealName (string)
+       - PostName (string)
+       - PostCode (string)
+
+检查: TaktEmployee
+============================================================
+实体字段数: 20
+DTO文件: HumanResource\Personnel\TaktEmployeeDtos.cs
+DTO类数: 3
+  - TaktEmployeeDto: 21 个字段
+  - TaktEmployeeQueryDto: 4 个字段
+  - TaktEmployeeUpdateDto: 1 个字段
+
+  TaktEmployeeQueryDto:
+    ❌ 缺失字段 (16):
+       - FormerName (string?)
+       - FullName (string?)
+       - NativeName (string?)
+       - DisplayName (string?)
+       - Gender (int)
+       - BirthDate (DateTime)
+       - Age (int?)
+       - IdCard (string)
+       - Email (string?)
+       - Avatar (string?)
+       - Nationality (string)
+       - PoliticalStatus (int)
+       - MaritalStatus (int)
+       - NativePlace (string?)
+       - CurrentAddress (string?)
+       - RegisteredAddress (string?)
+
+检查: TaktEmployeeAttachment
+============================================================
+实体字段数: 10
+DTO文件: HumanResource\Personnel\TaktEmployeeAttachmentDtos.cs
+DTO类数: 3
+  - TaktEmployeeAttachmentDto: 11 个字段
+  - TaktEmployeeAttachmentQueryDto: 3 个字段
+  - TaktEmployeeAttachmentUpdateDto: 1 个字段
+
+  TaktEmployeeAttachmentQueryDto:
+    ❌ 缺失字段 (7):
+       - FileCode (string)
+       - FileName (string)
+       - FilePath (string)
+       - FileSize (long)
+       - FileType (string?)
+       - AttachmentDescription (string?)
+       - OrderNum (int)
+
+检查: TaktEmployeeCareer
+============================================================
+实体字段数: 17
+DTO文件: HumanResource\Personnel\TaktEmployeeCareerDtos.cs
+DTO类数: 3
+  - TaktEmployeeCareerDto: 18 个字段
+  - TaktEmployeeCareerQueryDto: 4 个字段
+  - TaktEmployeeCareerUpdateDto: 1 个字段
+
+  TaktEmployeeCareerQueryDto:
+    ❌ 缺失字段 (13):
+       - DeptName (string)
+       - PostName (string?)
+       - JobLevel (string?)
+       - JobTitle (string?)
+       - JoinDate (DateTime?)
+       - RegularizationDate (DateTime?)
+       - LeaveDate (DateTime?)
+       - WorkYears (decimal?)
+       - WorkLocation (string?)
+       - WorkNature (int)
+       - EmploymentType (int)
+       - DirectManagerId (long?)
+       - DirectManagerName (string?)
+
+检查: TaktEmployeeContract
+============================================================
+实体字段数: 9
+DTO文件: HumanResource\Personnel\TaktEmployeeContractDtos.cs
+DTO类数: 6
+  - TaktEmployeeContractDto: 10 个字段
+  - TaktEmployeeContractQueryDto: 3 个字段
+  - TaktEmployeeContractUpdateDto: 1 个字段
+  - TaktEmployeeContractTemplateDto: 0 个字段
+  - TaktEmployeeContractImportDto: 0 个字段
+  - TaktEmployeeContractExportDto: 0 个字段
+
+  TaktEmployeeContractQueryDto:
+    ❌ 缺失字段 (6):
+       - ContractType (int)
+       - StartDate (DateTime?)
+       - EndDate (DateTime?)
+       - ProbationEndDate (DateTime?)
+       - SignDate (DateTime?)
+       - SignCompany (string?)
+
+  TaktEmployeeContractTemplateDto:
+    ❌ 缺失字段 (9):
+       - EmployeeId (long)
+       - ContractNo (string)
+       - ContractType (int)
+       - StartDate (DateTime?)
+       - EndDate (DateTime?)
+       - ProbationEndDate (DateTime?)
+       - SignDate (DateTime?)
+       - ContractStatus (int)
+       - SignCompany (string?)
+
+  TaktEmployeeContractImportDto:
+    ❌ 缺失字段 (9):
+       - EmployeeId (long)
+       - ContractNo (string)
+       - ContractType (int)
+       - StartDate (DateTime?)
+       - EndDate (DateTime?)
+       - ProbationEndDate (DateTime?)
+       - SignDate (DateTime?)
+       - ContractStatus (int)
+       - SignCompany (string?)
+
+  TaktEmployeeContractExportDto:
+    ❌ 缺失字段 (9):
+       - EmployeeId (long)
+       - ContractNo (string)
+       - ContractType (int)
+       - StartDate (DateTime?)
+       - EndDate (DateTime?)
+       - ProbationEndDate (DateTime?)
+       - SignDate (DateTime?)
+       - ContractStatus (int)
+       - SignCompany (string?)
+
+检查: TaktEmployeeDelegate
+============================================================
+实体字段数: 6
+❌ 未找到DTO文件
+
+检查: TaktEmployeeEducation
+============================================================
+实体字段数: 9
+DTO文件: HumanResource\Personnel\TaktEmployeeEducationDtos.cs
+DTO类数: 4
+  - TaktEmployeeEducationDto: 10 个字段
+  - TaktEmployeeEducationQueryDto: 4 个字段
+  - TaktEmployeeEducationUpdateDto: 1 个字段
+  - TaktEmployeeEducationImportDto: 0 个字段
+
+  TaktEmployeeEducationQueryDto:
+    ❌ 缺失字段 (5):
+       - MajorName (string?)
+       - DegreeLevel (int)
+       - StartDate (DateTime?)
+       - EndDate (DateTime?)
+       - CertificateNo (string?)
+
+  TaktEmployeeEducationImportDto:
+    ❌ 缺失字段 (9):
+       - EmployeeId (long)
+       - EducationLevel (int)
+       - SchoolName (string)
+       - MajorName (string?)
+       - DegreeLevel (int)
+       - StartDate (DateTime?)
+       - EndDate (DateTime?)
+       - IsHighest (int)
+       - CertificateNo (string?)
+
+检查: TaktEmployeeFamily
+============================================================
+实体字段数: 8
+DTO文件: HumanResource\Personnel\TaktEmployeeFamilyDtos.cs
+DTO类数: 6
+  - TaktEmployeeFamilyDto: 9 个字段
+  - TaktEmployeeFamilyQueryDto: 3 个字段
+  - TaktEmployeeFamilyUpdateDto: 1 个字段
+  - TaktEmployeeFamilyTemplateDto: 0 个字段
+  - TaktEmployeeFamilyImportDto: 0 个字段
+  - TaktEmployeeFamilyExportDto: 0 个字段
+
+  TaktEmployeeFamilyQueryDto:
+    ❌ 缺失字段 (5):
+       - PhoneNumber (string?)
+       - WorkUnit (string?)
+       - JobTitle (string?)
+       - BirthDate (DateTime?)
+       - IsEmergencyContact (int)
+
+  TaktEmployeeFamilyTemplateDto:
+    ❌ 缺失字段 (8):
+       - EmployeeId (long)
+       - MemberName (string)
+       - RelationType (int)
+       - PhoneNumber (string?)
+       - WorkUnit (string?)
+       - JobTitle (string?)
+       - BirthDate (DateTime?)
+       - IsEmergencyContact (int)
+
+  TaktEmployeeFamilyImportDto:
+    ❌ 缺失字段 (8):
+       - EmployeeId (long)
+       - MemberName (string)
+       - RelationType (int)
+       - PhoneNumber (string?)
+       - WorkUnit (string?)
+       - JobTitle (string?)
+       - BirthDate (DateTime?)
+       - IsEmergencyContact (int)
+
+  TaktEmployeeFamilyExportDto:
+    ❌ 缺失字段 (8):
+       - EmployeeId (long)
+       - MemberName (string)
+       - RelationType (int)
+       - PhoneNumber (string?)
+       - WorkUnit (string?)
+       - JobTitle (string?)
+       - BirthDate (DateTime?)
+       - IsEmergencyContact (int)
+
+检查: TaktEmployeeSkill
+============================================================
+实体字段数: 7
+DTO文件: HumanResource\Personnel\TaktEmployeeSkillDtos.cs
+DTO类数: 6
+  - TaktEmployeeSkillDto: 8 个字段
+  - TaktEmployeeSkillQueryDto: 3 个字段
+  - TaktEmployeeSkillUpdateDto: 1 个字段
+  - TaktEmployeeSkillTemplateDto: 0 个字段
+  - TaktEmployeeSkillImportDto: 0 个字段
+  - TaktEmployeeSkillExportDto: 0 个字段
+
+  TaktEmployeeSkillQueryDto:
+    ❌ 缺失字段 (4):
+       - CertificateName (string?)
+       - CertificateNo (string?)
+       - ObtainedDate (DateTime?)
+       - ExpiryDate (DateTime?)
+
+  TaktEmployeeSkillTemplateDto:
+    ❌ 缺失字段 (7):
+       - EmployeeId (long)
+       - SkillName (string)
+       - SkillLevel (int)
+       - CertificateName (string?)
+       - CertificateNo (string?)
+       - ObtainedDate (DateTime?)
+       - ExpiryDate (DateTime?)
+
+  TaktEmployeeSkillImportDto:
+    ❌ 缺失字段 (7):
+       - EmployeeId (long)
+       - SkillName (string)
+       - SkillLevel (int)
+       - CertificateName (string?)
+       - CertificateNo (string?)
+       - ObtainedDate (DateTime?)
+       - ExpiryDate (DateTime?)
+
+  TaktEmployeeSkillExportDto:
+    ❌ 缺失字段 (7):
+       - EmployeeId (long)
+       - SkillName (string)
+       - SkillLevel (int)
+       - CertificateName (string?)
+       - CertificateNo (string?)
+       - ObtainedDate (DateTime?)
+       - ExpiryDate (DateTime?)
+
+检查: TaktEmployeeTransfer
+============================================================
+实体字段数: 14
+DTO文件: HumanResource\Personnel\TaktEmployeeTransferDtos.cs
+DTO类数: 3
+  - TaktEmployeeTransferDto: 15 个字段
+  - TaktEmployeeTransferQueryDto: 5 个字段
+  - TaktEmployeeTransferUpdateDto: 1 个字段
+
+  TaktEmployeeTransferQueryDto:
+    ❌ 缺失字段 (11):
+       - FromDeptId (long)
+       - FromDeptName (string)
+       - FromPostId (long?)
+       - FromPostName (string?)
+       - ToDeptId (long)
+       - ToDeptName (string)
+       - ToPostId (long?)
+       - ToPostName (string?)
+       - EffectiveDate (DateTime?)
+       - Reason (string?)
+       - FlowInstanceId (long?)
+
+检查: TaktEmployeeWork
+============================================================
+实体字段数: 8
+DTO文件: HumanResource\Personnel\TaktEmployeeWorkDtos.cs
+DTO类数: 6
+  - TaktEmployeeWorkDto: 9 个字段
+  - TaktEmployeeWorkQueryDto: 2 个字段
+  - TaktEmployeeWorkUpdateDto: 1 个字段
+  - TaktEmployeeWorkTemplateDto: 0 个字段
+  - TaktEmployeeWorkImportDto: 0 个字段
+  - TaktEmployeeWorkExportDto: 0 个字段
+
+  TaktEmployeeWorkQueryDto:
+    ❌ 缺失字段 (6):
+       - PositionName (string?)
+       - JobContent (string?)
+       - StartDate (DateTime?)
+       - EndDate (DateTime?)
+       - WitnessName (string?)
+       - WitnessPhone (string?)
+
+  TaktEmployeeWorkTemplateDto:
+    ❌ 缺失字段 (8):
+       - EmployeeId (long)
+       - CompanyName (string)
+       - PositionName (string?)
+       - JobContent (string?)
+       - StartDate (DateTime?)
+       - EndDate (DateTime?)
+       - WitnessName (string?)
+       - WitnessPhone (string?)
+
+  TaktEmployeeWorkImportDto:
+    ❌ 缺失字段 (8):
+       - EmployeeId (long)
+       - CompanyName (string)
+       - PositionName (string?)
+       - JobContent (string?)
+       - StartDate (DateTime?)
+       - EndDate (DateTime?)
+       - WitnessName (string?)
+       - WitnessPhone (string?)
+
+  TaktEmployeeWorkExportDto:
+    ❌ 缺失字段 (8):
+       - EmployeeId (long)
+       - CompanyName (string)
+       - PositionName (string?)
+       - JobContent (string?)
+       - StartDate (DateTime?)
+       - EndDate (DateTime?)
+       - WitnessName (string?)
+       - WitnessPhone (string?)
+
+检查: TaktMenu
+============================================================
+实体字段数: 15
+DTO文件: Identity\TaktMenuDtos.cs
+DTO类数: 4
+  - TaktMenuDto: 16 个字段
+  - TaktMenuTreeDto: 0 个字段
+  - TaktMenuQueryDto: 5 个字段
+  - TaktMenuUpdateDto: 1 个字段
+
+  TaktMenuTreeDto:
+    ❌ 缺失字段 (15):
+       - MenuName (string)
+       - MenuCode (string)
+       - MenuL10nKey (string?)
+       - ParentId (long)
+       - Path (string?)
+       - Component (string?)
+       - MenuIcon (string?)
+       - OrderNum (int)
+       - MenuType (int)
+       - Permission (string?)
+       - IsVisible (int)
+       - IsCache (int)
+       - IsExternal (int)
+       - LinkUrl (string?)
+       - MenuStatus (int)
+
+  TaktMenuQueryDto:
+    ❌ 缺失字段 (10):
+       - MenuL10nKey (string?)
+       - Path (string?)
+       - Component (string?)
+       - MenuIcon (string?)
+       - OrderNum (int)
+       - Permission (string?)
+       - IsVisible (int)
+       - IsCache (int)
+       - IsExternal (int)
+       - LinkUrl (string?)
+
+检查: TaktRole
+============================================================
+实体字段数: 6
+DTO文件: Identity\TaktRoleDtos.cs
+DTO类数: 3
+  - TaktRoleDto: 7 个字段
+  - TaktRoleQueryDto: 3 个字段
+  - TaktRoleUpdateDto: 1 个字段
+
+  TaktRoleQueryDto:
+    ❌ 缺失字段 (3):
+       - OrderNum (int)
+       - DataScope (int)
+       - CustomScope (string?)
+
+检查: TaktRoleMenu
+============================================================
+实体字段数: 2
+DTO文件: Identity\TaktRoleMenuDtos.cs
+DTO类数: 1
+  - TaktRoleMenuDto: 9 个字段
+
+  TaktRoleMenuDto:
+    ⚠️  多余字段 (6):
+       - RoleName (string)
+       - RoleCode (string)
+       - MenuName (string)
+       - MenuCode (string)
+       - Path (string?)
+       - MenuType (int)
+
+检查: TaktTenant
+============================================================
+实体字段数: 5
+DTO文件: Identity\TaktTenantDtos.cs
+DTO类数: 3
+  - TaktTenantDto: 6 个字段
+  - TaktTenantQueryDto: 4 个字段
+  - TaktTenantUpdateDto: 1 个字段
+
+  TaktTenantQueryDto:
+    ❌ 缺失字段 (2):
+       - StartTime (DateTime)
+       - EndTime (DateTime)
+
+检查: TaktUser
+============================================================
+实体字段数: 15
+DTO文件: Identity\TaktUserDtos.cs
+DTO类数: 3
+  - TaktUserDto: 13 个字段
+  - TaktUserQueryDto: 4 个字段
+  - TaktUserUpdateDto: 1 个字段
+
+  TaktUserDto:
+    ❌ 缺失字段 (3):
+       - PasswordHash (string)
+       - ErrorCount (int)
+       - Employee (TaktEmployee?)
+
+  TaktUserQueryDto:
+    ❌ 缺失字段 (11):
+       - NickName (string)
+       - UserType (int)
+       - PasswordHash (string)
+       - LoginCount (int)
+       - LockReason (string?)
+       - LockTime (DateTime?)
+       - LockBy (string?)
+       - ErrorCount (int)
+       - ErrorLimit (int)
+       - EmployeeId (long)
+       - Employee (TaktEmployee?)
+
+检查: TaktUserRole
+============================================================
+实体字段数: 2
+DTO文件: Identity\TaktUserRoleDtos.cs
+DTO类数: 1
+  - TaktUserRoleDto: 7 个字段
+
+  TaktUserRoleDto:
+    ⚠️  多余字段 (4):
+       - UserName (string)
+       - RealName (string)
+       - RoleName (string)
+       - RoleCode (string)
+
+检查: TaktUserTenant
+============================================================
+实体字段数: 2
+DTO文件: Identity\TaktUserTenantDtos.cs
+DTO类数: 1
+  - TaktUserTenantDto: 11 个字段
+
+  TaktUserTenantDto:
+    ⚠️  多余字段 (7):
+       - UserName (string)
+       - RealName (string)
+       - TenantName (string)
+       - TenantCode (string)
+       - TenantStatus (int)
+       - StartTime (DateTime?)
+       - EndTime (DateTime?)
+
+检查: TaktEquipment
+============================================================
+实体字段数: 28
+DTO文件: Logistics\Maintenance\TaktEquipmentDtos.cs
+DTO类数: 3
+  - TaktEquipmentDto: 29 个字段
+  - TaktEquipmentQueryDto: 8 个字段
+  - TaktEquipmentUpdateDto: 1 个字段
+
+  TaktEquipmentQueryDto:
+    ❌ 缺失字段 (20):
+       - EquipmentModel (string?)
+       - EquipmentSpecification (string?)
+       - EquipmentBrand (string?)
+       - Manufacturer (string?)
+       - DealerBy (string?)
+       - SerialNumber (string?)
+       - WorkstationBy (string?)
+       - EquipmentLocation (string?)
+       - ResponsibleUserBy (string?)
+       - OperatorBy (string?)
+       - PurchaseDate (DateTime?)
+       - InstallationDate (DateTime?)
+       - StartDate (DateTime?)
+       - WarrantyStartDate (DateTime?)
+       - WarrantyEndDate (DateTime?)
+       - EquipmentOriginalValue (decimal)
+       - TechnicalParameters (string?)
+       - EquipmentImages (string?)
+       - EquipmentDocuments (string?)
+       - IsCritical (int)
+
+检查: TaktMaintenance
+============================================================
+实体字段数: 21
+❌ 未找到DTO文件
+
+检查: TaktBillOfMaterial
+============================================================
+实体字段数: 16
+❌ 未找到DTO文件
+
+检查: TaktBillOfMaterialItem
+============================================================
+实体字段数: 16
+❌ 未找到DTO文件
+
+检查: TaktModelDestination
+============================================================
+实体字段数: 5
+❌ 未找到DTO文件
+
+检查: TaktPackaging
+============================================================
+实体字段数: 23
+❌ 未找到DTO文件
+
+检查: TaktStandardOperationTime
+============================================================
+实体字段数: 15
+❌ 未找到DTO文件
+
+检查: TaktAssyDefect
+============================================================
+实体字段数: 13
+❌ 未找到DTO文件
+
+检查: TaktAssyDefectDetail
+============================================================
+实体字段数: 13
+❌ 未找到DTO文件
+
+检查: TaktPcbaInspection
+============================================================
+实体字段数: 9
+❌ 未找到DTO文件
+
+检查: TaktPcbaInspectionDetail
+============================================================
+实体字段数: 21
+❌ 未找到DTO文件
+
+检查: TaktPcbaRepair
+============================================================
+实体字段数: 11
+❌ 未找到DTO文件
+
+检查: TaktPcbaRepairDetail
+============================================================
+实体字段数: 13
+❌ 未找到DTO文件
+
+检查: TaktEc
+============================================================
+实体字段数: 13
+❌ 未找到DTO文件
+
+检查: TaktEcAttachment
+============================================================
+实体字段数: 7
+❌ 未找到DTO文件
+
+检查: TaktEcDept
+============================================================
+实体字段数: 25
+❌ 未找到DTO文件
+
+检查: TaktEcDetail
+============================================================
+实体字段数: 25
+❌ 未找到DTO文件
+
+检查: TaktAssyOutput
+============================================================
+实体字段数: 16
+❌ 未找到DTO文件
+
+检查: TaktAssyOutputDetail
+============================================================
+实体字段数: 13
+❌ 未找到DTO文件
+
+检查: TaktEquipmentOperationRate
+============================================================
+实体字段数: 27
+❌ 未找到DTO文件
+
+检查: TaktPcbaOutput
+============================================================
+实体字段数: 13
+❌ 未找到DTO文件
+
+检查: TaktPcbaOutputDetail
+============================================================
+实体字段数: 20
+❌ 未找到DTO文件
+
+检查: TaktPersonnelOperationRate
+============================================================
+实体字段数: 30
+❌ 未找到DTO文件
+
+检查: TaktProductionOrder
+============================================================
+实体字段数: 16
+❌ 未找到DTO文件
+
+检查: TaktProductionTeam
+============================================================
+实体字段数: 9
+❌ 未找到DTO文件
+
+检查: TaktStandardOperationRate
+============================================================
+实体字段数: 7
+❌ 未找到DTO文件
+
+检查: TaktPlant
+============================================================
+实体字段数: 22
+DTO文件: Logistics\Materials\TaktPlantDtos.cs
+DTO类数: 3
+  - TaktPlantDto: 23 个字段
+  - TaktPlantQueryDto: 2 个字段
+  - TaktPlantUpdateDto: 1 个字段
+
+  TaktPlantQueryDto:
+    ❌ 缺失字段 (20):
+       - PlantShortName (string?)
+       - RegistrationAddress (string?)
+       - RegistrationRegion (string?)
+       - RegistrationProvince (string?)
+       - RegistrationCity (string?)
+       - BusinessRegion (string?)
+       - BusinessProvince (string?)
+       - BusinessCity (string?)
+       - BusinessAddress (string?)
+       - PlantAddress (string?)
+       - PlantPhone (string?)
+       - PlantEmail (string?)
+       - PlantManager (string?)
+       - EnterpriseNature (string?)
+       - IndustryAttribute (string?)
+       - EnterpriseScale (string?)
+       - BusinessScope (string?)
+       - RelatedCompany (string?)
+       - PlantStatus (int)
+       - OrderNum (int)
+    ❌ 可空性错误 (4):
+       - PlantCode: string -> string? (QueryDto字段必须为可空)
+       - PlantName: string -> string? (QueryDto字段必须为可空)
+       - PlantCode: string -> string? (QueryDto字段必须为可空)
+       - PlantName: string -> string? (QueryDto字段必须为可空)
+
+检查: TaktPlantMaterial
+============================================================
+实体字段数: 46
+❌ 未找到DTO文件
+
+检查: TaktPurchaseOrder
+============================================================
+实体字段数: 30
+DTO文件: Logistics\Materials\TaktPurchaseOrderDtos.cs
+DTO类数: 3
+  - TaktPurchaseOrderDto: 30 个字段
+  - TaktPurchaseOrderQueryDto: 9 个字段
+  - TaktPurchaseOrderUpdateDto: 1 个字段
+
+  TaktPurchaseOrderDto:
+    ❌ 缺失字段 (1):
+       - PlantCode (string?)
+
+  TaktPurchaseOrderQueryDto:
+    ❌ 缺失字段 (23):
+       - PlantCode (string?)
+       - RequestCode (string?)
+       - SupplierId (long)
+       - SupplierContact (string?)
+       - SupplierPhone (string?)
+       - SupplierAddress (string?)
+       - OrderDate (DateTime)
+       - RequiredArrivalDate (DateTime?)
+       - ActualArrivalDate (DateTime?)
+       - PurchaseUserName (string)
+       - PurchaseDeptId (long?)
+       - PurchaseDeptName (string?)
+       - TotalQuantity (decimal)
+       - TotalAmount (decimal)
+       - DiscountAmount (decimal)
+       - TaxAmount (decimal)
+       - ActualAmount (decimal)
+       - ReceivedQuantity (decimal)
+       - ReceivedAmount (decimal)
+       - PaidAmount (decimal)
+       - PaymentMethod (int)
+       - DeliveryMethod (int)
+       - DeliveryAddress (string?)
+
+检查: TaktPurchaseOrderChangeLog
+============================================================
+实体字段数: 9
+❌ 未找到DTO文件
+
+检查: TaktPurchaseOrderItem
+============================================================
+实体字段数: 16
+❌ 未找到DTO文件
+
+检查: TaktPurchasePrice
+============================================================
+实体字段数: 7
+DTO文件: Logistics\Materials\TaktPurchasePriceDtos.cs
+DTO类数: 3
+  - TaktPurchasePriceDto: 8 个字段
+  - TaktPurchasePriceQueryDto: 5 个字段
+  - TaktPurchasePriceUpdateDto: 1 个字段
+
+  TaktPurchasePriceQueryDto:
+    ❌ 缺失字段 (2):
+       - EffectiveFrom (DateTime)
+       - EffectiveTo (DateTime?)
+
+检查: TaktPurchasePriceChangeLog
+============================================================
+实体字段数: 7
+❌ 未找到DTO文件
+
+检查: TaktPurchasePriceItem
+============================================================
+实体字段数: 9
+❌ 未找到DTO文件
+
+检查: TaktPurchasePriceScale
+============================================================
+实体字段数: 5
+❌ 未找到DTO文件
+
+检查: TaktPurchaseRequest
+============================================================
+实体字段数: 18
+❌ 未找到DTO文件
+
+检查: TaktPurchaseRequestChangeLog
+============================================================
+实体字段数: 9
+❌ 未找到DTO文件
+
+检查: TaktPurchaseRequestItem
+============================================================
+实体字段数: 12
+❌ 未找到DTO文件
+
+检查: TaktSamplingScheme
+============================================================
+实体字段数: 19
+❌ 未找到DTO文件
+
+检查: TaktSalesOrder
+============================================================
+实体字段数: 28
+❌ 未找到DTO文件
+
+检查: TaktSalesOrderChangeLog
+============================================================
+实体字段数: 9
+❌ 未找到DTO文件
+
+检查: TaktSalesOrderItem
+============================================================
+实体字段数: 16
+❌ 未找到DTO文件
+
+检查: TaktSalesPrice
+============================================================
+实体字段数: 7
+❌ 未找到DTO文件
+
+检查: TaktSalesPriceChangeLog
+============================================================
+实体字段数: 7
+❌ 未找到DTO文件
+
+检查: TaktSalesPriceItem
+============================================================
+实体字段数: 7
+❌ 未找到DTO文件
+
+检查: TaktSalesPriceScale
+============================================================
+实体字段数: 5
+❌ 未找到DTO文件
+
+检查: TaktAnnouncement
+============================================================
+实体字段数: 21
+DTO文件: Routine\Business\Announcement\TaktAnnouncementDtos.cs
+DTO类数: 3
+  - TaktAnnouncementDto: 20 个字段
+  - TaktAnnouncementQueryDto: 4 个字段
+  - TaktAnnouncementUpdateDto: 1 个字段
+
+  TaktAnnouncementDto:
+    ❌ 缺失字段 (3):
+       - AttachmentsJson (string?)
+       - ReadRecordsJson (string?)
+       - FlowInstanceId (long?)
+    ⚠️  多余字段 (1):
+       - AttachmentCount (int)
+
+  TaktAnnouncementQueryDto:
+    ❌ 缺失字段 (17):
+       - AnnouncementContent (string)
+       - AttachmentsJson (string?)
+       - ReadRecordsJson (string?)
+       - ReadCount (int)
+       - PublishScope (int)
+       - PublishScopeConfig (string?)
+       - IsTop (int)
+       - IsUrgent (int)
+       - EffectiveTime (DateTime?)
+       - ExpireTime (DateTime?)
+       - OrderNum (int)
+       - FlowInstanceId (long?)
+       - DeptId (long?)
+       - DeptName (string?)
+       - PublisherId (long)
+       - PublisherName (string)
+       - PublishTime (DateTime?)
+
+检查: TaktKnowledge
+============================================================
+实体字段数: 14
+DTO文件: Routine\Business\HelpDesk\TaktKnowledgeDtos.cs
+DTO类数: 3
+  - TaktKnowledgeDto: 11 个字段
+  - TaktKnowledgeQueryDto: 4 个字段
+  - TaktKnowledgeUpdateDto: 1 个字段
+
+  TaktKnowledgeDto:
+    ❌ 缺失字段 (4):
+       - IsPublished (int)
+       - Version (int)
+       - PublishedAt (DateTime?)
+       - RevisedAt (DateTime?)
+
+  TaktKnowledgeQueryDto:
+    ❌ 缺失字段 (10):
+       - Content (string?)
+       - Summary (string?)
+       - OrderNum (int)
+       - ViewCount (int)
+       - HelpfulCount (int)
+       - UnhelpfulCount (int)
+       - IsPublished (int)
+       - Version (int)
+       - PublishedAt (DateTime?)
+       - RevisedAt (DateTime?)
+
+检查: TaktKnowledgeChangeLog
+============================================================
+实体字段数: 9
+DTO文件: Routine\Business\HelpDesk\TaktKnowledgeChangeLogDtos.cs
+DTO类数: 2
+  - TaktKnowledgeChangeLogDto: 10 个字段
+  - TaktKnowledgeChangeLogQueryDto: 5 个字段
+
+  TaktKnowledgeChangeLogQueryDto:
+    ❌ 缺失字段 (7):
+       - KnowledgeTitle (string?)
+       - ChangeSummary (string?)
+       - ChangeField (string?)
+       - OldValue (string?)
+       - NewValue (string?)
+       - ChangeReason (string?)
+       - VersionAtChange (int?)
+
+检查: TaktSelfService
+============================================================
+实体字段数: 7
+DTO文件: Routine\Business\HelpDesk\TaktSelfServiceDtos.cs
+DTO类数: 3
+  - TaktSelfServiceDto: 8 个字段
+  - TaktSelfServiceQueryDto: 3 个字段
+  - TaktSelfServiceUpdateDto: 1 个字段
+
+  TaktSelfServiceQueryDto:
+    ❌ 缺失字段 (4):
+       - Description (string?)
+       - LinkOrCode (string?)
+       - IconUrl (string?)
+       - OrderNum (int)
+
+检查: TaktTicket
+============================================================
+实体字段数: 26
+DTO文件: Routine\Business\HelpDesk\TaktTicketDtos.cs
+DTO类数: 3
+  - TaktTicketDto: 19 个字段
+  - TaktTicketQueryDto: 14 个字段
+  - TaktTicketUpdateDto: 8 个字段
+
+  TaktTicketDto:
+    ❌ 缺失字段 (8):
+       - AttachmentsJson (string?)
+       - FlowInstanceId (long?)
+       - ApplicantDeptId (long?)
+       - ApplicantDeptName (string?)
+       - ApplicantId (long?)
+       - Applicant (string?)
+       - ApplicationDate (DateTime?)
+       - Evaluation (TaktTicketEvaluation?)
+
+  TaktTicketQueryDto:
+    ❌ 缺失字段 (16):
+       - Content (string?)
+       - AttachmentsJson (string?)
+       - SubmitterName (string?)
+       - AssigneeName (string?)
+       - FirstResponseAt (DateTime?)
+       - FirstResponseDueBy (DateTime?)
+       - ResolvedAt (DateTime?)
+       - ResolutionDueBy (DateTime?)
+       - ClosedAt (DateTime?)
+       - FlowInstanceId (long?)
+       - ApplicantDeptId (long?)
+       - ApplicantDeptName (string?)
+       - ApplicantId (long?)
+       - Applicant (string?)
+       - ApplicationDate (DateTime?)
+       - Evaluation (TaktTicketEvaluation?)
+
+检查: TaktTicketCategoryAssign
+============================================================
+实体字段数: 4
+❌ 未找到DTO文件
+
+检查: TaktTicketChangeLog
+============================================================
+实体字段数: 8
+DTO文件: Routine\Business\HelpDesk\TaktTicketChangeLogDtos.cs
+DTO类数: 2
+  - TaktTicketChangeLogDto: 9 个字段
+  - TaktTicketChangeLogQueryDto: 5 个字段
+
+  TaktTicketChangeLogQueryDto:
+    ❌ 缺失字段 (6):
+       - TicketNo (string?)
+       - ChangeSummary (string?)
+       - ChangeField (string?)
+       - OldValue (string?)
+       - NewValue (string?)
+       - ChangeReason (string?)
+
+检查: TaktTicketEvaluation
+============================================================
+实体字段数: 6
+❌ 未找到DTO文件
+
+检查: TaktMail
+============================================================
+实体字段数: 19
+❌ 未找到DTO文件
+
+检查: TaktMailAttachment
+============================================================
+实体字段数: 8
+❌ 未找到DTO文件
+
+检查: TaktMailRecipient
+============================================================
+实体字段数: 10
+❌ 未找到DTO文件
+
+检查: TaktNews
+============================================================
+实体字段数: 24
+❌ 未找到DTO文件
+
+检查: TaktNewsAttachment
+============================================================
+实体字段数: 8
+❌ 未找到DTO文件
+
+检查: TaktNewsComment
+============================================================
+实体字段数: 15
+❌ 未找到DTO文件
+
+检查: TaktNewsCommentLike
+============================================================
+实体字段数: 4
+❌ 未找到DTO文件
+
+检查: TaktNewsFavorite
+============================================================
+实体字段数: 5
+❌ 未找到DTO文件
+
+检查: TaktNewsLike
+============================================================
+实体字段数: 4
+❌ 未找到DTO文件
+
+检查: TaktNewsRead
+============================================================
+实体字段数: 5
+❌ 未找到DTO文件
+
+检查: TaktNewsShare
+============================================================
+实体字段数: 6
+❌ 未找到DTO文件
+
+检查: TaktDictData
+============================================================
+实体字段数: 10
+DTO文件: Routine\Tasks\Dict\TaktDictDataDtos.cs
+DTO类数: 3
+  - TaktDictDataDto: 11 个字段
+  - TaktDictDataQueryDto: 4 个字段
+  - TaktDictDataUpdateDto: 1 个字段
+
+  TaktDictDataQueryDto:
+    ❌ 缺失字段 (6):
+       - DictL10nKey (string?)
+       - CssClass (int)
+       - ListClass (int)
+       - ExtLabel (string?)
+       - ExtValue (string?)
+       - OrderNum (int)
+
+检查: TaktDictType
+============================================================
+实体字段数: 8
+DTO文件: Routine\Tasks\Dict\TaktDictTypeDtos.cs
+DTO类数: 3
+  - TaktDictTypeDto: 9 个字段
+  - TaktDictTypeQueryDto: 3 个字段
+  - TaktDictTypeUpdateDto: 1 个字段
+
+  TaktDictTypeQueryDto:
+    ❌ 缺失字段 (5):
+       - DataSource (int)
+       - DataConfigId (string)
+       - SqlScript (string?)
+       - IsBuiltIn (int)
+       - OrderNum (int)
+
+检查: TaktFile
+============================================================
+实体字段数: 21
+DTO文件: Routine\Tasks\Files\TaktFileDtos.cs
+DTO类数: 3
+  - TaktFileDto: 22 个字段
+  - TaktFileQueryDto: 9 个字段
+  - TaktFileUpdateDto: 1 个字段
+
+  TaktFileQueryDto:
+    ❌ 缺失字段 (14):
+       - FileOriginalName (string)
+       - FilePath (string)
+       - FileSize (long)
+       - FileType (string?)
+       - FileHash (string?)
+       - StorageConfig (string?)
+       - AccessUrl (string?)
+       - DownloadCount (int)
+       - LastDownloadTime (DateTime?)
+       - AccessPermissionConfig (string?)
+       - FileDescription (string?)
+       - FileTags (string?)
+       - IpAddress (string?)
+       - Location (string?)
+
+检查: TaktLanguage
+============================================================
+实体字段数: 8
+DTO文件: Routine\Tasks\I18n\TaktLanguageDtos.cs
+DTO类数: 3
+  - TaktLanguageDto: 9 个字段
+  - TaktLanguageQueryDto: 3 个字段
+  - TaktLanguageUpdateDto: 1 个字段
+
+  TaktLanguageQueryDto:
+    ❌ 缺失字段 (5):
+       - LanguageName (string)
+       - NativeName (string)
+       - LanguageIcon (string?)
+       - IsRtl (int)
+       - OrderNum (int)
+
+检查: TaktTranslation
+============================================================
+实体字段数: 8
+DTO文件: Routine\Tasks\I18n\TaktTranslationDtos.cs
+DTO类数: 3
+  - TaktTranslationDto: 8 个字段
+  - TaktTranslationQueryDto: 5 个字段
+  - TaktTranslationUpdateDto: 1 个字段
+
+  TaktTranslationDto:
+    ❌ 缺失字段 (1):
+       - Language (TaktLanguage?)
+
+  TaktTranslationQueryDto:
+    ❌ 缺失字段 (3):
+       - TranslationValue (string)
+       - OrderNum (int)
+       - Language (TaktLanguage?)
+
+检查: TaktNumberingRule
+============================================================
+实体字段数: 12
+DTO文件: Routine\Tasks\NumberingRule\TaktNumberingRuleDtos.cs
+DTO类数: 3
+  - TaktNumberingRuleDto: 13 个字段
+  - TaktNumberingRuleQueryDto: 5 个字段
+  - TaktNumberingRuleUpdateDto: 1 个字段
+
+  TaktNumberingRuleQueryDto:
+    ❌ 缺失字段 (7):
+       - Prefix (string?)
+       - DateFormat (string?)
+       - NumberLength (int)
+       - Suffix (string?)
+       - CurrentNumber (long)
+       - Step (int)
+       - OrderNum (int)
+
+检查: TaktSettings
+============================================================
+实体字段数: 8
+DTO文件: Routine\Tasks\Setting\TaktSettingsDtos.cs
+DTO类数: 3
+  - TaktSettingsDto: 9 个字段
+  - TaktSettingsQueryDto: 3 个字段
+  - TaktSettingsUpdateDto: 1 个字段
+
+  TaktSettingsQueryDto:
+    ❌ 缺失字段 (5):
+       - SettingValue (string?)
+       - SettingName (string?)
+       - IsBuiltIn (int)
+       - IsEncrypted (int)
+       - OrderNum (int)
+
+检查: TaktMessage
+============================================================
+实体字段数: 12
+DTO文件: Routine\Tasks\SignalR\TaktMessageDtos.cs
+DTO类数: 3
+  - TaktMessageDto: 13 个字段
+  - TaktMessageQueryDto: 7 个字段
+  - TaktMessageUpdateDto: 1 个字段
+
+  TaktMessageQueryDto:
+    ❌ 缺失字段 (7):
+       - FromUserId (long?)
+       - ToUserId (long?)
+       - MessageTitle (string?)
+       - MessageContent (string)
+       - ReadTime (DateTime?)
+       - SendTime (DateTime)
+       - MessageExtData (string?)
+
+检查: TaktOnline
+============================================================
+实体字段数: 18
+DTO文件: Routine\Tasks\SignalR\TaktOnlineDtos.cs
+DTO类数: 2
+  - TaktOnlineDto: 15 个字段
+  - TaktOnlineQueryDto: 6 个字段
+
+  TaktOnlineDto:
+    ❌ 缺失字段 (4):
+       - ConnectCountry (string?)
+       - ConnectProvince (string?)
+       - ConnectCity (string?)
+       - ConnectIsp (string?)
+
+  TaktOnlineQueryDto:
+    ❌ 缺失字段 (14):
+       - ConnectIp (string?)
+       - ConnectLocation (string?)
+       - ConnectCountry (string?)
+       - ConnectProvince (string?)
+       - ConnectCity (string?)
+       - ConnectIsp (string?)
+       - UserAgent (string?)
+       - DeviceType (string?)
+       - BrowserType (string?)
+       - OperatingSystem (string?)
+       - ConnectTime (DateTime)
+       - LastActiveTime (DateTime?)
+       - DisconnectTime (DateTime?)
+       - ConnectionDuration (int?)
+
+检查: TaktKanbanVisit
+============================================================
+实体字段数: 3
+❌ 未找到DTO文件
+
+检查: TaktKanbanVisitPerson
+============================================================
+实体字段数: 4
+❌ 未找到DTO文件
+
+检查: TaktAopLog
+============================================================
+实体字段数: 10
+DTO文件: Statistics\Logging\TaktAopLogDtos.cs
+DTO类数: 2
+  - TaktAopLogDto: 11 个字段
+  - TaktAopLogQueryDto: 6 个字段
+
+  TaktAopLogQueryDto:
+    ❌ 缺失字段 (6):
+       - BeforeData (string?)
+       - AfterData (string?)
+       - DiffData (string?)
+       - SqlStatement (string?)
+       - OperTime (DateTime)
+       - CostTime (int)
+
+检查: TaktLoginLog
+============================================================
+实体字段数: 14
+DTO文件: Statistics\Logging\TaktLoginLogDtos.cs
+DTO类数: 2
+  - TaktLoginLogDto: 11 个字段
+  - TaktLoginLogQueryDto: 6 个字段
+
+  TaktLoginLogDto:
+    ❌ 缺失字段 (4):
+       - LoginCountry (string?)
+       - LoginProvince (string?)
+       - LoginCity (string?)
+       - LoginIsp (string?)
+
+  TaktLoginLogQueryDto:
+    ❌ 缺失字段 (10):
+       - LoginLocation (string?)
+       - LoginCountry (string?)
+       - LoginProvince (string?)
+       - LoginCity (string?)
+       - LoginIsp (string?)
+       - UserAgent (string?)
+       - LoginMsg (string?)
+       - LoginTime (DateTime)
+       - LogoutTime (DateTime?)
+       - SessionDuration (int?)
+
+检查: TaktOperLog
+============================================================
+实体字段数: 18
+DTO文件: Statistics\Logging\TaktOperLogDtos.cs
+DTO类数: 2
+  - TaktOperLogDto: 15 个字段
+  - TaktOperLogQueryDto: 6 个字段
+
+  TaktOperLogDto:
+    ❌ 缺失字段 (4):
+       - OperCountry (string?)
+       - OperProvince (string?)
+       - OperCity (string?)
+       - OperIsp (string?)
+
+  TaktOperLogQueryDto:
+    ❌ 缺失字段 (14):
+       - OperMethod (string?)
+       - RequestMethod (string?)
+       - OperUrl (string?)
+       - RequestParam (string?)
+       - JsonResult (string?)
+       - ErrorMsg (string?)
+       - OperIp (string?)
+       - OperLocation (string?)
+       - OperCountry (string?)
+       - OperProvince (string?)
+       - OperCity (string?)
+       - OperIsp (string?)
+       - OperTime (DateTime)
+       - CostTime (int)
+
+检查: TaktQuartzLog
+============================================================
+实体字段数: 13
+DTO文件: Statistics\Logging\TaktQuartzLogDtos.cs
+DTO类数: 2
+  - TaktQuartzLogDto: 14 个字段
+  - TaktQuartzLogQueryDto: 8 个字段
+
+  TaktQuartzLogQueryDto:
+    ❌ 缺失字段 (7):
+       - ExecuteResult (string?)
+       - ErrorMsg (string?)
+       - ExecuteTime (DateTime)
+       - CostTime (int)
+       - JobData (string?)
+       - NextFireTime (DateTime?)
+       - PreviousFireTime (DateTime?)
+
+检查: TaktEntityBase
+============================================================
+实体字段数: 8
+❌ 未找到DTO文件
+
+检查: TaktFlowAddApprover
+============================================================
+实体字段数: 13
+DTO文件: Workflow\TaktFlowAddApproverDtos.cs
+DTO类数: 2
+  - TaktFlowAddApproverDto: 14 个字段
+  - TaktFlowAddApproverQueryDto: 3 个字段
+
+  TaktFlowAddApproverQueryDto:
+    ❌ 缺失字段 (10):
+       - ApproverUserId (long)
+       - ApproverUserName (string)
+       - ApproveType (string?)
+       - OrderNo (int?)
+       - VerifyComment (string?)
+       - VerifyTime (DateTime?)
+       - Reason (string?)
+       - CreateUserId (long?)
+       - CreateUserName (string?)
+       - ReturnToSignNode (bool?)
+
+检查: TaktFlowExecution
+============================================================
+实体字段数: 19
+DTO文件: Workflow\TaktFlowExecutionDtos.cs
+DTO类数: 2
+  - TaktFlowExecutionDto: 20 个字段
+  - TaktFlowExecutionQueryDto: 3 个字段
+
+  TaktFlowExecutionQueryDto:
+    ❌ 缺失字段 (16):
+       - SchemeId (long)
+       - TaskId (long?)
+       - ProcessName (string)
+       - FromNodeId (string?)
+       - FromNodeName (string?)
+       - ToNodeId (string)
+       - ToNodeName (string)
+       - TransitionType (int)
+       - TransitionTime (DateTime)
+       - TransitionUserId (long)
+       - TransitionUserName (string)
+       - TransitionDeptId (long?)
+       - TransitionDeptName (string?)
+       - TransitionComment (string?)
+       - TransitionAttachments (string?)
+       - ElapsedMilliseconds (int)
+
+检查: TaktFlowForm
+============================================================
+实体字段数: 13
+DTO文件: Workflow\TaktFlowFormDtos.cs
+DTO类数: 3
+  - TaktFlowFormDto: 14 个字段
+  - TaktFlowFormQueryDto: 4 个字段
+  - TaktFlowFormUpdateDto: 1 个字段
+
+  TaktFlowFormQueryDto:
+    ❌ 缺失字段 (9):
+       - FormType (int)
+       - FormConfig (string?)
+       - FormTemplate (string?)
+       - FormVersion (string)
+       - IsDatasource (int)
+       - RelatedDataBaseName (string?)
+       - RelatedTableName (string?)
+       - RelatedFormField (string?)
+       - OrderNum (int)
+
+检查: TaktFlowInstance
+============================================================
+实体字段数: 26
+DTO文件: Workflow\TaktFlowInstanceDtos.cs
+DTO类数: 11
+  - TaktFlowInstanceDto: 27 个字段
+  - TaktFlowInstanceQueryDto: 4 个字段
+  - TaktFlowInstanceDetailDto: 2 个字段
+  - TaktFlowTodoQueryDto: 1 个字段
+  - TaktFlowSuspendDto: 1 个字段
+  - TaktFlowResumeDto: 0 个字段
+  - TaktFlowTerminateDto: 1 个字段
+  - TaktFlowTransferDto: 3 个字段
+  - TaktFlowAddApproversDto: 3 个字段
+  - TaktFlowReduceApprovalDto: 1 个字段
+  - TaktFlowInstanceListQueryDto: 4 个字段
+
+  TaktFlowInstanceDto:
+    ⚠️  类型不匹配 (1):
+       - CurrentNodeId: 实体=long?, DTO=string?
+
+  TaktFlowInstanceQueryDto:
+    ❌ 缺失字段 (23):
+       - SchemeId (long)
+       - ProcessName (string)
+       - BusinessKey (string?)
+       - BusinessType (string?)
+       - StartUserId (long)
+       - StartUserName (string)
+       - StartDeptId (long?)
+       - StartDeptName (string?)
+       - StartTime (DateTime)
+       - EndTime (DateTime?)
+       - CurrentNodeId (long?)
+       - CurrentNodeName (string?)
+       - ActivityName (string?)
+       - PreviousNodeId (string?)
+       - MakerList (string?)
+       - FrmData (string?)
+       - IsSuspended (int)
+       - SuspendTime (DateTime?)
+       - SuspendReason (string?)
+       - Priority (int)
+       - ProcessTitle (string?)
+       - FormId (long?)
+       - FormCode (string?)
+    ⚠️  多余字段 (1):
+       - MyStartedOnly (bool?)
+
+  TaktFlowInstanceDetailDto:
+    ❌ 缺失字段 (26):
+       - InstanceCode (string)
+       - ProcessKey (string)
+       - SchemeId (long)
+       - ProcessName (string)
+       - BusinessKey (string?)
+       - BusinessType (string?)
+       - StartUserId (long)
+       - StartUserName (string)
+       - StartDeptId (long?)
+       - StartDeptName (string?)
+       - StartTime (DateTime)
+       - EndTime (DateTime?)
+       - CurrentNodeId (long?)
+       - CurrentNodeName (string?)
+       - ActivityName (string?)
+       - PreviousNodeId (string?)
+       - MakerList (string?)
+       - FrmData (string?)
+       - InstanceStatus (int)
+       - IsSuspended (int)
+       - SuspendTime (DateTime?)
+       - SuspendReason (string?)
+       - Priority (int)
+       - ProcessTitle (string?)
+       - FormId (long?)
+       - FormCode (string?)
+    ⚠️  多余字段 (2):
+       - CanVerify (bool)
+       - CanUndoVerify (bool)
+
+  TaktFlowTodoQueryDto:
+    ❌ 缺失字段 (25):
+       - InstanceCode (string)
+       - SchemeId (long)
+       - ProcessName (string)
+       - BusinessKey (string?)
+       - BusinessType (string?)
+       - StartUserId (long)
+       - StartUserName (string)
+       - StartDeptId (long?)
+       - StartDeptName (string?)
+       - StartTime (DateTime)
+       - EndTime (DateTime?)
+       - CurrentNodeId (long?)
+       - CurrentNodeName (string?)
+       - ActivityName (string?)
+       - PreviousNodeId (string?)
+       - MakerList (string?)
+       - FrmData (string?)
+       - InstanceStatus (int)
+       - IsSuspended (int)
+       - SuspendTime (DateTime?)
+       - SuspendReason (string?)
+       - Priority (int)
+       - ProcessTitle (string?)
+       - FormId (long?)
+       - FormCode (string?)
+
+  TaktFlowSuspendDto:
+    ❌ 缺失字段 (26):
+       - InstanceCode (string)
+       - ProcessKey (string)
+       - SchemeId (long)
+       - ProcessName (string)
+       - BusinessKey (string?)
+       - BusinessType (string?)
+       - StartUserId (long)
+       - StartUserName (string)
+       - StartDeptId (long?)
+       - StartDeptName (string?)
+       - StartTime (DateTime)
+       - EndTime (DateTime?)
+       - CurrentNodeId (long?)
+       - CurrentNodeName (string?)
+       - ActivityName (string?)
+       - PreviousNodeId (string?)
+       - MakerList (string?)
+       - FrmData (string?)
+       - InstanceStatus (int)
+       - IsSuspended (int)
+       - SuspendTime (DateTime?)
+       - SuspendReason (string?)
+       - Priority (int)
+       - ProcessTitle (string?)
+       - FormId (long?)
+       - FormCode (string?)
+    ⚠️  多余字段 (1):
+       - Reason (string?)
+
+  TaktFlowResumeDto:
+    ❌ 缺失字段 (26):
+       - InstanceCode (string)
+       - ProcessKey (string)
+       - SchemeId (long)
+       - ProcessName (string)
+       - BusinessKey (string?)
+       - BusinessType (string?)
+       - StartUserId (long)
+       - StartUserName (string)
+       - StartDeptId (long?)
+       - StartDeptName (string?)
+       - StartTime (DateTime)
+       - EndTime (DateTime?)
+       - CurrentNodeId (long?)
+       - CurrentNodeName (string?)
+       - ActivityName (string?)
+       - PreviousNodeId (string?)
+       - MakerList (string?)
+       - FrmData (string?)
+       - InstanceStatus (int)
+       - IsSuspended (int)
+       - SuspendTime (DateTime?)
+       - SuspendReason (string?)
+       - Priority (int)
+       - ProcessTitle (string?)
+       - FormId (long?)
+       - FormCode (string?)
+
+  TaktFlowTerminateDto:
+    ❌ 缺失字段 (26):
+       - InstanceCode (string)
+       - ProcessKey (string)
+       - SchemeId (long)
+       - ProcessName (string)
+       - BusinessKey (string?)
+       - BusinessType (string?)
+       - StartUserId (long)
+       - StartUserName (string)
+       - StartDeptId (long?)
+       - StartDeptName (string?)
+       - StartTime (DateTime)
+       - EndTime (DateTime?)
+       - CurrentNodeId (long?)
+       - CurrentNodeName (string?)
+       - ActivityName (string?)
+       - PreviousNodeId (string?)
+       - MakerList (string?)
+       - FrmData (string?)
+       - InstanceStatus (int)
+       - IsSuspended (int)
+       - SuspendTime (DateTime?)
+       - SuspendReason (string?)
+       - Priority (int)
+       - ProcessTitle (string?)
+       - FormId (long?)
+       - FormCode (string?)
+    ⚠️  多余字段 (1):
+       - Reason (string?)
+
+  TaktFlowTransferDto:
+    ❌ 缺失字段 (26):
+       - InstanceCode (string)
+       - ProcessKey (string)
+       - SchemeId (long)
+       - ProcessName (string)
+       - BusinessKey (string?)
+       - BusinessType (string?)
+       - StartUserId (long)
+       - StartUserName (string)
+       - StartDeptId (long?)
+       - StartDeptName (string?)
+       - StartTime (DateTime)
+       - EndTime (DateTime?)
+       - CurrentNodeId (long?)
+       - CurrentNodeName (string?)
+       - ActivityName (string?)
+       - PreviousNodeId (string?)
+       - MakerList (string?)
+       - FrmData (string?)
+       - InstanceStatus (int)
+       - IsSuspended (int)
+       - SuspendTime (DateTime?)
+       - SuspendReason (string?)
+       - Priority (int)
+       - ProcessTitle (string?)
+       - FormId (long?)
+       - FormCode (string?)
+    ⚠️  多余字段 (2):
+       - ToUserName (string)
+       - Comment (string?)
+
+  TaktFlowAddApproversDto:
+    ❌ 缺失字段 (26):
+       - InstanceCode (string)
+       - ProcessKey (string)
+       - SchemeId (long)
+       - ProcessName (string)
+       - BusinessKey (string?)
+       - BusinessType (string?)
+       - StartUserId (long)
+       - StartUserName (string)
+       - StartDeptId (long?)
+       - StartDeptName (string?)
+       - StartTime (DateTime)
+       - EndTime (DateTime?)
+       - CurrentNodeId (long?)
+       - CurrentNodeName (string?)
+       - ActivityName (string?)
+       - PreviousNodeId (string?)
+       - MakerList (string?)
+       - FrmData (string?)
+       - InstanceStatus (int)
+       - IsSuspended (int)
+       - SuspendTime (DateTime?)
+       - SuspendReason (string?)
+       - Priority (int)
+       - ProcessTitle (string?)
+       - FormId (long?)
+       - FormCode (string?)
+    ⚠️  多余字段 (3):
+       - ApproveType (string)
+       - Reason (string?)
+       - ReturnToSignNode (bool)
+
+  TaktFlowReduceApprovalDto:
+    ❌ 缺失字段 (26):
+       - InstanceCode (string)
+       - ProcessKey (string)
+       - SchemeId (long)
+       - ProcessName (string)
+       - BusinessKey (string?)
+       - BusinessType (string?)
+       - StartUserId (long)
+       - StartUserName (string)
+       - StartDeptId (long?)
+       - StartDeptName (string?)
+       - StartTime (DateTime)
+       - EndTime (DateTime?)
+       - CurrentNodeId (long?)
+       - CurrentNodeName (string?)
+       - ActivityName (string?)
+       - PreviousNodeId (string?)
+       - MakerList (string?)
+       - FrmData (string?)
+       - InstanceStatus (int)
+       - IsSuspended (int)
+       - SuspendTime (DateTime?)
+       - SuspendReason (string?)
+       - Priority (int)
+       - ProcessTitle (string?)
+       - FormId (long?)
+       - FormCode (string?)
+
+  TaktFlowInstanceListQueryDto:
+    ❌ 缺失字段 (23):
+       - SchemeId (long)
+       - ProcessName (string)
+       - BusinessKey (string?)
+       - BusinessType (string?)
+       - StartUserId (long)
+       - StartUserName (string)
+       - StartDeptId (long?)
+       - StartDeptName (string?)
+       - StartTime (DateTime)
+       - EndTime (DateTime?)
+       - CurrentNodeId (long?)
+       - CurrentNodeName (string?)
+       - ActivityName (string?)
+       - PreviousNodeId (string?)
+       - MakerList (string?)
+       - FrmData (string?)
+       - IsSuspended (int)
+       - SuspendTime (DateTime?)
+       - SuspendReason (string?)
+       - Priority (int)
+       - ProcessTitle (string?)
+       - FormId (long?)
+       - FormCode (string?)
+    ⚠️  多余字段 (1):
+       - Type (string?)
+
+检查: TaktFlowOperation
+============================================================
+实体字段数: 22
+DTO文件: Workflow\TaktFlowOperationDtos.cs
+DTO类数: 2
+  - TaktFlowOperationDto: 23 个字段
+  - TaktFlowOperationQueryDto: 4 个字段
+
+  TaktFlowOperationQueryDto:
+    ❌ 缺失字段 (18):
+       - SchemeId (long)
+       - TaskId (long?)
+       - ProcessName (string)
+       - OperationTime (DateTime)
+       - OperatorId (long)
+       - OperatorName (string)
+       - OperatorDeptId (long?)
+       - OperatorDeptName (string?)
+       - NodeId (string?)
+       - NodeName (string?)
+       - OperationContent (string?)
+       - OperationComment (string?)
+       - BeforeStatus (string?)
+       - AfterStatus (string?)
+       - OperationIp (string?)
+       - OperationDevice (string?)
+       - OperationResult (int)
+       - ErrorMessage (string?)
+
+检查: TaktFlowScheme
+============================================================
+实体字段数: 10
+DTO文件: Workflow\TaktFlowSchemeDtos.cs
+DTO类数: 3
+  - TaktFlowSchemeDto: 11 个字段
+  - TaktFlowSchemeQueryDto: 5 个字段
+  - TaktFlowSchemeUpdateDto: 1 个字段
+
+  TaktFlowSchemeQueryDto:
+    ❌ 缺失字段 (5):
+       - ProcessVersion (int)
+       - ProcessDescription (string?)
+       - FormId (long?)
+       - ProcessContent (string?)
+       - OrderNum (int)
+
+========================================
+  检查完成！一致: 8, 有问题: 127
+========================================

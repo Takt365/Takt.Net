@@ -8,100 +8,100 @@
     layout="horizontal"
   >
     <a-form-item
-      label="规则编码"
+      :label="t('routine.tasks.numbering-rule.form.ruleCode')"
       name="ruleCode"
     >
       <a-input
         v-model:value="formState.ruleCode"
-        placeholder="如 ANNOUNCEMENT、PO"
+        :placeholder="t('routine.tasks.numbering-rule.form.placeholderRuleCode')"
         :disabled="!!formData?.numberingRuleId"
       />
     </a-form-item>
     <a-form-item
-      label="规则名称"
+      :label="t('routine.tasks.numbering-rule.form.ruleName')"
       name="ruleName"
     >
       <a-input
         v-model:value="formState.ruleName"
-        placeholder="请输入规则名称"
+        :placeholder="t('routine.tasks.numbering-rule.form.placeholderRuleName')"
         allow-clear
       />
     </a-form-item>
     <a-form-item
-      label="公司编码"
+      :label="t('routine.tasks.numbering-rule.form.companyCode')"
       name="companyCode"
     >
       <a-input
         v-model:value="formState.companyCode"
-        placeholder="可选，用于匹配规则"
+        :placeholder="t('routine.tasks.numbering-rule.form.placeholderCompanyCode')"
         allow-clear
       />
     </a-form-item>
     <a-form-item
-      label="部门编码"
+      :label="t('routine.tasks.numbering-rule.form.deptCode')"
       name="deptCode"
     >
       <a-input
         v-model:value="formState.deptCode"
-        placeholder="可选，用于匹配规则"
+        :placeholder="t('routine.tasks.numbering-rule.form.placeholderDeptCode')"
         allow-clear
       />
     </a-form-item>
     <a-form-item
-      label="前缀"
+      :label="t('routine.tasks.numbering-rule.form.prefix')"
       name="prefix"
     >
       <a-input
         v-model:value="formState.prefix"
-        placeholder="如 ANN-"
+        :placeholder="t('routine.tasks.numbering-rule.form.placeholderPrefix')"
         allow-clear
       />
     </a-form-item>
     <a-form-item
-      label="日期格式"
+      :label="t('routine.tasks.numbering-rule.form.dateFormat')"
       name="dateFormat"
     >
       <a-input
         v-model:value="formState.dateFormat"
-        placeholder="如 yyyyMMdd"
+        :placeholder="t('routine.tasks.numbering-rule.form.placeholderDateFormat')"
         allow-clear
       />
     </a-form-item>
     <a-form-item
-      label="序号长度"
+      :label="t('routine.tasks.numbering-rule.form.numberLength')"
       name="numberLength"
     >
       <a-input-number
         v-model:value="formState.numberLength"
         :min="1"
         :max="20"
-        placeholder="如 5"
+        :placeholder="t('routine.tasks.numbering-rule.form.placeholderNumberLength')"
         style="width: 100%"
       />
     </a-form-item>
     <a-form-item
-      label="后缀"
+      :label="t('routine.tasks.numbering-rule.form.suffix')"
       name="suffix"
     >
       <a-input
         v-model:value="formState.suffix"
-        placeholder="可选"
+        :placeholder="t('routine.tasks.numbering-rule.form.placeholderSuffix')"
         allow-clear
       />
     </a-form-item>
     <a-form-item
-      label="步长"
+      :label="t('routine.tasks.numbering-rule.form.step')"
       name="step"
     >
       <a-input-number
         v-model:value="formState.step"
         :min="1"
-        placeholder="如 1"
+        :placeholder="t('routine.tasks.numbering-rule.form.placeholderStep')"
         style="width: 100%"
       />
     </a-form-item>
     <a-form-item
-      label="排序号"
+      :label="t('routine.tasks.numbering-rule.form.orderNum')"
       name="orderNum"
     >
       <a-input-number
@@ -111,12 +111,12 @@
       />
     </a-form-item>
     <a-form-item
-      label="备注"
+      :label="t('routine.tasks.numbering-rule.form.remark')"
       name="remark"
     >
       <a-textarea
         v-model:value="formState.remark"
-        placeholder="请输入备注"
+        :placeholder="t('routine.tasks.numbering-rule.form.placeholderRemark')"
         :rows="2"
         allow-clear
       />
@@ -125,9 +125,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import type { FormInstance, Rule } from 'ant-design-vue/es/form'
-import type { NumberingRule, NumberingRuleCreate, NumberingRuleUpdate } from '@/types/routine/tasks/numbering-rule'
+import { useI18n } from 'vue-i18n'
+import type { NumberingRule, NumberingRuleCreate } from '@/types/routine/tasks/numbering-rule/numbering-rule'
+
+/** 与 a-input 绑定的可选字段一律为 string，避免 exactOptionalPropertyTypes 下 undefined 与 v-model 不兼容。 */
+type NumberingRuleFormModel = {
+  numberingRuleId?: string
+  ruleCode: string
+  ruleName: string
+  companyCode: string
+  deptCode: string
+  prefix: string
+  dateFormat: string
+  numberLength: number
+  suffix: string
+  step: number
+  orderNum: number
+  remark: string
+}
+
+export type NumberingRuleFormValues = NumberingRuleCreate & { numberingRuleId?: string }
 
 const props = withDefaults(
   defineProps<{
@@ -137,70 +156,94 @@ const props = withDefaults(
   { formData: null, loading: false }
 )
 
+const { t } = useI18n()
+
 const formRef = ref<FormInstance>()
-const formState = ref<NumberingRuleCreate & { numberingRuleId?: string }>({
+const emptyModel = (): NumberingRuleFormModel => ({
   ruleCode: '',
   ruleName: '',
-  companyCode: undefined,
-  deptCode: undefined,
-  prefix: undefined,
-  dateFormat: undefined,
+  companyCode: '',
+  deptCode: '',
+  prefix: '',
+  dateFormat: '',
   numberLength: 5,
-  suffix: undefined,
+  suffix: '',
   step: 1,
   orderNum: 0,
-  remark: undefined
+  remark: ''
 })
 
-const rules: Record<string, Rule[]> = {
-  ruleCode: [{ required: true, message: '请输入规则编码' }],
-  ruleName: [{ required: true, message: '请输入规则名称' }],
-  numberLength: [{ required: true, message: '请输入序号长度' }]
-}
+const formState = ref<NumberingRuleFormModel>(emptyModel())
+
+const rules = computed<Record<string, Rule[]>>(() => ({
+  ruleCode: [{ required: true, message: t('routine.tasks.numbering-rule.validation.ruleCode') }],
+  ruleName: [{ required: true, message: t('routine.tasks.numbering-rule.validation.ruleName') }],
+  numberLength: [{ required: true, message: t('routine.tasks.numbering-rule.validation.numberLength') }]
+}))
 
 watch(
   () => props.formData,
-  (val) => {
+  val => {
     if (val) {
-      formState.value = {
+      const next: NumberingRuleFormModel = {
+        ...emptyModel(),
         ruleCode: val.ruleCode ?? '',
         ruleName: val.ruleName ?? '',
-        companyCode: val.companyCode ?? undefined,
-        deptCode: val.deptCode ?? undefined,
-        prefix: val.prefix ?? undefined,
-        dateFormat: val.dateFormat ?? undefined,
+        companyCode: val.companyCode ?? '',
+        deptCode: val.deptCode ?? '',
+        prefix: val.prefix ?? '',
+        dateFormat: val.dateFormat ?? '',
         numberLength: val.numberLength ?? 5,
-        suffix: val.suffix ?? undefined,
+        suffix: val.suffix ?? '',
         step: val.step ?? 1,
         orderNum: val.orderNum ?? 0,
-        remark: val.remark ?? undefined
+        remark: val.remark ?? ''
       }
-      if (val.numberingRuleId) (formState.value as NumberingRuleUpdate).numberingRuleId = val.numberingRuleId
+      if (val.numberingRuleId) {
+        next.numberingRuleId = val.numberingRuleId
+      }
+      formState.value = next
     } else {
-      formState.value = {
-        ruleCode: '',
-        ruleName: '',
-        companyCode: undefined,
-        deptCode: undefined,
-        prefix: undefined,
-        dateFormat: undefined,
-        numberLength: 5,
-        suffix: undefined,
-        step: 1,
-        orderNum: 0,
-        remark: undefined
-      }
+      formState.value = emptyModel()
     }
   },
   { immediate: true }
 )
 
+function optionalString(s: string): string | undefined {
+  const trimmed = s.trim()
+  return trimmed.length > 0 ? trimmed : undefined
+}
+
 function validate() {
   return formRef.value?.validate()
 }
 
-function getValues() {
-  return formState.value
+function getValues(): NumberingRuleFormValues {
+  const s = formState.value
+  const companyCode = optionalString(s.companyCode)
+  const deptCode = optionalString(s.deptCode)
+  const prefix = optionalString(s.prefix)
+  const dateFormat = optionalString(s.dateFormat)
+  const suffix = optionalString(s.suffix)
+  const remark = optionalString(s.remark)
+  const base: NumberingRuleCreate = {
+    ruleCode: s.ruleCode,
+    ruleName: s.ruleName,
+    numberLength: s.numberLength,
+    step: s.step,
+    orderNum: s.orderNum,
+    ...(companyCode !== undefined ? { companyCode } : {}),
+    ...(deptCode !== undefined ? { deptCode } : {}),
+    ...(prefix !== undefined ? { prefix } : {}),
+    ...(dateFormat !== undefined ? { dateFormat } : {}),
+    ...(suffix !== undefined ? { suffix } : {}),
+    ...(remark !== undefined ? { remark } : {})
+  }
+  if (s.numberingRuleId) {
+    return { ...base, numberingRuleId: s.numberingRuleId }
+  }
+  return base
 }
 
 defineExpose({ validate, getValues })

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Workflow
 // 文件名称：TaktFlowInstance.cs
@@ -25,7 +25,7 @@ namespace Takt.Domain.Entities.Workflow;
 /// </remarks>
 [SugarTable("takt_workflow_instance", "流程实例表")]
 [SugarIndex("ix_takt_workflow_instance_instance_code", nameof(InstanceCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_workflow_instance_process_key", nameof(ProcessKey), OrderByType.Asc)]
+[SugarIndex("ix_takt_workflow_instance_process_key", nameof(SchemeKey), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_instance_scheme_id", nameof(SchemeId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_instance_start_user_id", nameof(StartUserId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_instance_instance_status", nameof(InstanceStatus), OrderByType.Asc)]
@@ -44,7 +44,7 @@ public class TaktFlowInstance : TaktEntityBase
     /// 流程Key
     /// </summary>
     [SugarColumn(ColumnName = "process_key", ColumnDescription = "流程Key", ColumnDataType = "nvarchar", Length = 100, IsNullable = false)]
-    public string ProcessKey { get; set; } = string.Empty;
+    public string SchemeKey { get; set; } = string.Empty;
 
     /// <summary>
     /// 流程方案ID（序列化为string以避免Javascript精度问题）
@@ -57,7 +57,7 @@ public class TaktFlowInstance : TaktEntityBase
     /// 流程名称
     /// </summary>
     [SugarColumn(ColumnName = "process_name", ColumnDescription = "流程名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
-    public string ProcessName { get; set; } = string.Empty;
+    public string SchemeName { get; set; } = string.Empty;
 
     /// <summary>
     /// 业务主键（调用方传入的字符串，由发起流程的业务模块约定含义；引擎不解析，不据此关联任何业务表）

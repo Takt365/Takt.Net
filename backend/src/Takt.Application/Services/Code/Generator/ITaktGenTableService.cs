@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Code.Generator
 // 文件名称：ITaktGenTableService.cs
@@ -25,21 +25,21 @@ public interface ITaktGenTableService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    Task<TaktPagedResult<TaktGenTableDto>> GetListAsync(TaktGenTableQueryDto queryDto);
+    Task<TaktPagedResult<TaktGenTableDto>> GetGenTableListAsync(TaktGenTableQueryDto queryDto);
 
     /// <summary>
     /// 根据ID获取代码生成表配置
     /// </summary>
     /// <param name="id">表ID</param>
     /// <returns>代码生成表配置DTO</returns>
-    Task<TaktGenTableDto?> GetByIdAsync(long id);
+    Task<TaktGenTableDto?> GetGenTableByIdAsync(long id);
 
     /// <summary>
     /// 创建代码生成表配置
     /// </summary>
     /// <param name="dto">创建代码生成表配置DTO</param>
     /// <returns>代码生成表配置DTO</returns>
-    Task<TaktGenTableDto> CreateAsync(TaktGenTableCreateDto dto);
+    Task<TaktGenTableDto> CreateGenTableAsync(TaktGenTableCreateDto dto);
 
     /// <summary>
     /// 更新代码生成表配置
@@ -47,19 +47,19 @@ public interface ITaktGenTableService
     /// <param name="id">表ID</param>
     /// <param name="dto">更新代码生成表配置DTO</param>
     /// <returns>代码生成表配置DTO</returns>
-    Task<TaktGenTableDto> UpdateAsync(long id, TaktGenTableUpdateDto dto);
+    Task<TaktGenTableDto> UpdateGenTableAsync(long id, TaktGenTableUpdateDto dto);
 
     /// <summary>
     /// 删除代码生成表配置
     /// </summary>
     /// <param name="id">表ID</param>
     /// <returns>任务</returns>
-    Task DeleteAsync(long id);
+    Task DeleteGenTableByIdAsync(long id);
 
     /// <summary>
     /// 批量删除代码生成表配置
     /// </summary>
     /// <param name="ids">表ID列表</param>
     /// <returns>任务</returns>
-    Task DeleteAsync(IEnumerable<long> ids);
+    Task DeleteGenTableBatchAsync(IEnumerable<long> ids);
 }

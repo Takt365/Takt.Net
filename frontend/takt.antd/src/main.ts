@@ -136,9 +136,10 @@ watchEffect(() => {
   // 访问 locale.value 以触发响应式更新
   const localeRef = i18n.global.locale as { value: string }
   void localeRef.value
-  // 使用类型断言修复 t 方法的类型问题
-  const htmlTitle = String(i18n.global.t('common.app.htmlTitle'))
-  if (htmlTitle && htmlTitle !== 'common.app.htmlTitle') {
+  // 统一收敛 t 的可调用签名，避免 Composer/VueI18n 联合类型在此处报“不可调用”
+  const translate = i18n.global.t as (key: string) => string
+  const htmlTitle = String(translate('common.app.htmltitle'))
+  if (htmlTitle && htmlTitle !== 'common.app.htmltitle') {
     document.title = htmlTitle
   }
 })

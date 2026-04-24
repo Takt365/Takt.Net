@@ -201,11 +201,22 @@ import type { TableColumnsType } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
 import { CreateActionColumn } from '@/components/business/takt-action-column/index'
 import { mergeDefaultColumns } from '@/utils/table-columns'
-import { getFlowInstanceList, getFlowInstanceById, revoke, updateFlowInstance, deleteFlowInstanceById, deleteFlowInstanceBatch, exportFlowInstanceData, suspend, resume, terminate, undoVerification } from '@/api/workflow/instance'
+import {
+  getFlowInstanceList,
+  getFlowInstanceById,
+  revokeFlowInstance,
+  updateFlowInstance,
+  deleteFlowInstanceById,
+  deleteFlowInstanceBatch,
+  exportFlowInstanceData,
+  suspendFlowInstance,
+  resumeFlowInstance,
+  terminateFlowInstance,
+  undoFlowInstanceVerification
+} from '@/api/workflow/instance'
 import { useUserStore } from '@/stores/identity/user'
 import InstanceForm from './components/instance-form.vue'
-import type { FlowInstance, FlowInstanceDetail, FlowInstanceQuery } from '@/types/workflow/instance'
-import type { TaktPagedResult } from '@/types/common'
+import type { FlowInstance, FlowInstanceDetail, FlowInstanceQuery, FlowInstanceUpdate } from '@/types/workflow/flow-instance'
 import { RiEyeLine, RiArrowGoBackLine, RiEditLine, RiDeleteBinLine, RiPauseLine, RiPlayLine, RiStopLine } from '@remixicon/vue'
 
 const { t } = useI18n()
@@ -222,7 +233,11 @@ const selectedRowKeys = ref<(string | number)[]>([])
 const detailVisible = ref(false)
 const detail = ref<FlowInstanceDetail | null>(null)
 const advancedQueryVisible = ref(false)
-const advancedQueryForm = ref<{ instanceCode?: string; processKey?: string; instanceStatus?: number }>({ instanceCode: '', processKey: '', instanceStatus: undefined })
+const advancedQueryForm = ref<{ instanceCode: string; processKey: string; instanceStatus: number | undefined }>({
+  instanceCode: '',
+  processKey: '',
+  instanceStatus: undefined
+})
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
 const updateVisible = ref(false)
@@ -241,7 +256,7 @@ type FlowInstanceColumn = {
   key?: string | number
   dataIndex?: string | number
   title?: string | number
-  width?: number
+  width?: string | number
 }
 
 type TableSorterInfo = {
@@ -265,10 +280,10 @@ function getColumnKey(column: FlowInstanceColumn): string {
 function getSorterInfo(sorter: unknown): TableSorterInfo {
   if (typeof sorter !== 'object' || sorter === null) return {}
   const sorterObj = sorter as { field?: unknown; order?: unknown }
-  return {
-    field: typeof sorterObj.field === 'string' ? sorterObj.field : undefined,
-    order: typeof sorterObj.order === 'string' ? sorterObj.order : undefined
-  }
+  const result: TableSorterInfo = {}
+  if (typeof sorterObj.field === 'string') result.field = sorterObj.field
+  if (typeof sorterObj.order === 'string') result.order = sorterObj.order
+  return result
 }
 
 const userStore = useUserStore()
@@ -282,7 +297,11 @@ const statusOptions = computed(() => ({
   4: t('workflow.instance.status.4')
 }))
 
-const getInstanceId = (record: FlowInstance): string => (record?.instanceId != null ? String(record.instanceId) : '')
+const getInstanceId = (record: unknown): string => {
+  if (!record || typeof record !== 'object' || !('instanceId' in record)) return ''
+  const instanceId = (record as { instanceId?: unknown }).instanceId
+  return instanceId != null ? String(instanceId) : ''
+}
 
 /** 表格列：与 @/types/workflow/instance FlowInstance 字段一致（列表展示用，不含 frmData 等大字段） */
 const columns = computed<TableColumnsType>(() => [
@@ -442,14 +461,14 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: FlowInstance[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: FlowInstance, selected: boolean) => {
     if (selected) selectedRow.value = record
     else if (selectedRow.value && getInstanceId(selectedRow.value) === getInstanceId(record)) selectedRow.value = null
   },
   onSelectAll: (selected: boolean, selectedRowsData: FlowInstance[]) => {
-    selectedRow.value = selected && selectedRowsData.length === 1 ? selectedRowsData[0] : null
+    selectedRow.value = selected && selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
   }
 }))
 
@@ -460,7 +479,7 @@ const onClickRow = (record: FlowInstance) => ({
     if (index > -1) selectedRowKeys.value.splice(index, 1)
     else selectedRowKeys.value.push(key)
     selectedRows.value = dataSource.value.filter(item => selectedRowKeys.value.includes(getInstanceId(item)))
-    selectedRow.value = selectedRowKeys.value.length === 1 ? selectedRows.value[0] : null
+    selectedRow.value = selectedRowKeys.value.length === 1 ? (selectedRows.value[0] ?? null) : null
     if (rowSelection.value.onChange) rowSelection.value.onChange(selectedRowKeys.value, selectedRows.value)
   }
 })
@@ -485,13 +504,16 @@ function isStarter(r: FlowInstance): boolean {
 async function loadData() {
   try {
     loading.value = true
-    const res = (await getFlowInstanceList({
+    const query: FlowInstanceQuery = {
       pageIndex: currentPage.value,
-      pageSize: pageSize.value,
-      processKey: queryKeyword.value || advancedQueryForm.value.processKey || undefined,
-      instanceCode: queryKeyword.value || advancedQueryForm.value.instanceCode || undefined,
-      instanceStatus: advancedQueryForm.value.instanceStatus
-    }))
+      pageSize: pageSize.value
+    }
+    const processKey = queryKeyword.value || advancedQueryForm.value.processKey
+    const instanceCode = queryKeyword.value || advancedQueryForm.value.instanceCode
+    if (processKey) query.processKey = processKey
+    if (instanceCode) query.instanceCode = instanceCode
+    if (advancedQueryForm.value.instanceStatus != null) query.instanceStatus = advancedQueryForm.value.instanceStatus
+    const res = (await getFlowInstanceList(query))
     dataSource.value = res.data ?? []
     total.value = res.total ?? 0
   } catch (error: unknown) {
@@ -513,7 +535,7 @@ function handleSearch() {
 function handleReset() {
   queryKeyword.value = ''
   queryStatus.value = undefined
-  advancedQueryForm.value = { instanceCode: '', processKey: '' }
+  advancedQueryForm.value = { instanceCode: '', processKey: '', instanceStatus: undefined }
   currentPage.value = 1
   loadData()
 }
@@ -532,7 +554,7 @@ function handleAdvancedQuerySubmit() {
 
 /** 高级查询重置：清空高级查询表单 */
 function handleAdvancedQueryReset() {
-  advancedQueryForm.value = { instanceCode: '', processKey: '' }
+  advancedQueryForm.value = { instanceCode: '', processKey: '', instanceStatus: undefined }
 }
 
 /** 打开列设置弹窗 */
@@ -561,11 +583,13 @@ async function handleExport() {
     loading.value = true
     const query: FlowInstanceQuery = {
       pageIndex: 1,
-      pageSize: 99999,
-      processKey: queryKeyword.value || advancedQueryForm.value.processKey || undefined,
-      instanceCode: queryKeyword.value || advancedQueryForm.value.instanceCode || undefined,
-      instanceStatus: advancedQueryForm.value.instanceStatus
+      pageSize: 99999
     }
+    const processKey = queryKeyword.value || advancedQueryForm.value.processKey
+    const instanceCode = queryKeyword.value || advancedQueryForm.value.instanceCode
+    if (processKey) query.processKey = processKey
+    if (instanceCode) query.instanceCode = instanceCode
+    if (advancedQueryForm.value.instanceStatus != null) query.instanceStatus = advancedQueryForm.value.instanceStatus
     const blob = await exportFlowInstanceData(query)
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
@@ -640,7 +664,7 @@ async function handleUndoVerify() {
   if (!detail.value?.instanceId) return
   try {
     loading.value = true
-    await undoVerification({ flowInstanceId: detail.value.instanceId })
+    await undoFlowInstanceVerification({ flowInstanceId: detail.value.instanceId })
     message.success(t('workflow.instance.undoVerifySuccess'))
     detailVisible.value = false
     detail.value = null
@@ -664,7 +688,10 @@ async function submitSuspend() {
   if (!currentSuspendInstance.value) return
   try {
     loading.value = true
-    await suspend({ flowInstanceId: currentSuspendInstance.value.instanceId, reason: suspendReason.value || undefined })
+    const payload: { flowInstanceId: string; reason?: string } = { flowInstanceId: currentSuspendInstance.value.instanceId }
+    const reason = suspendReason.value.trim()
+    if (reason) payload.reason = reason
+    await suspendFlowInstance(payload)
     message.success(t('workflow.instance.suspendSuccess'))
     suspendVisible.value = false
     currentSuspendInstance.value = null
@@ -689,7 +716,7 @@ function handleResume(record: FlowInstance) {
     onOk: async () => {
       try {
         loading.value = true
-        await resume({ flowInstanceId: record.instanceId })
+        await resumeFlowInstance({ flowInstanceId: record.instanceId })
         message.success(t('workflow.instance.resumeSuccess'))
         loadData()
       } catch (error: unknown) {
@@ -713,7 +740,10 @@ async function submitTerminate() {
   if (!currentTerminateInstance.value) return
   try {
     loading.value = true
-    await terminate({ flowInstanceId: currentTerminateInstance.value.instanceId, reason: terminateReason.value || undefined })
+    const payload: { flowInstanceId: string; reason?: string } = { flowInstanceId: currentTerminateInstance.value.instanceId }
+    const reason = terminateReason.value.trim()
+    if (reason) payload.reason = reason
+    await terminateFlowInstance(payload)
     message.success(t('workflow.instance.terminateSuccess'))
     terminateVisible.value = false
     currentTerminateInstance.value = null
@@ -738,7 +768,7 @@ function handleRevoke(record: FlowInstance) {
     onOk: async () => {
       try {
         loading.value = true
-        await revoke(record.instanceCode)
+        await revokeFlowInstance(record.instanceCode)
         message.success(t('common.msg.actionSuccess', { action: t('common.button.revoke') }))
         loadData()
       } catch (error: unknown) {
@@ -778,11 +808,12 @@ async function handleUpdateSubmit() {
   if (!currentEditInstance.value) return
   try {
     updateLoading.value = true
-    await updateFlowInstance({
-      id: currentEditInstance.value.instanceId,
-      processTitle: updateProcessTitle.value?.trim() || undefined,
-      frmData: updateFrmData.value?.trim() || undefined
-    })
+    const updatePayload: FlowInstanceUpdate = { id: currentEditInstance.value.instanceId }
+    const processTitle = updateProcessTitle.value?.trim()
+    const frmData = updateFrmData.value?.trim()
+    if (processTitle) updatePayload.processTitle = processTitle
+    if (frmData) updatePayload.frmData = frmData
+    await updateFlowInstance(updatePayload)
     message.success(t('common.msg.updateSuccess'))
     updateVisible.value = false
     currentEditInstance.value = null

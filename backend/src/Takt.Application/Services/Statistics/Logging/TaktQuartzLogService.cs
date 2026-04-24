@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Statistics.Logging
 // 文件名称：TaktQuartzLogService.cs
@@ -51,7 +51,7 @@ public class TaktQuartzLogService : TaktServiceBase, ITaktQuartzLogService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktQuartzLogDto>> GetListAsync(TaktQuartzLogQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktQuartzLogDto>> GetQuartzLogListAsync(TaktQuartzLogQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
 
@@ -69,7 +69,7 @@ public class TaktQuartzLogService : TaktServiceBase, ITaktQuartzLogService
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>任务日志DTO</returns>
-    public async Task<TaktQuartzLogDto?> GetByIdAsync(long id)
+    public async Task<TaktQuartzLogDto?> GetQuartzLogByIdAsync(long id)
     {
         var log = await _quartzLogRepository.GetByIdAsync(id);
         if (log == null) return null;
@@ -82,10 +82,10 @@ public class TaktQuartzLogService : TaktServiceBase, ITaktQuartzLogService
     /// </summary>
     /// <param name="dto">创建任务日志DTO</param>
     /// <returns>任务日志DTO</returns>
-    public async Task<TaktQuartzLogDto> CreateAsync(TaktCreateQuartzLogDto dto)
+    public async Task<TaktQuartzLogDto> CreateQuartzLogAsync(TaktQuartzLogCreateDto dto)
     {
         var log = dto.Adapt<TaktQuartzLog>();
-        log.ExecuteTime = dto.ExecuteTime ?? DateTime.Now;
+        log.ExecuteTime = dto.ExecuteTime;
 
         log = await _quartzLogRepository.CreateAsync(log);
         LogInformation($"创建任务日志：{log.UserName} - {log.JobName}");
@@ -98,7 +98,7 @@ public class TaktQuartzLogService : TaktServiceBase, ITaktQuartzLogService
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteQuartzLogByIdAsync(long id)
     {
         var log = await _quartzLogRepository.GetByIdAsync(id);
         EnsureEntityExistsLocalized(log, "QuartzLogNotFound");
@@ -112,7 +112,7 @@ public class TaktQuartzLogService : TaktServiceBase, ITaktQuartzLogService
     /// </summary>
     /// <param name="ids">日志ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteBatchAsync(List<long> ids)
+    public async Task DeleteQuartzLogBatchAsync(List<long> ids)
     {
         if (ids == null || ids.Count == 0)
         {
@@ -138,7 +138,7 @@ public class TaktQuartzLogService : TaktServiceBase, ITaktQuartzLogService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktQuartzLogQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportQuartzLogAsync(TaktQuartzLogQueryDto query, string? sheetName, string? fileName)
     {
         // 构建查询条件
         var predicate = QueryExpression(query);
@@ -170,7 +170,7 @@ public class TaktQuartzLogService : TaktServiceBase, ITaktQuartzLogService
         {
             var dto = l.Adapt<TaktQuartzLogExportDto>();
             // 处理需要特殊转换的字段
-            dto.ExecuteStatus = GetExecuteStatusString(l.ExecuteStatus);
+            dto.ExecuteStatusString = GetExecuteStatusString(l.ExecuteStatus);
             dto.ErrorMsg = l.ErrorMsg ?? string.Empty;
             return dto;
         }).ToList();

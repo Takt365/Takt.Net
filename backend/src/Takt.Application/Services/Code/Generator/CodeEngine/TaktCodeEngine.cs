@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Code.Generator.CodeEngine
 // 文件名称：TaktCodeEngine.cs
@@ -13,12 +13,13 @@
 using Scriban;
 using Scriban.Runtime;
 using Takt.Shared.Helpers;
+using System.Text.RegularExpressions;
 
 namespace Takt.Application.Services.Code.Generator.CodeEngine;
 
 /// <summary>
 /// 代码生成核心引擎：基于 Scriban 的模板解析与渲染。
-/// 规范：模板使用小写 table/columns，属性名 snake_case（entity_namespace、entity_class_name、comment 等），与常见模板习惯一致。
+/// 规范：模板使用小写 table/columns，属性名 snake_case（entity_namespace、perms_prefix_canonical、comment 等），与常见模板习惯一致。
 /// </summary>
 public class TaktCodeEngine : ITaktCodeEngine
 {
@@ -79,10 +80,25 @@ public class TaktCodeEngine : ITaktCodeEngine
                 rowScript["resource_key"] = row.ResourceKey ?? string.Empty;
                 rowScript["translation_value"] = row.TranslationValue ?? string.Empty;
                 rowScript["resource_group"] = row.ResourceGroup ?? "page";
-                rowScript["order_num"] = row.OrderNum;
+                rowScript["sort_order"] = row.SortOrder;
                 translationRowsArray.Add(rowScript);
             }
             tableScript["sql_translation_rows"] = translationRowsArray;
+
+            var menuButtonRowsArray = new ScriptArray();
+            foreach (var row in tableModel.SqlMenuButtonRows ?? [])
+            {
+                var btnRow = new ScriptObject();
+                btnRow["id"] = row.Id;
+                btnRow["menu_code"] = row.MenuCode ?? string.Empty;
+                btnRow["menu_name"] = row.MenuName ?? string.Empty;
+                btnRow["permission"] = row.Permission ?? string.Empty;
+                btnRow["menu_l10n_key"] = row.MenuL10nKey ?? string.Empty;
+                btnRow["sort_order"] = row.SortOrder;
+                menuButtonRowsArray.Add(btnRow);
+            }
+            tableScript["sql_menu_button_rows"] = menuButtonRowsArray;
+
             global["table"] = tableScript;
 
             var columnsArray = new ScriptArray();
@@ -109,7 +125,7 @@ public class TaktCodeEngine : ITaktCodeEngine
         try
         {
             var result = await template.RenderAsync(scriptContext);
-            var output = result ?? string.Empty;
+            var output = NormalizeGeneratedOutput(result ?? string.Empty);
             TaktLogger.Debug("[CodeEngine] 模板渲染完成，输出长度={OutputLength}", output.Length);
             return output;
         }
@@ -118,6 +134,29 @@ public class TaktCodeEngine : ITaktCodeEngine
             TaktLogger.Error(ex, "[CodeEngine] 模板渲染失败: {Message}", ex.Message);
             throw new TaktCodeEngineException($"模板渲染失败：{ex.Message}", ex);
         }
+    }
+
+    /// <summary>
+    /// 统一规整模板输出，避免生成代码出现大量连续空行。
+    /// 保留单个空行用于语义分段，将 3 行及以上连续空白压缩为 1 个空行。
+    /// </summary>
+    /// <param name="text">模板渲染后的原始文本</param>
+    /// <returns>规整后的文本</returns>
+    private static string NormalizeGeneratedOutput(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return string.Empty;
+
+        // 先统一换行，避免 CRLF/LF 混用导致空行压缩失效
+        var normalized = text.Replace("\r\n", "\n").Replace('\r', '\n');
+
+        // 去除行尾多余空白（保留行内空格）
+        normalized = Regex.Replace(normalized, @"[ \t]+\n", "\n");
+
+        // 将 3 行及以上连续空白压缩为 2 个换行（即最多保留 1 个空行）
+        normalized = Regex.Replace(normalized, @"\n{3,}", "\n\n");
+
+        // 输出统一为 CRLF，符合当前仓库 C# 文件习惯
+        return normalized.Replace("\n", "\r\n");
     }
 
     /// <summary>

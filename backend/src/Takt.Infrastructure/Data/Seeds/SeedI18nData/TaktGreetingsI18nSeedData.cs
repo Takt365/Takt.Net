@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktGreetingsI18nSeedData.cs
@@ -80,7 +80,7 @@ public class TaktGreetingsI18nSeedData : ITaktSeedData
                         TranslationValue = translation.TranslationValue,
                         ResourceType = translation.ResourceType,
                         ResourceGroup = translation.ResourceGroup,
-                        OrderNum = translation.OrderNum,
+                        SortOrder = translation.SortOrder,
                         IsDeleted = 0
                     };
                     await translationRepository.CreateAsync(newTranslation);
@@ -92,13 +92,13 @@ public class TaktGreetingsI18nSeedData : ITaktSeedData
                     if (existingTranslation.TranslationValue != translation.TranslationValue ||
                         existingTranslation.ResourceType != translation.ResourceType ||
                         existingTranslation.ResourceGroup != translation.ResourceGroup ||
-                        existingTranslation.OrderNum != translation.OrderNum)
+                        existingTranslation.SortOrder != translation.SortOrder)
                     {
                         existingTranslation.LanguageId = languageId;
                         existingTranslation.TranslationValue = translation.TranslationValue;
                         existingTranslation.ResourceType = translation.ResourceType;
                         existingTranslation.ResourceGroup = translation.ResourceGroup;
-                        existingTranslation.OrderNum = translation.OrderNum;
+                        existingTranslation.SortOrder = translation.SortOrder;
                         await translationRepository.UpdateAsync(existingTranslation);
                         updateCount++;
                     }
@@ -129,59 +129,44 @@ public class TaktGreetingsI18nSeedData : ITaktSeedData
         return new List<TaktTranslation>
         {
             // common.greeting.morning 早上好！
-            new TaktTranslation { CultureCode = "ar-SA", ResourceKey = "common.greeting.morning", TranslationValue = "صباح الخير!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 1 },
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "common.greeting.morning", TranslationValue = "Good morning!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 1 },
-            new TaktTranslation { CultureCode = "es-ES", ResourceKey = "common.greeting.morning", TranslationValue = "¡Buenos días!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 1 },
-            new TaktTranslation { CultureCode = "fr-FR", ResourceKey = "common.greeting.morning", TranslationValue = "Bonjour!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 1 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "common.greeting.morning", TranslationValue = "おはようございます！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 1 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "common.greeting.morning", TranslationValue = "좋은 아침이에요!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 1 },
-            new TaktTranslation { CultureCode = "ru-RU", ResourceKey = "common.greeting.morning", TranslationValue = "Доброе утро!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 1 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "common.greeting.morning", TranslationValue = "早上好！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 1 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "common.greeting.morning", TranslationValue = "早上好！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 1 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "common.greeting.morning", TranslationValue = "Good morning!", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 1 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "common.greeting.morning", TranslationValue = "おはようございます！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 1 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "common.greeting.morning", TranslationValue = "좋은 아침이에요!", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 1 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "common.greeting.morning", TranslationValue = "早上好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 1 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "common.greeting.morning", TranslationValue = "早上好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 1 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "common.greeting.morning", TranslationValue = "早上好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 1 },
 
             // common.greeting.forenoon 上午好！
-            new TaktTranslation { CultureCode = "ar-SA", ResourceKey = "common.greeting.forenoon", TranslationValue = "صباح الخير!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 2 },
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "common.greeting.forenoon", TranslationValue = "Good morning!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 2 },
-            new TaktTranslation { CultureCode = "es-ES", ResourceKey = "common.greeting.forenoon", TranslationValue = "¡Buenos días!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 2 },
-            new TaktTranslation { CultureCode = "fr-FR", ResourceKey = "common.greeting.forenoon", TranslationValue = "Bonjour!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 2 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "common.greeting.forenoon", TranslationValue = "おはようございます！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 2 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "common.greeting.forenoon", TranslationValue = "좋은 아침이에요!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 2 },
-            new TaktTranslation { CultureCode = "ru-RU", ResourceKey = "common.greeting.forenoon", TranslationValue = "Доброе утро!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 2 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "common.greeting.forenoon", TranslationValue = "上午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 2 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "common.greeting.forenoon", TranslationValue = "上午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 2 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "common.greeting.forenoon", TranslationValue = "Good morning!", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 2 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "common.greeting.forenoon", TranslationValue = "おはようございます！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 2 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "common.greeting.forenoon", TranslationValue = "좋은 아침이에요!", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 2 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "common.greeting.forenoon", TranslationValue = "上午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 2 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "common.greeting.forenoon", TranslationValue = "上午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 2 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "common.greeting.forenoon", TranslationValue = "上午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 2 },
 
             // common.greeting.noon 中午好！
-            new TaktTranslation { CultureCode = "ar-SA", ResourceKey = "common.greeting.noon", TranslationValue = "مساء الخير!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 3 },
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "common.greeting.noon", TranslationValue = "Good noon!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 3 },
-            new TaktTranslation { CultureCode = "es-ES", ResourceKey = "common.greeting.noon", TranslationValue = "¡Buenos días!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 3 },
-            new TaktTranslation { CultureCode = "fr-FR", ResourceKey = "common.greeting.noon", TranslationValue = "Bonjour!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 3 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "common.greeting.noon", TranslationValue = "こんにちは！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 3 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "common.greeting.noon", TranslationValue = "좋은 낮이에요!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 3 },
-            new TaktTranslation { CultureCode = "ru-RU", ResourceKey = "common.greeting.noon", TranslationValue = "Добрый день!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 3 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "common.greeting.noon", TranslationValue = "中午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 3 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "common.greeting.noon", TranslationValue = "中午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 3 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "common.greeting.noon", TranslationValue = "Good noon!", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "common.greeting.noon", TranslationValue = "こんにちは！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "common.greeting.noon", TranslationValue = "좋은 낮이에요!", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "common.greeting.noon", TranslationValue = "中午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "common.greeting.noon", TranslationValue = "中午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "common.greeting.noon", TranslationValue = "中午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 3 },
 
             // common.greeting.afternoon 下午好！
-            new TaktTranslation { CultureCode = "ar-SA", ResourceKey = "common.greeting.afternoon", TranslationValue = "مساء الخير!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 4 },
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "common.greeting.afternoon", TranslationValue = "Good afternoon!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 4 },
-            new TaktTranslation { CultureCode = "es-ES", ResourceKey = "common.greeting.afternoon", TranslationValue = "¡Buenas tardes!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 4 },
-            new TaktTranslation { CultureCode = "fr-FR", ResourceKey = "common.greeting.afternoon", TranslationValue = "Bon après-midi!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 4 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "common.greeting.afternoon", TranslationValue = "こんにちは！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 4 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "common.greeting.afternoon", TranslationValue = "좋은 오후에요!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 4 },
-            new TaktTranslation { CultureCode = "ru-RU", ResourceKey = "common.greeting.afternoon", TranslationValue = "Добрый день!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 4 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "common.greeting.afternoon", TranslationValue = "下午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 4 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "common.greeting.afternoon", TranslationValue = "下午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 4 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "common.greeting.afternoon", TranslationValue = "Good afternoon!", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "common.greeting.afternoon", TranslationValue = "こんにちは！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "common.greeting.afternoon", TranslationValue = "좋은 오후에요!", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "common.greeting.afternoon", TranslationValue = "下午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "common.greeting.afternoon", TranslationValue = "下午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "common.greeting.afternoon", TranslationValue = "下午好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 4 },
 
             // common.greeting.night 晚上好！
-            new TaktTranslation { CultureCode = "ar-SA", ResourceKey = "common.greeting.night", TranslationValue = "مساء الخير!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 5 },
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "common.greeting.night", TranslationValue = "Good evening!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 5 },
-            new TaktTranslation { CultureCode = "es-ES", ResourceKey = "common.greeting.night", TranslationValue = "¡Buenas noches!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 5 },
-            new TaktTranslation { CultureCode = "fr-FR", ResourceKey = "common.greeting.night", TranslationValue = "Bonsoir!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 5 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "common.greeting.night", TranslationValue = "こんばんは！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 5 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "common.greeting.night", TranslationValue = "좋은 저녁이에요!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 5 },
-            new TaktTranslation { CultureCode = "ru-RU", ResourceKey = "common.greeting.night", TranslationValue = "Добрый вечер!", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 5 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "common.greeting.night", TranslationValue = "晚上好！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 5 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "common.greeting.night", TranslationValue = "晚上好！", ResourceType = "Frontend", ResourceGroup = "Greeting", OrderNum = 5 }
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "common.greeting.night", TranslationValue = "Good evening!", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "common.greeting.night", TranslationValue = "こんばんは！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "common.greeting.night", TranslationValue = "좋은 저녁이에요!", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "common.greeting.night", TranslationValue = "晚上好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "common.greeting.night", TranslationValue = "晚上好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "common.greeting.night", TranslationValue = "晚上好！", ResourceType = "Frontend", ResourceGroup = "Greeting", SortOrder = 5 }
         };
     }
 }

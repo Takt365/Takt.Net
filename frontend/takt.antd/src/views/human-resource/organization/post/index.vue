@@ -132,8 +132,8 @@
         :template-file-name="postExcelNames.fileBase"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        :template-text="t('common.action.import.templateText', { entity: t('entity.post._self') })"
-        :upload-text="t('common.action.import.uploadText')"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.post._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
         :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
@@ -293,7 +293,7 @@ const columns = ref<TableColumnsType>([
     width: 160,
     ellipsis: true
   },
-  CreateActionColumn({
+  CreateActionColumn<Post>({
     actions: [
       { key: 'update', label: '编辑', shape: 'plain', icon: RiEditLine, permission: 'humanresource:organization:post:update', onClick: (record: Post) => handleEdit(record) },
       { key: 'assign-user', label: '分配用户', shape: 'plain', icon: RiUserLine, permission: 'humanresource:organization:post:allocate', onClick: (record: Post) => handleAssignUser(record) },

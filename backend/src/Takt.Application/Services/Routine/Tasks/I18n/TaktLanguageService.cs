@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Routine.I18n
 // 文件名称：TaktLanguageService.cs
@@ -90,7 +90,7 @@ public class TaktLanguageService : TaktServiceBase, ITaktLanguageService
     {
         var languages = await _languageRepository.FindAsync(l => l.IsDeleted == 0 && l.LanguageStatus == 0);
         return languages
-            .OrderBy(l => l.OrderNum)
+            .OrderBy(l => l.SortOrder)
             .ThenBy(l => l.CreatedAt)
             .Select(l => new TaktSelectOption
             {
@@ -98,7 +98,7 @@ public class TaktLanguageService : TaktServiceBase, ITaktLanguageService
                 DictValue = l.CultureCode,
                 ExtLabel = l.NativeName,
                 ExtValue = l.Id,
-                OrderNum = l.OrderNum
+                SortOrder = l.SortOrder
             })
             .ToList();
     }
@@ -387,7 +387,7 @@ public class TaktLanguageService : TaktServiceBase, ITaktLanguageService
                         CultureCode = item.CultureCode ?? string.Empty,
                         NativeName = item.NativeName ?? string.Empty,
                         LanguageIcon = item.LanguageIcon,
-                        OrderNum = item.OrderNum,
+                        SortOrder = item.SortOrder,
                         LanguageStatus = item.LanguageStatus >= 0 ? item.LanguageStatus : 0, // 默认为启用（0=启用）
                         IsDefault = item.IsDefault >= 0 ? item.IsDefault : 0,
                         IsRtl = item.IsRtl >= 0 ? item.IsRtl : 0,
@@ -465,9 +465,9 @@ public class TaktLanguageService : TaktServiceBase, ITaktLanguageService
             var dto = l.Adapt<TaktLanguageExportDto>();
             // 处理需要特殊转换的字段
             dto.LanguageIcon = l.LanguageIcon ?? string.Empty;
-            dto.LanguageStatus = GetLanguageStatusString(l.LanguageStatus);
-            dto.IsDefault = l.IsDefault == 0 ? "是" : "否";
-            dto.IsRtl = l.IsRtl == 0 ? "是" : "否";
+            dto.LanguageStatusString = GetLanguageStatusString(l.LanguageStatus);
+            dto.IsDefaultString = l.IsDefault == 0 ? "是" : "否";
+            dto.IsRtlString = l.IsRtl == 0 ? "是" : "否";
             return dto;
         }).ToList();
 
@@ -489,7 +489,7 @@ public class TaktLanguageService : TaktServiceBase, ITaktLanguageService
         // 加载翻译数据
         var translations = await _translationRepository.FindAsync(t => languageIds.Contains(t.LanguageId) && t.IsDeleted == 0);
         var translationDtos = translations
-            .OrderBy(t => t.OrderNum)
+            .OrderBy(t => t.SortOrder)
             .ThenBy(t => t.CreatedAt)
             .Select(t => t.Adapt<TaktTranslationDto>())
             .ToList();

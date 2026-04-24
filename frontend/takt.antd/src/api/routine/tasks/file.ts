@@ -21,7 +21,7 @@ import type {
   FileStatus,
   FileIncrementDownloadCount,
   FileChange
-} from '@/types/routine/tasks/file'
+} from '@/types/routine/tasks/files/file'
 
 // ========================================
 // 文件相关 API（按后端控制器顺序）

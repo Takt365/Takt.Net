@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.Middleware
 // 文件名称：TaktOperLogMiddleware.cs
@@ -11,16 +11,14 @@
 // ========================================
 
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using OpenIddict.Abstractions;
 using System.Diagnostics;
-using System.Security.Claims;
 using System.Text;
 using Takt.Application.Dtos.Statistics.Logging;
 using Takt.Application.Services.Statistics.Logging;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Helpers;
-using Takt.Infrastructure.User;
 using Takt.Shared.Helpers;
 
 namespace Takt.Infrastructure.Middleware;
@@ -45,13 +43,39 @@ public class TaktOperLogMiddleware
     }
 
     /// <summary>
+    /// 在根 <see cref="IServiceProvider"/> 的独立作用域中写入操作日志，供 <see cref="Task.Run"/> 使用。
+    /// 禁止在后台线程沿用请求作用域内解析的 <see cref="ITaktOperLogService"/>，否则请求结束后 Db/连接已释放会导致「连接被关闭」等错误。
+    /// </summary>
+    private static async Task WriteOperLogInScopeAsync(TaktOperLogCreateDto dto, string path, string userName)
+    {
+        try
+        {
+            var root = TaktServiceProvider.ServiceProvider;
+            if (root == null)
+            {
+                TaktLogger.Warning("无法获取 ServiceProvider，跳过操作日志记录: Path: {Path}", path);
+                return;
+            }
+
+            using (var scope = root.CreateScope())
+            {
+                var svc = scope.ServiceProvider.GetRequiredService<ITaktOperLogService>();
+                await svc.CreateOperLogAsync(dto);
+            }
+        }
+        catch (Exception ex)
+        {
+            TaktLogger.Error(ex, "保存操作日志失败: Path: {Path}, UserName: {UserName}", path, userName);
+        }
+    }
+
+    /// <summary>
     /// 执行中间件
     /// </summary>
     /// <param name="context">HTTP上下文</param>
-    /// <param name="operLogService">操作日志服务</param>
     /// <param name="userContext">用户上下文</param>
     /// <returns>任务</returns>
-    public async Task InvokeAsync(HttpContext context, ITaktOperLogService operLogService, ITaktUserContext userContext)
+    public async Task InvokeAsync(HttpContext context, ITaktUserContext userContext)
     {
         // 检查是否启用操作日志
         var operLogEnabled = _configuration.GetValue<bool>("Logging:OperLog", true);
@@ -94,8 +118,6 @@ public class TaktOperLogMiddleware
             TaktLogger.Warning(ex, "获取请求参数失败: Path: {Path}", path);
         }
 
-        // 获取用户信息（按照 TaktRepository 的优先级逻辑）
-        var userName = GetCurrentUserName(context, userContext);
         var operIp = GetClientIpAddress(context);
         var operLocation = (string?)null; // 可以通过IP地址解析地理位置，这里暂时为空
 
@@ -147,36 +169,40 @@ public class TaktOperLogMiddleware
                 jsonResult = responseText.Substring(0, 5000) + "...(已截断)";
             }
 
-            // 异步保存操作日志（不阻塞请求）
-            _ = Task.Run(async () =>
+            var createDto = new TaktOperLogCreateDto
             {
-                try
-                {
-                    var createDto = new TaktCreateOperLogDto
-                    {
-                        UserName = userName,
-                        OperModule = operModule,
-                        OperType = operType,
-                        OperMethod = operMethod,
-                        RequestMethod = requestMethod,
-                        OperUrl = operUrl + (string.IsNullOrEmpty(queryString) ? "" : queryString),
-                        RequestParam = requestParam,
-                        JsonResult = jsonResult,
-                        OperStatus = operStatus,
-                        ErrorMsg = errorMsg,
-                        OperIp = operIp,
-                        OperLocation = operLocation,
-                        OperTime = DateTime.Now,
-                        CostTime = costTime
-                    };
+                OperModule = operModule,
+                OperType = operType,
+                OperMethod = operMethod,
+                RequestMethod = requestMethod,
+                OperUrl = operUrl + (string.IsNullOrEmpty(queryString) ? "" : queryString),
+                RequestParam = requestParam,
+                JsonResult = jsonResult,
+                OperStatus = operStatus,
+                ErrorMsg = errorMsg,
+                OperIp = operIp,
+                OperLocation = operLocation,
+                OperTime = DateTime.Now,
+                CostTime = costTime
+            };
+            ApplyOperLogAuditSnapshot(createDto, userContext);
 
-                    await operLogService.CreateAsync(createDto);
-                }
-                catch (Exception ex)
-                {
-                    TaktLogger.Error(ex, "保存操作日志失败: Path: {Path}, UserName: {UserName}", path, userName);
-                }
-            });
+            // 仅在有完整登录用户快照时落库（种子等无用户请求不记操作日志，也不使用占位用户主键）
+            if (TryGetOperLogAuditForWrite(createDto, out var writeUserName))
+            {
+                // 与 AOP 一致改为请求内 await，避免后台 Task.Run 在高并发/回收时造成偶发丢日志
+                await WriteOperLogInScopeAsync(createDto, path, writeUserName);
+            }
+            else
+            {
+                TaktLogger.Warning(
+                    "操作日志跳过(缺少审计快照): Path={Path}, OperMethod={OperMethod}, RequestMethod={RequestMethod}, AuditUserId={AuditUserId}, UserName={UserName}",
+                    path,
+                    operMethod ?? string.Empty,
+                    requestMethod,
+                    createDto.AuditUserId?.ToString() ?? "(null)",
+                    createDto.UserName ?? string.Empty);
+            }
         }
         catch (Exception ex)
         {
@@ -194,36 +220,38 @@ public class TaktOperLogMiddleware
                 throw;
             }
 
-            // 异步保存操作日志（不阻塞请求）
-            _ = Task.Run(async () =>
+            var createDto = new TaktOperLogCreateDto
             {
-                try
-                {
-                    var createDto = new TaktCreateOperLogDto
-                    {
-                        UserName = userName,
-                        OperModule = operModule,
-                        OperType = operType,
-                        OperMethod = operMethod,
-                        RequestMethod = requestMethod,
-                        OperUrl = operUrl + (string.IsNullOrEmpty(queryString) ? "" : queryString),
-                        RequestParam = requestParam,
-                        JsonResult = jsonResult,
-                        OperStatus = operStatus,
-                        ErrorMsg = errorMsg,
-                        OperIp = operIp,
-                        OperLocation = operLocation,
-                        OperTime = DateTime.Now,
-                        CostTime = costTime
-                    };
+                OperModule = operModule,
+                OperType = operType,
+                OperMethod = operMethod,
+                RequestMethod = requestMethod,
+                OperUrl = operUrl + (string.IsNullOrEmpty(queryString) ? "" : queryString),
+                RequestParam = requestParam,
+                JsonResult = jsonResult,
+                OperStatus = operStatus,
+                ErrorMsg = errorMsg,
+                OperIp = operIp,
+                OperLocation = operLocation,
+                OperTime = DateTime.Now,
+                CostTime = costTime
+            };
+            ApplyOperLogAuditSnapshot(createDto, userContext);
 
-                    await operLogService.CreateAsync(createDto);
-                }
-                catch (Exception logEx)
-                {
-                    TaktLogger.Error(logEx, "保存操作日志失败: Path: {Path}, UserName: {UserName}", path, userName);
-                }
-            });
+            if (TryGetOperLogAuditForWrite(createDto, out var writeUserName))
+            {
+                await WriteOperLogInScopeAsync(createDto, path, writeUserName);
+            }
+            else
+            {
+                TaktLogger.Warning(
+                    "操作日志跳过(异常分支缺少审计快照): Path={Path}, OperMethod={OperMethod}, RequestMethod={RequestMethod}, AuditUserId={AuditUserId}, UserName={UserName}",
+                    path,
+                    operMethod ?? string.Empty,
+                    requestMethod,
+                    createDto.AuditUserId?.ToString() ?? "(null)",
+                    createDto.UserName ?? string.Empty);
+            }
 
             throw; // 重新抛出异常，让异常处理中间件处理
         }
@@ -400,47 +428,42 @@ public class TaktOperLogMiddleware
 
 
     /// <summary>
-    /// 获取当前用户名（按照 TaktRepository 的优先级逻辑）
+    /// 在请求线程写入操作日志 DTO 的审计字段，供 <c>Task.Run</c> 内标准仓储插入；仅在有有效用户主键与非空登录名时写入。
     /// </summary>
-    /// <param name="context">HTTP上下文</param>
-    /// <param name="userContext">用户上下文</param>
-    /// <returns>用户名，如果未登录则返回"未登录"</returns>
-    /// <remarks>
-    /// 获取用户名的优先级（与 TaktRepository.GetCurrentUserName() 保持一致）：
-    /// 1. TaktUserContext.CurrentUser（由 TaktUserMiddleware 中间件设置，最可靠，使用 AsyncLocal 确保线程安全）
-    /// 2. ITaktUserContext.GetCurrentUserName()（如果 userContext 已注入，会从 HTTP 上下文获取）
-    /// 3. 直接从 HTTP 上下文的 Claims 获取
-    /// 4. 固定值 "未登录"（用于未认证场景）
-    /// </remarks>
-    private static string GetCurrentUserName(HttpContext context, ITaktUserContext userContext)
+    private static void ApplyOperLogAuditSnapshot(TaktOperLogCreateDto dto, ITaktUserContext userContext)
     {
-        string? userName = null;
+        var uid = userContext.GetCurrentUserId();
+        if (!uid.HasValue || uid.Value <= 0)
+            return;
 
-        // 优先级1：从 TaktUserContext.CurrentUser 获取（由中间件设置，最可靠）
-        // 这是最可靠的方式，因为：
-        // - 由 TaktUserMiddleware 中间件在请求开始时设置
-        // - 使用 AsyncLocal，确保在同一个请求上下文中可用
-        // - 不依赖依赖注入，避免循环依赖
-        if (TaktUserContext.CurrentUser != null)
-        {
-            userName = TaktUserContext.CurrentUser.UserName;
-        }
-        // 优先级2：从 ITaktUserContext 获取（如果已注入）
-        else if (userContext != null)
-        {
-            userName = userContext.GetCurrentUserName();
-        }
-        // 优先级3：直接从 HTTP 上下文的 Claims 获取
-        else if (context.User?.Identity?.IsAuthenticated == true)
-        {
-            userName = context.User.FindFirst(ClaimTypes.Name)?.Value
-                ?? context.User.FindFirst(OpenIddictConstants.Claims.Name)?.Value
-                ?? context.User.FindFirst(OpenIddictConstants.Claims.PreferredUsername)?.Value
-                ?? context.User.Identity?.Name;
-        }
+        var display = (userContext.GetCurrentUserName() ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(display))
+            display = (userContext.GetCurrentNickName() ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(display))
+            display = (userContext.GetCurrentRealName() ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(display))
+            display = (userContext.GetCurrentUserPhone() ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(display))
+            display = (userContext.GetCurrentUserEmail() ?? string.Empty).Trim();
 
-        // 如果所有方式都失败，返回 "未登录"
-        return userName ?? "未登录";
+        // 极端情况下仍无可读名时，使用稳定占位名，避免因显示名空导致整条操作日志被跳过
+        if (string.IsNullOrWhiteSpace(display))
+            display = $"user_{uid.Value}";
+
+        dto.AuditUserId = uid.Value;
+        dto.UserName = display;
+        dto.AuditUserDisplayName = display;
+    }
+
+    /// <summary>
+    /// 是否具备写入操作日志所需的登录用户快照（与 <see cref="ApplyOperLogAuditSnapshot"/> 一致）。
+    /// </summary>
+    private static bool TryGetOperLogAuditForWrite(TaktOperLogCreateDto dto, out string userNameForLog)
+    {
+        userNameForLog = dto.UserName ?? string.Empty;
+        return dto.AuditUserId.HasValue
+               && dto.AuditUserId.Value > 0
+               && !string.IsNullOrWhiteSpace(userNameForLog);
     }
 
     /// <summary>

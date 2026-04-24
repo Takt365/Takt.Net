@@ -2,7 +2,6 @@
  * 应用设置到界面
  * 将设置中的值实时应用到 DOM 和 CSS
  */
-import type { Ref } from 'vue'
 import { getSetting, useSettingStore } from '@/stores/setting'
 import type { AppSetting } from '@/types/global-setting'
 import { useThemeStore } from '@/stores/theme'
@@ -14,8 +13,7 @@ import { useThemeStore } from '@/stores/theme'
 export function applySettings() {
   const store = useSettingStore()
   const themeStore = useThemeStore()
-  const settingRef = store.setting as Ref<AppSetting> | undefined
-  const s = settingRef?.value ?? getSetting()
+  const s: AppSetting = store.setting ?? getSetting()
   if (s.theme !== themeStore.themeMode) {
     themeStore.setTheme(s.theme)
   }

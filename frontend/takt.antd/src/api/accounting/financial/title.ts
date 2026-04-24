@@ -23,7 +23,7 @@ const titleUrl = '/api/TaktAccountingTitles'
 
 /**
  * 获取会计科目列表（分页）
- * 对应后端：GetListAsync — GET `list`，[FromQuery] TaktAccountingTitleQueryDto
+ * 对应后端应用服务：GetAccountingTitleListAsync — GET `list`，[FromQuery] TaktAccountingTitleQueryDto
  */
 export function getAccountingTitleList(params: AccountingTitleQuery): Promise<TaktPagedResult<AccountingTitle>> {
   return request({
@@ -35,7 +35,7 @@ export function getAccountingTitleList(params: AccountingTitleQuery): Promise<Ta
 
 /**
  * 根据 ID 获取会计科目
- * 对应后端：GetByIdAsync — GET `{id}`
+ * 对应后端应用服务：GetAccountingTitleByIdAsync — GET `{id}`
  */
 export function getAccountingTitleById(id: string): Promise<AccountingTitle> {
   return request({
@@ -57,7 +57,7 @@ export function getAccountingTitleTreeOptions(): Promise<TaktTreeSelectOption[]>
 
 /**
  * 获取会计科目树形列表
- * 对应后端：GetTreeAsync — GET `tree`，[FromQuery] parentId、includeDisabled
+ * 对应后端应用服务：GetAccountingTitleTreeAsync（TaktAccountingTitlesController.GetTreeAsync）— GET `tree`，[FromQuery] parentId、includeDisabled
  */
 export function getAccountingTitleTree(
   parentId: number = 0,
@@ -72,7 +72,7 @@ export function getAccountingTitleTree(
 
 /**
  * 获取指定父级下的子科目列表
- * 对应后端：GetChildrenAsync — GET `children`，[FromQuery] parentId、includeDisabled
+ * 对应后端应用服务：GetAccountingTitleChildrenAsync — GET `children`，[FromQuery] parentId、includeDisabled
  */
 export function getAccountingTitleChildren(
   parentId: number,
@@ -89,7 +89,7 @@ export function getAccountingTitleChildren(
 
 /**
  * 创建会计科目
- * 对应后端：CreateAsync — POST ``（根路径），[FromBody] TaktAccountingTitleCreateDto
+ * 对应后端应用服务：CreateAccountingTitleAsync — POST ``（根路径），[FromBody] TaktAccountingTitleCreateDto
  */
 export function createAccountingTitle(data: AccountingTitleCreate): Promise<AccountingTitle> {
   return request({
@@ -101,7 +101,7 @@ export function createAccountingTitle(data: AccountingTitleCreate): Promise<Acco
 
 /**
  * 更新会计科目
- * 对应后端：UpdateAsync — PUT `{id}`，[FromBody] TaktAccountingTitleUpdateDto
+ * 对应后端应用服务：UpdateAccountingTitleAsync — PUT `{id}`，[FromBody] TaktAccountingTitleUpdateDto
  */
 export function updateAccountingTitle(id: string, data: AccountingTitleUpdate): Promise<AccountingTitle> {
   return request({
@@ -113,7 +113,7 @@ export function updateAccountingTitle(id: string, data: AccountingTitleUpdate): 
 
 /**
  * 删除会计科目
- * 对应后端：DeleteAsync — DELETE `{id}`
+ * 对应后端应用服务：DeleteAccountingTitleByIdAsync — DELETE `{id}`
  */
 export function deleteAccountingTitleById(id: string): Promise<void> {
   return request({
@@ -124,7 +124,7 @@ export function deleteAccountingTitleById(id: string): Promise<void> {
 
 /**
  * 更新会计科目状态
- * 对应后端：UpdateStatusAsync — PUT `status`，[FromBody] TaktAccountingTitleStatusDto
+ * 对应后端应用服务：UpdateAccountingTitleStatusAsync — PUT `status`，[FromBody] TaktAccountingTitleStatusDto
  */
 export function updateAccountingTitleStatus(data: AccountingTitleStatus): Promise<AccountingTitle> {
   return request({
@@ -138,7 +138,7 @@ export function updateAccountingTitleStatus(data: AccountingTitleStatus): Promis
 
 /**
  * 获取导入模板
- * 对应后端：GetTemplateAsync — GET `template`，[FromQuery] sheetName、fileName
+ * 对应后端应用服务：GetAccountingTitleTemplateAsync — GET `template`，[FromQuery] sheetName、fileName
  */
 export function getAccountingTitleTemplate(sheetName?: string, fileName?: string): Promise<BlobDownloadWithMeta> {
   return request({
@@ -152,7 +152,7 @@ export function getAccountingTitleTemplate(sheetName?: string, fileName?: string
 
 /**
  * 导入会计科目
- * 对应后端：ImportAsync — POST `import`，[FromForm] file、sheetName
+ * 对应后端应用服务：ImportAccountingTitleAsync — POST `import`，[FromForm] file、sheetName
  */
 export function importAccountingTitleData(
   file: File,
@@ -171,7 +171,7 @@ export function importAccountingTitleData(
 
 /**
  * 导出会计科目
- * 对应后端：ExportAsync — POST `export`，[FromBody] TaktAccountingTitleQueryDto，[FromQuery] sheetName、fileName
+ * 对应后端应用服务：ExportAccountingTitleAsync — POST `export`，[FromBody] TaktAccountingTitleQueryDto，[FromQuery] sheetName、fileName
  */
 export function exportAccountingTitleData(
   query: AccountingTitleQuery,

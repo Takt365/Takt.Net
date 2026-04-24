@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：TaktAttendanceExceptionService.cs
@@ -75,7 +75,7 @@ public class TaktAttendanceExceptionService : TaktServiceBase, ITaktAttendanceEx
     /// <inheritdoc />
     public async Task<TaktAttendanceExceptionDto> UpdateAttendanceExceptionAsync(long id, TaktAttendanceExceptionUpdateDto dto)
     {
-        if (dto.ExceptionId != id)
+        if (dto.AttendanceExceptionId != id)
             throw new TaktBusinessException("validation.idRouteMismatch");
 
         var entity = await _repository.GetByIdAsync(id);
@@ -219,8 +219,8 @@ public class TaktAttendanceExceptionService : TaktServiceBase, ITaktAttendanceEx
         exp = exp.AndIF(q?.EmployeeId != null, x => x.EmployeeId == q!.EmployeeId!.Value);
         exp = exp.AndIF(q?.ExceptionType != null, x => x.ExceptionType == q!.ExceptionType!.Value);
         exp = exp.AndIF(q?.HandleStatus != null, x => x.HandleStatus == q!.HandleStatus!.Value);
-        exp = exp.AndIF(q?.ExceptionDateFrom != null, x => x.ExceptionDate >= q!.ExceptionDateFrom!.Value.Date);
-        exp = exp.AndIF(q?.ExceptionDateTo != null, x => x.ExceptionDate <= q!.ExceptionDateTo!.Value.Date);
+        exp = exp.AndIF(q?.ExceptionDateStart != null, x => x.ExceptionDate >= q!.ExceptionDateStart!.Value.Date);
+        exp = exp.AndIF(q?.ExceptionDateEnd != null, x => x.ExceptionDate <= q!.ExceptionDateEnd!.Value.Date);
         if (!string.IsNullOrEmpty(q?.KeyWords))
             exp = exp.And(x => x.Summary.Contains(q!.KeyWords!) || (x.Remark != null && x.Remark.Contains(q.KeyWords)));
         return exp.ToExpression();

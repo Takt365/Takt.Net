@@ -89,10 +89,13 @@
 import { ref, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
-import { getMyProcessed, getFlowInstanceById, exportProcessed } from '@/api/workflow/instance'
+import {
+  getFlowInstanceProcessedList,
+  getFlowInstanceById,
+  exportFlowInstanceProcessed
+} from '@/api/workflow/instance'
 import FlowInstanceDetailForm from '@/views/workflow/processed/components/flow-instance-detail-form.vue'
-import type { FlowInstance, FlowInstanceDetail, FlowInstanceQuery } from '@/types/workflow/instance'
-import type { TaktPagedResult } from '@/types/common'
+import type { FlowInstance, FlowInstanceDetail, FlowInstanceQuery } from '@/types/workflow/flow-instance'
 const toErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error))
 
 const { t } = useI18n()
@@ -134,8 +137,10 @@ function asFlowInstance(r: Record<string, unknown>): FlowInstance {
 }
 
 /** 实例行 key：取 instanceId 字符串 */
-function getInstanceId(record: FlowInstance): string {
-  return record?.instanceId != null ? String(record.instanceId) : ''
+function getInstanceId(record: unknown): string {
+  if (!record || typeof record !== 'object' || !('instanceId' in record)) return ''
+  const instanceId = (record as { instanceId?: unknown }).instanceId
+  return instanceId != null ? String(instanceId) : ''
 }
 
 /** 拉取已办列表（分页），结果写入 dataSource 与 total */
@@ -150,7 +155,7 @@ async function loadList() {
       params.processKey = queryKeyword.value.trim()
       params.instanceCode = queryKeyword.value.trim()
     }
-    const res = await getMyProcessed(params)
+    const res = await getFlowInstanceProcessedList(params)
     dataSource.value = res.data ?? []
     total.value = res.total ?? 0
   } finally {
@@ -219,7 +224,7 @@ async function handleExport() {
       params.processKey = queryKeyword.value.trim()
       params.instanceCode = queryKeyword.value.trim()
     }
-    const blob = await exportProcessed(params)
+    const blob = await exportFlowInstanceProcessed(params)
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
     const fileName = `已办_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`

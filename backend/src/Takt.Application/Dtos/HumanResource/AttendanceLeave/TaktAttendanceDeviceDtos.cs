@@ -2,9 +2,9 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.AttendanceLeave
 // 文件名称：TaktAttendanceDeviceDtos.cs
-// 创建时间：2026-04-13
-// 创建人：Takt365(Cursor AI)
-// 功能描述：考勤设备 DTO，包含查询、创建、更新、模板、导入、导出（与 TaktWorkShiftDtos 结构一致）。
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：考勤设备表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,9 +17,9 @@ using Takt.Shared.Models;
 namespace Takt.Application.Dtos.HumanResource.AttendanceLeave;
 
 /// <summary>
-/// 考勤设备 DTO（列表/详情）
+/// 考勤设备表Dto
 /// </summary>
-public class TaktAttendanceDeviceDto : TaktDtoBase
+public partial class TaktAttendanceDeviceDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -28,83 +28,74 @@ public class TaktAttendanceDeviceDto : TaktDtoBase
     {
         DeviceCode = string.Empty;
         DeviceName = string.Empty;
-        DeviceType = "Generic";
-        ConfigId = "0";
+        DeviceType = string.Empty;
     }
 
     /// <summary>
-    /// 设备 ID（适配实体主键 Id，序列化为 string 以避免 Javascript 精度问题）
+    /// 考勤设备表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long DeviceId { get; set; }
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AttendanceDeviceId { get; set; }
 
     /// <summary>
-    /// 设备编码（业务唯一）
+    /// 设备编码
     /// </summary>
     public string DeviceCode { get; set; }
-
     /// <summary>
     /// 设备名称
     /// </summary>
     public string DeviceName { get; set; }
-
     /// <summary>
     /// 设备类型
     /// </summary>
     public string DeviceType { get; set; }
-
     /// <summary>
     /// 设备厂商
     /// </summary>
     public string? Manufacturer { get; set; }
-
     /// <summary>
-    /// IP 地址
+    /// IP地址
     /// </summary>
     public string? IpAddress { get; set; }
-
     /// <summary>
-    /// 通讯端口
+    /// 端口
     /// </summary>
     public int? Port { get; set; }
-
     /// <summary>
-    /// 设备型号/固件说明
+    /// 型号
     /// </summary>
     public string? DeviceModel { get; set; }
-
     /// <summary>
-    /// 设备扩展配置 JSON
+    /// 接入密钥
+    /// </summary>
+    public string? ApiSecret { get; set; }
+    /// <summary>
+    /// 设备配置
     /// </summary>
     public string? ConfigJson { get; set; }
-
     /// <summary>
-    /// 设备状态（0=停用 1=正常 2=故障）
+    /// 设备状态
     /// </summary>
     public int DeviceStatus { get; set; }
-
     /// <summary>
-    /// 是否启用推送接收
+    /// 启用推送
     /// </summary>
     public int IsPushEnabled { get; set; }
-
     /// <summary>
-    /// 上次从设备拉取原始记录时间
+    /// 上次拉取时间
     /// </summary>
     public DateTime? LastPullAt { get; set; }
-
     /// <summary>
-    /// 上次接收设备推送时间
+    /// 上次推送时间
     /// </summary>
     public DateTime? LastPushAt { get; set; }
 }
 
 /// <summary>
-/// 考勤设备分页查询 DTO。
-/// 继承的 <see cref="TaktPagedQuery.KeyWords"/> 在应用服务查询表达式中用于匹配设备编码、设备名称（与 DeviceCode、DeviceName 条件可同时使用）。
+/// 考勤设备表查询DTO
 /// </summary>
-public class TaktAttendanceDeviceQueryDto : TaktPagedQuery
+public partial class TaktAttendanceDeviceQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -113,36 +104,113 @@ public class TaktAttendanceDeviceQueryDto : TaktPagedQuery
     {
     }
 
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
     /// <summary>
-    /// 设备编码（模糊）
+    /// 考勤设备表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AttendanceDeviceId { get; set; }
+
+    /// <summary>
+    /// 设备编码
     /// </summary>
     public string? DeviceCode { get; set; }
-
     /// <summary>
-    /// 设备名称（模糊）
+    /// 设备名称
     /// </summary>
     public string? DeviceName { get; set; }
-
     /// <summary>
-    /// 设备类型（精确）
+    /// 设备类型
     /// </summary>
     public string? DeviceType { get; set; }
-
     /// <summary>
-    /// 设备品牌（精确：Hikvision / Deli / ZKTeco）
+    /// 设备厂商
     /// </summary>
     public string? Manufacturer { get; set; }
-
+    /// <summary>
+    /// IP地址
+    /// </summary>
+    public string? IpAddress { get; set; }
+    /// <summary>
+    /// 端口
+    /// </summary>
+    public int? Port { get; set; }
+    /// <summary>
+    /// 型号
+    /// </summary>
+    public string? DeviceModel { get; set; }
+    /// <summary>
+    /// 接入密钥
+    /// </summary>
+    public string? ApiSecret { get; set; }
+    /// <summary>
+    /// 设备配置
+    /// </summary>
+    public string? ConfigJson { get; set; }
     /// <summary>
     /// 设备状态
     /// </summary>
     public int? DeviceStatus { get; set; }
+    /// <summary>
+    /// 启用推送
+    /// </summary>
+    public int? IsPushEnabled { get; set; }
+    /// <summary>
+    /// 上次拉取时间
+    /// </summary>
+    public DateTime? LastPullAt { get; set; }
+
+    /// <summary>
+    /// 上次拉取时间开始时间
+    /// </summary>
+    public DateTime? LastPullAtStart { get; set; }
+    /// <summary>
+    /// 上次拉取时间结束时间
+    /// </summary>
+    public DateTime? LastPullAtEnd { get; set; }
+    /// <summary>
+    /// 上次推送时间
+    /// </summary>
+    public DateTime? LastPushAt { get; set; }
+
+    /// <summary>
+    /// 上次推送时间开始时间
+    /// </summary>
+    public DateTime? LastPushAtStart { get; set; }
+    /// <summary>
+    /// 上次推送时间结束时间
+    /// </summary>
+    public DateTime? LastPushAtEnd { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// 创建考勤设备 DTO
+/// Takt创建考勤设备表DTO
 /// </summary>
-public class TaktAttendanceDeviceCreateDto
+public partial class TaktAttendanceDeviceCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -151,63 +219,78 @@ public class TaktAttendanceDeviceCreateDto
     {
         DeviceCode = string.Empty;
         DeviceName = string.Empty;
-        DeviceType = "Generic";
+        DeviceType = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 设备编码
     /// </summary>
     public string DeviceCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备名称
     /// </summary>
     public string DeviceName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备类型
     /// </summary>
     public string DeviceType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备厂商
     /// </summary>
     public string? Manufacturer { get; set; }
 
-    /// <summary>
-    /// IP 地址
+        /// <summary>
+    /// IP地址
     /// </summary>
     public string? IpAddress { get; set; }
 
-    /// <summary>
-    /// 通讯端口
+        /// <summary>
+    /// 端口
     /// </summary>
     public int? Port { get; set; }
 
-    /// <summary>
-    /// 设备型号/固件说明
+        /// <summary>
+    /// 型号
     /// </summary>
     public string? DeviceModel { get; set; }
 
-    /// <summary>
-    /// 接入密钥（用于签名校验）
+        /// <summary>
+    /// 接入密钥
     /// </summary>
     public string? ApiSecret { get; set; }
 
-    /// <summary>
-    /// 设备扩展配置 JSON
+        /// <summary>
+    /// 设备配置
     /// </summary>
     public string? ConfigJson { get; set; }
 
-    /// <summary>
-    /// 设备状态（默认 1=正常）
+        /// <summary>
+    /// 设备状态
     /// </summary>
-    public int DeviceStatus { get; set; } = 1;
+    public int DeviceStatus { get; set; }
+
+        /// <summary>
+    /// 启用推送
+    /// </summary>
+    public int IsPushEnabled { get; set; }
+
+        /// <summary>
+    /// 上次拉取时间
+    /// </summary>
+    public DateTime? LastPullAt { get; set; }
+
+        /// <summary>
+    /// 上次推送时间
+    /// </summary>
+    public DateTime? LastPushAt { get; set; }
 
     /// <summary>
-    /// 是否启用推送接收（默认 1）
+    /// 扩展字段JSON
     /// </summary>
-    public int IsPushEnabled { get; set; } = 1;
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -216,22 +299,54 @@ public class TaktAttendanceDeviceCreateDto
 }
 
 /// <summary>
-/// 更新考勤设备 DTO
+/// Takt更新考勤设备表DTO
 /// </summary>
-public class TaktAttendanceDeviceUpdateDto : TaktAttendanceDeviceCreateDto
+public partial class TaktAttendanceDeviceUpdateDto : TaktAttendanceDeviceCreateDto
 {
     /// <summary>
-    /// 设备 ID（适配实体主键 Id）
+    /// 构造函数
+    /// </summary>
+    public TaktAttendanceDeviceUpdateDto()
+    {
+    }
+
+        /// <summary>
+    /// 考勤设备表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long DeviceId { get; set; }
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AttendanceDeviceId { get; set; }
 }
 
 /// <summary>
-/// 考勤设备导入模板 DTO（Excel 列）
+/// 考勤设备表设备状态DTO
 /// </summary>
-public class TaktAttendanceDeviceTemplateDto
+public partial class TaktAttendanceDeviceStatusDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktAttendanceDeviceStatusDto()
+    {
+    }
+
+        /// <summary>
+    /// 考勤设备表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AttendanceDeviceId { get; set; }
+
+    /// <summary>
+    /// 设备状态（0=禁用，1=启用）
+    /// </summary>
+    public int DeviceStatus { get; set; }
+}
+
+/// <summary>
+/// 考勤设备表导入模板DTO
+/// </summary>
+public partial class TaktAttendanceDeviceTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -240,63 +355,78 @@ public class TaktAttendanceDeviceTemplateDto
     {
         DeviceCode = string.Empty;
         DeviceName = string.Empty;
-        DeviceType = "Generic";
+        DeviceType = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 设备编码
     /// </summary>
     public string DeviceCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备名称
     /// </summary>
     public string DeviceName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备类型
     /// </summary>
     public string DeviceType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备厂商
     /// </summary>
     public string? Manufacturer { get; set; }
 
-    /// <summary>
-    /// IP 地址
+        /// <summary>
+    /// IP地址
     /// </summary>
     public string? IpAddress { get; set; }
 
-    /// <summary>
-    /// 通讯端口
+        /// <summary>
+    /// 端口
     /// </summary>
     public int? Port { get; set; }
 
-    /// <summary>
-    /// 设备型号/固件说明
+        /// <summary>
+    /// 型号
     /// </summary>
     public string? DeviceModel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 接入密钥
     /// </summary>
     public string? ApiSecret { get; set; }
 
-    /// <summary>
-    /// 设备扩展配置 JSON
+        /// <summary>
+    /// 设备配置
     /// </summary>
     public string? ConfigJson { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备状态
     /// </summary>
     public int DeviceStatus { get; set; }
 
-    /// <summary>
-    /// 是否启用推送接收
+        /// <summary>
+    /// 启用推送
     /// </summary>
     public int IsPushEnabled { get; set; }
+
+        /// <summary>
+    /// 上次拉取时间
+    /// </summary>
+    public DateTime? LastPullAt { get; set; }
+
+        /// <summary>
+    /// 上次推送时间
+    /// </summary>
+    public DateTime? LastPushAt { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -305,9 +435,9 @@ public class TaktAttendanceDeviceTemplateDto
 }
 
 /// <summary>
-/// 考勤设备导入行 DTO（与模板列一致）
+/// 考勤设备表导入DTO
 /// </summary>
-public class TaktAttendanceDeviceImportDto
+public partial class TaktAttendanceDeviceImportDto
 {
     /// <summary>
     /// 构造函数
@@ -316,63 +446,78 @@ public class TaktAttendanceDeviceImportDto
     {
         DeviceCode = string.Empty;
         DeviceName = string.Empty;
-        DeviceType = "Generic";
+        DeviceType = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 设备编码
     /// </summary>
     public string DeviceCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备名称
     /// </summary>
     public string DeviceName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备类型
     /// </summary>
     public string DeviceType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备厂商
     /// </summary>
     public string? Manufacturer { get; set; }
 
-    /// <summary>
-    /// IP 地址
+        /// <summary>
+    /// IP地址
     /// </summary>
     public string? IpAddress { get; set; }
 
-    /// <summary>
-    /// 通讯端口
+        /// <summary>
+    /// 端口
     /// </summary>
     public int? Port { get; set; }
 
-    /// <summary>
-    /// 设备型号/固件说明
+        /// <summary>
+    /// 型号
     /// </summary>
     public string? DeviceModel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 接入密钥
     /// </summary>
     public string? ApiSecret { get; set; }
 
-    /// <summary>
-    /// 设备扩展配置 JSON
+        /// <summary>
+    /// 设备配置
     /// </summary>
     public string? ConfigJson { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备状态
     /// </summary>
     public int DeviceStatus { get; set; }
 
-    /// <summary>
-    /// 是否启用推送接收
+        /// <summary>
+    /// 启用推送
     /// </summary>
     public int IsPushEnabled { get; set; }
+
+        /// <summary>
+    /// 上次拉取时间
+    /// </summary>
+    public DateTime? LastPullAt { get; set; }
+
+        /// <summary>
+    /// 上次推送时间
+    /// </summary>
+    public DateTime? LastPushAt { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -381,74 +526,85 @@ public class TaktAttendanceDeviceImportDto
 }
 
 /// <summary>
-/// 考勤设备导出 DTO（Excel 列）
+/// 考勤设备表导出DTO
 /// </summary>
-public class TaktAttendanceDeviceExportDto
+public partial class TaktAttendanceDeviceExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktAttendanceDeviceExportDto()
     {
+        CreatedAt = DateTime.Now;
         DeviceCode = string.Empty;
         DeviceName = string.Empty;
-        DeviceType = "Generic";
+        DeviceType = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 设备编码
     /// </summary>
     public string DeviceCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备名称
     /// </summary>
     public string DeviceName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备类型
     /// </summary>
     public string DeviceType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备厂商
     /// </summary>
     public string? Manufacturer { get; set; }
 
-    /// <summary>
-    /// IP 地址
+        /// <summary>
+    /// IP地址
     /// </summary>
     public string? IpAddress { get; set; }
 
-    /// <summary>
-    /// 通讯端口
+        /// <summary>
+    /// 端口
     /// </summary>
     public int? Port { get; set; }
 
-    /// <summary>
-    /// 设备型号/固件说明
+        /// <summary>
+    /// 型号
     /// </summary>
     public string? DeviceModel { get; set; }
 
-    /// <summary>
-    /// 设备扩展配置 JSON
+        /// <summary>
+    /// 接入密钥
+    /// </summary>
+    public string? ApiSecret { get; set; }
+
+        /// <summary>
+    /// 设备配置
     /// </summary>
     public string? ConfigJson { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设备状态
     /// </summary>
     public int DeviceStatus { get; set; }
 
-    /// <summary>
-    /// 是否启用推送接收
+        /// <summary>
+    /// 启用推送
     /// </summary>
     public int IsPushEnabled { get; set; }
 
-    /// <summary>
-    /// 备注
+        /// <summary>
+    /// 上次拉取时间
     /// </summary>
-    public string? Remark { get; set; }
+    public DateTime? LastPullAt { get; set; }
+
+        /// <summary>
+    /// 上次推送时间
+    /// </summary>
+    public DateTime? LastPushAt { get; set; }
 
     /// <summary>
     /// 创建时间

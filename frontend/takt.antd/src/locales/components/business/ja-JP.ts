@@ -1,4 +1,7 @@
 /**
  * Business components · 日本語
  */
-export default {}
+export default {
+  page: {
+  }
+}

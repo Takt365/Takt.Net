@@ -13,9 +13,19 @@ import { computed, onMounted, onUnmounted, ref, h, watch } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 import { useLocaleStore } from '@/stores/routine/localization/locale'
 import { theme, notification } from 'ant-design-vue'
+import dayjs from 'dayjs'
+// Ant Design Vue 语言包
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
+import zhTW from 'ant-design-vue/es/locale/zh_TW'
 import enUS from 'ant-design-vue/es/locale/en_US'
-import arEG from 'ant-design-vue/es/locale/ar_EG'
+import jaJP from 'ant-design-vue/es/locale/ja_JP'
+import koKR from 'ant-design-vue/es/locale/ko_KR'
+// dayjs 语言包
+import 'dayjs/locale/zh-cn'
+import 'dayjs/locale/zh-tw'
+import 'dayjs/locale/en'
+import 'dayjs/locale/ja'
+import 'dayjs/locale/ko'
 import { useRouter } from 'vue-router'
 import { check as healthCheck } from '@/api/identity/health'
 import { applySettings, watchSettings } from '@/utils/apply-settings'
@@ -40,13 +50,40 @@ function isRtlLocale(localeCode: string): boolean {
 /** 根据当前语言动态设置布局方向 */
 const direction = computed(() => (isRtlLocale(localeStore.locale) ? 'rtl' : 'ltr'))
 
+/** Ant Design Vue 和 dayjs 语言包映射 */
+const antdLocaleMap: Record<string, any> = {
+  'zh-CN': zhCN,
+  'zh-TW': zhTW,
+  'zh-HK': zhTW, // 香港繁体使用台湾繁体语言包
+  'en-US': enUS,
+  'ja-JP': jaJP,
+  'ko-KR': koKR
+}
+
+const dayjsLocaleMap: Record<string, string> = {
+  'zh-CN': 'zh-cn',
+  'zh-TW': 'zh-tw',
+  'zh-HK': 'zh-tw', // 香港繁体使用台湾繁体语言包
+  'en-US': 'en',
+  'ja-JP': 'ja',
+  'ko-KR': 'ko'
+}
+
 /** Ant Design Vue 组件语言包：与当前应用语言一致 */
 const antdVueLocale = computed(() => {
-  const code = (localeStore.locale || '').toLowerCase()
-  if (code.startsWith('zh')) return zhCN
-  if (code.startsWith('ar')) return arEG
-  return enUS
+  const code = localeStore.locale || 'zh-CN'
+  return antdLocaleMap[code] || zhCN
 })
+
+/** 同步 dayjs 语言设置 */
+watch(
+  () => localeStore.locale,
+  (newLocale) => {
+    const dayjsLocale = dayjsLocaleMap[newLocale] || 'en'
+    dayjs.locale(dayjsLocale)
+  },
+  { immediate: true }
+)
 
 // 根据主题模式和颜色配置 Ant Design Vue 主题
 const themeConfig = computed(() => {

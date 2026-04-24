@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.Personnel
 // 文件名称：TaktEmployeeTransferService.cs
@@ -165,7 +165,10 @@ public class TaktEmployeeTransferService : TaktServiceBase, ITaktEmployeeTransfe
     /// <returns>员工调动DTO</returns>
     public async Task<TaktEmployeeTransferDto> UpdateEmployeeTransferStatusAsync(TaktEmployeeTransferStatusDto dto)
     {
-        var entity = await _repository.GetByIdAsync(dto.TransferId);
+        if (!dto.TransferId.HasValue)
+            throw new TaktBusinessException("validation.employeeTransferIdRequired");
+            
+        var entity = await _repository.GetByIdAsync(dto.TransferId.Value);
         if (entity == null)
             throw new TaktBusinessException("validation.employeeTransferNotFound");
 
@@ -230,8 +233,8 @@ public class TaktEmployeeTransferService : TaktServiceBase, ITaktEmployeeTransfe
         exp = exp.AndIF(queryDto.TransferStatus.HasValue, x => x.TransferStatus == queryDto.TransferStatus!.Value);
 
         // 生效日期范围
-        exp = exp.AndIF(queryDto.EffectiveDateFrom.HasValue, x => x.EffectiveDate >= queryDto.EffectiveDateFrom!.Value);
-        exp = exp.AndIF(queryDto.EffectiveDateTo.HasValue, x => x.EffectiveDate <= queryDto.EffectiveDateTo!.Value);
+        exp = exp.AndIF(queryDto.EffectiveDateStart.HasValue, x => x.EffectiveDate >= queryDto.EffectiveDateStart!.Value);
+        exp = exp.AndIF(queryDto.EffectiveDateEnd.HasValue, x => x.EffectiveDate <= queryDto.EffectiveDateEnd!.Value);
 
         return exp.ToExpression();
     }

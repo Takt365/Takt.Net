@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktMenuLevel4SeedData.cs
@@ -61,9 +61,9 @@ public class TaktMenuLevel4SeedData
                 menu.ParentId = logisticsMaterialPurchasingMenu.Id;
                 menu.MenuType = 1;
                 menu.Permission = "logistics:material:purchasing:supplier:list";
-                menu.Path = "/logistics/material/purchasing/supplier";
-                menu.Component = "logistics/material/purchasing/supplier/index";
-                menu.OrderNum = 1;
+                menu.Path = "/logistics/materials/purchasing/supplier";
+                menu.Component = "logistics/materials/purchasing/supplier/index";
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -81,9 +81,9 @@ public class TaktMenuLevel4SeedData
                 menu.ParentId = logisticsMaterialPurchasingMenu.Id;
                 menu.MenuType = 1;
                 menu.Permission = "logistics:material:purchasing:vendor:list";
-                menu.Path = "/logistics/material/purchasing/vendor";
-                menu.Component = "logistics/material/purchasing/vendor/index";
-                menu.OrderNum = 2;
+                menu.Path = "/logistics/materials/purchasing/vendor";
+                menu.Component = "logistics/materials/purchasing/vendor/index";
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -101,9 +101,9 @@ public class TaktMenuLevel4SeedData
                 menu.ParentId = logisticsMaterialPurchasingMenu.Id;
                 menu.MenuType = 1;
                 menu.Permission = "logistics:material:purchasing:info:list";
-                menu.Path = "/logistics/material/purchasing/info";
-                menu.Component = "logistics/material/purchasing/info/index";
-                menu.OrderNum = 3;
+                menu.Path = "/logistics/materials/purchasing/info";
+                menu.Component = "logistics/materials/purchasing/info/index";
+                menu.SortOrder = 3;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -121,9 +121,9 @@ public class TaktMenuLevel4SeedData
                 menu.ParentId = logisticsMaterialPurchasingMenu.Id;
                 menu.MenuType = 1;
                 menu.Permission = "logistics:material:purchasing:source:list";
-                menu.Path = "/logistics/material/purchasing/source";
-                menu.Component = "logistics/material/purchasing/source/index";
-                menu.OrderNum = 4;
+                menu.Path = "/logistics/materials/purchasing/source";
+                menu.Component = "logistics/materials/purchasing/source/index";
+                menu.SortOrder = 4;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -141,9 +141,9 @@ public class TaktMenuLevel4SeedData
                 menu.ParentId = logisticsMaterialPurchasingMenu.Id;
                 menu.MenuType = 1;
                 menu.Permission = "logistics:material:purchasing:request:list";
-                menu.Path = "/logistics/material/purchasing/request";
-                menu.Component = "logistics/material/purchasing/request/index";
-                menu.OrderNum = 5;
+                menu.Path = "/logistics/materials/purchasing/request";
+                menu.Component = "logistics/materials/purchasing/request/index";
+                menu.SortOrder = 5;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -161,9 +161,9 @@ public class TaktMenuLevel4SeedData
                 menu.ParentId = logisticsMaterialPurchasingMenu.Id;
                 menu.MenuType = 1;
                 menu.Permission = "logistics:material:purchasing:order:list";
-                menu.Path = "/logistics/material/purchasing/order";
-                menu.Component = "logistics/material/purchasing/order/index";
-                menu.OrderNum = 6;
+                menu.Path = "/logistics/materials/purchasing/order";
+                menu.Component = "logistics/materials/purchasing/order/index";
+                menu.SortOrder = 6;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -181,9 +181,9 @@ public class TaktMenuLevel4SeedData
                 menu.ParentId = logisticsMaterialPurchasingMenu.Id;
                 menu.MenuType = 1;
                 menu.Permission = "logistics:material:purchasing:invoice:list";
-                menu.Path = "/logistics/material/purchasing/invoice";
-                menu.Component = "logistics/material/purchasing/invoice/index";
-                menu.OrderNum = 7;
+                menu.Path = "/logistics/materials/purchasing/invoice";
+                menu.Component = "logistics/materials/purchasing/invoice/index";
+                menu.SortOrder = 7;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -201,9 +201,9 @@ public class TaktMenuLevel4SeedData
                 menu.ParentId = logisticsMaterialPurchasingMenu.Id;
                 menu.MenuType = 1;
                 menu.Permission = "logistics:material:purchasing:plan:list";
-                menu.Path = "/logistics/material/purchasing/plan";
-                menu.Component = "logistics/material/purchasing/plan/index";
-                menu.OrderNum = 8;
+                menu.Path = "/logistics/materials/purchasing/plan";
+                menu.Component = "logistics/materials/purchasing/plan/index";
+                menu.SortOrder = 8;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -228,7 +228,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:bom:modeldestination:list";
                 menu.Path = "/manufacturing/bom/model-destination";
                 menu.Component = "manufacturing/bom/model-destination/index";
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -249,7 +249,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:bom:list:list";
                 menu.Path = "/manufacturing/bom/list";
                 menu.Component = "manufacturing/bom/list/index";
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -270,7 +270,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:bom:routing:list";
                 menu.Path = "/manufacturing/bom/routing";
                 menu.Component = "manufacturing/bom/routing/index";
-                menu.OrderNum = 3;
+                menu.SortOrder = 3;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -295,7 +295,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:scheduling:weekly:list";
                 menu.Path = "/manufacturing/scheduling/weekly";
                 menu.Component = "manufacturing/scheduling/weekly/index";
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -320,7 +320,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:ecn:board:list";
                 menu.Path = "/manufacturing/ecn/board";
                 menu.Component = "manufacturing/ecn/board/index";
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -341,7 +341,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:ecn:batch:list";
                 menu.Path = "/manufacturing/ecn/batch";
                 menu.Component = "manufacturing/ecn/batch/index";
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -362,7 +362,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:ecn:materialconfirm:list";
                 menu.Path = "/manufacturing/ecn/material-confirm";
                 menu.Component = "manufacturing/ecn/material-confirm/index";
-                menu.OrderNum = 3;
+                menu.SortOrder = 3;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -383,7 +383,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:ecn:technical:list";
                 menu.Path = "/manufacturing/ecn/technical";
                 menu.Component = "manufacturing/ecn/technical/index";
-                menu.OrderNum = 4;
+                menu.SortOrder = 4;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -404,7 +404,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:ecn:purchasing:list";
                 menu.Path = "/manufacturing/ecn/purchasing";
                 menu.Component = "manufacturing/ecn/purchasing/index";
-                menu.OrderNum = 5;
+                menu.SortOrder = 5;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -425,7 +425,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:ecn:productioncontrol:list";
                 menu.Path = "/manufacturing/ecn/production-control";
                 menu.Component = "manufacturing/ecn/production-control/index";
-                menu.OrderNum = 6;
+                menu.SortOrder = 6;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -446,7 +446,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:ecn:inspection:list";
                 menu.Path = "/manufacturing/ecn/inspection";
                 menu.Component = "manufacturing/ecn/inspection/index";
-                menu.OrderNum = 7;
+                menu.SortOrder = 7;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -467,7 +467,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:ecn:deptmanagement:list";
                 menu.Path = "/manufacturing/ecn/dept-management";
                 menu.Component = "manufacturing/ecn/dept-management/index";
-                menu.OrderNum = 8;
+                menu.SortOrder = 8;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -488,7 +488,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:ecn:manufacturing2:list";
                 menu.Path = "/manufacturing/ecn/manufacturing-2";
                 menu.Component = "manufacturing/ecn/manufacturing-2/index";
-                menu.OrderNum = 9;
+                menu.SortOrder = 9;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -509,7 +509,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:ecn:manufacturing1:list";
                 menu.Path = "/manufacturing/ecn/manufacturing-1";
                 menu.Component = "manufacturing/ecn/manufacturing-1/index";
-                menu.OrderNum = 10;
+                menu.SortOrder = 10;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -530,7 +530,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:ecn:quality:list";
                 menu.Path = "/manufacturing/ecn/quality";
                 menu.Component = "manufacturing/ecn/quality/index";
-                menu.OrderNum = 11;
+                menu.SortOrder = 11;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -551,7 +551,7 @@ public class TaktMenuLevel4SeedData
                 menu.Permission = "manufacturing:ecn:oldproduct:list";
                 menu.Path = "/manufacturing/ecn/old-product";
                 menu.Component = "manufacturing/ecn/old-product/index";
-                menu.OrderNum = 12;
+                menu.SortOrder = 12;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -575,7 +575,7 @@ public class TaktMenuLevel4SeedData
                 menu.MenuType = 0; // 目录
                 menu.Path = "/manufacturing/output/pcba";
                 menu.Component = null;
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -595,7 +595,7 @@ public class TaktMenuLevel4SeedData
                 menu.MenuType = 0; // 目录
                 menu.Path = "/manufacturing/oph/assembly";
                 menu.Component = null;
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -619,7 +619,7 @@ public class TaktMenuLevel4SeedData
                 menu.MenuType = 0; // 目录
                 menu.Path = "/manufacturing/defect/pcba";
                 menu.Component = null;
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -639,7 +639,7 @@ public class TaktMenuLevel4SeedData
                 menu.MenuType = 0; // 目录
                 menu.Path = "/manufacturing/defect/assembly";
                 menu.Component = null;
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;

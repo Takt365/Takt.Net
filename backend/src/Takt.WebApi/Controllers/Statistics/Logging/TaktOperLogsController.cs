@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Logging
 // 文件名称：TaktOperLogsController.cs
@@ -17,7 +17,7 @@ using Takt.Application.Services.Statistics.Logging;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.Statistics.Logging;
 
@@ -32,7 +32,7 @@ namespace Takt.WebApi.Controllers.Statistics.Logging;
 [Route("api/[controller]", Name = "操作日志")]
 [ApiModule("Statistics", "统计看板")]
 [Authorize]
-[TaktPermission("statistics:operlog", "操作日志管理")]
+[TaktPermission("statistics:logging:operlog", "操作日志管理")]
 public class TaktOperLogsController : TaktControllerBase
 {
     private readonly ITaktOperLogService _operLogService;
@@ -60,12 +60,12 @@ public class TaktOperLogsController : TaktControllerBase
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
     [HttpGet("list")]
-    [TaktPermission("statistics:operlog:list", "查询操作日志列表")]
-    public async Task<ActionResult<TaktPagedResult<TaktOperLogDto>>> GetListAsync([FromQuery] TaktOperLogQueryDto queryDto)
+    [TaktPermission("statistics:logging:operlog:list", "查询操作日志列表")]
+    public async Task<ActionResult<TaktPagedResult<TaktOperLogDto>>> GetOperLogListAsync([FromQuery] TaktOperLogQueryDto queryDto)
     {
         try
         {
-            var result = await _operLogService.GetListAsync(queryDto);
+            var result = await _operLogService.GetOperLogListAsync(queryDto);
             return Ok(result);
         }
         catch (Exception ex)
@@ -80,12 +80,12 @@ public class TaktOperLogsController : TaktControllerBase
     /// <param name="id">日志ID</param>
     /// <returns>操作日志DTO</returns>
     [HttpGet("{id}")]
-    [TaktPermission("statistics:operlog:query", "查询操作日志详情")]
-    public async Task<ActionResult<TaktOperLogDto>> GetByIdAsync(long id)
+    [TaktPermission("statistics:logging:operlog:query", "查询操作日志详情")]
+    public async Task<ActionResult<TaktOperLogDto>> GetOperLogByIdAsync(long id)
     {
         try
         {
-            var log = await _operLogService.GetByIdAsync(id);
+            var log = await _operLogService.GetOperLogByIdAsync(id);
             if (log == null)
                 return NotFound();
             return Ok(log);
@@ -102,13 +102,13 @@ public class TaktOperLogsController : TaktControllerBase
     /// <param name="dto">创建操作日志DTO</param>
     /// <returns>操作日志DTO</returns>
     [HttpPost]
-    [TaktPermission("statistics:operlog:create", "创建操作日志")]
-    public async Task<ActionResult<TaktOperLogDto>> CreateAsync([FromBody] TaktCreateOperLogDto dto)
+    [TaktPermission("statistics:logging:operlog:create", "创建操作日志")]
+    public async Task<ActionResult<TaktOperLogDto>> CreateOperLogAsync([FromBody] TaktOperLogCreateDto dto)
     {
         try
         {
-            var log = await _operLogService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = log.OperLogId }, log);
+            var log = await _operLogService.CreateOperLogAsync(dto);
+            return CreatedAtAction(nameof(GetOperLogByIdAsync), new { id = log.OperLogId }, log);
         }
         catch (Exception ex)
         {
@@ -122,12 +122,12 @@ public class TaktOperLogsController : TaktControllerBase
     /// <param name="id">日志ID</param>
     /// <returns>任务</returns>
     [HttpDelete("{id}")]
-    [TaktPermission("statistics:operlog:delete", "删除操作日志")]
-    public async Task<ActionResult> DeleteAsync(long id)
+    [TaktPermission("statistics:logging:operlog:delete", "删除操作日志")]
+    public async Task<ActionResult> DeleteOperLogByIdAsync(long id)
     {
         try
         {
-            await _operLogService.DeleteAsync(id);
+            await _operLogService.DeleteOperLogByIdAsync(id);
             return NoContent();
         }
         catch (Exception ex)
@@ -142,12 +142,12 @@ public class TaktOperLogsController : TaktControllerBase
     /// <param name="ids">日志ID列表</param>
     /// <returns>任务</returns>
     [HttpDelete("batch")]
-    [TaktPermission("statistics:operlog:delete", "批量删除操作日志")]
-    public async Task<ActionResult> DeleteBatchAsync([FromBody] List<long> ids)
+    [TaktPermission("statistics:logging:operlog:delete", "批量删除操作日志")]
+    public async Task<ActionResult> DeleteOperLogBatchAsync([FromBody] List<long> ids)
     {
         try
         {
-            await _operLogService.DeleteBatchAsync(ids);
+            await _operLogService.DeleteOperLogBatchAsync(ids);
             return NoContent();
         }
         catch (Exception ex)
@@ -164,16 +164,16 @@ public class TaktOperLogsController : TaktControllerBase
     /// <param name="fileName">文件名</param>
     /// <returns>Excel 文件；超过 <c>TaktExcelHelper.ExportAsync</c> 单表行数上限时为 zip 打包（基础设施统一逻辑）</returns>
     [HttpGet("export")]
-    [TaktPermission("statistics:operlog:export", "导出操作日志")]
-    public async Task<ActionResult> ExportAsync(
+    [TaktPermission("statistics:logging:operlog:export", "导出操作日志")]
+    public async Task<ActionResult> ExportOperLogAsync(
         [FromQuery] TaktOperLogQueryDto queryDto,
         [FromQuery] string? sheetName = null,
         [FromQuery] string? fileName = null)
     {
         try
         {
-            var (exportFileName, content) = await _operLogService.ExportAsync(queryDto, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(exportFileName), exportFileName);
+            var (exportFileName, content) = await _operLogService.ExportOperLogAsync(queryDto, sheetName, fileName);
+            return File(content, TaktExcelHelper.GetExportContentType(exportFileName), exportFileName);
         }
         catch (Exception ex)
         {

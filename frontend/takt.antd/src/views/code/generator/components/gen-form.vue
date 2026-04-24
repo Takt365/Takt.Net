@@ -1,4 +1,4 @@
-<!-- ======================================== -->
+﻿<!-- ======================================== -->
 <!-- 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)  -->
 <!-- 命名空间：@/views/code/generator/components -->
 <!-- 文件名称：gen-form.vue -->
@@ -11,7 +11,7 @@
       <!-- 表配置：拆成多 Tab，每块一行一列 -->
       <a-tab-pane
         key="table"
-        tab="表配置"
+        :tab="tf('tab.table')"
         force-render
       >
         <a-form
@@ -28,20 +28,20 @@
           >
             <a-tab-pane
               key="basic"
-              tab="基本信息"
+              :tab="tf('tab.basic')"
               force-render
             >
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="数据源"
+                    :label="t('entity.gentable.datasource')"
                     name="configId"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
                   >
                     <a-select
                       :value="parseSelectToOptionalString(formState.configId)"
-                      placeholder="请选择数据源"
+                      :placeholder="tf('placeholder.configid')"
                       allow-clear
                       style="width: 100%"
                       :options="databaseConfigOptions"
@@ -66,7 +66,7 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="数据表"
+                    :label="t('entity.gentable.tablename')"
                     name="tableName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -75,7 +75,7 @@
                     <a-input
                       v-if="!isEditMode"
                       :value="formState.tableName ?? ''"
-                      placeholder="小写下划线格式，如：xxx_xxx_xxx"
+                      :placeholder="tf('placeholder.tablenamenew')"
                       :disabled="!formState.configId"
                       allow-clear
                       @update:value="(v: string) => { formState.tableName = v === '' ? undefined : v }"
@@ -83,7 +83,7 @@
                     <a-select
                       v-else
                       :value="formState.tableName ?? undefined"
-                      placeholder="请先选择数据源"
+                      :placeholder="tf('placeholder.tablenameedit')"
                       disabled
                       style="width: 100%"
                       :options="databaseTableOptions"
@@ -94,15 +94,15 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="表描述"
+                    :label="t('entity.gentable.tablecomment')"
                     name="tableComment"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请填写表描述')"
+                    :rules="rq('tablecomment')"
                   >
                     <a-input
                       :value="formState.tableComment ?? ''"
-                      placeholder="表注释"
+                      :placeholder="tf('placeholder.tablecomment')"
                       allow-clear
                       @update:value="(v: string) => { formState.tableComment = v === '' ? undefined : v }"
                     />
@@ -112,19 +112,19 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="生成模板"
-                    name="genTemplate"
+                    :label="t('entity.gentable.gentemplatecategory')"
+                    name="genTemplateCategory"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请选择生成模板')"
+                    :rules="rq('gentemplatecategory')"
                   >
                     <TaktSelect
-                      :model-value="formState.genTemplate ?? ''"
-                      dict-type="sys_gen_template_type"
-                      placeholder="请选择生成模板"
+                      :model-value="formState.genTemplateCategory ?? ''"
+                      dict-type="gen_template_type"
+                      :placeholder="tf('placeholder.gentemplatecategory')"
                       allow-clear
                       style="width: 100%"
-                      @update:model-value="(v: unknown) => { formState.genTemplate = parseSelectToOptionalString(v) }"
+                      @update:model-value="(v: unknown) => { formState.genTemplateCategory = parseSelectToOptionalString(v) }"
                     />
                   </a-form-item>
                 </a-col>
@@ -132,7 +132,7 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="是否库表"
+                    :label="t('entity.gentable.indatabase')"
                     name="inDatabase"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -140,21 +140,21 @@
                     <TaktSelect
                       :model-value="formState.inDatabase ?? ''"
                       dict-type="sys_yes_no"
-                      placeholder="请选择是否库表"
+                      :placeholder="tf('placeholder.indatabase')"
                       style="width: 100%"
                       disabled
                     />
                   </a-form-item>
                 </a-col>
               </a-row>
-              <!-- 主子表：仅当 genTemplate === 'sub' 时显示 -->
+              <!-- 主子表：仅当 genTemplateCategory === 'sub' 时显示 -->
               <a-row
-                v-if="formState.genTemplate === 'sub'"
+                v-if="formState.genTemplateCategory === 'sub'"
                 :gutter="24"
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="关联父表"
+                    :label="t('entity.gentable.subtablename')"
                     name="subTableName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -162,7 +162,7 @@
                   >
                     <a-select
                       :value="formState.subTableName ?? undefined"
-                      placeholder="请选择父表"
+                      :placeholder="tf('placeholder.subtablename')"
                       allow-clear
                       style="width: 100%"
                       :options="subTableNameOptions"
@@ -172,12 +172,12 @@
                 </a-col>
               </a-row>
               <a-row
-                v-if="formState.genTemplate === 'sub'"
+                v-if="formState.genTemplateCategory === 'sub'"
                 :gutter="24"
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="关联外键"
+                    :label="t('entity.gentable.subtablefkname')"
                     name="subTableFkName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -185,7 +185,7 @@
                   >
                     <a-select
                       :value="formState.subTableFkName ?? undefined"
-                      placeholder="请选择外键列"
+                      :placeholder="tf('placeholder.subtablefkname')"
                       allow-clear
                       style="width: 100%"
                       :options="columnSelectOptions"
@@ -194,14 +194,14 @@
                   </a-form-item>
                 </a-col>
               </a-row>
-              <!-- 树表：仅当 genTemplate === 'tree' 时显示 -->
+              <!-- 树表：仅当 genTemplateCategory === 'tree' 时显示 -->
               <a-row
-                v-if="formState.genTemplate === 'tree'"
+                v-if="formState.genTemplateCategory === 'tree'"
                 :gutter="24"
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="树编码字段"
+                    :label="t('entity.gentable.treecode')"
                     name="treeCode"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -209,7 +209,7 @@
                   >
                     <a-select
                       :value="formState.treeCode ?? undefined"
-                      placeholder="请选择树编码列"
+                      :placeholder="tf('placeholder.treecode')"
                       allow-clear
                       style="width: 100%"
                       :options="columnSelectOptions"
@@ -219,12 +219,12 @@
                 </a-col>
               </a-row>
               <a-row
-                v-if="formState.genTemplate === 'tree'"
+                v-if="formState.genTemplateCategory === 'tree'"
                 :gutter="24"
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="树父编码"
+                    :label="t('entity.gentable.treeparentcode')"
                     name="treeParentCode"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -232,7 +232,7 @@
                   >
                     <a-select
                       :value="formState.treeParentCode ?? undefined"
-                      placeholder="请选择树父编码列"
+                      :placeholder="tf('placeholder.treeparentcode')"
                       allow-clear
                       style="width: 100%"
                       :options="columnSelectOptions"
@@ -242,12 +242,12 @@
                 </a-col>
               </a-row>
               <a-row
-                v-if="formState.genTemplate === 'tree'"
+                v-if="formState.genTemplateCategory === 'tree'"
                 :gutter="24"
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="树名称字段"
+                    :label="t('entity.gentable.treename')"
                     name="treeName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -255,7 +255,7 @@
                   >
                     <a-select
                       :value="formState.treeName ?? undefined"
-                      placeholder="请选择树名称列"
+                      :placeholder="tf('placeholder.treename')"
                       allow-clear
                       style="width: 100%"
                       :options="columnSelectOptions"
@@ -267,13 +267,13 @@
             </a-tab-pane>
             <a-tab-pane
               key="business"
-              tab="业务模块"
+              :tab="tf('tab.business')"
               force-render
             >
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="命名空间前缀"
+                    :label="t('entity.gentable.nameprefix')"
                     name="namePrefix"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -281,7 +281,7 @@
                   >
                     <a-input
                       :value="formState.namePrefix ?? ''"
-                      placeholder="项目名称，默认 Takt，修改后所有命名空间同步"
+                      :placeholder="tf('placeholder.nameprefix')"
                       allow-clear
                       @update:value="(v: string) => { formState.namePrefix = v === '' ? undefined : v }"
                     />
@@ -291,15 +291,15 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="权限前缀"
+                    :label="t('entity.gentable.permsprefix')"
                     name="permsPrefix"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请填写权限前缀')"
+                    :rules="rq('permsprefix')"
                   >
                     <a-input
                       :value="formState.permsPrefix ?? ''"
-                      placeholder="由模块名+业务名自动生成，如 accounting:controlling:standard:wage:rate"
+                      :placeholder="tf('placeholder.permsprefix')"
                       allow-clear
                       @update:value="(v: string) => { formState.permsPrefix = v === '' ? undefined : v }"
                     />
@@ -309,16 +309,44 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="模块名"
+                    :label="t('entity.gentable.menubuttongroup')"
+                    name="menuButtonGroup"
+                    :label-col="{ span: 3 }"
+                    :wrapper-col="{ span: 0 }"
+                    :rules="rq('menubuttongroup')"
+                  >
+                    <a-form-item-rest>
+                      <div>
+                        <a-checkbox
+                          v-model:checked="menuButtonGroupCheckAll"
+                          :indeterminate="menuButtonGroupIndeterminate"
+                          @change="onMenuButtonGroupCheckAllChange"
+                        >
+                          {{ t('common.button.checkall') }}
+                        </a-checkbox>
+                      </div>
+                      <a-divider style="margin: 8px 0" />
+                    </a-form-item-rest>
+                    <a-checkbox-group
+                      v-model:value="menuButtonGroupSelect"
+                      :options="menuButtonGroupOptions"
+                    />
+                  </a-form-item>
+                </a-col>
+              </a-row>
+              <a-row :gutter="24">
+                <a-col :span="24">
+                  <a-form-item
+                    :label="t('entity.gentable.genmodulename')"
                     name="genModuleName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请选择模块名')"
+                    :rules="rq('genmodulename')"
                   >
                     <TaktTreeSelect
                       :value="formState.genModuleName ?? ''"
                       :tree-data="moduleOptionsTree"
-                      placeholder="请选择模块（目录）或手动输入，如：Generator、HumanResource.Organization"
+                      :placeholder="tf('placeholder.genmodulename')"
                       allow-clear
                       style="width: 100%"
                       :field-names="{ label: 'dictLabel', value: 'dictValue' }"
@@ -331,15 +359,19 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="业务名"
+                    :label="t('entity.gentable.genbusinessname')"
                     name="genBusinessName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请填写业务名')"
+                    :rules="rq('genbusinessname')"
                   >
                     <a-input
                       :value="formState.genBusinessName ?? ''"
-                      :placeholder="formState.inDatabase === 1 ? '由表名自动生成' : '用于生成实体/服务/控制器等类名及接口注释，如：设置、部门'"
+                      :placeholder="
+                        formState.inDatabase === 1
+                          ? tf('placeholder.genbusinessnamefromtable')
+                          : tf('placeholder.genbusinessnamemanual')
+                      "
                       :disabled="formState.inDatabase === 1"
                       allow-clear
                       @update:value="(v: string) => { formState.genBusinessName = v === '' ? undefined : v }"
@@ -350,14 +382,14 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="功能名"
+                    :label="t('entity.gentable.genfunctionname')"
                     name="genFunctionName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
                   >
                     <a-input
                       :value="formState.genFunctionName ?? ''"
-                      placeholder="由表描述自动带出，仅读"
+                      :placeholder="tf('placeholder.genfunctionname')"
                       disabled
                     />
                   </a-form-item>
@@ -366,21 +398,21 @@
             </a-tab-pane>
             <a-tab-pane
               key="entity"
-              tab="实体与传输对象"
+              :tab="tf('tab.entitydto')"
               force-render
             >
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="实体命名空间"
+                    :label="t('entity.gentable.entitynamespace')"
                     name="entityNamespace"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请填写实体命名空间')"
+                    :rules="rq('entitynamespace')"
                   >
                     <a-input
                       :value="formState.entityNamespace ?? ''"
-                      placeholder="由模块名自动生成"
+                      :placeholder="tf('placeholder.autofrommodule')"
                       disabled
                     />
                   </a-form-item>
@@ -389,15 +421,15 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="实体类名"
+                    :label="t('entity.gentable.entityclassname')"
                     name="entityClassName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="[{ required: true, message: '请输入实体类名' }]"
+                    :rules="rq('entityclassname')"
                   >
                     <a-input
                       :value="formState.entityClassName ?? ''"
-                      placeholder="由业务名自动生成"
+                      :placeholder="tf('placeholder.autofrombusiness')"
                       disabled
                     />
                   </a-form-item>
@@ -406,15 +438,15 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="Dto 类名"
+                    :label="t('entity.gentable.dtoclassname')"
                     name="dtoClassName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请填写 Dto 类名')"
+                    :rules="rq('dtoclassname')"
                   >
                     <a-input
                       :value="formState.dtoClassName ?? ''"
-                      placeholder="由业务名自动生成"
+                      :placeholder="tf('placeholder.autofrombusiness')"
                       disabled
                     />
                   </a-form-item>
@@ -423,44 +455,15 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="Dto 命名空间"
+                    :label="t('entity.gentable.dtonamespace')"
                     name="dtoNamespace"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
                   >
                     <a-input
                       :value="formState.dtoNamespace ?? ''"
-                      placeholder="由模块名自动生成"
+                      :placeholder="tf('placeholder.autofrommodule')"
                       disabled
-                    />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-              <a-row :gutter="24">
-                <a-col :span="24">
-                  <!-- Dto 类别：仅收集 a-checkbox-group；全选与分隔线放入 a-form-item-rest 避免 Form.Item 收集多个控件 -->
-                  <a-form-item
-                    label="Dto 类别"
-                    name="dtoCategory"
-                    :label-col="{ span: 3 }"
-                    :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请选择 Dto 类别')"
-                  >
-                    <a-form-item-rest>
-                      <div>
-                        <a-checkbox
-                          v-model:checked="dtoCategoryCheckAll"
-                          :indeterminate="dtoCategoryIndeterminate"
-                          @change="onDtoCategoryCheckAllChange"
-                        >
-                          全选
-                        </a-checkbox>
-                      </div>
-                      <a-divider style="margin: 8px 0" />
-                    </a-form-item-rest>
-                    <a-checkbox-group
-                      v-model:value="dtoCategorySelect"
-                      :options="dtoCategoryOptions"
                     />
                   </a-form-item>
                 </a-col>
@@ -468,20 +471,20 @@
             </a-tab-pane>
             <a-tab-pane
               key="service"
-              tab="服务与控制器"
+              :tab="tf('tab.service')"
               force-render
             >
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="服务命名空间"
+                    :label="t('entity.gentable.servicenamespace')"
                     name="serviceNamespace"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
                   >
                     <a-input
                       :value="formState.serviceNamespace ?? ''"
-                      placeholder="由模块名自动生成"
+                      :placeholder="tf('placeholder.autofrommodule')"
                       disabled
                     />
                   </a-form-item>
@@ -490,15 +493,15 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="服务接口类名"
+                    :label="t('entity.gentable.iserviceclassname')"
                     name="iServiceClassName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请填写服务接口类名')"
+                    :rules="rq('iserviceclassname')"
                   >
                     <a-input
                       :value="formState.iServiceClassName ?? ''"
-                      placeholder="由业务名自动生成"
+                      :placeholder="tf('placeholder.autofrombusiness')"
                       disabled
                     />
                   </a-form-item>
@@ -507,15 +510,15 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="服务类名"
+                    :label="t('entity.gentable.serviceclassname')"
                     name="serviceClassName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请填写服务类名')"
+                    :rules="rq('serviceclassname')"
                   >
                     <a-input
                       :value="formState.serviceClassName ?? ''"
-                      placeholder="由业务名自动生成"
+                      :placeholder="tf('placeholder.autofrombusiness')"
                       disabled
                     />
                   </a-form-item>
@@ -524,15 +527,15 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="控制器命名空间"
+                    :label="t('entity.gentable.controllernamespace')"
                     name="controllerNamespace"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请填写控制器命名空间')"
+                    :rules="rq('controllernamespace')"
                   >
                     <a-input
                       :value="formState.controllerNamespace ?? ''"
-                      placeholder="由模块名自动生成"
+                      :placeholder="tf('placeholder.autofrommodule')"
                       disabled
                     />
                   </a-form-item>
@@ -541,14 +544,14 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="控制器类名"
+                    :label="t('entity.gentable.controllerclassname')"
                     name="controllerClassName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
                   >
                     <a-input
                       :value="formState.controllerClassName ?? ''"
-                      placeholder="由业务名自动生成"
+                      :placeholder="tf('placeholder.autofrombusiness')"
                       disabled
                     />
                   </a-form-item>
@@ -557,11 +560,11 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="是否生成仓储"
+                    :label="t('entity.gentable.isrepository')"
                     name="isRepository"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请选择是否生成仓储')"
+                    :rules="rq('isrepository')"
                   >
                     <a-radio-group
                       :value="formState.isRepository ?? undefined"
@@ -573,12 +576,12 @@
               </a-row>
               <!-- 仓储相关字段：仅当「是否生成仓储」为「是」(0) 时显示，与「否」相斥 -->
               <a-row
-                v-if="formState.isRepository === 0"
+                v-if="formState.isRepository === 1"
                 :gutter="24"
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="仓储接口命名空间"
+                    :label="t('entity.gentable.repositoryinterfacenamespace')"
                     name="repositoryInterfaceNamespace"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -586,19 +589,19 @@
                   >
                     <a-input
                       :value="formState.repositoryInterfaceNamespace ?? ''"
-                      placeholder="由模块名自动生成"
+                      :placeholder="tf('placeholder.autofrommodule')"
                       disabled
                     />
                   </a-form-item>
                 </a-col>
               </a-row>
               <a-row
-                v-if="formState.isRepository === 0"
+                v-if="formState.isRepository === 1"
                 :gutter="24"
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="仓储接口类名"
+                    :label="t('entity.gentable.irepositoryclassname')"
                     name="iRepositoryClassName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -606,19 +609,19 @@
                   >
                     <a-input
                       :value="formState.iRepositoryClassName ?? ''"
-                      placeholder="由业务名自动生成"
+                      :placeholder="tf('placeholder.autofrombusiness')"
                       disabled
                     />
                   </a-form-item>
                 </a-col>
               </a-row>
               <a-row
-                v-if="formState.isRepository === 0"
+                v-if="formState.isRepository === 1"
                 :gutter="24"
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="仓储命名空间"
+                    :label="t('entity.gentable.repositorynamespace')"
                     name="repositoryNamespace"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -626,19 +629,19 @@
                   >
                     <a-input
                       :value="formState.repositoryNamespace ?? ''"
-                      placeholder="由模块名自动生成"
+                      :placeholder="tf('placeholder.autofrommodule')"
                       disabled
                     />
                   </a-form-item>
                 </a-col>
               </a-row>
               <a-row
-                v-if="formState.isRepository === 0"
+                v-if="formState.isRepository === 1"
                 :gutter="24"
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="仓储类名"
+                    :label="t('entity.gentable.repositoryclassname')"
                     name="repositoryClassName"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -646,7 +649,7 @@
                   >
                     <a-input
                       :value="formState.repositoryClassName ?? ''"
-                      placeholder="由业务名自动生成"
+                      :placeholder="tf('placeholder.autofrombusiness')"
                       disabled
                     />
                   </a-form-item>
@@ -655,14 +658,14 @@
             </a-tab-pane>
             <a-tab-pane
               key="generate"
-              tab="生成"
+              :tab="tf('tab.generate')"
               force-render
             >
               <a-row :gutter="24">
                 <a-col :span="24">
                   <!-- 生成功能：仅收集 a-checkbox-group；全选与分隔线放入 a-form-item-rest 避免 Form.Item 收集多个控件 -->
                   <a-form-item
-                    label="生成功能"
+                    :label="t('entity.gentable.genfunction')"
                     name="genFunction"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -674,14 +677,14 @@
                           :indeterminate="genFunctionIndeterminate"
                           @change="onGenFunctionCheckAllChange"
                         >
-                          全选
+                          {{ t('common.button.checkall') }}
                         </a-checkbox>
                       </div>
                       <a-divider style="margin: 8px 0" />
                     </a-form-item-rest>
                     <a-checkbox-group
                       v-model:value="genFunctionSelect"
-                      :options="genFunctionOptions"
+                      :options="filteredGenFunctionOptions"
                     />
                   </a-form-item>
                 </a-col>
@@ -689,16 +692,16 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="生成方式"
+                    :label="t('entity.gentable.genmethod')"
                     name="genMethod"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请选择生成方式')"
+                    :rules="rq('genmethod')"
                   >
                     <TaktSelect
                       :model-value="formState.genMethod ?? ''"
-                      dict-type="sys_gen_method"
-                      placeholder="请选择生成方式"
+                      dict-type="gen_method"
+                      :placeholder="tf('placeholder.genmethod')"
                       style="width: 100%"
                       @update:model-value="(v: unknown) => { formState.genMethod = parseSelectToOptionalNumber(v) }"
                     />
@@ -712,7 +715,7 @@
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="生成路径"
+                    :label="t('entity.gentable.genpath')"
                     name="genPath"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -720,7 +723,7 @@
                   >
                     <a-input
                       :value="formState.genPath ?? ''"
-                      placeholder="/"
+                      :placeholder="tf('placeholder.genpath')"
                       allow-clear
                       @update:value="(v: string) => { formState.genPath = v === '' ? undefined : v }"
                     />
@@ -734,14 +737,18 @@
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="当前项目路径"
+                    :label="tf('label.currentprojectpath')"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
                   >
                     <a-input
                       :value="currentProjectPathDisplay"
                       readonly
-                      :placeholder="currentProjectPathLoading ? '正在获取…' : '请选择生成方式为当前项目后自动获取'"
+                      :placeholder="
+                        currentProjectPathLoading
+                          ? tf('placeholder.currentprojectloading')
+                          : tf('placeholder.currentprojectidle')
+                      "
                     >
                       <template #suffix>
                         <a-spin
@@ -756,7 +763,7 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="是否生成菜单"
+                    :label="t('entity.gentable.isgenmenu')"
                     name="isGenMenu"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -764,21 +771,21 @@
                     <TaktSelect
                       :model-value="formState.isGenMenu ?? ''"
                       dict-type="sys_yes_no"
-                      placeholder="请选择"
+                      :placeholder="t('common.form.placeholder.selectonly')"
                       style="width: 100%"
                       @update:model-value="(v: unknown) => { formState.isGenMenu = parseSelectToOptionalNumber(v) }"
                     />
                   </a-form-item>
                 </a-col>
               </a-row>
-              <!-- 上级菜单：仅当「是否生成菜单」为「是」(0) 时显示，与「否」相斥 -->
+              <!-- 上级菜单：仅当「是否生成菜单」为「是」(1) 时显示，与「否」相斥 -->
               <a-row
-                v-if="formState.isGenMenu == 0"
+                v-if="formState.isGenMenu == 1"
                 :gutter="24"
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="上级菜单"
+                    :label="t('entity.gentable.parentmenuid')"
                     name="parentMenuId"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -786,12 +793,12 @@
                   >
                     <TaktTreeSelect
                       :value="formState.parentMenuId ?? ''"
-                      api-url="/api/TaktMenus/tree-options"
-                      placeholder="请选择上级菜单（不选为根）"
+                      :tree-data="parentMenuOptionsTree"
+                      :placeholder="tf('placeholder.parentmenuid')"
                       allow-clear
                       style="width: 100%"
                       :field-names="{ label: 'dictLabel', value: 'dictValue' }"
-                      @update:value="(v: unknown) => { formState.parentMenuId = parseTreeSelectToOptionalNumber(v) }"
+                      @update:value="(v: unknown) => { formState.parentMenuId = parseTreeSelectToOptionalString(v) }"
                     />
                   </a-form-item>
                 </a-col>
@@ -799,16 +806,16 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="是否生成翻译"
+                    :label="t('entity.gentable.isgentranslation')"
                     name="isGenTranslation"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请选择是否生成翻译')"
+                    :rules="rq('isgentranslation')"
                   >
                     <TaktSelect
                       :model-value="formState.isGenTranslation ?? ''"
                       dict-type="sys_yes_no"
-                      placeholder="请选择"
+                      :placeholder="t('common.form.placeholder.selectonly')"
                       style="width: 100%"
                       @update:model-value="(v: unknown) => { formState.isGenTranslation = parseSelectToOptionalNumber(v) }"
                     />
@@ -818,34 +825,15 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="排序类型"
-                    name="sortType"
-                    :label-col="{ span: 3 }"
-                    :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请选择排序类型')"
-                  >
-                    <TaktSelect
-                      :model-value="formState.sortType ?? ''"
-                      dict-type="sys_sort_type"
-                      placeholder="请选择排序类型"
-                      style="width: 100%"
-                      @update:model-value="(v: unknown) => { formState.sortType = parseSelectToOptionalString(v) }"
-                    />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-              <a-row :gutter="24">
-                <a-col :span="24">
-                  <a-form-item
-                    label="排序字段"
+                    :label="t('entity.gentable.sortfield')"
                     name="sortField"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请选择排序字段')"
+                    :rules="rq('sortfield')"
                   >
                     <a-select
                       :value="formState.sortField ?? undefined"
-                      placeholder="请选择排序字段"
+                      :placeholder="tf('placeholder.sortfield')"
                       allow-clear
                       style="width: 100%"
                       :options="columnSelectOptions"
@@ -854,26 +842,45 @@
                   </a-form-item>
                 </a-col>
               </a-row>
+              <a-row :gutter="24">
+                <a-col :span="24">
+                  <a-form-item
+                    :label="t('entity.gentable.sorttype')"
+                    name="sortType"
+                    :label-col="{ span: 3 }"
+                    :wrapper-col="{ span: 0 }"
+                    :rules="rq('sorttype')"
+                  >
+                    <TaktSelect
+                      :model-value="formState.sortType ?? ''"
+                      dict-type="sys_sort_type"
+                      :placeholder="tf('placeholder.sorttype')"
+                      style="width: 100%"
+                      @update:model-value="(v: unknown) => { formState.sortType = parseSelectToOptionalString(v) }"
+                    />
+                  </a-form-item>
+                </a-col>
+              </a-row>
             </a-tab-pane>
             <a-tab-pane
               key="front"
-              tab="前端与样式"
+              :tab="tf('tab.front')"
               force-render
             >
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="前端模板"
-                    name="frontTemplate"
+                    :label="t('entity.gentable.frontui')"
+                    name="frontUi"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
                   >
                     <TaktSelect
-                      :model-value="formState.frontTemplate ?? ''"
-                      dict-type="sys_frontend_template"
-                      placeholder="请选择前端模板"
+                      :model-value="formState.frontUi ?? ''"
+                      dict-type="gen_frontend_ui"
+                      :placeholder="tf('placeholder.frontui')"
                       style="width: 100%"
-                      @update:model-value="(v: unknown) => { formState.frontTemplate = parseSelectToOptionalNumber(v) }"
+                      @update:model-value="(v: unknown) => { formState.frontUi = parseSelectToOptionalNumber(v) }"
                     />
                   </a-form-item>
                 </a-col>
@@ -881,18 +888,18 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="前端样式"
-                    name="frontStyle"
+                    :label="t('entity.gentable.frontformlayout')"
+                    name="frontFormLayout"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请选择前端样式')"
+                    :rules="rq('frontformlayout')"
                   >
                     <TaktSelect
-                      :model-value="formState.frontStyle ?? ''"
-                      dict-type="sys_frontend_style"
-                      placeholder="请选择前端样式"
+                      :model-value="formState.frontFormLayout ?? ''"
+                      dict-type="gen_frontend_form_layout"
+                      :placeholder="tf('placeholder.frontformlayout')"
                       style="width: 100%"
-                      @update:model-value="(v: unknown) => { formState.frontStyle = parseSelectToOptionalNumber(v) }"
+                      @update:model-value="(v: unknown) => { formState.frontFormLayout = parseSelectToOptionalNumber(v) }"
                     />
                   </a-form-item>
                 </a-col>
@@ -900,17 +907,17 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="按钮样式"
-                    name="btnStyle"
+                    :label="t('entity.gentable.frontbtnstyle')"
+                    name="frontBtnStyle"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
                   >
                     <TaktSelect
-                      :model-value="formState.btnStyle ?? ''"
-                      dict-type="sys_button_style"
-                      placeholder="请选择按钮样式"
+                      :model-value="formState.frontBtnStyle ?? ''"
+                      dict-type="gen_frontend_btn_style"
+                      :placeholder="tf('placeholder.frontbtnstyle')"
                       style="width: 100%"
-                      @update:model-value="(v: unknown) => { formState.btnStyle = parseSelectToOptionalNumber(v) }"
+                      @update:model-value="(v: unknown) => { formState.frontBtnStyle = parseSelectToOptionalNumber(v) }"
                     />
                   </a-form-item>
                 </a-col>
@@ -918,16 +925,16 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="是否使用 Tabs"
+                    :label="t('entity.gentable.isusetabs')"
                     name="isUseTabs"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请选择是否使用 Tabs')"
+                    :rules="rq('isusetabs')"
                   >
                     <TaktSelect
                       :model-value="formState.isUseTabs ?? ''"
                       dict-type="sys_yes_no"
-                      placeholder="请选择"
+                      :placeholder="t('common.form.placeholder.selectonly')"
                       style="width: 100%"
                       @update:model-value="(v: unknown) => { formState.isUseTabs = parseSelectToOptionalNumber(v) }"
                     />
@@ -936,12 +943,12 @@
               </a-row>
               <!-- Tabs 字段数：仅当「是否使用 Tabs」为「是」(0) 时显示，与「否」相斥 -->
               <a-row
-                v-if="formState.isUseTabs == 0"
+                v-if="formState.isUseTabs == 1"
                 :gutter="24"
               >
                 <a-col :span="24">
                   <a-form-item
-                    label="Tabs 字段数"
+                    :label="t('entity.gentable.tabsfieldcount')"
                     name="tabsFieldCount"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
@@ -959,16 +966,16 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="作者"
+                    :label="t('entity.gentable.genauthor')"
                     name="genAuthor"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
-                    :rules="ruleRequired('请填写作者')"
+                    :rules="rq('genauthor')"
                   >
                     <a-input
                       :value="formState.genAuthor ?? ''"
                       disabled
-                      placeholder="当前登录用户"
+                      :placeholder="tf('placeholder.genauthor')"
                     />
                   </a-form-item>
                 </a-col>
@@ -976,16 +983,16 @@
               <a-row :gutter="24">
                 <a-col :span="24">
                   <a-form-item
-                    label="其他选项(JSON)"
-                    name="options"
+                    :label="t('entity.gentable.othergenoptions')"
+                    name="otherGenOptions"
                     :label-col="{ span: 3 }"
                     :wrapper-col="{ span: 0 }"
                   >
                     <a-textarea
-                      :value="formState.options ?? ''"
+                      :value="formState.otherGenOptions ?? ''"
                       :rows="4"
                       allow-clear
-                      @update:value="(v: string) => { formState.options = v === '' ? undefined : v }"
+                      @update:value="(v: string) => { formState.otherGenOptions = v === '' ? undefined : v }"
                     />
                   </a-form-item>
                 </a-col>
@@ -998,7 +1005,7 @@
       <!-- 字段配置：表格行内编辑，横向滚动仅在此表格容器内 -->
       <a-tab-pane
         key="column"
-        tab="字段配置"
+        :tab="tf('tab.column')"
         force-render
       >
         <div class="column-toolbar">
@@ -1007,7 +1014,7 @@
             size="small"
             @click="addColumnRow"
           >
-            新增行
+            {{ t('common.button.createrow') }}
           </a-button>
         </div>
         <div class="column-table-wrap">
@@ -1058,7 +1065,7 @@
                 <TaktSelect
                   :model-value="record.databaseDataType ?? ''"
                   dict-type="sys_db_type"
-                  placeholder="DB类型"
+                  :placeholder="tf('placeholder.columndbtype')"
                   allow-clear
                   size="small"
                   class="column-cell-select"
@@ -1072,7 +1079,7 @@
                 <a-select
                   :value="record.csharpDataType ?? undefined"
                   :options="getCsharpTypeOptionsForRow(record.databaseDataType)"
-                  placeholder="C#类型"
+                  :placeholder="tf('placeholder.columncsharptype')"
                   allow-clear
                   size="small"
                   class="column-cell-select"
@@ -1128,23 +1135,23 @@
                 <a-switch
                   :checked="record[String(column.key)] === 1"
                   size="small"
-                  :checked-children="'是'"
-                  :un-checked-children="'否'"
+                  :checked-children="t('common.button.yes')"
+                  :un-checked-children="t('common.button.no')"
                   @change="(checked: unknown) => {
                     const key = String(column.key)
                     const isOn = checked === true || checked === 1 || checked === '1'
                     record[key] = isOn ? 1 : 0
-                    if (key === 'isQuery' && !isOn) onColumnIsQueryChange(record)
+                    if (key === 'isQuery' && !isOn) onColumnIsQueryChange(record as GenTableColumnRow)
                   }"
                 />
               </template>
-              <!-- 查询方式：仅当「是否查询」为是时显示，字典 sys_query_type -->
+              <!-- 查询方式：仅当「是否查询」为是时显示，字典 gen_query_type -->
               <template v-else-if="column.key === 'queryType'">
                 <TaktSelect
                   v-if="record.isQuery === 1"
                   :model-value="record.queryType ?? undefined"
-                  dict-type="sys_query_type"
-                  placeholder="查询方式"
+                  dict-type="gen_query_type"
+                  :placeholder="tf('placeholder.columnquerytype')"
                   allow-clear
                   size="small"
                   class="column-cell-select"
@@ -1156,12 +1163,12 @@
                   class="column-cell-muted"
                 >—</span>
               </template>
-              <!-- 显示类型：字典 sys_display_type（下拉框/复选框/单选框时需配合字典列绑定选项） -->
+              <!-- 显示类型：字典 gen_display_type（下拉框/复选框/单选框时需配合字典列绑定选项） -->
               <template v-else-if="column.key === 'htmlType'">
                 <TaktSelect
                   :model-value="record.htmlType ?? undefined"
-                  dict-type="sys_display_type"
-                  placeholder="显示类型"
+                  dict-type="gen_display_type"
+                  :placeholder="tf('placeholder.columnhtmltype')"
                   allow-clear
                   size="small"
                   class="column-cell-select"
@@ -1177,7 +1184,7 @@
                   :model-value="record.dictType ?? undefined"
                   :options="dictTypeOptions"
                   :field-names="{ label: 'dictLabel', value: 'extLabel' }"
-                  placeholder="选择字典类型"
+                  :placeholder="tf('placeholder.columndicttype')"
                   allow-clear
                   size="small"
                   class="column-cell-select"
@@ -1208,18 +1215,18 @@
                   size="small"
                   @click="removeColumnRow(record as GenTableColumnRow)"
                 >
-                  删除
+                  {{ t('common.button.delete') }}
                 </a-button>
               </template>
             </template>
             <template #emptyText>
               <a-empty
                 v-if="!formData?.tableId"
-                description="请先保存表配置后再管理字段"
+                :description="tf('column.emptysavefirst')"
               />
               <a-empty
                 v-else
-                description="暂无字段数据"
+                :description="tf('column.emptynodata')"
               />
             </template>
           </a-table>
@@ -1231,18 +1238,18 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { FormInstance } from 'ant-design-vue'
 import type { TableColumnsType } from 'ant-design-vue'
-import type { GenTable } from '@/types/generator/table'
-import type { GenTableColumn } from '@/types/generator/table-column'
-import { getColumnsByTableId } from '@/api/generator/table-column'
-import { getDefaultGenPath } from '@/api/generator/table'
-import type { DatabaseConfig, DatabaseTableInfo } from '@/api/generator/table'
+import type { GenTable } from '@/types/code/generator/gen-table'
+import { getColumnsByTableId } from '@/api/code/generator/table-column'
+import { getDefaultGenPath } from '@/api/code/generator/table'
+import type { DatabaseConfig, DatabaseTableInfo } from '@/api/code/generator/table'
 import { getDictTypeOptions } from '@/api/routine/tasks/dict/dicttype'
 import type { TaktSelectOption, TaktTreeSelectOption } from '@/types/common'
 import TaktSelect from '@/components/business/takt-select/index.vue'
 import TaktTreeSelect from '@/components/business/takt-tree-select/index.vue'
-import { getModuleNameOptions } from '@/api/identity/menu'
+import { getMenuTreeOptions, getModuleNameOptions } from '@/api/identity/menu'
 import type { MenuTree } from '@/types/identity/menu'
 import { HolderOutlined } from '@ant-design/icons-vue'
 import { useDictDataStore } from '@/stores/routine/dict/dictdata'
@@ -1262,13 +1269,12 @@ interface GenFormState {
   treeParentCode: string | undefined
   treeName: string | undefined
   inDatabase: number | undefined
-  genTemplate: string | undefined
+  genTemplateCategory: string | undefined
   namePrefix: string | undefined
   entityNamespace: string | undefined
   entityClassName: string | undefined
   dtoNamespace: string | undefined
   dtoClassName: string | undefined
-  dtoCategory: string | undefined
   serviceNamespace: string | undefined
   iServiceClassName: string | undefined
   serviceClassName: string | undefined
@@ -1285,19 +1291,20 @@ interface GenFormState {
   genMethod: number | undefined
   isRepository: number | undefined
   genPath: string | undefined
-  parentMenuId: number | undefined
+  parentMenuId: string | undefined
   isGenMenu: number | undefined
   isGenTranslation: number | undefined
   sortType: string | undefined
   sortField: string | undefined
   permsPrefix: string | undefined
-  frontTemplate: number | undefined
-  frontStyle: number | undefined
-  btnStyle: number | undefined
+  menuButtonGroup: string | undefined
+  frontUi: number | undefined
+  frontFormLayout: number | undefined
+  frontBtnStyle: number | undefined
   isUseTabs: number | undefined
   tabsFieldCount: number | undefined
   genAuthor: string | undefined
-  options: string | undefined
+  otherGenOptions: string | undefined
   columns: GenTableColumnRow[] | undefined
 }
 
@@ -1341,6 +1348,16 @@ const emit = defineEmits<{
   (e: 'config-change', configId: string): void
 }>()
 
+const { t } = useI18n()
+const FORM = 'code.generator.page.form'
+function rq(ruleKey: string) {
+  return [{ required: true, message: t(`${FORM}.rules.${ruleKey}`) }]
+}
+
+function tf(suffix: string) {
+  return t(`${FORM}.${suffix}`)
+}
+
 const activeTab = ref('table')
 const tableSubTab = ref('basic')
 const formRef = ref<FormInstance>()
@@ -1359,6 +1376,8 @@ const currentProjectPathLoading = ref(false)
 const dictTypeOptions = ref<TaktSelectOption[]>([])
 /** 模块名称选项（来自 /api/TaktMenus/module-name-options，仅目录树形），用于模块名选择 */
 const moduleOptionsTree = ref<TaktTreeSelectOption[]>([])
+/** 上级菜单选项（来自 GET /api/TaktMenus/tree-options，后端已排除按钮 MenuType=2） */
+const parentMenuOptionsTree = ref<TaktTreeSelectOption[]>([])
 const moduleOptionsLoading = ref(false)
 
 /** 主表 id：优先 tableId，其次兼容历史字段 id（string | number） */
@@ -1399,21 +1418,50 @@ function parseTreeSelectToOptionalString(v: unknown): string | undefined {
     const first = v[0]
     return first == null ? undefined : String(first)
   }
+  if (typeof v === 'object' && 'value' in v) {
+    return parseTreeSelectToOptionalString((v as { value: unknown }).value)
+  }
   if (typeof v === 'string' || typeof v === 'number') return String(v)
   return undefined
 }
 
-/** TaktTreeSelect 单选：菜单 id（int64）等数字字段 */
-function parseTreeSelectToOptionalNumber(v: unknown): number | undefined {
-  if (v == null) return undefined
-  if (Array.isArray(v)) return parseTreeSelectToOptionalNumber(v[0])
-  return parseSelectToOptionalNumber(v)
-}
+/** 菜单权限组：选项与选中值仅用于 formState.menuButtonGroup，与生成功能同为字典多选 */
+const menuButtonGroupOptions = computed(() => dictDataStore.getDictOptions('gen_button_category'))
+/** 生成功能：选项与选中值仅用于 formState.genFunction */
+const genFunctionOptions = computed(() => dictDataStore.getDictOptions('gen_function'))
 
-/** Dto 类别：选项与选中值仅用于 formState.dtoCategory，勿与生成功能混用 */
-const dtoCategoryOptions = computed(() => dictDataStore.getDictOptions('sys_dto_category'))
-/** 生成功能：选项与选中值仅用于 formState.genFunction，勿与 Dto 类别混用 */
-const genFunctionOptions = computed(() => dictDataStore.getDictOptions('sys_gen_function'))
+/** 检测列中是否有 Status 字段（不区分大小写） */
+const hasStatusColumn = computed(() => {
+  return columnList.value.some(col => {
+    const name = (col.csharpColumnName ?? col.databaseColumnName ?? '').toLowerCase()
+    return name === 'status'
+  })
+})
+
+/** 检测列中是否有 OrderNum/SORT 字段（不区分大小写） */
+const hasSortColumn = computed(() => {
+  return columnList.value.some(col => {
+    const name = (col.csharpColumnName ?? col.databaseColumnName ?? '').toLowerCase()
+    return name === 'ordernum' || name === 'sort'
+  })
+})
+
+/** 生成功能选项（根据列字段动态禁用 Status 和 Sort） */
+const filteredGenFunctionOptions = computed(() => {
+  const opts = genFunctionOptions.value
+  return opts.map(opt => {
+    const value = String(opt.value)
+    // 如果没有 Status 字段，禁用 Status 功能
+    if (value === 'Status' && !hasStatusColumn.value) {
+      return { ...opt, disabled: true }
+    }
+    // 如果没有 Sort 字段，禁用 Sort 功能
+    if (value === 'Sort' && !hasSortColumn.value) {
+      return { ...opt, disabled: true }
+    }
+    return opt
+  })
+})
 
 const sysYesNoOptions = computed(() =>
   dictDataStore.getDictOptions('sys_yes_no').map(opt => ({
@@ -1458,20 +1506,20 @@ const subTableNameOptions = computed(() => {
     }))
 })
 
-/** Dto 类别多选：仅与 formState.dtoCategory 双向同步，供「Dto 类别」a-checkbox-group 使用，选中值为字典 sys_dto_category 的 value */
-const dtoCategorySelect = computed({
+/** 菜单权限组多选：仅与 formState.menuButtonGroup 双向同步，选中值为字典 gen_button_category 的 value */
+const menuButtonGroupSelect = computed({
   get() {
-    const s = formState.value.dtoCategory
+    const s = formState.value.menuButtonGroup
     if (!s || typeof s !== 'string') return []
     return s.split(/[,，\s]+/).map((x: string) => x.trim()).filter(Boolean)
   },
   set(v: (string | number)[] | undefined) {
     const arr = Array.isArray(v) ? v.map(x => String(x)).filter(Boolean) : []
-    formState.value.dtoCategory = arr.length ? arr.join(',') : undefined
+    formState.value.menuButtonGroup = arr.length ? arr.join(',') : undefined
   }
 })
 
-/** 生成功能多选：仅与 formState.genFunction 双向同步，供「生成功能」a-checkbox-group 使用，选中值为字典 sys_gen_function 的 value */
+/** 生成功能多选：仅与 formState.genFunction 双向同步，供「生成功能」a-checkbox-group 使用，选中值为字典 gen_function 的 value */
 const genFunctionSelect = computed({
   get() {
     const s = formState.value.genFunction
@@ -1484,25 +1532,25 @@ const genFunctionSelect = computed({
   }
 })
 
-/** Dto 类别：全选勾选态与半选态（与官方 a-checkbox-group 示例一致，选中值 = options 的 value 数组）；默认全选 */
-const dtoCategoryCheckAll = ref(true)
-const dtoCategoryIndeterminate = ref(false)
-function onDtoCategoryCheckAllChange(e: { target: { checked: boolean } }) {
+/** 菜单权限组全选：全选勾选态与半选态；默认全选 */
+const menuButtonGroupCheckAll = ref(true)
+const menuButtonGroupIndeterminate = ref(false)
+function onMenuButtonGroupCheckAllChange(e: { target: { checked: boolean } }) {
   const checked = e.target.checked
-  const opts = dtoCategoryOptions.value
-  formState.value.dtoCategory = checked && opts.length ? opts.map(o => String(o.value)).join(',') : undefined
-  dtoCategoryIndeterminate.value = false
-  dtoCategoryCheckAll.value = checked
+  const opts = menuButtonGroupOptions.value
+  formState.value.menuButtonGroup = checked && opts.length ? opts.map(o => String(o.value)).join(',') : undefined
+  menuButtonGroupIndeterminate.value = false
+  menuButtonGroupCheckAll.value = checked
 }
 watch(
-  [() => formState.value.dtoCategory, dtoCategoryOptions],
+  [() => formState.value.menuButtonGroup, menuButtonGroupOptions],
   () => {
-    const list = (formState.value.dtoCategory ?? '')
-      ? (formState.value.dtoCategory as string).split(/[,，\s]+/).map((x: string) => x.trim()).filter(Boolean)
+    const list = (formState.value.menuButtonGroup ?? '')
+      ? (formState.value.menuButtonGroup as string).split(/[,，\s]+/).map((x: string) => x.trim()).filter(Boolean)
       : []
-    const total = dtoCategoryOptions.value.length
-    dtoCategoryIndeterminate.value = list.length > 0 && list.length < total
-    dtoCategoryCheckAll.value = total > 0 && list.length === total
+    const total = menuButtonGroupOptions.value.length
+    menuButtonGroupIndeterminate.value = list.length > 0 && list.length < total
+    menuButtonGroupCheckAll.value = total > 0 && list.length === total
   },
   { immediate: true }
 )
@@ -1533,10 +1581,10 @@ watch(
 onMounted(async () => {
   await dictDataStore.loadAllDictData()
   if (!formState.value.tableId) {
-    const dtoOpts = dictDataStore.getDictOptions('sys_dto_category')
-    const genOpts = dictDataStore.getDictOptions('sys_gen_function')
-    if (dtoOpts.length > 0) formState.value.dtoCategory = dtoOpts.map(o => String(o.value)).join(',')
+    const genOpts = dictDataStore.getDictOptions('gen_function')
+    const btnOpts = dictDataStore.getDictOptions('gen_button_category')
     if (genOpts.length > 0) formState.value.genFunction = genOpts.map(o => String(o.value)).join(',')
+    if (btnOpts.length > 0) formState.value.menuButtonGroup = btnOpts.map(o => String(o.value)).join(',')
   }
   try {
     dictTypeOptions.value = await getDictTypeOptions()
@@ -1561,6 +1609,12 @@ onMounted(async () => {
     moduleOptionsTree.value = []
   } finally {
     moduleOptionsLoading.value = false
+  }
+  try {
+    const rawMenuTree = await getMenuTreeOptions()
+    parentMenuOptionsTree.value = Array.isArray(rawMenuTree) ? rawMenuTree : []
+  } catch {
+    parentMenuOptionsTree.value = []
   }
 })
 
@@ -1590,23 +1644,53 @@ function menuCodeToModuleName(menuCode: string | undefined): string {
     .join('.')
 }
 
+/** OpenAPI/shim 字段类型较宽，收窄为可赋给表单 string 的安全字符串 */
+function asTrimmedString(v: unknown): string {
+  if (v == null) return ''
+  if (typeof v === 'string') return v.trim()
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v)
+  return ''
+}
+
+function optionalStringParam(v: unknown): string | undefined {
+  const s = asTrimmedString(v)
+  return s === '' ? undefined : s
+}
+
+/**
+ * 模块名/菜单树下拉 API 实际返回字段（自动生成 `MenuTree` 目前仅含 children，与 TaktMenuTreeDto 不一致处在此补全）。
+ */
+type MenuTreeWithSelectExtras = {
+  menuId?: string
+  menuName?: string
+  menuCode?: string
+  path?: string
+  orderNum?: number
+  dictValue?: string | number
+  dictLabel?: string | number
+  children?: MenuTree[]
+}
+
 /** 将模块名称选项 API 返回的菜单树转为 TaktTreeSelectOption（dictLabel=menuName, dictValue=由 path 还原的模块名，保证非空；字段均为小驼峰） */
 function mapMenuTreeToTreeSelectOption(trees: MenuTree[]): TaktTreeSelectOption[] {
   return trees.map((node): TaktTreeSelectOption => {
-    const path = node.path ?? undefined
-    const menuCode = node.menuCode ?? undefined
-    const dictVal = node.dictValue
-    const idFallback = node.menuId != null ? String(node.menuId) : ''
+    const n = node as MenuTreeWithSelectExtras
+    const path = n.path ?? undefined
+    const menuCode = n.menuCode ?? undefined
+    const dictVal = n.dictValue
+    const idFallback = n.menuId != null ? String(n.menuId) : ''
     const moduleName =
-      pathToModuleName(path) ||
-      menuCodeToModuleName(menuCode) ||
+      pathToModuleName(optionalStringParam(path)) ||
+      menuCodeToModuleName(optionalStringParam(menuCode)) ||
       (dictVal != null && dictVal !== '' ? String(dictVal) : '') ||
       idFallback
     return {
-      dictLabel: node.menuName ?? node.dictLabel ?? '',
+      dictLabel: n.menuName ?? (n.dictLabel != null ? String(n.dictLabel) : ''),
       dictValue: moduleName,
-      orderNum: node.orderNum ?? 0,
-      ...(node.children?.length ? { children: mapMenuTreeToTreeSelectOption(node.children) } : {})
+      orderNum: n.orderNum ?? 0,
+      ...(n.children?.length
+        ? { children: mapMenuTreeToTreeSelectOption(n.children as MenuTree[]) }
+        : {})
     }
   })
 }
@@ -1660,9 +1744,9 @@ const DB_TYPE_TO_CSHARP: Record<string, string> = {
   varchar: 'string'
 }
 
-/** 全部 C#类型选项（来自字典 sys_csharp_type） */
+/** 全部 C#类型选项（来自字典 gen_csharp_type） */
 const columnCsharpTypeOptions = computed(() =>
-  dictDataStore.getDictOptions('sys_csharp_type').map(o => ({ label: o.label, value: o.value }))
+  dictDataStore.getDictOptions('gen_csharp_type').map(o => ({ label: o.label, value: o.value }))
 )
 
 /** 根据当前行 DB类型 得到 C#类型 下拉选项：选中 DB 类型时仅显示对应 C# 类型，未选时显示全部 */
@@ -1723,7 +1807,7 @@ function onColumnDbTypeChange(record: GenTableColumnRow, dbType: string) {
   applyLengthDecimalDefaults(r, mapped)
 }
 
-/** 需要绑定字典的显示类型（与 sys_display_type 的 DictValue 一致） */
+/** 需要绑定字典的显示类型（与 gen_display_type 的 DictValue 一致） */
 const HTML_TYPES_NEED_DICT = ['select', 'checkbox', 'radio']
 
 /** 当前显示类型是否需要填写字典：仅下拉框/复选框/单选框需要 */
@@ -1736,12 +1820,13 @@ function needDictTypeForHtmlType(htmlType: string | number | undefined): boolean
 function onColumnHtmlTypeChange(record: GenTableColumnRow, value: string | number | (string | number)[] | undefined) {
   const v = Array.isArray(value) ? value[0] : value
   if (!record || typeof record !== 'object') return
-  if (!needDictTypeForHtmlType(v)) (record).dictType = undefined
+  if (!needDictTypeForHtmlType(v)) record.dictType = undefined
 }
 
 /** 是否查询改为「否」时清空查询方式 */
-function onColumnIsQueryChange(record: GenTableColumn  ) {
-  if (record && typeof record === 'object') (record).queryType = undefined
+function onColumnIsQueryChange(record: GenTableColumnRow) {
+  if (!record || typeof record !== 'object') return
+  record.queryType = undefined
 }
 
 /** 下划线命名（Snake Case）：小写字母、数字、下划线，如 column_1、user_name */
@@ -1760,70 +1845,77 @@ function isPascalCase(s: string | undefined): boolean {
   return PASCAL_CASE_REGEX.test(String(s).trim())
 }
 
-/** 通用必填规则（除 其他选项(JSON) 外所有字段非空） */
-const ruleRequired = (message: string) => [{ required: true, message }]
-
 /** 数据表名：必填 + 小写下划线格式（xxxx_xxxx_xxx） */
-const tableNameRules = [
-  { required: true, message: '请选择或输入数据表名' },
+const tableNameRules = computed(() => [
+  { required: true, message: t(`${FORM}.rules.tablename`) },
   {
     validator: (_rule: unknown, v: string) =>
       !v || isSnakeCase(v)
         ? Promise.resolve()
-        : Promise.reject(new Error('数据表名须为小写下划线格式，如：xxx_xxx_xxx'))
+        : Promise.reject(new Error(t(`${FORM}.validation.tablenameformat`)))
   }
-]
+])
 
 /** 命名空间前缀校验：必填 + 帕斯卡命名 */
-const namePrefixPascalRules = [
-  { required: true, message: '请填写命名空间前缀' },
+const namePrefixPascalRules = computed(() => [
+  { required: true, message: t(`${FORM}.rules.nameprefix`) },
   {
     validator: (_rule: unknown, v: string) =>
-      !v || isPascalCase(v) ? Promise.resolve() : Promise.reject(new Error('须为帕斯卡命名，如 Takt（首字母大写，仅字母数字）'))
+      !v || isPascalCase(v)
+        ? Promise.resolve()
+        : Promise.reject(new Error(t(`${FORM}.validation.nameprefixpascal`)))
   }
-]
+])
 
-/** 根据 genTemplate 决定：主子表时 subTableName、subTableFkName 必填 */
+/** 根据 genTemplateCategory 决定：主子表时 subTableName、subTableFkName 必填 */
 const subTableNameRules = computed(() =>
-  formState.value.genTemplate === 'sub' ? [{ required: true, message: '请选择关联父表' }] : []
+  formState.value.genTemplateCategory === 'sub' ? [{ required: true, message: t(`${FORM}.rules.subTableName`) }] : []
 )
 const subTableFkNameRules = computed(() =>
-  formState.value.genTemplate === 'sub' ? [{ required: true, message: '请选择关联外键' }] : []
+  formState.value.genTemplateCategory === 'sub' ? [{ required: true, message: t(`${FORM}.rules.subTableFkName`) }] : []
 )
-/** 根据 genTemplate 决定：树表时 treeCode、treeName、treeParentCode 必填 */
+/** 根据 genTemplateCategory 决定：树表时 treeCode、treeName、treeParentCode 必填 */
 const treeCodeRules = computed(() =>
-  formState.value.genTemplate === 'tree' ? [{ required: true, message: '请选择树编码字段' }] : []
+  formState.value.genTemplateCategory === 'tree' ? [{ required: true, message: t(`${FORM}.rules.treeCode`) }] : []
 )
 const treeNameRules = computed(() =>
-  formState.value.genTemplate === 'tree' ? [{ required: true, message: '请选择树名称字段' }] : []
+  formState.value.genTemplateCategory === 'tree' ? [{ required: true, message: t(`${FORM}.rules.treeName`) }] : []
 )
 const treeParentCodeRules = computed(() =>
-  formState.value.genTemplate === 'tree' ? [{ required: true, message: '请选择树父编码' }] : []
+  formState.value.genTemplateCategory === 'tree' ? [{ required: true, message: t(`${FORM}.rules.treeParentCode`) }] : []
 )
 /** 生成方式：选中「自定义路径」(1) 时生成路径必填，zip(0)、当前项目(2) 时可空 */
 const genPathRules = computed(() =>
-  (Number(formState.value.genMethod) === 1) ? [{ required: true, message: '请填写生成路径' }] : []
+  Number(formState.value.genMethod) === 1 ? [{ required: true, message: t(`${FORM}.rules.genPath`) }] : []
 )
-/** 是否生成菜单：根据当前实际——选「是」(0) 时上级菜单必填，选「否」(1) 时可空 */
+/** 是否生成菜单：选「是」(1) 时上级菜单必填，选「否」(0) 时可空 */
 const parentMenuIdRules = computed(() =>
-  Number(formState.value.isGenMenu) === 0 ? [{ required: true, message: '请选择上级菜单' }] : []
+  Number(formState.value.isGenMenu) === 1 ? [{ required: true, message: t(`${FORM}.rules.parentMenuId`) }] : []
 )
-/** 是否生成仓储：根据当前实际——选「是」(0) 时仓储相关字段必填 */
+/** 是否生成仓储：选「是」(1) 时仓储相关字段必填 */
 const repositoryInterfaceNamespaceRules = computed(() =>
-  Number(formState.value.isRepository) === 0 ? [{ required: true, message: '请填写仓储接口命名空间' }] : []
+  Number(formState.value.isRepository) === 1
+    ? [{ required: true, message: t(`${FORM}.rules.repositoryInterfaceNamespace`) }]
+    : []
 )
 const iRepositoryClassNameRules = computed(() =>
-  Number(formState.value.isRepository) === 0 ? [{ required: true, message: '请填写仓储接口类名' }] : []
+  Number(formState.value.isRepository) === 1
+    ? [{ required: true, message: t(`${FORM}.rules.iRepositoryClassName`) }]
+    : []
 )
 const repositoryNamespaceRules = computed(() =>
-  Number(formState.value.isRepository) === 0 ? [{ required: true, message: '请填写仓储命名空间' }] : []
+  Number(formState.value.isRepository) === 1
+    ? [{ required: true, message: t(`${FORM}.rules.repositoryNamespace`) }]
+    : []
 )
 const repositoryClassNameRules = computed(() =>
-  Number(formState.value.isRepository) === 0 ? [{ required: true, message: '请填写仓储类名' }] : []
+  Number(formState.value.isRepository) === 1
+    ? [{ required: true, message: t(`${FORM}.rules.repositoryClassName`) }]
+    : []
 )
-/** 是否使用 Tabs：根据当前实际——选「是」(0) 时 Tabs 字段数必填 */
+/** 是否使用 Tabs：选「是」(1) 时 Tabs 字段数必填 */
 const tabsFieldCountRules = computed(() =>
-  Number(formState.value.isUseTabs) === 0 ? [{ required: true, message: '请填写 Tabs 字段数' }] : []
+  Number(formState.value.isUseTabs) === 1 ? [{ required: true, message: t(`${FORM}.rules.tabsFieldCount`) }] : []
 )
 
 function addColumnRow() {
@@ -1928,31 +2020,39 @@ function columnTableCustomRow(record: GenTableColumnRow, index: number) {
   }
 }
 
-const columnTableColumns: TableColumnsType = [
-  { title: '', key: 'dragSort', width: 36, align: 'center', class: 'column-drag-cell' },
-  { title: '列名', dataIndex: 'databaseColumnName', key: 'databaseColumnName', width: 130, ellipsis: true },
-  { title: '描述', dataIndex: 'columnComment', key: 'columnComment', width: 100 },
-  { title: 'DB类型', dataIndex: 'databaseDataType', key: 'databaseDataType', width: 88 },
-  { title: 'C#类型', dataIndex: 'csharpDataType', key: 'csharpDataType', width: 88 },
-  { title: 'C#列名', dataIndex: 'csharpColumnName', key: 'csharpColumnName', width: 110 },
-  { title: '长度', dataIndex: 'length', key: 'length', width: 64 },
-  { title: '精度', dataIndex: 'decimalDigits', key: 'decimalDigits', width: 64 },
-  { title: '主键', dataIndex: 'isPk', key: 'isPk', width: 64 },
-  { title: '自增', dataIndex: 'isIncrement', key: 'isIncrement', width: 64 },
-  { title: '必填', dataIndex: 'isRequired', key: 'isRequired', width: 64 },
-  { title: '查询', dataIndex: 'isQuery', key: 'isQuery', width: 64 },
-  { title: '新增', dataIndex: 'isCreate', key: 'isCreate', width: 64 },
-  { title: '更新', dataIndex: 'isUpdate', key: 'isUpdate', width: 64 },
-  { title: '查重', dataIndex: 'isUnique', key: 'isUnique', width: 64 },
-  { title: '列表', dataIndex: 'isList', key: 'isList', width: 64 },
-  { title: '导出', dataIndex: 'isExport', key: 'isExport', width: 64 },
-  { title: '排序', dataIndex: 'isSort', key: 'isSort', width: 64 },
-  { title: '查询方式', dataIndex: 'queryType', key: 'queryType', width: 88 },
-  { title: '显示类型', dataIndex: 'htmlType', key: 'htmlType', width: 88 },
-  { title: '字典', dataIndex: 'dictType', key: 'dictType', width: 95 },
-  { title: '序号', dataIndex: 'orderNum', key: 'orderNum', width: 72 },
-  { title: '操作', key: 'action', width: 72, fixed: 'right' }
-]
+const columnTableColumns = computed<TableColumnsType>(() => {
+  return [
+    { title: t(`${FORM}.column.dragsort`), key: 'dragSort', width: 36, align: 'center', class: 'column-drag-cell' },
+    {
+      title: t('entity.gentablecolumn.databasecolumnname'),
+      dataIndex: 'databaseColumnName',
+      key: 'databaseColumnName',
+      width: 130,
+      ellipsis: true
+    },
+    { title: t('entity.gentablecolumn.columncomment'), dataIndex: 'columnComment', key: 'columnComment', width: 100 },
+    { title: t('entity.gentablecolumn.databasedatatype'), dataIndex: 'databaseDataType', key: 'databaseDataType', width: 88 },
+    { title: t('entity.gentablecolumn.cshardatatype'), dataIndex: 'csharpDataType', key: 'csharpDataType', width: 88 },
+    { title: t('entity.gentablecolumn.csharcolumnname'), dataIndex: 'csharpColumnName', key: 'csharpColumnName', width: 110 },
+    { title: t('entity.gentablecolumn.length'), dataIndex: 'length', key: 'length', width: 64 },
+    { title: t('entity.gentablecolumn.decimaldigits'), dataIndex: 'decimalDigits', key: 'decimalDigits', width: 64 },
+    { title: t('entity.gentablecolumn.ispk'), dataIndex: 'isPk', key: 'isPk', width: 64 },
+    { title: t('entity.gentablecolumn.isincrement'), dataIndex: 'isIncrement', key: 'isIncrement', width: 64 },
+    { title: t('entity.gentablecolumn.isrequired'), dataIndex: 'isRequired', key: 'isRequired', width: 64 },
+    { title: t('entity.gentablecolumn.isquery'), dataIndex: 'isQuery', key: 'isQuery', width: 64 },
+    { title: t('entity.gentablecolumn.iscreate'), dataIndex: 'isCreate', key: 'isCreate', width: 64 },
+    { title: t('entity.gentablecolumn.isupdate'), dataIndex: 'isUpdate', key: 'isUpdate', width: 64 },
+    { title: t('entity.gentablecolumn.isunique'), dataIndex: 'isUnique', key: 'isUnique', width: 64 },
+    { title: t('entity.gentablecolumn.islist'), dataIndex: 'isList', key: 'isList', width: 64 },
+    { title: t('entity.gentablecolumn.isexport'), dataIndex: 'isExport', key: 'isExport', width: 64 },
+    { title: t('entity.gentablecolumn.issort'), dataIndex: 'isSort', key: 'isSort', width: 64 },
+    { title: t('entity.gentablecolumn.querytype'), dataIndex: 'queryType', key: 'queryType', width: 88 },
+    { title: t('entity.gentablecolumn.htmltype'), dataIndex: 'htmlType', key: 'htmlType', width: 88 },
+    { title: t('entity.gentablecolumn.dicttype'), dataIndex: 'dictType', key: 'dictType', width: 95 },
+    { title: t('entity.gentablecolumn.ordernum'), dataIndex: 'orderNum', key: 'orderNum', width: 72 },
+    { title: t('common.action.operation'), key: 'action', width: 72, fixed: 'right' }
+  ]
+})
 
 function defaultFormState(): GenFormState {
   return {
@@ -1967,13 +2067,12 @@ function defaultFormState(): GenFormState {
     treeParentCode: undefined,
     treeName: undefined,
     inDatabase: 1,
-    genTemplate: 'crud',
+    genTemplateCategory: 'crud',
     namePrefix: 'Takt',
     entityNamespace: 'Takt.Domain.Entities',
     entityClassName: undefined,
     dtoNamespace: 'Takt.Application.Dtos',
     dtoClassName: undefined,
-    dtoCategory: 'Dto,QueryDto,CreateDto,UpdateDto,TemplateDto,ImportDto,ExportDto',
     serviceNamespace: 'Takt.Application.Services',
     iServiceClassName: undefined,
     serviceClassName: undefined,
@@ -1986,23 +2085,24 @@ function defaultFormState(): GenFormState {
     genModuleName: undefined,
     genBusinessName: undefined,
     genFunctionName: undefined,
-    genFunction: '查询,新增,更新,删除,模板,导入,导出',
+    genFunction: 'Query,Create,Update,Delete,Status,Sort,Template,Import,Export',
     genMethod: 1,
     isRepository: 1,
     genPath: '/',
     parentMenuId: undefined,
-    isGenMenu: 0,
-    isGenTranslation: 0,
+    isGenMenu: 1,
+    isGenTranslation: 1,
     sortType: 'asc',
     sortField: undefined,
     permsPrefix: undefined,
-    frontTemplate: 2,
-    frontStyle: 24,
-    btnStyle: 1,
-    isUseTabs: 0,
+    menuButtonGroup: 'query,create,update,delete,detail,preview,print,import,export,template,approve,revoke,authorize,allocate,resetpwd,changepwd,empty,truncate,unlock,disable,generate,download,sync,columns,tables,databases,initialize,clone,copy,suspend,resume,submit,withdraw,transfer,delegate,return,urge,addsign,reducesign,progress,history,publish,enable,version,design,config,validate,start,terminate,field,permission,datasource,theme,data,archive,clean,draft,deletedraft,send,forward,reply,read,unread,circulate,sign,confirm,like,unlike,favorite,unfavorite,share,unshare,comment,uncomment,flagging,unflagging,follow,unfollow,upload,destroy,run,stop,restart,refresh,reset,calculate,book,closing,reconcile,payment,depreciation,reimburse,reversal,accrual,period,carryforward,cancel,change',
+    frontUi: 2,
+    frontFormLayout: 24,
+    frontBtnStyle: 1,
+    isUseTabs: 1,
     tabsFieldCount: 10,
     genAuthor: undefined,
-    options: undefined,
+    otherGenOptions: undefined,
     columns: undefined
   }
 }
@@ -2011,7 +2111,8 @@ async function loadColumns(tableId: string) {
   columnLoading.value = true
   try {
     const list = await getColumnsByTableId(tableId)
-    const rows = (list ?? []) as GenTableColumnRow[]
+    /** API 的 GenTableColumn 与表单行字段一致；GenTableColumnRow 继承 Record<string,unknown>，TS 不允许与无索引签名的 DTO 直接互断 */
+    const rows = (list ?? []) as unknown as GenTableColumnRow[]
     columnList.value = normalizeColumnOrderNum(rows)
   } catch {
     columnList.value = []
@@ -2020,9 +2121,9 @@ async function loadColumns(tableId: string) {
   }
 }
 
-/** genTemplate 与 sub/tree 字段相斥：切换模板时清空另一类字段 */
+/** genTemplateCategory 与 sub/tree 字段相斥：切换模板时清空另一类字段 */
 watch(
-  () => formState.value.genTemplate,
+  () => formState.value.genTemplateCategory,
   (next, prev) => {
     if (prev === undefined) return
     if (next !== 'sub') {
@@ -2037,11 +2138,11 @@ watch(
   }
 )
 
-/** isRepository 与仓储相关字段相斥：选「否」(1) 时清空仓储命名空间/类名 */
+/** isRepository 与仓储相关字段相斥：选「否」(0) 时清空仓储命名空间/类名 */
 watch(
   () => formState.value.isRepository,
   (next) => {
-    if (next === 1) {
+    if (next === 0) {
       formState.value.repositoryInterfaceNamespace = undefined
       formState.value.iRepositoryClassName = undefined
       formState.value.repositoryNamespace = undefined
@@ -2050,11 +2151,11 @@ watch(
   }
 )
 
-/** isGenMenu 与上级菜单相斥：选「否」(1) 时清空上级菜单 */
+/** isGenMenu 与上级菜单相斥：选「否」(0) 时清空上级菜单 */
 watch(
   () => formState.value.isGenMenu,
   (next) => {
-    if (next === 1) formState.value.parentMenuId = undefined
+    if (next === 0) formState.value.parentMenuId = undefined
   }
 )
 
@@ -2078,14 +2179,19 @@ function tableNameToBusinessName(tableName: string | undefined): string {
   return parts.map(p => (p.length > 0 ? p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() : p)).join('')
 }
 
-/** 模块名转权限段：Accounting.Controlling -> accounting:controlling（小写、点改冒号） */
+/** 模块名转权限段：Accounting.Controlling -> accounting:controlling；logistics_materials -> logistics:materials（点/下划线均拆段，小写、冒号连接） */
 function moduleNameToPermsSegment(genModuleName: string | null | undefined): string {
   if (genModuleName == null || String(genModuleName).trim() === '') return ''
   return String(genModuleName)
     .trim()
     .split('.')
-    .map(s => s.trim().toLowerCase())
-    .filter(Boolean)
+    .flatMap(seg =>
+      seg
+        .trim()
+        .split('_')
+        .map(s => s.trim().toLowerCase())
+        .filter(s => s.length > 0)
+    )
     .join(':')
 }
 
@@ -2203,7 +2309,7 @@ watch(
 watch(
   () => formState.value.isUseTabs,
   (next) => {
-    if (next === 1) formState.value.tabsFieldCount = undefined
+    if (next === 0) formState.value.tabsFieldCount = undefined
   }
 )
 
@@ -2223,11 +2329,14 @@ watch(
       formState.value = { ...defaultFormState(), ...(val as Record<string, unknown>) } as GenFormState
       if (tableId) formState.value.tableId = String(tableId)
       /** 展开赋值时若显式带上 tabsFieldCount: undefined 会盖掉默认值；与 defaultFormState（10）及「使用 Tabs」展示逻辑一致 */
-      if (Number(formState.value.isUseTabs) === 0 && formState.value.tabsFieldCount == null) {
+      if (Number(formState.value.isUseTabs) === 1 && formState.value.tabsFieldCount == null) {
         formState.value.tabsFieldCount = 10
       }
       formState.value.genFunctionName = formState.value.tableComment != null ? String(formState.value.tableComment).trim() || undefined : undefined
-      if (!formState.value.genAuthor) formState.value.genAuthor = userStore.userInfo?.realName || userStore.userInfo?.userName || ''
+      if (!formState.value.genAuthor) {
+        formState.value.genAuthor =
+          asTrimmedString(userStore.userInfo?.realName) || asTrimmedString(userStore.userInfo?.userName)
+      }
       applyNamespacesFromPrefixAndModule()
       applyPermsPrefix()
       const configs = props.databaseConfigs ?? []
@@ -2256,15 +2365,16 @@ watch(
     } else {
       formState.value = defaultFormState()
       formState.value.genPath = defaultGenPath.value || '/'
-      formState.value.genAuthor = userStore.userInfo?.realName || userStore.userInfo?.userName || ''
-      const dtoOpts = dictDataStore.getDictOptions('sys_dto_category')
-      const genOpts = dictDataStore.getDictOptions('sys_gen_function')
-      if (dtoOpts.length > 0) formState.value.dtoCategory = dtoOpts.map(o => String(o.value)).join(',')
+      formState.value.genAuthor =
+        asTrimmedString(userStore.userInfo?.realName) || asTrimmedString(userStore.userInfo?.userName)
+      const genOpts = dictDataStore.getDictOptions('gen_function')
+      const btnOpts = dictDataStore.getDictOptions('gen_button_category')
       if (genOpts.length > 0) formState.value.genFunction = genOpts.map(o => String(o.value)).join(',')
-      dtoCategoryCheckAll.value = true
-      dtoCategoryIndeterminate.value = false
+      if (btnOpts.length > 0) formState.value.menuButtonGroup = btnOpts.map(o => String(o.value)).join(',')
       genFunctionCheckAll.value = true
       genFunctionIndeterminate.value = false
+      menuButtonGroupCheckAll.value = true
+      menuButtonGroupIndeterminate.value = false
       columnList.value = []
     }
   },
@@ -2282,10 +2392,10 @@ function validateColumnListNaming(): void {
     const colName = row.databaseColumnName
     const csharpName = row.csharpColumnName
     if (colName != null && String(colName).trim() !== '' && !isSnakeCase(String(colName))) {
-      throw new Error(`字段配置第 ${rowNum} 行：列名须为下划线命名法（如 column_1、user_name），当前为「${colName}」`)
+      throw new Error(t(`${FORM}.validation.columnsnake`, { row: rowNum, value: colName }))
     }
     if (csharpName != null && String(csharpName).trim() !== '' && !isPascalCase(String(csharpName))) {
-      throw new Error(`字段配置第 ${rowNum} 行：C#列名须为大驼峰命名法（如 Column1、UserName），当前为「${csharpName}」`)
+      throw new Error(t(`${FORM}.validation.columnpascal`, { row: rowNum, value: csharpName }))
     }
   }
 }
@@ -2315,12 +2425,11 @@ function getValues(): GenFormState {
   const raw = { ...formState.value, columns } as GenFormState
   const gm = Number(raw.genMethod ?? 0)
   raw.genMethod = Number.isFinite(gm) ? gm : 0
-  /** OpenAPI 为 int64 number；无上级菜单时传 0，与后端 long 反序列化约定一致 */
+  /** 上级菜单 id 按字符串保留，避免前端 Number 强转导致 int64 精度丢失；无上级菜单时传 "0" */
   if (raw.parentMenuId != null && String(raw.parentMenuId).trim() !== '') {
-    const pm = Number(raw.parentMenuId)
-    raw.parentMenuId = Number.isFinite(pm) ? pm : 0
+    raw.parentMenuId = String(raw.parentMenuId)
   } else {
-    raw.parentMenuId = 0
+    raw.parentMenuId = '0'
   }
   return raw
 }
@@ -2329,19 +2438,20 @@ function getValues(): GenFormState {
 function reset() {
   formState.value = defaultFormState()
   formState.value.genPath = defaultGenPath.value || '/'
-  formState.value.genAuthor = userStore.userInfo?.realName || userStore.userInfo?.userName || ''
-  const dtoOpts = dictDataStore.getDictOptions('sys_dto_category')
-  const genOpts = dictDataStore.getDictOptions('sys_gen_function')
-  if (dtoOpts.length > 0) formState.value.dtoCategory = dtoOpts.map(o => String(o.value)).join(',')
+  formState.value.genAuthor =
+    asTrimmedString(userStore.userInfo?.realName) || asTrimmedString(userStore.userInfo?.userName)
+  const genOpts = dictDataStore.getDictOptions('gen_function')
+  const btnOpts = dictDataStore.getDictOptions('gen_button_category')
   if (genOpts.length > 0) formState.value.genFunction = genOpts.map(o => String(o.value)).join(',')
+  if (btnOpts.length > 0) formState.value.menuButtonGroup = btnOpts.map(o => String(o.value)).join(',')
   columnList.value = []
   activeTab.value = 'table'
   tableSubTab.value = 'basic'
   columnDragRowIndex.value = null
-  dtoCategoryCheckAll.value = true
-  dtoCategoryIndeterminate.value = false
   genFunctionCheckAll.value = true
   genFunctionIndeterminate.value = false
+  menuButtonGroupCheckAll.value = true
+  menuButtonGroupIndeterminate.value = false
   formRef.value?.clearValidate()
 }
 

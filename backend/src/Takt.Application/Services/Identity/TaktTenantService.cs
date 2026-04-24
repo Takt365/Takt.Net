@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Identity
 // 文件名称：TaktTenantService.cs
@@ -105,7 +105,7 @@ public class TaktTenantService : TaktServiceBase, ITaktTenantService
                 DictValue = t.Id,
                 ExtLabel = t.TenantCode,
                 ExtValue = t.ConfigId,
-                OrderNum = 0
+                SortOrder = 0
             })
             .ToList();
     }
@@ -129,8 +129,8 @@ public class TaktTenantService : TaktServiceBase, ITaktTenantService
         // 使用Mapster映射DTO到实体，然后手动设置状态和时间
         var tenant = dto.Adapt<TaktTenant>();
         tenant.TenantStatus = 1; // 1=启用
-        tenant.StartTime = dto.StartTime ?? DateTime.Now;
-        tenant.EndTime = dto.EndTime ?? new DateTime(9999, 12, 31);
+        tenant.SubscriptionStartTime = dto.SubscriptionStartTime;
+        tenant.SubscriptionEndTime = dto.SubscriptionEndTime;
 
         tenant = await _tenantRepository.CreateAsync(tenant);
 
@@ -160,10 +160,6 @@ public class TaktTenantService : TaktServiceBase, ITaktTenantService
 
         // 使用Mapster更新实体
         dto.Adapt(tenant, typeof(TaktTenantUpdateDto), typeof(TaktTenant));
-        if (dto.StartTime.HasValue)
-            tenant.StartTime = dto.StartTime.Value;
-        if (dto.EndTime.HasValue)
-            tenant.EndTime = dto.EndTime.Value;
         tenant.UpdatedAt = DateTime.Now;
 
         await _tenantRepository.UpdateAsync(tenant);
@@ -285,10 +281,10 @@ public class TaktTenantService : TaktServiceBase, ITaktTenantService
                     TenantId = tenant.Id,
                     TenantName = tenant.TenantName,
                     TenantCode = tenant.TenantCode,
-                    TenantConfigId = tenant.ConfigId,
+                    TenantConfigId = tenant.ConfigId ?? "0",
                     TenantStatus = tenant.TenantStatus,
-                    StartTime = tenant.StartTime,
-                    EndTime = tenant.EndTime,
+                    SubscriptionStartTime = tenant.SubscriptionStartTime,
+                    SubscriptionEndTime = tenant.SubscriptionEndTime,
                     ConfigId = userTenant.ConfigId,
                     CreatedAt = userTenant.CreatedAt,
                     UpdatedAt = userTenant.UpdatedAt,
@@ -471,7 +467,8 @@ public class TaktTenantService : TaktServiceBase, ITaktTenantService
                         fail++;
                         continue;
                     }
-                    if (string.IsNullOrWhiteSpace(item.ConfigId))
+                    var configIdStr = item.ConfigId?.Trim();
+                    if (string.IsNullOrWhiteSpace(configIdStr))
                     {
                         AddImportError(errors, "validation.importRowTenantConfigIdRequired", index);
                         fail++;
@@ -480,7 +477,6 @@ public class TaktTenantService : TaktServiceBase, ITaktTenantService
 
                     var name = item.TenantName.Trim();
                     var code = item.TenantCode.Trim();
-                    var configId = item.ConfigId.Trim();
                     var key = (name.ToUpperInvariant(), code.ToUpperInvariant());
                     if (existingKeys.Contains(key) || addedKeys.Contains(key))
                     {
@@ -493,9 +489,8 @@ public class TaktTenantService : TaktServiceBase, ITaktTenantService
                     {
                         TenantName = item.TenantName,
                         TenantCode = item.TenantCode,
-                        ConfigId = item.ConfigId,
-                        StartTime = item.StartTime,
-                        EndTime = item.EndTime,
+                        SubscriptionStartTime = item.SubscriptionStartTime,
+                        SubscriptionEndTime = item.SubscriptionEndTime,
                         TenantStatus = item.TenantStatus >= 0 ? item.TenantStatus : 0
                     };
                     tenantsToInsert.Add(tenant);
@@ -604,12 +599,24 @@ public class TaktTenantService : TaktServiceBase, ITaktTenantService
         // 租户编码
         exp = exp.AndIF(!string.IsNullOrEmpty(queryDto?.TenantCode), x => x.TenantCode.Contains(queryDto!.TenantCode!));
 
-        // 配置ID
-        exp = exp.AndIF(!string.IsNullOrEmpty(queryDto?.ConfigId), x => x.ConfigId == queryDto!.ConfigId!);
+        // 配置ID（TaktTenant没有ConfigId字段，跳过）
+        // exp = exp.AndIF(!string.IsNullOrEmpty(queryDto?.ConfigId), x => x.ConfigId.HasValue && x.ConfigId.Value.ToString() == queryDto!.ConfigId);
 
         // 租户状态
         exp = exp.AndIF(queryDto?.TenantStatus.HasValue == true, x => x.TenantStatus == queryDto!.TenantStatus!.Value);
 
         return exp.ToExpression();
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计租户总数
+    /// </summary>
+    public async Task<long> GetTenantCountAsync()
+    {
+        return await _tenantRepository.CountAsync(t => t.IsDeleted == 0);
+    }
+
+    #endregion
 }

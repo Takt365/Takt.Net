@@ -197,8 +197,8 @@ const columns = computed<TableColumnsType>(() => [
   { title: t(`${entityKey}.toDeptName`), dataIndex: 'toDeptName', key: 'toDeptName', width: 120, ellipsis: true },
   { title: t(`${entityKey}.effectiveDate`), dataIndex: 'effectiveDate', key: 'effectiveDate', width: 120 },
   { title: t(`${entityKey}.transferStatus`), dataIndex: 'transferStatus', key: 'transferStatus', width: 100 },
-  { title: t('common.entity.createTime'), dataIndex: 'createdAt', key: 'createdAt', width: 160, ellipsis: true },
-  CreateActionColumn({
+  { title: t('common.entity.createtime'), dataIndex: 'createdAt', key: 'createdAt', width: 160, ellipsis: true },
+  CreateActionColumn<EmployeeTransfer>({
     actions: [
       { key: 'update', label: t('common.button.edit'), shape: 'plain', icon: RiEditLine, permission: 'humanresource:personnel:employeetransfer:update', onClick: (r: EmployeeTransfer) => handleEdit(r) },
       { key: 'delete', label: t('common.button.delete'), shape: 'plain', icon: RiDeleteBinLine, permission: 'humanresource:personnel:employeetransfer:delete', onClick: (r: EmployeeTransfer) => handleDeleteOne(r) }
@@ -240,7 +240,7 @@ async function loadData() {
     const res = await getEmployeeTransferList(params)
     dataSource.value = (res as any)?.data ?? (res as any)?.Data ?? []
     total.value = (res as any)?.total ?? (res as any)?.Total ?? 0
-  } catch (e: any) { logger.error('[EmployeeTransfer] loadData:', e); message.error(e?.message || t('common.msg.loadFail')); dataSource.value = []; total.value = 0 } finally { loading.value = false }
+  } catch (e: any) { logger.error('[EmployeeTransfer] loadData:', e); message.error(e?.message || t('common.msg.loadfail')); dataSource.value = []; total.value = 0 } finally { loading.value = false }
 }
 function handleSearch() { currentPage.value = 1; loadData() }
 function handleReset() { queryKeyword.value = ''; advancedQueryForm.value = { employeeId: '', transferType: undefined, transferStatus: undefined }; currentPage.value = 1; loadData() }
@@ -251,24 +251,24 @@ function handleResizeColumn() {}
 function handleCreate() { formTitle.value = t('common.button.create') + t(`${entityKey}._self`); formData.value = {}; formVisible.value = true }
 async function handleEdit(record: EmployeeTransfer) {
   formTitle.value = t('common.button.edit') + t(`${entityKey}._self`)
-  try { formLoading.value = true; formData.value = { ...(await getEmployeeTransferById(getRowId(record))) }; formVisible.value = true } catch (e: any) { message.error(e?.message || t('common.msg.loadFail')) } finally { formLoading.value = false }
+  try { formLoading.value = true; formData.value = { ...(await getEmployeeTransferById(getRowId(record))) }; formVisible.value = true } catch (e: any) { message.error(e?.message || t('common.msg.loadfail')) } finally { formLoading.value = false }
 }
-function handleUpdate() { if (selectedRow.value) handleEdit(selectedRow.value); else message.warning(t('common.action.warnSelectToAction', { action: t('common.button.edit'), entity: t(`${entityKey}._self`) })) }
+function handleUpdate() { if (selectedRow.value) handleEdit(selectedRow.value); else message.warning(t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: t(`${entityKey}._self`) })) }
 function handleDeleteOne(record: EmployeeTransfer) {
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteEntity', { entity: t(`${entityKey}._self`), name: getField(record, 'reason') || getRowId(record) }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t(`${entityKey}._self`), name: getField(record, 'reason') || getRowId(record) }),
     okText: t('common.button.delete'), cancelText: t('common.button.cancel'),
-    onOk: async () => { try { loading.value = true; await deleteEmployeeTransferById(getRowId(record)); message.success(t('common.msg.deleteSuccess', { target: t(`${entityKey}._self`) })); loadData() } catch (e: any) { message.error(e?.message || t('common.msg.deleteFail', { target: t(`${entityKey}._self`) })) } finally { loading.value = false } }
+    onOk: async () => { try { loading.value = true; await deleteEmployeeTransferById(getRowId(record)); message.success(t('common.msg.deletesuccess', { target: t(`${entityKey}._self`) })); loadData() } catch (e: any) { message.error(e?.message || t('common.msg.deletefail', { target: t(`${entityKey}._self`) })) } finally { loading.value = false } }
   })
 }
 function handleDelete() {
-  if (selectedRows.value.length === 0) { message.warning(t('common.action.warnSelectToAction', { action: t('common.button.delete'), entity: t(`${entityKey}._self`) })); return }
+  if (selectedRows.value.length === 0) { message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t(`${entityKey}._self`) })); return }
   Modal.confirm({
-    title: t('common.action.confirmDelete'),
-    content: t('common.confirm.deleteCountEntity', { entity: t(`${entityKey}._self`), count: selectedRows.value.length }),
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { entity: t(`${entityKey}._self`), count: selectedRows.value.length }),
     okText: t('common.button.delete'), cancelText: t('common.button.cancel'),
-    onOk: async () => { try { loading.value = true; selectedRows.value.length === 1 ? await deleteEmployeeTransferById(getRowId(selectedRows.value[0])) : await deleteEmployeeTransferBatch(selectedRows.value.map((r) => getRowId(r))); message.success(t('common.msg.deleteSuccess', { target: t(`${entityKey}._self`) })); selectedRows.value = []; selectedRowKeys.value = []; selectedRow.value = null; loadData() } catch (e: any) { message.error(e?.message || t('common.msg.deleteFail', { target: t(`${entityKey}._self`) })) } finally { loading.value = false } }
+    onOk: async () => { try { loading.value = true; selectedRows.value.length === 1 ? await deleteEmployeeTransferById(getRowId(selectedRows.value[0])) : await deleteEmployeeTransferBatch(selectedRows.value.map((r) => getRowId(r))); message.success(t('common.msg.deletesuccess', { target: t(`${entityKey}._self`) })); selectedRows.value = []; selectedRowKeys.value = []; selectedRow.value = null; loadData() } catch (e: any) { message.error(e?.message || t('common.msg.deletefail', { target: t(`${entityKey}._self`) })) } finally { loading.value = false } }
   })
 }
 async function handleFormSubmit() {
@@ -277,23 +277,23 @@ async function handleFormSubmit() {
     await formRef.value.validate()
     const values = formRef.value.getValues()
     formLoading.value = true
-    if (formData.value?.transferId) { await updateEmployeeTransfer(formData.value.transferId, { ...values, transferId: formData.value.transferId }); message.success(t('common.msg.updateSuccess', { target: t(`${entityKey}._self`) })) }
-    else { await createEmployeeTransfer(values); message.success(t('common.msg.createSuccess', { target: t(`${entityKey}._self`) })) }
+    if (formData.value?.transferId) { await updateEmployeeTransfer(formData.value.transferId, { ...values, transferId: formData.value.transferId }); message.success(t('common.msg.updatesuccess', { target: t(`${entityKey}._self`) })) }
+    else { await createEmployeeTransfer(values); message.success(t('common.msg.createsuccess', { target: t(`${entityKey}._self`) })) }
     formRef.value?.resetFields(); formData.value = {}; formVisible.value = false; loadData()
-  } catch (e: any) { if (e?.errorFields) return; message.error(e?.message || t('common.msg.operateFail', { action: t('common.action.operation') })) } finally { formLoading.value = false }
+  } catch (e: any) { if (e?.errorFields) return; message.error(e?.message || t('common.msg.operatefail', { action: t('common.action.operation') })) } finally { formLoading.value = false }
 }
 function handleFormCancel() { formVisible.value = false; formData.value = {}; formRef.value?.resetFields() }
 async function handleExport() {
   try {
     loading.value = true
     const queryParams: any = { pageIndex: 1, pageSize: total.value || 9999 }; if (queryKeyword.value) queryParams.employeeId = queryKeyword.value; if (advancedQueryForm.value.employeeId) queryParams.employeeId = advancedQueryForm.value.employeeId; if (advancedQueryForm.value.transferType !== undefined && advancedQueryForm.value.transferType !== null) queryParams.transferType = advancedQueryForm.value.transferType; if (advancedQueryForm.value.transferStatus !== undefined && advancedQueryForm.value.transferStatus !== null) queryParams.transferStatus = advancedQueryForm.value.transferStatus
-    const blob = await exportEmployeeTransferData(queryParams, undefined, t(`${entityKey}._self`) + t('common.action.exportDataSuffix'))
+    const blob = await exportEmployeeTransferData(queryParams, undefined, t(`${entityKey}._self`) + t('common.action.exportdatasuffix'))
     const data = (blob as any)?.data ?? blob
     const ts = new Date(); const pad = (n: number, w = 2) => String(n).padStart(w, '0')
-    const name = `${t(`${entityKey}._self`) + t('common.action.exportDataSuffix')}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
+    const name = `${t(`${entityKey}._self`) + t('common.action.exportdatasuffix')}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
     const url = window.URL.createObjectURL(data); const link = document.createElement('a'); link.href = url; link.download = name; link.style.display = 'none'; document.body.appendChild(link); link.click(); document.body.removeChild(link); setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success(t('common.msg.exportSuccess', { target: t(`${entityKey}._self`) }))
-  } catch (e: any) { logger.error('[EmployeeTransfer] export:', e); message.error(e?.message || t('common.msg.exportFail', { target: t(`${entityKey}._self`) })) } finally { loading.value = false }
+    message.success(t('common.msg.exportsuccess', { target: t(`${entityKey}._self`) }))
+  } catch (e: any) { logger.error('[EmployeeTransfer] export:', e); message.error(e?.message || t('common.msg.exportfail', { target: t(`${entityKey}._self`) })) } finally { loading.value = false }
 }
 function handleAdvancedQuery() { advancedQueryVisible.value = true }
 function handleAdvancedQuerySubmit() { currentPage.value = 1; loadData(); advancedQueryVisible.value = false }

@@ -19,7 +19,7 @@
     <a-tabs v-model:active-key="activeTab">
       <a-tab-pane
         key="basic"
-        :tab="t('common.form.tabs.basicInfo')"
+        :tab="t('common.form.tabs.basicinfo')"
         force-render
       >
         <div :class="formContentClass">

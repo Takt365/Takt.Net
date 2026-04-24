@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.Middleware
 // 文件名称：TaktPermissionMiddleware.cs
@@ -12,8 +12,10 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Takt.Application.Services.Identity;
+using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Infrastructure.User;
 
@@ -67,6 +69,13 @@ public class TaktPermissionMiddleware
             return;
         }
 
+        // 已认证但显式跳过菜单权限串校验（仍须通过 [Authorize] 等）
+        if (endpoint?.Metadata.OfType<TaktSkipPermissionAttribute>().Any() == true)
+        {
+            await _next(context);
+            return;
+        }
+
         // 获取权限标识（从特性或路由数据中）
         var permission = GetRequiredPermission(context, endpoint);
         
@@ -77,13 +86,13 @@ public class TaktPermissionMiddleware
             return;
         }
 
-        // 检查用户是否有权限
-        var hasPermission = await CheckPermissionAsync(permission);
-        
+        // 检查用户是否有权限（已认证但 CurrentUser 偶发为空时，在 CheckPermissionAsync 内会按 ITaktUserContext 再加载）
+        var (hasPermission, userIdForLog) = await CheckPermissionAsync(context, permission);
+
         if (!hasPermission)
         {
-            _logger.LogWarning("用户 {UserId} 没有权限访问 {Permission}，路径: {Path}", 
-                TaktUserContext.CurrentUserId, permission, context.Request.Path);
+            _logger.LogWarning("用户 {UserId} 没有权限访问 {Permission}，路径: {Path}",
+                userIdForLog?.ToString() ?? "(无用户实体)", permission, context.Request.Path);
             throw new UnauthorizedAccessException($"没有权限访问: {permission}");
         }
 
@@ -104,8 +113,8 @@ public class TaktPermissionMiddleware
         }
 
         // 从端点元数据中获取权限标识（从 TaktPermissionAttribute 特性）
-        // 由于特性标记为 Inherited = true，如果方法上有特性就返回方法的，否则返回控制器上的
-        var permissionAttribute = endpoint.Metadata.GetMetadata<TaktPermissionAttribute>();
+        // 同一类型在元数据中可能出现多次（控制器 + 方法）；取最后一个以匹配「方法覆盖控制器」的约定
+        var permissionAttribute = endpoint.Metadata.OfType<TaktPermissionAttribute>().LastOrDefault();
         if (permissionAttribute != null)
         {
             return permissionAttribute.Permission;
@@ -122,42 +131,37 @@ public class TaktPermissionMiddleware
     }
 
     /// <summary>
-    /// 检查用户是否有指定权限
+    /// 检查用户是否有指定权限；返回是否通过及用于日志的用户 Id（与中间件内实际参与校验的实体一致）。
     /// </summary>
-    /// <param name="permission">权限标识</param>
-    /// <returns>是否有权限</returns>
-    private async Task<bool> CheckPermissionAsync(string permission)
+    private async Task<(bool HasPermission, long? UserIdForLog)> CheckPermissionAsync(HttpContext context, string permission)
     {
         try
         {
-            // 如果用户是超级管理员（UserType = 2），拥有所有权限
+            var userContext = context.RequestServices.GetRequiredService<ITaktUserContext>();
             var user = TaktUserContext.CurrentUser;
-            if (user == null)
+            if (user == null && context.User?.Identity?.IsAuthenticated == true)
             {
-                return false;
+                // 与 TaktUserMiddleware 一致：Claims 已认证时从库加载并写回 TaktUserContext（避免仅依赖 AsyncLocal 时序导致 CurrentUser 仍为空）
+                user = await userContext.GetCurrentUserAsync().ConfigureAwait(true);
             }
+
+            if (user == null)
+                return (false, null);
 
             // 超级管理员拥有所有权限
             if (user.UserType == 2)
-            {
-                return true;
-            }
+                return (true, user.Id);
 
-            // TODO: 从数据库查询用户权限
-            // 1. 获取用户的角色列表
-            // 2. 获取角色关联的菜单列表
-            // 3. 检查菜单的权限标识是否匹配
-            // 这里先返回 true，等待权限服务实现后再完善
-            _logger.LogDebug("检查权限: {Permission}, 用户: {UserId}", permission, user.Id);
-            
-            // 临时实现：返回 true（允许访问）
-            // 后续需要实现完整的权限检查逻辑
-            return await Task.FromResult(true);
+            var permissionService = context.RequestServices.GetRequiredService<ITaktUserPermissionService>();
+            var ok = await permissionService.HasMenuPermissionAsync(user.Id, permission, context.RequestAborted).ConfigureAwait(true);
+            if (!ok)
+                _logger.LogDebug("权限校验未通过: Permission={Permission}, UserId={UserId}", permission, user.Id);
+            return (ok, user.Id);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "检查权限时发生异常: {Permission}", permission);
-            return false;
+            return (false, null);
         }
     }
 }

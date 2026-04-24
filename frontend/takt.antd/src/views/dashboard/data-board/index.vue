@@ -26,7 +26,7 @@
                 <template #icon>
                   <RiAddLine />
                 </template>
-                {{ t('dashboard.data-board.addModule') }}
+                {{ t('dashboard.data-board.addmodule') }}
               </a-menu-item>
               <a-menu-item
                 key="remove"
@@ -35,7 +35,7 @@
                 <template #icon>
                   <RiDeleteBinLine />
                 </template>
-                {{ t('dashboard.data-board.removeModule') }}
+                {{ t('dashboard.data-board.removemodule') }}
               </a-menu-item>
             </a-menu>
           </template>
@@ -45,12 +45,12 @@
 
     <a-modal
       v-model:open="showAddModal"
-      :title="t('dashboard.data-board.addModule')"
+      :title="t('dashboard.data-board.addmodule')"
       :width="520"
       @ok="onAddModule"
     >
       <p class="databoard-add-tip">
-        {{ t('dashboard.data-board.selectModuleType') }}
+        {{ t('dashboard.data-board.selectmoduletype') }}
       </p>
       <a-checkbox-group v-model:value="addingKeys">
         <a-row :gutter="[8, 8]">
@@ -179,13 +179,13 @@ function addModule(key: DataBoardModuleKey) {
   }
   modules.value = [...modules.value, newItem]
   saveModules(modules.value)
-  message.success(t('dashboard.data-board.addSuccess'))
+  message.success(t('dashboard.data-board.addsuccess'))
 }
 
 function removeModule(id: string) {
   modules.value = modules.value.filter(m => m.id !== id)
   saveModules(modules.value)
-  message.success(t('dashboard.data-board.removeSuccess'))
+  message.success(t('dashboard.data-board.removesuccess'))
 }
 
 function updateModuleSpan(id: string, span: number) {

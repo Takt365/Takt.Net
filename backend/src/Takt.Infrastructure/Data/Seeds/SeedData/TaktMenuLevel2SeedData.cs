@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktMenuLevel2SeedData.cs
@@ -69,7 +69,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "dashboard:workspace:list";
                 menu.Path = "/dashboard/workspace";
                 menu.Component = "dashboard/workspace/index";
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -89,7 +89,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "dashboard:databoard:list";
                 menu.Path = "/dashboard/data-board";
                 menu.Component = "dashboard/data-board/index";
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -113,7 +113,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "workflow:todo:list";
                 menu.Path = "/workflow/todo";
                 menu.Component = "workflow/todo/index";
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -133,7 +133,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "workflow:my:list";
                 menu.Path = "/workflow/my";
                 menu.Component = "workflow/my/index";
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -153,7 +153,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "workflow:processed:list";
                 menu.Path = "/workflow/processed";
                 menu.Component = "workflow/processed/index";
-                menu.OrderNum = 3;
+                menu.SortOrder = 3;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -175,7 +175,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "workflow:instance:list";
                 menu.Path = "/workflow/instance";
                 menu.Component = "workflow/instance/index";
-                menu.OrderNum = 4;
+                menu.SortOrder = 4;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -196,7 +196,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "workflow:scheme:list";
                 menu.Path = "/workflow/scheme";
                 menu.Component = "workflow/scheme/index";
-                menu.OrderNum = 5;
+                menu.SortOrder = 5;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -217,7 +217,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "workflow:form:list";
                 menu.Path = "/workflow/form";
                 menu.Component = "workflow/form/index";
-                menu.OrderNum = 6;
+                menu.SortOrder = 6;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -240,7 +240,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/routine/business";
                 menu.Component = null;
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -259,7 +259,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/routine/tasks";
                 menu.Component = null;
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -281,7 +281,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/accounting/financial";
                 menu.Component = null;
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -300,7 +300,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/accounting/controlling";
                 menu.Component = null;
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -323,7 +323,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/logistics/sales";
                 menu.Component = null;
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -340,9 +340,9 @@ public class TaktMenuLevel2SeedData
                 menu.MenuIcon = "RiStore2Line";
                 menu.ParentId = logisticsMenu.Id;
                 menu.MenuType = 0;
-                menu.Path = "/logistics/material";
+                menu.Path = "/logistics/materials";
                 menu.Component = null;
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -361,7 +361,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/logistics/manufacturing";
                 menu.Component = null;
-                menu.OrderNum = 3;
+                menu.SortOrder = 3;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -380,7 +380,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/logistics/quality";
                 menu.Component = null;
-                menu.OrderNum = 4;
+                menu.SortOrder = 4;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -400,7 +400,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "logistics:service:list";
                 menu.Path = "/logistics/service";
                 menu.Component = "logistics/sales/service/index";
-                menu.OrderNum = 5;
+                menu.SortOrder = 5;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -419,7 +419,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/logistics/maintenance";
                 menu.Component = null;
-                menu.OrderNum = 6;
+                menu.SortOrder = 6;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -443,7 +443,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "identity:user:list";
                 menu.Path = "/identity/user";
                 menu.Component = "identity/user/index";
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -463,7 +463,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "identity:menu:list";
                 menu.Path = "/identity/menu";
                 menu.Component = "identity/menu/index";
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -483,7 +483,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "identity:role:list";
                 menu.Path = "/identity/role";
                 menu.Component = "identity/role/index";
-                menu.OrderNum = 3;
+                menu.SortOrder = 3;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -503,7 +503,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "identity:tenant:list";
                 menu.Path = "/identity/tenant";
                 menu.Component = "identity/tenant/index";
-                menu.OrderNum = 4;
+                menu.SortOrder = 4;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -527,7 +527,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/human-resource/organization";
                 menu.Component = null;
-                menu.OrderNum = 0;
+                menu.SortOrder = 0;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -547,7 +547,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/human-resource/talent";
                 menu.Component = null;
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -567,7 +567,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/human-resource/personnel";
                 menu.Component = null;
-                menu.OrderNum = 3;
+                menu.SortOrder = 3;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -587,7 +587,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/human-resource/attendance-leave";
                 menu.Component = null;
-                menu.OrderNum = 4;
+                menu.SortOrder = 4;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -607,7 +607,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/human-resource/compensation-benefits";
                 menu.Component = null;
-                menu.OrderNum = 5;
+                menu.SortOrder = 5;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -627,7 +627,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/human-resource/performance";
                 menu.Component = null;
-                menu.OrderNum = 6;
+                menu.SortOrder = 6;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -647,7 +647,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/human-resource/training-development";
                 menu.Component = null;
-                menu.OrderNum = 7;
+                menu.SortOrder = 7;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -671,7 +671,7 @@ public class TaktMenuLevel2SeedData
                 menu.Permission = "code:generator:list";
                 menu.Path = "/code/generator";
                 menu.Component = "code/generator/index";
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -695,7 +695,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/statistics/logging";
                 menu.Component = null;
-                menu.OrderNum = 0;
+                menu.SortOrder = 0;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -715,7 +715,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/statistics/report";
                 menu.Component = null;
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -735,7 +735,7 @@ public class TaktMenuLevel2SeedData
                 menu.MenuType = 0;
                 menu.Path = "/statistics/kanban";
                 menu.Component = null;
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;

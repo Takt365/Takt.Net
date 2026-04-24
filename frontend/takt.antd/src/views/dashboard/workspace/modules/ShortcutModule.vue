@@ -25,7 +25,7 @@
     </a-row>
     <a-modal
       v-model:open="manageVisible"
-      :title="t('dashboard.workspace.manageShortcuts')"
+      :title="t('dashboard.workspace.manageshortcuts')"
       :width="520"
       @ok="handleManageOk"
       @cancel="handleManageCancel"

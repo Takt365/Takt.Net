@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Identity
 // 文件名称：TaktMenu.cs
@@ -18,7 +18,7 @@ namespace Takt.Domain.Entities.Identity;
 /// <summary>
 /// Takt菜单实体
 /// </summary>
-[SugarTable("takt_identity_menu", "菜单表")]
+[SugarTable("takt_identity_menu", "菜单信息表")]
 [SugarIndex("ix_takt_identity_menu_menu_code", nameof(MenuCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_identity_menu_parent_id", nameof(ParentId), OrderByType.Asc)]
 [SugarIndex("ix_takt_identity_menu_type", nameof(MenuType), OrderByType.Asc)]
@@ -73,8 +73,8 @@ public class TaktMenu : TaktEntityBase
     /// <summary>
     /// 排序号（越小越靠前）
     /// </summary>
-    [SugarColumn(ColumnName = "order_num", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int OrderNum { get; set; } = 0;
+    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SortOrder { get; set; } = 0;
 
     /// <summary>
     /// 菜单类型（0=目录，1=菜单，2=按钮）

@@ -1,10 +1,10 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.AttendanceLeave
 // 文件名称：TaktLeaveDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt请假DTO，包含请假相关的数据传输对象（查询、创建、更新、状态、导入导出、提交流程）
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：请假信息表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,9 +17,9 @@ using Takt.Shared.Models;
 namespace Takt.Application.Dtos.HumanResource.AttendanceLeave;
 
 /// <summary>
-/// Takt请假DTO
+/// 请假信息表Dto
 /// </summary>
-public class TaktLeaveDto : TaktDtoBase
+public partial class TaktLeaveDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -27,62 +27,56 @@ public class TaktLeaveDto : TaktDtoBase
     public TaktLeaveDto()
     {
         LeaveType = string.Empty;
+        Reason = string.Empty;
     }
 
     /// <summary>
-    /// 请假ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 请假信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long LeaveId { get; set; }
 
     /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
-
     /// <summary>
-    /// 请假类型（affair/sick/annual 等）
+    /// 请假类型
     /// </summary>
-    public string LeaveType { get; set; } = string.Empty;
-
+    public string LeaveType { get; set; }
     /// <summary>
     /// 开始日期
     /// </summary>
     public DateTime StartDate { get; set; }
-
     /// <summary>
     /// 结束日期
     /// </summary>
     public DateTime EndDate { get; set; }
-
     /// <summary>
     /// 请假事由
     /// </summary>
-    public string? Reason { get; set; }
-
+    public string Reason { get; set; }
     /// <summary>
-    /// 证明附件 JSON
+    /// 证明附件JSON
     /// </summary>
     public string? ProofAttachmentsJson { get; set; }
-
     /// <summary>
     /// 流程实例ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? FlowInstanceId { get; set; }
-
     /// <summary>
-    /// 请假状态：0=草稿 1=审批中 2=已通过 3=已驳回 4=已撤回
+    /// 请假状态
     /// </summary>
     public int LeaveStatus { get; set; }
 }
 
 /// <summary>
-/// Takt请假查询DTO
+/// 请假信息表查询DTO
 /// </summary>
-public class TaktLeaveQueryDto : TaktPagedQuery
+public partial class TaktLeaveQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -91,37 +85,95 @@ public class TaktLeaveQueryDto : TaktPagedQuery
     {
     }
 
-    /// <summary>
-    /// 员工ID（精确）
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long? EmployeeId { get; set; }
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
     /// <summary>
-    /// 请假类型（精确）
+    /// 请假信息表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long LeaveId { get; set; }
+
+    /// <summary>
+    /// 员工ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? EmployeeId { get; set; }
+    /// <summary>
+    /// 请假类型
     /// </summary>
     public string? LeaveType { get; set; }
+    /// <summary>
+    /// 开始日期
+    /// </summary>
+    public DateTime? StartDate { get; set; }
 
     /// <summary>
-    /// 请假状态（精确）
+    /// 开始日期开始时间
+    /// </summary>
+    public DateTime? StartDateStart { get; set; }
+    /// <summary>
+    /// 开始日期结束时间
+    /// </summary>
+    public DateTime? StartDateEnd { get; set; }
+    /// <summary>
+    /// 结束日期
+    /// </summary>
+    public DateTime? EndDate { get; set; }
+
+    /// <summary>
+    /// 结束日期开始时间
+    /// </summary>
+    public DateTime? EndDateStart { get; set; }
+    /// <summary>
+    /// 结束日期结束时间
+    /// </summary>
+    public DateTime? EndDateEnd { get; set; }
+    /// <summary>
+    /// 请假事由
+    /// </summary>
+    public string? Reason { get; set; }
+    /// <summary>
+    /// 证明附件JSON
+    /// </summary>
+    public string? ProofAttachmentsJson { get; set; }
+    /// <summary>
+    /// 流程实例ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? FlowInstanceId { get; set; }
+    /// <summary>
+    /// 请假状态
     /// </summary>
     public int? LeaveStatus { get; set; }
 
     /// <summary>
-    /// 开始日期起（闭区间）
+    /// 创建人ID
     /// </summary>
-    public DateTime? StartDateFrom { get; set; }
-
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
     /// <summary>
-    /// 开始日期止（闭区间）
+    /// 创建人
     /// </summary>
-    public DateTime? StartDateTo { get; set; }
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建请假DTO
+/// Takt创建请假信息表DTO
 /// </summary>
-public class TaktLeaveCreateDto
+public partial class TaktLeaveCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -129,44 +181,66 @@ public class TaktLeaveCreateDto
     public TaktLeaveCreateDto()
     {
         LeaveType = string.Empty;
+        Reason = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
-    /// 请假类型（affair/sick/annual 等）
+        /// <summary>
+    /// 请假类型
     /// </summary>
-    public string LeaveType { get; set; } = string.Empty;
+    public string LeaveType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 开始日期
     /// </summary>
     public DateTime StartDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 结束日期
     /// </summary>
     public DateTime EndDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 请假事由
     /// </summary>
-    public string? Reason { get; set; }
+    public string Reason { get; set; }
 
-    /// <summary>
-    /// 证明附件 JSON
+        /// <summary>
+    /// 证明附件JSON
     /// </summary>
     public string? ProofAttachmentsJson { get; set; }
+
+        /// <summary>
+    /// 流程实例ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? FlowInstanceId { get; set; }
+
+        /// <summary>
+    /// 请假状态
+    /// </summary>
+    public int LeaveStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt更新请假DTO
+/// Takt更新请假信息表DTO
 /// </summary>
-public class TaktLeaveUpdateDto : TaktLeaveCreateDto
+public partial class TaktLeaveUpdateDto : TaktLeaveCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -175,17 +249,18 @@ public class TaktLeaveUpdateDto : TaktLeaveCreateDto
     {
     }
 
-    /// <summary>
-    /// 请假ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 请假信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long LeaveId { get; set; }
 }
 
 /// <summary>
-/// Takt请假状态DTO（更新请假状态，需与流程实例同步）
+/// 请假信息表请假状态DTO
 /// </summary>
-public class TaktLeaveStatusDto
+public partial class TaktLeaveStatusDto
 {
     /// <summary>
     /// 构造函数
@@ -194,28 +269,23 @@ public class TaktLeaveStatusDto
     {
     }
 
-    /// <summary>
-    /// 请假ID
+        /// <summary>
+    /// 请假信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long LeaveId { get; set; }
 
     /// <summary>
-    /// 请假状态：0=草稿 1=审批中 2=已通过 3=已驳回 4=已撤回（与流程实例状态对应同步）
+    /// 请假状态（0=禁用，1=启用）
     /// </summary>
     public int LeaveStatus { get; set; }
-
-    /// <summary>
-    /// 流程实例ID（可选；同步时传入可校验该请假记录所属实例，避免误更新）
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long? FlowInstanceId { get; set; }
 }
 
 /// <summary>
-/// Takt请假导入模板DTO
+/// 请假信息表导入模板DTO
 /// </summary>
-public class TaktLeaveTemplateDto
+public partial class TaktLeaveTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -223,44 +293,64 @@ public class TaktLeaveTemplateDto
     public TaktLeaveTemplateDto()
     {
         LeaveType = string.Empty;
+        Reason = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
-    /// 请假类型（affair/sick/annual 等）
+        /// <summary>
+    /// 请假类型
     /// </summary>
-    public string LeaveType { get; set; } = string.Empty;
+    public string LeaveType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 开始日期
     /// </summary>
     public DateTime StartDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 结束日期
     /// </summary>
     public DateTime EndDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 请假事由
     /// </summary>
-    public string? Reason { get; set; }
+    public string Reason { get; set; }
 
-    /// <summary>
-    /// 证明附件 JSON（可选）
+        /// <summary>
+    /// 证明附件JSON
     /// </summary>
     public string? ProofAttachmentsJson { get; set; }
+
+        /// <summary>
+    /// 流程实例ID
+    /// </summary>
+    public long? FlowInstanceId { get; set; }
+
+        /// <summary>
+    /// 请假状态
+    /// </summary>
+    public int LeaveStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt请假导入DTO
+/// 请假信息表导入DTO
 /// </summary>
-public class TaktLeaveImportDto
+public partial class TaktLeaveImportDto
 {
     /// <summary>
     /// 构造函数
@@ -268,99 +358,112 @@ public class TaktLeaveImportDto
     public TaktLeaveImportDto()
     {
         LeaveType = string.Empty;
+        Reason = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
-    /// 请假类型（affair/sick/annual 等）
+        /// <summary>
+    /// 请假类型
     /// </summary>
-    public string LeaveType { get; set; } = string.Empty;
+    public string LeaveType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 开始日期
     /// </summary>
     public DateTime StartDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 结束日期
     /// </summary>
     public DateTime EndDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 请假事由
     /// </summary>
-    public string? Reason { get; set; }
+    public string Reason { get; set; }
 
-    /// <summary>
-    /// 证明附件 JSON（可选）
+        /// <summary>
+    /// 证明附件JSON
     /// </summary>
     public string? ProofAttachmentsJson { get; set; }
+
+        /// <summary>
+    /// 流程实例ID
+    /// </summary>
+    public long? FlowInstanceId { get; set; }
+
+        /// <summary>
+    /// 请假状态
+    /// </summary>
+    public int LeaveStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt请假导出DTO
+/// 请假信息表导出DTO
 /// </summary>
-public class TaktLeaveExportDto
+public partial class TaktLeaveExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktLeaveExportDto()
     {
-        LeaveType = string.Empty;
         CreatedAt = DateTime.Now;
+        LeaveType = string.Empty;
+        Reason = string.Empty;
     }
 
-    /// <summary>
-    /// 请假ID
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long LeaveId { get; set; }
-
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 请假类型
     /// </summary>
-    public string LeaveType { get; set; } = string.Empty;
+    public string LeaveType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 开始日期
     /// </summary>
     public DateTime StartDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 结束日期
     /// </summary>
     public DateTime EndDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 请假事由
     /// </summary>
-    public string? Reason { get; set; }
+    public string Reason { get; set; }
 
-    /// <summary>
-    /// 证明附件 JSON
+        /// <summary>
+    /// 证明附件JSON
     /// </summary>
     public string? ProofAttachmentsJson { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 流程实例ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long? FlowInstanceId { get; set; }
 
-    /// <summary>
-    /// 请假状态：0=草稿 1=审批中 2=已通过 3=已驳回 4=已撤回
+        /// <summary>
+    /// 请假状态
     /// </summary>
     public int LeaveStatus { get; set; }
 
@@ -368,103 +471,4 @@ public class TaktLeaveExportDto
     /// 创建时间
     /// </summary>
     public DateTime CreatedAt { get; set; }
-}
-
-/// <summary>
-/// Takt请假提交入参（新增请假并发起流程）
-/// </summary>
-public class TaktLeaveSubmitDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktLeaveSubmitDto()
-    {
-        LeaveType = string.Empty;
-    }
-
-    /// <summary>
-    /// 员工ID
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long EmployeeId { get; set; }
-
-    /// <summary>
-    /// 请假类型（affair/sick/annual 等）
-    /// </summary>
-    public string LeaveType { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 开始日期
-    /// </summary>
-    public DateTime StartDate { get; set; }
-
-    /// <summary>
-    /// 结束日期
-    /// </summary>
-    public DateTime EndDate { get; set; }
-
-    /// <summary>
-    /// 请假事由
-    /// </summary>
-    public string? Reason { get; set; }
-
-    /// <summary>
-    /// 证明附件 JSON
-    /// </summary>
-    public string? ProofAttachmentsJson { get; set; }
-
-    /// <summary>
-    /// 流程标题（可选，默认自动生成）
-    /// </summary>
-    public string? ProcessTitle { get; set; }
-
-    /// <summary>
-    /// 流程表单数据 JSON（可选）
-    /// </summary>
-    public string? FrmData { get; set; }
-}
-
-/// <summary>
-/// Takt请假提交结果（含流程实例信息，用于匹配）
-/// </summary>
-public class TaktLeaveSubmitResultDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktLeaveSubmitResultDto()
-    {
-        InstanceCode = string.Empty;
-        ProcessKey = "Leave";
-        ProcessName = string.Empty;
-    }
-
-    /// <summary>
-    /// 请假主键
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long LeaveId { get; set; }
-
-    /// <summary>
-    /// 流程实例ID（与 TaktLeave.FlowInstanceId 一致）
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long FlowInstanceId { get; set; }
-
-    /// <summary>
-    /// 流程实例编码
-    /// </summary>
-    public string InstanceCode { get; set; }
-
-
-    /// <summary>
-    /// 流程Key（Leave）
-    /// </summary>
-    public string ProcessKey { get; set; } = "Leave";
-
-    /// <summary>
-    /// 流程名称
-    /// </summary>
-    public string ProcessName { get; set; } = string.Empty;
 }

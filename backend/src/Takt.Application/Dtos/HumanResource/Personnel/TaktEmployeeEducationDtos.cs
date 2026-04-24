@@ -1,10 +1,10 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.Personnel
 // 文件名称：TaktEmployeeEducationDtos.cs
-// 创建时间：2026-04-14
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt员工教育经历DTO，包含员工教育经历相关的数据传输对象（查询、创建、更新、导入导出）
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：员工教育履历表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,9 +17,9 @@ using Takt.Shared.Models;
 namespace Takt.Application.Dtos.HumanResource.Personnel;
 
 /// <summary>
-/// Takt员工教育经历DTO
+/// 员工教育履历表Dto
 /// </summary>
-public class TaktEmployeeEducationDto : TaktDtoBase
+public partial class TaktEmployeeEducationDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -27,57 +27,48 @@ public class TaktEmployeeEducationDto : TaktDtoBase
     public TaktEmployeeEducationDto()
     {
         SchoolName = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 员工教育经历ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 员工教育履历表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeEducationId { get; set; }
 
     /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
-
     /// <summary>
-    /// 学历层次（0=其他，1=高中及以下，2=大专，3=本科，4=硕士，5=博士）
+    /// 学历层次
     /// </summary>
     public int EducationLevel { get; set; }
-
     /// <summary>
     /// 学校名称
     /// </summary>
     public string SchoolName { get; set; }
-
     /// <summary>
     /// 专业
     /// </summary>
     public string? MajorName { get; set; }
-
     /// <summary>
-    /// 学位（0=无，1=学士，2=硕士，3=博士）
+    /// 学位
     /// </summary>
     public int DegreeLevel { get; set; }
-
     /// <summary>
     /// 入学日期
     /// </summary>
     public DateTime? StartDate { get; set; }
-
     /// <summary>
     /// 毕业日期
     /// </summary>
     public DateTime? EndDate { get; set; }
-
     /// <summary>
-    /// 是否最高学历（0=否，1=是）
+    /// 是否最高学历
     /// </summary>
     public int IsHighest { get; set; }
-
     /// <summary>
     /// 证书编号
     /// </summary>
@@ -85,9 +76,9 @@ public class TaktEmployeeEducationDto : TaktDtoBase
 }
 
 /// <summary>
-/// Takt员工教育经历查询DTO
+/// 员工教育履历表查询DTO
 /// </summary>
-public class TaktEmployeeEducationQueryDto : TaktPagedQuery
+public partial class TaktEmployeeEducationQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -96,32 +87,98 @@ public class TaktEmployeeEducationQueryDto : TaktPagedQuery
     {
     }
 
-    /// <summary>
-    /// 员工ID（精确）
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long? EmployeeId { get; set; }
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
     /// <summary>
-    /// 学历层次（精确）
+    /// 员工教育履历表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeEducationId { get; set; }
+
+    /// <summary>
+    /// 员工ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? EmployeeId { get; set; }
+    /// <summary>
+    /// 学历层次
     /// </summary>
     public int? EducationLevel { get; set; }
-
     /// <summary>
-    /// 是否最高学历（精确）
-    /// </summary>
-    public int? IsHighest { get; set; }
-
-    /// <summary>
-    /// 学校名称（模糊）
+    /// 学校名称
     /// </summary>
     public string? SchoolName { get; set; }
+    /// <summary>
+    /// 专业
+    /// </summary>
+    public string? MajorName { get; set; }
+    /// <summary>
+    /// 学位
+    /// </summary>
+    public int? DegreeLevel { get; set; }
+    /// <summary>
+    /// 入学日期
+    /// </summary>
+    public DateTime? StartDate { get; set; }
+
+    /// <summary>
+    /// 入学日期开始时间
+    /// </summary>
+    public DateTime? StartDateStart { get; set; }
+    /// <summary>
+    /// 入学日期结束时间
+    /// </summary>
+    public DateTime? StartDateEnd { get; set; }
+    /// <summary>
+    /// 毕业日期
+    /// </summary>
+    public DateTime? EndDate { get; set; }
+
+    /// <summary>
+    /// 毕业日期开始时间
+    /// </summary>
+    public DateTime? EndDateStart { get; set; }
+    /// <summary>
+    /// 毕业日期结束时间
+    /// </summary>
+    public DateTime? EndDateEnd { get; set; }
+    /// <summary>
+    /// 是否最高学历
+    /// </summary>
+    public int? IsHighest { get; set; }
+    /// <summary>
+    /// 证书编号
+    /// </summary>
+    public string? CertificateNo { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建员工教育经历DTO
+/// Takt创建员工教育履历表DTO
 /// </summary>
-public class TaktEmployeeEducationCreateDto
+public partial class TaktEmployeeEducationCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -131,57 +188,67 @@ public class TaktEmployeeEducationCreateDto
         SchoolName = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
-    /// 学历层次（0=其他，1=高中及以下，2=大专，3=本科，4=硕士，5=博士）
+        /// <summary>
+    /// 学历层次
     /// </summary>
     public int EducationLevel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 学校名称
     /// </summary>
     public string SchoolName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 专业
     /// </summary>
     public string? MajorName { get; set; }
 
-    /// <summary>
-    /// 学位（0=无，1=学士，2=硕士，3=博士）
+        /// <summary>
+    /// 学位
     /// </summary>
     public int DegreeLevel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 入学日期
     /// </summary>
     public DateTime? StartDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 毕业日期
     /// </summary>
     public DateTime? EndDate { get; set; }
 
-    /// <summary>
-    /// 是否最高学历（0=否，1=是）
+        /// <summary>
+    /// 是否最高学历
     /// </summary>
     public int IsHighest { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 证书编号
     /// </summary>
     public string? CertificateNo { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt更新员工教育经历DTO
+/// Takt更新员工教育履历表DTO
 /// </summary>
-public class TaktEmployeeEducationUpdateDto : TaktEmployeeEducationCreateDto
+public partial class TaktEmployeeEducationUpdateDto : TaktEmployeeEducationCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -190,17 +257,18 @@ public class TaktEmployeeEducationUpdateDto : TaktEmployeeEducationCreateDto
     {
     }
 
-    /// <summary>
-    /// 员工教育经历ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 员工教育履历表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeEducationId { get; set; }
 }
 
 /// <summary>
-/// Takt员工教育经历导入模板DTO
+/// 员工教育履历表导入模板DTO
 /// </summary>
-public class TaktEmployeeEducationTemplateDto
+public partial class TaktEmployeeEducationTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -210,122 +278,186 @@ public class TaktEmployeeEducationTemplateDto
         SchoolName = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long? EmployeeId { get; set; }
+    public long EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 学历层次
     /// </summary>
     public int EducationLevel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 学校名称
     /// </summary>
     public string SchoolName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 专业
     /// </summary>
     public string? MajorName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 学位
     /// </summary>
     public int DegreeLevel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 入学日期
     /// </summary>
     public DateTime? StartDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 毕业日期
     /// </summary>
     public DateTime? EndDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 是否最高学历
     /// </summary>
     public int IsHighest { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 证书编号
     /// </summary>
     public string? CertificateNo { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt员工教育经历导入DTO
+/// 员工教育履历表导入DTO
 /// </summary>
-public class TaktEmployeeEducationImportDto : TaktEmployeeEducationTemplateDto
+public partial class TaktEmployeeEducationImportDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktEmployeeEducationImportDto()
+    {
+        SchoolName = string.Empty;
+    }
+
+        /// <summary>
+    /// 员工ID
+    /// </summary>
+    public long EmployeeId { get; set; }
+
+        /// <summary>
+    /// 学历层次
+    /// </summary>
+    public int EducationLevel { get; set; }
+
+        /// <summary>
+    /// 学校名称
+    /// </summary>
+    public string SchoolName { get; set; }
+
+        /// <summary>
+    /// 专业
+    /// </summary>
+    public string? MajorName { get; set; }
+
+        /// <summary>
+    /// 学位
+    /// </summary>
+    public int DegreeLevel { get; set; }
+
+        /// <summary>
+    /// 入学日期
+    /// </summary>
+    public DateTime? StartDate { get; set; }
+
+        /// <summary>
+    /// 毕业日期
+    /// </summary>
+    public DateTime? EndDate { get; set; }
+
+        /// <summary>
+    /// 是否最高学历
+    /// </summary>
+    public int IsHighest { get; set; }
+
+        /// <summary>
+    /// 证书编号
+    /// </summary>
+    public string? CertificateNo { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt员工教育经历导出DTO
+/// 员工教育履历表导出DTO
 /// </summary>
-public class TaktEmployeeEducationExportDto
+public partial class TaktEmployeeEducationExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktEmployeeEducationExportDto()
     {
-        SchoolName = string.Empty;
         CreatedAt = DateTime.Now;
+        SchoolName = string.Empty;
     }
 
-    /// <summary>
-    /// 员工教育经历ID
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long EmployeeEducationId { get; set; }
-
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 学历层次
     /// </summary>
     public int EducationLevel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 学校名称
     /// </summary>
     public string SchoolName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 专业
     /// </summary>
     public string? MajorName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 学位
     /// </summary>
     public int DegreeLevel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 入学日期
     /// </summary>
     public DateTime? StartDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 毕业日期
     /// </summary>
     public DateTime? EndDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 是否最高学历
     /// </summary>
     public int IsHighest { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 证书编号
     /// </summary>
     public string? CertificateNo { get; set; }

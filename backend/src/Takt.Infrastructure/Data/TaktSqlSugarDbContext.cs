@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.Data
 // 文件名称：TaktSqlSugarDbContext.cs
@@ -38,7 +38,7 @@ public class TaktSqlSugarDbContext
     }
 
     /// <summary>
-    /// 获取数据库客户端（根据实体类型自动切换数据库）
+    /// 获取数据库客户端（优先使用实体类型自动路由，未提供实体时使用租户上下文）
     /// </summary>
     /// <param name="entityType">实体类型（可选，用于自动路由到对应的数据库）</param>
     /// <returns>SqlSugar客户端</returns>
@@ -46,12 +46,12 @@ public class TaktSqlSugarDbContext
     {
         string configId;
         
-        // 如果提供了实体类型，根据实体类型自动获取对应的 ConfigId（多库自动切换）
+        // 优先级1：如果提供了实体类型，根据实体命名空间自动路由到物理库（多库架构核心）
         if (entityType != null)
         {
             configId = TaktEntityDatabaseMapping.GetPersistenceConfigIdForEntityType(entityType, _configuration);
         }
-        // 否则使用租户上下文中的 ConfigId（多租户模式）
+        // 优先级2：否则使用租户上下文中的 ConfigId（跨库查询、无实体类型的场景）
         else
         {
             configId = TaktTenantContext.CurrentConfigId ?? TaktAppConstants.DefaultConfigId;

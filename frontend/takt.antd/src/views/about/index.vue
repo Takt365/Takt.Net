@@ -11,39 +11,39 @@
       :column="1"
       bordered
     >
-      <a-descriptions-item label="系统名称">
-        {{ $t('common.app.name') }}
+      <a-descriptions-item :label="t('about.page.systemname')">
+        {{ t('common.app.name') }}
       </a-descriptions-item>
-      <a-descriptions-item label="系统版本">
+      <a-descriptions-item :label="t('about.page.systemversion')">
         V{{ appInfo.pkg.version }}
       </a-descriptions-item>
-      <a-descriptions-item label="产品代码">
-        {{ $t('common.app.productcode') }}
+      <a-descriptions-item :label="t('about.page.productcode')">
+        {{ t('common.app.productcode') }}
       </a-descriptions-item>
-      <a-descriptions-item label="项目文档">
+      <a-descriptions-item :label="t('about.page.projectdoc')">
         <a
           :href="repoUrl"
           target="_blank"
           rel="noopener noreferrer"
           class="about-link"
-        ><span class="about-link-inner"><RiFileTextLine />项目文档</span></a>
+        ><span class="about-link-inner"><RiFileTextLine />{{ t('about.page.doclink') }}</span></a>
         <a
           :href="licenseUrl"
           target="_blank"
           rel="noopener noreferrer"
           class="about-link"
-        ><span class="about-link-inner"><RiCopyrightLine />开源许可</span></a>
+        ><span class="about-link-inner"><RiCopyrightLine />{{ t('about.page.license') }}</span></a>
         <router-link
           to="/privacy"
           class="about-link"
         >
-          <span class="about-link-inner"><RiShieldLine />隐私政策</span>
+          <span class="about-link-inner"><RiShieldLine />{{ t('about.page.privacy') }}</span>
         </router-link>
         <router-link
           to="/terms"
           class="about-link"
         >
-          <span class="about-link-inner"><RiFileList3Line />服务条款</span>
+          <span class="about-link-inner"><RiFileList3Line />{{ t('about.page.terms') }}</span>
         </router-link>
       </a-descriptions-item>
     </a-descriptions>
@@ -62,34 +62,37 @@
 <script setup lang="ts">
 import type { TableColumnsType } from 'ant-design-vue'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RiFileTextLine, RiCopyrightLine, RiShieldLine, RiFileList3Line } from '@remixicon/vue'
 import { appInfo } from '@/utils/appMeta'
+
+const { t } = useI18n()
 
 const repoUrl = 'https://github.com/Lean365/Takt.Net'
 const licenseUrl = 'https://github.com/Lean365/Takt.Net/blob/master/LICENSE'
 
-const columns: TableColumnsType = [
+const columns = computed<TableColumnsType>(() => [
   {
-    title: '生产依赖',
+    title: t('about.page.depgroup'),
     children: [
-      { title: '名称', dataIndex: 'depName1', key: 'depName1', ellipsis: true },
-      { title: '版本', dataIndex: 'depVer1', key: 'depVer1', ellipsis: true },
-      { title: '名称', dataIndex: 'depName2', key: 'depName2', ellipsis: true },
-      { title: '版本', dataIndex: 'depVer2', key: 'depVer2', ellipsis: true }
+      { title: t('about.page.depname'), dataIndex: 'depName1', key: 'depName1', ellipsis: true },
+      { title: t('about.page.depversion'), dataIndex: 'depVer1', key: 'depVer1', ellipsis: true },
+      { title: t('about.page.depname'), dataIndex: 'depName2', key: 'depName2', ellipsis: true },
+      { title: t('about.page.depversion'), dataIndex: 'depVer2', key: 'depVer2', ellipsis: true }
     ]
   },
   {
-    title: '开发依赖',
+    title: t('about.page.devgroup'),
     children: [
-      { title: '名称', dataIndex: 'devName1', key: 'devName1', ellipsis: true },
-      { title: '版本', dataIndex: 'devVer1', key: 'devVer1', ellipsis: true },
-      { title: '名称', dataIndex: 'devName2', key: 'devName2', ellipsis: true },
-      { title: '版本', dataIndex: 'devVer2', key: 'devVer2', ellipsis: true }
+      { title: t('about.page.depname'), dataIndex: 'devName1', key: 'devName1', ellipsis: true },
+      { title: t('about.page.depversion'), dataIndex: 'devVer1', key: 'devVer1', ellipsis: true },
+      { title: t('about.page.depname'), dataIndex: 'devName2', key: 'devName2', ellipsis: true },
+      { title: t('about.page.depversion'), dataIndex: 'devVer2', key: 'devVer2', ellipsis: true }
     ]
   }
-]
+])
 
-function toRows(record: Record<string, string>) {
+const toRows = (record: Record<string, string>) => {
   const list = Object.entries(record).map(([name, version]) => ({ name, version }))
   const rows: { name1: string; version1: string; name2: string; version2: string }[] = []
   for (let i = 0; i < list.length; i += 2) {

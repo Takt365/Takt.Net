@@ -9,7 +9,7 @@
       </a-col>
       <a-col :span="8">
         <a-statistic
-          :title="t('dashboard.data-board.production.yieldRate')"
+          :title="t('dashboard.data-board.production.yieldrate')"
           :value="productionStats.yieldRate"
           suffix="%"
           :precision="1"

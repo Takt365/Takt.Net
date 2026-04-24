@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Identity
 // 文件名称：TaktUsersController.cs
@@ -18,7 +18,7 @@ using Takt.Application.Services.Identity;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.Identity;
 
@@ -424,7 +424,7 @@ public class TaktUsersController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _userService.GetUserTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -479,11 +479,27 @@ public class TaktUsersController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _userService.ExportUserAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {
             return BadRequest(GetLocalizedExceptionMessage(ex));
         }
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计用户总数
+    /// </summary>
+    /// <returns>用户总数</returns>
+    [HttpGet("stats/count")]
+    [TaktPermission("identity:user:list", "统计用户总数")]
+    public async Task<ActionResult<long>> GetUserCountAsync()
+    {
+        var count = await _userService.GetUserCountAsync();
+        return Ok(count);
+    }
+
+    #endregion
 }

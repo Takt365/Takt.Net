@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Accounting.Financial
 // 文件名称：TaktCompany.cs
@@ -18,7 +18,7 @@ namespace Takt.Domain.Entities.Accounting.Financial;
 /// <summary>
 /// Takt公司实体
 /// </summary>
-[SugarTable("takt_accounting_financial_company", "公司表")]
+[SugarTable("takt_accounting_financial_company", "公司信息表")]
 [SugarIndex("ix_takt_accounting_financial_company_company_code", nameof(CompanyCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_financial_company_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_financial_company_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
@@ -191,6 +191,6 @@ public class TaktCompany : TaktEntityBase
     /// <summary>
     /// 排序号（越小越靠前）
     /// </summary>
-    [SugarColumn(ColumnName = "order_num", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int OrderNum { get; set; } = 0;
+    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SortOrder { get; set; } = 0;
 }

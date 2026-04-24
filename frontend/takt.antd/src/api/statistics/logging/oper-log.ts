@@ -18,7 +18,7 @@ const operLogUrl = '/api/TaktOperLogs'
 
 /**
  * 获取操作日志列表（分页）
- * 对应后端：GetListAsync
+ * 对应后端应用服务：GetOperLogListAsync（TaktOperLogsController.GetOperLogListAsync）
  */
 export function getOperLogList(params: OperLogQuery): Promise<TaktPagedResult<OperLog>> {
   return request({
@@ -30,7 +30,7 @@ export function getOperLogList(params: OperLogQuery): Promise<TaktPagedResult<Op
 
 /**
  * 根据ID获取操作日志
- * 对应后端：GetByIdAsync
+ * 对应后端应用服务：GetOperLogByIdAsync（TaktOperLogsController.GetOperLogByIdAsync）
  */
 export function getOperLogById(id: string): Promise<OperLog> {
   return request({
@@ -40,10 +40,10 @@ export function getOperLogById(id: string): Promise<OperLog> {
 }
 
 /**
- * 删除操作日志
- * 对应后端：DeleteAsync
+ * 删除操作日志（单条）
+ * 对应后端应用服务：DeleteOperLogByIdAsync（TaktOperLogsController.DeleteOperLogByIdAsync）
  */
-export function deleteOperLog(id: string): Promise<void> {
+export function deleteOperLogById(id: string): Promise<void> {
   return request({
     url: `${operLogUrl}/${id}`,
     method: 'delete'
@@ -52,7 +52,7 @@ export function deleteOperLog(id: string): Promise<void> {
 
 /**
  * 批量删除操作日志
- * 对应后端：DeleteBatchAsync
+ * 对应后端应用服务：DeleteOperLogBatchAsync（TaktOperLogsController.DeleteOperLogBatchAsync）
  */
 export function deleteOperLogBatch(ids: number[]): Promise<void> {
   return request({
@@ -64,9 +64,9 @@ export function deleteOperLogBatch(ids: number[]): Promise<void> {
 
 /**
  * 导出操作日志
- * 对应后端：ExportAsync
+ * 对应后端应用服务：ExportOperLogAsync（TaktOperLogsController.ExportOperLogAsync）
  */
-export function exportOperLog(query: OperLogQuery, sheetName?: string, fileName?: string): Promise<Blob> {
+export function exportOperLogData(query: OperLogQuery, sheetName?: string, fileName?: string): Promise<Blob> {
   return request({
     url: `${operLogUrl}/export`,
     method: 'get',

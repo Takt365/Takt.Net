@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktMenuButtonSeedData.cs
@@ -195,8 +195,8 @@ public class TaktMenuButtonSeedData
         var buttonPerms = new[] { "query", "create", "update", "delete", "detail", "preview", "print", "import", "export", "template", "approve", "revoke" };
 
         // 身份认证（identity）扩展按钮
-        var buttonIdNames = new[] { "查询", "新增", "修改", "删除", "详情", "预览", "打印", "导入", "导出", "模板", "审批", "撤销", "授权", "分配", "重置密码", "变更密码", "清空", "截断", "解锁", "禁用" };
-        var buttonIdPerms = new[] { "query", "create", "update", "delete", "detail", "preview", "print", "import", "export", "template", "approve", "revoke", "authorize", "allocate", "resetpwd", "changepwd", "empty", "truncate", "unlock", "disable" };
+        var buttonIdNames = new[] { "查询", "新增", "修改", "删除", "详情", "预览", "打印", "导入", "导出", "模板", "审批", "撤销", "授权", "分配", "重置密码", "变更密码", "重置", "变更", "清空", "截断", "解锁", "禁用" };
+        var buttonIdPerms = new[] { "query", "create", "update", "delete", "detail", "preview", "print", "import", "export", "template", "approve", "revoke", "authorize", "allocate", "resetpwd", "changepwd", "reset", "change", "empty", "truncate", "unlock", "disable" };
 
         var buttonGenNames = new[] { "查询", "新增", "修改", "删除", "生成", "预览", "下载", "同步", "导入", "导出", "模板", "字段", "表", "数据库", "初始化", "克隆", "清空", "截断" };
         var buttonGenPerms = new[] { "query", "create", "update", "delete", "generate", "preview", "download", "sync", "import", "export", "template", "columns", "tables", "databases", "initialize", "clone", "empty", "truncate" };
@@ -286,7 +286,7 @@ public class TaktMenuButtonSeedData
     /// <param name="menuName">按钮显示名称。</param>
     /// <param name="permission">按钮完整权限标识。</param>
     /// <param name="menuL10nKey">多语言键，形如 <c>common.button.xxx</c>。</param>
-    /// <param name="orderNum">同级排序号。</param>
+    /// <param name="SortOrder">同级排序号。</param>
     /// <returns>元组：(1,0) 表示新建，(0,1) 表示更新。</returns>
     private static async Task<(int InsertCount, int UpdateCount)> CreateOrUpdateButtonAsync(
         ITaktRepository<TaktMenu> menuRepository,
@@ -295,7 +295,7 @@ public class TaktMenuButtonSeedData
         string menuName,
         string permission,
         string menuL10nKey,
-        int orderNum)
+        int SortOrder)
     {
         var button = await menuRepository.GetAsync(m => m.MenuCode == menuCode);
 
@@ -310,7 +310,7 @@ public class TaktMenuButtonSeedData
                 ParentId = parentId,
                 MenuType = 2,
                 Permission = permission,
-                OrderNum = orderNum,
+                SortOrder = SortOrder,
                 MenuStatus = 1,
                 IsVisible = 1,
                 IsCache = 0,
@@ -327,7 +327,7 @@ public class TaktMenuButtonSeedData
         button.ParentId = parentId;
         button.MenuType = 2;
         button.Permission = permission;
-        button.OrderNum = orderNum;
+        button.SortOrder = SortOrder;
         button.MenuStatus = 1;
         button.IsVisible = 1;
         button.IsCache = 0;

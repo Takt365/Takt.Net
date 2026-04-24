@@ -9,42 +9,45 @@ import { logger } from '@/utils/logger'
 
 const t = (key: string) => (i18n.global.t as (k: string) => string)(key)
 
-type ActionRecord = Record<string, unknown>
+/** 表格 customRender 传入的 record 在 Ant Design Vue 侧为宽松结构；与旧版 ActionColumn 回调一致 */
+export type ActionRecord = Record<string, unknown>
 
-export interface ActionColumnItem {
+export interface ActionColumnItem<TRow = ActionRecord> {
   key: string
   label?: string
   /** 按钮形状：standard（标准，图标+文本）、plain（透明背景，图标或图标+文本）、circle（圆形，只显示图标） */
   shape?: 'standard' | 'plain' | 'circle'
   size?: 'small' | 'middle' | 'large'
-  disabled?: boolean | ((record: ActionRecord, index: number) => boolean)
-  disabledFn?: (record: ActionRecord, index: number) => boolean
-  loading?: boolean | ((record: ActionRecord, index: number) => boolean)
-  loadingFn?: (record: ActionRecord, index: number) => boolean
+  disabled?: boolean | ((record: TRow, index: number) => boolean)
+  disabledFn?: (record: TRow, index: number) => boolean
+  loading?: boolean | ((record: TRow, index: number) => boolean)
+  loadingFn?: (record: TRow, index: number) => boolean
   /** 是否显示按钮，可以是布尔值或函数（根据记录动态判断） */
-  visible?: boolean | ((record: ActionRecord, index: number) => boolean)
+  visible?: boolean | ((record: TRow, index: number) => boolean)
   /** 图标组件或 CSS 类名（如 'ri-edit-line'） */
   icon?: Component | string
   permission?: string
   /** 按钮样式类名（如：takt-button-detail） */
   buttonClass?: string
-  onClick?: (record: ActionRecord, index: number) => void
+  onClick?: (record: TRow, index: number) => void
 }
 
-export interface ActionColumnOptions {
+export interface ActionColumnOptions<TRow = ActionRecord> {
   title?: string
   width?: number | string
   fixed?: boolean | 'left' | 'right'
   align?: 'left' | 'right' | 'center'
-  actions: ActionColumnItem[]
+  actions: ActionColumnItem<TRow>[]
 }
 
 /**
  * 创建操作列配置
- * @param options 操作列选项
+ * @param options 操作列选项；泛型 `TRow` 与本页表格行类型一致，便于 `visible` / `onClick` 等回调入参类型准确
  * @returns 表格列配置
  */
-export function CreateActionColumn(options: ActionColumnOptions): TableColumnsType[0] {
+export function CreateActionColumn<TRow = ActionRecord>(
+  options: ActionColumnOptions<TRow>
+): TableColumnsType[0] {
   const {
     title = t('common.action.operation'),
     width = 148, // 4px + 24px×4 + 4px×3 + 4px = 116px
@@ -55,6 +58,8 @@ export function CreateActionColumn(options: ActionColumnOptions): TableColumnsTy
 
   const permissionStore = usePermissionStore()
 
+  const toRow = (record: ActionRecord): TRow => record as unknown as TRow
+
   return {
     key: 'action',
     title,
@@ -63,19 +68,19 @@ export function CreateActionColumn(options: ActionColumnOptions): TableColumnsTy
     align,
     className: 'takt-action-column',
     customRender: ({ record, index }: { record: ActionRecord; index: number }) => {
+      const row = toRow(record)
       // 严格过滤：只有有权限且可见的操作才显示
       const filteredActions = actions.filter(action => {
         try {
           // 首先检查 visible 属性
           if (action.visible !== undefined) {
-            const isVisible = typeof action.visible === 'function' 
-              ? action.visible(record, index)
-              : action.visible
+            const isVisible =
+              typeof action.visible === 'function' ? action.visible(row, index) : action.visible
             if (!isVisible) {
               return false
             }
           }
-          
+
           // 然后检查权限
           if (action.permission) {
             const hasPerm = permissionStore.hasPermission(action.permission)
@@ -97,14 +102,18 @@ export function CreateActionColumn(options: ActionColumnOptions): TableColumnsTy
       })
 
       // 创建按钮的辅助函数
-      const createButton = (action: ActionColumnItem) => {
-        const disabled = typeof action.disabled === 'function' 
-          ? action.disabled(record, index)
-          : (action.disabled || (action.disabledFn && action.disabledFn(record, index)))
-        
-        const loading = typeof action.loading === 'function'
-          ? action.loading(record, index)
-          : (action.loading || (action.loadingFn && action.loadingFn(record, index)))
+      const createButton = (action: ActionColumnItem<TRow>) => {
+        const disabledRaw =
+          typeof action.disabled === 'function'
+            ? action.disabled(row, index)
+            : action.disabled || (action.disabledFn ? action.disabledFn(row, index) : false)
+        const loadingRaw =
+          typeof action.loading === 'function'
+            ? action.loading(row, index)
+            : action.loading || (action.loadingFn ? action.loadingFn(row, index) : false)
+        /** a-button 在严格类型下不接受 undefined，统一为 boolean */
+        const disabled = Boolean(disabledRaw)
+        const loading = Boolean(loadingRaw)
 
         // 自动推断按钮类名（如果未指定 buttonClass）
         // 操作列中的 plain 按钮使用无边框版本
@@ -113,18 +122,20 @@ export function CreateActionColumn(options: ActionColumnOptions): TableColumnsTy
           action.shape === 'plain' ? 'takt-button-plain-borderless' : undefined,
           action.shape === 'plain' && !action.label ? 'takt-button-plain-icon-only' : undefined,
           action.shape === 'circle' ? 'takt-button-circle' : undefined
-        ].filter(Boolean).join(' ')
-        
+        ]
+          .filter(Boolean)
+          .join(' ')
+
         const buttonProps = {
           class: buttonClass,
-          size: action.size || 'small',
+          size: (action.size || 'small') as 'small' | 'middle' | 'large',
           disabled,
           loading,
-                onClick: () => {
-                  if (action.onClick) {
-                    action.onClick(record, index)
-                  }
-                }
+          onClick: () => {
+            if (action.onClick) {
+              action.onClick(row, index)
+            }
+          }
         }
 
         const buttonChildren: Array<VNode | string> = []
@@ -145,42 +156,44 @@ export function CreateActionColumn(options: ActionColumnOptions): TableColumnsTy
         }
 
         const button = h(Button, buttonProps, { default: () => buttonChildren })
-        
+
         // Plain 模式且只显示图标时，使用 tooltip 显示提示文本
         // 注意：使用 render 函数而不是插槽，以减少 Vue 警告
         if (action.shape === 'plain' && action.label && action.icon) {
-          return h(Tooltip, { 
-            title: action.label,
-            // 使用 getPopupContainer 确保 Tooltip 正确渲染
-            getPopupContainer: (triggerNode: HTMLElement) => triggerNode.parentElement || document.body
-          }, {
-            default: () => button
-          })
+          return h(
+            Tooltip,
+            {
+              title: action.label,
+              // 使用 getPopupContainer 确保 Tooltip 正确渲染
+              getPopupContainer: (triggerNode: HTMLElement) => triggerNode.parentElement || document.body
+            },
+            {
+              default: () => button
+            }
+          )
         }
-        
+
         return button
       }
 
       // <=3 个按钮：显示所有按钮，不显示 More
       // >=4 个按钮：显示前 3 个按钮 + 1 个 More 按钮
       const maxVisibleButtons = 3
-      
+
       // 调试日志
       logger.debug('[TaktActionColumn] 按钮过滤结果:', {
         totalActions: actions.length,
         filteredActionsCount: filteredActions.length,
         filteredActionKeys: filteredActions.map(a => a.key)
       })
-      
+
       // 判断是否需要显示 More 按钮
       const shouldShowMore = filteredActions.length > maxVisibleButtons
-      
+
       const visibleActions = shouldShowMore
         ? filteredActions.slice(0, maxVisibleButtons)
         : filteredActions
-      const moreActions = shouldShowMore
-        ? filteredActions.slice(maxVisibleButtons)
-        : []
+      const moreActions = shouldShowMore ? filteredActions.slice(maxVisibleButtons) : []
 
       // 调试日志
       logger.debug('[TaktActionColumn] 按钮分组结果:', {
@@ -203,13 +216,16 @@ export function CreateActionColumn(options: ActionColumnOptions): TableColumnsTy
       if (shouldShowMore && moreActions.length > 0) {
         // 创建菜单项
         const menuItems = moreActions.map(action => {
-          const disabled = typeof action.disabled === 'function' 
-            ? action.disabled(record, index)
-            : (action.disabled || (action.disabledFn && action.disabledFn(record, index)))
-          
-          const loading = typeof action.loading === 'function'
-            ? action.loading(record, index)
-            : (action.loading || (action.loadingFn && action.loadingFn(record, index)))
+          const disabledRaw =
+            typeof action.disabled === 'function'
+              ? action.disabled(row, index)
+              : action.disabled || (action.disabledFn ? action.disabledFn(row, index) : false)
+          const loadingRaw =
+            typeof action.loading === 'function'
+              ? action.loading(row, index)
+              : action.loading || (action.loadingFn ? action.loadingFn(row, index) : false)
+          const disabled = Boolean(disabledRaw)
+          const loading = Boolean(loadingRaw)
 
           // 构建菜单项内容（图标 + 文本）
           const menuItemChildren: Array<VNode | string> = []
@@ -225,24 +241,26 @@ export function CreateActionColumn(options: ActionColumnOptions): TableColumnsTy
           }
 
           // 为菜单项添加对应的按钮样式类，以便应用正确的颜色
-          const menuItemClass = action.buttonClass || (action.key ? `takt-button-${action.key}` : undefined)
+          const menuItemClass = action.buttonClass || (action.key ? `takt-button-${action.key}` : '')
+          /** 显式 boolean，避免 strict / 组件 Props 将 `a || b` 推断为含 undefined */
+          const menuItemDisabled = !!(disabled || loading)
 
           return h(
             MenuItem,
             {
               key: action.key,
               class: menuItemClass,
-              disabled: disabled || loading,
+              disabled: menuItemDisabled,
               onClick: () => {
-                if (action.onClick && !disabled && !loading) {
-                  action.onClick(record, index)
+                if (action.onClick && !menuItemDisabled) {
+                  action.onClick(row, index)
                 }
               }
             },
             { default: () => menuItemChildren }
           )
         })
-        
+
         // 创建菜单
         const menu = h(
           Menu,

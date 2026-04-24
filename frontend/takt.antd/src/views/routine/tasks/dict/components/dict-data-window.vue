@@ -24,13 +24,18 @@
       class="dict-data-window"
     >
       <div style="margin-bottom: 16px; font-weight: bold; color: #1890ff">
-        字典类型：{{ dictType.dictTypeName }} ({{ dictType.dictTypeCode }})
+        {{
+          t('routine.dict.type.dataWindow.dictTypeLine', {
+            name: dictType.dictTypeName,
+            code: dictType.dictTypeCode
+          })
+        }}
       </div>
 
       <!-- 查询栏 -->
       <TaktQueryBar
         v-model="queryKeyword"
-        placeholder="请输入字典标签或字典值"
+        :placeholder="t('routine.dict.type.placeholders.searchDictData')"
         :loading="loading"
         @search="handleSearch"
         @reset="handleReset"
@@ -272,10 +277,10 @@
         @submit="handleAdvancedQuerySubmit"
         @reset="handleAdvancedQueryReset"
       >
-        <a-form-item label="字典标签">
+        <a-form-item :label="t('entity.dictdata.dictlabel')">
           <a-input v-model:value="advancedQueryForm.dictLabel" />
         </a-form-item>
-        <a-form-item label="字典值">
+        <a-form-item :label="t('entity.dictdata.dictvalue')">
           <a-input v-model:value="advancedQueryForm.dictValue" />
         </a-form-item>
       </TaktQueryDrawer>
@@ -302,13 +307,68 @@ import { useI18n } from 'vue-i18n'
 import { mergeDefaultColumns } from '@/utils/table-columns'
 import DictDataForm from './dict-data-form.vue'
 import * as dictDataApi from '@/api/routine/tasks/dict/dictdata'
-import type { DictType } from '@/types/routine/tasks/dict/dicttype'
-import type { DictData, DictDataQuery, DictDataCreate, DictDataUpdate } from '@/types/routine/tasks/dict/dictdata'
+import type { DictType } from '@/types/routine/tasks/dict/dict-type'
+import type { DictData, DictDataQuery, DictDataCreate, DictDataUpdate } from '@/types/routine/tasks/dict/dict-data'
 import { logger } from '@/utils/logger'
 import { CreateActionColumn } from '@/components/business/takt-action-column'
 import { RiEditLine, RiDeleteBinLine } from '@remixicon/vue'
 
 const { t } = useI18n()
+
+/** 高级查询抽屉：`DictDataQuery` 中 `dictLabel`/`dictValue` 为可选时推断为 `string | undefined`，与 `a-input` 在 exactOptionalPropertyTypes 下不兼容；表单内固定为 `string`（空串表示未填）。 */
+type DictDataAdvancedQueryFormState = Omit<DictDataQuery, 'dictLabel' | 'dictValue'> & {
+  dictLabel: string
+  dictValue: string
+}
+
+/** 行内可编辑列（与模板 bodyCell 分支一致） */
+type DictDataEditableField =
+  | 'dictLabel'
+  | 'dictL10nKey'
+  | 'dictValue'
+  | 'cssClass'
+  | 'listClass'
+  | 'extLabel'
+  | 'extValue'
+  | 'orderNum'
+
+/** 行内编辑缓冲区：绑定 a-input / a-input-number 须为必填类型，不能用 `Partial<DictData>`（可选字段为 `T | undefined`） */
+type DictDataInlineEditState = {
+  dictLabel: string
+  dictL10nKey: string
+  dictValue: string
+  cssClass: number
+  listClass: number
+  extLabel: string
+  extValue: string
+  orderNum: number
+}
+
+function dictDataToInlineEditState(r: DictData): DictDataInlineEditState {
+  return {
+    dictLabel: r.dictLabel ?? '',
+    dictL10nKey: r.dictL10nKey ?? '',
+    dictValue: r.dictValue ?? '',
+    cssClass: r.cssClass ?? 0,
+    listClass: r.listClass ?? 0,
+    extLabel: r.extLabel ?? '',
+    extValue: r.extValue ?? '',
+    orderNum: r.orderNum ?? 0
+  }
+}
+
+function emptyInlineEditState(): DictDataInlineEditState {
+  return {
+    dictLabel: '',
+    dictL10nKey: '',
+    dictValue: '',
+    cssClass: 0,
+    listClass: 0,
+    extLabel: '',
+    extValue: '',
+    orderNum: 0
+  }
+}
 
 // ========================================
 // Props & Emits
@@ -347,17 +407,17 @@ const selectedRow = ref<DictData | null>(null)
 
 // 表单
 const formVisible = ref(false)
-const formTitle = ref('新增字典数据')
+const formTitle = ref('')
 const formLoading = ref(false)
 const formData = ref<DictData | null>(null)
 const formRef = ref<InstanceType<typeof DictDataForm> | null>(null)
 
 // 高级查询
 const advancedQueryVisible = ref(false)
-const advancedQueryForm = reactive<DictDataQuery>({
+const advancedQueryForm = reactive<DictDataAdvancedQueryFormState>({
   pageIndex: 1,
   pageSize: 20,
-  keyWords: '',
+  KeyWords: '',
   dictTypeId: '',
   dictTypeCode: '',
   dictLabel: '',
@@ -370,15 +430,18 @@ const columnDrawerVisible = ref(false)
 
 // 行内编辑
 const editingKey = ref<string>('')
-const editingRecord = ref<Partial<DictData>>({})
+const editingRecord = ref<DictDataInlineEditState>(emptyInlineEditState())
 const originalRecord = ref<Partial<DictData>>({})
 
-// 窗口标题
+// 窗口标题（组合文案走 routine 静态补全，后端未提供时可显示）
 const windowTitle = computed(() => {
-  if (props.dictType) {
-    return `字典数据列表 - ${props.dictType.dictTypeName} (${props.dictType.dictTypeCode})`
+  if (!props.dictType) {
+    return t('routine.dict.type.dataWindow.windowTitleDefault')
   }
-  return '字典数据列表'
+  return t('routine.dict.type.dataWindow.windowTitle', {
+    name: props.dictType.dictTypeName ?? '',
+    code: props.dictType.dictTypeCode ?? ''
+  })
 })
 
 // ========================================
@@ -388,80 +451,80 @@ const windowTitle = computed(() => {
 // 字典数据子表列定义（与 DictData 接口字段顺序一致）
 const columns = computed<TableColumnsType<DictData>>(() => [
   {
-    title: '字典数据ID',
+    title: t('common.entity.id'),
     dataIndex: 'dictDataId',
     key: 'dictDataId',
     width: 120,
     fixed: 'left'
   },
   {
-    title: '字典类型ID',
+    title: t('entity.dictdata.dicttypeid'),
     dataIndex: 'dictTypeId',
     key: 'dictTypeId',
     width: 120
   },
   {
-    title: '字典类型编码',
+    title: t('entity.dictdata.dicttypecode'),
     dataIndex: 'dictTypeCode',
     key: 'dictTypeCode',
     width: 150
   },
   {
-    title: '字典标签',
+    title: t('entity.dictdata.dictlabel'),
     dataIndex: 'dictLabel',
     key: 'dictLabel',
     width: 150
   },
   {
-    title: '字典本地化键',
+    title: t('entity.dictdata.dictl10nkey'),
     dataIndex: 'dictL10nKey',
     key: 'dictL10nKey',
     width: 200,
     ellipsis: true
   },
   {
-    title: '字典值',
+    title: t('entity.dictdata.dictvalue'),
     dataIndex: 'dictValue',
     key: 'dictValue',
     width: 150
   },
   {
-    title: 'CSS类名',
+    title: t('entity.dictdata.cssclass'),
     dataIndex: 'cssClass',
     key: 'cssClass',
     width: 100
   },
   {
-    title: '列表类名',
+    title: t('entity.dictdata.listclass'),
     dataIndex: 'listClass',
     key: 'listClass',
     width: 100
   },
   {
-    title: '扩展标签',
+    title: t('entity.dictdata.extlabel'),
     dataIndex: 'extLabel',
     key: 'extLabel',
     width: 150,
     ellipsis: true
   },
   {
-    title: '扩展值',
+    title: t('entity.dictdata.extvalue'),
     dataIndex: 'extValue',
     key: 'extValue',
     width: 150,
     ellipsis: true
   },
   {
-    title: '排序号',
+    title: t('entity.dictdata.ordernum'),
     dataIndex: 'orderNum',
     key: 'orderNum',
     width: 100
   },
-  CreateActionColumn({
+  CreateActionColumn<DictData>({
     actions: [
       {
         key: 'update',
-        label: '编辑',
+        label: t('common.button.edit'),
         shape: 'plain',
         icon: RiEditLine,
         permission: 'routine:tasks:dict:update',
@@ -469,7 +532,7 @@ const columns = computed<TableColumnsType<DictData>>(() => [
       },
       {
         key: 'delete',
-        label: '删除',
+        label: t('common.button.delete'),
         shape: 'plain',
         icon: RiDeleteBinLine,
         permission: 'routine:tasks:dict:delete',
@@ -513,7 +576,7 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: DictData[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: DictData, selected: boolean) => {
     if (selected) {
@@ -524,7 +587,8 @@ const rowSelection = computed(() => ({
   },
   onSelectAll: (selected: boolean, selectedRowsData: DictData[]) => {
     if (selected) {
-      selectedRow.value = selectedRowsData.length === 1 ? selectedRowsData[0] : null
+      selectedRow.value =
+        selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
     } else {
       selectedRow.value = null
     }
@@ -565,7 +629,7 @@ const initWindow = () => {
   Object.assign(advancedQueryForm, {
     pageIndex: 1,
     pageSize: 20,
-    keyWords: '',
+    KeyWords: '',
     dictTypeId: props.dictType.dictTypeId,
     dictTypeCode: props.dictType.dictTypeCode,
     dictLabel: '',
@@ -591,7 +655,7 @@ const loadData = async () => {
       ...advancedQueryForm,
       pageIndex: currentPage.value,
       pageSize: pageSize.value,
-      keyWords: queryKeyword.value || undefined,
+      KeyWords: queryKeyword.value ?? '',
       dictTypeId: props.dictType.dictTypeId
     }
     
@@ -600,7 +664,7 @@ const loadData = async () => {
     total.value = result.total || 0
   } catch (error) {
     logger.error('[DictData] 加载数据失败', error)
-    message.error('加载数据失败')
+    message.error(t('common.msg.loadtargetfail', { target: t('entity.dictdata._self') }))
   } finally {
     loading.value = false
   }
@@ -617,7 +681,7 @@ const handleReset = () => {
   queryKeyword.value = ''
   currentPage.value = 1
   Object.assign(advancedQueryForm, {
-    keyWords: '',
+    KeyWords: '',
     dictLabel: '',
     dictValue: ''
   })
@@ -626,7 +690,7 @@ const handleReset = () => {
 
 // 新增
 const handleCreate = () => {
-  formTitle.value = '新增字典数据'
+  formTitle.value = t('routine.dict.type.dataWindow.formCreate')
   formData.value = null
   formVisible.value = true
 }
@@ -634,11 +698,13 @@ const handleCreate = () => {
 // 编辑
 const handleUpdate = () => {
   if (!selectedRow.value) {
-    message.warning('请选择要编辑的记录')
+    message.warning(
+      t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: t('entity.dictdata._self') })
+    )
     return
   }
   
-  formTitle.value = '编辑字典数据'
+  formTitle.value = t('routine.dict.type.dataWindow.formEdit')
   formData.value = { ...selectedRow.value }
   formVisible.value = true
 }
@@ -646,7 +712,7 @@ const handleUpdate = () => {
 // 编辑单条记录（操作列使用）
 const handleEditOne = (record: DictData) => {
   selectedRow.value = record
-  formTitle.value = '编辑字典数据'
+  formTitle.value = t('routine.dict.type.dataWindow.formEdit')
   formData.value = { ...record }
   formVisible.value = true
 }
@@ -654,34 +720,38 @@ const handleEditOne = (record: DictData) => {
 // 删除
 const handleDelete = async () => {
   if (selectedRows.value.length === 0) {
-    message.warning('请选择要删除的记录')
+    message.warning(
+      t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('entity.dictdata._self') })
+    )
     return
   }
   
   const ids = selectedRows.value.map(row => row.dictDataId).filter(Boolean)
   if (ids.length === 0) {
-    message.warning('没有有效的记录ID')
+    message.warning(t('common.msg.entityidrequired', { entity: t('entity.dictdata._self') }))
     return
   }
   
   try {
     loading.value = true
     if (ids.length === 1) {
-      await dictDataApi.deleteDictDataById(ids[0])
+      const onlyId = ids[0]
+      if (!onlyId) return
+      await dictDataApi.deleteDictDataById(onlyId)
     } else {
       // 批量删除
       for (const id of ids) {
         await dictDataApi.deleteDictDataById(id)
       }
     }
-    message.success('删除成功')
+    message.success(t('common.msg.deletesuccess'))
     await loadData()
     selectedRowKeys.value = []
     selectedRows.value = []
     selectedRow.value = null
   } catch (error) {
     logger.error('[DictData] 删除失败', error)
-    message.error('删除失败')
+    message.error(t('common.msg.deletefail'))
   } finally {
     loading.value = false
   }
@@ -690,14 +760,14 @@ const handleDelete = async () => {
 // 删除单条记录（操作列使用）
 const handleDeleteOne = async (record: DictData) => {
   if (!record.dictDataId) {
-    message.warning('没有有效的记录ID')
+    message.warning(t('common.msg.entityidrequired', { entity: t('entity.dictdata._self') }))
     return
   }
   
   try {
     loading.value = true
     await dictDataApi.deleteDictDataById(record.dictDataId)
-    message.success('删除成功')
+    message.success(t('common.msg.deletesuccess'))
     await loadData()
     if (selectedRow.value?.dictDataId === record.dictDataId) {
       selectedRow.value = null
@@ -706,7 +776,7 @@ const handleDeleteOne = async (record: DictData) => {
     selectedRows.value = selectedRows.value.filter(r => r.dictDataId !== record.dictDataId)
   } catch (error) {
     logger.error('[DictData] 删除失败', error)
-    message.error('删除失败')
+    message.error(t('common.msg.deletefail'))
   } finally {
     loading.value = false
   }
@@ -722,13 +792,18 @@ const handleExport = async () => {
       ...advancedQueryForm,
       pageIndex: 1,
       pageSize: 10000,
-      keyWords: queryKeyword.value || undefined,
+      KeyWords: queryKeyword.value ?? '',
       dictTypeId: props.dictType.dictTypeId
     }
     
-    const blob = await dictDataApi.exportDictDataData(query, undefined, '字典数据')
-    const ts = new Date(); const t = (n: number, w = 2) => String(n).padStart(w, '0')
-    const fileName = `字典数据_${ts.getFullYear()}${t(ts.getMonth()+1)}${t(ts.getDate())}${t(ts.getHours())}${t(ts.getMinutes())}${t(ts.getSeconds())}.xlsx`
+    const blob = await dictDataApi.exportDictDataData(
+      query,
+      undefined,
+      t('routine.dict.type.dataWindow.exportFilePrefix')
+    )
+    const ts = new Date()
+    const padNum = (n: number, w = 2) => String(n).padStart(w, '0')
+    const fileName = `${t('routine.dict.type.dataWindow.exportFilePrefix')}_${ts.getFullYear()}${padNum(ts.getMonth() + 1)}${padNum(ts.getDate())}${padNum(ts.getHours())}${padNum(ts.getMinutes())}${padNum(ts.getSeconds())}.xlsx`
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -737,10 +812,10 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-    message.success('导出成功')
+    message.success(t('common.msg.exportsuccess'))
   } catch (error) {
     logger.error('[DictData] 导出失败', error)
-    message.error('导出失败')
+    message.error(t('common.msg.exportfail'))
   } finally {
     loading.value = false
   }
@@ -759,7 +834,7 @@ const handleAdvancedQuerySubmit = () => {
 
 const handleAdvancedQueryReset = () => {
   Object.assign(advancedQueryForm, {
-    keyWords: '',
+    KeyWords: '',
     dictLabel: '',
     dictValue: ''
   })
@@ -795,21 +870,21 @@ const handleFormSubmit = async () => {
     if ('dictDataId' in formDataValue && formDataValue.dictDataId) {
       // 更新
       await dictDataApi.updateDictData(formDataValue.dictDataId, formDataValue as DictDataUpdate)
-      message.success('更新成功')
+      message.success(t('common.msg.updatesuccess'))
     } else {
       // 新增
       await dictDataApi.createDictData(formDataValue as DictDataCreate)
-      message.success('新增成功')
+      message.success(t('common.msg.createsuccess'))
     }
     
     formVisible.value = false
     await loadData()
   } catch (error: any) {
     if (error?.errorFields) {
-      message.warning('请检查表单输入')
+      message.warning(t('routine.dict.type.messages.checkForm'))
     } else {
       logger.error('[DictData] 保存失败', error)
-      message.error('保存失败')
+      message.error(t('common.msg.operatefail'))
     }
   } finally {
     formLoading.value = false
@@ -849,19 +924,17 @@ const handlePaginationSizeChange = (current: number, size: number) => {
 // ========================================
 
 // 开始编辑单元格
-const handleStartEdit = (record: DictData, field: keyof DictData) => {
+const handleStartEdit = (record: DictData, field: DictDataEditableField) => {
   const key = `${record.dictDataId}-${field}`
   editingKey.value = key
-  editingRecord.value = {
-    [field]: record[field]
-  }
+  editingRecord.value = dictDataToInlineEditState(record)
   originalRecord.value = {
     [field]: record[field]
   }
 }
 
 // 保存单元格
-const handleSaveCell = async (record: DictData, field: keyof DictData) => {
+const handleSaveCell = async (record: DictData, field: DictDataEditableField) => {
   const key = `${record.dictDataId}-${field}`
   if (editingKey.value !== key) return
   
@@ -876,7 +949,11 @@ const handleSaveCell = async (record: DictData, field: keyof DictData) => {
   
   // 验证必填字段
   if ((field === 'dictLabel' || field === 'dictValue') && !newValue) {
-    message.warning(`${field === 'dictLabel' ? '字典标签' : '字典值'}不能为空`)
+    message.warning(
+      field === 'dictLabel'
+        ? t('routine.dict.type.rules.dictLabelEmpty')
+        : t('routine.dict.type.rules.dictValueEmpty')
+    )
     handleCancelEdit()
     return
   }
@@ -891,39 +968,50 @@ const handleSaveCell = async (record: DictData, field: keyof DictData) => {
   try {
     loading.value = true
     
+    const rowAt = dataSource.value[index]
+    if (!rowAt) {
+      handleCancelEdit()
+      return
+    }
+
     // 更新本地数据
     dataSource.value[index] = {
-      ...dataSource.value[index],
+      ...rowAt,
       [field]: newValue
-    }
-    
-    // 调用API保存
-    const updateData: DictDataUpdate = {
+    } as DictData
+
+    // 调用API保存（可选字段用空串→undefined；exactOptionalPropertyTypes 下不对可选键赋显式 undefined）
+    const strOrUndef = (v: string) => (v === '' ? undefined : v)
+    const updateData = {
       dictDataId: record.dictDataId,
       dictTypeId: record.dictTypeId,
       dictTypeCode: record.dictTypeCode,
       dictLabel: field === 'dictLabel' ? (newValue as string) : record.dictLabel,
-      dictL10nKey: field === 'dictL10nKey' ? (newValue as string | undefined) : record.dictL10nKey,
+      dictL10nKey:
+        field === 'dictL10nKey' ? strOrUndef(newValue as string) : record.dictL10nKey,
       dictValue: field === 'dictValue' ? (newValue as string) : record.dictValue,
       cssClass: field === 'cssClass' ? (newValue as number) : record.cssClass,
       listClass: field === 'listClass' ? (newValue as number) : record.listClass,
-      extLabel: field === 'extLabel' ? (newValue as string | undefined) : record.extLabel,
-      extValue: field === 'extValue' ? (newValue as string | undefined) : record.extValue,
+      extLabel: field === 'extLabel' ? strOrUndef(newValue as string) : record.extLabel,
+      extValue: field === 'extValue' ? strOrUndef(newValue as string) : record.extValue,
       orderNum: field === 'orderNum' ? (newValue as number) : record.orderNum
-    }
+    } as DictDataUpdate
     
     await dictDataApi.updateDictData(record.dictDataId, updateData)
-    message.success('保存成功')
+    message.success(t('routine.dict.type.messages.cellSaveSuccess'))
     editingKey.value = ''
-    editingRecord.value = {}
+    editingRecord.value = emptyInlineEditState()
     originalRecord.value = {}
   } catch (error) {
     logger.error('[DictData] 保存失败', error)
-    message.error('保存失败')
+    message.error(t('common.msg.operatefail'))
     // 恢复原值
-    dataSource.value[index] = {
-      ...dataSource.value[index],
-      [field]: oldValue
+    const rollbackRow = dataSource.value[index]
+    if (rollbackRow) {
+      dataSource.value[index] = {
+        ...rollbackRow,
+        [field]: oldValue
+      } as DictData
     }
     handleCancelEdit()
   } finally {
@@ -934,7 +1022,7 @@ const handleSaveCell = async (record: DictData, field: keyof DictData) => {
 // 取消编辑
 const handleCancelEdit = () => {
   editingKey.value = ''
-  editingRecord.value = {}
+  editingRecord.value = emptyInlineEditState()
   originalRecord.value = {}
 }
 </script>

@@ -6,14 +6,14 @@
 <!-- ======================================== -->
 <template>
   <div
-    v-if="detail?.pendingAddApprovers?.length"
+    v-if="pendingAddApproverItems.length"
     class="flow-pending-add"
   >
     <div class="flow-pending-add__title">
       {{ t('workflow.instance.pendingAddApproversTitle') }}
     </div>
     <div
-      v-for="p in detail.pendingAddApprovers"
+      v-for="p in pendingAddApproverItems"
       :key="p.addApproverId"
       class="flow-pending-add__row"
     >
@@ -35,11 +35,11 @@
 /**
  * 未处理加签列表；allowReduce 为 true 时显示减签（需 detail.canVerify 由父级控制）。
  */
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
-import { reduceApproval } from '@/api/workflow/instance'
-import type { FlowInstanceDetail } from '@/types/workflow/instance'
+import { reduceFlowInstanceApproval } from '@/api/workflow/instance'
+import type { FlowInstanceDetail } from '@/types/workflow/flow-instance'
 
 const { t } = useI18n()
 
@@ -50,13 +50,26 @@ const props = withDefaults(
 const emit = defineEmits<{ refresh: [] }>()
 
 const loadingId = ref<string | null>(null)
+type PendingAddApproverItem = {
+  addApproverId: string
+  approverUserName: string
+}
+const pendingAddApproverItems = computed(() => {
+  const list = props.detail?.pendingAddApprovers
+  if (!Array.isArray(list)) return [] as PendingAddApproverItem[]
+  return list.filter((item): item is PendingAddApproverItem => {
+    if (!item || typeof item !== 'object') return false
+    const row = item as { addApproverId?: unknown; approverUserName?: unknown }
+    return typeof row.addApproverId === 'string' && typeof row.approverUserName === 'string'
+  })
+})
 
 async function onReduce(addApproverId: string) {
   const d = props.detail
   if (!d?.instanceId) return
   loadingId.value = addApproverId
   try {
-    await reduceApproval({
+    await reduceFlowInstanceApproval({
       flowInstanceId: d.instanceId,
       instanceCode: d.instanceCode,
       addApproverId

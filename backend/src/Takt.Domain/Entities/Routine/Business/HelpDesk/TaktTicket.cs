@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.Routine.HelpDesk
 // 文件名称：TaktTicket.cs
@@ -46,7 +46,7 @@ public class TaktTicket : TaktEntityBase
     public string? Content { get; set; }
 
     /// <summary>
-    /// 附件列表 JSON。格式：[{ "FileId": 0, "FileName": "", "FilePath": "", "FileSize": 0, "FileType": "", "FileExtension": "", "OrderNum": 0 }]
+    /// 附件列表 JSON。格式：[{ "FileId": 0, "FileName": "", "FilePath": "", "FileSize": 0, "FileType": "", "FileExtension": "", "SortOrder": 0 }]
     /// </summary>
     [SugarColumn(ColumnName = "attachments_json", ColumnDescription = "附件列表JSON", ColumnDataType = "nvarchar", Length = -1, IsNullable = true)]
     public string? AttachmentsJson { get; set; }

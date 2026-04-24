@@ -126,7 +126,7 @@ const props = withDefaults(defineProps<Props>(), {
   })
 })
 
-const placeholderDisplay = computed(() => props.placeholder ?? t('common.form.placeholder.selectOnly'))
+const placeholderDisplay = computed(() => props.placeholder ?? t('common.form.placeholder.selectonly'))
 
 const filterOption = computed(() => {
   if (typeof props.filterOption !== 'function') {

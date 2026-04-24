@@ -12,14 +12,14 @@
 <template>
   <a-drawer
     v-model:open="visible"
-    :title="t('workflow.designer.copyer')"
+    :title="t('workflow.designer.page.copyer')"
     width="480"
     :footer-style="{ textAlign: 'right' }"
     @close="handleClose"
   >
     <template v-if="config && config.nodeType === 6">
       <a-form layout="vertical">
-        <a-form-item :label="t('workflow.designer.propCopyUsers')">
+        <a-form-item :label="t('workflow.designer.page.propcopyusers')">
           <div class="takt-flow-drawer-pick-row">
             <a-select
               v-model:value="form.copyUserIds"
@@ -27,7 +27,7 @@
               show-search
               :filter-option="filterOption"
               :options="userOptions"
-              :placeholder="t('workflow.designer.placeholderSelectCopyUsers')"
+              :placeholder="t('workflow.designer.page.placeholderselectcopyusers')"
               class="takt-flow-drawer-pick-row__select"
               :field-names="{ label: 'dictLabel', value: 'dictValue' }"
             />
@@ -36,7 +36,7 @@
               ghost
               @click="selectUserOpen = true"
             >
-              {{ t('workflow.designer.openSelectUserList') }}
+              {{ t('workflow.designer.page.openselectuserlist') }}
             </a-button>
           </div>
         </a-form-item>

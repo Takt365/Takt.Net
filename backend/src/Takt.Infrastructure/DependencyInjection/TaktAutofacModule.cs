@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.DependencyInjection
 // 文件名称：TaktAutofacModule.cs
@@ -14,11 +14,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Takt.Application.Dtos.Statistics.Logging;
 using Takt.Application.Services.Statistics.Logging;
+using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Data;
 using Takt.Infrastructure.Data.Seeds;
 using Takt.Infrastructure.Extensions;
 using Takt.Infrastructure.Helpers;
-using Takt.Infrastructure.User;
 
 namespace Takt.Infrastructure.DependencyInjection;
 
@@ -225,8 +225,32 @@ public class TaktAutofacModule : Module
                                         return;
                                     }
 
-                                    // 获取当前用户名
-                                    var userName = TaktUserContext.CurrentUser?.UserName ?? "Takt365";
+                                    // 与操作日志一致：仅在有有效用户主键与非空登录名时记录差异日志（无登录、种子已在上文 return，不写入占位用户）
+                                    long? capAuditUserId = null;
+                                    var capUserName = string.Empty;
+                                    var rootSp = TaktServiceProvider.ServiceProvider;
+                                    if (rootSp != null)
+                                    {
+                                        try
+                                        {
+                                            using var capScope = rootSp.CreateScope();
+                                            var uc = capScope.ServiceProvider.GetRequiredService<ITaktUserContext>();
+                                            var uid = uc.GetCurrentUserId();
+                                            var nm = (uc.GetCurrentUserName() ?? string.Empty).Trim();
+                                            if (uid.HasValue && uid.Value > 0 && !string.IsNullOrWhiteSpace(nm))
+                                            {
+                                                capAuditUserId = uid.Value;
+                                                capUserName = nm;
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            // 忽略：差异日志不得影响主业务 SQL
+                                        }
+                                    }
+
+                                    if (!capAuditUserId.HasValue || capAuditUserId.Value <= 0 || string.IsNullOrWhiteSpace(capUserName))
+                                        return;
 
                                     // 获取操作类型（从DiffType枚举获取）
                                     var operType = diffLogEvent.DiffType.ToString().ToUpperInvariant();
@@ -348,9 +372,11 @@ public class TaktAutofacModule : Module
                                                     return;
                                                 }
 
-                                                var createDto = new TaktCreateAopLogDto
+                                                var createDto = new TaktAopLogCreateDto
                                                 {
-                                                    UserName = userName,
+                                                    UserName = capUserName,
+                                                    AuditUserId = capAuditUserId,
+                                                    AuditUserDisplayName = capUserName,
                                                     OperType = operType,
                                                     TableName = tableName,
                                                     PrimaryKeyId = primaryKeyId,
@@ -362,7 +388,7 @@ public class TaktAutofacModule : Module
                                                     CostTime = costTime
                                                 };
 
-                                                await aopLogService.CreateAsync(createDto);
+                                                await aopLogService.CreateAopLogAsync(createDto);
                                             }
                                         }
                                         catch (Exception ex)

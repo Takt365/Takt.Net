@@ -1,24 +1,25 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Accounting.Financial
 // 文件名称：TaktAccountingTitleDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt会计科目DTO，包含会计科目相关的数据传输对象（查询、创建、更新）
-// 
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：会计科目表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
+//
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
 using SqlSugar;
+using Takt.Application.Dtos;
 using Takt.Shared.Models;
 
 namespace Takt.Application.Dtos.Accounting.Financial;
 
 /// <summary>
-/// Takt会计科目DTO
+/// 会计科目表Dto
 /// </summary>
-public class TaktAccountingTitleDto : TaktDtoBase
+public partial class TaktAccountingTitleDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -27,99 +28,98 @@ public class TaktAccountingTitleDto : TaktDtoBase
     {
         TitleCode = string.Empty;
         TitleName = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 科目ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 会计科目表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long TitleId { get; set; }
+    public long AccountingTitleId { get; set; }
 
+    /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string? CompanyCode { get; set; }
     /// <summary>
     /// 科目编码
     /// </summary>
     public string TitleCode { get; set; }
-
     /// <summary>
     /// 科目名称
     /// </summary>
     public string TitleName { get; set; }
-
     /// <summary>
-    /// 父级ID（树形结构，0表示根节点，序列化为string以避免Javascript精度问题）
+    /// 父级ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long ParentId { get; set; }
-
     /// <summary>
-    /// 科目类型（0=资产，1=负债，2=所有者权益，3=收入，4=费用，5=成本）
+    /// 科目类型
     /// </summary>
     public int TitleType { get; set; }
-
     /// <summary>
-    /// 余额方向（0=借方，1=贷方）
+    /// 余额方向
     /// </summary>
     public int BalanceDirection { get; set; }
-
     /// <summary>
-    /// 科目层级（从1开始）
+    /// 科目层级
     /// </summary>
     public int TitleLevel { get; set; }
-
     /// <summary>
-    /// 是否末级科目（0=否，1=是）
+    /// 是否末级科目
     /// </summary>
     public int IsLeaf { get; set; }
-
     /// <summary>
-    /// 是否辅助核算（0=否，1=是）
+    /// 是否辅助核算
     /// </summary>
     public int IsAuxiliary { get; set; }
-
     /// <summary>
-    /// 辅助核算类型（0=无，1=部门，2=项目，3=客户，4=供应商，5=员工，6=自定义）
+    /// 辅助核算类型
     /// </summary>
     public int AuxiliaryType { get; set; }
-
     /// <summary>
-    /// 是否数量核算（0=否，1=是）
+    /// 是否数量核算
     /// </summary>
     public int IsQuantity { get; set; }
-
     /// <summary>
-    /// 是否外币核算（0=否，1=是）
+    /// 是否外币核算
     /// </summary>
     public int IsCurrency { get; set; }
-
     /// <summary>
-    /// 是否现金科目（0=否，1=是）
+    /// 是否现金科目
     /// </summary>
     public int IsCash { get; set; }
-
     /// <summary>
-    /// 是否银行科目（0=否，1=是）
+    /// 是否银行科目
     /// </summary>
     public int IsBank { get; set; }
-
     /// <summary>
-    /// 排序号（越小越靠前）
+    /// 关联工厂
     /// </summary>
-    public int OrderNum { get; set; }
-
+    public string? RelatedPlant { get; set; }
     /// <summary>
-    /// 科目状态（0=启用，1=禁用）
+    /// 科目状态
     /// </summary>
     public int TitleStatus { get; set; }
-
-
+    /// <summary>
+    /// 生效日期
+    /// </summary>
+    public DateTime ValidFrom { get; set; }
+    /// <summary>
+    /// 失效日期
+    /// </summary>
+    public DateTime ValidTo { get; set; }
+    /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
 }
 
 /// <summary>
-/// Takt会计科目树形DTO
+/// 会计科目表树形DTO
 /// </summary>
-public class TaktAccountingTitleTreeDto : TaktAccountingTitleDto
+public partial class TaktAccountingTitleTreeDto : TaktAccountingTitleDto
 {
     /// <summary>
     /// 构造函数
@@ -130,15 +130,15 @@ public class TaktAccountingTitleTreeDto : TaktAccountingTitleDto
     }
 
     /// <summary>
-    /// 子科目列表
+    /// 子节点列表
     /// </summary>
     public List<TaktAccountingTitleTreeDto> Children { get; set; }
 }
 
 /// <summary>
-/// Takt会计科目查询DTO
+/// 会计科目表查询DTO
 /// </summary>
-public class TaktAccountingTitleQueryDto : TaktPagedQuery
+public partial class TaktAccountingTitleQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -147,39 +147,138 @@ public class TaktAccountingTitleQueryDto : TaktPagedQuery
     {
     }
 
-    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于在科目名称、科目编码中模糊查询
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
     /// <summary>
-    /// 科目名称
+    /// 会计科目表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
-    public string? TitleName { get; set; }
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long AccountingTitleId { get; set; }
 
+    /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string? CompanyCode { get; set; }
     /// <summary>
     /// 科目编码
     /// </summary>
     public string? TitleCode { get; set; }
-
+    /// <summary>
+    /// 科目名称
+    /// </summary>
+    public string? TitleName { get; set; }
     /// <summary>
     /// 父级ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? ParentId { get; set; }
-
     /// <summary>
-    /// 科目类型（0=资产，1=负债，2=所有者权益，3=收入，4=费用，5=成本）
+    /// 科目类型
     /// </summary>
     public int? TitleType { get; set; }
-
     /// <summary>
-    /// 科目状态（0=启用，1=禁用）
+    /// 余额方向
+    /// </summary>
+    public int? BalanceDirection { get; set; }
+    /// <summary>
+    /// 科目层级
+    /// </summary>
+    public int? TitleLevel { get; set; }
+    /// <summary>
+    /// 是否末级科目
+    /// </summary>
+    public int? IsLeaf { get; set; }
+    /// <summary>
+    /// 是否辅助核算
+    /// </summary>
+    public int? IsAuxiliary { get; set; }
+    /// <summary>
+    /// 辅助核算类型
+    /// </summary>
+    public int? AuxiliaryType { get; set; }
+    /// <summary>
+    /// 是否数量核算
+    /// </summary>
+    public int? IsQuantity { get; set; }
+    /// <summary>
+    /// 是否外币核算
+    /// </summary>
+    public int? IsCurrency { get; set; }
+    /// <summary>
+    /// 是否现金科目
+    /// </summary>
+    public int? IsCash { get; set; }
+    /// <summary>
+    /// 是否银行科目
+    /// </summary>
+    public int? IsBank { get; set; }
+    /// <summary>
+    /// 关联工厂
+    /// </summary>
+    public string? RelatedPlant { get; set; }
+    /// <summary>
+    /// 科目状态
     /// </summary>
     public int? TitleStatus { get; set; }
+    /// <summary>
+    /// 生效日期
+    /// </summary>
+    public DateTime? ValidFrom { get; set; }
+
+    /// <summary>
+    /// 生效日期开始时间
+    /// </summary>
+    public DateTime? ValidFromStart { get; set; }
+    /// <summary>
+    /// 生效日期结束时间
+    /// </summary>
+    public DateTime? ValidFromEnd { get; set; }
+    /// <summary>
+    /// 失效日期
+    /// </summary>
+    public DateTime? ValidTo { get; set; }
+
+    /// <summary>
+    /// 失效日期开始时间
+    /// </summary>
+    public DateTime? ValidToStart { get; set; }
+    /// <summary>
+    /// 失效日期结束时间
+    /// </summary>
+    public DateTime? ValidToEnd { get; set; }
+    /// <summary>
+    /// 排序号
+    /// </summary>
+    public int? SortOrder { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建会计科目DTO
+/// Takt创建会计科目表DTO
 /// </summary>
-public class TaktAccountingTitleCreateDto
+public partial class TaktAccountingTitleCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -190,71 +289,106 @@ public class TaktAccountingTitleCreateDto
         TitleName = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string? CompanyCode { get; set; }
+
+        /// <summary>
     /// 科目编码
     /// </summary>
-    public string TitleCode { get; set; } = string.Empty;
+    public string TitleCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 科目名称
     /// </summary>
-    public string TitleName { get; set; } = string.Empty;
+    public string TitleName { get; set; }
 
-    /// <summary>
-    /// 父级ID（树形结构，0表示根节点，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 父级ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long ParentId { get; set; } = 0;
+    public long ParentId { get; set; }
+
+        /// <summary>
+    /// 科目类型
+    /// </summary>
+    public int TitleType { get; set; }
+
+        /// <summary>
+    /// 余额方向
+    /// </summary>
+    public int BalanceDirection { get; set; }
+
+        /// <summary>
+    /// 科目层级
+    /// </summary>
+    public int TitleLevel { get; set; }
+
+        /// <summary>
+    /// 是否末级科目
+    /// </summary>
+    public int IsLeaf { get; set; }
+
+        /// <summary>
+    /// 是否辅助核算
+    /// </summary>
+    public int IsAuxiliary { get; set; }
+
+        /// <summary>
+    /// 辅助核算类型
+    /// </summary>
+    public int AuxiliaryType { get; set; }
+
+        /// <summary>
+    /// 是否数量核算
+    /// </summary>
+    public int IsQuantity { get; set; }
+
+        /// <summary>
+    /// 是否外币核算
+    /// </summary>
+    public int IsCurrency { get; set; }
+
+        /// <summary>
+    /// 是否现金科目
+    /// </summary>
+    public int IsCash { get; set; }
+
+        /// <summary>
+    /// 是否银行科目
+    /// </summary>
+    public int IsBank { get; set; }
+
+        /// <summary>
+    /// 关联工厂
+    /// </summary>
+    public string? RelatedPlant { get; set; }
+
+        /// <summary>
+    /// 科目状态
+    /// </summary>
+    public int TitleStatus { get; set; }
+
+        /// <summary>
+    /// 生效日期
+    /// </summary>
+    public DateTime ValidFrom { get; set; }
+
+        /// <summary>
+    /// 失效日期
+    /// </summary>
+    public DateTime ValidTo { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
 
     /// <summary>
-    /// 科目类型（0=资产，1=负债，2=所有者权益，3=收入，4=费用，5=成本）
+    /// 扩展字段JSON
     /// </summary>
-    public int TitleType { get; set; } = 0;
-
-    /// <summary>
-    /// 余额方向（0=借方，1=贷方）
-    /// </summary>
-    public int BalanceDirection { get; set; } = 0;
-
-    /// <summary>
-    /// 是否末级科目（0=否，1=是）
-    /// </summary>
-    public int IsLeaf { get; set; } = 1;
-
-    /// <summary>
-    /// 是否辅助核算（0=否，1=是）
-    /// </summary>
-    public int IsAuxiliary { get; set; } = 0;
-
-    /// <summary>
-    /// 辅助核算类型（0=无，1=部门，2=项目，3=客户，4=供应商，5=员工，6=自定义）
-    /// </summary>
-    public int AuxiliaryType { get; set; } = 0;
-
-    /// <summary>
-    /// 是否数量核算（0=否，1=是）
-    /// </summary>
-    public int IsQuantity { get; set; } = 0;
-
-    /// <summary>
-    /// 是否外币核算（0=否，1=是）
-    /// </summary>
-    public int IsCurrency { get; set; } = 0;
-
-    /// <summary>
-    /// 是否现金科目（0=否，1=是）
-    /// </summary>
-    public int IsCash { get; set; } = 0;
-
-    /// <summary>
-    /// 是否银行科目（0=否，1=是）
-    /// </summary>
-    public int IsBank { get; set; } = 0;
-
-    /// <summary>
-    /// 排序号（越小越靠前）
-    /// </summary>
-    public int OrderNum { get; set; } = 0;
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -263,9 +397,9 @@ public class TaktAccountingTitleCreateDto
 }
 
 /// <summary>
-/// Takt更新会计科目DTO
+/// Takt更新会计科目表DTO
 /// </summary>
-public class TaktAccountingTitleUpdateDto : TaktAccountingTitleCreateDto
+public partial class TaktAccountingTitleUpdateDto : TaktAccountingTitleCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -274,18 +408,18 @@ public class TaktAccountingTitleUpdateDto : TaktAccountingTitleCreateDto
     {
     }
 
-    /// <summary>
-    /// 科目ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 会计科目表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long TitleId { get; set; }
+    public long AccountingTitleId { get; set; }
 }
 
 /// <summary>
-/// Takt会计科目状态DTO
+/// 会计科目表科目状态DTO
 /// </summary>
-public class TaktAccountingTitleStatusDto
+public partial class TaktAccountingTitleStatusDto
 {
     /// <summary>
     /// 构造函数
@@ -294,22 +428,23 @@ public class TaktAccountingTitleStatusDto
     {
     }
 
-    /// <summary>
-    /// 科目ID（序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 会计科目表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
+    [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long TitleId { get; set; }
+    public long AccountingTitleId { get; set; }
 
     /// <summary>
-    /// 科目状态（0=启用，1=禁用）
+    /// 科目状态（0=禁用，1=启用）
     /// </summary>
     public int TitleStatus { get; set; }
 }
 
 /// <summary>
-/// Takt会计科目导入模板DTO
+/// 会计科目表导入模板DTO
 /// </summary>
-public class TaktAccountingTitleTemplateDto
+public partial class TaktAccountingTitleTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -318,73 +453,107 @@ public class TaktAccountingTitleTemplateDto
     {
         TitleCode = string.Empty;
         TitleName = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string? CompanyCode { get; set; }
+
+        /// <summary>
     /// 科目编码
     /// </summary>
     public string TitleCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 科目名称
     /// </summary>
     public string TitleName { get; set; }
 
-    /// <summary>
-    /// 科目类型（0=资产，1=负债，2=所有者权益，3=收入，4=费用，5=成本）
+        /// <summary>
+    /// 父级ID
+    /// </summary>
+    public long ParentId { get; set; }
+
+        /// <summary>
+    /// 科目类型
     /// </summary>
     public int TitleType { get; set; }
 
-    /// <summary>
-    /// 余额方向（0=借方，1=贷方）
+        /// <summary>
+    /// 余额方向
     /// </summary>
     public int BalanceDirection { get; set; }
 
-    /// <summary>
-    /// 是否末级科目（0=否，1=是）
+        /// <summary>
+    /// 科目层级
+    /// </summary>
+    public int TitleLevel { get; set; }
+
+        /// <summary>
+    /// 是否末级科目
     /// </summary>
     public int IsLeaf { get; set; }
 
-    /// <summary>
-    /// 是否辅助核算（0=否，1=是）
+        /// <summary>
+    /// 是否辅助核算
     /// </summary>
     public int IsAuxiliary { get; set; }
 
-    /// <summary>
-    /// 辅助核算类型（0=无，1=部门，2=项目，3=客户，4=供应商，5=员工，6=自定义）
+        /// <summary>
+    /// 辅助核算类型
     /// </summary>
     public int AuxiliaryType { get; set; }
 
-    /// <summary>
-    /// 是否数量核算（0=否，1=是）
+        /// <summary>
+    /// 是否数量核算
     /// </summary>
     public int IsQuantity { get; set; }
 
-    /// <summary>
-    /// 是否外币核算（0=否，1=是）
+        /// <summary>
+    /// 是否外币核算
     /// </summary>
     public int IsCurrency { get; set; }
 
-    /// <summary>
-    /// 是否现金科目（0=否，1=是）
+        /// <summary>
+    /// 是否现金科目
     /// </summary>
     public int IsCash { get; set; }
 
-    /// <summary>
-    /// 是否银行科目（0=否，1=是）
+        /// <summary>
+    /// 是否银行科目
     /// </summary>
     public int IsBank { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 关联工厂
     /// </summary>
-    public int OrderNum { get; set; }
+    public string? RelatedPlant { get; set; }
 
-    /// <summary>
-    /// 科目状态（0=启用，1=禁用）
+        /// <summary>
+    /// 科目状态
     /// </summary>
     public int TitleStatus { get; set; }
+
+        /// <summary>
+    /// 生效日期
+    /// </summary>
+    public DateTime ValidFrom { get; set; }
+
+        /// <summary>
+    /// 失效日期
+    /// </summary>
+    public DateTime ValidTo { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -393,9 +562,9 @@ public class TaktAccountingTitleTemplateDto
 }
 
 /// <summary>
-/// Takt会计科目导入DTO
+/// 会计科目表导入DTO
 /// </summary>
-public class TaktAccountingTitleImportDto
+public partial class TaktAccountingTitleImportDto
 {
     /// <summary>
     /// 构造函数
@@ -404,73 +573,107 @@ public class TaktAccountingTitleImportDto
     {
         TitleCode = string.Empty;
         TitleName = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string? CompanyCode { get; set; }
+
+        /// <summary>
     /// 科目编码
     /// </summary>
     public string TitleCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 科目名称
     /// </summary>
     public string TitleName { get; set; }
 
-    /// <summary>
-    /// 科目类型（0=资产，1=负债，2=所有者权益，3=收入，4=费用，5=成本）
+        /// <summary>
+    /// 父级ID
+    /// </summary>
+    public long ParentId { get; set; }
+
+        /// <summary>
+    /// 科目类型
     /// </summary>
     public int TitleType { get; set; }
 
-    /// <summary>
-    /// 余额方向（0=借方，1=贷方）
+        /// <summary>
+    /// 余额方向
     /// </summary>
     public int BalanceDirection { get; set; }
 
-    /// <summary>
-    /// 是否末级科目（0=否，1=是）
+        /// <summary>
+    /// 科目层级
+    /// </summary>
+    public int TitleLevel { get; set; }
+
+        /// <summary>
+    /// 是否末级科目
     /// </summary>
     public int IsLeaf { get; set; }
 
-    /// <summary>
-    /// 是否辅助核算（0=否，1=是）
+        /// <summary>
+    /// 是否辅助核算
     /// </summary>
     public int IsAuxiliary { get; set; }
 
-    /// <summary>
-    /// 辅助核算类型（0=无，1=部门，2=项目，3=客户，4=供应商，5=员工，6=自定义）
+        /// <summary>
+    /// 辅助核算类型
     /// </summary>
     public int AuxiliaryType { get; set; }
 
-    /// <summary>
-    /// 是否数量核算（0=否，1=是）
+        /// <summary>
+    /// 是否数量核算
     /// </summary>
     public int IsQuantity { get; set; }
 
-    /// <summary>
-    /// 是否外币核算（0=否，1=是）
+        /// <summary>
+    /// 是否外币核算
     /// </summary>
     public int IsCurrency { get; set; }
 
-    /// <summary>
-    /// 是否现金科目（0=否，1=是）
+        /// <summary>
+    /// 是否现金科目
     /// </summary>
     public int IsCash { get; set; }
 
-    /// <summary>
-    /// 是否银行科目（0=否，1=是）
+        /// <summary>
+    /// 是否银行科目
     /// </summary>
     public int IsBank { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 关联工厂
     /// </summary>
-    public int OrderNum { get; set; }
+    public string? RelatedPlant { get; set; }
 
-    /// <summary>
-    /// 科目状态（0=启用，1=禁用）
+        /// <summary>
+    /// 科目状态
     /// </summary>
     public int TitleStatus { get; set; }
+
+        /// <summary>
+    /// 生效日期
+    /// </summary>
+    public DateTime ValidFrom { get; set; }
+
+        /// <summary>
+    /// 失效日期
+    /// </summary>
+    public DateTime ValidTo { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -479,99 +682,114 @@ public class TaktAccountingTitleImportDto
 }
 
 /// <summary>
-/// Takt会计科目导出DTO
+/// 会计科目表导出DTO
 /// </summary>
-public class TaktAccountingTitleExportDto
+public partial class TaktAccountingTitleExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktAccountingTitleExportDto()
     {
+        CreatedAt = DateTime.Now;
         TitleCode = string.Empty;
         TitleName = string.Empty;
-        TitleType = string.Empty;
-        BalanceDirection = string.Empty;
-        IsLeaf = string.Empty;
-        IsAuxiliary = string.Empty;
-        AuxiliaryType = string.Empty;
-        IsQuantity = string.Empty;
-        IsCurrency = string.Empty;
-        IsCash = string.Empty;
-        IsBank = string.Empty;
-        TitleStatus = 0;
-        CreatedAt = DateTime.Now;
     }
 
-    /// <summary>
+        /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string? CompanyCode { get; set; }
+
+        /// <summary>
     /// 科目编码
     /// </summary>
     public string TitleCode { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 科目名称
     /// </summary>
     public string TitleName { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 父级ID
+    /// </summary>
+    public long ParentId { get; set; }
+
+        /// <summary>
     /// 科目类型
     /// </summary>
-    public string TitleType { get; set; }
+    public int TitleType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 余额方向
     /// </summary>
-    public string BalanceDirection { get; set; }
+    public int BalanceDirection { get; set; }
 
-    /// <summary>
-    /// 科目层级（从1开始）
+        /// <summary>
+    /// 科目层级
     /// </summary>
     public int TitleLevel { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 是否末级科目
     /// </summary>
-    public string IsLeaf { get; set; }
+    public int IsLeaf { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 是否辅助核算
     /// </summary>
-    public string IsAuxiliary { get; set; }
+    public int IsAuxiliary { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 辅助核算类型
     /// </summary>
-    public string AuxiliaryType { get; set; }
+    public int AuxiliaryType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 是否数量核算
     /// </summary>
-    public string IsQuantity { get; set; }
+    public int IsQuantity { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 是否外币核算
     /// </summary>
-    public string IsCurrency { get; set; }
+    public int IsCurrency { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 是否现金科目
     /// </summary>
-    public string IsCash { get; set; }
+    public int IsCash { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 是否银行科目
     /// </summary>
-    public string IsBank { get; set; }
+    public int IsBank { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 关联工厂
     /// </summary>
-    public int OrderNum { get; set; }
+    public string? RelatedPlant { get; set; }
 
-    /// <summary>
-    /// 科目状态（0=启用，1=禁用）
+        /// <summary>
+    /// 科目状态
     /// </summary>
     public int TitleStatus { get; set; }
+
+        /// <summary>
+    /// 生效日期
+    /// </summary>
+    public DateTime ValidFrom { get; set; }
+
+        /// <summary>
+    /// 失效日期
+    /// </summary>
+    public DateTime ValidTo { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
 
     /// <summary>
     /// 创建时间

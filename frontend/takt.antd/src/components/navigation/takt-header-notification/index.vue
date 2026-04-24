@@ -28,7 +28,7 @@
   </a-button>
   <a-drawer
     v-model:open="visible"
-    :title="$t('components.navigation.systemSetting.notification')"
+    :title="$t('components.navigation.page.systemsetting.notification')"
     placement="right"
     :width="400"
     class="takt-header-notification-drawer"
@@ -66,7 +66,7 @@
               size="small"
               @click="handleMarkRead(item.id)"
             >
-              {{ $t('common.button.markRead') }}
+              {{ $t('common.button.markread') }}
             </a-button>
             <a-button
               type="text"
@@ -129,7 +129,7 @@ const count = computed(() => {
 const pagination = computed(() => ({
   pageSize: 10,
   showSizeChanger: false,
-  showTotal: (total: number) => t('components.navigation.systemSetting.totalCount', { total })
+  showTotal: (total: number) => t('components.navigation.page.systemsetting.totalcount', { total })
 }))
 
 const handleClick = () => {

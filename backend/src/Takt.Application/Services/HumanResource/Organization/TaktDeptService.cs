@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.HumanResource.Organization
 // 文件名称：TaktDeptService.cs
@@ -39,6 +39,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
     private readonly ITaktRepository<TaktUser> _userRepository;
     private readonly ITaktRepository<TaktRole> _roleRepository;
     private readonly ITaktRepository<TaktEmployee> _employeeRepository;
+    private readonly ITaktRepository<TaktEmployeeDept> _employeeDeptRepository;
     private readonly ITaktRepository<TaktDeptDelegate> _deptDelegateRepository;
     private readonly ITaktRepository<TaktCostCenter> _costCenterRepository;
     private readonly ITaktRepository<TaktPost> _postRepository;
@@ -52,6 +53,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
     /// <param name="userRepository">用户仓储</param>
     /// <param name="roleRepository">角色仓储</param>
     /// <param name="employeeRepository">员工仓储（用于展示名）</param>
+    /// <param name="employeeDeptRepository">员工部门关联仓储（用于统计部门人数）</param>
     /// <param name="deptDelegateRepository">部门代理仓储</param>
     /// <param name="costCenterRepository">成本中心仓储（会计库）</param>
     /// <param name="postRepository">岗位仓储（校验部门代理中的岗位引用）</param>
@@ -65,6 +67,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
         ITaktRepository<TaktUser> userRepository,
         ITaktRepository<TaktRole> roleRepository,
         ITaktRepository<TaktEmployee> employeeRepository,
+        ITaktRepository<TaktEmployeeDept> employeeDeptRepository,
         ITaktRepository<TaktDeptDelegate> deptDelegateRepository,
         ITaktRepository<TaktCostCenter> costCenterRepository,
         ITaktRepository<TaktPost> postRepository,
@@ -79,6 +82,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _employeeRepository = employeeRepository;
+        _employeeDeptRepository = employeeDeptRepository;
         _deptDelegateRepository = deptDelegateRepository;
         _costCenterRepository = costCenterRepository;
         _postRepository = postRepository;
@@ -89,7 +93,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktDeptDto>> GetListAsync(TaktDeptQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktDeptDto>> GetDeptListAsync(TaktDeptQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
 
@@ -109,7 +113,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
     /// </summary>
     /// <param name="id">部门ID</param>
     /// <returns>部门DTO</returns>
-    public async Task<TaktDeptDto?> GetByIdAsync(long id)
+    public async Task<TaktDeptDto?> GetDeptByIdAsync(long id)
     {
         var dept = await _deptRepository.GetByIdAsync(id);
         if (dept == null) return null;
@@ -126,7 +130,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
 
         var delegates = await _deptDelegateRepository.FindAsync(x => x.DeptId == id && x.IsDeleted == 0);
         deptDto.Delegates = delegates
-            .OrderBy(x => x.OrderNum)
+            .OrderBy(x => x.SortOrder)
             .Select(x => new TaktDeptDelegateItemDto
             {
                 Id = x.Id,
@@ -134,7 +138,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
                 DelegateEmployeeId = x.DelegateEmployeeId,
                 DelegateDeptId = x.DelegateDeptId,
                 DelegatePostId = x.DelegatePostId,
-                OrderNum = x.OrderNum
+                SortOrder = x.SortOrder
             })
             .ToList();
 
@@ -168,7 +172,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
 
         // 转换为树形选项
         var deptOptions = depts
-            .OrderBy(d => d.OrderNum)
+            .OrderBy(d => d.SortOrder)
             .ThenBy(d => d.CreatedAt)
             .Select(d => new TaktTreeSelectOption
             {
@@ -176,7 +180,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
                 DictValue = d.Id,
                 ExtLabel = d.DeptCode,
                 ExtValue = headDisplayByEmpId.TryGetValue(d.DeptHeadId, out var headDisp) ? headDisp : string.Empty,
-                OrderNum = d.OrderNum
+                SortOrder = d.SortOrder
             })
             .ToList();
 
@@ -235,7 +239,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
 
         // 转换为DTO
         var deptDtos = allDepts
-            .OrderBy(d => d.OrderNum)
+            .OrderBy(d => d.SortOrder)
             .ThenBy(d => d.CreatedAt)
             .Select(d => d.Adapt<TaktDeptTreeDto>())
             .ToList();
@@ -308,7 +312,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
         // 2. 根据includeDisabled过滤（已在查询中处理）
         // 3. 按OrderNum排序
         var list = children
-            .OrderBy(d => d.OrderNum)
+            .OrderBy(d => d.SortOrder)
             .ThenBy(d => d.CreatedAt)
             .Select(d => d.Adapt<TaktDeptDto>())
             .ToList();
@@ -321,7 +325,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
     /// </summary>
     /// <param name="dto">创建部门DTO</param>
     /// <returns>部门DTO</returns>
-    public async Task<TaktDeptDto> CreateAsync(TaktDeptCreateDto dto)
+    public async Task<TaktDeptDto> CreateDeptAsync(TaktDeptCreateDto dto)
     {
         // 查重：部门名称+部门编码+部门类型 组合唯一
         var deptName = dto.DeptName;
@@ -379,7 +383,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
             await _deptRoleRepository.CreateRangeAsync(deptRoles);
         }
 
-        return await GetByIdAsync(dept.Id) ?? dept.Adapt<TaktDeptDto>();
+        return await GetDeptByIdAsync(dept.Id) ?? dept.Adapt<TaktDeptDto>();
     }
 
     /// <summary>
@@ -388,7 +392,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
     /// <param name="id">部门ID</param>
     /// <param name="dto">更新部门DTO</param>
     /// <returns>部门DTO</returns>
-    public async Task<TaktDeptDto> UpdateAsync(long id, TaktDeptUpdateDto dto)
+    public async Task<TaktDeptDto> UpdateDeptAsync(long id, TaktDeptUpdateDto dto)
     {
         var dept = await _deptRepository.GetByIdAsync(id);
         if (dept == null)
@@ -429,7 +433,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
             await AssignRoleDeptsAsync(id, dto.RoleIds.ToArray());
         }
 
-        return await GetByIdAsync(id) ?? dept.Adapt<TaktDeptDto>();
+        return await GetDeptByIdAsync(id) ?? dept.Adapt<TaktDeptDto>();
     }
 
     /// <summary>
@@ -437,7 +441,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
     /// </summary>
     /// <param name="id">部门ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteDeptByIdAsync(long id)
     {
         var dept = await _deptRepository.GetByIdAsync(id);
         if (dept == null)
@@ -480,7 +484,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
     /// </summary>
     /// <param name="ids">部门ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(IEnumerable<long> ids)
+    public async Task DeleteDeptBatchAsync(IEnumerable<long> ids)
     {
         var idList = ids.ToList();
         if (idList.Count == 0)
@@ -528,7 +532,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
     /// </summary>
     /// <param name="dto">部门状态DTO</param>
     /// <returns>部门DTO</returns>
-    public async Task<TaktDeptDto> UpdateStatusAsync(TaktDeptStatusDto dto)
+    public async Task<TaktDeptDto> UpdateDeptStatusAsync(TaktDeptStatusDto dto)
     {
         var dept = await _deptRepository.GetByIdAsync(dto.DeptId);
         if (dept == null)
@@ -793,7 +797,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> GetTemplateAsync(string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> GetDeptTemplateAsync(string? sheetName, string? fileName)
     {
         var (excelSheet, excelFile) = await ResolveExcelImportTemplateNamesAsync(sheetName, fileName, nameof(TaktDept));
         return await TaktExcelHelper.GenerateTemplateAsync<TaktDeptTemplateDto>(
@@ -808,7 +812,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
     /// <param name="fileStream">Excel文件流</param>
     /// <param name="sheetName">工作表名称</param>
     /// <returns>导入结果（成功数量、失败数量、错误信息列表）</returns>
-    public async Task<(int success, int fail, List<string> errors)> ImportAsync(Stream fileStream, string? sheetName)
+    public async Task<(int success, int fail, List<string> errors)> ImportDeptAsync(Stream fileStream, string? sheetName)
     {
         var errors = new List<string>();
         int success = 0;
@@ -915,7 +919,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
                         DeptPhone = item.DeptPhone,
                         DeptMail = item.DeptMail,
                         DeptAddr = item.DeptAddr,
-                        OrderNum = item.OrderNum,
+                        SortOrder = item.SortOrder,
                         DataScope = item.DataScope,
                         DeptStatus = item.DeptStatus >= 0 ? item.DeptStatus : 0,
                         Remark = item.Remark,
@@ -971,7 +975,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktDeptQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportDeptAsync(TaktDeptQueryDto query, string? sheetName, string? fileName)
     {
         // 构建查询条件
         var predicate = QueryExpression(query);
@@ -1008,11 +1012,11 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
             dto.DeptHeadId = d.DeptHeadId;
             dto.DeptHead = headDisplayByEmpId.TryGetValue(d.DeptHeadId, out var headDisp) ? headDisp : string.Empty;
             dto.CostCenterCode = d.CostCenterCode ?? string.Empty;
-            dto.DeptType = GetDeptTypeString(d.DeptType);
+            dto.DeptTypeString = GetDeptTypeString(d.DeptType);
             dto.DeptPhone = d.DeptPhone ?? string.Empty;
             dto.DeptMail = d.DeptMail ?? string.Empty;
             dto.DeptAddr = d.DeptAddr ?? string.Empty;
-            dto.DataScope = GetDataScopeString(d.DataScope);
+            dto.DataScopeString = GetDataScopeString(d.DataScope);
             return dto;
         }).ToList();
 
@@ -1115,7 +1119,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
             return;
 
         var sorted = items
-            .Select((it, idx) => (it, ord: it.OrderNum != 0 ? it.OrderNum : idx))
+            .Select((it, idx) => (it, ord: it.SortOrder != 0 ? it.SortOrder : idx))
             .OrderBy(x => x.ord)
             .Select(x => x.it)
             .ToList();
@@ -1133,7 +1137,7 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
                 DelegateEmployeeId = it.DelegateMode == TaktDelegateMode.DirectEmployee ? it.DelegateEmployeeId : null,
                 DelegateDeptId = it.DelegateMode == TaktDelegateMode.DepartmentRule ? it.DelegateDeptId : null,
                 DelegatePostId = it.DelegateMode == TaktDelegateMode.PostRule ? it.DelegatePostId : null,
-                OrderNum = it.OrderNum != 0 ? it.OrderNum : i,
+                SortOrder = it.SortOrder != 0 ? it.SortOrder : i,
                 IsDeleted = 0
             });
         }
@@ -1250,5 +1254,49 @@ public class TaktDeptService : TaktServiceBase, ITaktDeptService
         exp = exp.AndIF(queryDto?.DeptStatus.HasValue == true, x => x.DeptStatus == queryDto!.DeptStatus!.Value);
 
         return exp.ToExpression();
+    }
+
+    /// <summary>
+    /// 统计部门总数
+    /// </summary>
+    public async Task<long> GetDeptCountAsync()
+    {
+        return await _deptRepository.CountAsync(d => d.IsDeleted == 0);
+    }
+
+    /// <summary>
+    /// 按部门统计人数分布
+    /// </summary>
+    public async Task<Dictionary<long, int>> GetEmployeeCountByDeptAsync()
+    {
+        // 通过员工部门关联表统计
+        var employeeDepts = await _employeeDeptRepository.FindAsync(ed => ed.IsDeleted == 0);
+        
+        return employeeDepts
+            .GroupBy(ed => ed.DeptId)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+
+    /// <summary>
+    /// 统计各部门人数及总计
+    /// </summary>
+    public async Task<List<(long deptId, string deptName, int employeeCount)>> GetDeptEmployeeStatsAsync()
+    {
+        var depts = await _deptRepository.FindAsync(d => d.IsDeleted == 0);
+        var employeeDepts = await _employeeDeptRepository.FindAsync(ed => ed.IsDeleted == 0);
+        
+        var deptEmployeeCount = employeeDepts
+            .GroupBy(ed => ed.DeptId)
+            .ToDictionary(g => g.Key, g => g.Count());
+        
+        var stats = depts
+            .Select(d => (
+                deptId: d.Id,
+                deptName: d.DeptName ?? "",
+                employeeCount: deptEmployeeCount.ContainsKey(d.Id) ? deptEmployeeCount[d.Id] : 0
+            ))
+            .ToList();
+        
+        return stats;
     }
 }

@@ -12,7 +12,7 @@
     class="takt-flow-logic-designer"
     :class="{ 'takt-flow-logic-designer--dark': isDark, 'takt-flow-logic-designer--fullscreen': isFullscreen }"
   >
-    <a-tooltip :title="isFullscreen ? t('common.button.exitFullscreen') : t('common.button.fullscreen')">
+    <a-tooltip :title="isFullscreen ? t('common.button.exitfullscreen') : t('common.button.fullscreen')">
       <a-button
         type="text"
         class="takt-flow-logic-designer__fullscreen-btn"
@@ -35,12 +35,12 @@
     <!-- 属性面板：右侧 -->
     <aside class="takt-flow-logic-designer__property-panel">
       <div class="takt-flow-logic-designer__property-title">
-        {{ t('workflow.designer.propertyPanel') }}
+        {{ t('workflow.designer.page.propertypanel') }}
       </div>
       <div class="takt-flow-logic-designer__property-body">
         <template v-if="!selectedNodeId && !selectedEdgeId">
           <div class="takt-flow-logic-designer__property-empty">
-            {{ t('workflow.designer.selectNodeOrEdge') }}
+            {{ t('workflow.designer.page.selectnodeoredge') }}
           </div>
         </template>
         <template v-else-if="selectedNodeId && selectedNodeData">
@@ -49,20 +49,20 @@
             size="small"
             class="takt-flow-logic-designer__property-form"
           >
-            <a-form-item :label="t('workflow.designer.propId')">
+            <a-form-item :label="t('workflow.designer.page.propid')">
               <a-input
                 :value="selectedNodeData.id"
                 disabled
               />
             </a-form-item>
-            <a-form-item :label="t('workflow.designer.propName')">
+            <a-form-item :label="t('workflow.designer.page.propname')">
               <a-input
                 :value="selectedNodeData.name"
                 :disabled="readonly"
                 @update:value="(v: string) => applySelectedNodeName(v)"
               />
             </a-form-item>
-            <a-form-item :label="t('workflow.designer.propType')">
+            <a-form-item :label="t('workflow.designer.page.proptype')">
               <a-select
                 :value="selectedNodeData.type"
                 style="width: 100%"
@@ -70,31 +70,31 @@
                 @update:value="(v) => applySelectedNodeType(v == null ? 'userTask' : String(v))"
               >
                 <a-select-option value="start">
-                  {{ t('workflow.designer.nodeTypeStart') }}
+                  {{ t('workflow.designer.page.nodetypestart') }}
                 </a-select-option>
                 <a-select-option value="userTask">
-                  {{ t('workflow.designer.nodeTypeUserTask') }}
+                  {{ t('workflow.designer.page.nodetypeusertask') }}
                 </a-select-option>
                 <a-select-option value="copy">
-                  {{ t('workflow.designer.nodeTypeCopy') }}
+                  {{ t('workflow.designer.page.nodetypecopy') }}
                 </a-select-option>
                 <a-select-option value="systemTask">
-                  {{ t('workflow.designer.nodeTypeSystemTask') }}
+                  {{ t('workflow.designer.page.nodetypesystemtask') }}
                 </a-select-option>
                 <a-select-option value="gateway">
-                  {{ t('workflow.designer.nodeTypeGateway') }}
+                  {{ t('workflow.designer.page.nodetypegateway') }}
                 </a-select-option>
                 <a-select-option value="countersign">
-                  {{ t('workflow.designer.nodeTypeCountersign') }}
+                  {{ t('workflow.designer.page.nodetypecountersign') }}
                 </a-select-option>
                 <a-select-option value="end">
-                  {{ t('workflow.designer.nodeTypeEnd') }}
+                  {{ t('workflow.designer.page.nodetypeend') }}
                 </a-select-option>
               </a-select>
             </a-form-item>
             <!-- 审批人设置（参照 AntFlow-Designer approverDrawer） -->
             <template v-if="selectedNodeData.type === 'userTask'">
-              <a-form-item :label="t('workflow.designer.propAssigneeType')">
+              <a-form-item :label="t('workflow.designer.page.propassigneetype')">
                 <a-select
                   :value="selectedNodeData.assigneeType"
                   style="width: 100%"
@@ -103,31 +103,31 @@
                   @update:value="(v) => applySelectedNodeAssigneeType(v === undefined || v === null ? undefined : String(v))"
                 >
                   <a-select-option value="starter">
-                    {{ t('workflow.designer.assigneeStarter') }}
+                    {{ t('workflow.designer.page.assigneestarter') }}
                   </a-select-option>
                   <a-select-option value="assignee">
-                    {{ t('workflow.designer.assigneeAssignee') }}
+                    {{ t('workflow.designer.page.assigneeassignee') }}
                   </a-select-option>
                   <a-select-option value="selfSelect">
-                    {{ t('workflow.designer.assigneeSelfSelect') }}
+                    {{ t('workflow.designer.page.assigneeselfselect') }}
                   </a-select-option>
                   <a-select-option value="role">
-                    {{ t('workflow.designer.assigneeRole') }}
+                    {{ t('workflow.designer.page.assigneerole') }}
                   </a-select-option>
                   <a-select-option value="dept">
-                    {{ t('workflow.designer.assigneeDept') }}
+                    {{ t('workflow.designer.page.assigneedept') }}
                   </a-select-option>
                 </a-select>
               </a-form-item>
               <a-form-item
                 v-if="selectedNodeData.assigneeType === 'role'"
-                :label="t('workflow.designer.propRoles')"
+                :label="t('workflow.designer.page.proproles')"
               >
                 <a-select
                   :value="selectedNodeData.roles"
                   mode="multiple"
                   style="width: 100%"
-                  :placeholder="t('workflow.designer.placeholderSelectRoles')"
+                  :placeholder="t('workflow.designer.page.placeholderselectroles')"
                   :options="roleOptions"
                   :field-names="{ label: 'label', value: 'value' }"
                   :disabled="readonly"
@@ -137,14 +137,14 @@
               </a-form-item>
               <a-form-item
                 v-if="selectedNodeData.assigneeType === 'dept'"
-                :label="t('workflow.designer.propDepartments')"
+                :label="t('workflow.designer.page.propdepartments')"
               >
                 <a-tree-select
                   :value="selectedNodeData.departments"
                   style="width: 100%"
                   :tree-data="deptTreeOptions"
                   tree-checkable
-                  :placeholder="t('workflow.designer.placeholderSelectDepts')"
+                  :placeholder="t('workflow.designer.page.placeholderselectdepts')"
                   :disabled="readonly"
                   allow-clear
                   :field-names="{ label: 'label', value: 'value' }"
@@ -153,13 +153,13 @@
               </a-form-item>
               <a-form-item
                 v-if="selectedNodeData.assigneeType === 'assignee'"
-                :label="t('workflow.designer.propAssignees')"
+                :label="t('workflow.designer.page.propassignees')"
               >
                 <a-select
                   :value="selectedNodeData.assigneeUserIds"
                   mode="multiple"
                   style="width: 100%"
-                  :placeholder="t('workflow.designer.placeholderSelectUsers')"
+                  :placeholder="t('workflow.designer.page.placeholderselectusers')"
                   :options="userOptions"
                   :field-names="{ label: 'label', value: 'value' }"
                   :disabled="readonly"
@@ -172,12 +172,12 @@
             </template>
             <!-- 抄送人设置（参照 AntFlow-Designer copyerDrawer） -->
             <template v-if="selectedNodeData.type === 'copy'">
-              <a-form-item :label="t('workflow.designer.propCopyUsers')">
+              <a-form-item :label="t('workflow.designer.page.propcopyusers')">
                 <a-select
                   :value="selectedNodeData.copyUserIds"
                   mode="multiple"
                   style="width: 100%"
-                  :placeholder="t('workflow.designer.placeholderSelectCopyUsers')"
+                  :placeholder="t('workflow.designer.page.placeholderselectcopyusers')"
                   :options="userOptions"
                   :field-names="{ label: 'label', value: 'value' }"
                   :disabled="readonly"
@@ -195,7 +195,7 @@
                 block
                 @click="deleteSelectedNode"
               >
-                {{ t('workflow.designer.deleteNode') }}
+                {{ t('workflow.designer.page.deletenode') }}
               </a-button>
             </a-form-item>
           </a-form>
@@ -206,41 +206,41 @@
             size="small"
             class="takt-flow-logic-designer__property-form"
           >
-            <a-form-item :label="t('workflow.designer.propFrom')">
+            <a-form-item :label="t('workflow.designer.page.propfrom')">
               <a-input
                 :value="selectedEdgeData.from"
                 disabled
               />
             </a-form-item>
-            <a-form-item :label="t('workflow.designer.propTo')">
+            <a-form-item :label="t('workflow.designer.page.propto')">
               <a-input
                 :value="selectedEdgeData.to"
                 disabled
               />
             </a-form-item>
             <!-- 条件设置（参照 AntFlow-Designer conditionDrawer：优先级、条件描述、表达式） -->
-            <a-form-item :label="t('workflow.designer.edgeLabel')">
+            <a-form-item :label="t('workflow.designer.page.edgelabel')">
               <a-input
                 :value="selectedEdgeData.label"
-                :placeholder="t('workflow.designer.placeholderEdgeLabel')"
+                :placeholder="t('workflow.designer.page.placeholderedgelabel')"
                 :disabled="readonly"
                 @update:value="(v: string) => applySelectedEdgeLabel(v ?? '')"
               />
             </a-form-item>
-            <a-form-item :label="t('workflow.designer.edgePriority')">
+            <a-form-item :label="t('workflow.designer.page.edgepriority')">
               <a-input-number
                 :value="selectedEdgeData.priority"
                 style="width: 100%"
                 :min="1"
-                :placeholder="t('workflow.designer.placeholderEdgePriority')"
+                :placeholder="t('workflow.designer.page.placeholderedgepriority')"
                 :disabled="readonly"
                 @update:value="(v: number | null) => applySelectedEdgePriority(v ?? undefined)"
               />
             </a-form-item>
-            <a-form-item :label="t('workflow.designer.edgeCondition')">
+            <a-form-item :label="t('workflow.designer.page.edgecondition')">
               <a-textarea
                 :value="selectedEdgeData.condition"
-                :placeholder="t('workflow.designer.placeholderEdgeCondition')"
+                :placeholder="t('workflow.designer.page.placeholderedgecondition')"
                 :rows="2"
                 :disabled="readonly"
                 @update:value="(v: string) => applySelectedEdgeCondition(v ?? '')"
@@ -253,7 +253,7 @@
                 block
                 @click="deleteSelectedEdge"
               >
-                {{ t('workflow.designer.deleteEdge') }}
+                {{ t('workflow.designer.page.deleteedge') }}
               </a-button>
             </a-form-item>
           </a-form>

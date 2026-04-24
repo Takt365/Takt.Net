@@ -102,10 +102,10 @@ export function useUserActivity(config: UserActivityConfig = {}) {
     const minutesRemaining = Math.ceil(timeRemaining / 60000)
     
     warningModal = Modal.warning({
-      title: t('layouts.session.title'),
-      content: t('layouts.session.content', { minutes: minutesRemaining }),
-      okText: t('layouts.session.okText'),
-      cancelText: t('layouts.session.cancelText'),
+      title: t('layouts.page.session.title'),
+      content: t('layouts.page.session.content', { minutes: minutesRemaining }),
+      okText: t('layouts.page.session.oktext'),
+      cancelText: t('layouts.page.session.canceltext'),
       onOk: () => {
         updateActivityTime()
         warningModal = null
@@ -131,7 +131,7 @@ export function useUserActivity(config: UserActivityConfig = {}) {
     hasWarningShown.value = false
     
     try {
-      message.warning(t('layouts.session.autoLogout'))
+      message.warning(t('layouts.page.session.autologout'))
       await userStore.logout()
       router.push('/login')
     } catch (error: unknown) {

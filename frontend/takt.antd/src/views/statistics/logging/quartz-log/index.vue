@@ -1,15 +1,27 @@
+<!-- ======================================== -->
+<!-- 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)  -->
+<!-- 命名空间：@/views/statistics/logging/quartz-log -->
+<!-- 文件名称：index.vue -->
+<!-- 创建时间：2026-04-17 -->
+<!-- 创建人：Takt365(Cursor AI) -->
+<!-- 功能描述：任务日志页面，包含关键字查询、列表分页、批量删除、导出与列设置 -->
+<!--  -->
+<!-- 版权信息：Copyright (c) 2025 Takt  All rights reserved. -->
+<!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->
+<!-- ======================================== -->
+
 <template>
   <div class="logging-quartz-log">
     <TaktQueryBar
       v-model="queryKeyword"
-      placeholder="请输入用户名、任务名称或触发器名称"
+      :placeholder="searchPlaceholder"
       :loading="loading"
       @search="handleSearch"
       @reset="handleReset"
     />
     <TaktToolsBar
-      delete-permission="logging:quartzlog:delete"
-      export-permission="logging:quartzlog:export"
+      delete-permission="statistics:logging:quartzlog:delete"
+      export-permission="statistics:logging:quartzlog:export"
       :show-create="false"
       :show-update="false"
       :show-delete="true"
@@ -28,7 +40,6 @@
       @refresh="handleRefresh"
     />
     <TaktSingleTable
-      ref="tableRef"
       :columns="displayColumns"
       :data-source="dataSource"
       :loading="loading"
@@ -44,7 +55,7 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'executeStatus'">
           <a-tag :color="record.executeStatus === 0 ? 'success' : 'error'">
-            {{ record.executeStatus === 0 ? '成功' : '失败' }}
+            {{ record.executeStatus === 0 ? t('common.state.success') : t('common.state.failed') }}
           </a-tag>
         </template>
       </template>
@@ -72,15 +83,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import type { TableColumnsType } from 'ant-design-vue'
+import { useI18n } from 'vue-i18n'
 import { CreateActionColumn } from '@/components/business/takt-action-column/index'
 import { mergeDefaultColumns } from '@/utils/table-columns'
-import { useI18n } from 'vue-i18n'
-import {
-  getQuartzLogList,
-  deleteQuartzLog,
-  deleteQuartzLogBatch,
-  exportQuartzLog
-} from '@/api/statistics/logging/quartz-log'
+import { getQuartzLogList, deleteQuartzLogById, deleteQuartzLogBatch, exportQuartzLogData } from '@/api/statistics/logging/quartz-log'
 import type { QuartzLog, QuartzLogQuery } from '@/types/statistics/logging/quartz-log'
 import { logger } from '@/utils/logger'
 import { RiDeleteBinLine } from '@remixicon/vue'
@@ -95,52 +101,49 @@ const total = ref(0)
 const selectedRow = ref<QuartzLog | null>(null)
 const selectedRows = ref<QuartzLog[]>([])
 const selectedRowKeys = ref<(string | number)[]>([])
-const tableRef = ref()
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
 
-type QuartzLogColumn = {
-  key?: string | number
-  dataIndex?: string | number
-  title?: string | number
-  width?: number
-}
+type QuartzLogColumn = { key?: string | number; dataIndex?: string | number; title?: string | number; width?: string | number }
+type TableSorterInfo = { field?: string; order?: string }
 
-type TableSorterInfo = {
-  field?: string
-  order?: string
-}
+const searchPlaceholder = computed(
+  () => t('common.form.placeholder.required', { field: [t('entity.quartzlog.username'), t('entity.quartzlog.jobname'), t('entity.quartzlog.triggername')].join('、') }) + t('common.button.query')
+)
 
-function getErrorMessage(error: unknown, fallback: string): string {
+const getErrorMessage = (error: unknown, fallbackKey: string): string => {
   if (typeof error === 'object' && error !== null && 'message' in error) {
-    const message = (error as { message?: unknown }).message
-    if (typeof message === 'string' && message.trim()) return message
+    const messageText = (error as { message?: unknown }).message
+    if (typeof messageText === 'string' && messageText.trim()) return messageText
   }
-  return fallback
+  return t(fallbackKey)
 }
 
-function getColumnKey(column: QuartzLogColumn): string {
+const getColumnKey = (column: QuartzLogColumn): string => {
   const key = column.key ?? column.dataIndex ?? column.title
   return key != null ? String(key) : ''
 }
 
-function getSorterInfo(sorter: unknown): TableSorterInfo {
+const getSorterInfo = (sorter: unknown): TableSorterInfo => {
   if (typeof sorter !== 'object' || sorter === null) return {}
   const sorterObj = sorter as { field?: unknown; order?: unknown }
-  return {
-    field: typeof sorterObj.field === 'string' ? sorterObj.field : undefined,
-    order: typeof sorterObj.order === 'string' ? sorterObj.order : undefined
-  }
+  const result: TableSorterInfo = {}
+  if (typeof sorterObj.field === 'string') result.field = sorterObj.field
+  if (typeof sorterObj.order === 'string') result.order = sorterObj.order
+  return result
 }
+
+/** TaktSingleTable 的 rowKey 回调入参为 TableRecord，与 QuartzLog 形参类型不兼容 */
+const getQuartzLogId = (record: unknown): string => {
+  if (record == null || typeof record !== 'object') return ''
+  const id = (record as { quartzLogId?: unknown }).quartzLogId
+  return id != null ? String(id) : ''
+}
+const getQuartzLogField = <K extends keyof QuartzLog>(record: QuartzLog, field: K): QuartzLog[K] => record[field]
 
 onMounted(() => {
   loadData()
 })
-
-const getQuartzLogId = (record: QuartzLog): string => record?.quartzLogId != null ? String(record.quartzLogId) : ''
-function getQuartzLogField<K extends keyof QuartzLog>(record: QuartzLog, field: K): QuartzLog[K] {
-  return record[field]
-}
 
 const columns = ref<TableColumnsType>([
   {
@@ -153,89 +156,42 @@ const columns = ref<TableColumnsType>([
     fixed: 'left',
     customRender: ({ record }: { record: QuartzLog }) => getQuartzLogField(record, 'quartzLogId') ?? ''
   },
-  {
-    title: '用户名',
-    dataIndex: 'userName',
-    key: 'userName',
-    width: 120,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '任务名称',
-    dataIndex: 'jobName',
-    key: 'jobName',
-    width: 140,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '任务组',
-    dataIndex: 'jobGroup',
-    key: 'jobGroup',
-    width: 100,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '触发器名称',
-    dataIndex: 'triggerName',
-    key: 'triggerName',
-    width: 140,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '执行状态',
-    dataIndex: 'executeStatus',
-    key: 'executeStatus',
-    width: 90
-  },
-  {
-    title: '错误消息',
-    dataIndex: 'errorMsg',
-    key: 'errorMsg',
-    width: 180,
-    ellipsis: true
-  },
-  {
-    title: '执行时间',
-    dataIndex: 'executeTime',
-    key: 'executeTime',
-    width: 170,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '耗时(ms)',
-    dataIndex: 'costTime',
-    key: 'costTime',
-    width: 90
-  },
-  CreateActionColumn({
+  { title: t('entity.quartzlog.username'), dataIndex: 'userName', key: 'userName', width: 120, resizable: true, ellipsis: true },
+  { title: t('entity.quartzlog.jobname'), dataIndex: 'jobName', key: 'jobName', width: 140, resizable: true, ellipsis: true },
+  { title: t('entity.quartzlog.jobgroup'), dataIndex: 'jobGroup', key: 'jobGroup', width: 100, resizable: true, ellipsis: true },
+  { title: t('entity.quartzlog.triggername'), dataIndex: 'triggerName', key: 'triggerName', width: 140, resizable: true, ellipsis: true },
+  { title: t('entity.quartzlog.executestatus'), dataIndex: 'executeStatus', key: 'executeStatus', width: 90 },
+  { title: t('entity.quartzlog.errormsg'), dataIndex: 'errorMsg', key: 'errorMsg', width: 180, ellipsis: true },
+  { title: t('entity.quartzlog.executetime'), dataIndex: 'executeTime', key: 'executeTime', width: 170, resizable: true, ellipsis: true },
+  { title: t('entity.quartzlog.costtime'), dataIndex: 'costTime', key: 'costTime', width: 90 },
+  CreateActionColumn<QuartzLog>({
     actions: [
       {
         key: 'delete',
-        label: '删除',
+        label: t('common.button.delete'),
         shape: 'plain',
         icon: RiDeleteBinLine,
-        permission: 'logging:quartzlog:delete',
+        permission: 'statistics:logging:quartzlog:delete',
         onClick: (record: QuartzLog) => handleDeleteOne(record)
       }
     ]
   })
 ])
 
-const mergedColumns = computed(() => mergeDefaultColumns(columns.value, t, true))
-const displayColumns = computed(() => {
+const mergedColumns = computed((): TableColumnsType => {
+  const merged = mergeDefaultColumns(columns.value as never, t, true)
+  return merged as TableColumnsType
+})
+const displayColumns = computed((): TableColumnsType => {
   const keys = visibleColumnKeys.value || []
-  const merged = mergedColumns.value || []
+  const merged = mergedColumns.value
   if (keys.length === 0) return columns.value
   const keysSet = new Set(keys.map(k => String(k)))
-  return merged.filter((col) => {
+  const filtered = merged.filter(col => {
     const colKey = getColumnKey(col as QuartzLogColumn)
-    return colKey && keysSet.has(colKey)
+    return Boolean(colKey && keysSet.has(colKey))
   })
+  return filtered as TableColumnsType
 })
 
 const rowSelection = computed(() => ({
@@ -243,14 +199,14 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: QuartzLog[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: QuartzLog, selected: boolean) => {
     if (selected) selectedRow.value = record
     else if (selectedRow.value && getQuartzLogId(selectedRow.value) === getQuartzLogId(record)) selectedRow.value = null
   },
   onSelectAll: (selected: boolean, selectedRowsData: QuartzLog[]) => {
-    selectedRow.value = selected && selectedRowsData.length === 1 ? selectedRowsData[0] : null
+    selectedRow.value = selected && selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
   }
 }))
 
@@ -260,8 +216,10 @@ const onClickRow = (record: QuartzLog) => ({
     const index = selectedRowKeys.value.indexOf(key)
     if (index > -1) selectedRowKeys.value.splice(index, 1)
     else selectedRowKeys.value.push(key)
-    selectedRows.value = dataSource.value.filter(item => selectedRowKeys.value.includes(getQuartzLogId(item)))
-    selectedRow.value = selectedRowKeys.value.length === 1 ? selectedRows.value[0] : null
+    selectedRows.value = dataSource.value.filter((item: QuartzLog) =>
+      selectedRowKeys.value.includes(getQuartzLogId(item))
+    )
+    selectedRow.value = selectedRowKeys.value.length === 1 ? (selectedRows.value[0] ?? null) : null
     if (rowSelection.value.onChange) rowSelection.value.onChange(selectedRowKeys.value, selectedRows.value)
   }
 })
@@ -271,17 +229,15 @@ const loadData = async () => {
     loading.value = true
     const params: QuartzLogQuery = {
       pageIndex: currentPage.value,
-      pageSize: pageSize.value
+      pageSize: pageSize.value,
+      KeyWords: queryKeyword.value || ''
     }
-    if (queryKeyword.value) params.keyWords = queryKeyword.value
     const response = await getQuartzLogList(params)
-    const items = response?.data ?? []
-    const totalCount = response?.total ?? 0
-    dataSource.value = items
-    total.value = totalCount
+    dataSource.value = response?.data ?? []
+    total.value = response?.total ?? 0
   } catch (error: unknown) {
     logger.error('[QuartzLog] 加载数据失败:', error)
-    message.error(getErrorMessage(error, '加载数据失败'))
+    message.error(getErrorMessage(error, 'common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -313,60 +269,67 @@ const handleResizeColumn = (w: number, col: QuartzLogColumn) => {
 const handleDeleteOne = (record: QuartzLog) => {
   const name = getQuartzLogField(record, 'jobName') || getQuartzLogId(record)
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除任务日志 "${name}" 吗？`,
-    okText: '删除',
-    cancelText: '取消',
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.quartzlog._self'), name }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
-        await deleteQuartzLog(getQuartzLogId(record))
-        message.success('删除成功')
+        await deleteQuartzLogById(getQuartzLogId(record))
+        message.success(t('common.msg.deletesuccess'))
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error, '删除失败'))
+        message.error(getErrorMessage(error, 'common.msg.deletefail'))
       } finally {
         loading.value = false
       }
     }
   })
 }
+
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
-    message.warning('请选择要删除的任务日志')
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('entity.quartzlog._self') }))
     return
   }
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除选中的 ${selectedRows.value.length} 条任务日志吗？`,
-    okText: '删除',
-    cancelText: '取消',
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { entity: t('entity.quartzlog._self'), count: selectedRows.value.length }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
-        const ids = selectedRows.value.map(r => Number(getQuartzLogId(r))).filter(n => !Number.isNaN(n))
+        const ids = selectedRows.value
+          .map((r: QuartzLog) => Number(getQuartzLogId(r)))
+          .filter((n: number) => !Number.isNaN(n))
         await deleteQuartzLogBatch(ids)
-        message.success('删除成功')
+        message.success(t('common.msg.deletesuccess'))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: unknown) {
-        message.error(getErrorMessage(error, '删除失败'))
+        message.error(getErrorMessage(error, 'common.msg.deletefail'))
       } finally {
         loading.value = false
       }
     }
   })
 }
+
 const handleExport = async () => {
   try {
     loading.value = true
-    const params: QuartzLogQuery = { pageIndex: 1, pageSize: total.value || 99999 }
-    if (queryKeyword.value) params.keyWords = queryKeyword.value
-    const blob = await exportQuartzLog(params, undefined, '任务日志')
-    const ts = new Date(); const t = (n: number, w = 2) => String(n).padStart(w, '0')
-    const fileName = `任务日志_${ts.getFullYear()}${t(ts.getMonth()+1)}${t(ts.getDate())}${t(ts.getHours())}${t(ts.getMinutes())}${t(ts.getSeconds())}.xlsx`
+    const params: QuartzLogQuery = {
+      pageIndex: 1,
+      pageSize: total.value || 99999,
+      KeyWords: queryKeyword.value || ''
+    }
+    const blob = await exportQuartzLogData(params, undefined, t('entity.quartzlog._self'))
+    const ts = new Date(); const pad = (n: number, w = 2) => String(n).padStart(w, '0')
+    const fileName = `${t('entity.quartzlog._self')}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -376,14 +339,15 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success('导出成功')
+    message.success(t('common.msg.exportsuccess'))
   } catch (error: unknown) {
     logger.error('[QuartzLog] 导出失败:', error)
-    message.error(getErrorMessage(error, '导出失败'))
+    message.error(getErrorMessage(error, 'common.msg.exportfail'))
   } finally {
     loading.value = false
   }
 }
+
 const handleColumnSetting = () => { columnSettingVisible.value = true }
 const handleColumnKeysChange = (keys: (string | number)[]) => { visibleColumnKeys.value = keys.map(k => String(k)) }
 const handleColumnSettingReset = () => { visibleColumnKeys.value = [] }

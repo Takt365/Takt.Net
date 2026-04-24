@@ -12,7 +12,7 @@
   <a-tabs v-model:active-key="activeTab">
     <a-tab-pane
       key="basic"
-      :tab="t('common.form.tabs.basicInfo')"
+      :tab="t('common.form.tabs.basicinfo')"
     >
       <div :class="formContentClass">
         <a-form
@@ -264,11 +264,21 @@ const TOTAL_FIELDS = 9
 const formContentClass = computed(() => (TOTAL_FIELDS >= 30 ? 'takt-form-content-rows-10' : 'takt-form-content-rows-5'))
 
 /**
- * 新增态默认值，类型与 `@/types/human-resource/attendance-leave/holiday` 中 `HolidayCreate` 一致（对应后端 `TaktHolidayCreateDto`）。
- *
- * @returns {HolidayCreate} 空表单可用的初始对象
+ * 表单本地模型：与控件绑定的文本字段为必填 `string`，避免 `exactOptionalPropertyTypes` 下 `a-input` / `a-textarea` 的 `value` 含 `undefined`。
+ * 提交时由 `getValues` 组装为 `HolidayCreate`。
  */
-function createEmptyHolidayForm(): HolidayCreate {
+type HolidayFormModel = Omit<HolidayCreate, 'holidayGreeting' | 'holidayQuote' | 'remark'> & {
+  holidayGreeting: string
+  holidayQuote: string
+  remark: string
+}
+
+/**
+ * 新增态默认值（对应后端 `TaktHolidayCreateDto`）。
+ *
+ * @returns {HolidayFormModel} 空表单可用的初始对象
+ */
+function createEmptyHolidayForm(): HolidayFormModel {
   return {
     region: 'CN',
     holidayName: '',
@@ -283,8 +293,8 @@ function createEmptyHolidayForm(): HolidayCreate {
   }
 }
 
-/** 表单模型：直接使用 `HolidayCreate`，不在本组件重复声明字段类型。 */
-const formState = reactive<HolidayCreate>(createEmptyHolidayForm())
+/** 表单模型：在 `HolidayCreate` 基础上收紧可选文本字段，便于与 Ant Design Vue 控件类型对齐。 */
+const formState = reactive<HolidayFormModel>(createEmptyHolidayForm())
 
 /**
  * 校验规则：`name` 与模板 `a-form-item` 的 `name` 一一对应，触发时机与占位文案走 i18n。
@@ -364,6 +374,9 @@ const validate = async () => {
  * @returns {HolidayCreate & { holidayId?: string }} 提交体；含可选 `holidayId` 表示更新
  */
 const getValues = (): HolidayCreate & { holidayId?: string } => {
+  const greeting = (formState.holidayGreeting ?? '').trim()
+  const quote = (formState.holidayQuote ?? '').trim()
+  const remark = (formState.remark ?? '').trim()
   const payload: HolidayCreate & { holidayId?: string } = {
     region: formState.region ?? 'CN',
     holidayName: formState.holidayName ?? '',
@@ -371,10 +384,10 @@ const getValues = (): HolidayCreate & { holidayId?: string } => {
     startDate: formState.startDate ?? '',
     endDate: formState.endDate ?? '',
     isWorkingDay: formState.isWorkingDay ?? 0,
-    holidayGreeting: formState.holidayGreeting || undefined,
-    holidayQuote: formState.holidayQuote || undefined,
     holidayTheme: formState.holidayTheme ?? '',
-    remark: formState.remark || undefined
+    ...(greeting.length > 0 ? { holidayGreeting: greeting } : {}),
+    ...(quote.length > 0 ? { holidayQuote: quote } : {}),
+    ...(remark.length > 0 ? { remark } : {})
   }
   if (props.formData?.holidayId) {
     payload.holidayId = props.formData.holidayId

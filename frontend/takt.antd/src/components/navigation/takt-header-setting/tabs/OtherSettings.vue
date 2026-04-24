@@ -5,14 +5,14 @@
       size="large"
       style="width: 100%"
     >
-      <a-form-item :label="$t('components.navigation.systemSetting.showFooter')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.showfooter')">
         <a-switch
           v-model:checked="setting.showFooter"
           @change="handleChange"
         />
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.copyright')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.copyright')">
         <a-input
           v-model:value="setting.copyright"
           :placeholder="$t('common.form.placeholder.copyright')"
@@ -20,7 +20,7 @@
         />
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.watermark')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.watermark')">
         <a-switch
           v-model:checked="setting.watermark"
           @change="handleChange"
@@ -29,7 +29,7 @@
 
       <a-form-item
         v-if="setting.watermark"
-        :label="$t('components.navigation.systemSetting.watermarkContent')"
+        :label="$t('components.navigation.page.systemsetting.watermarkcontent')"
       >
         <a-input
           v-model:value="setting.watermarkContent"
@@ -38,21 +38,21 @@
         />
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.demoSwitch')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.demoswitch')">
         <a-switch
           v-model:checked="setting.demo"
           @change="handleChange"
         />
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.showForgotPassword')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.showforgotpassword')">
         <a-switch
           v-model:checked="setting.showForgotPassword"
           @change="handleChange"
         />
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.showRegister')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.showregister')">
         <a-switch
           v-model:checked="setting.showRegister"
           @change="handleChange"

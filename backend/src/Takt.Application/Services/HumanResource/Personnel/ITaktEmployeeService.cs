@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.Personnel
 // 文件名称：ITaktEmployeeService.cs
@@ -125,4 +125,56 @@ public interface ITaktEmployeeService
     /// <param name="postIds">岗位ID数组</param>
     /// <returns>是否成功</returns>
     Task<bool> AssignEmployeePostsAsync(long employeeId, long[] postIds);
+
+    #region 员工统计分析
+
+    /// <summary>
+    /// 统计人员总数
+    /// </summary>
+    /// <returns>人员总数</returns>
+    Task<long> GetEmployeeCountAsync();
+
+    /// <summary>
+    /// 统计人员平均年龄
+    /// </summary>
+    /// <returns>平均年龄（年）</returns>
+    Task<double?> GetAverageAgeAsync();
+
+    /// <summary>
+    /// 统计人员平均工龄
+    /// </summary>
+    /// <returns>平均工龄（年）</returns>
+    Task<double?> GetAverageWorkYearsAsync();
+
+    /// <summary>
+    /// 统计最大年龄
+    /// </summary>
+    /// <returns>最大年龄（年）</returns>
+    Task<int?> GetMaxAgeAsync();
+
+    /// <summary>
+    /// 统计最小年龄
+    /// </summary>
+    /// <returns>最小年龄（年）</returns>
+    Task<int?> GetMinAgeAsync();
+
+    /// <summary>
+    /// 统计最长工龄
+    /// </summary>
+    /// <returns>最长工龄（年）</returns>
+    Task<int?> GetMaxWorkYearsAsync();
+
+    /// <summary>
+    /// 统计最短工龄
+    /// </summary>
+    /// <returns>最短工龄（年）</returns>
+    Task<int?> GetMinWorkYearsAsync();
+
+    /// <summary>
+    /// 按籍贯统计人员分布
+    /// </summary>
+    /// <returns>籍贯统计列表（Key=籍贯，Value=人数）</returns>
+    Task<Dictionary<string, int>> GetEmployeeCountByNativePlaceAsync();
+
+    #endregion
 }

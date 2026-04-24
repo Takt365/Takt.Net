@@ -15,4 +15,6 @@ export interface WorkspaceModuleItem {
   id: string
   moduleKey: WorkspaceModuleKey
   span: number
+  customTitle?: string
+  customContent?: string
 }

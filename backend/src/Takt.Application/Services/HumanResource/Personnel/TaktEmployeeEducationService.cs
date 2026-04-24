@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.Personnel
 // 文件名称：TaktEmployeeEducationService.cs
@@ -138,11 +138,11 @@ public class TaktEmployeeEducationService : TaktServiceBase, ITaktEmployeeEducat
             var rows = new List<TaktEmployeeEducation>();
             foreach (var item in importData)
             {
-                if (item.EmployeeId is null || item.EmployeeId <= 0 || string.IsNullOrWhiteSpace(item.SchoolName))
+                if (item.EmployeeId <= 0 || string.IsNullOrWhiteSpace(item.SchoolName))
                     continue;
                 rows.Add(new TaktEmployeeEducation
                 {
-                    EmployeeId = item.EmployeeId.Value,
+                    EmployeeId = item.EmployeeId,
                     EducationLevel = item.EducationLevel,
                     SchoolName = item.SchoolName.Trim(),
                     MajorName = string.IsNullOrWhiteSpace(item.MajorName) ? null : item.MajorName.Trim(),

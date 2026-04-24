@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Code.Generator
 // 文件名称：ITaktGenTableColumnService.cs
@@ -25,35 +25,35 @@ public interface ITaktGenTableColumnService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    Task<TaktPagedResult<TaktGenTableColumnDto>> GetListAsync(TaktGenTableColumnQueryDto queryDto);
+    Task<TaktPagedResult<TaktGenTableColumnDto>> GetGenTableColumnListAsync(TaktGenTableColumnQueryDto queryDto);
 
     /// <summary>
     /// 根据ID获取代码生成字段配置
     /// </summary>
     /// <param name="id">字段ID</param>
     /// <returns>代码生成字段配置DTO</returns>
-    Task<TaktGenTableColumnDto?> GetByIdAsync(long id);
+    Task<TaktGenTableColumnDto?> GetGenTableColumnByIdAsync(long id);
 
     /// <summary>
     /// 根据表ID获取字段列表
     /// </summary>
     /// <param name="tableId">表ID</param>
     /// <returns>字段配置列表</returns>
-    Task<List<TaktGenTableColumnDto>> GetListByTableIdAsync(long tableId);
+    Task<List<TaktGenTableColumnDto>> GetGenTableColumnsByTableIdAsync(long tableId);
 
     /// <summary>
     /// 创建代码生成字段配置
     /// </summary>
     /// <param name="dto">创建代码生成字段配置DTO</param>
     /// <returns>代码生成字段配置DTO</returns>
-    Task<TaktGenTableColumnDto> CreateAsync(TaktGenTableColumnCreateDto dto);
+    Task<TaktGenTableColumnDto> CreateGenTableColumnAsync(TaktGenTableColumnCreateDto dto);
 
     /// <summary>
     /// 批量创建代码生成字段配置
     /// </summary>
     /// <param name="dtos">创建代码生成字段配置DTO列表</param>
     /// <returns>字段配置列表</returns>
-    Task<List<TaktGenTableColumnDto>> CreateBatchAsync(List<TaktGenTableColumnCreateDto> dtos);
+    Task<List<TaktGenTableColumnDto>> CreateGenTableColumnBatchAsync(List<TaktGenTableColumnCreateDto> dtos);
 
     /// <summary>
     /// 更新代码生成字段配置
@@ -61,26 +61,26 @@ public interface ITaktGenTableColumnService
     /// <param name="id">字段ID</param>
     /// <param name="dto">更新代码生成字段配置DTO</param>
     /// <returns>代码生成字段配置DTO</returns>
-    Task<TaktGenTableColumnDto> UpdateAsync(long id, TaktGenTableColumnUpdateDto dto);
+    Task<TaktGenTableColumnDto> UpdateGenTableColumnAsync(long id, TaktGenTableColumnUpdateDto dto);
 
     /// <summary>
     /// 删除代码生成字段配置
     /// </summary>
     /// <param name="id">字段ID</param>
     /// <returns>任务</returns>
-    Task DeleteAsync(long id);
+    Task DeleteGenTableColumnByIdAsync(long id);
 
     /// <summary>
     /// 批量删除代码生成字段配置
     /// </summary>
     /// <param name="ids">字段ID列表</param>
     /// <returns>任务</returns>
-    Task DeleteAsync(IEnumerable<long> ids);
+    Task DeleteGenTableColumnBatchAsync(IEnumerable<long> ids);
 
     /// <summary>
     /// 根据表ID删除所有字段配置
     /// </summary>
     /// <param name="tableId">表ID</param>
     /// <returns>任务</returns>
-    Task DeleteByTableIdAsync(long tableId);
+    Task DeleteGenTableColumnsByTableIdAsync(long tableId);
 }

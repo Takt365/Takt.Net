@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Routine.I18n
 // 文件名称：TaktLanguagesController.cs
@@ -17,7 +17,7 @@ using Takt.Application.Services.Routine.Tasks.I18n;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.Routine.Tasks.I18n;
 
@@ -158,7 +158,7 @@ public class TaktLanguagesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _languageService.GetLanguageTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -213,7 +213,7 @@ public class TaktLanguagesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _languageService.ExportLanguageAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {

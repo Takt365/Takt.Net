@@ -55,7 +55,7 @@
                   <template #icon>
                     <RiLayoutRowLine />
                   </template>
-                  {{ t('dashboard.data-board.layoutFullRow') }}
+                  {{ t('dashboard.data-board.layoutfullrow') }}
                 </a-menu-item>
                 <a-menu-item
                   key="half"
@@ -64,7 +64,7 @@
                   <template #icon>
                     <RiLayoutColumnLine />
                   </template>
-                  {{ t('dashboard.data-board.layoutHalfRow') }}
+                  {{ t('dashboard.data-board.layouthalfrow') }}
                 </a-menu-item>
               </a-menu>
             </template>
@@ -72,7 +72,7 @@
         </a-tooltip>
         <slot name="headActions" />
         <a-tooltip
-          :title="t('dashboard.data-board.removeModule')"
+          :title="t('dashboard.data-board.removemodule')"
           placement="right"
         >
           <a-button
@@ -123,14 +123,14 @@ const displayTitle = computed(() => {
   return meta ? t(meta.titleKey) : props.module.moduleKey
 })
 
-const dragTooltip = computed(() => t('dashboard.data-board.dragToReorder', { title: displayTitle.value }))
+const dragTooltip = computed(() => t('dashboard.data-board.dragtoreorder', { title: displayTitle.value }))
 
 const moduleSpan = computed(() => props.module.span ?? 24)
 const currentLayoutKey = computed(() => (moduleSpan.value === 24 ? 'full' : 'half'))
 const currentLayoutLabel = computed(() =>
-  moduleSpan.value === 24 ? t('dashboard.data-board.layoutFullRow') : t('dashboard.data-board.layoutHalfRow')
+  moduleSpan.value === 24 ? t('dashboard.data-board.layoutfullrow') : t('dashboard.data-board.layouthalfrow')
 )
-const layoutTooltip = computed(() => `${t('dashboard.data-board.layoutLabel')}：${currentLayoutLabel.value}`)
+const layoutTooltip = computed(() => `${t('dashboard.data-board.layoutlabel')}：${currentLayoutLabel.value}`)
 const showLayoutSwitch = true
 
 function onLayoutMenuClick(info: MenuInfo) {

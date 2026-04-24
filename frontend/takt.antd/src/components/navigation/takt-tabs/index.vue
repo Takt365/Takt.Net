@@ -51,37 +51,37 @@
               <template #overlay>
                 <a-menu @click="handleMenuClick">
                   <a-menu-item key="refresh">
-                    {{ t('components.navigation.tabs.refreshCurrent') }}
+                    {{ t('components.navigation.page.tabs.refreshcurrent') }}
                   </a-menu-item>
                   <a-menu-item
                     key="close-current"
                     :disabled="activeKey === '/dashboard/workspace' || displayTabs.length <= 1"
                   >
-                    {{ t('components.navigation.tabs.closeCurrent') }}
+                    {{ t('components.navigation.page.tabs.closecurrent') }}
                   </a-menu-item>
                   <a-menu-item
                     key="close-right"
                     :disabled="!hasRightTabs"
                   >
-                    {{ t('components.navigation.tabs.closeRight') }}
+                    {{ t('components.navigation.page.tabs.closeright') }}
                   </a-menu-item>
                   <a-menu-item
                     key="close-left"
                     :disabled="!hasLeftTabs"
                   >
-                    {{ t('components.navigation.tabs.closeLeft') }}
+                    {{ t('components.navigation.page.tabs.closeleft') }}
                   </a-menu-item>
                   <a-menu-item
                     key="close-other"
                     :disabled="displayTabs.length <= 1"
                   >
-                    {{ t('components.navigation.tabs.closeOthers') }}
+                    {{ t('components.navigation.page.tabs.closeothers') }}
                   </a-menu-item>
                   <a-menu-item
                     key="close-all"
                     :disabled="displayTabs.length <= 1"
                   >
-                    {{ t('components.navigation.tabs.closeAll') }}
+                    {{ t('components.navigation.page.tabs.closeall') }}
                   </a-menu-item>
                 </a-menu>
               </template>
@@ -89,7 +89,7 @@
             <a-button
               type="text"
               class="tabs-fullscreen-btn"
-              :title="isFullscreen ? t('common.button.exitFullscreen') : t('common.button.fullscreen')"
+              :title="isFullscreen ? t('common.button.exitfullscreen') : t('common.button.fullscreen')"
               @click="handleToggleFullscreen"
             >
               <template #icon>
@@ -258,8 +258,8 @@ const manageTabs = async () => {
   const homeIconComponent = homeMenuIcon ? iconCache.value[homeMenuIcon] : undefined
   
   // 获取翻译后的标题
-  const currentTitle = getTranslatedTitle(menu, routeMeta) || routeMeta?.title as string || route.name as string || t('components.navigation.tabs.unnamed')
-  const homeTitle = getTranslatedTitle(homeMenu, null) || t('components.navigation.tabs.home')
+  const currentTitle = getTranslatedTitle(menu, routeMeta) || routeMeta?.title as string || route.name as string || t('components.navigation.page.tabs.unnamed')
+  const homeTitle = getTranslatedTitle(homeMenu, null) || t('components.navigation.page.tabs.home')
   
   const homeTab = tabsList.value.find(t => t.key === homePath)
   
@@ -599,7 +599,7 @@ const handleMenuClick = (info: MenuInfo) => {
           preloadIcon(homeMenuIcon)
         }
         const homeIconComponent = homeMenuIcon ? iconCache.value[homeMenuIcon] : undefined
-        const homeTitle = getTranslatedTitle(homeMenu, null) || t('components.navigation.tabs.home')
+        const homeTitle = getTranslatedTitle(homeMenu, null) || t('components.navigation.page.tabs.home')
         
         tabsList.value.splice(0, tabsList.value.length, {
           key: homePath,

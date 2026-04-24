@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Identity
 // 文件名称：TaktUserService.cs
@@ -196,7 +196,7 @@ public class TaktUserService : TaktServiceBase, ITaktUserService
                     DictValue = u.Id,
                     ExtLabel = u.UserName,
                     ExtValue = u.UserEmail,
-                    OrderNum = 0
+                    SortOrder = 0
                 };
             })
             .ToList();
@@ -1006,7 +1006,7 @@ public class TaktUserService : TaktServiceBase, ITaktUserService
         if (IsProtectedUser(user.UserName))
             throw new TaktBusinessException("validation.adminUserCannotUnlock");
 
-        user.UserStatus = dto.UserStatus;
+        user.UserStatus = dto.UserStatus ?? user.UserStatus;
         user.LockReason = null;
         user.LockTime = null;
         user.LockBy = null;
@@ -1335,10 +1335,10 @@ public class TaktUserService : TaktServiceBase, ITaktUserService
                     TenantId = tenant.Id,
                     TenantName = tenant.TenantName,
                     TenantCode = tenant.TenantCode,
-                    TenantConfigId = tenant.ConfigId,
+                    TenantConfigId = tenant.ConfigId ?? "0",
                     TenantStatus = tenant.TenantStatus,
-                    StartTime = tenant.StartTime,
-                    EndTime = tenant.EndTime,
+                    SubscriptionStartTime = tenant.SubscriptionStartTime,
+                    SubscriptionEndTime = tenant.SubscriptionEndTime,
                     ConfigId = userTenant.ConfigId,
                     CreatedAt = userTenant.CreatedAt,
                     UpdatedAt = userTenant.UpdatedAt,
@@ -1560,8 +1560,8 @@ public class TaktUserService : TaktServiceBase, ITaktUserService
             var emp = employeeDict.TryGetValue(u.EmployeeId, out var e) ? e : null;
             dto.RealName = emp?.RealName?.Trim() ?? u.UserName;
             dto.NickName = dto.RealName;
-            dto.UserType = GetUserTypeString(u.UserType);
-            dto.Gender = GetGenderString(emp?.Gender ?? 0);
+            dto.UserTypeString = GetUserTypeString(u.UserType);
+            dto.GenderString = GetGenderString(emp?.Gender ?? 0);
             dto.Avatar = emp?.Avatar ?? string.Empty;
             dto.DeptName = string.Empty; // TODO: 查询部门名称
             dto.RoleNames = string.Empty; // TODO: 查询角色名称
@@ -1655,4 +1655,16 @@ public class TaktUserService : TaktServiceBase, ITaktUserService
 
         return exp.ToExpression();
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计用户总数
+    /// </summary>
+    public async Task<long> GetUserCountAsync()
+    {
+        return await _userRepository.CountAsync(u => u.IsDeleted == 0);
+    }
+
+    #endregion
 }

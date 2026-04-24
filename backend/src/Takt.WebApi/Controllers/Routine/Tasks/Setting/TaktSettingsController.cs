@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Routine.Setting
 // 文件名称：TaktSettingsController.cs
@@ -17,7 +17,7 @@ using Takt.Application.Services.Routine.Tasks.Setting;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 using Takt.WebApi.Controllers;
 
 namespace Takt.WebApi.Controllers.Routine.Tasks.Setting;
@@ -118,7 +118,7 @@ public class TaktSettingsController : TaktControllerBase
     public async Task<ActionResult<TaktSettingsDto>> CreateSettingsAsync([FromBody] TaktSettingsCreateDto dto)
     {
         var settings = await _settingsService.CreateSettingsAsync(dto);
-        return CreatedAtAction(nameof(GetSettingsByIdAsync), new { id = settings.SettingId }, settings);
+        return CreatedAtAction(nameof(GetSettingsByIdAsync), new { id = settings.SettingsId }, settings);
     }
 
     /// <summary>
@@ -162,7 +162,7 @@ public class TaktSettingsController : TaktControllerBase
     /// <returns>设置DTO</returns>
     [HttpPut("status")]
     [TaktPermission("routine:tasks:setting:status", "更新设置状态")]
-    public async Task<ActionResult<TaktSettingsDto>> UpdateSettingsStatusAsync([FromBody] TaktSettingsStatusDto dto)
+    public async Task<ActionResult<TaktSettingsDto>> UpdateSettingsStatusAsync([FromBody] TaktSettingsSettingStatusDto dto)
     {
         try
         {
@@ -188,7 +188,7 @@ public class TaktSettingsController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _settingsService.GetSettingsTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -243,7 +243,7 @@ public class TaktSettingsController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _settingsService.ExportSettingsAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {

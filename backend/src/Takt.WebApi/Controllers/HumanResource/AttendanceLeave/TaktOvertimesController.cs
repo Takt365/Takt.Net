@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.HumanResource.AttendanceLeave
 // 文件名称：TaktOvertimesController.cs
@@ -16,7 +16,7 @@ using Takt.Application.Services.HumanResource.AttendanceLeave;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.HumanResource.AttendanceLeave;
 
@@ -147,7 +147,7 @@ public class TaktOvertimesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _service.GetOvertimeTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -196,11 +196,27 @@ public class TaktOvertimesController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _service.ExportOvertimeAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {
             return BadRequest(GetLocalizedExceptionMessage(ex));
         }
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 按加班类型统计昨天的加班总数（小时数）
+    /// </summary>
+    /// <returns>加班类型统计</returns>
+    [HttpGet("stats/yesterday-by-type")]
+    [TaktPermission("humanresource:attendanceleave:overtime:list", "统计昨天加班")]
+    public async Task<ActionResult<Dictionary<int, decimal>>> GetYesterdayOvertimeHoursByTypeAsync()
+    {
+        var stats = await _service.GetYesterdayOvertimeHoursByTypeAsync();
+        return Ok(stats);
+    }
+
+    #endregion
 }

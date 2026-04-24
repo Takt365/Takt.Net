@@ -1,23 +1,25 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.Application.Dtos.Routine.Setting
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：Takt.Application.Dtos.Routine.Tasks.Setting
 // 文件名称：TaktSettingsDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt设置DTO，包含设置相关的数据传输对象（查询、创建、更新）
-// 
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：系统设置表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
+//
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
+using SqlSugar;
 using Takt.Application.Dtos;
+using Takt.Shared.Models;
 
 namespace Takt.Application.Dtos.Routine.Tasks.Setting;
 
 /// <summary>
-/// Takt设置DTO
+/// 系统设置表Dto
 /// </summary>
-public class TaktSettingsDto : TaktDtoBase
+public partial class TaktSettingsDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -25,61 +27,53 @@ public class TaktSettingsDto : TaktDtoBase
     public TaktSettingsDto()
     {
         SettingKey = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 设置ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 系统设置表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long SettingId { get; set; }
+    public long SettingsId { get; set; }
 
     /// <summary>
-    /// 设置键（唯一索引）
+    /// 设置键
     /// </summary>
     public string SettingKey { get; set; }
-
     /// <summary>
     /// 设置值
     /// </summary>
     public string? SettingValue { get; set; }
-
     /// <summary>
-    /// 设置名称（描述）
+    /// 设置名称
     /// </summary>
     public string? SettingName { get; set; }
-
     /// <summary>
-    /// 设置分组（backend=后端，frontend=前端）
+    /// 设置分组
     /// </summary>
     public string? SettingGroup { get; set; }
-
     /// <summary>
-    /// 是否内置（1=是，0=否）
+    /// 是否内置
     /// </summary>
     public int IsBuiltIn { get; set; }
-
     /// <summary>
-    /// 是否加密（1=是，0=否）
+    /// 是否加密
     /// </summary>
     public int IsEncrypted { get; set; }
-
     /// <summary>
-    /// 排序号（越小越靠前）
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
-
+    public int SortOrder { get; set; }
     /// <summary>
-    /// 设置状态（0=启用，1=禁用）
+    /// 设置状态
     /// </summary>
     public int SettingStatus { get; set; }
 }
 
 /// <summary>
-/// Takt设置查询DTO
+/// 系统设置表查询DTO
 /// </summary>
-public class TaktSettingsQueryDto : TaktPagedQuery
+public partial class TaktSettingsQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -88,28 +82,75 @@ public class TaktSettingsQueryDto : TaktPagedQuery
     {
     }
 
-    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于在设置键、设置名称中模糊查询
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
+    /// <summary>
+    /// 系统设置表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long SettingsId { get; set; }
 
     /// <summary>
     /// 设置键
     /// </summary>
     public string? SettingKey { get; set; }
-
     /// <summary>
-    /// 设置分组（backend=后端，frontend=前端）
+    /// 设置值
+    /// </summary>
+    public string? SettingValue { get; set; }
+    /// <summary>
+    /// 设置名称
+    /// </summary>
+    public string? SettingName { get; set; }
+    /// <summary>
+    /// 设置分组
     /// </summary>
     public string? SettingGroup { get; set; }
-
     /// <summary>
-    /// 设置状态（0=启用，1=禁用）
+    /// 是否内置
+    /// </summary>
+    public int? IsBuiltIn { get; set; }
+    /// <summary>
+    /// 是否加密
+    /// </summary>
+    public int? IsEncrypted { get; set; }
+    /// <summary>
+    /// 排序号
+    /// </summary>
+    public int? SortOrder { get; set; }
+    /// <summary>
+    /// 设置状态
     /// </summary>
     public int? SettingStatus { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建设置DTO
+/// Takt创建系统设置表DTO
 /// </summary>
-public class TaktSettingsCreateDto
+public partial class TaktSettingsCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -119,40 +160,50 @@ public class TaktSettingsCreateDto
         SettingKey = string.Empty;
     }
 
-    /// <summary>
-    /// 设置键（唯一索引）
+        /// <summary>
+    /// 设置键
     /// </summary>
-    public string SettingKey { get; set; } = string.Empty;
+    public string SettingKey { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设置值
     /// </summary>
     public string? SettingValue { get; set; }
 
-    /// <summary>
-    /// 设置名称（描述）
+        /// <summary>
+    /// 设置名称
     /// </summary>
     public string? SettingName { get; set; }
 
-    /// <summary>
-    /// 设置分组（backend=后端，frontend=前端）
+        /// <summary>
+    /// 设置分组
     /// </summary>
     public string? SettingGroup { get; set; }
 
-    /// <summary>
-    /// 是否内置（1=是，0=否）
+        /// <summary>
+    /// 是否内置
     /// </summary>
-    public int IsBuiltIn { get; set; } = 1;
+    public int IsBuiltIn { get; set; }
+
+        /// <summary>
+    /// 是否加密
+    /// </summary>
+    public int IsEncrypted { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
+
+        /// <summary>
+    /// 设置状态
+    /// </summary>
+    public int SettingStatus { get; set; }
 
     /// <summary>
-    /// 是否加密（1=是，0=否）
+    /// 扩展字段JSON
     /// </summary>
-    public int IsEncrypted { get; set; } = 1;
-
-    /// <summary>
-    /// 排序号（越小越靠前）
-    /// </summary>
-    public int OrderNum { get; set; } = 0;
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -161,9 +212,9 @@ public class TaktSettingsCreateDto
 }
 
 /// <summary>
-/// Takt更新设置DTO
+/// Takt更新系统设置表DTO
 /// </summary>
-public class TaktSettingsUpdateDto : TaktSettingsCreateDto
+public partial class TaktSettingsUpdateDto : TaktSettingsCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -172,43 +223,43 @@ public class TaktSettingsUpdateDto : TaktSettingsCreateDto
     {
     }
 
-    /// <summary>
-    /// 设置ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 系统设置表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long SettingId { get; set; }
+    public long SettingsId { get; set; }
 }
 
 /// <summary>
-/// Takt设置状态DTO
+/// 系统设置表设置状态DTO
 /// </summary>
-public class TaktSettingsStatusDto
+public partial class TaktSettingsSettingStatusDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
-    public TaktSettingsStatusDto()
+    public TaktSettingsSettingStatusDto()
     {
     }
 
-    /// <summary>
-    /// 设置ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 系统设置表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long SettingId { get; set; }
+    public long SettingsId { get; set; }
 
     /// <summary>
-    /// 设置状态（0=启用，1=禁用）
+    /// 设置状态（0=禁用，1=启用）
     /// </summary>
     public int SettingStatus { get; set; }
 }
 
 /// <summary>
-/// Takt设置导入模板DTO
+/// 系统设置表导入模板DTO
 /// </summary>
-public class TaktSettingsTemplateDto
+public partial class TaktSettingsTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -216,51 +267,52 @@ public class TaktSettingsTemplateDto
     public TaktSettingsTemplateDto()
     {
         SettingKey = string.Empty;
-        SettingValue = string.Empty;
-        SettingName = string.Empty;
-        SettingGroup = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
-    /// 设置键（唯一索引）
+        /// <summary>
+    /// 设置键
     /// </summary>
     public string SettingKey { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设置值
     /// </summary>
-    public string SettingValue { get; set; }
+    public string? SettingValue { get; set; }
 
-    /// <summary>
-    /// 设置名称（描述）
+        /// <summary>
+    /// 设置名称
     /// </summary>
-    public string SettingName { get; set; }
+    public string? SettingName { get; set; }
 
-    /// <summary>
-    /// 设置分组（backend=后端，frontend=前端）
+        /// <summary>
+    /// 设置分组
     /// </summary>
-    public string SettingGroup { get; set; }
+    public string? SettingGroup { get; set; }
 
-    /// <summary>
-    /// 是否内置（1=是，0=否）
+        /// <summary>
+    /// 是否内置
     /// </summary>
     public int IsBuiltIn { get; set; }
 
-    /// <summary>
-    /// 是否加密（1=是，0=否）
+        /// <summary>
+    /// 是否加密
     /// </summary>
     public int IsEncrypted { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
-    /// <summary>
-    /// 设置状态（0=启用，1=禁用）
+        /// <summary>
+    /// 设置状态
     /// </summary>
     public int SettingStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -269,9 +321,9 @@ public class TaktSettingsTemplateDto
 }
 
 /// <summary>
-/// Takt设置导入DTO
+/// 系统设置表导入DTO
 /// </summary>
-public class TaktSettingsImportDto
+public partial class TaktSettingsImportDto
 {
     /// <summary>
     /// 构造函数
@@ -279,51 +331,52 @@ public class TaktSettingsImportDto
     public TaktSettingsImportDto()
     {
         SettingKey = string.Empty;
-        SettingValue = string.Empty;
-        SettingName = string.Empty;
-        SettingGroup = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
-    /// 设置键（唯一索引）
+        /// <summary>
+    /// 设置键
     /// </summary>
     public string SettingKey { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设置值
     /// </summary>
-    public string SettingValue { get; set; }
+    public string? SettingValue { get; set; }
 
-    /// <summary>
-    /// 设置名称（描述）
+        /// <summary>
+    /// 设置名称
     /// </summary>
-    public string SettingName { get; set; }
+    public string? SettingName { get; set; }
 
-    /// <summary>
-    /// 设置分组（backend=后端，frontend=前端）
+        /// <summary>
+    /// 设置分组
     /// </summary>
-    public string SettingGroup { get; set; }
+    public string? SettingGroup { get; set; }
 
-    /// <summary>
-    /// 是否内置（1=是，0=否）
+        /// <summary>
+    /// 是否内置
     /// </summary>
     public int IsBuiltIn { get; set; }
 
-    /// <summary>
-    /// 是否加密（1=是，0=否）
+        /// <summary>
+    /// 是否加密
     /// </summary>
     public int IsEncrypted { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
-    /// <summary>
-    /// 设置状态（0=启用，1=禁用）
+        /// <summary>
+    /// 设置状态
     /// </summary>
     public int SettingStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -332,50 +385,56 @@ public class TaktSettingsImportDto
 }
 
 /// <summary>
-/// Takt设置导出DTO
+/// 系统设置表导出DTO
 /// </summary>
-public class TaktSettingsExportDto
+public partial class TaktSettingsExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktSettingsExportDto()
     {
-        SettingKey = string.Empty;
-        SettingValue = string.Empty;
-        SettingName = string.Empty;
-        SettingGroup = string.Empty;
-        SettingStatus = 0;
         CreatedAt = DateTime.Now;
+        SettingKey = string.Empty;
     }
 
-    /// <summary>
-    /// 设置键（唯一索引）
+        /// <summary>
+    /// 设置键
     /// </summary>
     public string SettingKey { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 设置值
     /// </summary>
-    public string SettingValue { get; set; }
+    public string? SettingValue { get; set; }
 
-    /// <summary>
-    /// 设置名称（描述）
+        /// <summary>
+    /// 设置名称
     /// </summary>
-    public string SettingName { get; set; }
+    public string? SettingName { get; set; }
 
-    /// <summary>
-    /// 设置分组（backend=后端，frontend=前端）
+        /// <summary>
+    /// 设置分组
     /// </summary>
-    public string SettingGroup { get; set; }
+    public string? SettingGroup { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 是否内置
     /// </summary>
-    public int OrderNum { get; set; }
+    public int IsBuiltIn { get; set; }
 
-    /// <summary>
-    /// 设置状态（0=启用，1=禁用）
+        /// <summary>
+    /// 是否加密
+    /// </summary>
+    public int IsEncrypted { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
+
+        /// <summary>
+    /// 设置状态
     /// </summary>
     public int SettingStatus { get; set; }
 

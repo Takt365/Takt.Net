@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktMenuLevel5SeedData.cs
@@ -62,7 +62,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:output:pcba:production:list";
                 menu.Path = "/manufacturing/output/pcba/production";
                 menu.Component = "manufacturing/output/pcba/production/index";
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -83,7 +83,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:output:pcba:repair:list";
                 menu.Path = "/manufacturing/output/pcba/repair";
                 menu.Component = "manufacturing/output/pcba/repair/index";
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -104,7 +104,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:output:pcba:rework:list";
                 menu.Path = "/manufacturing/output/pcba/rework";
                 menu.Component = "manufacturing/output/pcba/rework/index";
-                menu.OrderNum = 3;
+                menu.SortOrder = 3;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -125,7 +125,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:output:pcba:epp:list";
                 menu.Path = "/manufacturing/output/pcba/epp";
                 menu.Component = "manufacturing/output/pcba/epp/index";
-                menu.OrderNum = 4;
+                menu.SortOrder = 4;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -150,7 +150,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:output:assembly:production:list";
                 menu.Path = "/manufacturing/output/assembly/production";
                 menu.Component = "manufacturing/output/assembly/production/index";
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -171,7 +171,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:output:assembly:repair:list";
                 menu.Path = "/manufacturing/output/assembly/repair";
                 menu.Component = "manufacturing/output/assembly/repair/index";
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -192,7 +192,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:output:assembly:rework:list";
                 menu.Path = "/manufacturing/output/assembly/rework";
                 menu.Component = "manufacturing/output/assembly/rework/index";
-                menu.OrderNum = 3;
+                menu.SortOrder = 3;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -213,7 +213,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:output:assembly:epp:list";
                 menu.Path = "/manufacturing/output/assembly/epp";
                 menu.Component = "manufacturing/output/assembly/epp/index";
-                menu.OrderNum = 4;
+                menu.SortOrder = 4;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -238,7 +238,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:defect:pcba:smt:list";
                 menu.Path = "/manufacturing/defect/pcba/smt";
                 menu.Component = "manufacturing/defect/pcba/smt/index";
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -259,7 +259,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:defect:pcba:repair:list";
                 menu.Path = "/manufacturing/defect/pcba/repair";
                 menu.Component = "manufacturing/defect/pcba/repair/index";
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -284,7 +284,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:defect:assembly:production:list";
                 menu.Path = "/manufacturing/defect/assembly/production";
                 menu.Component = "manufacturing/defect/assembly/production/index";
-                menu.OrderNum = 1;
+                menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -305,7 +305,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:defect:assembly:repair:list";
                 menu.Path = "/manufacturing/defect/assembly/repair";
                 menu.Component = "manufacturing/defect/assembly/repair/index";
-                menu.OrderNum = 2;
+                menu.SortOrder = 2;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -326,7 +326,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:defect:assembly:rework:list";
                 menu.Path = "/manufacturing/defect/assembly/rework";
                 menu.Component = "manufacturing/defect/assembly/rework/index";
-                menu.OrderNum = 3;
+                menu.SortOrder = 3;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;
@@ -347,7 +347,7 @@ public class TaktMenuLevel5SeedData
                 menu.Permission = "manufacturing:defect:assembly:epp:list";
                 menu.Path = "/manufacturing/defect/assembly/epp";
                 menu.Component = "manufacturing/defect/assembly/epp/index";
-                menu.OrderNum = 4;
+                menu.SortOrder = 4;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
                 menu.IsCache = 0;

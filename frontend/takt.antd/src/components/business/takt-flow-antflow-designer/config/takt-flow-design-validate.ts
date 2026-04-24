@@ -31,22 +31,22 @@ function visit(node: FlowTreeNode | null | undefined, t: FlowDesignTranslate, ou
   if (node.nodeType === 4) {
     const st = node.setType ?? 1
     if (st === 1 && !(node.nodeApproveList?.length)) {
-      out.push({ nodeName: name, message: t('workflow.designer.validateApproverNeedUsers', { name }) })
+      out.push({ nodeName: name, message: t('workflow.designer.page.validateapproverneedusers', { name }) })
     }
     if (st === 3 && !(node.nodeApproveList?.length)) {
-      out.push({ nodeName: name, message: t('workflow.designer.validateApproverNeedRoles', { name }) })
+      out.push({ nodeName: name, message: t('workflow.designer.page.validateapproverneedroles', { name }) })
     }
     if (st === 4 && !(node.nodeApproveList?.length)) {
-      out.push({ nodeName: name, message: t('workflow.designer.validateApproverNeedDepts', { name }) })
+      out.push({ nodeName: name, message: t('workflow.designer.page.validateapproverneeddepts', { name }) })
     }
   }
 
   if (node.nodeType === 6 && !(node.nodeApproveList?.length)) {
-    out.push({ nodeName: name, message: t('workflow.designer.validateCopyNeedUsers', { name }) })
+    out.push({ nodeName: name, message: t('workflow.designer.page.validatecopyneedusers', { name }) })
   }
 
   if (node.nodeType === 3 && node.isDefault !== 1 && !(node.conditionList?.length)) {
-    out.push({ nodeName: name, message: t('workflow.designer.validateConditionNeedExpr', { name }) })
+    out.push({ nodeName: name, message: t('workflow.designer.page.validateconditionneedexpr', { name }) })
   }
 
   visit(node.childNode, t, out)

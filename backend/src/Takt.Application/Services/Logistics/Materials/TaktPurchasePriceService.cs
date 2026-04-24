@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Logistics.Materials
 // 文件名称：TaktPurchasePriceService.cs
@@ -55,7 +55,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktPurchasePriceDto>> GetListAsync(TaktPurchasePriceQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktPurchasePriceDto>> GetPurchasePriceListAsync(TaktPurchasePriceQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
 
@@ -66,7 +66,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
         // 加载明细和阶梯数据
         if (priceDtos.Any())
         {
-            var priceIds = priceDtos.Select(p => p.PriceId).ToList();
+            var priceIds = priceDtos.Select(p => p.PriceId).Where(id => id.HasValue).Select(id => id!.Value).ToList();
             await LoadItemsAndScalesAsync(priceDtos, priceIds);
         }
 
@@ -83,7 +83,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
     /// </summary>
     /// <param name="id">价格ID</param>
     /// <returns>采购价格DTO</returns>
-    public async Task<TaktPurchasePriceDto?> GetByIdAsync(long id)
+    public async Task<TaktPurchasePriceDto?> GetPurchasePriceByIdAsync(long id)
     {
         var price = await _priceRepository.GetByIdAsync(id);
         if (price == null) return null;
@@ -101,7 +101,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
     /// </summary>
     /// <param name="dto">创建采购价格DTO</param>
     /// <returns>采购价格DTO</returns>
-    public async Task<TaktPurchasePriceDto> CreateAsync(TaktPurchasePriceCreateDto dto)
+    public async Task<TaktPurchasePriceDto> CreatePurchasePriceAsync(TaktPurchasePriceCreateDto dto)
     {
         // 1. 创建主表
         var price = dto.Adapt<TaktPurchasePrice>();
@@ -132,7 +132,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
             }
         }
 
-        return await GetByIdAsync(price.Id) ?? price.Adapt<TaktPurchasePriceDto>();
+        return await GetPurchasePriceByIdAsync(price.Id) ?? price.Adapt<TaktPurchasePriceDto>();
     }
 
     /// <summary>
@@ -141,7 +141,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
     /// <param name="id">价格ID</param>
     /// <param name="dto">更新采购价格DTO</param>
     /// <returns>采购价格DTO</returns>
-    public async Task<TaktPurchasePriceDto> UpdateAsync(long id, TaktPurchasePriceUpdateDto dto)
+    public async Task<TaktPurchasePriceDto> UpdatePurchasePriceAsync(long id, TaktPurchasePriceUpdateDto dto)
     {
         var price = await _priceRepository.GetByIdAsync(id);
         if (price == null)
@@ -194,7 +194,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
             }
         }
 
-        return await GetByIdAsync(id) ?? price.Adapt<TaktPurchasePriceDto>();
+        return await GetPurchasePriceByIdAsync(id) ?? price.Adapt<TaktPurchasePriceDto>();
     }
 
     /// <summary>
@@ -202,7 +202,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
     /// </summary>
     /// <param name="id">价格ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeletePurchasePriceByIdAsync(long id)
     {
         // 1. 删除阶梯
         var items = await _itemRepository.FindAsync(i => i.PriceId == id && i.IsDeleted == 0);
@@ -231,7 +231,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
     /// </summary>
     /// <param name="ids">价格ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(IEnumerable<long> ids)
+    public async Task DeletePurchasePriceBatchAsync(IEnumerable<long> ids)
     {
         var idList = ids.ToList();
         if (idList.Count == 0)
@@ -273,9 +273,12 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
     /// </summary>
     /// <param name="dto">采购价格状态DTO</param>
     /// <returns>采购价格DTO</returns>
-    public async Task<TaktPurchasePriceDto> UpdateStatusAsync(TaktPurchasePriceStatusDto dto)
+    public async Task<TaktPurchasePriceDto> UpdatePurchasePriceStatusAsync(TaktPurchasePriceStatusDto dto)
     {
-        var price = await _priceRepository.GetByIdAsync(dto.PriceId);
+        if (!dto.PriceId.HasValue)
+            throw new ArgumentException("价格ID不能为空", nameof(dto.PriceId));
+            
+        var price = await _priceRepository.GetByIdAsync(dto.PriceId.Value);
         if (price == null)
             throw new TaktBusinessException("validation.purchasePriceNotFound");
 
@@ -284,7 +287,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
 
         await _priceRepository.UpdateAsync(price);
 
-        return await GetByIdAsync(dto.PriceId) ?? price.Adapt<TaktPurchasePriceDto>();
+        return await GetPurchasePriceByIdAsync(dto.PriceId!.Value) ?? price.Adapt<TaktPurchasePriceDto>();
     }
 
     /// <summary>
@@ -297,7 +300,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
         // 加载明细
         var items = await _itemRepository.FindAsync(i => priceIds.Contains(i.PriceId) && i.IsDeleted == 0);
         var itemDtos = items
-            .OrderBy(i => i.OrderNum)
+            .OrderBy(i => i.SortOrder)
             .ThenBy(i => i.CreatedAt)
             .Select(i => i.Adapt<TaktPurchasePriceItemDto>())
             .ToList();
@@ -305,10 +308,10 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
         // 加载阶梯
         if (itemDtos.Any())
         {
-            var itemIds = itemDtos.Select(i => i.ItemId).ToList();
+            var itemIds = itemDtos.Select(i => i.ItemId).Where(id => id.HasValue).Select(id => id!.Value).ToList();
             var scales = await _scaleRepository.FindAsync(s => itemIds.Contains(s.ItemId) && s.IsDeleted == 0);
             var scaleDtos = scales
-                .OrderBy(s => s.OrderNum)
+                .OrderBy(s => s.SortOrder)
                 .ThenBy(s => s.CreatedAt)
                 .Select(s => s.Adapt<TaktPurchasePriceScaleDto>())
                 .ToList();
@@ -317,7 +320,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
             var scaleDict = scaleDtos.GroupBy(s => s.ItemId).ToDictionary(g => g.Key, g => g.ToList());
             foreach (var itemDto in itemDtos)
             {
-                if (scaleDict.TryGetValue(itemDto.ItemId, out var itemScales))
+                if (itemDto.ItemId.HasValue && scaleDict.TryGetValue(itemDto.ItemId.Value, out var itemScales))
                 {
                     itemDto.Scales = itemScales;
                 }
@@ -328,7 +331,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
         var itemDict = itemDtos.GroupBy(i => i.PriceId).ToDictionary(g => g.Key, g => g.ToList());
         foreach (var priceDto in priceDtos)
         {
-            if (itemDict.TryGetValue(priceDto.PriceId, out var priceItems))
+            if (itemDict.TryGetValue(priceDto.PriceId!.Value, out var priceItems))
             {
                 priceDto.Items = priceItems;
             }
@@ -341,7 +344,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> GetTemplateAsync(string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> GetPurchasePriceTemplateAsync(string? sheetName, string? fileName)
     {
         var (excelSheet, excelFile) = await ResolveExcelImportTemplateNamesAsync(sheetName, fileName, nameof(TaktPurchasePrice));
         return await TaktExcelHelper.GenerateTemplateAsync<TaktPurchasePriceTemplateDto>(
@@ -356,7 +359,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
     /// <param name="fileStream">Excel文件流</param>
     /// <param name="sheetName">工作表名称</param>
     /// <returns>导入结果（成功数量、失败数量、错误信息列表）</returns>
-    public async Task<(int success, int fail, List<string> errors)> ImportAsync(Stream fileStream, string? sheetName)
+    public async Task<(int success, int fail, List<string> errors)> ImportPurchasePriceAsync(Stream fileStream, string? sheetName)
     {
         var errors = new List<string>();
         int success = 0;
@@ -396,8 +399,8 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
                         PlantCode = item.PlantCode,
                         SupplierCode = item.SupplierCode,
                         PriceType = item.PriceType >= 0 ? item.PriceType : 0,
-                        EffectiveDate = item.EffectiveDate,
-                        ExpiryDate = item.ExpiryDate,
+                        EffectiveFrom = item.EffectiveFrom,
+                        EffectiveTo = item.EffectiveTo,
                         PriceStatus = 0, // 导入时默认为草稿（0=草稿）
                         IsEnabled = 1, // 导入时默认为启用（1=启用）
                         Remark = item.Remark
@@ -438,7 +441,7 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktPurchasePriceQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportPurchasePriceAsync(TaktPurchasePriceQueryDto query, string? sheetName, string? fileName)
     {
         // 构建查询条件
         var predicate = QueryExpression(query);
@@ -470,9 +473,9 @@ public class TaktPurchasePriceService : TaktServiceBase, ITaktPurchasePriceServi
         {
             var dto = p.Adapt<TaktPurchasePriceExportDto>();
             // 处理需要特殊转换的字段
-            dto.PriceType = GetPriceTypeString(p.PriceType);
-            dto.PriceStatus = GetPriceStatusString(p.PriceStatus);
-            dto.IsEnabled = p.IsEnabled == 1 ? "是" : "否";
+            dto.PriceTypeString = GetPriceTypeString(p.PriceType);
+            dto.PriceStatusString = GetPriceStatusString(p.PriceStatus);
+            dto.IsEnabledString = p.IsEnabled == 1 ? "是" : "否";
             return dto;
         }).ToList();
 

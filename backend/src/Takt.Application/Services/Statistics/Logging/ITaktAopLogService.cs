@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Statistics.Logging
 // 文件名称：ITaktAopLogService.cs
@@ -25,35 +25,35 @@ public interface ITaktAopLogService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    Task<TaktPagedResult<TaktAopLogDto>> GetListAsync(TaktAopLogQueryDto queryDto);
+    Task<TaktPagedResult<TaktAopLogDto>> GetAopLogListAsync(TaktAopLogQueryDto queryDto);
 
     /// <summary>
     /// 根据ID获取差异日志
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>差异日志DTO</returns>
-    Task<TaktAopLogDto?> GetByIdAsync(long id);
+    Task<TaktAopLogDto?> GetAopLogByIdAsync(long id);
 
     /// <summary>
     /// 创建差异日志
     /// </summary>
     /// <param name="dto">创建差异日志DTO</param>
     /// <returns>差异日志DTO</returns>
-    Task<TaktAopLogDto> CreateAsync(TaktCreateAopLogDto dto);
+    Task<TaktAopLogDto> CreateAopLogAsync(TaktAopLogCreateDto dto);
 
     /// <summary>
     /// 删除差异日志
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>任务</returns>
-    Task DeleteAsync(long id);
+    Task DeleteAopLogByIdAsync(long id);
 
     /// <summary>
     /// 批量删除差异日志
     /// </summary>
     /// <param name="ids">日志ID列表</param>
     /// <returns>任务</returns>
-    Task DeleteBatchAsync(List<long> ids);
+    Task DeleteAopLogBatchAsync(List<long> ids);
 
     /// <summary>
     /// 导出差异日志
@@ -62,5 +62,5 @@ public interface ITaktAopLogService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    Task<(string fileName, byte[] content)> ExportAsync(TaktAopLogQueryDto query, string? sheetName, string? fileName);
+    Task<(string fileName, byte[] content)> ExportAopLogAsync(TaktAopLogQueryDto query, string? sheetName, string? fileName);
 }

@@ -78,7 +78,7 @@
             <template #icon>
               <RiInsertRowBottom />
             </template>
-            {{ t('common.button.createRow') }}
+            {{ t('common.button.createrow') }}
           </a-button>
           <!-- 删除行按钮：需满足 showDeleteRow 与 deleteRowPermission（与导入/导出逻辑一致） -->
           <a-button
@@ -91,7 +91,7 @@
             <template #icon>
               <RiDeleteRow />
             </template>
-            {{ t('common.button.deleteRow') }}
+            {{ t('common.button.deleterow') }}
           </a-button>
           <!-- 清空按钮（下拉：清空7天、清空30天、清空全部） -->
           <a-dropdown
@@ -119,7 +119,7 @@
                   {{ t('common.button.empty30d') }}
                 </a-menu-item>
                 <a-menu-item key="all">
-                  {{ t('common.button.emptyAll') }}
+                  {{ t('common.button.emptyall') }}
                 </a-menu-item>
               </a-menu>
             </template>
@@ -185,7 +185,7 @@
           <!-- 高级查询 -->
           <a-tooltip
             v-if="showAdvancedQuery"
-            :title="t('common.button.advancedQuery')"
+            :title="t('common.button.advancedquery')"
           >
             <a-button
               class="takt-button-query takt-button-plain takt-button-plain-icon-only"
@@ -200,7 +200,7 @@
           <!-- 列设置 -->
           <a-tooltip
             v-if="showColumnSetting"
-            :title="t('common.button.columnSetting')"
+            :title="t('common.button.columnsetting')"
           >
             <a-button
               class="takt-button-config takt-button-plain takt-button-plain-icon-only"
@@ -215,7 +215,7 @@
           <!-- 全屏 -->
           <a-tooltip
             v-if="showFullscreen"
-            :title="isFullscreen ? t('common.button.exitFullscreen') : t('common.button.fullscreen')"
+            :title="isFullscreen ? t('common.button.exitfullscreen') : t('common.button.fullscreen')"
           >
             <a-button
               class="takt-button-fullscreen takt-button-plain takt-button-plain-icon-only"
@@ -231,7 +231,7 @@
           <!-- 转置 -->
           <a-tooltip
             v-if="showTranspose"
-            :title="isTransposed ? t('common.button.toList') : t('common.button.toTranspose')"
+            :title="isTransposed ? t('common.button.tolist') : t('common.button.totranspose')"
           >
             <a-button
               class="takt-button-transpose takt-button-plain takt-button-plain-icon-only"
@@ -302,12 +302,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, unref } from 'vue'
 import type { Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePermissionStore } from '@/stores/identity/permission'
-
-const { t } = useI18n()
 import {
   RiAddLine,
   RiEditLine,
@@ -328,6 +326,8 @@ import {
   RiBrush2Line,
   RiArrowDownSLine
 } from '@remixicon/vue'
+
+const { t } = useI18n()
 
 export interface ToolBarAction {
   key: string

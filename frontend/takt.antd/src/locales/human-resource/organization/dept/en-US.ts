@@ -4,17 +4,19 @@
  * - Required: common.form.placeholder.required/select + entity.dept.xxx; here only format etc.
  */
 export default {
-  /** Format validation (required use common+entity) */
-  fields: {
-    deptName: {
-      validation: {
-        format: 'Department name format invalid, 2-50 characters'
+  page: {
+      /** Format validation (required use common+entity) */
+      fields: {
+        deptname: {
+          validation: {
+            format: 'Department name format invalid, 2-50 characters'
+          }
+        },
+        deptcode: {
+          validation: {
+            format: 'Department code format invalid, letters, numbers, underscore only, 2-30 chars'
+          }
+        }
       }
-    },
-    deptCode: {
-      validation: {
-        format: 'Department code format invalid, letters, numbers, underscore only, 2-30 chars'
-      }
-    }
   }
 }

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.Workflow
 // 文件名称：TaktFlowFormsController.cs
@@ -14,7 +14,7 @@ using Takt.Application.Services.Workflow;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.Workflow;
 
@@ -190,7 +190,7 @@ public class TaktFlowFormsController : TaktControllerBase
     [TaktPermission("workflow:form:list", "流程表单列表")]
     public async Task<ActionResult<TaktPagedResult<TaktFlowFormDto>>> GetList([FromQuery] TaktFlowFormQueryDto query)
     {
-        var result = await _formService.GetListAsync(query);
+        var result = await _formService.GetFlowFormListAsync(query);
         return Ok(result);
     }
 
@@ -203,7 +203,7 @@ public class TaktFlowFormsController : TaktControllerBase
     [TaktPermission("workflow:form:detail", "流程表单详情")]
     public async Task<ActionResult<TaktFlowFormDto>> GetById(long id)
     {
-        var dto = await _formService.GetByIdAsync(id);
+        var dto = await _formService.GetFlowFormByIdAsync(id);
         if (dto == null) return NotFound();
         return Ok(dto);
     }
@@ -217,7 +217,7 @@ public class TaktFlowFormsController : TaktControllerBase
     [TaktPermission("workflow:form:query", "按表单编码查询")]
     public async Task<ActionResult<TaktFlowFormDto>> GetByFormCode(string formCode)
     {
-        var dto = await _formService.GetByFormCodeAsync(formCode);
+        var dto = await _formService.GetFlowFormByFormCodeAsync(formCode);
         if (dto == null) return NotFound();
         return Ok(dto);
     }
@@ -231,7 +231,7 @@ public class TaktFlowFormsController : TaktControllerBase
     [TaktPermission("workflow:form:create", "创建流程表单")]
     public async Task<ActionResult<TaktFlowFormDto>> Create([FromBody] TaktFlowFormCreateDto dto)
     {
-        var result = await _formService.CreateAsync(dto);
+        var result = await _formService.CreateFlowFormAsync(dto);
         return Ok(result);
     }
 
@@ -245,7 +245,7 @@ public class TaktFlowFormsController : TaktControllerBase
     [TaktPermission("workflow:form:update", "更新流程表单")]
     public async Task<ActionResult<TaktFlowFormDto>> Update(long id, [FromBody] TaktFlowFormUpdateDto dto)
     {
-        var result = await _formService.UpdateAsync(id, dto);
+        var result = await _formService.UpdateFlowFormAsync(id, dto);
         return Ok(result);
     }
 
@@ -258,7 +258,7 @@ public class TaktFlowFormsController : TaktControllerBase
     [TaktPermission("workflow:form:delete", "删除流程表单")]
     public async Task<IActionResult> Delete(long id)
     {
-        await _formService.DeleteAsync(id);
+        await _formService.DeleteFlowFormByIdAsync(id);
         return NoContent();
     }
 
@@ -273,7 +273,7 @@ public class TaktFlowFormsController : TaktControllerBase
     {
         if (ids == null || ids.Count == 0)
             return BadRequest(GetLocalizedString("validation.flowFormIdsDeleteRequired", "Frontend"));
-        await _formService.DeleteAsync(ids);
+        await _formService.DeleteFlowFormBatchAsync(ids);
         return NoContent();
     }
 
@@ -286,7 +286,7 @@ public class TaktFlowFormsController : TaktControllerBase
     [TaktPermission("workflow:form:update", "更新流程表单状态")]
     public async Task<ActionResult<TaktFlowFormDto>> UpdateStatus([FromBody] TaktFlowFormStatusDto dto)
     {
-        var result = await _formService.UpdateStatusAsync(dto);
+        var result = await _formService.UpdateFlowFormStatusAsync(dto);
         return Ok(result);
     }
 
@@ -300,8 +300,8 @@ public class TaktFlowFormsController : TaktControllerBase
     [TaktPermission("workflow:form:template", "下载流程表单导入模板")]
     public async Task<IActionResult> GetTemplate([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
-        var (resultFileName, content) = await _formService.GetTemplateAsync(sheetName, fileName);
-        return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+        var (resultFileName, content) = await _formService.GetFlowFormTemplateAsync(sheetName, fileName);
+        return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
     }
 
     /// <summary>
@@ -317,7 +317,7 @@ public class TaktFlowFormsController : TaktControllerBase
         if (file == null || file.Length == 0)
             return BadRequest(GetLocalizedString("validation.importExcelFileRequired", "Frontend"));
         using var stream = file.OpenReadStream();
-        var (success, fail, errors) = await _formService.ImportAsync(stream, sheetName);
+        var (success, fail, errors) = await _formService.ImportFlowFormAsync(stream, sheetName);
         return Ok(new { success, fail, errors });
     }
 
@@ -332,8 +332,8 @@ public class TaktFlowFormsController : TaktControllerBase
     [TaktPermission("workflow:form:export", "导出流程表单")]
     public async Task<IActionResult> Export([FromBody] TaktFlowFormQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
-        var (resultFileName, content) = await _formService.ExportAsync(query, sheetName, fileName);
-        return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+        var (resultFileName, content) = await _formService.ExportFlowFormAsync(query, sheetName, fileName);
+        return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.Personnel
 // 文件名称：TaktEmployeeService.cs
@@ -47,6 +47,7 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
     private readonly ITaktRepository<TaktEmployeeDelegate> _employeeDelegateRepository;
     private readonly ITaktRepository<TaktDeptDelegate> _deptDelegateRepository;
     private readonly ITaktRepository<TaktPostDelegate> _postDelegateRepository;
+    private readonly ITaktRepository<TaktEmployeeCareer> _employeeCareerRepository;
 
     /// <summary>
     /// 构造函数
@@ -60,6 +61,7 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
     /// <param name="employeeDelegateRepository">员工代理仓储</param>
     /// <param name="deptDelegateRepository">部门代理仓储（清理直接代理员工引用）</param>
     /// <param name="postDelegateRepository">岗位代理仓储（清理直接代理员工引用）</param>
+    /// <param name="employeeCareerRepository">员工履历仓储（用于统计工龄）</param>
     /// <param name="numberingRuleEngine">编码规则引擎（员工编号：男前缀 1 / 女前缀 2 / 系统前缀 9）</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
@@ -74,6 +76,7 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
         ITaktRepository<TaktEmployeeDelegate> employeeDelegateRepository,
         ITaktRepository<TaktDeptDelegate> deptDelegateRepository,
         ITaktRepository<TaktPostDelegate> postDelegateRepository,
+        ITaktRepository<TaktEmployeeCareer> employeeCareerRepository,
         ITaktNumberingRuleEngine numberingRuleEngine,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
@@ -89,6 +92,7 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
         _employeeDelegateRepository = employeeDelegateRepository;
         _deptDelegateRepository = deptDelegateRepository;
         _postDelegateRepository = postDelegateRepository;
+        _employeeCareerRepository = employeeCareerRepository;
         _numberingRuleEngine = numberingRuleEngine;
     }
 
@@ -127,14 +131,14 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
     /// <returns>员工DTO</returns>
     public async Task<TaktEmployeeDto> CreateEmployeeAsync(TaktEmployeeCreateDto dto)
     {
-        if (dto.IsSystemEmployeeCode)
+        if (dto.IsSystemEmployeeCode == true)
         {
             var t = _userContext?.GetCurrentUserType();
             if (t != 1 && t != 2)
                 throw new TaktBusinessException("validation.employeeOnlyAdminCanCreateSystemCode");
         }
 
-        var code = await GenerateEmployeeCodeAsync(dto.Gender, dto.IsSystemEmployeeCode);
+        var code = await GenerateEmployeeCodeAsync(dto.Gender, dto.IsSystemEmployeeCode == true);
         var idCard = dto.IdCard ?? string.Empty;
         await TaktUniqueValidatorExtensions.ValidateUniqueAsync(
             _employeeRepository,
@@ -325,7 +329,7 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
                         continue;
                     }
 
-                    var code = await GenerateEmployeeCodeAsync(createDto.Gender, createDto.IsSystemEmployeeCode);
+                    var code = await GenerateEmployeeCodeAsync(createDto.Gender, createDto.IsSystemEmployeeCode == true);
                     var idCard = (createDto.IdCard ?? string.Empty).Trim().ToUpperInvariant();
                     var key = (code.Trim().ToUpperInvariant(), idCard);
 
@@ -388,7 +392,7 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
         if (Has(item.RealName)) return false;
         if (Has(item.IdCard) || Has(item.Phone) || Has(item.Email)) return false;
         if (Has(item.NativePlace) || Has(item.CurrentAddress) || Has(item.Remark) || Has(item.EmployeeCode)) return false;
-        if (item.Gender != 0 || item.EmployeeStatus != 0 || item.BirthDate.HasValue) return false;
+        if (item.Gender != 0 || item.EmployeeStatus != 0 || item.BirthDate != null) return false;
         return true;
     }
 
@@ -404,7 +408,7 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
             IsSystemEmployeeCode = false,
             RealName = realName,
             Gender = item.Gender,
-            BirthDate = item.BirthDate ?? new DateTime(1900, 1, 1),
+            BirthDate = item.BirthDate,
             IdCard = item.IdCard?.Trim() ?? string.Empty,
             Phone = string.IsNullOrWhiteSpace(item.Phone) ? null : item.Phone.Trim(),
             Email = string.IsNullOrWhiteSpace(item.Email) ? null : item.Email.Trim(),
@@ -463,7 +467,7 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
                 DictLabel = e.RealName?.Trim() ?? e.EmployeeCode ?? string.Empty,
                 DictValue = e.Id,
                 ExtLabel = e.EmployeeCode,
-                OrderNum = 0
+                SortOrder = 0
             })
             .ToList();
     }
@@ -635,4 +639,109 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
 
         return true;
     }
+
+    #region 员工统计分析
+
+    /// <summary>
+    /// 统计人员总数
+    /// </summary>
+    public async Task<long> GetEmployeeCountAsync()
+    {
+        return await _employeeRepository.CountAsync(e => e.IsDeleted == 0);
+    }
+
+    /// <summary>
+    /// 统计人员平均年龄
+    /// </summary>
+    public async Task<double?> GetAverageAgeAsync()
+    {
+        var employees = await _employeeRepository.FindAsync(e => e.IsDeleted == 0 && e.Age.HasValue);
+        if (!employees.Any()) return null;
+        return employees.Average(e => e.Age!.Value);
+    }
+
+    /// <summary>
+    /// 统计人员平均工龄
+    /// </summary>
+    public async Task<double?> GetAverageWorkYearsAsync()
+    {
+        // 通过员工履历表获取入职日期
+        var careers = await _employeeCareerRepository.FindAsync(c => c.IsDeleted == 0 && c.JoinDate.HasValue);
+        if (!careers.Any()) return null;
+
+        var now = DateTime.Now;
+        var workYearsList = careers
+            .Where(c => c.JoinDate.HasValue)
+            .Select(c => (now - c.JoinDate!.Value).TotalDays / 365.25)
+            .ToList();
+
+        return workYearsList.Any() ? workYearsList.Average() : null;
+    }
+
+    /// <summary>
+    /// 统计最大年龄
+    /// </summary>
+    public async Task<int?> GetMaxAgeAsync()
+    {
+        var employees = await _employeeRepository.FindAsync(e => e.IsDeleted == 0 && e.Age.HasValue);
+        if (!employees.Any()) return null;
+        return employees.Max(e => e.Age!.Value);
+    }
+
+    /// <summary>
+    /// 统计最小年龄
+    /// </summary>
+    public async Task<int?> GetMinAgeAsync()
+    {
+        var employees = await _employeeRepository.FindAsync(e => e.IsDeleted == 0 && e.Age.HasValue);
+        if (!employees.Any()) return null;
+        return employees.Min(e => e.Age!.Value);
+    }
+
+    /// <summary>
+    /// 统计最长工龄
+    /// </summary>
+    public async Task<int?> GetMaxWorkYearsAsync()
+    {
+        var careers = await _employeeCareerRepository.FindAsync(c => c.IsDeleted == 0 && c.JoinDate.HasValue);
+        if (!careers.Any()) return null;
+
+        var now = DateTime.Now;
+        var maxYears = careers
+            .Where(c => c.JoinDate.HasValue)
+            .Max(c => (int)((now - c.JoinDate!.Value).TotalDays / 365.25));
+
+        return maxYears;
+    }
+
+    /// <summary>
+    /// 统计最短工龄
+    /// </summary>
+    public async Task<int?> GetMinWorkYearsAsync()
+    {
+        var careers = await _employeeCareerRepository.FindAsync(c => c.IsDeleted == 0 && c.JoinDate.HasValue);
+        if (!careers.Any()) return null;
+
+        var now = DateTime.Now;
+        var minYears = careers
+            .Where(c => c.JoinDate.HasValue)
+            .Min(c => (int)((now - c.JoinDate!.Value).TotalDays / 365.25));
+
+        return minYears;
+    }
+
+    /// <summary>
+    /// 按籍贯统计人员分布
+    /// </summary>
+    public async Task<Dictionary<string, int>> GetEmployeeCountByNativePlaceAsync()
+    {
+        var employees = await _employeeRepository.FindAsync(e => e.IsDeleted == 0);
+        
+        return employees
+            .Where(e => !string.IsNullOrEmpty(e.NativePlace))
+            .GroupBy(e => e.NativePlace!)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+
+    #endregion
 }

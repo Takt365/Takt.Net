@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Logistics.Maintenance
 // 文件名称：ITaktEquipmentService.cs
@@ -25,14 +25,14 @@ public interface ITaktEquipmentService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    Task<TaktPagedResult<TaktEquipmentDto>> GetListAsync(TaktEquipmentQueryDto queryDto);
+    Task<TaktPagedResult<TaktEquipmentDto>> GetEquipmentListAsync(TaktEquipmentQueryDto queryDto);
 
     /// <summary>
     /// 根据ID获取工厂设备
     /// </summary>
     /// <param name="id">工厂设备ID</param>
     /// <returns>工厂设备DTO</returns>
-    Task<TaktEquipmentDto?> GetByIdAsync(long id);
+    Task<TaktEquipmentDto?> GetEquipmentByIdAsync(long id);
 
     /// <summary>
     /// 获取工厂设备选项列表（用于下拉框等）
@@ -45,7 +45,7 @@ public interface ITaktEquipmentService
     /// </summary>
     /// <param name="dto">创建工厂设备DTO</param>
     /// <returns>工厂设备DTO</returns>
-    Task<TaktEquipmentDto> CreateAsync(TaktEquipmentCreateDto dto);
+    Task<TaktEquipmentDto> CreateEquipmentAsync(TaktEquipmentCreateDto dto);
 
     /// <summary>
     /// 更新工厂设备
@@ -53,28 +53,28 @@ public interface ITaktEquipmentService
     /// <param name="id">工厂设备ID</param>
     /// <param name="dto">更新工厂设备DTO</param>
     /// <returns>工厂设备DTO</returns>
-    Task<TaktEquipmentDto> UpdateAsync(long id, TaktEquipmentUpdateDto dto);
+    Task<TaktEquipmentDto> UpdateEquipmentAsync(long id, TaktEquipmentUpdateDto dto);
 
     /// <summary>
     /// 删除工厂设备
     /// </summary>
     /// <param name="id">工厂设备ID</param>
     /// <returns>任务</returns>
-    Task DeleteAsync(long id);
+    Task DeleteEquipmentByIdAsync(long id);
 
     /// <summary>
     /// 批量删除工厂设备
     /// </summary>
     /// <param name="ids">工厂设备ID列表</param>
     /// <returns>任务</returns>
-    Task DeleteAsync(IEnumerable<long> ids);
+    Task DeleteEquipmentBatchAsync(IEnumerable<long> ids);
 
     /// <summary>
     /// 更新工厂设备状态
     /// </summary>
     /// <param name="dto">工厂设备状态DTO</param>
     /// <returns>工厂设备DTO</returns>
-    Task<TaktEquipmentDto> UpdateStatusAsync(TaktEquipmentStatusDto dto);
+    Task<TaktEquipmentDto> UpdateEquipmentStatusAsync(TaktEquipmentStatusDto dto);
 
     /// <summary>
     /// 获取导入模板
@@ -82,7 +82,7 @@ public interface ITaktEquipmentService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel模板文件信息（文件名和内容）</returns>
-    Task<(string fileName, byte[] content)> GetTemplateAsync(string? sheetName, string? fileName);
+    Task<(string fileName, byte[] content)> GetEquipmentTemplateAsync(string? sheetName, string? fileName);
 
     /// <summary>
     /// 导入工厂设备
@@ -90,7 +90,7 @@ public interface ITaktEquipmentService
     /// <param name="fileStream">Excel文件流</param>
     /// <param name="sheetName">工作表名称</param>
     /// <returns>导入结果（成功数量、失败数量、错误信息列表）</returns>
-    Task<(int success, int fail, List<string> errors)> ImportAsync(Stream fileStream, string? sheetName);
+    Task<(int success, int fail, List<string> errors)> ImportEquipmentAsync(Stream fileStream, string? sheetName);
 
     /// <summary>
     /// 导出工厂设备
@@ -99,5 +99,5 @@ public interface ITaktEquipmentService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    Task<(string fileName, byte[] content)> ExportAsync(TaktEquipmentQueryDto query, string? sheetName, string? fileName);
+    Task<(string fileName, byte[] content)> ExportEquipmentAsync(TaktEquipmentQueryDto query, string? sheetName, string? fileName);
 }

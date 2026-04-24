@@ -1,8 +1,14 @@
 export default {
-  /** 仅包含前端必填校验提示，由 IsRequired 驱动 */
+  page: {
+    /** 表单字段文案（仅生成 IsRequired 字段的占位提示） */
+    fields: {
 {{~ for col in columns ~}}
 {{~ if col.is_required == 1 ~}}
-  required_{{ col.ts_column_name }}: '{{ if col.html_type == "select" && col.dict_type }}请选择{{ col.comment }}{{ else }}请输入{{ col.comment }}{{ end }}',
+      {{ col.ts_column_name }}: {
+        placeholder: '{{ if col.html_type == "select" && col.dict_type }}请选择{{ col.comment }}{{ else }}请输入{{ col.comment }}{{ end }}'
+      },
 {{~ end ~}}
 {{~ end ~}}
+    }
+  }
 }

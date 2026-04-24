@@ -12,7 +12,7 @@ const onlineUrl = '/api/TaktOnlines'
 
 /**
  * 获取在线用户列表（分页）
- * 对应后端：GetListAsync，GET /api/TaktOnlines/list
+ * 对应后端应用服务：GetOnlineListAsync（TaktOnlinesController.GetOnlineListAsync），GET /api/TaktOnlines/list
  */
 export function getOnlineList(params: OnlineQuery): Promise<TaktPagedResult<Online>> {
   return request({

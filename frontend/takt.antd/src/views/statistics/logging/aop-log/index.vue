@@ -1,15 +1,30 @@
+<!-- ======================================== -->
+<!-- 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)  -->
+<!-- 命名空间：@/views/statistics/logging/aop-log -->
+<!-- 文件名称：index.vue -->
+<!-- 创建时间：2026-04-17 -->
+<!-- 创建人：Takt365(Cursor AI) -->
+<!-- 功能描述：差异日志页面，包含关键字查询、列表分页、批量删除、导出与列设置 -->
+<!--  -->
+<!-- 版权信息：Copyright (c) 2025 Takt  All rights reserved. -->
+<!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->
+<!-- ======================================== -->
+
 <template>
   <div class="logging-aop-log">
+    <!-- 查询栏 -->
     <TaktQueryBar
       v-model="queryKeyword"
-      placeholder="请输入用户名或表名"
+      :placeholder="searchPlaceholder"
       :loading="loading"
       @search="handleSearch"
       @reset="handleReset"
     />
+
+    <!-- 工具栏 -->
     <TaktToolsBar
-      delete-permission="logging:aoplog:delete"
-      export-permission="logging:aoplog:export"
+      delete-permission="statistics:logging:aoplog:delete"
+      export-permission="statistics:logging:aoplog:export"
       :show-create="false"
       :show-update="false"
       :show-delete="true"
@@ -27,8 +42,9 @@
       @column-setting="handleColumnSetting"
       @refresh="handleRefresh"
     />
+
+    <!-- 表格 -->
     <TaktSingleTable
-      ref="tableRef"
       :columns="displayColumns"
       :data-source="dataSource"
       :loading="loading"
@@ -41,6 +57,8 @@
       @change="handleTableChange"
       @resize-column="handleResizeColumn"
     />
+
+    <!-- 分页组件 -->
     <TaktPagination
       v-model:current="currentPage"
       v-model:page-size="pageSize"
@@ -48,6 +66,8 @@
       @change="handlePaginationChange"
       @show-size-change="handlePaginationSizeChange"
     />
+
+    <!-- 列设置抽屉 -->
     <TaktColumnDrawer
       v-model:open="columnSettingVisible"
       :columns="columns"
@@ -64,45 +84,61 @@
 import { ref, computed, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import type { TableColumnsType } from 'ant-design-vue'
-import type { TablePaginationConfig } from 'ant-design-vue'
-import type { FilterValue, SorterResult } from 'ant-design-vue/es/table/interface'
+import { useI18n } from 'vue-i18n'
 import { CreateActionColumn } from '@/components/business/takt-action-column/index'
 import { mergeDefaultColumns } from '@/utils/table-columns'
-import { useI18n } from 'vue-i18n'
-import {
-  getAopLogList,
-  deleteAopLog,
-  deleteAopLogBatch,
-  exportAopLog
-} from '@/api/statistics/logging/aop-log'
-import type { AopLog } from '@/types/statistics/logging/aop-log'
+import { getAopLogList, deleteAopLogById, deleteAopLogBatch, exportAopLogData } from '@/api/statistics/logging/aop-log'
+import type { AopLog, AopLogQuery } from '@/types/statistics/logging/aop-log'
 import { logger } from '@/utils/logger'
 import { RiDeleteBinLine } from '@remixicon/vue'
 
 const { t } = useI18n()
+
+// 顶栏查询关键字
 const queryKeyword = ref('')
+// 表格加载状态与数据
 const loading = ref(false)
 const dataSource = ref<AopLog[]>([])
+// 分页状态
 const currentPage = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
+// 行选择状态
 const selectedRow = ref<AopLog | null>(null)
 const selectedRows = ref<AopLog[]>([])
 const selectedRowKeys = ref<(string | number)[]>([])
-const tableRef = ref()
+// 列设置抽屉
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
-type AopLogLike = AopLog & Record<string, unknown>
-type ColumnLike = { key?: string | number; dataIndex?: string | number; title?: string | number; width?: number }
-const toErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error))
 
+type ColumnLike = { key?: string | number; dataIndex?: string | number; title?: string | number; width?: string | number }
+
+const searchPlaceholder = computed(
+  () => t('common.form.placeholder.required', { field: [t('entity.aoplog.username'), t('entity.aoplog.tablename')].join('、') }) + t('common.button.query')
+)
+
+const getErrorMessage = (error: unknown, fallbackKey: string): string => {
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const messageText = (error as { message?: unknown }).message
+    if (typeof messageText === 'string' && messageText.trim()) return messageText
+  }
+  return t(fallbackKey)
+}
+
+/** TaktSingleTable 的 rowKey 回调入参为 TableRecord（Record<string, unknown>），与 AopLog 不能直接标注为同一形参类型 */
+const getAopLogId = (record: unknown): string => {
+  if (record == null || typeof record !== 'object') return ''
+  const id = (record as { aopLogId?: unknown }).aopLogId
+  return id != null ? String(id) : ''
+}
+const getAopLogField = <K extends keyof AopLog>(record: AopLog, field: K): AopLog[K] => record[field]
+
+// 初始化加载数据
 onMounted(() => {
   loadData()
 })
 
-const getAopLogId = (record: AopLogLike): string => record?.aopLogId != null ? String(record.aopLogId) : ''
-const getAopLogField = (record: AopLogLike, field: string): unknown => record?.[field]
-
+// 表格列定义
 const columns = ref<TableColumnsType>([
   {
     title: 'ID',
@@ -112,97 +148,58 @@ const columns = ref<TableColumnsType>([
     resizable: true,
     ellipsis: true,
     fixed: 'left',
-    customRender: ({ record }: { record: AopLogLike }) => getAopLogField(record, 'aopLogId') ?? ''
+    customRender: ({ record }: { record: AopLog }) => String(getAopLogField(record, 'aopLogId') ?? '')
   },
-  {
-    title: '用户名',
-    dataIndex: 'userName',
-    key: 'userName',
-    width: 120,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '操作类型',
-    dataIndex: 'operType',
-    key: 'operType',
-    width: 100,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '表名',
-    dataIndex: 'tableName',
-    key: 'tableName',
-    width: 140,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '主键ID',
-    dataIndex: 'primaryKeyId',
-    key: 'primaryKeyId',
-    width: 100,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '操作时间',
-    dataIndex: 'operTime',
-    key: 'operTime',
-    width: 170,
-    resizable: true,
-    ellipsis: true
-  },
-  {
-    title: '耗时(ms)',
-    dataIndex: 'costTime',
-    key: 'costTime',
-    width: 90
-  },
-  CreateActionColumn({
+  { title: t('entity.aoplog.username'), dataIndex: 'userName', key: 'userName', width: 120, resizable: true, ellipsis: true },
+  { title: t('entity.aoplog.opertype'), dataIndex: 'operType', key: 'operType', width: 100, resizable: true, ellipsis: true },
+  { title: t('entity.aoplog.tablename'), dataIndex: 'tableName', key: 'tableName', width: 140, resizable: true, ellipsis: true },
+  { title: t('entity.aoplog.primarykeyid'), dataIndex: 'primaryKeyId', key: 'primaryKeyId', width: 100, resizable: true, ellipsis: true },
+  { title: t('entity.aoplog.opertime'), dataIndex: 'operTime', key: 'operTime', width: 170, resizable: true, ellipsis: true },
+  { title: t('entity.aoplog.costtime'), dataIndex: 'costTime', key: 'costTime', width: 90 },
+  CreateActionColumn<AopLog>({
     actions: [
       {
         key: 'delete',
-        label: '删除',
+        label: t('common.button.delete'),
         shape: 'plain',
         icon: RiDeleteBinLine,
-        permission: 'logging:aoplog:delete',
+        permission: 'statistics:logging:aoplog:delete',
         onClick: (record: AopLog) => handleDeleteOne(record)
       }
     ]
   })
 ])
 
-const mergedColumns = computed(() => mergeDefaultColumns(columns.value as TableColumnsType, t, true))
-const displayColumns = computed(() => {
+const mergedColumns = computed((): any => mergeDefaultColumns(columns.value as any, t, true))
+const displayColumns = computed<TableColumnsType>(() => {
   const keys = visibleColumnKeys.value || []
-  const merged = (mergedColumns.value || []) as ColumnLike[]
+  const merged = mergedColumns.value || []
   if (keys.length === 0) return columns.value
-  const getColumnKey = (col: ColumnLike): string => (col.key || col.dataIndex || col.title) ? String(col.key || col.dataIndex || col.title) : ''
   const keysSet = new Set(keys.map(k => String(k)))
-  return merged.filter((col: ColumnLike) => {
-    const colKey = getColumnKey(col)
-    return colKey && keysSet.has(colKey)
+  return merged.filter((col: unknown) => {
+    const key = (col as ColumnLike).key ?? (col as ColumnLike).dataIndex ?? (col as ColumnLike).title
+    return key != null && keysSet.has(String(key))
   })
 })
 
+// 行选择配置
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedRowKeys.value,
   onChange: (keys: (string | number)[], rows: AopLog[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: AopLog, selected: boolean) => {
     if (selected) selectedRow.value = record
     else if (selectedRow.value && getAopLogId(selectedRow.value) === getAopLogId(record)) selectedRow.value = null
   },
   onSelectAll: (selected: boolean, selectedRowsData: AopLog[]) => {
-    selectedRow.value = selected && selectedRowsData.length === 1 ? selectedRowsData[0] : null
+    selectedRow.value = selected && selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
   }
 }))
 
+// 行点击选中
 const onClickRow = (record: AopLog) => ({
   onClick: () => {
     const key = getAopLogId(record)
@@ -210,28 +207,27 @@ const onClickRow = (record: AopLog) => ({
     if (index > -1) selectedRowKeys.value.splice(index, 1)
     else selectedRowKeys.value.push(key)
     selectedRows.value = dataSource.value.filter(item => selectedRowKeys.value.includes(getAopLogId(item)))
-    selectedRow.value = selectedRowKeys.value.length === 1 ? selectedRows.value[0] : null
+    selectedRow.value = selectedRowKeys.value.length === 1 ? (selectedRows.value[0] ?? null) : null
     if (rowSelection.value.onChange) rowSelection.value.onChange(selectedRowKeys.value, selectedRows.value)
   }
 })
 
+// 加载数据
 const loadData = async () => {
   try {
     loading.value = true
-    const params: Record<string, string | number> = {
-      PageIndex: currentPage.value,
-      PageSize: pageSize.value
+    const params: AopLogQuery = {
+      pageIndex: currentPage.value,
+      pageSize: pageSize.value,
+      KeyWords: queryKeyword.value || ''
     }
-    if (queryKeyword.value) params.KeyWords = queryKeyword.value
     const response = await getAopLogList(params)
     const responseAny = response as { Data?: AopLog[]; Total?: number }
-    const items = response?.data ?? responseAny?.Data ?? []
-    const totalCount = response?.total ?? responseAny?.Total ?? 0
-    dataSource.value = items
-    total.value = totalCount
+    dataSource.value = response?.data ?? responseAny?.Data ?? []
+    total.value = response?.total ?? responseAny?.Total ?? 0
   } catch (error: unknown) {
     logger.error('[AopLog] 加载数据失败:', error)
-    message.error(toErrorMessage(error) || '加载数据失败')
+    message.error(getErrorMessage(error, 'common.msg.loadfail'))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -239,89 +235,107 @@ const loadData = async () => {
   }
 }
 
-const handleSearch = () => { currentPage.value = 1; loadData() }
-const handleReset = () => { queryKeyword.value = ''; currentPage.value = 1; loadData() }
-const handleTableChange = (
-  _pagination: TablePaginationConfig,
-  _filters: Record<string, FilterValue | null>,
-  sorter: SorterResult<AopLogLike> | SorterResult<AopLogLike>[]
-) => {
-  const sortInfo = Array.isArray(sorter) ? sorter[0] : sorter
-  if (!sortInfo) return
-  if (sortInfo.order) logger.debug('[AopLog] 排序:', sortInfo.field, sortInfo.order)
+const handleSearch = () => {
+  currentPage.value = 1
+  loadData()
 }
+
+const handleReset = () => {
+  queryKeyword.value = ''
+  currentPage.value = 1
+  loadData()
+}
+
+const handleTableChange = (_pagination: unknown, _filters: unknown, sorter: unknown) => {
+  const sortInfo = Array.isArray(sorter) ? sorter[0] as Record<string, unknown> : sorter as Record<string, unknown>
+  if (sortInfo?.order) logger.debug('[AopLog] 排序:', sortInfo.field, sortInfo.order)
+}
+
 const handlePaginationChange = (page: number, size: number) => {
   currentPage.value = page
   pageSize.value = size
   loadData()
 }
+
 const handlePaginationSizeChange = (_current: number, size: number) => {
   currentPage.value = 1
   pageSize.value = size
   loadData()
 }
+
 const handleResizeColumn = (w: number, col: ColumnLike) => {
-  const column = (columns.value as ColumnLike[]).find((c) => String(c.key || c.dataIndex || c.title) === String(col.key || col.dataIndex || col.title))
+  const column = columns.value.find((c) => {
+    const cLike = c as ColumnLike
+    const sourceKey = cLike.key ?? cLike.dataIndex ?? cLike.title
+    const targetKey = col.key ?? col.dataIndex ?? col.title
+    return sourceKey != null && targetKey != null && String(sourceKey) === String(targetKey)
+  }) as ColumnLike | undefined
   if (column) column.width = w
 }
 
 const handleDeleteOne = (record: AopLog) => {
-  const name = getAopLogField(record, 'tableName') || getAopLogId(record)
+  const name = String(getAopLogField(record, 'tableName') ?? getAopLogId(record))
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除差异日志 "${name}" 吗？`,
-    okText: '删除',
-    cancelText: '取消',
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.aoplog._self'), name }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
-        await deleteAopLog(getAopLogId(record))
-        message.success('删除成功')
+        await deleteAopLogById(getAopLogId(record))
+        message.success(t('common.msg.deletesuccess'))
         loadData()
       } catch (error: unknown) {
-        message.error(toErrorMessage(error) || '删除失败')
+        message.error(getErrorMessage(error, 'common.msg.deletefail'))
       } finally {
         loading.value = false
       }
     }
   })
 }
+
 const handleDelete = () => {
   if (selectedRows.value.length === 0) {
-    message.warning('请选择要删除的差异日志')
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('entity.aoplog._self') }))
     return
   }
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除选中的 ${selectedRows.value.length} 条差异日志吗？`,
-    okText: '删除',
-    cancelText: '取消',
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { entity: t('entity.aoplog._self'), count: selectedRows.value.length }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         const ids = selectedRows.value.map(r => Number(getAopLogId(r))).filter(n => !Number.isNaN(n))
         await deleteAopLogBatch(ids)
-        message.success('删除成功')
+        message.success(t('common.msg.deletesuccess'))
         selectedRows.value = []
         selectedRowKeys.value = []
         selectedRow.value = null
         loadData()
       } catch (error: unknown) {
-        message.error(toErrorMessage(error) || '删除失败')
+        message.error(getErrorMessage(error, 'common.msg.deletefail'))
       } finally {
         loading.value = false
       }
     }
   })
 }
+
 const handleExport = async () => {
   try {
     loading.value = true
-    const params: Record<string, string | number> = { PageIndex: 1, PageSize: total.value || 99999 }
-    if (queryKeyword.value) params.KeyWords = queryKeyword.value
-    const blob = await exportAopLog(params, undefined, '差异日志')
-    const ts = new Date(); const t = (n: number, w = 2) => String(n).padStart(w, '0')
-    const fileName = `差异日志_${ts.getFullYear()}${t(ts.getMonth()+1)}${t(ts.getDate())}${t(ts.getHours())}${t(ts.getMinutes())}${t(ts.getSeconds())}.xlsx`
+    const params: AopLogQuery = {
+      pageIndex: 1,
+      pageSize: total.value || 99999,
+      KeyWords: queryKeyword.value || ''
+    }
+    const blob = await exportAopLogData(params, undefined, t('entity.aoplog._self'))
+    const ts = new Date()
+    const pad = (n: number, w = 2) => String(n).padStart(w, '0')
+    const fileName = `${t('entity.aoplog._self')}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -331,18 +345,30 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success('导出成功')
+    message.success(t('common.msg.exportsuccess'))
   } catch (error: unknown) {
     logger.error('[AopLog] 导出失败:', error)
-    message.error(toErrorMessage(error) || '导出失败')
+    message.error(getErrorMessage(error, 'common.msg.exportfail'))
   } finally {
     loading.value = false
   }
 }
-const handleColumnSetting = () => { columnSettingVisible.value = true }
-const handleColumnKeysChange = (keys: (string | number)[]) => { visibleColumnKeys.value = keys.map(k => String(k)) }
-const handleColumnSettingReset = () => { visibleColumnKeys.value = [] }
-const handleRefresh = () => loadData()
+
+const handleColumnSetting = () => {
+  columnSettingVisible.value = true
+}
+
+const handleColumnKeysChange = (keys: (string | number)[]) => {
+  visibleColumnKeys.value = keys.map(k => String(k))
+}
+
+const handleColumnSettingReset = () => {
+  visibleColumnKeys.value = []
+}
+
+const handleRefresh = () => {
+  loadData()
+}
 </script>
 
 <style scoped lang="less">

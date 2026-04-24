@@ -73,10 +73,10 @@
         <div class="login-box">
           <div class="login-header">
             <a-typography-title :level="3">
-              {{ t('login.sign.title') }}
+              {{ t('login.page.sign.title') }}
             </a-typography-title>
             <a-typography-text class="login-subtitle">
-              {{ t('login.sign.subtitle') }}
+              {{ t('login.page.sign.subtitle') }}
             </a-typography-text>
           </div>
           <a-form
@@ -89,7 +89,7 @@
             <a-form-item name="userName">
               <a-input
                 v-model:value="formState.userName"
-                :placeholder="t('login.fields.username.placeholder')"
+                :placeholder="t('login.page.fields.username.placeholder')"
                 size="large"
                 autocomplete="username"
               >
@@ -101,7 +101,7 @@
             <a-form-item name="userEmail">
               <a-input
                 v-model:value="formState.userEmail"
-                :placeholder="t('login.fields.userEmail.placeholder')"
+                :placeholder="t('login.page.fields.useremail.placeholder')"
                 size="large"
                 autocomplete="email"
               >
@@ -113,7 +113,7 @@
             <a-form-item name="userPhone">
               <a-input
                 v-model:value="formState.userPhone"
-                :placeholder="t('login.fields.userPhone.placeholder')"
+                :placeholder="t('login.page.fields.userphone.placeholder')"
                 size="large"
                 autocomplete="tel"
               >
@@ -133,12 +133,12 @@
                 <template #icon>
                   <RiUserAddLine />
                 </template>
-                {{ t('login.sign.title') }}
+                {{ t('login.page.sign.title') }}
               </a-button>
             </a-form-item>
             <a-form-item>
               <div class="login-footer-links">
-                <a @click="goToLogin">{{ t('login.sign.hasAccount') }}</a>
+                <a @click="goToLogin">{{ t('login.page.sign.hasaccount') }}</a>
               </div>
             </a-form-item>
           </a-form>
@@ -148,7 +148,7 @@
 
     <a-modal
       v-model:open="captchaModalVisible"
-      :title="$t('login.fields.captcha.validation.required')"
+      :title="$t('login.page.fields.captcha.validation.required')"
       :footer="null"
       :closable="true"
       :mask-closable="false"
@@ -302,17 +302,17 @@ const formRef = ref()
 /** 用户名长度、邮箱 type、手机号大陆号段 */
 const rules = computed<Record<string, Rule[]>>(() => ({
   userName: [
-    { required: true, message: t('login.fields.username.validation.required'), trigger: 'blur' },
-    { min: 3, message: t('login.fields.username.validation.min'), trigger: 'blur' },
-    { max: 20, message: t('login.fields.username.validation.max'), trigger: 'blur' }
+    { required: true, message: t('login.page.fields.username.validation.required'), trigger: 'blur' },
+    { min: 3, message: t('login.page.fields.username.validation.min'), trigger: 'blur' },
+    { max: 20, message: t('login.page.fields.username.validation.max'), trigger: 'blur' }
   ],
   userEmail: [
-    { required: true, message: t('login.fields.userEmail.validation.required'), trigger: 'blur' },
-    { type: 'email', message: t('login.fields.userEmail.validation.format'), trigger: 'blur' }
+    { required: true, message: t('login.page.fields.useremail.validation.required'), trigger: 'blur' },
+    { type: 'email', message: t('login.page.fields.useremail.validation.format'), trigger: 'blur' }
   ],
   userPhone: [
-    { required: true, message: t('login.fields.userPhone.validation.required'), trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: t('login.fields.userPhone.validation.format'), trigger: 'blur' }
+    { required: true, message: t('login.page.fields.userphone.validation.required'), trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: t('login.page.fields.userphone.validation.format'), trigger: 'blur' }
   ]
 }))
 
@@ -337,14 +337,14 @@ async function doRegister() {
       remark: ''
     }
     await createUser(registerData)
-    message.success(t('login.sign.successInitialPassword'))
+    message.success(t('login.page.sign.successinitialpassword'))
     setTimeout(() => {
       if (props.embedded) emit('back')
       else router.push('/login')
     }, 1500)
   } catch (error: any) {
     logger.error('[Register] 注册失败:', error)
-    message.error(error.message || t('login.sign.fail'))
+    message.error(error.message || t('login.page.sign.fail'))
     captchaModalVisible.value = false
   } finally {
     loading.value = false
@@ -359,7 +359,7 @@ function onCaptchaModalSuccess() {
 
 /** 验证码失败 */
 function onCaptchaModalFail(msg: string) {
-  message.error(msg || t('login.fields.captcha.validation.required'))
+  message.error(msg || t('login.page.fields.captcha.validation.required'))
 }
 
 /** 校验三字段后走验证码分支 */
@@ -374,7 +374,7 @@ const handleSubmit = async () => {
     loading.value = true
     const result = await generateCaptchaApi()
     if (!result) {
-      message.error(t('login.fields.captcha.validation.required'))
+      message.error(t('login.page.fields.captcha.validation.required'))
       loading.value = false
       return
     }
@@ -386,7 +386,7 @@ const handleSubmit = async () => {
     }
 
     if (result.type !== 'Slider' && result.type !== 'Behavior') {
-      message.error(t('login.fields.captcha.validation.typeRequired'))
+      message.error(t('login.page.fields.captcha.validation.typerequired'))
       loading.value = false
       return
     }
@@ -396,7 +396,7 @@ const handleSubmit = async () => {
     loading.value = false
   } catch (error: any) {
     logger.error('[Register] 获取验证码配置失败', error)
-    message.error(error?.message || t('login.fields.captcha.validation.required'))
+    message.error(error?.message || t('login.page.fields.captcha.validation.required'))
     loading.value = false
   }
 }

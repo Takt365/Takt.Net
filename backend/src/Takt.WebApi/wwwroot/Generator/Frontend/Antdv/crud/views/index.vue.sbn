@@ -6,44 +6,68 @@
 <!-- 版权信息：Copyright (c) 2025 Takt  All rights reserved. -->
 <!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->
 <!-- ======================================== -->
+{{ has_get_list = false; has_get_options = false; has_create = false; has_update = false; has_delete = false; has_delete_batch = false; has_get_template = false; has_import_data = false; has_export_data = false; api_get_list = ""; api_get_options = ""; api_create = ""; api_update = ""; api_delete = ""; api_delete_batch = ""; api_get_template = ""; api_import_data = ""; api_export_data = ""; for a in table.controller_actions; if a.MethodName == "GetListAsync"; has_get_list = true; api_get_list = a.FrontendMethodName; end; if a.MethodName == "GetOptionsAsync"; has_get_options = true; api_get_options = a.FrontendMethodName; end; if a.MethodName == "CreateAsync"; has_create = true; api_create = a.FrontendMethodName; end; if a.MethodName == "UpdateAsync"; has_update = true; api_update = a.FrontendMethodName; end; if a.MethodName == "DeleteAsync"; has_delete = true; api_delete = a.FrontendMethodName; end; if a.MethodName == "DeleteBatchAsync"; has_delete = true; has_delete_batch = true; api_delete_batch = a.FrontendMethodName; end; if a.MethodName == "GetTemplateAsync"; has_get_template = true; api_get_template = a.FrontendMethodName; end; if a.MethodName == "ImportAsync"; has_import_data = true; api_import_data = a.FrontendMethodName; end; if a.MethodName == "ExportAsync"; has_export_data = true; api_export_data = a.FrontendMethodName; end; end }}
 
 <template>
   <div class="{{ table.frontend_module_path | string.replace "/" "-" }}-{{ table.entity_name_kebab }}">
+    <!-- 查询栏 -->
     <TaktQueryBar
       v-model="queryKeyword"
-      placeholder="请输入关键词"
+      :placeholder="searchPlaceholder"
       :loading="loading"
       @search="handleSearch"
       @reset="handleReset"
     />
 
+    <!-- 工具栏 -->
     <TaktToolsBar
-      create-permission="{{ table.perms_prefix }}:create"
-      update-permission="{{ table.perms_prefix }}:update"
-      delete-permission="{{ table.perms_prefix }}:delete"
+{{~ if has_create ~}}
+      create-permission="{{ table.perms_prefix_canonical }}:create"
+{{~ end ~}}
+{{~ if has_update ~}}
+      update-permission="{{ table.perms_prefix_canonical }}:update"
+{{~ end ~}}
+{{~ if has_delete ~}}
+      delete-permission="{{ table.perms_prefix_canonical }}:delete"
+{{~ end ~}}
 {{~ if has_import_data ~}}
-      import-permission="{{ table.perms_prefix }}:import"
+      import-permission="{{ table.perms_prefix_canonical }}:import"
 {{~ end ~}}
 {{~ if has_export_data ~}}
-      export-permission="{{ table.perms_prefix }}:export"
+      export-permission="{{ table.perms_prefix_canonical }}:export"
 {{~ end ~}}
-      :show-create="true"
-      :show-update="true"
-      :show-delete="true"
-      :show-import="{{ has_import_data ? "true" : "false" }}"
-      :show-export="{{ has_export_data ? "true" : "false" }}"
+      :show-create="{{ has_create }}"
+      :show-update="{{ has_update }}"
+      :show-delete="{{ has_delete }}"
+      :show-import="{{ has_import_data }}"
+      :show-export="{{ has_export_data }}"
+      :show-expand="false"
       :show-advanced-query="true"
       :show-column-setting="true"
+      :show-fullscreen="true"
       :show-refresh="true"
-      :update-disabled="!selectedRow"
-      :delete-disabled="!selectedRow && selectedRows.length === 0"
+{{~ if has_create ~}}
+      :create-disabled="false"
       :create-loading="loading"
+{{~ end ~}}
+{{~ if has_update ~}}
+      :update-disabled="updateDisabled"
       :update-loading="loading"
+{{~ end ~}}
+{{~ if has_delete ~}}
+      :delete-disabled="deleteDisabled"
       :delete-loading="loading"
+{{~ end ~}}
       :refresh-loading="loading"
+{{~ if has_create ~}}
       @create="handleCreate"
+{{~ end ~}}
+{{~ if has_update ~}}
       @update="handleUpdate"
+{{~ end ~}}
+{{~ if has_delete ~}}
       @delete="handleDelete"
+{{~ end ~}}
 {{~ if has_import_data ~}}
       @import="handleImport"
 {{~ end ~}}
@@ -55,20 +79,22 @@
       @refresh="handleRefresh"
     />
 
+    <!-- 表格 -->
     <TaktSingleTable
-      ref="tableRef"
       :columns="displayColumns"
       :data-source="dataSource"
       :loading="loading"
       :stripe="true"
       :row-key="get{{ table.entity_name_pascal }}Id"
       :row-selection="rowSelection"
-      :large-screen-column-count="{{ table.front_style == 12 ? 5 : 9 }}"
-      :small-screen-column-count="{{ table.front_style == 12 ? 3 : 5 }}"
+      :custom-row="onClickRow"
+      :large-screen-column-count="{{ table.front_form_layout == 12 ? 5 : 9 }}"
+      :small-screen-column-count="{{ table.front_form_layout == 12 ? 3 : 5 }}"
       @change="handleTableChange"
       @resize-column="handleResizeColumn"
     />
 
+    <!-- 分页组件 -->
     <TaktPagination
       v-model:current="currentPage"
       v-model:page-size="pageSize"
@@ -77,10 +103,13 @@
       @show-size-change="handlePaginationSizeChange"
     />
 
+{{~ if has_create || has_update ~}}
+    <!-- 新增/编辑对话框 -->
     <TaktModal
       v-model:open="formVisible"
       :title="formTitle"
-      :width="'33.333vw'"
+      width="50%"
+      wrap-class-name="takt-form-modal-resizable"
       :confirm-loading="formLoading"
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
@@ -91,7 +120,9 @@
         :loading="formLoading"
       />
     </TaktModal>
+{{~ end ~}}
 
+    <!-- 高级查询抽屉 -->
     <TaktQueryDrawer
       v-model:open="advancedQueryVisible"
       :form-model="advancedQueryForm"
@@ -100,16 +131,19 @@
     >
 {{~ for col in columns ~}}
 {{~ if col.is_query == 1 ~}}
-      <a-form-item label="{{ col.comment }}">
+      <a-form-item :label="t('entity.{{ table.entity_name_camel }}.{{ col.ts_column_name | string.downcase }}')">
 {{~ if col.html_type == "select" && col.dict_type ~}}
         <TaktSelect
           v-model:value="advancedQueryForm.{{ col.ts_column_name }}"
           dict-type="{{ col.dict_type }}"
-          placeholder="请选择"
+          :placeholder="t('common.form.placeholder.select', { field: t('entity.{{ table.entity_name_camel }}.{{ col.ts_column_name | string.downcase }}') })"
           allow-clear
         />
 {{ else }}
-        <a-input v-model:value="advancedQueryForm.{{ col.ts_column_name }}" />
+        <a-input
+          v-model:value="advancedQueryForm.{{ col.ts_column_name }}"
+          :placeholder="t('common.form.placeholder.required', { field: t('entity.{{ table.entity_name_camel }}.{{ col.ts_column_name | string.downcase }}') })"
+        />
 {{~ end ~}}
       </a-form-item>
 {{~ end ~}}
@@ -117,23 +151,24 @@
     </TaktQueryDrawer>
 {{~ if has_import_data && has_get_template ~}}
 
+    <!-- 导入对话框 -->
     <TaktModal
       v-model:open="importVisible"
-      title="导入{{ table.comment }}"
+      :title="t('common.button.import') + t('entity.{{ table.entity_name_camel }}._self')"
       :width="600"
       :footer="null"
-      cancel-text="关闭"
+      :cancel-text="t('common.button.close')"
       @cancel="handleImportCancel"
     >
       <TaktImportFile
         file-type="xlsx"
-        sheet-name="{{ table.comment }}导入模板"
-        template-file-name="{{ table.comment }}导入模板"
+        :sheet-name="excelNames.sheet"
+        :template-file-name="excelNames.fileBase"
         :download-template="handleDownloadTemplate"
         :import-file="handleImportFile"
-        template-text="下载{{ table.comment }}导入模板"
-        upload-text="点击或拖拽Excel文件到此区域上传"
-        hint="支持Excel文件（.xlsx）导入。"
+        :template-text="t('common.action.import.templatetext', { entity: t('entity.{{ table.entity_name_camel }}._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
+        :hint="t('common.action.import.hint')"
         :max-size="10"
         :max-rows="1000"
         @success="handleImportSuccess"
@@ -141,6 +176,7 @@
     </TaktModal>
 {{~ end ~}}
 
+    <!-- 列设置抽屉 -->
     <TaktColumnDrawer
       v-model:open="columnSettingVisible"
       :columns="columns"
@@ -158,19 +194,35 @@
  * {{ table.comment }}管理页 · 列表、查询、增删改由 GenFunction/ControllerActions 驱动
  * @module views/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}
  */
-{{ has_get_list = false; has_create = false; has_update = false; has_remove = false; has_delete_batch = false; has_get_template = false; has_import_data = false; has_export_data = false; api_get_list = ""; api_create = ""; api_update = ""; api_remove = ""; api_delete_batch = ""; api_get_template = ""; api_import_data = ""; api_export_data = ""; for a in table.controller_actions; if a.HttpMethod == "HttpGet" && a.Route == "list"; has_get_list = true; api_get_list = a.FrontendMethodName; end; if a.HttpMethod == "HttpPost" && a.Route == ""; has_create = true; api_create = a.FrontendMethodName; end; if a.HttpMethod == "HttpPut" && a.Route == "{id}"; has_update = true; api_update = a.FrontendMethodName; end; if a.HttpMethod == "HttpDelete" && a.Route == "{id}"; has_remove = true; api_remove = a.FrontendMethodName; end; if a.HttpMethod == "HttpDelete" && a.Route == "batch"; has_delete_batch = true; api_delete_batch = a.FrontendMethodName; end; if a.HttpMethod == "HttpGet" && a.Route == "template"; has_get_template = true; api_get_template = a.FrontendMethodName; end; if a.HttpMethod == "HttpPost" && a.Route == "import"; has_import_data = true; api_import_data = a.FrontendMethodName; end; if a.HttpMethod == "HttpPost" && a.Route == "export"; has_export_data = true; api_export_data = a.FrontendMethodName; end; end }}
 import { ref, computed, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import type { TableColumnsType } from 'ant-design-vue'
 import { CreateActionColumn } from '@/components/business/takt-action-column/index'
 import { mergeDefaultColumns } from '@/utils/table-columns'
 import { useI18n } from 'vue-i18n'
+{{~ if has_create || has_update ~}}
 import {{ table.entity_name_pascal }}Form from './components/{{ table.entity_name_kebab }}-form.vue'
-import { {{ api_import_count = 0 }}{{ if has_get_list; api_import_count = api_import_count + 1; end }}{{ if has_create; api_import_count = api_import_count + 1; end }}{{ if has_update; api_import_count = api_import_count + 1; end }}{{ if has_remove; api_import_count = api_import_count + 1; end }}{{ if has_delete_batch; api_import_count = api_import_count + 1; end }}{{ if has_get_template; api_import_count = api_import_count + 1; end }}{{ if has_import_data; api_import_count = api_import_count + 1; end }}{{ if has_export_data; api_import_count = api_import_count + 1; end }}{{ api_import_index = 0 }}{{ if has_get_list; api_import_index = api_import_index + 1; }}{{ api_get_list }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_create; api_import_index = api_import_index + 1; }}{{ api_create }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_update; api_import_index = api_import_index + 1; }}{{ api_update }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_remove; api_import_index = api_import_index + 1; }}{{ api_remove }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_delete_batch; api_import_index = api_import_index + 1; }}{{ api_delete_batch }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_get_template; api_import_index = api_import_index + 1; }}{{ api_get_template }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_import_data; api_import_index = api_import_index + 1; }}{{ api_import_data }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_export_data; api_import_index = api_import_index + 1; }}{{ api_export_data }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }} } from '@/api/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
+{{~ end ~}}
+import { {{ api_import_count = 0 }}{{ if has_get_list; api_import_count = api_import_count + 1; end }}{{ if has_get_options; api_import_count = api_import_count + 1; end }}{{ if has_create; api_import_count = api_import_count + 1; end }}{{ if has_update; api_import_count = api_import_count + 1; end }}{{ if has_delete; api_import_count = api_import_count + 1; end }}{{ if has_delete_batch; api_import_count = api_import_count + 1; end }}{{ if has_get_template; api_import_count = api_import_count + 1; end }}{{ if has_import_data; api_import_count = api_import_count + 1; end }}{{ if has_export_data; api_import_count = api_import_count + 1; end }}{{ api_import_index = 0 }}{{ if has_get_list; api_import_index = api_import_index + 1; }}{{ api_get_list }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_get_options; api_import_index = api_import_index + 1; }}{{ api_get_options }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_create; api_import_index = api_import_index + 1; }}{{ api_create }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_update; api_import_index = api_import_index + 1; }}{{ api_update }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_delete; api_import_index = api_import_index + 1; }}{{ api_delete }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_delete_batch; api_import_index = api_import_index + 1; }}{{ api_delete_batch }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_get_template; api_import_index = api_import_index + 1; }}{{ api_get_template }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_import_data; api_import_index = api_import_index + 1; }}{{ api_import_data }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }}{{ if has_export_data; api_import_index = api_import_index + 1; }}{{ api_export_data }}{{ if api_import_index < api_import_count }}, {{ end }}{{ end }} } from '@/api/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
 import type { {{ type_count = 0 }}{{~ for cat in table.dto_category_descriptors ~}}{{~ if cat.Name != "TemplateDto" && cat.Name != "ImportDto" && cat.Name != "ExportDto" ~}}{{ type_count = type_count + 1 }}{{~ end ~}}{{~ end ~}}{{ type_index = 0 }}{{~ for cat in table.dto_category_descriptors ~}}{{~ if cat.Name != "TemplateDto" && cat.Name != "ImportDto" && cat.Name != "ExportDto" ~}}{{ type_index = type_index + 1 }}{{ cat.TsInterfaceName }}{{ if type_index < type_count }}, {{ end }}{{~ end ~}}{{~ end ~}} } from '@/types/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
+import { logger } from '@/utils/logger'
+{{~ if has_export_data ~}}
+import { resolveExportDownloadFileName } from '@/utils/export-download-name'
+{{~ end ~}}
+{{~ if has_import_data || has_export_data ~}}
+import { taktExcelEntityNames } from '@/utils/naming'
+{{~ end ~}}
+{{~ if has_update || has_delete ~}}
 import { RiEditLine, RiDeleteBinLine } from '@remixicon/vue'
+{{~ end ~}}
 
 const { t } = useI18n()
+{{~ if has_import_data || has_export_data ~}}
+const excelNames = taktExcelEntityNames('{{ table.entity_class_name }}')
+{{~ end ~}}
+const searchPlaceholder = computed(
+  () => t('common.form.placeholder.required', { field: t('entity.{{ table.entity_name_camel }}._self') }) + t('common.button.query')
+)
 
 /** 关键词（查询栏） */
 const queryKeyword = ref('')
@@ -191,6 +243,7 @@ const selectedRows = ref<{{ table.entity_name_pascal }}[]>([])
 /** 当前选中行主键列表 */
 const selectedRowKeys = ref<(string | number)[]>([])
 /** 表单弹窗是否显示 */
+{{~ if has_create || has_update ~}}
 const formVisible = ref(false)
 /** 表单弹窗标题（新增/编辑） */
 const formTitle = ref('')
@@ -199,7 +252,7 @@ const formData = ref<Partial<{{ table.entity_name_pascal }}>>({})
 /** 表单提交中 */
 const formLoading = ref(false)
 const formRef = ref()
-const tableRef = ref()
+{{~ end ~}}
 /** 高级查询抽屉是否显示 */
 const advancedQueryVisible = ref(false)
 /** 高级查询表单模型（IsQuery 列） */
@@ -218,24 +271,26 @@ const importVisible = ref(false)
 {{~ end ~}}
 /** 当前可见列 key 列表（列设置勾选） */
 const visibleColumnKeys = ref<string[]>([])
-/** 排序方向（由表配置 SortType 驱动） */
-const sortOrder = ref<'asc' | 'desc'>('{{ if table.sort_type == "desc" }}desc{{ else }}asc{{ end }}')
-/** 排序字段（由表配置 SortField 驱动，驼峰） */
-const sortField = ref('{{ table.ts_sort_field }}')
 
 /** 主键字段名（与 types 一致，用于 getXxxId / 提交） */
 const entityIdName = '{{ table.entity_name_camel }}Id'
+{{~ if has_update ~}}
+const updateDisabled = computed(() => selectedRows.value.length !== 1)
+{{~ end ~}}
+{{~ if has_delete ~}}
+const deleteDisabled = computed(() => selectedRows.value.length === 0)
+{{~ end ~}}
 
 onMounted(() => {
   loadData()
 })
 
-/** 表格列配置（ID + IsList 列 + 操作列） */
-const columns = ref<TableColumnsType>([
+/** 表格列配置（ID + IsList 列 + 操作列）；用 computed 与 identity/user/index.vue 一致，列标题与操作列 label 随 locale 变化；列 key 与表单 label 同源 entity.{模块实体}.{字段小写} */
+const columns = computed<TableColumnsType>(() => [
   {
-    title: 'ID',
+    title: t('entity.{{ table.entity_name_camel }}.{{ (table.entity_name_camel + "Id") | string.downcase }}'),
     dataIndex: '{{ table.entity_name_camel }}Id',
-    key: '{{ table.entity_name_camel }}Id',
+    key: 'entity.{{ table.entity_name_camel }}.{{ (table.entity_name_camel + "Id") | string.downcase }}',
     width: 80,
     resizable: true,
     ellipsis: true,
@@ -245,9 +300,9 @@ const columns = ref<TableColumnsType>([
 {{~ for col in columns ~}}
 {{~ if col.is_list == 1 ~}}
   {
-    title: '{{ col.comment }}',
+    title: t('entity.{{ table.entity_name_camel }}.{{ col.ts_column_name | string.downcase }}'),
     dataIndex: '{{ col.ts_column_name }}',
-    key: '{{ col.ts_column_name }}',
+    key: 'entity.{{ table.entity_name_camel }}.{{ col.ts_column_name | string.downcase }}',
     width: 120,
     resizable: true,
     ellipsis: true,
@@ -260,20 +315,20 @@ const columns = ref<TableColumnsType>([
 {{~ if has_update ~}}
       {
         key: 'update',
-        label: '编辑',
-        shape: '{{ table.btn_style == 0 ? "plain" : "default" }}',
+        label: t('common.button.edit'),
+        shape: '{{ table.front_btn_style == 0 ? "plain" : "standard" }}',
         icon: RiEditLine,
-        permission: '{{ table.perms_prefix }}:update',
+        permission: '{{ table.perms_prefix_canonical }}:update',
         onClick: (record: {{ table.entity_name_pascal }}) => handleEdit(record)
       },
 {{~ end ~}}
-{{~ if has_remove ~}}
+{{~ if has_delete ~}}
       {
         key: 'delete',
-        label: '删除',
-        shape: '{{ table.btn_style == 0 ? "plain" : "default" }}',
+        label: t('common.button.delete'),
+        shape: '{{ table.front_btn_style == 0 ? "plain" : "standard" }}',
         icon: RiDeleteBinLine,
-        permission: '{{ table.perms_prefix }}:delete',
+        permission: '{{ table.perms_prefix_canonical }}:delete',
         onClick: (record: {{ table.entity_name_pascal }}) => handleDeleteOne(record)
       }
 {{~ end ~}}
@@ -281,7 +336,6 @@ const columns = ref<TableColumnsType>([
   })
 ])
 
-/** 取当前行主键 ID（{{ table.entity_name_camel }}Id） */
 /** 取当前行主键 ID（{{ table.entity_name_camel }}Id） */
 const get{{ table.entity_name_pascal }}Id = (record: any): string => record?.[entityIdName] ?? ''
 /** 取当前行指定字段值 */
@@ -307,29 +361,70 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: {{ table.entity_name_pascal }}[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
+  },
+  onSelect: (record: {{ table.entity_name_pascal }}, selected: boolean) => {
+    if (selected) {
+      selectedRow.value = record
+    } else if (get{{ table.entity_name_pascal }}Id(selectedRow.value) === get{{ table.entity_name_pascal }}Id(record)) {
+      selectedRow.value = null
+    }
+  },
+  onSelectAll: (selected: boolean, selectedRowsData: {{ table.entity_name_pascal }}[]) => {
+    if (selected) {
+      selectedRow.value = selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
+    } else {
+      selectedRow.value = null
+    }
   }
 }))
+
+/** 行点击处理：点击行切换选中/取消；同步 selectedRowKeys、selectedRows、selectedRow，并调用 rowSelection.onChange 以同步表格复选框（与 identity/user 列表页 custom-row 标准一致） */
+const onClickRow = (record: {{ table.entity_name_pascal }}) => ({
+  onClick: () => {
+    const key = get{{ table.entity_name_pascal }}Id(record)
+    const index = selectedRowKeys.value.indexOf(key)
+    if (index > -1) {
+      selectedRowKeys.value.splice(index, 1)
+    } else {
+      selectedRowKeys.value.push(key)
+    }
+    selectedRows.value = dataSource.value.filter(item =>
+      selectedRowKeys.value.includes(get{{ table.entity_name_pascal }}Id(item))
+    )
+    selectedRow.value = selectedRowKeys.value.length === 1 ? (selectedRows.value[0] ?? null) : null
+    if (rowSelection.value.onChange) {
+      rowSelection.value.onChange(selectedRowKeys.value, selectedRows.value)
+    }
+  }
+})
 
 /** 加载列表数据（有列表接口时请求分页，否则清空） */
 async function loadData() {
   loading.value = true
   try {
 {{~ if has_get_list ~}}
-    const res = await {{ api_get_list }}({
+    const kw = (queryKeyword.value ?? '').trim()
+    const params: {{ table.entity_name_pascal }}Query = {
       pageIndex: currentPage.value,
       pageSize: pageSize.value,
-      keyWords: queryKeyword.value || undefined,
-      sortOrder: sortOrder.value || undefined,
-      sortField: sortField.value || undefined,
       ...advancedQueryForm.value
-    })
+    }
+    if (kw.length > 0) {
+      params.KeyWords = kw
+    }
+    const res = await {{ api_get_list }}(params)
     dataSource.value = res.data ?? []
     total.value = res.total ?? 0
 {{~ else ~}}
     dataSource.value = []
     total.value = 0
 {{~ end ~}}
+  } catch (error: any) {
+    logger.error('[{{ table.entity_name_pascal }} Management] 加载数据失败:', error)
+    message.error(error?.message || t('common.msg.loadfail'))
+    dataSource.value = []
+    total.value = 0
   } finally {
     loading.value = false
   }
@@ -355,25 +450,34 @@ function handleReset() {
   loadData()
 }
 
+{{~ if has_create ~}}
 /** 打开新增表单 */
 function handleCreate() {
-  formTitle.value = '新增{{ table.comment }}'
+  formTitle.value = t('common.button.create') + t('entity.{{ table.entity_name_camel }}._self')
   formData.value = {}
   formVisible.value = true
 }
+{{~ end ~}}
 
+{{~ if has_update ~}}
 /** 打开编辑表单并回填当前行 */
 function handleEdit(record: {{ table.entity_name_pascal }}) {
-  formTitle.value = '编辑{{ table.comment }}'
+  formTitle.value = t('common.button.edit') + t('entity.{{ table.entity_name_camel }}._self')
   formData.value = { ...record }
   formVisible.value = true
 }
 
 /** 编辑当前选中行 */
 function handleUpdate() {
-  if (selectedRow.value) handleEdit(selectedRow.value)
+  if (selectedRow.value) {
+    handleEdit(selectedRow.value)
+  } else {
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: t('entity.{{ table.entity_name_camel }}._self') }))
+  }
 }
+{{~ end ~}}
 
+{{~ if has_create || has_update ~}}
 /** 提交表单：有 ID 则更新，否则新增 */
 async function handleFormSubmit() {
   const ref = formRef.value
@@ -389,12 +493,12 @@ async function handleFormSubmit() {
     if (id) {
 {{~ if has_update ~}}
       await {{ api_update }}(id, formData.value as any)
-      message.success('更新成功')
+      message.success(t('common.msg.updatesuccess'))
 {{~ end ~}}
     } else {
 {{~ if has_create ~}}
       await {{ api_create }}(formData.value as any)
-      message.success('新增成功')
+      message.success(t('common.msg.createsuccess'))
 {{~ end ~}}
     }
     formVisible.value = false
@@ -408,6 +512,7 @@ async function handleFormSubmit() {
 function handleFormCancel() {
   formVisible.value = false
 }
+{{~ end ~}}
 
 {{~ if has_import_data && has_get_template ~}}
 /** 打开导入弹窗 */
@@ -443,18 +548,25 @@ function handleImportCancel() {
 async function handleExport() {
   try {
     loading.value = true
-    const blob = await {{ api_export_data }}({
+    const kw = (queryKeyword.value ?? '').trim()
+    const exportQuery: {{ table.entity_name_pascal }}Query = {
       pageIndex: currentPage.value,
       pageSize: pageSize.value,
-      keyWords: queryKeyword.value || undefined,
-      sortOrder: sortOrder.value || undefined,
-      sortField: sortField.value || undefined,
       ...advancedQueryForm.value
-    }, undefined, '{{ table.comment }}导出')
+    }
+    if (kw.length > 0) {
+      exportQuery.KeyWords = kw
+    }
+    const exportMeta = await {{ api_export_data }}(exportQuery, excelNames.sheet, excelNames.fileBase)
     const ts = new Date()
     const pad = (n: number, w = 2) => String(n).padStart(w, '0')
-    const fileName = `{{ table.comment }}导出_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
-    const url = window.URL.createObjectURL(blob)
+    const fallbackBase = `${excelNames.fileBase}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}`
+    const fileName = resolveExportDownloadFileName({
+      contentDisposition: exportMeta.contentDisposition ?? null,
+      contentType: exportMeta.contentType ?? null,
+      fallbackBase
+    })
+    const url = window.URL.createObjectURL(exportMeta.blob)
     const link = document.createElement('a')
     link.href = url
     link.download = fileName
@@ -463,46 +575,54 @@ async function handleExport() {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success('导出成功')
+    message.success(t('common.msg.exportsuccess'))
   } catch (error: any) {
-    message.error(error?.message || '导出失败')
+    logger.error('[{{ table.entity_name_pascal }} Management] 导出失败:', error)
+    message.error(error?.message || t('common.msg.exportfail'))
   } finally {
     loading.value = false
   }
 }
 {{~ end ~}}
 
-/** 单条删除（有 remove 时确认后调用接口） */
+{{~ if has_delete ~}}
+/** 单条删除（有 delete 时确认后调用接口） */
 async function handleDeleteOne(record: {{ table.entity_name_pascal }}) {
-{{~ if has_remove ~}}
   Modal.confirm({
-    title: '确认删除',
-    content: '确定要删除该条记录吗？',
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('entity.{{ table.entity_name_camel }}._self'), name: t('common.action.thistarget', { target: t('entity.{{ table.entity_name_camel }}._self') }) }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
-      await {{ api_remove }}((record as any)[entityIdName])
-      message.success('删除成功')
+      await {{ api_delete }}((record as any)[entityIdName])
+      message.success(t('common.msg.deletesuccess'))
       loadData()
     }
   })
-{{~ end ~}}
 }
+{{~ end ~}}
 
+{{~ if has_delete_batch ~}}
 /** 批量删除（有批量删除接口时确认后调用） */
 async function handleDelete() {
-{{~ if has_delete_batch ~}}
-  if (selectedRows.value.length === 0) return
+  if (selectedRows.value.length === 0) {
+    message.warning(t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('entity.{{ table.entity_name_camel }}._self') }))
+    return
+  }
   Modal.confirm({
-    title: '确认批量删除',
-    content: `确定要删除选中的 ${selectedRows.value.length} 条记录吗？`,
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', { entity: t('entity.{{ table.entity_name_camel }}._self'), count: selectedRows.value.length }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
       const ids = selectedRows.value.map((r: any) => r[entityIdName]).filter(Boolean)
       await {{ api_delete_batch }}(ids)
-      message.success('删除成功')
+      message.success(t('common.msg.deletesuccess'))
       loadData()
     }
   })
-{{~ end ~}}
 }
+{{~ end ~}}
 
 /** 打开高级查询抽屉 */
 function handleAdvancedQuery() {

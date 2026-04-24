@@ -2,7 +2,7 @@
   <a-button
     type="text"
     class="takt-header-full"
-    :title="isFullscreen ? $t('common.button.exitFullscreen') : $t('common.button.fullscreen')"
+    :title="isFullscreen ? $t('common.button.exitfullscreen') : $t('common.button.fullscreen')"
     @click="handleToggleFullscreen"
   >
     <template #icon>

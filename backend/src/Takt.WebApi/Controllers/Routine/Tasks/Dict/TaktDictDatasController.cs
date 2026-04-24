@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Routine.Dict
 // 文件名称：TaktDictDatasController.cs
@@ -18,7 +18,7 @@ using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
 using Takt.WebApi.Controllers;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.Routine.Tasks.Dict;
 
@@ -154,7 +154,7 @@ public class TaktDictDatasController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _dictDataService.GetDictDataTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -209,7 +209,7 @@ public class TaktDictDatasController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _dictDataService.ExportDictDataAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {

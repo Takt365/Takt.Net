@@ -2,9 +2,9 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.AttendanceLeave
 // 文件名称：TaktShiftScheduleDtos.cs
-// 创建时间：2026-04-13
-// 创建人：Takt365(Cursor AI)
-// 功能描述：排班计划 DTO，包含查询、创建、更新、模板、导入、导出（与 TaktWorkShiftDtos 结构一致）。
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：排班信息表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,64 +17,46 @@ using Takt.Shared.Models;
 namespace Takt.Application.Dtos.HumanResource.AttendanceLeave;
 
 /// <summary>
-/// 排班计划 DTO（列表/详情；按排班类别区分部门/人员）
+/// 排班信息表Dto
 /// </summary>
-public class TaktShiftScheduleDto : TaktDtoBase
+public partial class TaktShiftScheduleDto : TaktDtosEntityBase
 {
     /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktShiftScheduleDto()
-    {
-        ConfigId = "0";
-    }
-
-    /// <summary>
-    /// 排班记录 ID（适配实体主键 Id，序列化为 string 以避免 Javascript 精度问题）
+    /// 排班信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long ShiftScheduleId { get; set; }
 
     /// <summary>
-    /// 排班类别（0=部门，1=人员）
+    /// 排班类别
     /// </summary>
     public int ScheduleType { get; set; }
-
     /// <summary>
-    /// 部门 ID（ScheduleType=0 时使用）
+    /// 部门ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? DeptId { get; set; }
-
     /// <summary>
-    /// 员工 ID（ScheduleType=1 时使用）
+    /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? EmployeeId { get; set; }
-
     /// <summary>
-    /// 排班日期（日期部分有效）
+    /// 排班日期
     /// </summary>
     public DateTime ScheduleDate { get; set; }
-
     /// <summary>
-    /// 班次 ID（对应 TaktWorkShift）
+    /// 班次ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long ShiftId { get; set; }
-
-    /// <summary>
-    /// 班次名称（列表展示用，非表字段，服务层填充）
-    /// </summary>
-    public string? ShiftName { get; set; }
 }
 
 /// <summary>
-/// 排班计划分页查询 DTO。
-/// 继承的 <see cref="TaktPagedQuery.KeyWords"/> 在应用服务查询表达式中用于匹配备注（Remark）。
+/// 排班信息表查询DTO
 /// </summary>
-public class TaktShiftScheduleQueryDto : TaktPagedQuery
+public partial class TaktShiftScheduleQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -83,76 +65,108 @@ public class TaktShiftScheduleQueryDto : TaktPagedQuery
     {
     }
 
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
     /// <summary>
-    /// 排班类别（精确）
+    /// 排班信息表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long ShiftScheduleId { get; set; }
+
+    /// <summary>
+    /// 排班类别
     /// </summary>
     public int? ScheduleType { get; set; }
-
     /// <summary>
-    /// 部门 ID（精确）
+    /// 部门ID
     /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? DeptId { get; set; }
-
     /// <summary>
-    /// 员工 ID（精确）
+    /// 员工ID
     /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? EmployeeId { get; set; }
+    /// <summary>
+    /// 排班日期
+    /// </summary>
+    public DateTime? ScheduleDate { get; set; }
 
     /// <summary>
-    /// 班次 ID（精确）
+    /// 排班日期开始时间
     /// </summary>
+    public DateTime? ScheduleDateStart { get; set; }
+    /// <summary>
+    /// 排班日期结束时间
+    /// </summary>
+    public DateTime? ScheduleDateEnd { get; set; }
+    /// <summary>
+    /// 班次ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? ShiftId { get; set; }
 
     /// <summary>
-    /// 排班日期起（含，按日期部分比较）
+    /// 创建人ID
     /// </summary>
-    public DateTime? ScheduleDateFrom { get; set; }
-
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
     /// <summary>
-    /// 排班日期止（含，按日期部分比较）
+    /// 创建人
     /// </summary>
-    public DateTime? ScheduleDateTo { get; set; }
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// 创建排班计划 DTO
+/// Takt创建排班信息表DTO
 /// </summary>
-public class TaktShiftScheduleCreateDto
+public partial class TaktShiftScheduleCreateDto
 {
-    /// <summary>
-    /// 构造函数
+        /// <summary>
+    /// 排班类别
     /// </summary>
-    public TaktShiftScheduleCreateDto()
-    {
-    }
+    public int ScheduleType { get; set; }
 
-    /// <summary>
-    /// 排班类别（0=部门，1=人员）
+        /// <summary>
+    /// 部门ID
     /// </summary>
-    public int ScheduleType { get; set; } = 1;
-
-    /// <summary>
-    /// 部门 ID（ScheduleType=0 时必填）
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? DeptId { get; set; }
 
-    /// <summary>
-    /// 员工 ID（ScheduleType=1 时必填）
+        /// <summary>
+    /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 排班日期
     /// </summary>
     public DateTime ScheduleDate { get; set; }
 
-    /// <summary>
-    /// 班次 ID
+        /// <summary>
+    /// 班次ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long ShiftId { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -161,162 +175,147 @@ public class TaktShiftScheduleCreateDto
 }
 
 /// <summary>
-/// 更新排班计划 DTO
+/// Takt更新排班信息表DTO
 /// </summary>
-public class TaktShiftScheduleUpdateDto : TaktShiftScheduleCreateDto
+public partial class TaktShiftScheduleUpdateDto : TaktShiftScheduleCreateDto
 {
     /// <summary>
-    /// 排班记录 ID（适配实体主键 Id）
+    /// 构造函数
+    /// </summary>
+    public TaktShiftScheduleUpdateDto()
+    {
+    }
+
+        /// <summary>
+    /// 排班信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long ShiftScheduleId { get; set; }
 }
 
 /// <summary>
-/// 排班计划导出 DTO（Excel 列）
+/// 排班信息表导入模板DTO
 /// </summary>
-public class TaktShiftScheduleExportDto
+public partial class TaktShiftScheduleTemplateDto
+{
+        /// <summary>
+    /// 排班类别
+    /// </summary>
+    public int ScheduleType { get; set; }
+
+        /// <summary>
+    /// 部门ID
+    /// </summary>
+    public long? DeptId { get; set; }
+
+        /// <summary>
+    /// 员工ID
+    /// </summary>
+    public long? EmployeeId { get; set; }
+
+        /// <summary>
+    /// 排班日期
+    /// </summary>
+    public DateTime ScheduleDate { get; set; }
+
+        /// <summary>
+    /// 班次ID
+    /// </summary>
+    public long ShiftId { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
+}
+
+/// <summary>
+/// 排班信息表导入DTO
+/// </summary>
+public partial class TaktShiftScheduleImportDto
+{
+        /// <summary>
+    /// 排班类别
+    /// </summary>
+    public int ScheduleType { get; set; }
+
+        /// <summary>
+    /// 部门ID
+    /// </summary>
+    public long? DeptId { get; set; }
+
+        /// <summary>
+    /// 员工ID
+    /// </summary>
+    public long? EmployeeId { get; set; }
+
+        /// <summary>
+    /// 排班日期
+    /// </summary>
+    public DateTime ScheduleDate { get; set; }
+
+        /// <summary>
+    /// 班次ID
+    /// </summary>
+    public long ShiftId { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
+}
+
+/// <summary>
+/// 排班信息表导出DTO
+/// </summary>
+public partial class TaktShiftScheduleExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktShiftScheduleExportDto()
     {
+        CreatedAt = DateTime.Now;
     }
 
-    /// <summary>
+        /// <summary>
     /// 排班类别
     /// </summary>
     public int ScheduleType { get; set; }
 
-    /// <summary>
-    /// 部门 ID
+        /// <summary>
+    /// 部门ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long? DeptId { get; set; }
 
-    /// <summary>
-    /// 员工 ID
+        /// <summary>
+    /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long? EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 排班日期
     /// </summary>
     public DateTime ScheduleDate { get; set; }
 
-    /// <summary>
-    /// 班次 ID
+        /// <summary>
+    /// 班次ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
     public long ShiftId { get; set; }
-
-    /// <summary>
-    /// 班次名称（导出展示，服务层可填充）
-    /// </summary>
-    public string? ShiftName { get; set; }
-
-    /// <summary>
-    /// 备注
-    /// </summary>
-    public string? Remark { get; set; }
 
     /// <summary>
     /// 创建时间
     /// </summary>
     public DateTime CreatedAt { get; set; }
-}
-
-/// <summary>
-/// 排班导入模板 DTO（Excel 列；班次以编码解析为班次 ID）
-/// </summary>
-public class TaktShiftScheduleTemplateDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktShiftScheduleTemplateDto()
-    {
-        ShiftCode = string.Empty;
-    }
-
-    /// <summary>
-    /// 排班类别（0=部门，1=人员）
-    /// </summary>
-    public int ScheduleType { get; set; } = 1;
-
-    /// <summary>
-    /// 部门 ID
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long? DeptId { get; set; }
-
-    /// <summary>
-    /// 员工 ID
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long? EmployeeId { get; set; }
-
-    /// <summary>
-    /// 排班日期
-    /// </summary>
-    public DateTime ScheduleDate { get; set; }
-
-    /// <summary>
-    /// 班次编码（与 TaktWorkShift.shift_code 对应）
-    /// </summary>
-    public string ShiftCode { get; set; }
-
-    /// <summary>
-    /// 备注
-    /// </summary>
-    public string? Remark { get; set; }
-}
-
-/// <summary>
-/// 排班导入行 DTO（与模板列一致）
-/// </summary>
-public class TaktShiftScheduleImportDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktShiftScheduleImportDto()
-    {
-        ShiftCode = string.Empty;
-    }
-
-    /// <summary>
-    /// 排班类别（0=部门，1=人员）
-    /// </summary>
-    public int ScheduleType { get; set; } = 1;
-
-    /// <summary>
-    /// 部门 ID
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long? DeptId { get; set; }
-
-    /// <summary>
-    /// 员工 ID
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long? EmployeeId { get; set; }
-
-    /// <summary>
-    /// 排班日期
-    /// </summary>
-    public DateTime ScheduleDate { get; set; }
-
-    /// <summary>
-    /// 班次编码
-    /// </summary>
-    public string ShiftCode { get; set; }
-
-    /// <summary>
-    /// 备注
-    /// </summary>
-    public string? Remark { get; set; }
 }

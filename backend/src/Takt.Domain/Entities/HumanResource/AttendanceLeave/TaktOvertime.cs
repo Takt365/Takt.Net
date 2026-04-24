@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.HumanResource.AttendanceLeave
 // 文件名称：TaktOvertime.cs
@@ -16,7 +16,7 @@ namespace Takt.Domain.Entities.HumanResource.AttendanceLeave;
 /// <summary>
 /// 加班（时长与状态由业务维护，可与审批流扩展对接）。
 /// </summary>
-[SugarTable("takt_humanresource_overtime", "加班表")]
+[SugarTable("takt_humanresource_overtime", "加班信息表")]
 [SugarIndex("ix_takt_humanresource_overtime_employee_id", nameof(EmployeeId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_overtime_date", nameof(OvertimeDate), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_overtime_type", nameof(OvertimeType), OrderByType.Asc)]

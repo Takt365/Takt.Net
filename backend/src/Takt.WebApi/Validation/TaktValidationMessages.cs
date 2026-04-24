@@ -1,8 +1,13 @@
 // ========================================
-// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Validation
 // 文件名称：TaktValidationMessages.cs
-// 功能描述：FluentValidation 提示：validation.* 与 entity.* 均按 Frontend 从库读取后 string.Format 拼接（与 TaktValidationSeedData 一致）。无翻译或 localizer 为 null 时不兜底，直接返回资源键。
+// 创建时间：2026-04-17
+// 创建人：Takt365(Cursor AI)
+// 功能描述：FluentValidation 提示文案组装工具，validation.* 与 entity.* 均按 Frontend 从库读取并 string.Format 拼接；无翻译或 localizer 为 null 时返回资源键。
+// 
+// 版权信息：Copyright (c) 2026 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
 using Takt.Domain.Interfaces;

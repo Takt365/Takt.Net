@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Routine.SignalR
 // 文件名称：TaktMessagesController.cs
@@ -18,7 +18,7 @@ using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
 using Takt.WebApi.Controllers;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.Routine.Tasks.SignalR;
 
@@ -60,9 +60,9 @@ public class TaktMessagesController : TaktControllerBase
     /// <returns>分页结果</returns>
     [HttpGet("list")]
     [TaktPermission("routine:tasks:message:list", "查询消息列表")]
-    public async Task<ActionResult<TaktPagedResult<TaktMessageDto>>> GetListAsync([FromQuery] TaktMessageQueryDto queryDto)
+    public async Task<ActionResult<TaktPagedResult<TaktMessageDto>>> GetMessageListAsync([FromQuery] TaktMessageQueryDto queryDto)
     {
-        var result = await _messageService.GetListAsync(queryDto);
+        var result = await _messageService.GetMessageListAsync(queryDto);
         return Ok(result);
     }
 
@@ -73,9 +73,9 @@ public class TaktMessagesController : TaktControllerBase
     /// <returns>消息DTO</returns>
     [HttpGet("{id}")]
     [TaktPermission("routine:tasks:message:query", "查询消息详情")]
-    public async Task<ActionResult<TaktMessageDto>> GetByIdAsync(long id)
+    public async Task<ActionResult<TaktMessageDto>> GetMessageByIdAsync(long id)
     {
-        var message = await _messageService.GetByIdAsync(id);
+        var message = await _messageService.GetMessageByIdAsync(id);
         if (message == null)
             return NotFound();
         return Ok(message);
@@ -88,12 +88,12 @@ public class TaktMessagesController : TaktControllerBase
     /// <returns>消息DTO</returns>
     [HttpPost]
     [TaktPermission("routine:tasks:message:create", "创建消息")]
-    public async Task<ActionResult<TaktMessageDto>> CreateAsync([FromBody] TaktMessageCreateDto dto)
+    public async Task<ActionResult<TaktMessageDto>> CreateMessageAsync([FromBody] TaktMessageCreateDto dto)
     {
         try
         {
-            var message = await _messageService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = message.MessageId }, message);
+            var message = await _messageService.CreateMessageAsync(dto);
+            return CreatedAtAction(nameof(GetMessageByIdAsync), new { id = message.MessageId }, message);
         }
         catch (Exception ex)
         {
@@ -109,11 +109,11 @@ public class TaktMessagesController : TaktControllerBase
     /// <returns>消息DTO</returns>
     [HttpPut("{id}")]
     [TaktPermission("routine:tasks:message:update", "更新消息")]
-    public async Task<ActionResult<TaktMessageDto>> UpdateAsync(long id, [FromBody] TaktMessageUpdateDto dto)
+    public async Task<ActionResult<TaktMessageDto>> UpdateMessageAsync(long id, [FromBody] TaktMessageUpdateDto dto)
     {
         try
         {
-            var message = await _messageService.UpdateAsync(id, dto);
+            var message = await _messageService.UpdateMessageAsync(id, dto);
             return Ok(message);
         }
         catch (Exception ex)
@@ -129,11 +129,11 @@ public class TaktMessagesController : TaktControllerBase
     /// <returns>操作结果</returns>
     [HttpDelete("{id}")]
     [TaktPermission("routine:tasks:message:delete", "删除消息")]
-    public async Task<IActionResult> DeleteAsync(long id)
+    public async Task<IActionResult> DeleteMessageByIdAsync(long id)
     {
         try
         {
-            await _messageService.DeleteAsync(id);
+            await _messageService.DeleteMessageByIdAsync(id);
             return NoContent();
         }
         catch (Exception ex)
@@ -149,11 +149,11 @@ public class TaktMessagesController : TaktControllerBase
     /// <returns>消息DTO</returns>
     [HttpPut("read")]
     [TaktPermission("routine:tasks:message:read", "标记消息已读")]
-    public async Task<ActionResult<TaktMessageDto>> MarkAsReadAsync([FromBody] TaktMessageReadDto dto)
+    public async Task<ActionResult<TaktMessageDto>> MarkMessageAsReadAsync([FromBody] TaktMessageReadDto dto)
     {
         try
         {
-            var message = await _messageService.MarkAsReadAsync(dto);
+            var message = await _messageService.MarkMessageAsReadAsync(dto);
             return Ok(message);
         }
         catch (Exception ex)
@@ -171,12 +171,12 @@ public class TaktMessagesController : TaktControllerBase
     /// <returns>Excel 文件；超过 <c>TaktExcelHelper.ExportAsync</c> 单表行数上限时为 zip 打包（基础设施统一逻辑）</returns>
     [HttpPost("export")]
     [TaktPermission("routine:tasks:message:export", "导出消息")]
-    public async Task<IActionResult> ExportAsync([FromBody] TaktMessageQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> ExportMessageAsync([FromBody] TaktMessageQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (resultFileName, content) = await _messageService.ExportAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            var (resultFileName, content) = await _messageService.ExportMessageAsync(query, sheetName, fileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {

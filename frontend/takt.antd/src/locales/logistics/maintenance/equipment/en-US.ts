@@ -1,6 +1,8 @@
 export default {
-  title: 'Equipment Management',
-  equipmentName: 'Equipment Name',
-  equipmentCode: 'Equipment Code',
-  equipmentStatus: 'Equipment Status'
+  page: {
+      title: 'Equipment Management',
+      equipmentname: 'Equipment Name',
+      equipmentcode: 'Equipment Code',
+      equipmentstatus: 'Equipment Status'
+  }
 }

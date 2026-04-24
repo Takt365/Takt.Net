@@ -27,7 +27,7 @@ const schemeUrl = '/api/TaktFlowSchemes'
 
 /**
  * 获取流程方案列表（分页）
- * 对应后端：GetList
+ * 对应后端应用服务：GetFlowSchemeListAsync（TaktFlowSchemesController.GetList）
  */
 export function getFlowSchemeList(params: FlowSchemeQuery): Promise<TaktPagedResult<FlowScheme>> {
   return request({
@@ -39,7 +39,7 @@ export function getFlowSchemeList(params: FlowSchemeQuery): Promise<TaktPagedRes
 
 /**
  * 根据ID获取流程方案
- * 对应后端：GetById
+ * 对应后端应用服务：GetFlowSchemeByIdAsync（TaktFlowSchemesController.GetById）
  */
 export function getFlowSchemeById(id: string): Promise<FlowScheme> {
   return request({
@@ -50,9 +50,9 @@ export function getFlowSchemeById(id: string): Promise<FlowScheme> {
 
 /**
  * 根据流程Key获取流程方案
- * 对应后端：GetByProcessKey
+ * 对应后端应用服务：GetFlowSchemeByProcessKeyAsync（TaktFlowSchemesController.GetByProcessKey）
  */
-export function getByProcessKey(processKey: string): Promise<FlowScheme> {
+export function getFlowSchemeByProcessKey(processKey: string): Promise<FlowScheme> {
   return request({
     url: `${schemeUrl}/by-key/${encodeURIComponent(processKey)}`,
     method: 'get'
@@ -61,7 +61,7 @@ export function getByProcessKey(processKey: string): Promise<FlowScheme> {
 
 /**
  * 创建流程方案
- * 对应后端：Create
+ * 对应后端应用服务：CreateFlowSchemeAsync（TaktFlowSchemesController.Create）
  */
 export function createFlowScheme(data: Omit<FlowSchemeCreateOrUpdate, 'schemeId'>): Promise<FlowScheme> {
   return request({
@@ -73,7 +73,7 @@ export function createFlowScheme(data: Omit<FlowSchemeCreateOrUpdate, 'schemeId'
 
 /**
  * 更新流程方案
- * 对应后端：Update
+ * 对应后端应用服务：UpdateFlowSchemeAsync（TaktFlowSchemesController.Update）
  */
 export function updateFlowScheme(id: string, data: FlowSchemeCreateOrUpdate): Promise<FlowScheme> {
   return request({
@@ -85,7 +85,7 @@ export function updateFlowScheme(id: string, data: FlowSchemeCreateOrUpdate): Pr
 
 /**
  * 删除流程方案（单条）
- * 对应后端：Delete
+ * 对应后端应用服务：DeleteFlowSchemeByIdAsync（TaktFlowSchemesController.Delete）
  */
 export function deleteFlowSchemeById(id: string): Promise<void> {
   return request({
@@ -96,7 +96,7 @@ export function deleteFlowSchemeById(id: string): Promise<void> {
 
 /**
  * 批量删除流程方案
- * 对应后端：DeleteBatch
+ * 对应后端应用服务：DeleteFlowSchemeBatchAsync（TaktFlowSchemesController.DeleteBatch）
  */
 export function deleteFlowSchemeBatch(ids: string[]): Promise<void> {
   return request({
@@ -108,7 +108,7 @@ export function deleteFlowSchemeBatch(ids: string[]): Promise<void> {
 
 /**
  * 更新流程方案状态
- * 对应后端：UpdateStatus
+ * 对应后端应用服务：UpdateFlowSchemeStatusAsync（TaktFlowSchemesController.UpdateStatus）
  */
 export function updateFlowSchemeStatus(data: FlowSchemeStatusUpdate): Promise<FlowScheme> {
   return request({
@@ -134,7 +134,7 @@ export function getFlowSchemeTemplate(sheetName?: string, fileName?: string): Pr
 
 /**
  * 导入流程方案
- * 对应后端：Import
+ * 对应后端应用服务：ImportFlowSchemeAsync（TaktFlowSchemesController.Import）
  */
 export function importFlowSchemeData(file: File, sheetName?: string): Promise<{ success: number; fail: number; errors: string[] }> {
   const formData = new FormData()
@@ -150,7 +150,7 @@ export function importFlowSchemeData(file: File, sheetName?: string): Promise<{ 
 
 /**
  * 导出流程方案
- * 对应后端：Export
+ * 对应后端应用服务：ExportFlowSchemeAsync（TaktFlowSchemesController.Export）
  */
 export function exportFlowSchemeData(query: FlowSchemeQuery, sheetName?: string, fileName?: string): Promise<Blob> {
   return request({
@@ -163,8 +163,8 @@ export function exportFlowSchemeData(query: FlowSchemeQuery, sheetName?: string,
 }
 
 /**
- * 创建或更新流程方案（便捷方法：有 schemeId 走 Update，无则走 Create）
- * 对应后端：Create / Update
+ * 创建或更新流程方案（便捷方法：有 schemeId 走 UpdateFlowSchemeAsync，无则走 CreateFlowSchemeAsync）
+ * 对应后端应用服务：CreateFlowSchemeAsync / UpdateFlowSchemeAsync（TaktFlowSchemesController.Create / Update）
  */
 export function createOrUpdateScheme(data: FlowSchemeCreateOrUpdate): Promise<FlowScheme> {
   const sid = data.schemeId

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Routine.I18n
 // 文件名称：TaktTranslationService.cs
@@ -73,7 +73,7 @@ public class TaktTranslationService : TaktServiceBase, ITaktTranslationService
     {
         var languages = await _languageRepository.FindAsync(l => l.IsDeleted == 0 && l.LanguageStatus == 0);
         var cultureCodeOrder = languages
-            .OrderBy(l => l.OrderNum)
+            .OrderBy(l => l.SortOrder)
             .ThenBy(l => l.CultureCode)
             .Select(l => l.CultureCode)
             .ToList();
@@ -97,11 +97,11 @@ public class TaktTranslationService : TaktServiceBase, ITaktTranslationService
                     ResourceKey = g.Key.ResourceKey,
                     ResourceType = g.Key.ResourceType,
                     ResourceGroup = g.Key.ResourceGroup,
-                    OrderNum = g.Min(t => t.OrderNum),
+                    SortOrder = g.Min(t => t.SortOrder),
                     Translations = translations
                 };
             })
-            .OrderBy(x => x.OrderNum)
+            .OrderBy(x => x.SortOrder)
             .ThenBy(x => x.ResourceKey)
             .ToList();
 
@@ -138,7 +138,7 @@ public class TaktTranslationService : TaktServiceBase, ITaktTranslationService
     {
         var translations = await _translationRepository.FindAsync(t => t.IsDeleted == 0);
         return translations
-            .OrderBy(t => t.OrderNum)
+            .OrderBy(t => t.SortOrder)
             .ThenBy(t => t.CreatedAt)
             .Select(t => new TaktSelectOption
             {
@@ -146,7 +146,7 @@ public class TaktTranslationService : TaktServiceBase, ITaktTranslationService
                 DictValue = t.ResourceKey,
                 ExtLabel = t.CultureCode,
                 ExtValue = t.ResourceType,
-                OrderNum = t.OrderNum
+                SortOrder = t.SortOrder
             })
             .ToList();
     }
@@ -404,7 +404,7 @@ public class TaktTranslationService : TaktServiceBase, ITaktTranslationService
                         TranslationValue = item.TranslationValue ?? string.Empty,
                         ResourceType = item.ResourceType ?? string.Empty,
                         ResourceGroup = item.ResourceGroup,
-                        OrderNum = item.OrderNum,
+                        SortOrder = item.SortOrder,
                         Remark = item.Remark
                     };
 

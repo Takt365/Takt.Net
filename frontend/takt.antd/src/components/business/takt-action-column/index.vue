@@ -261,6 +261,7 @@
   .takt-button-allocate-tenant-user.ant-menu-item { color: @lv-chen; }
   .takt-button-resetpwd.ant-menu-item { color: @taikou; }
   .takt-button-changepwd.ant-menu-item { color: @hitotsu-tsuki-zome; }
+  .takt-button-change.ant-menu-item { color: @asagi; }
   .takt-button-truncate.ant-menu-item { color: @kuwa-zome; }
   .takt-button-calculate.ant-menu-item { color: @ichigo; }
   .takt-button-fullscreen.ant-menu-item { color: @jian-de; }

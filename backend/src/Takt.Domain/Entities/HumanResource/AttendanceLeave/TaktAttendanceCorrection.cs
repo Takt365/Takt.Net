@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.HumanResource.AttendanceLeave
 // 文件名称：TaktAttendanceCorrection.cs
@@ -18,7 +18,7 @@ namespace Takt.Domain.Entities.HumanResource.AttendanceLeave;
 /// <summary>
 /// 补卡管理（员工申请在指定日补录上/下班打卡）。
 /// </summary>
-[SugarTable("takt_humanresource_attendance_correction", "补卡表")]
+[SugarTable("takt_humanresource_attendance_correction", "补卡记录表")]
 [SugarIndex("ix_takt_humanresource_attendance_correction_employee_id", nameof(EmployeeId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_attendance_correction_date", nameof(TargetDate), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_attendance_correction_status", nameof(ApprovalStatus), OrderByType.Asc)]

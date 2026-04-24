@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.HumanResource.Personnel
 // 文件名称：TaktEmployeeTransfer.cs
@@ -18,7 +18,7 @@ namespace Takt.Domain.Entities.HumanResource.Personnel;
 /// <summary>
 /// 员工调动实体（转岗/调岗）。FlowInstanceId 存流程实例 Id，由业务方在发起流程后写入；审批通过后可同步更新 TaktEmployeeCareer 或员工部门/岗位关联。
 /// </summary>
-[SugarTable("takt_humanresource_employee_transfer", "员工调动表（转岗调岗）")]
+[SugarTable("takt_humanresource_employee_transfer", "员工调动表")]
 [SugarIndex("ix_takt_humanresource_employee_transfer_employee_id", nameof(EmployeeId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_employee_transfer_flow_instance_id", nameof(FlowInstanceId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_employee_transfer_transfer_status", nameof(TransferStatus), OrderByType.Asc)]

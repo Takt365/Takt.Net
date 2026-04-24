@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Identity
 // 文件名称：TaktMenusController.cs
@@ -17,7 +17,7 @@ using Takt.Application.Services.Identity;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 using Takt.WebApi.Controllers;
 
 namespace Takt.WebApi.Controllers.Identity;
@@ -60,9 +60,9 @@ public class TaktMenusController : TaktControllerBase
     /// <returns>分页结果</returns>
     [HttpGet("list")]
     [TaktPermission("identity:menu:list", "查询菜单列表")]
-    public async Task<ActionResult<TaktPagedResult<TaktMenuDto>>> GetListAsync([FromQuery] TaktMenuQueryDto queryDto)
+    public async Task<ActionResult<TaktPagedResult<TaktMenuDto>>> GetMenuListAsync([FromQuery] TaktMenuQueryDto queryDto)
     {
-        var result = await _menuService.GetListAsync(queryDto);
+        var result = await _menuService.GetMenuListAsync(queryDto);
         return Ok(result);
     }
 
@@ -73,46 +73,55 @@ public class TaktMenusController : TaktControllerBase
     /// <returns>菜单DTO</returns>
     [HttpGet("{id}")]
     [TaktPermission("identity:menu:query", "查询菜单详情")]
-    public async Task<ActionResult<TaktMenuDto>> GetByIdAsync(long id)
+    public async Task<ActionResult<TaktMenuDto>> GetMenuByIdAsync(long id)
     {
-        var menu = await _menuService.GetByIdAsync(id);
+        var menu = await _menuService.GetMenuByIdAsync(id);
         if (menu == null)
             return NotFound();
         return Ok(menu);
     }
 
     /// <summary>
-    /// 获取菜单树形选项列表（用于业务组件：components/business/takt-tree-select 和 takt-select）
+    /// 获取菜单树形选项（目录与页面；不含按钮），用于上级菜单、树选择等。
     /// </summary>
-    /// <returns>菜单树形选项列表</returns>
     [HttpGet("tree-options")]
     [TaktPermission("identity:menu:list", "查询菜单树形选项")]
-    public async Task<ActionResult<TaktApiResult<List<TaktTreeSelectOption>>>> GetTreeOptionsAsync()
+    public async Task<ActionResult<TaktApiResult<List<TaktTreeSelectOption>>>> GetMenuTreeOptionsAsync()
     {
-        var options = await _menuService.GetTreeOptionsAsync();
+        var options = await _menuService.GetMenuTreeOptionsAsync();
         return Ok(TaktApiResult<List<TaktTreeSelectOption>>.Ok(options));
     }
 
     /// <summary>
-    /// 获取模块名称选项列表（仅 MenuType=0 目录），用于代码生成中的模块列表。返回树形 TaktMenuTreeDto（含 MenuName、Path 等）。
+    /// 获取菜单树形选项（含按钮），用于角色分配菜单等场景。
     /// </summary>
-    /// <returns>目录级菜单树形列表</returns>
+    [HttpGet("tree-options/with-buttons")]
+    [TaktPermission("identity:menu:list", "查询菜单树形选项含按钮")]
+    public async Task<ActionResult<TaktApiResult<List<TaktTreeSelectOption>>>> GetMenuTreeOptionsWithButtonAsync()
+    {
+        var options = await _menuService.GetMenuTreeOptionsWithButtonAsync();
+        return Ok(TaktApiResult<List<TaktTreeSelectOption>>.Ok(options));
+    }
+
+    /// <summary>
+    /// 获取模块名称用目录树（仅 MenuType=0），用于代码生成中的模块列表。
+    /// </summary>
     [HttpGet("module-name-options")]
     [TaktPermission("identity:menu:list", "查询模块名称选项")]
-    public async Task<ActionResult<TaktApiResult<List<TaktMenuTreeDto>>>> GetModuleNameOptionsAsync()
+    public async Task<ActionResult<TaktApiResult<List<TaktMenuTreeDto>>>> GetMenuDirectoryTreeAsync()
     {
-        var options = await _menuService.GetModuleNameOptionsAsync();
+        var options = await _menuService.GetMenuDirectoryTreeAsync();
         return Ok(TaktApiResult<List<TaktMenuTreeDto>>.Ok(options));
     }
 
     /// <summary>
-    /// 获取当前用户的菜单树形列表（根据用户权限过滤）
+    /// 获取当前用户可见的菜单树（按权限过滤）。
     /// </summary>
-    /// <returns>当前用户的菜单树形列表</returns>
     [HttpGet("current-tree")]
-    public async Task<ActionResult<TaktApiResult<List<TaktMenuTreeDto>>>> GetCurrentTreeMenuAsync()
+    [TaktSkipPermission]
+    public async Task<ActionResult<TaktApiResult<List<TaktMenuTreeDto>>>> GetCurrentUserMenuTreeAsync()
     {
-        var menus = await _menuService.GetCurrentTreeMenuAsync();
+        var menus = await _menuService.GetCurrentUserMenuTreeAsync();
         return Ok(TaktApiResult<List<TaktMenuTreeDto>>.Ok(menus));
     }
 
@@ -123,10 +132,10 @@ public class TaktMenusController : TaktControllerBase
     /// <returns>菜单DTO</returns>
     [HttpPost]
     [TaktPermission("identity:menu:create", "创建菜单")]
-    public async Task<ActionResult<TaktMenuDto>> CreateAsync([FromBody] TaktMenuCreateDto dto)
+    public async Task<ActionResult<TaktMenuDto>> CreateMenuAsync([FromBody] TaktMenuCreateDto dto)
     {
-        var menu = await _menuService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetByIdAsync), new { id = menu.MenuId }, menu);
+        var menu = await _menuService.CreateMenuAsync(dto);
+        return CreatedAtAction(nameof(GetMenuByIdAsync), new { id = menu.MenuId }, menu);
     }
 
     /// <summary>
@@ -137,11 +146,11 @@ public class TaktMenusController : TaktControllerBase
     /// <returns>菜单DTO</returns>
     [HttpPut("{id}")]
     [TaktPermission("identity:menu:update", "更新菜单")]
-    public async Task<ActionResult<TaktMenuDto>> UpdateAsync(long id, [FromBody] TaktMenuUpdateDto dto)
+    public async Task<ActionResult<TaktMenuDto>> UpdateMenuAsync(long id, [FromBody] TaktMenuUpdateDto dto)
     {
         try
         {
-            var menu = await _menuService.UpdateAsync(id, dto);
+            var menu = await _menuService.UpdateMenuAsync(id, dto);
             return Ok(menu);
         }
         catch (Exception ex)
@@ -157,9 +166,9 @@ public class TaktMenusController : TaktControllerBase
     /// <returns>操作结果</returns>
     [HttpDelete("{id}")]
     [TaktPermission("identity:menu:delete", "删除菜单")]
-    public async Task<IActionResult> DeleteAsync(long id)
+    public async Task<IActionResult> DeleteMenuByIdAsync(long id)
     {
-        await _menuService.DeleteAsync(id);
+        await _menuService.DeleteMenuByIdAsync(id);
         return NoContent();
     }
 
@@ -170,11 +179,11 @@ public class TaktMenusController : TaktControllerBase
     /// <returns>菜单DTO</returns>
     [HttpPut("status")]
     [TaktPermission("identity:menu:status", "更新菜单状态")]
-    public async Task<ActionResult<TaktMenuDto>> UpdateStatusAsync([FromBody] TaktMenuStatusDto dto)
+    public async Task<ActionResult<TaktMenuDto>> UpdateMenuStatusAsync([FromBody] TaktMenuStatusDto dto)
     {
         try
         {
-            var menu = await _menuService.UpdateStatusAsync(dto);
+            var menu = await _menuService.UpdateMenuStatusAsync(dto);
             return Ok(menu);
         }
         catch (Exception ex)
@@ -191,12 +200,12 @@ public class TaktMenusController : TaktControllerBase
     /// <returns>Excel模板文件</returns>
     [HttpGet("template")]
     [TaktPermission("identity:menu:import", "获取导入模板")]
-    public async Task<IActionResult> GetTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> GetMenuTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (resultFileName, content) = await _menuService.GetTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            var (resultFileName, content) = await _menuService.GetMenuTemplateAsync(sheetName, fileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -212,7 +221,7 @@ public class TaktMenusController : TaktControllerBase
     /// <returns>导入结果</returns>
     [HttpPost("import")]
     [TaktPermission("identity:menu:import", "导入菜单")]
-    public async Task<ActionResult<object>> ImportAsync(IFormFile file, [FromForm] string? sheetName = null)
+    public async Task<ActionResult<object>> ImportMenuAsync(IFormFile file, [FromForm] string? sheetName = null)
     {
         try
         {
@@ -228,7 +237,7 @@ public class TaktMenusController : TaktControllerBase
             }
 
             using var stream = file.OpenReadStream();
-            var (success, fail, errors) = await _menuService.ImportAsync(stream, sheetName);
+            var (success, fail, errors) = await _menuService.ImportMenuAsync(stream, sheetName);
             return Ok(new { success, fail, errors });
         }
         catch (Exception ex)
@@ -246,12 +255,12 @@ public class TaktMenusController : TaktControllerBase
     /// <returns>Excel 文件；超过 <c>TaktExcelHelper.ExportAsync</c> 单表行数上限时为 zip 打包（基础设施统一逻辑）</returns>
     [HttpPost("export")]
     [TaktPermission("identity:menu:export", "导出菜单")]
-    public async Task<IActionResult> ExportAsync([FromBody] TaktMenuQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> ExportMenuAsync([FromBody] TaktMenuQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (resultFileName, content) = await _menuService.ExportAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            var (resultFileName, content) = await _menuService.ExportMenuAsync(query, sheetName, fileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {

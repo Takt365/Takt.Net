@@ -36,7 +36,7 @@
             width: '250px',
             height: '50vh',
           }"
-          :titles="[t('common.action.transferUnassigned'), t('common.action.transferAssigned')]"
+          :titles="[t('common.action.transferunassigned'), t('common.action.transferassigned')]"
           show-search
           :loading="optionsLoading"
           :render="item => item.title"
@@ -129,7 +129,7 @@ const loadUserPosts = async () => {
     const u = props.user as User & { UserId?: string; UserName?: string; NickName?: string }
     const userId = u.userId || u.UserId || ''
     if (!userId) {
-      message.error(t('common.msg.entityIdRequired', { entity: t('entity.user._self') }))
+      message.error(t('common.msg.entityidrequired', { entity: t('entity.user._self') }))
       return
     }
 
@@ -157,7 +157,7 @@ const loadUserPosts = async () => {
     })
   } catch (error: any) {
     logger.error('[AssignPostUsers] 加载用户岗位失败:', error)
-    message.error(error.message || t('common.msg.loadTargetFail', { target: t('entity.user._self') + t('entity.post._self') }))
+    message.error(error.message || t('common.msg.loadtargetfail', { target: t('entity.user._self') + t('entity.post._self') }))
   } finally {
     loading.value = false
     optionsLoading.value = false
@@ -172,7 +172,7 @@ const handleTransferChange = (keys: string[], direction: string, moveKeys: strin
 /** 确定：assignUserPosts，成功 emit success */
 const handleSubmit = async () => {
   if (!props.user) {
-    message.error(t('common.msg.entityNotFound', { entity: t('entity.user._self') }))
+    message.error(t('common.msg.entitynotfound', { entity: t('entity.user._self') }))
     return
   }
 
@@ -182,19 +182,19 @@ const handleSubmit = async () => {
     // 获取用户ID
     const userId = props.user.userId || (props.user as any).UserId || ''
     if (!userId) {
-      message.error(t('common.msg.entityIdRequired', { entity: t('entity.user._self') }))
+      message.error(t('common.msg.entityidrequired', { entity: t('entity.user._self') }))
       return
     }
 
     // 调用分配API
     await assignUserPosts(String(userId), targetKeys.value)
     
-    message.success(t('common.msg.assignSuccess', { target: t('entity.post._self') }))
+    message.success(t('common.msg.assignsuccess', { target: t('entity.post._self') }))
     emit('success')
     handleCancel()
   } catch (error: any) {
     logger.error('[AssignPostUsers] 分配岗位失败:', error)
-    message.error(error.message || t('common.msg.assignFail', { target: t('entity.post._self') }))
+    message.error(error.message || t('common.msg.assignfail', { target: t('entity.post._self') }))
   } finally {
     loading.value = false
   }

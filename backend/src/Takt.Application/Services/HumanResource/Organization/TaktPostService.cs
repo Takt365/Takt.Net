@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.HumanResource.Organization
 // 文件名称：TaktPostService.cs
@@ -34,6 +34,7 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
     private readonly ITaktRepository<TaktUserPost> _postUserRepository;
     private readonly ITaktRepository<TaktUser> _userRepository;
     private readonly ITaktRepository<TaktEmployee> _employeeRepository;
+    private readonly ITaktRepository<TaktEmployeePost> _employeePostRepository;
     private readonly ITaktRepository<TaktPostDelegate> _postDelegateRepository;
     private readonly ITaktRepository<TaktDeptDelegate> _deptDelegateRepository;
     private readonly ITaktRepository<TaktEmployeeDelegate> _employeeDelegateRepository;
@@ -45,6 +46,7 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
     /// <param name="postUserRepository">岗位用户关联仓储</param>
     /// <param name="userRepository">用户仓储</param>
     /// <param name="employeeRepository">员工仓储（用于展示名）</param>
+    /// <param name="employeePostRepository">员工岗位关联仓储（用于统计岗位人数）</param>
     /// <param name="postDelegateRepository">岗位代理仓储</param>
     /// <param name="deptDelegateRepository">部门代理仓储（清理岗位规则引用）</param>
     /// <param name="employeeDelegateRepository">员工代理仓储（清理岗位规则引用）</param>
@@ -56,6 +58,7 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
         ITaktRepository<TaktUserPost> postUserRepository,
         ITaktRepository<TaktUser> userRepository,
         ITaktRepository<TaktEmployee> employeeRepository,
+        ITaktRepository<TaktEmployeePost> employeePostRepository,
         ITaktRepository<TaktPostDelegate> postDelegateRepository,
         ITaktRepository<TaktDeptDelegate> deptDelegateRepository,
         ITaktRepository<TaktEmployeeDelegate> employeeDelegateRepository,
@@ -68,6 +71,7 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
         _postUserRepository = postUserRepository;
         _userRepository = userRepository;
         _employeeRepository = employeeRepository;
+        _employeePostRepository = employeePostRepository;
         _postDelegateRepository = postDelegateRepository;
         _deptDelegateRepository = deptDelegateRepository;
         _employeeDelegateRepository = employeeDelegateRepository;
@@ -118,7 +122,7 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
     {
         var posts = await _postRepository.FindAsync(p => p.IsDeleted == 0 && p.PostStatus == 0);
         return posts
-            .OrderBy(p => p.OrderNum)
+            .OrderBy(p => p.SortOrder)
             .ThenBy(p => p.CreatedAt)
             .Select(p => new TaktSelectOption
             {
@@ -126,7 +130,7 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
                 DictValue = p.Id,
                 ExtLabel = p.PostCode,
                 ExtValue = p.DeptId,
-                OrderNum = p.OrderNum
+                SortOrder = p.SortOrder
             })
             .ToList();
     }
@@ -530,7 +534,7 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
                         PostCategory = item.PostCategory ?? string.Empty,
                         PostLevel = item.PostLevel,
                         PostDuty = item.PostDuty,
-                        OrderNum = item.OrderNum,
+                        SortOrder = item.SortOrder,
                         DataScope = item.DataScope,
                         PostStatus = item.PostStatus >= 0 ? item.PostStatus : 0,
                         Remark = item.Remark
@@ -615,7 +619,7 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
             var dto = p.Adapt<TaktPostExportDto>();
             // 处理需要特殊转换的字段
             dto.PostCategory = p.PostCategory ?? string.Empty;
-            dto.DataScope = GetDataScopeString(p.DataScope);
+            dto.DataScopeString = GetDataScopeString(p.DataScope);
             return dto;
         }).ToList();
 
@@ -672,5 +676,49 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
             4 => "自定义数据范围",
             _ => "未知"
         };
+    }
+
+    /// <summary>
+    /// 统计岗位总数
+    /// </summary>
+    public async Task<long> GetPostCountAsync()
+    {
+        return await _postRepository.CountAsync(p => p.IsDeleted == 0);
+    }
+
+    /// <summary>
+    /// 按岗位统计人数分布
+    /// </summary>
+    public async Task<Dictionary<long, int>> GetEmployeeCountByPostAsync()
+    {
+        // 通过员工岗位关联表统计
+        var employeePosts = await _employeePostRepository.FindAsync(ep => ep.IsDeleted == 0);
+        
+        return employeePosts
+            .GroupBy(ep => ep.PostId)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+
+    /// <summary>
+    /// 统计各岗位人数及总计
+    /// </summary>
+    public async Task<List<(long postId, string postName, int employeeCount)>> GetPostEmployeeStatsAsync()
+    {
+        var posts = await _postRepository.FindAsync(p => p.IsDeleted == 0);
+        var employeePosts = await _employeePostRepository.FindAsync(ep => ep.IsDeleted == 0);
+        
+        var postEmployeeCount = employeePosts
+            .GroupBy(ep => ep.PostId)
+            .ToDictionary(g => g.Key, g => g.Count());
+        
+        var stats = posts
+            .Select(p => (
+                postId: p.Id,
+                postName: p.PostName ?? "",
+                employeeCount: postEmployeeCount.ContainsKey(p.Id) ? postEmployeeCount[p.Id] : 0
+            ))
+            .ToList();
+        
+        return stats;
     }
 }

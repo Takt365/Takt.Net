@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.Workflow
 // 文件名称：TaktFlowExecution.cs
@@ -61,13 +61,13 @@ public class TaktFlowExecution : TaktEntityBase
     /// 流程Key
     /// </summary>
     [SugarColumn(ColumnName = "process_key", ColumnDescription = "流程Key", ColumnDataType = "nvarchar", Length = 100, IsNullable = false)]
-    public string ProcessKey { get; set; } = string.Empty;
+    public string SchemeKey { get; set; } = string.Empty;
 
     /// <summary>
     /// 流程名称
     /// </summary>
     [SugarColumn(ColumnName = "process_name", ColumnDescription = "流程名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
-    public string ProcessName { get; set; } = string.Empty;
+    public string SchemeName { get; set; } = string.Empty;
 
     /// <summary>
     /// 源节点ID（序列化为string以避免Javascript精度问题）

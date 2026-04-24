@@ -2,7 +2,7 @@
 <!-- 项目名称：节拍数字工厂 · Takt Digital Factory (TDF) -->
 <!-- 命名空间：@/views/identity/user/components -->
 <!-- 文件名称：user-form.vue -->
-<!-- 功能描述：用户维护弹窗内嵌表单。由 user/index.vue 引用；defineExpose 提供 validate、getValues、resetFields、setServerValidationErrors。员工/用户信息/权限多标签；TaktSelect 字典 sys_user_type、sys_normal_disable；模型为 `@/types/identity/user` 的 UserFormModel、UserFormPermissionModel；新增密码由父组件映射为 UserCreate.passwordHash。 -->
+<!-- 功能描述：用户维护弹窗内嵌表单。由 user/index.vue 引用；defineExpose 提供 validate、getValues、resetFields、setServerValidationErrors。员工/用户信息/权限多标签；TaktSelect 字典 sys_user_type、sys_normal_disable；视图模型见 `@/types/identity/user-form-view`（勿写入自动生成的 user.d.ts）；新增密码由父组件映射为 UserCreate.passwordHash。 -->
 <!-- 版权信息：Copyright (c) 2025 Takt  All rights reserved. -->
 <!-- 免责声明：此软件使用 MIT License，作者不承担任何使用风险。 -->
 <!-- ======================================== -->
@@ -20,7 +20,7 @@
       <!-- 标签1：员工信息（编辑=已绑定员工只读+描述；新增=下拉选员工，可跳转人事员工页建档，变更时带出默认 userName） -->
       <a-tab-pane
         key="employee"
-        :tab="t('identity.user.tabs.employeeInfo')"
+        :tab="t('identity.user.page.tabs.employeeinfo')"
         force-render
       >
         <div :class="formContentClass">
@@ -57,7 +57,7 @@
               v-else
               type="warning"
               show-icon
-              :message="t('identity.user.fields.employeeOptionMissing')"
+              :message="t('identity.user.page.fields.employeeoptionmissing')"
             />
           </template>
           <!-- 新增态 -->
@@ -71,7 +71,7 @@
                   <TaktSelect
                     v-model:value="formState.employeeId"
                     :options="employeeOptions"
-                    :placeholder="t('identity.user.fields.employeeId.placeholder')"
+                    :placeholder="t('identity.user.page.fields.employeeid.placeholder')"
                     show-search
                     :filter-option="filterOption"
                     @change="onEmployeeChange"
@@ -82,11 +82,11 @@
             <a-alert
               type="info"
               show-icon
-              :message="t('identity.user.fields.employeeSnapshot.hint')"
+              :message="t('identity.user.page.fields.employeesnapshot.hint')"
               style="margin-bottom: 16px"
             />
             <a-space style="margin-bottom: 16px">
-              <span>{{ t('identity.user.fields.employeeLink.createNewHint') }}</span>
+              <span>{{ t('identity.user.page.fields.employeelink.createnewhint') }}</span>
               <a-button
                 type="link"
                 @click="goToEmployeeCreate"
@@ -111,7 +111,7 @@
               v-else-if="formState.employeeId"
               type="warning"
               show-icon
-              :message="t('identity.user.fields.employeeOptionMissing')"
+              :message="t('identity.user.page.fields.employeeoptionmissing')"
             />
           </template>
         </div>
@@ -120,7 +120,7 @@
       <!-- 标签2：用户信息（账号、联系方式、类型/状态、备注；新增时含密码） -->
       <a-tab-pane
         key="user"
-        :tab="t('identity.user.tabs.userInfo')"
+        :tab="t('identity.user.page.tabs.userinfo')"
         force-render
       >
         <div :class="formContentClass">
@@ -148,7 +148,7 @@
               >
                 <a-input
                   v-model:value="formState.nickName"
-                  :placeholder="t('identity.user.fields.nicknamePlaceholder')"
+                  :placeholder="t('identity.user.page.fields.nicknameplaceholder')"
                   show-count
                   :maxlength="200"
                 />
@@ -250,7 +250,7 @@
       <!-- 标签3：权限分配（角色、租户、部门树、岗位；绑定 permissionState，随 getValues 返回） -->
       <a-tab-pane
         key="permission"
-        :tab="t('common.action.tabTargetAllocation', { target: t('identity.user.tabs.permission') })"
+        :tab="t('common.action.tabtargetallocation', { target: t('identity.user.page.tabs.permission') })"
         force-render
       >
         <div :class="formContentClass">
@@ -318,7 +318,8 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import type { Rule } from 'ant-design-vue/es/form'
 import { message } from 'ant-design-vue'
-import type { User, UserFormModel, UserFormPermissionModel, UserFormValues } from '@/types/identity/user'
+import type { User } from '@/types/identity/user'
+import type { UserFormModel, UserFormPermissionModel, UserFormValues } from '@/types/identity/user-form-view'
 import type { TaktSelectOption } from '@/types/common'
 import { getRoleOptions } from '@/api/identity/role'
 import { getPostOptions } from '@/api/human-resource/organization/post'
@@ -464,10 +465,10 @@ const loadBusinessOptions = async () => {
   } catch (error: any) {
     logger.error('[User Form] 加载业务选项数据失败:', {
       error,
-      message: error?.message || t('common.msg.loadOptionsFail'),
+      message: error?.message || t('common.msg.loadoptionsfail'),
       stack: error?.stack
     })
-    const errorMessage = error?.response?.data?.message || error?.message || t('common.msg.loadOptionsFail')
+    const errorMessage = error?.response?.data?.message || error?.message || t('common.msg.loadoptionsfail')
     message.error({ content: errorMessage, duration: 5 })
   }
 }
@@ -485,7 +486,7 @@ const rules = computed<Record<string, Rule[]>>(() => {
       validator: (_rule: any, value: string) => {
         if (props.formData?.userId) return Promise.resolve()
         if (!value) {
-          return Promise.reject(t('identity.user.fields.employeeId.placeholder'))
+          return Promise.reject(t('identity.user.page.fields.employeeid.placeholder'))
         }
         return Promise.resolve()
       },
@@ -502,7 +503,7 @@ const rules = computed<Record<string, Rule[]>>(() => {
           return Promise.reject(t('common.form.placeholder.required', { field: t('entity.user.name') }))
         }
         if (!isValidUsername(value)) {
-          return Promise.reject(t('identity.user.fields.userName.validation.format'))
+          return Promise.reject(t('identity.user.page.fields.username.validation.format'))
         }
         return Promise.resolve()
       },
@@ -518,7 +519,7 @@ const rules = computed<Record<string, Rule[]>>(() => {
         validator: (_rule: any, value: string) => {
           if (!value || !String(value).trim()) return Promise.resolve()
           if (!isValidUserNickName(String(value))) {
-            return Promise.reject(t('identity.user.fields.nickName.validation.format'))
+            return Promise.reject(t('identity.user.page.fields.nickname.validation.format'))
           }
           return Promise.resolve()
         },
@@ -572,7 +573,7 @@ const rules = computed<Record<string, Rule[]>>(() => {
         validator: (_rule: any, value: string) => {
           if (!value) return Promise.resolve()
           if (!isValidPassword(value)) {
-            return Promise.reject(t('identity.user.password.new.validation.format'))
+            return Promise.reject(t('identity.user.page.password.new.validation.format'))
           }
           return Promise.resolve()
         },

@@ -2,93 +2,86 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.AttendanceLeave
 // 文件名称：TaktHolidayDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt假日DTO，包含假日相关的数据传输对象（查询、创建、更新、模板、导入、导出），以 TaktUserDtos 为标准
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：假日信息表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
 using SqlSugar;
+using Takt.Application.Dtos;
 using Takt.Shared.Models;
 
 namespace Takt.Application.Dtos.HumanResource.AttendanceLeave;
 
 /// <summary>
-/// Takt假日DTO
+/// 假日信息表Dto
 /// </summary>
-public class TaktHolidayDto:TaktDtoBase
+public partial class TaktHolidayDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktHolidayDto()
     {
-        Region = "CN";
+        Region = string.Empty;
         HolidayName = string.Empty;
+        HolidayGreeting = string.Empty;
+        HolidayQuote = string.Empty;
         HolidayTheme = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 假日ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 假日信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long HolidayId { get; set; }
 
     /// <summary>
-    /// 地区（Region，如 CN、US、TW、HK，用于区分不同地区假日）
+    /// 地区
     /// </summary>
     public string Region { get; set; }
-
     /// <summary>
     /// 假日名称
     /// </summary>
     public string HolidayName { get; set; }
-
     /// <summary>
-    /// 假日类型（0=法定 1=调休 2=公司）
+    /// 假日类型
     /// </summary>
     public int HolidayType { get; set; }
-
     /// <summary>
     /// 假日开始日期
     /// </summary>
     public DateTime StartDate { get; set; }
-
     /// <summary>
     /// 假日结束日期
     /// </summary>
     public DateTime EndDate { get; set; }
-
     /// <summary>
-    /// 是否工作日（0=非工作日 1=工作日 2=半天等）
+    /// 是否工作日
     /// </summary>
     public int IsWorkingDay { get; set; }
-
     /// <summary>
-    /// 假日问候语（简短，用于问候语行）
+    /// 假日问候语
     /// </summary>
-    public string? HolidayGreeting { get; set; }
-
+    public string HolidayGreeting { get; set; }
     /// <summary>
-    /// 假日引用/诗句（用于引用区展示）
+    /// 假日引用
     /// </summary>
-    public string? HolidayQuote { get; set; }
-
+    public string HolidayQuote { get; set; }
     /// <summary>
-    /// 假日主题（对应前端 themeColorMap 的 key）
+    /// 假日主题
     /// </summary>
     public string HolidayTheme { get; set; }
-
 }
 
 /// <summary>
-/// Takt假日查询DTO
+/// 假日信息表查询DTO
 /// </summary>
-public class TaktHolidayQueryDto : TaktPagedQuery
+public partial class TaktHolidayQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -97,76 +90,159 @@ public class TaktHolidayQueryDto : TaktPagedQuery
     {
     }
 
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
     /// <summary>
-    /// 地区（Region）
+    /// 假日信息表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long HolidayId { get; set; }
+
+    /// <summary>
+    /// 地区
     /// </summary>
     public string? Region { get; set; }
-
     /// <summary>
     /// 假日名称
     /// </summary>
     public string? HolidayName { get; set; }
+    /// <summary>
+    /// 假日类型
+    /// </summary>
+    public int? HolidayType { get; set; }
+    /// <summary>
+    /// 假日开始日期
+    /// </summary>
+    public DateTime? StartDate { get; set; }
+
+    /// <summary>
+    /// 假日开始日期开始时间
+    /// </summary>
+    public DateTime? StartDateStart { get; set; }
+    /// <summary>
+    /// 假日开始日期结束时间
+    /// </summary>
+    public DateTime? StartDateEnd { get; set; }
+    /// <summary>
+    /// 假日结束日期
+    /// </summary>
+    public DateTime? EndDate { get; set; }
+
+    /// <summary>
+    /// 假日结束日期开始时间
+    /// </summary>
+    public DateTime? EndDateStart { get; set; }
+    /// <summary>
+    /// 假日结束日期结束时间
+    /// </summary>
+    public DateTime? EndDateEnd { get; set; }
+    /// <summary>
+    /// 是否工作日
+    /// </summary>
+    public int? IsWorkingDay { get; set; }
+    /// <summary>
+    /// 假日问候语
+    /// </summary>
+    public string? HolidayGreeting { get; set; }
+    /// <summary>
+    /// 假日引用
+    /// </summary>
+    public string? HolidayQuote { get; set; }
+    /// <summary>
+    /// 假日主题
+    /// </summary>
+    public string? HolidayTheme { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建假日DTO
+/// Takt创建假日信息表DTO
 /// </summary>
-public class TaktHolidayCreateDto
+public partial class TaktHolidayCreateDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktHolidayCreateDto()
     {
-        Region = "CN";
+        Region = string.Empty;
         HolidayName = string.Empty;
+        HolidayGreeting = string.Empty;
+        HolidayQuote = string.Empty;
         HolidayTheme = string.Empty;
     }
 
-    /// <summary>
-    /// 地区（Region，如 CN、US、TW、HK，用于区分不同地区假日）
+        /// <summary>
+    /// 地区
     /// </summary>
     public string Region { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日名称
     /// </summary>
     public string HolidayName { get; set; }
 
-    /// <summary>
-    /// 假日类型（0=法定 1=调休 2=公司）
+        /// <summary>
+    /// 假日类型
     /// </summary>
     public int HolidayType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日开始日期
     /// </summary>
     public DateTime StartDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日结束日期
     /// </summary>
     public DateTime EndDate { get; set; }
 
-    /// <summary>
-    /// 是否工作日（0=非工作日 1=工作日 2=半天等）
+        /// <summary>
+    /// 是否工作日
     /// </summary>
     public int IsWorkingDay { get; set; }
 
-    /// <summary>
-    /// 假日问候语（简短，用于问候语行）
+        /// <summary>
+    /// 假日问候语
     /// </summary>
-    public string? HolidayGreeting { get; set; }
+    public string HolidayGreeting { get; set; }
 
-    /// <summary>
-    /// 假日引用/诗句（用于引用区展示）
+        /// <summary>
+    /// 假日引用
     /// </summary>
-    public string? HolidayQuote { get; set; }
+    public string HolidayQuote { get; set; }
 
-    /// <summary>
-    /// 假日主题（对应前端 themeColorMap 的 key）
+        /// <summary>
+    /// 假日主题
     /// </summary>
     public string HolidayTheme { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -175,9 +251,9 @@ public class TaktHolidayCreateDto
 }
 
 /// <summary>
-/// Takt更新假日DTO
+/// Takt更新假日信息表DTO
 /// </summary>
-public class TaktHolidayUpdateDto : TaktHolidayCreateDto
+public partial class TaktHolidayUpdateDto : TaktHolidayCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -186,74 +262,80 @@ public class TaktHolidayUpdateDto : TaktHolidayCreateDto
     {
     }
 
-    /// <summary>
-    /// 假日ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 假日信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long HolidayId { get; set; }
 }
 
 /// <summary>
-/// Takt假日导入模板DTO
+/// 假日信息表导入模板DTO
 /// </summary>
-public class TaktHolidayTemplateDto
+public partial class TaktHolidayTemplateDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktHolidayTemplateDto()
     {
-        Region = "CN";
+        Region = string.Empty;
         HolidayName = string.Empty;
+        HolidayGreeting = string.Empty;
+        HolidayQuote = string.Empty;
         HolidayTheme = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
-    /// 地区（Region，如 CN、US、TW、HK，用于区分不同地区假日）
+        /// <summary>
+    /// 地区
     /// </summary>
     public string Region { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日名称
     /// </summary>
     public string HolidayName { get; set; }
 
-    /// <summary>
-    /// 假日类型（0=法定 1=调休 2=公司）
+        /// <summary>
+    /// 假日类型
     /// </summary>
     public int HolidayType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日开始日期
     /// </summary>
     public DateTime StartDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日结束日期
     /// </summary>
     public DateTime EndDate { get; set; }
 
-    /// <summary>
-    /// 是否工作日（0=非工作日 1=工作日 2=半天等）
+        /// <summary>
+    /// 是否工作日
     /// </summary>
     public int IsWorkingDay { get; set; }
 
-    /// <summary>
-    /// 假日问候语（简短，用于问候语行）
+        /// <summary>
+    /// 假日问候语
     /// </summary>
-    public string? HolidayGreeting { get; set; }
+    public string HolidayGreeting { get; set; }
 
-    /// <summary>
-    /// 假日引用/诗句（用于引用区展示）
+        /// <summary>
+    /// 假日引用
     /// </summary>
-    public string? HolidayQuote { get; set; }
+    public string HolidayQuote { get; set; }
 
-    /// <summary>
-    /// 假日主题（对应前端 themeColorMap 的 key）
+        /// <summary>
+    /// 假日主题
     /// </summary>
     public string HolidayTheme { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -262,65 +344,71 @@ public class TaktHolidayTemplateDto
 }
 
 /// <summary>
-/// Takt假日导入DTO
+/// 假日信息表导入DTO
 /// </summary>
-public class TaktHolidayImportDto
+public partial class TaktHolidayImportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktHolidayImportDto()
     {
-        Region = "CN";
+        Region = string.Empty;
         HolidayName = string.Empty;
+        HolidayGreeting = string.Empty;
+        HolidayQuote = string.Empty;
         HolidayTheme = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
-    /// 地区（Region，如 CN、US、TW、HK，用于区分不同地区假日）
+        /// <summary>
+    /// 地区
     /// </summary>
     public string Region { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日名称
     /// </summary>
     public string HolidayName { get; set; }
 
-    /// <summary>
-    /// 假日类型（0=法定 1=调休 2=公司）
+        /// <summary>
+    /// 假日类型
     /// </summary>
     public int HolidayType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日开始日期
     /// </summary>
     public DateTime StartDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日结束日期
     /// </summary>
     public DateTime EndDate { get; set; }
 
-    /// <summary>
-    /// 是否工作日（0=非工作日 1=工作日 2=半天等）
+        /// <summary>
+    /// 是否工作日
     /// </summary>
     public int IsWorkingDay { get; set; }
 
-    /// <summary>
-    /// 假日问候语（简短，用于问候语行）
+        /// <summary>
+    /// 假日问候语
     /// </summary>
-    public string? HolidayGreeting { get; set; }
+    public string HolidayGreeting { get; set; }
 
-    /// <summary>
-    /// 假日引用/诗句（用于引用区展示）
+        /// <summary>
+    /// 假日引用
     /// </summary>
-    public string? HolidayQuote { get; set; }
+    public string HolidayQuote { get; set; }
 
-    /// <summary>
-    /// 假日主题（对应前端 themeColorMap 的 key）
+        /// <summary>
+    /// 假日主题
     /// </summary>
     public string HolidayTheme { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -329,73 +417,70 @@ public class TaktHolidayImportDto
 }
 
 /// <summary>
-/// Takt假日导出DTO
+/// 假日信息表导出DTO
 /// </summary>
-public class TaktHolidayExportDto
+public partial class TaktHolidayExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktHolidayExportDto()
     {
+        CreatedAt = DateTime.Now;
         Region = string.Empty;
         HolidayName = string.Empty;
+        HolidayGreeting = string.Empty;
+        HolidayQuote = string.Empty;
         HolidayTheme = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 地区
     /// </summary>
     public string Region { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日名称
     /// </summary>
     public string HolidayName { get; set; }
 
-    /// <summary>
-    /// 假日类型（0=法定 1=调休 2=公司）
+        /// <summary>
+    /// 假日类型
     /// </summary>
     public int HolidayType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日开始日期
     /// </summary>
     public DateTime StartDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日结束日期
     /// </summary>
     public DateTime EndDate { get; set; }
 
-    /// <summary>
-    /// 是否工作日（0=非工作日 1=工作日 2=半天等）
+        /// <summary>
+    /// 是否工作日
     /// </summary>
     public int IsWorkingDay { get; set; }
 
-    /// <summary>
-    /// 假日问候语（简短，用于问候语行）
+        /// <summary>
+    /// 假日问候语
     /// </summary>
-    public string? HolidayGreeting { get; set; }
+    public string HolidayGreeting { get; set; }
 
-    /// <summary>
-    /// 假日引用/诗句（用于引用区展示）
+        /// <summary>
+    /// 假日引用
     /// </summary>
-    public string? HolidayQuote { get; set; }
+    public string HolidayQuote { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 假日主题
     /// </summary>
     public string HolidayTheme { get; set; }
 
     /// <summary>
-    /// 备注
-    /// </summary>
-    public string? Remark { get; set; }
-
-    /// <summary>
     /// 创建时间
     /// </summary>
-    public DateTime CreateTime { get; set; }
+    public DateTime CreatedAt { get; set; }
 }

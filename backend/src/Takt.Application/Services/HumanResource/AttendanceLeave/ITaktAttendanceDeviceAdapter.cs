@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：ITaktAttendanceDeviceAdapter.cs
@@ -49,7 +49,7 @@ public interface ITaktAttendanceDeviceAdapter
     /// </summary>
     /// <param name="device">设备主数据</param>
     /// <returns>设备状态</returns>
-    Task<TaktAttendanceDeviceStatusDto> PingAsync(TaktAttendanceDevice device);
+    Task<TaktAttendanceDeviceOnlineStatusDto> PingAsync(TaktAttendanceDevice device);
 }
 
 /// <summary>

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.Extensions
 // 文件名称：TaktSwaggerCollectionExtensions.cs
@@ -15,6 +15,9 @@ using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
+using SqlSugar;
+using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace Takt.Infrastructure.Extensions;
 
@@ -73,6 +76,20 @@ public static class TaktSwaggerCollectionExtensions
                     };
                     return Task.CompletedTask;
                 });
+
+                // 对标 DTO 上 [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]：
+                // OpenAPI 字段类型强制输出 string，前端契约与运行时序列化保持一致。
+                options.AddSchemaTransformer((schema, context, _) =>
+                {
+                    var memberInfo = TryGetMemberInfoFromSchemaContext(context);
+                    if (memberInfo == null || !HasSqlSugarValueToStringConverter(memberInfo))
+                    {
+                        return Task.CompletedTask;
+                    }
+
+                    ForceSchemaAsString(schema);
+                    return Task.CompletedTask;
+                });
             });
         }
 
@@ -101,5 +118,73 @@ public static class TaktSwaggerCollectionExtensions
         }).AllowAnonymous();
 
         return app;
+    }
+
+    /// <summary>
+    /// 从 OpenAPI Schema 上下文提取当前成员元数据（不同 ASP.NET Core 版本上下文字段名可能不同）。
+    /// </summary>
+    /// <param name="context">Schema 转换上下文</param>
+    /// <returns>成员元数据</returns>
+    private static MemberInfo? TryGetMemberInfoFromSchemaContext(object context)
+    {
+        var contextType = context.GetType();
+
+        var memberInfo = contextType.GetProperty("MemberInfo", BindingFlags.Instance | BindingFlags.Public)?.GetValue(context) as MemberInfo;
+        if (memberInfo != null)
+        {
+            return memberInfo;
+        }
+
+        var jsonPropertyInfo = contextType.GetProperty("JsonPropertyInfo", BindingFlags.Instance | BindingFlags.Public)?.GetValue(context);
+        if (jsonPropertyInfo == null)
+        {
+            return null;
+        }
+
+        var attributeProvider = jsonPropertyInfo.GetType()
+            .GetProperty("AttributeProvider", BindingFlags.Instance | BindingFlags.Public)
+            ?.GetValue(jsonPropertyInfo);
+
+        return attributeProvider as MemberInfo;
+    }
+
+    /// <summary>
+    /// 判断成员是否声明 SqlSugar ValueToStringConverter。
+    /// </summary>
+    /// <param name="memberInfo">成员元数据</param>
+    /// <returns>是否包含 ValueToStringConverter</returns>
+    private static bool HasSqlSugarValueToStringConverter(MemberInfo memberInfo)
+    {
+        var converters = memberInfo.GetCustomAttributes<JsonConverterAttribute>(true);
+        return converters.Any(x => x.ConverterType == typeof(ValueToStringConverter));
+    }
+
+    /// <summary>
+    /// 通过反射兼容不同 OpenAPI schema 类型，将字段类型强制为 string。
+    /// </summary>
+    /// <param name="schema">OpenAPI schema</param>
+    private static void ForceSchemaAsString(object schema)
+    {
+        var schemaType = schema.GetType();
+
+        var typeProp = schemaType.GetProperty("Type", BindingFlags.Instance | BindingFlags.Public);
+        if (typeProp?.CanWrite == true)
+        {
+            if (typeProp.PropertyType == typeof(string))
+            {
+                typeProp.SetValue(schema, "string");
+            }
+            else if (typeProp.PropertyType.IsEnum)
+            {
+                var stringEnum = Enum.Parse(typeProp.PropertyType, "String", true);
+                typeProp.SetValue(schema, stringEnum);
+            }
+        }
+
+        var formatProp = schemaType.GetProperty("Format", BindingFlags.Instance | BindingFlags.Public);
+        if (formatProp?.CanWrite == true && formatProp.PropertyType == typeof(string))
+        {
+            formatProp.SetValue(schema, null);
+        }
     }
 }

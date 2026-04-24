@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.HumanResource.Personnel
 // 文件名称：TaktEmployeeAttachmentsController.cs
@@ -14,7 +14,7 @@ using Takt.Application.Services.HumanResource.Personnel;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.HumanResource.Personnel;
 
@@ -79,7 +79,7 @@ public class TaktEmployeeAttachmentsController : TaktControllerBase
     [TaktPermission("humanresource:personnel:employeeattachment:update", "更新员工附件")]
     public async Task<ActionResult<TaktEmployeeAttachmentDto>> UpdateEmployeeAttachmentAsync(long id, [FromBody] TaktEmployeeAttachmentUpdateDto dto)
     {
-        if (dto.AttachmentId != id)
+        if (dto.EmployeeAttachmentId != id)
             return BadRequest(GetLocalizedString("validation.idRouteMismatch", "Frontend"));
         var updated = await _service.UpdateEmployeeAttachmentAsync(id, dto);
         return Ok(updated);
@@ -120,7 +120,7 @@ public class TaktEmployeeAttachmentsController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _service.GetEmployeeAttachmentTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -175,7 +175,7 @@ public class TaktEmployeeAttachmentsController : TaktControllerBase
         try
         {
             var (resultFileName, content) = await _service.ExportEmployeeAttachmentAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {

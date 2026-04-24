@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.Repositories
 // 文件名称：TaktRepository.cs
@@ -11,12 +11,9 @@
 // ========================================
 
 using System.Linq.Expressions;
-using Microsoft.AspNetCore.Http;
-using OpenIddict.Abstractions;
 using SqlSugar;
-using System.Security.Claims;
 using Takt.Domain.Entities;
-using Takt.Domain.Interfaces;
+using Takt.Domain.Entities.Identity;
 using Takt.Domain.Repositories;
 using Takt.Infrastructure.Data;
 using Takt.Infrastructure.Tenant;
@@ -25,6 +22,8 @@ using Takt.Shared.Constants;
 using Takt.Shared.Helpers;
 using Takt.Shared.Models;
 using Takt.Domain.Entities.Statistics.Logging;
+using Takt.Domain.Interfaces;
+using Takt.Infrastructure.Helpers;
 
 namespace Takt.Infrastructure.Repositories;
 
@@ -34,40 +33,43 @@ namespace Takt.Infrastructure.Repositories;
 /// <typeparam name="TEntity">实体类型</typeparam>
 public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : TaktEntityBase, new()
 {
-    /// <summary>无当前登录用户时使用的默认审计用户ID</summary>
-    private const long DefaultAuditUserId = 999;
-
-    /// <summary>无当前登录用户时使用的默认审计用户名</summary>
-    private const string DefaultAuditUserName = "Takt365";
-
     protected readonly TaktSqlSugarDbContext _dbContext;
     protected readonly IConfiguration _configuration;
-    protected readonly ITaktUserContext? _userContext;
-    protected readonly IHttpContextAccessor? _httpContextAccessor;
+    protected readonly ITaktUserContext _userContext;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="dbContext">数据库上下文</param>
     /// <param name="configuration">配置</param>
-    /// <param name="userContext">用户上下文（可选）</param>
-    /// <param name="httpContextAccessor">HTTP上下文访问器（可选，用于直接从HTTP上下文获取用户信息）</param>
-    public TaktRepository(TaktSqlSugarDbContext dbContext, IConfiguration configuration, ITaktUserContext? userContext = null, IHttpContextAccessor? httpContextAccessor = null)
+    /// <param name="userContext">当前用户上下文（审计字段唯一解析入口，与 <see cref="TaktUserProvider"/> 一致）</param>
+    public TaktRepository(TaktSqlSugarDbContext dbContext, IConfiguration configuration, ITaktUserContext userContext)
     {
         _dbContext = dbContext;
         _configuration = configuration;
         _userContext = userContext;
-        _httpContextAccessor = httpContextAccessor;
     }
 
     /// <summary>
-    /// 数据库客户端（根据实体类型自动切换到对应的数据库）
+    /// 数据库客户端（根据实体类型自动路由到物理库）
     /// </summary>
+    /// <remarks>
+    /// 多库架构核心逻辑：
+    /// - 实体命名空间决定物理库（如 .HumanResource → ConfigId="1"）
+    /// - 所有租户共享同一物理库，通过 ConfigId 字段行级隔离数据
+    /// - 不依赖 CurrentConfigId（租户上下文），确保实体始终存储在正确的物理库
+    /// </remarks>
     protected ISqlSugarClient Db => _dbContext.GetClient(typeof(TEntity));
 
     /// <summary>
-    /// 获取当前租户配置ID（ConfigId，用于多租户数据隔离）
+    /// 当前租户上下文中的 ConfigId（用于业务逻辑判断，不用于数据库路由）
     /// </summary>
+    /// <remarks>
+    /// 注意区分：
+    /// - EntityPersistenceConfigId：实体应存储的物理库（根据命名空间自动确定）
+    /// - CurrentConfigId：当前请求的租户上下文（可能与实体所在库不同）
+    /// - 仓储操作始终使用 EntityPersistenceConfigId，确保数据路由正确
+    /// </remarks>
     protected string CurrentConfigId => TaktTenantContext.CurrentConfigId ?? TaktAppConstants.DefaultConfigId;
 
     /// <summary>
@@ -84,12 +86,14 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     /// <returns>实体</returns>
     public virtual async Task<TEntity?> GetByIdAsync(long id)
     {
+        // Db 已根据实体命名空间路由到正确的物理库（如 TaktEmployee → HR库）
         var query = Db.Queryable<TEntity>()
             .Where(e => e.Id == id && e.IsDeleted == 0);
         
         // 租户过滤逻辑：
-        // Tenant.Enabled = false：不启用租户，只有一条租户记录 ConfigId="0"，不需要过滤
-        // Tenant.Enabled = true：启用租户，多租户多库，需要 ConfigId 过滤
+        // - Tenant.Enabled = false：单租户模式，不过滤（所有租户共享数据）
+        // - Tenant.Enabled = true：多租户模式，行级过滤（WHERE ConfigId = EntityPersistenceConfigId）
+        // 注意：这里的 EntityPersistenceConfigId 是实体应存储的 ConfigId，不是租户上下文的 CurrentConfigId
         if (TaktTenantContext.IsTenantEnabled)
         {
             query = query.Where(e => e.ConfigId == EntityPersistenceConfigId);
@@ -204,16 +208,28 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
         {
             entity.CreatedAt = DateTime.Now;
         }
-        // 审计：无当前登录用户时统一为 999, "Takt365"；顺序 CreatedById → CreatedBy → CreatedAt，均非空
-        var (createdById, createdBy) = GetCurrentAuditUser();
-        entity.CreatedById = createdById;
-        entity.CreatedBy = createdBy ?? string.Empty;
-        entity.IsDeleted = 0;
 
         // 排除日志实体自身，避免循环日志记录
         var entityType = typeof(TEntity);
-        var isLoggingEntity = entityType == typeof(TaktAopLog) || 
+        var isLoggingEntity = entityType == typeof(TaktAopLog) ||
                               entityType == typeof(TaktOperLog);
+
+        // 操作/AOP 日志可由调用方在请求线程预写 CreatedById（避免 Task.Run 等场景下 AsyncLocal 丢失导致仓储无法解析当前用户）
+        if (!(isLoggingEntity && entity.CreatedById > 0))
+        {
+            var (createdById, createdBy) = GetAuditUserForEntityWrite(entity);
+            entity.CreatedById = createdById;
+            entity.CreatedBy = createdBy ?? string.Empty;
+        }
+        else if (string.IsNullOrWhiteSpace(entity.CreatedBy))
+        {
+            if (entity is TaktOperLog ol && !string.IsNullOrWhiteSpace(ol.UserName))
+                entity.CreatedBy = ol.UserName.Trim();
+            else if (entity is TaktAopLog al && !string.IsNullOrWhiteSpace(al.UserName))
+                entity.CreatedBy = al.UserName.Trim();
+        }
+
+        entity.IsDeleted = 0;
         
         // 输出审计日志：记录创建操作的用户和租户信息（排除日志实体自身）
         if (!isLoggingEntity)
@@ -302,12 +318,13 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     public virtual Task CreateRangeAsync(IEnumerable<TEntity> entities)
     {
         var entityList = entities.ToList();
-        var (createdById, createdBy) = GetCurrentAuditUser();
 
         // 排除日志实体自身，避免循环日志记录
         var entityType = typeof(TEntity);
-        var isLoggingEntity = entityType == typeof(TaktAopLog) || 
+        var isLoggingEntity = entityType == typeof(TaktAopLog) ||
                               entityType == typeof(TaktOperLog);
+
+        var (createdById, createdBy) = GetAuditUserOrThrow();
 
         foreach (var entity in entityList)
         {
@@ -368,7 +385,7 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
         if (entityList.Count == 0)
             return Task.CompletedTask;
 
-        var (createdById, createdBy) = GetCurrentAuditUser();
+        var (createdById, createdBy) = GetAuditUserOrThrow();
 
         foreach (var entity in entityList)
         {
@@ -407,7 +424,7 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
         if (entityList.Count == 0)
             return Task.CompletedTask;
 
-        var (updatedById, updatedBy) = GetCurrentAuditUser();
+        var (updatedById, updatedBy) = GetAuditUserOrThrow();
         var now = DateTime.Now;
         foreach (var entity in entityList)
         {
@@ -434,16 +451,15 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
 
-        // 设置更新时间与审计：无当前登录用户时统一为 999, "Takt365"
+        var entityType = typeof(TEntity);
+        var isLoggingEntity = entityType == typeof(TaktAopLog) ||
+                              entityType == typeof(TaktOperLog);
+
+        // 设置更新时间与审计（日志实体、TaktUser 等见 GetAuditUserForEntityWrite）
         entity.UpdatedAt = DateTime.Now;
-        var (updatedById, updatedBy) = GetCurrentAuditUser();
+        var (updatedById, updatedBy) = GetAuditUserForEntityWrite(entity);
         entity.UpdatedById = updatedById;
         entity.UpdatedBy = updatedBy;
-        
-        // 排除日志实体自身，避免循环日志记录
-        var entityType = typeof(TEntity);
-        var isLoggingEntity = entityType == typeof(TaktAopLog) || 
-                              entityType == typeof(TaktOperLog);
         
         // 输出审计日志：记录更新操作的用户和租户信息（在执行更新前记录，排除日志实体自身）
         if (!isLoggingEntity)
@@ -500,117 +516,42 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     }
 
     /// <summary>
-    /// 获取当前用户名（从用户上下文获取）
+    /// 种子数据用固定审计账号；否则必须能从 <see cref="ITaktUserContext"/> 取到有效用户主键与非空登录名，否则抛错。
+    /// 用于删除、批量写库等无「实体携带用户名」场景。
     /// </summary>
-    /// <returns>用户名，如果未登录则返回"Takt365"（用于种子数据等场景）</returns>
-    /// <remarks>
-    /// 获取用户名的优先级：
-    /// 1. TaktUserContext.CurrentUser（由 TaktUserMiddleware 中间件设置，最可靠，使用 AsyncLocal 确保线程安全）
-    /// 2. ITaktUserContext.GetCurrentUserName()（如果 _userContext 已注入，会从 HTTP 上下文获取）
-    /// 3. 直接从 HTTP 上下文的 Claims 获取（如果 _httpContextAccessor 已注入）
-    /// 4. 固定值 "Takt365"（用于种子数据等特殊场景）
-    /// 
-    /// 注意：对于 TaktRepository&lt;TaktUser&gt; 和 TaktRepository&lt;TaktTenant&gt;，_userContext 为 null，
-    /// 但可以通过 _httpContextAccessor 直接从 HTTP 上下文获取，这避免了循环依赖问题。
-    /// </remarks>
-    protected string GetCurrentUserName()
+    private (long UserId, string UserName) GetAuditUserOrThrow()
     {
-        string? userName = null;
-        string source = string.Empty;
+        if (TaktLoggingExclusions.IsSeedingData())
+            return (TaktAppConstants.InitUserId, TaktAppConstants.InitUserName);
 
-        // 优先级1：从 TaktUserContext.CurrentUser 获取（由中间件设置，最可靠）
-        // 这是最可靠的方式，因为：
-        // - 由 TaktUserMiddleware 中间件在请求开始时设置
-        // - 使用 AsyncLocal，确保在同一个请求上下文中可用
-        // - 不依赖依赖注入，避免循环依赖
-        if (TaktUserContext.CurrentUser != null)
-        {
-            userName = TaktUserContext.CurrentUser.UserName;
-            source = "TaktUserContext.CurrentUser";
-        }
-        // 优先级2：从 ITaktUserContext 获取（如果已注入）
-        // 注意：对于 TaktRepository<TaktUser> 和 TaktRepository<TaktTenant>，_userContext 为 null，
-        // 不会执行这个分支，避免了循环依赖
-        else if (_userContext != null)
-        {
-            userName = _userContext.GetCurrentUserName();
-            if (!string.IsNullOrEmpty(userName))
-            {
-                source = "ITaktUserContext.GetCurrentUserName()";
-            }
-        }
-        // 优先级3：直接从 HTTP 上下文的 Claims 获取（如果 _httpContextAccessor 已注入）
-        // 这样可以确保即使 _userContext 为 null，也能从 HTTP 上下文获取用户信息
-        else if (_httpContextAccessor?.HttpContext?.User?.Identity?.IsAuthenticated == true)
-        {
-            var httpContext = _httpContextAccessor.HttpContext;
-            userName = httpContext.User.FindFirst(ClaimTypes.Name)?.Value
-                ?? httpContext.User.FindFirst(OpenIddictConstants.Claims.Name)?.Value
-                ?? httpContext.User.FindFirst(OpenIddictConstants.Claims.PreferredUsername)?.Value
-                ?? httpContext.User.Identity?.Name;
-            
-            if (!string.IsNullOrEmpty(userName))
-            {
-                source = "HTTP Context Claims";
-            }
-        }
+        var uid = _userContext.GetCurrentUserId();
+        var name = (_userContext.GetCurrentUserName() ?? string.Empty).Trim();
+        if (!uid.HasValue || uid.Value <= 0 || string.IsNullOrWhiteSpace(name))
+            throw new InvalidOperationException(
+                "当前无法解析登录用户（须同时具有有效用户主键与非空登录名），无法写入审计字段。除种子数据初始化外，必须在已认证且用户信息完整的上下文中执行。");
 
-        // 如果所有方式都失败，使用固定值 "Takt365"（用于种子数据等特殊场景）
-        if (string.IsNullOrEmpty(userName))
-        {
-            userName = "Takt365";
-            source = "Default (Takt365)";
-        }
-
-        // 输出日志：记录获取用户名的过程和结果
-        var entityTypeName = typeof(TEntity).Name;
-        var tenantInfo = TaktTenantContext.CurrentTenant != null
-            ? $"TenantId: {TaktTenantContext.CurrentTenant.Id}, TenantCode: {TaktTenantContext.CurrentTenant.TenantCode}, ConfigId: {TaktTenantContext.CurrentConfigId}"
-            : $"ConfigId: {TaktTenantContext.CurrentConfigId ?? "null"}";
-        
-        TaktLogger.Debug("获取当前用户名: EntityType: {EntityType}, UserName: {UserName}, Source: {Source}, {TenantInfo}",
-            entityTypeName, userName, source, tenantInfo);
-
-        return userName;
+        return (uid.Value, name);
     }
 
     /// <summary>
-    /// 获取当前审计用户（ID + 用户名）。无当前登录用户时统一为 999, "Takt365"。
+    /// 与 <see cref="GetAuditUserOrThrow"/> 相同规则；仅对正在落库的 <see cref="TaktUser"/> 在无当前用户时允许用实体自身主键与登录名写审计（如密码等无请求主体的更新）。
+    /// 操作/AOP 日志须在应用服务或中间件预写 <c>CreatedById</c>/<c>CreatedBy</c> 后走标准 <c>CreateAsync</c>，仓储内不再分支。
     /// </summary>
-    /// <returns>(用户ID, 用户名)</returns>
-    protected (long UserId, string UserName) GetCurrentAuditUser()
+    private (long UserId, string UserName) GetAuditUserForEntityWrite(TEntity entity)
     {
-        // 优先级1：TaktUserContext.CurrentUser
-        if (TaktUserContext.CurrentUser != null)
-        {
-            var u = TaktUserContext.CurrentUser;
-            return (u.Id, u.UserName ?? DefaultAuditUserName);
-        }
-        // 优先级2：ITaktUserContext
-        if (_userContext != null)
-        {
-            var id = _userContext.GetCurrentUserId();
-            var name = _userContext.GetCurrentUserName();
-            if (id.HasValue && !string.IsNullOrEmpty(name))
-                return (id.Value, name);
-        }
-        // 优先级3：HTTP Context Claims（仅能拿 sub/name，ID 需解析）
-        if (_httpContextAccessor?.HttpContext?.User?.Identity?.IsAuthenticated == true)
-        {
-            var httpContext = _httpContextAccessor.HttpContext;
-            var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                ?? httpContext.User.FindFirst(OpenIddictConstants.Claims.Subject)?.Value;
-            if (!string.IsNullOrEmpty(userIdClaim) && long.TryParse(userIdClaim, out var uid))
-            {
-                var name = httpContext.User.FindFirst(ClaimTypes.Name)?.Value
-                    ?? httpContext.User.FindFirst(OpenIddictConstants.Claims.Name)?.Value
-                    ?? httpContext.User.FindFirst(OpenIddictConstants.Claims.PreferredUsername)?.Value
-                    ?? httpContext.User.Identity?.Name;
-                if (!string.IsNullOrEmpty(name))
-                    return (uid, name);
-            }
-        }
-        return (DefaultAuditUserId, DefaultAuditUserName);
+        if (TaktLoggingExclusions.IsSeedingData())
+            return (TaktAppConstants.InitUserId, TaktAppConstants.InitUserName);
+
+        var uid = _userContext.GetCurrentUserId();
+        var name = (_userContext.GetCurrentUserName() ?? string.Empty).Trim();
+        if (uid.HasValue && uid.Value > 0 && !string.IsNullOrWhiteSpace(name))
+            return (uid.Value, name);
+
+        if (entity is TaktUser tu && tu.Id > 0)
+            return (tu.Id, string.IsNullOrWhiteSpace(tu.UserName) ? TaktAppConstants.InitUserName : tu.UserName.Trim());
+
+        throw new InvalidOperationException(
+            "当前无法解析登录用户（须同时具有有效用户主键与非空登录名），无法写入审计字段。除种子数据初始化外，必须在已认证且用户信息完整的上下文中执行。");
     }
 
     /// <summary>
@@ -621,7 +562,7 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
     public virtual async Task DeleteAsync(long id)
     {
         var deletedTime = DateTime.Now;
-        var (deletedById, deletedBy) = GetCurrentAuditUser();
+        var (deletedById, deletedBy) = GetAuditUserOrThrow();
 
         // 排除日志实体自身，避免循环日志记录
         var entityType = typeof(TEntity);
@@ -700,7 +641,7 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
             return;
 
         var deletedTime = DateTime.Now;
-        var (deletedById, deletedBy) = GetCurrentAuditUser();
+        var (deletedById, deletedBy) = GetAuditUserOrThrow();
         var updateable = Db.Updateable<TEntity>()
             .SetColumns(e => new TEntity 
             { 
@@ -1007,7 +948,7 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
             // - DictLabel (字典标签，必需)
             // - DictValue (字典值，必需，将作为 ExtLabel)
             // - Id (可选，如果存在则作为 DictValue，否则使用 DictValue 字段)
-            // - OrderNum (排序号，可选，默认为0)
+            // - SortOrder (排序号，可选，默认为0)
             // - DictL10nKey (字典本地化键，可选)
             // - CssClass (CSS类名，可选)
             // - ListClass (列表类名，可选)
@@ -1023,7 +964,7 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
                 var dictLabel = GetDynamicValue(row, "DictLabel", "dictLabel", "Label", "label")?.ToString() ?? string.Empty;
                 var dictValue = GetDynamicValue(row, "DictValue", "dictValue", "Value", "value");
                 var id = GetDynamicValue(row, "Id", "id");
-                var orderNum = GetDynamicValue(row, "OrderNum", "orderNum", "Order", "order");
+                var SortOrder = GetDynamicValue(row, "SortOrder", "SortOrder", "Order", "order");
                 var dictL10nKey = GetDynamicValue(row, "DictL10nKey", "dictL10nKey", "L10nKey", "l10nKey");
                 var cssClass = GetDynamicValue(row, "CssClass", "cssClass", "Css", "css");
                 var listClass = GetDynamicValue(row, "ListClass", "listClass", "List", "list");
@@ -1033,11 +974,11 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
                 // DictValue 优先使用 Id（如果存在），否则使用 DictValue 字段
                 var finalDictValue = id ?? dictValue ?? 0;
                 
-                // OrderNum 转换为 int，默认为 0
+                // SortOrder 转换为 int，默认为 0
                 int orderNumInt = 0;
-                if (orderNum != null)
+                if (SortOrder != null)
                 {
-                    int.TryParse(orderNum.ToString(), out orderNumInt);
+                    int.TryParse(SortOrder.ToString(), out orderNumInt);
                 }
 
                 // CssClass 转换为 int?，如果不存在则为 null
@@ -1075,12 +1016,12 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
                     DictL10nKey = dictL10nKey?.ToString(),
                     CssClass = cssClassInt,
                     ListClass = listClassInt,
-                    OrderNum = orderNumInt
+                    SortOrder = orderNumInt
                 });
             }
 
-            // 按 OrderNum 排序
-            return options.OrderBy(o => o.OrderNum).ToList();
+            // 按 SortOrder 排序
+            return options.OrderBy(o => o.SortOrder).ToList();
         }
         catch (Exception ex)
         {
@@ -1165,11 +1106,11 @@ public class TaktRepository<TEntity> : ITaktRepository<TEntity> where TEntity : 
             }
         }
 
-        // 按 OrderNum 排序并去重（如果 DictValue 相同，保留第一个）
+        // 按 SortOrder 排序并去重（如果 DictValue 相同，保留第一个）
         return allOptions
             .GroupBy(o => o.DictValue)
             .Select(g => g.First())
-            .OrderBy(o => o.OrderNum)
+            .OrderBy(o => o.SortOrder)
             .ToList();
     }
 }

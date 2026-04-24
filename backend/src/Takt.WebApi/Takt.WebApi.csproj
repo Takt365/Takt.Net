@@ -5,15 +5,15 @@
     <ProjectReference Include="..\Takt.Infrastructure\Takt.Infrastructure.csproj" />
     <ProjectReference Include="..\Takt.Shared\Takt.Shared.csproj" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.13" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.13" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.15" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.15" />
     <PackageReference Include="OpenIddict.AspNetCore" Version="7.4.0" />
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="7.4.0" />
     <PackageReference Include="OpenIddict.Validation.AspNetCore" Version="7.4.0" />

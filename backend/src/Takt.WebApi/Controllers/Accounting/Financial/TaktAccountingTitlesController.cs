@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Accounting.Financial
 // 文件名称：TaktAccountingTitlesController.cs
@@ -18,7 +18,7 @@ using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
 using Takt.WebApi.Controllers;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.Accounting.Financial;
 
@@ -60,9 +60,9 @@ public class TaktAccountingTitlesController : TaktControllerBase
     /// <returns>分页结果</returns>
     [HttpGet("list")]
     [TaktPermission("accounting:financial:title:list", "查询会计科目列表")]
-    public async Task<ActionResult<TaktPagedResult<TaktAccountingTitleDto>>> GetListAsync([FromQuery] TaktAccountingTitleQueryDto queryDto)
+    public async Task<ActionResult<TaktPagedResult<TaktAccountingTitleDto>>> GetAccountingTitleListAsync([FromQuery] TaktAccountingTitleQueryDto queryDto)
     {
-        var result = await _titleService.GetListAsync(queryDto);
+        var result = await _titleService.GetAccountingTitleListAsync(queryDto);
         return Ok(result);
     }
 
@@ -73,9 +73,9 @@ public class TaktAccountingTitlesController : TaktControllerBase
     /// <returns>会计科目DTO</returns>
     [HttpGet("{id}")]
     [TaktPermission("accounting:financial:title:detail", "查询会计科目详情")]
-    public async Task<ActionResult<TaktAccountingTitleDto>> GetByIdAsync(long id)
+    public async Task<ActionResult<TaktAccountingTitleDto>> GetAccountingTitleByIdAsync(long id)
     {
-        var title = await _titleService.GetByIdAsync(id);
+        var title = await _titleService.GetAccountingTitleByIdAsync(id);
         if (title == null)
             return NotFound();
         return Ok(title);
@@ -87,9 +87,9 @@ public class TaktAccountingTitlesController : TaktControllerBase
     /// <returns>会计科目树形选项列表</returns>
     [HttpGet("tree-options")]
     [TaktPermission("accounting:financial:title:list", "查询会计科目树形选项")]
-    public async Task<ActionResult<List<TaktTreeSelectOption>>> GetTreeOptionsAsync()
+    public async Task<ActionResult<List<TaktTreeSelectOption>>> GetAccountingTitleTreeOptionsAsync()
     {
-        var options = await _titleService.GetTreeOptionsAsync();
+        var options = await _titleService.GetAccountingTitleTreeOptionsAsync();
         return Ok(options);
     }
 
@@ -103,7 +103,7 @@ public class TaktAccountingTitlesController : TaktControllerBase
     [TaktPermission("accounting:financial:title:list", "查询会计科目树形列表")]
     public async Task<ActionResult<List<TaktAccountingTitleTreeDto>>> GetTreeAsync([FromQuery] long parentId = 0, [FromQuery] bool includeDisabled = false)
     {
-        var result = await _titleService.GetTreeAsync(parentId, includeDisabled);
+        var result = await _titleService.GetAccountingTitleTreeAsync(parentId, includeDisabled);
         return Ok(result);
     }
 
@@ -115,9 +115,9 @@ public class TaktAccountingTitlesController : TaktControllerBase
     /// <returns>会计科目子节点列表</returns>
     [HttpGet("children")]
     [TaktPermission("accounting:financial:title:list", "查询会计科目子节点列表")]
-    public async Task<ActionResult<List<TaktAccountingTitleDto>>> GetChildrenAsync([FromQuery] long parentId, [FromQuery] bool includeDisabled = false)
+    public async Task<ActionResult<List<TaktAccountingTitleDto>>> GetAccountingTitleChildrenAsync([FromQuery] long parentId, [FromQuery] bool includeDisabled = false)
     {
-        var result = await _titleService.GetChildrenAsync(parentId, includeDisabled);
+        var result = await _titleService.GetAccountingTitleChildrenAsync(parentId, includeDisabled);
         return Ok(result);
     }
 
@@ -128,12 +128,12 @@ public class TaktAccountingTitlesController : TaktControllerBase
     /// <returns>会计科目DTO</returns>
     [HttpPost]
     [TaktPermission("accounting:financial:title:create", "创建会计科目")]
-    public async Task<ActionResult<TaktAccountingTitleDto>> CreateAsync([FromBody] TaktAccountingTitleCreateDto dto)
+    public async Task<ActionResult<TaktAccountingTitleDto>> CreateAccountingTitleAsync([FromBody] TaktAccountingTitleCreateDto dto)
     {
         try
         {
-            var title = await _titleService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = title.TitleId }, title);
+            var title = await _titleService.CreateAccountingTitleAsync(dto);
+            return CreatedAtAction(nameof(GetAccountingTitleByIdAsync), new { id = title.AccountingTitleId }, title);
         }
         catch (Exception ex)
         {
@@ -149,11 +149,11 @@ public class TaktAccountingTitlesController : TaktControllerBase
     /// <returns>会计科目DTO</returns>
     [HttpPut("{id}")]
     [TaktPermission("accounting:financial:title:update", "更新会计科目")]
-    public async Task<ActionResult<TaktAccountingTitleDto>> UpdateAsync(long id, [FromBody] TaktAccountingTitleUpdateDto dto)
+    public async Task<ActionResult<TaktAccountingTitleDto>> UpdateAccountingTitleAsync(long id, [FromBody] TaktAccountingTitleUpdateDto dto)
     {
         try
         {
-            var title = await _titleService.UpdateAsync(id, dto);
+            var title = await _titleService.UpdateAccountingTitleAsync(id, dto);
             return Ok(title);
         }
         catch (Exception ex)
@@ -169,11 +169,11 @@ public class TaktAccountingTitlesController : TaktControllerBase
     /// <returns>操作结果</returns>
     [HttpDelete("{id}")]
     [TaktPermission("accounting:financial:title:delete", "删除会计科目")]
-    public async Task<IActionResult> DeleteAsync(long id)
+    public async Task<IActionResult> DeleteAccountingTitleByIdAsync(long id)
     {
         try
         {
-            await _titleService.DeleteAsync(id);
+            await _titleService.DeleteAccountingTitleByIdAsync(id);
             return NoContent();
         }
         catch (Exception ex)
@@ -189,11 +189,11 @@ public class TaktAccountingTitlesController : TaktControllerBase
     /// <returns>会计科目DTO</returns>
     [HttpPut("status")]
     [TaktPermission("accounting:financial:title:update", "更新会计科目状态")]
-    public async Task<ActionResult<TaktAccountingTitleDto>> UpdateStatusAsync([FromBody] TaktAccountingTitleStatusDto dto)
+    public async Task<ActionResult<TaktAccountingTitleDto>> UpdateAccountingTitleStatusAsync([FromBody] TaktAccountingTitleStatusDto dto)
     {
         try
         {
-            var title = await _titleService.UpdateStatusAsync(dto);
+            var title = await _titleService.UpdateAccountingTitleStatusAsync(dto);
             return Ok(title);
         }
         catch (Exception ex)
@@ -210,12 +210,12 @@ public class TaktAccountingTitlesController : TaktControllerBase
     /// <returns>Excel模板文件</returns>
     [HttpGet("template")]
     [TaktPermission("accounting:financial:title:template", "获取导入模板")]
-    public async Task<IActionResult> GetTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> GetAccountingTitleTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (resultFileName, content) = await _titleService.GetTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            var (resultFileName, content) = await _titleService.GetAccountingTitleTemplateAsync(sheetName, fileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -231,7 +231,7 @@ public class TaktAccountingTitlesController : TaktControllerBase
     /// <returns>导入结果</returns>
     [HttpPost("import")]
     [TaktPermission("accounting:financial:title:import", "导入会计科目")]
-    public async Task<ActionResult<object>> ImportAsync(IFormFile file, [FromForm] string? sheetName = null)
+    public async Task<ActionResult<object>> ImportAccountingTitleAsync(IFormFile file, [FromForm] string? sheetName = null)
     {
         try
         {
@@ -247,7 +247,7 @@ public class TaktAccountingTitlesController : TaktControllerBase
             }
 
             using var stream = file.OpenReadStream();
-            var (success, fail, errors) = await _titleService.ImportAsync(stream, sheetName);
+            var (success, fail, errors) = await _titleService.ImportAccountingTitleAsync(stream, sheetName);
             return Ok(new { success, fail, errors });
         }
         catch (Exception ex)
@@ -265,12 +265,12 @@ public class TaktAccountingTitlesController : TaktControllerBase
     /// <returns>Excel 文件；超过 <c>TaktExcelHelper.ExportAsync</c> 单表行数上限时为 zip 打包（基础设施统一逻辑）</returns>
     [HttpPost("export")]
     [TaktPermission("accounting:financial:title:export", "导出会计科目")]
-    public async Task<IActionResult> ExportAsync([FromBody] TaktAccountingTitleQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> ExportAccountingTitleAsync([FromBody] TaktAccountingTitleQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (resultFileName, content) = await _titleService.ExportAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            var (resultFileName, content) = await _titleService.ExportAccountingTitleAsync(query, sheetName, fileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {

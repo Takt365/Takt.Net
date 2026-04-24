@@ -19,11 +19,11 @@
       <!-- 主表：翻译 -->
       <a-tab-pane
         key="translation"
-        tab="翻译（主）"
+        :tab="t('routine.localization.translation.page.tabMain')"
       >
         <TaktQueryBar
           v-model="translationQueryKeyword"
-          placeholder="资源键、翻译值"
+          :placeholder="t('routine.localization.translation.placeholders.listSearch')"
           :loading="translationLoading"
           @search="handleTranslationSearch"
           @reset="handleTranslationReset"
@@ -65,7 +65,7 @@
           :data-source="translationDataSource"
           :loading="translationLoading"
           :stripe="true"
-          :row-key="(r: any) => r.translationId || ''"
+          :row-key="getTranslationListRowKey"
           :row-selection="translationRowSelection"
           :pagination="false"
           @change="() => {}"
@@ -78,7 +78,7 @@
           <a-table
             :columns="transposedColumns"
             :data-source="transposedTableRows"
-            :row-key="(r: any) => [r.resourceKey, r.resourceType, r.resourceGroup].filter(Boolean).join('|')"
+            :row-key="getTransposedTableRowKey"
             :loading="translationLoading"
             :pagination="false"
             size="small"
@@ -127,36 +127,36 @@
           @submit="handleTranslationAdvancedSubmit"
           @reset="handleTranslationAdvancedReset"
         >
-          <a-form-item label="资源键">
+          <a-form-item :label="t('entity.translation.resourcekey')">
             <a-input
               v-model:value="translationAdvancedForm.resourceKey"
-              placeholder="模糊"
+              :placeholder="t('routine.localization.translation.placeholders.resourceKeyFuzzy')"
             />
           </a-form-item>
-          <a-form-item label="语言编码">
+          <a-form-item :label="t('entity.translation.culturecode')">
             <a-input
               v-model:value="translationAdvancedForm.cultureCode"
-              placeholder="如 zh-CN"
+              :placeholder="t('routine.localization.translation.placeholders.cultureCodeExample')"
             />
           </a-form-item>
-          <a-form-item label="资源类型">
+          <a-form-item :label="t('entity.translation.resourcetype')">
             <a-select
               v-model:value="translationAdvancedForm.resourceType"
-              placeholder="Frontend/Backend"
+              :placeholder="t('routine.localization.translation.placeholders.resourceTypeSelect')"
               allow-clear
             >
               <a-select-option value="Frontend">
-                Frontend
+                {{ t('routine.localization.translation.options.frontend') }}
               </a-select-option>
               <a-select-option value="Backend">
-                Backend
+                {{ t('routine.localization.translation.options.backend') }}
               </a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item label="资源分组">
+          <a-form-item :label="t('entity.translation.resourcegroup')">
             <a-input
               v-model:value="translationAdvancedForm.resourceGroup"
-              placeholder="如 Menu"
+              :placeholder="t('routine.localization.translation.placeholders.resourceGroupExample')"
             />
           </a-form-item>
         </TaktQueryDrawer>
@@ -174,12 +174,12 @@
       <!-- 子表：语言 -->
       <a-tab-pane
         key="language"
-        tab="语言（子）"
+        :tab="t('routine.localization.language.page.tabInI18n')"
       >
         <!-- 查询栏 -->
         <TaktQueryBar
           v-model="queryKeyword"
-          placeholder="请输入语言编码或名称"
+          :placeholder="t('routine.localization.language.placeholders.listSearch')"
           :loading="loading"
           @search="handleSearch"
           @reset="handleReset"
@@ -222,7 +222,7 @@
           :data-source="dataSource"
           :loading="loading"
           :stripe="true"
-          :row-key="(record: any) => record.languageId || ''"
+          :row-key="getLanguageListRowKey"
           :row-selection="rowSelection"
           :custom-row="onClickRow"
           :pagination="false"
@@ -236,26 +236,26 @@
             <template v-if="column.key === 'languageStatus'">
               <a-switch
                 :checked="record.languageStatus === 0"
-                checked-children="启用"
-                un-checked-children="禁用"
-                @change="(checked: any) => handleStatusChange(record, !!checked)"
+                :checked-children="t('common.button.enable')"
+                :un-checked-children="t('common.button.disable')"
+                @change="(checked) => handleStatusChange(record, checked)"
               />
             </template>
             <template v-else-if="column.key === 'isDefault'">
-              {{ record.isDefault === 0 ? '是' : '否' }}
+              {{ record.isDefault === 0 ? t('common.button.yes') : t('common.button.no') }}
             </template>
             <template v-else-if="column.key === 'isRtl'">
-              {{ record.isRtl === 0 ? '是' : '否' }}
+              {{ record.isRtl === 0 ? t('common.button.yes') : t('common.button.no') }}
             </template>
           </template>
           <!-- 展开行渲染 -->
           <template #expandedRowRender="{ record }">
             <div style="padding: 16px">
               <TaktSingleTable
-                v-if="(dataSource.find(item => item.languageId === record.languageId)?.translationList || []).length > 0"
-                :columns="translationColumns"
-                :data-source="dataSource.find(item => item.languageId === record.languageId)?.translationList || []"
-                :row-key="(r: Translation) => r.translationId || ''"
+                v-if="((dataSource.find((item) => item.languageId === record.languageId)?.translationList ?? []) as Translation[]).length > 0"
+                :columns="translationColumnsNested"
+                :data-source="(dataSource.find((item) => item.languageId === record.languageId)?.translationList ?? []) as Record<string, unknown>[]"
+                :row-key="getTranslationListRowKey"
                 :pagination="false"
                 :stripe="true"
                 size="small"
@@ -297,15 +297,16 @@
           @submit="handleAdvancedQuerySubmit"
           @reset="handleAdvancedQueryReset"
         >
-          <a-form-item label="语言编码">
+          <a-form-item :label="t('entity.language.culturecode')">
             <a-input v-model:value="advancedQueryForm.cultureCode" />
           </a-form-item>
-          <a-form-item label="语言状态">
+          <a-form-item :label="t('entity.language.status')">
             <TaktSelect
               v-model:value="advancedQueryForm.languageStatus"
-              dict-type="sys_status"
-              placeholder="请选择状态"
+              api-url="/api/TaktDictDatas/options?dictTypeCode=sys_status"
+              :field-names="{ label: 'dictLabel', value: 'extLabel' }"
               allow-clear
+              :placeholder="t('common.form.placeholder.select', { field: t('entity.language.status') })"
             />
           </a-form-item>
         </TaktQueryDrawer>
@@ -345,12 +346,53 @@ import {
   exportTranslationData
 } from '@/api/routine/tasks/i18n/translation'
 import type { Language, LanguageQuery, LanguageCreate, LanguageUpdate } from '@/types/routine/tasks/i18n/language'
-import type { Translation, TranslationQuery, TranslationTransposed } from '@/types/routine/tasks/i18n/translation'
+import type {
+  Translation,
+  TranslationQuery,
+  TranslationTransposed,
+  TranslationCreate,
+  TranslationUpdate
+} from '@/types/routine/tasks/i18n/translation'
 import { logger } from '@/utils/logger'
-import { CreateActionColumn } from '@/components/business/takt-action-column'
+import { CreateActionColumn, type ActionRecord } from '@/components/business/takt-action-column/index'
 import { RiEditLine, RiDeleteBinLine } from '@remixicon/vue'
 
 const { t } = useI18n()
+
+const getTranslationListRowKey = (record: unknown): string => {
+  if (record == null || typeof record !== 'object') return ''
+  const id = (record as Record<string, unknown>)['translationId']
+  return id != null && String(id) !== '' ? String(id) : ''
+}
+
+const getTransposedTableRowKey = (record: unknown): string => {
+  if (record == null || typeof record !== 'object') return ''
+  const r = record as Record<string, unknown>
+  return [r['resourceKey'], r['resourceType'], r['resourceGroup']].filter((x) => x != null && String(x) !== '').join('|')
+}
+
+const getLanguageListRowKey = (record: unknown): string => {
+  if (record == null || typeof record !== 'object') return ''
+  const id = (record as Record<string, unknown>)['languageId']
+  return id != null && String(id) !== '' ? String(id) : ''
+}
+
+/** 翻译高级查询抽屉：绑定控件须为必填 string，避免 TranslationQuery 可选字段在 EOPT 下与 a-input value 不兼容 */
+type TranslationAdvancedQueryFormState = Pick<TranslationQuery, 'pageIndex' | 'pageSize'> & {
+  KeyWords: string
+  resourceKey: string
+  cultureCode: string
+  resourceType: string
+  resourceGroup: string
+}
+
+/** 语言高级查询：KeyWords / cultureCode 与 a-input 绑定为必填 string（TaktPagedQuery 上为可选） */
+type LanguageAdvancedQueryFormState = Omit<LanguageQuery, 'KeyWords' | 'cultureCode' | 'languageStatus' | 'isDefault'> & {
+  KeyWords: string
+  cultureCode: string
+  languageStatus?: number
+  isDefault?: number
+}
 
 // ========================================
 // 数据定义
@@ -370,20 +412,18 @@ const selectedRow = ref<Language | null>(null)
 
 // 表单
 const formVisible = ref(false)
-const formTitle = ref('新增语言')
+const formTitle = ref(t('routine.localization.language.messages.formCreate'))
 const formLoading = ref(false)
 const formData = ref<Language | null>(null)
 const formRef = ref<InstanceType<typeof LanguageForm> | null>(null)
 
 // 高级查询
 const advancedQueryVisible = ref(false)
-const advancedQueryForm = reactive<LanguageQuery>({
+const advancedQueryForm = reactive<LanguageAdvancedQueryFormState>({
   pageIndex: 1,
   pageSize: 20,
-  keyWords: '',
-  cultureCode: '',
-  languageStatus: undefined,
-  isDefault: undefined
+  KeyWords: '',
+  cultureCode: ''
 })
 
 // 列设置
@@ -408,21 +448,21 @@ const translationSelectedRowKeys = ref<(string | number)[]>([])
 const translationSelectedRows = ref<Translation[]>([])
 const translationSelectedRow = ref<Translation | null>(null)
 const translationFormVisible = ref(false)
-const translationFormTitle = ref('新增翻译')
+const translationFormTitle = ref(t('routine.localization.translation.form.formCreate'))
 const translationFormLoading = ref(false)
 const translationFormData = ref<Translation | null>(null)
 const translationFormRef = ref<InstanceType<typeof TranslationForm> | null>(null)
 // 转置表单
 const translationTransposedFormVisible = ref(false)
-const translationTransposedFormTitle = ref('新增翻译（转置）')
+const translationTransposedFormTitle = ref(t('routine.localization.translation.form.formCreateTransposed'))
 const translationTransposedFormLoading = ref(false)
 const translationTransposedFormData = ref<Translation[] | null>(null)
 const translationTransposedFormRef = ref<InstanceType<typeof TranslationTransposedForm> | null>(null)
 const translationAdvancedVisible = ref(false)
-const translationAdvancedForm = reactive<TranslationQuery & { keyWords?: string }>({
+const translationAdvancedForm = reactive<TranslationAdvancedQueryFormState>({
   pageIndex: 1,
   pageSize: 20,
-  keyWords: '',
+  KeyWords: '',
   resourceKey: '',
   cultureCode: '',
   resourceType: '',
@@ -432,21 +472,23 @@ const translationColumnDrawerVisible = ref(false)
 const translationVisibleColumnKeys = ref<string[]>([])
 const transposedResult = ref<{ paged: { data: TranslationTransposed[]; total: number }; cultureCodeOrder: string[] } | null>(null)
 
+type TransposedRow = { resourceKey: string; resourceType: string; resourceGroup?: string }
+
 // 翻译列表列（主视图 = 列表，列与 Translation 一致 + 操作列）
-const translationListColumns: any[] = [
-  { title: '翻译ID', dataIndex: 'translationId', key: 'translationId', width: 120 },
-  { title: '资源键', dataIndex: 'resourceKey', key: 'resourceKey', width: 200 },
-  { title: '语言ID', dataIndex: 'languageId', key: 'languageId', width: 120 },
-  { title: '语言编码', dataIndex: 'cultureCode', key: 'cultureCode', width: 120 },
-  { title: '翻译值', dataIndex: 'translationValue', key: 'translationValue', width: 240, ellipsis: true },
-  { title: '资源类型', dataIndex: 'resourceType', key: 'resourceType', width: 100 },
-  { title: '资源分组', dataIndex: 'resourceGroup', key: 'resourceGroup', width: 120, ellipsis: true },
-  { title: '排序号', dataIndex: 'orderNum', key: 'orderNum', width: 80 },
-  CreateActionColumn({
+const translationListColumns = computed(() => [
+  { title: t('routine.localization.language.columns.translationId'), dataIndex: 'translationId', key: 'translationId', width: 120 },
+  { title: t('entity.translation.resourcekey'), dataIndex: 'resourceKey', key: 'resourceKey', width: 200 },
+  { title: t('entity.translation.languageid'), dataIndex: 'languageId', key: 'languageId', width: 120 },
+  { title: t('entity.translation.culturecode'), dataIndex: 'cultureCode', key: 'cultureCode', width: 120 },
+  { title: t('entity.translation.translationvalue'), dataIndex: 'translationValue', key: 'translationValue', width: 240, ellipsis: true },
+  { title: t('entity.translation.resourcetype'), dataIndex: 'resourceType', key: 'resourceType', width: 100 },
+  { title: t('entity.translation.resourcegroup'), dataIndex: 'resourceGroup', key: 'resourceGroup', width: 120, ellipsis: true },
+  { title: t('entity.translation.ordernum'), dataIndex: 'orderNum', key: 'orderNum', width: 80 },
+  CreateActionColumn<Translation>({
     actions: [
       {
         key: 'update',
-        label: '编辑',
+        label: t('common.button.edit'),
         shape: 'plain',
         icon: RiEditLine,
         permission: 'routine:tasks:i18n:update',
@@ -454,7 +496,7 @@ const translationListColumns: any[] = [
       },
       {
         key: 'delete',
-        label: '删除',
+        label: t('common.button.delete'),
         shape: 'plain',
         icon: RiDeleteBinLine,
         permission: 'routine:tasks:i18n:delete',
@@ -462,37 +504,37 @@ const translationListColumns: any[] = [
       }
     ]
   })
-]
+])
 
 // 转置表列：固定列 + 语言列 + 操作列
 const transposedColumns = computed(() => {
   const order = transposedResult.value?.cultureCodeOrder ?? []
   const base: any[] = [
-    { title: '资源键', dataIndex: 'resourceKey', key: 'resourceKey', width: 180, fixed: 'left' as const },
-    { title: '资源类型', dataIndex: 'resourceType', key: 'resourceType', width: 90, fixed: 'left' as const },
-    { title: '资源分组', dataIndex: 'resourceGroup', key: 'resourceGroup', width: 100, fixed: 'left' as const }
+    { title: t('entity.translation.resourcekey'), dataIndex: 'resourceKey', key: 'resourceKey', width: 180, fixed: 'left' as const },
+    { title: t('entity.translation.resourcetype'), dataIndex: 'resourceType', key: 'resourceType', width: 90, fixed: 'left' as const },
+    { title: t('entity.translation.resourcegroup'), dataIndex: 'resourceGroup', key: 'resourceGroup', width: 100, fixed: 'left' as const }
   ]
   order.forEach((c) => {
     base.push({ title: c, dataIndex: `translations.${c}`, key: `lang_${c}`, width: 120, ellipsis: true })
   })
   base.push(
-    CreateActionColumn({
+    CreateActionColumn<ActionRecord>({
       actions: [
         {
           key: 'update',
-          label: '编辑',
+          label: t('common.button.edit'),
           shape: 'plain',
           icon: RiEditLine,
           permission: 'routine:tasks:i18n:update',
-          onClick: (record: any) => handleTransposedEdit(record)
+          onClick: (record: ActionRecord) => handleTransposedEdit(record as TransposedRow)
         },
         {
           key: 'delete',
-          label: '删除',
+          label: t('common.button.delete'),
           shape: 'plain',
           icon: RiDeleteBinLine,
           permission: 'routine:tasks:i18n:delete',
-          onClick: (record: any) => handleTransposedDelete(record)
+          onClick: (record: ActionRecord) => handleTransposedDelete(record as TransposedRow)
         }
       ]
     })
@@ -506,13 +548,14 @@ const transposedTableRows = computed(() => {
   const order = transposedResult.value?.cultureCodeOrder ?? []
   const rows: Record<string, unknown>[] = []
   list.forEach((item) => {
+    const translations = (item as TranslationTransposed & { translations?: Record<string, string> }).translations
     const row: Record<string, unknown> = {
       resourceKey: item.resourceKey,
       resourceType: item.resourceType,
       resourceGroup: item.resourceGroup ?? ''
     }
     order.forEach((c) => {
-      row[`translations.${c}`] = (item.translations ?? {})[c] ?? ''
+      row[`translations.${c}`] = (translations ?? {})[c] ?? ''
     })
     rows.push(row)
   })
@@ -524,14 +567,14 @@ const translationRowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: Translation[]) => {
     translationSelectedRowKeys.value = keys
     translationSelectedRows.value = rows
-    translationSelectedRow.value = rows.length === 1 ? rows[0] : null
+    translationSelectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   }
 }))
 
 // 翻译列表可见列（列设置过滤）
 const translationDisplayColumns = computed((): any[] => {
   const keys = translationVisibleColumnKeys.value || []
-  const cols: any[] = translationListColumns
+  const cols: any[] = translationListColumns.value
   if (keys.length === 0) return cols
   const getColumnKey = (col: any): string => {
     const k = col.key || col.dataIndex || col.title
@@ -544,17 +587,17 @@ const translationDisplayColumns = computed((): any[] => {
   })
 })
 
-// 翻译子表列定义（主表翻译，子表语言；与 Translation 接口一致）
-const translationColumns = [
-  { title: '翻译ID', dataIndex: 'translationId', key: 'translationId', width: 120 },
-  { title: '资源键', dataIndex: 'resourceKey', key: 'resourceKey', width: 200 },
-  { title: '语言ID', dataIndex: 'languageId', key: 'languageId', width: 120 },
-  { title: '语言编码', dataIndex: 'cultureCode', key: 'cultureCode', width: 150 },
-  { title: '翻译值', dataIndex: 'translationValue', key: 'translationValue', width: 300 },
-  { title: '资源类型', dataIndex: 'resourceType', key: 'resourceType', width: 120 },
-  { title: '资源分组', dataIndex: 'resourceGroup', key: 'resourceGroup', width: 150, ellipsis: true },
-  { title: '排序号', dataIndex: 'orderNum', key: 'orderNum', width: 100 }
-]
+// 语言行展开：子表翻译列（与 Translation 接口一致；列标题优先 entity.translation.*）
+const translationColumnsNested = computed<TableColumnsType>(() => [
+  { title: t('routine.localization.language.columns.translationId'), dataIndex: 'translationId', key: 'translationId', width: 120 },
+  { title: t('entity.translation.resourcekey'), dataIndex: 'resourceKey', key: 'resourceKey', width: 200 },
+  { title: t('entity.translation.languageid'), dataIndex: 'languageId', key: 'languageId', width: 120 },
+  { title: t('entity.translation.culturecode'), dataIndex: 'cultureCode', key: 'cultureCode', width: 150 },
+  { title: t('entity.translation.translationvalue'), dataIndex: 'translationValue', key: 'translationValue', width: 300 },
+  { title: t('entity.translation.resourcetype'), dataIndex: 'resourceType', key: 'resourceType', width: 120 },
+  { title: t('entity.translation.resourcegroup'), dataIndex: 'resourceGroup', key: 'resourceGroup', width: 150, ellipsis: true },
+  { title: t('entity.translation.ordernum'), dataIndex: 'orderNum', key: 'orderNum', width: 100 }
+])
 
 // ========================================
 // 列定义
@@ -563,67 +606,67 @@ const translationColumns = [
 // 表格列定义（与 Language 接口字段顺序一致）
 const columns = computed<TableColumnsType<Language>>(() => [
   {
-    title: '语言ID',
+    title: t('routine.localization.language.columns.languageId'),
     dataIndex: 'languageId',
     key: 'languageId',
     width: 120,
     fixed: 'left'
   },
   {
-    title: '语言名称',
+    title: t('entity.language.name'),
     dataIndex: 'languageName',
     key: 'languageName',
     width: 150,
     fixed: 'left'
   },
   {
-    title: '语言编码',
+    title: t('entity.language.culturecode'),
     dataIndex: 'cultureCode',
     key: 'cultureCode',
     width: 150
   },
   {
-    title: '本地化名称',
+    title: t('entity.language.nativename'),
     dataIndex: 'nativeName',
     key: 'nativeName',
     width: 150
   },
   {
-    title: '语言图标',
+    title: t('entity.language.icon'),
     dataIndex: 'languageIcon',
     key: 'languageIcon',
     width: 200,
     ellipsis: true
   },
   {
-    title: '排序号',
+    title: t('entity.language.ordernum'),
     dataIndex: 'orderNum',
     key: 'orderNum',
     width: 100
   },
   {
-    title: '语言状态',
+    title: t('entity.language.status'),
     dataIndex: 'languageStatus',
     key: 'languageStatus',
     width: 100
   },
   {
-    title: '是否默认',
+    title: t('entity.language.isdefault'),
     dataIndex: 'isDefault',
     key: 'isDefault',
     width: 100
   },
   {
-    title: '是否RTL',
+    title: t('entity.language.isrtl'),
     dataIndex: 'isRtl',
     key: 'isRtl',
     width: 100
   },
-  CreateActionColumn({
+  CreateActionColumn<Language>({
     actions: [
       {
         key: 'update',
-        label: '编辑',
+        label: t('common.button.edit'),
         shape: 'plain',
         icon: RiEditLine,
         permission: 'routine:tasks:i18n:update',
@@ -631,7 +674,7 @@ const columns = computed<TableColumnsType<Language>>(() => [
       },
       {
         key: 'delete',
-        label: '删除',
+        label: t('common.button.delete'),
         shape: 'plain',
         icon: RiDeleteBinLine,
         permission: 'routine:tasks:i18n:delete',
@@ -688,18 +731,18 @@ const displayColumns = computed((): any => {
 const loadData = async () => {
   try {
     loading.value = true
-    const query: LanguageQuery = {
-      ...advancedQueryForm,
+    const query = {
+      ...(advancedQueryForm as LanguageQuery),
       pageIndex: currentPage.value,
       pageSize: pageSize.value,
-      keyWords: queryKeyword.value || undefined
-    }
+      KeyWords: queryKeyword.value || advancedQueryForm.KeyWords || undefined
+    } as LanguageQuery
     const result = await languageApi.getLanguageList(query)
     dataSource.value = result.data || []
     total.value = result.total || 0
   } catch (error) {
     logger.error('[Language] 加载数据失败', error)
-    message.error('加载数据失败')
+    message.error(t('common.msg.loadfail'))
   } finally {
     loading.value = false
   }
@@ -710,18 +753,18 @@ const loadTranslationList = async () => {
   try {
     translationLoading.value = true
     const { pageIndex: _pi, pageSize: _ps, ...rest } = translationAdvancedForm
-    const query: TranslationQuery = {
-      ...rest,
+    const query = {
+      ...(rest as TranslationQuery),
       pageIndex: translationPage.value,
       pageSize: translationPageSize.value,
-      keyWords: translationQueryKeyword.value || undefined
-    }
+      KeyWords: translationQueryKeyword.value || undefined
+    } as TranslationQuery
     const result = await getTranslationList(query)
     translationDataSource.value = result?.data ?? []
     translationTotal.value = result?.total ?? 0
   } catch (e) {
     logger.error('[Translation] 加载列表失败', e)
-    message.error('加载翻译列表失败')
+    message.error(t('routine.localization.translation.messages.loadListFail'))
   } finally {
     translationLoading.value = false
   }
@@ -732,18 +775,18 @@ const loadTranslationTransposed = async () => {
   try {
     translationLoading.value = true
     const { pageIndex: _pi, pageSize: _ps, ...rest } = translationAdvancedForm
-    const query: TranslationQuery = {
-      ...rest,
+    const query = {
+      ...(rest as TranslationQuery),
       pageIndex: translationPage.value,
       pageSize: translationPageSize.value,
-      keyWords: translationQueryKeyword.value || undefined
-    }
+      KeyWords: translationQueryKeyword.value || undefined
+    } as TranslationQuery
     const result = await getTranslationListTransposed(query)
     transposedResult.value = { paged: result.paged, cultureCodeOrder: result.cultureCodeOrder ?? [] }
     translationTotal.value = result.paged?.total ?? 0
   } catch (e) {
     logger.error('[Translation] 加载转置失败', e)
-    message.error('加载翻译转置失败')
+    message.error(t('routine.localization.translation.messages.loadTransposedFail'))
   } finally {
     translationLoading.value = false
   }
@@ -772,7 +815,7 @@ const handleTranslationReset = () => {
   Object.assign(translationAdvancedForm, {
     pageIndex: 1,
     pageSize: translationPageSize.value,
-    keyWords: '',
+    KeyWords: '',
     resourceKey: '',
     cultureCode: '',
     resourceType: '',
@@ -823,12 +866,12 @@ const handleTranslationPageSizeChange = (_current: number, size: number) => {
 const handleTranslationCreate = () => {
   if (translationViewMode.value === 'transposed') {
     // 转置模式：使用转置表单
-    translationTransposedFormTitle.value = '新增翻译（转置）'
+    translationTransposedFormTitle.value = t('routine.localization.translation.form.formCreateTransposed')
     translationTransposedFormData.value = null
     translationTransposedFormVisible.value = true
   } else {
     // 列表模式：使用单条表单
-    translationFormTitle.value = '新增翻译'
+    translationFormTitle.value = t('routine.localization.translation.form.formCreate')
     translationFormData.value = null
     translationFormVisible.value = true
   }
@@ -836,29 +879,29 @@ const handleTranslationCreate = () => {
 
 const handleTranslationUpdate = () => {
   if (!translationSelectedRow.value) {
-    message.warning('请选择要编辑的翻译')
+    message.warning(t('routine.localization.translation.messages.selectTranslationEdit'))
     return
   }
-  translationFormTitle.value = '编辑翻译'
+  translationFormTitle.value = t('routine.localization.translation.form.formEdit')
   translationFormData.value = { ...translationSelectedRow.value }
   translationFormVisible.value = true
 }
 
 const handleTranslationEditOne = (record: Translation) => {
-  translationFormTitle.value = '编辑翻译'
+  translationFormTitle.value = t('routine.localization.translation.form.formEdit')
   translationFormData.value = { ...record }
   translationFormVisible.value = true
 }
 
 const handleTranslationDeleteOne = async (record: Translation) => {
   if (!record?.translationId) {
-    message.warning('没有有效的翻译ID')
+    message.warning(t('routine.localization.translation.messages.invalidTranslationId'))
     return
   }
   try {
     translationLoading.value = true
     await deleteTranslationById(record.translationId)
-    message.success('删除成功')
+    message.success(t('common.msg.deletesuccess'))
     if (translationViewMode.value === 'list') loadTranslationList()
     else loadTranslationTransposed()
     const k = record.translationId
@@ -867,7 +910,7 @@ const handleTranslationDeleteOne = async (record: Translation) => {
     if (translationSelectedRow.value?.translationId === k) translationSelectedRow.value = null
   } catch (e) {
     logger.error('[Translation] 删除失败', e)
-    message.error('删除失败')
+    message.error(t('common.msg.deletefail'))
   } finally {
     translationLoading.value = false
   }
@@ -875,14 +918,14 @@ const handleTranslationDeleteOne = async (record: Translation) => {
 
 const handleTranslationDelete = async () => {
   if (translationSelectedRows.value.length === 0) {
-    message.warning('请选择要删除的翻译')
+    message.warning(t('routine.localization.translation.messages.selectTranslationDelete'))
     return
   }
   const ids = translationSelectedRows.value.map((r) => r.translationId).filter(Boolean) as string[]
   try {
     translationLoading.value = true
     for (const id of ids) await deleteTranslationById(id)
-    message.success('删除成功')
+    message.success(t('common.msg.deletesuccess'))
     if (translationViewMode.value === 'list') loadTranslationList()
     else loadTranslationTransposed()
     translationSelectedRowKeys.value = []
@@ -890,7 +933,7 @@ const handleTranslationDelete = async () => {
     translationSelectedRow.value = null
   } catch (e) {
     logger.error('[Translation] 删除失败', e)
-    message.error('删除失败')
+    message.error(t('common.msg.deletefail'))
   } finally {
     translationLoading.value = false
   }
@@ -899,15 +942,17 @@ const handleTranslationDelete = async () => {
 const handleTranslationExport = async () => {
   try {
     translationLoading.value = true
-    const query: TranslationQuery = {
-      ...translationAdvancedForm,
+    const query = {
+      ...(translationAdvancedForm as TranslationQuery),
       pageIndex: 1,
       pageSize: 100000,
-      keyWords: translationQueryKeyword.value || undefined
-    }
-    const blob = await exportTranslationData(query, undefined, '翻译')
-    const ts = new Date(); const t = (n: number, w = 2) => String(n).padStart(w, '0')
-    const fileName = `翻译_${ts.getFullYear()}${t(ts.getMonth()+1)}${t(ts.getDate())}${t(ts.getHours())}${t(ts.getMinutes())}${t(ts.getSeconds())}.xlsx`
+      KeyWords: translationQueryKeyword.value || undefined
+    } as TranslationQuery
+    const exportLabel = t('routine.localization.translation.messages.exportDataLabel')
+    const blob = await exportTranslationData(query, undefined, exportLabel)
+    const ts = new Date()
+    const padNum = (n: number, w = 2) => String(n).padStart(w, '0')
+    const fileName = `${exportLabel}_${ts.getFullYear()}${padNum(ts.getMonth() + 1)}${padNum(ts.getDate())}${padNum(ts.getHours())}${padNum(ts.getMinutes())}${padNum(ts.getSeconds())}.xlsx`
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -916,10 +961,10 @@ const handleTranslationExport = async () => {
     a.click()
     document.body.removeChild(a)
     window.URL.revokeObjectURL(url)
-    message.success('导出成功')
+    message.success(t('common.msg.exportsuccess'))
   } catch (e) {
     logger.error('[Translation] 导出失败', e)
-    message.error('导出失败')
+    message.error(t('common.msg.exportfail'))
   } finally {
     translationLoading.value = false
   }
@@ -932,20 +977,20 @@ const handleTranslationFormSubmit = async () => {
     translationFormLoading.value = true
     const d = translationFormRef.value.getFormData()
     if ('translationId' in d && d.translationId) {
-      await updateTranslation(String(d.translationId), d)
-      message.success('更新成功')
+      await updateTranslation(String(d.translationId), d as TranslationUpdate)
+      message.success(t('common.msg.updatesuccess'))
     } else {
-      await createTranslation(d)
-      message.success('新增成功')
+      await createTranslation(d as TranslationCreate)
+      message.success(t('common.msg.createsuccess'))
     }
     translationFormVisible.value = false
     if (translationViewMode.value === 'list') loadTranslationList()
     else loadTranslationTransposed()
   } catch (err: any) {
-    if (err?.errorFields) message.warning('请检查表单')
+    if (err?.errorFields) message.warning(t('routine.localization.translation.messages.checkForm'))
     else {
       logger.error('[Translation] 保存失败', err)
-      message.error('保存失败')
+      message.error(t('routine.localization.translation.messages.saveFail'))
     }
   } finally {
     translationFormLoading.value = false
@@ -969,20 +1014,24 @@ const handleTranslationTransposedFormSubmit = async () => {
     for (const [cultureCode, translationValue] of Object.entries(translations)) {
       if (!translationValue) continue // 跳过空值
       const existingId = translationIds[cultureCode]
-      const languageId = languageIds[cultureCode]
-      const payload = {
+      const languageIdStr = String(languageIds[cultureCode] ?? '')
+      const payload: TranslationCreate = {
         resourceKey,
         cultureCode,
         translationValue,
         resourceType,
-        resourceGroup: resourceGroup || undefined,
-        orderNum,
-        remark: remark || undefined,
-        languageId
+        languageId: languageIdStr,
+        orderNum
+      }
+      if (resourceGroup && resourceGroup.trim() !== '') {
+        payload.resourceGroup = resourceGroup
+      }
+      if (remark && remark.trim() !== '') {
+        payload.remark = remark
       }
       try {
         if (existingId) {
-          await updateTranslation(existingId, { ...payload, translationId: existingId })
+          await updateTranslation(existingId, { ...payload, translationId: existingId } as TranslationUpdate)
         } else {
           await createTranslation(payload)
         }
@@ -992,18 +1041,23 @@ const handleTranslationTransposedFormSubmit = async () => {
       }
     }
     if (results.fail > 0) {
-      message.warning(`保存完成，成功 ${results.success} 条，失败 ${results.fail} 条`)
+      message.warning(
+        t('routine.localization.translation.messages.savePartial', {
+          success: results.success,
+          fail: results.fail
+        })
+      )
     } else {
-      message.success(`保存成功，共 ${results.success} 条`)
+      message.success(t('routine.localization.translation.messages.saveAllSuccess', { count: results.success }))
     }
     translationTransposedFormVisible.value = false
     translationTransposedFormData.value = null
     loadTranslationTransposed()
   } catch (err: any) {
-    if (err?.errorFields) message.warning('请检查表单')
+    if (err?.errorFields) message.warning(t('routine.localization.translation.messages.checkForm'))
     else {
       logger.error('[Translation] 保存失败', err)
-      message.error('保存失败')
+      message.error(t('routine.localization.translation.messages.saveFail'))
     }
   } finally {
     translationTransposedFormLoading.value = false
@@ -1015,31 +1069,34 @@ const handleTranslationTransposedFormCancel = () => {
   translationTransposedFormData.value = null
 }
 
-type TransposedRow = { resourceKey: string; resourceType: string; resourceGroup?: string }
-
 const handleTransposedEdit = async (row: TransposedRow) => {
   if (!row?.resourceKey) return
   try {
     translationLoading.value = true
     // 获取该资源键下的所有翻译
-    const { data } = await getTranslationList({
+    const q: TranslationQuery = {
       pageIndex: 1,
       pageSize: 10000,
-      resourceKey: row.resourceKey,
-      resourceType: row.resourceType || undefined,
-      resourceGroup: row.resourceGroup || undefined
-    })
+      resourceKey: row.resourceKey
+    }
+    if (row.resourceType && row.resourceType.trim() !== '') {
+      q.resourceType = row.resourceType
+    }
+    if (row.resourceGroup && row.resourceGroup.trim() !== '') {
+      q.resourceGroup = row.resourceGroup
+    }
+    const { data } = await getTranslationList(q)
     if (!data || data.length === 0) {
-      message.warning('未找到该资源键的翻译')
+      message.warning(t('routine.localization.translation.messages.notFoundByResourceKey'))
       return
     }
     // 使用转置表单
-    translationTransposedFormTitle.value = '编辑翻译（转置）'
+    translationTransposedFormTitle.value = t('routine.localization.translation.form.formEditTransposed')
     translationTransposedFormData.value = data
     translationTransposedFormVisible.value = true
   } catch (e) {
     logger.error('[Translation] 获取翻译失败', e)
-    message.error('获取翻译失败')
+    message.error(t('routine.localization.translation.messages.loadTranslationFail'))
   } finally {
     translationLoading.value = false
   }
@@ -1049,24 +1106,29 @@ const handleTransposedDelete = async (row: TransposedRow) => {
   if (!row?.resourceKey) return
   try {
     translationLoading.value = true
-    const { data } = await getTranslationList({
+    const q: TranslationQuery = {
       pageIndex: 1,
       pageSize: 10000,
-      resourceKey: row.resourceKey,
-      resourceType: row.resourceType || undefined,
-      resourceGroup: row.resourceGroup || undefined
-    })
+      resourceKey: row.resourceKey
+    }
+    if (row.resourceType && row.resourceType.trim() !== '') {
+      q.resourceType = row.resourceType
+    }
+    if (row.resourceGroup && row.resourceGroup.trim() !== '') {
+      q.resourceGroup = row.resourceGroup
+    }
+    const { data } = await getTranslationList(q)
     const ids = (data ?? []).map((r: Translation) => r.translationId).filter(Boolean) as string[]
     if (ids.length === 0) {
-      message.warning('未找到该资源键的翻译')
+      message.warning(t('routine.localization.translation.messages.notFoundByResourceKey'))
       return
     }
     for (const id of ids) await deleteTranslationById(id)
-    message.success('删除成功')
+    message.success(t('common.msg.deletesuccess'))
     loadTranslationTransposed()
   } catch (e) {
     logger.error('[Translation] 删除失败', e)
-    message.error('删除失败')
+    message.error(t('common.msg.deletefail'))
   } finally {
     translationLoading.value = false
   }
@@ -1088,10 +1150,12 @@ const loadTranslationData = async (record: Language) => {
       // 更新 dataSource 中对应的记录，确保响应式更新
       const index = dataSource.value.findIndex(item => item.languageId === record.languageId)
       if (index !== -1) {
-        // 使用 Vue 的响应式更新方式
-        dataSource.value[index] = {
-          ...dataSource.value[index],
-          translationList: result.data
+        const prev = dataSource.value[index]
+        if (prev) {
+          dataSource.value[index] = {
+            ...prev,
+            translationList: result.data
+          }
         }
       }
       return result.data
@@ -1099,7 +1163,7 @@ const loadTranslationData = async (record: Language) => {
     return []
   } catch (error) {
     logger.error('[Language] 加载翻译数据失败', error)
-    message.error('加载翻译数据失败')
+    message.error(t('routine.localization.translation.messages.loadTranslationDataFail'))
     return []
   }
 }
@@ -1115,17 +1179,17 @@ const handleReset = () => {
   queryKeyword.value = ''
   currentPage.value = 1
   Object.assign(advancedQueryForm, {
-    keyWords: '',
-    cultureCode: '',
-    languageStatus: undefined,
-    isDefault: undefined
+    KeyWords: '',
+    cultureCode: ''
   })
+  delete advancedQueryForm.languageStatus
+  delete advancedQueryForm.isDefault
   loadData()
 }
 
 // 新增
 const handleCreate = () => {
-  formTitle.value = '新增语言'
+  formTitle.value = t('routine.localization.language.messages.formCreate')
   formData.value = null
   formVisible.value = true
 }
@@ -1133,11 +1197,11 @@ const handleCreate = () => {
 // 编辑
 const handleUpdate = () => {
   if (!selectedRow.value) {
-    message.warning('请选择要编辑的记录')
+    message.warning(t('routine.localization.language.messages.selectEdit'))
     return
   }
   
-  formTitle.value = '编辑语言'
+  formTitle.value = t('routine.localization.language.messages.formEdit')
   formData.value = { ...selectedRow.value }
   formVisible.value = true
 }
@@ -1145,7 +1209,7 @@ const handleUpdate = () => {
 // 编辑单条记录（操作列使用）
 const handleEditOne = (record: Language) => {
   selectedRow.value = record
-  formTitle.value = '编辑语言'
+  formTitle.value = t('routine.localization.language.messages.formEdit')
   formData.value = { ...record }
   formVisible.value = true
 }
@@ -1153,31 +1217,31 @@ const handleEditOne = (record: Language) => {
 // 删除
 const handleDelete = async () => {
   if (selectedRows.value.length === 0) {
-    message.warning('请选择要删除的记录')
+    message.warning(t('routine.localization.language.messages.selectDelete'))
     return
   }
   
-  const ids = selectedRows.value.map(row => row.languageId).filter(Boolean)
+  const ids = selectedRows.value.map((row) => row.languageId).filter((id): id is string => Boolean(id))
   if (ids.length === 0) {
-    message.warning('没有有效的记录ID')
+    message.warning(t('routine.localization.language.messages.invalidRecordId'))
     return
   }
   
   try {
     loading.value = true
     if (ids.length === 1) {
-      await languageApi.deleteLanguageById(ids[0])
+      await languageApi.deleteLanguageById(ids[0]!)
     } else {
       await languageApi.deleteLanguageBatch(ids)
     }
-    message.success('删除成功')
+    message.success(t('common.msg.deletesuccess'))
     await loadData()
     selectedRowKeys.value = []
     selectedRows.value = []
     selectedRow.value = null
   } catch (error) {
     logger.error('[Language] 删除失败', error)
-    message.error('删除失败')
+    message.error(t('common.msg.deletefail'))
   } finally {
     loading.value = false
   }
@@ -1186,14 +1250,14 @@ const handleDelete = async () => {
 // 删除单条记录（操作列使用）
 const handleDeleteOne = async (record: Language) => {
   if (!record.languageId) {
-    message.warning('没有有效的记录ID')
+    message.warning(t('routine.localization.language.messages.invalidRecordId'))
     return
   }
   
   try {
     loading.value = true
     await languageApi.deleteLanguageById(record.languageId)
-    message.success('删除成功')
+    message.success(t('common.msg.deletesuccess'))
     await loadData()
     // 如果删除的是当前选中的行，清除选中状态
     if (selectedRow.value?.languageId === record.languageId) {
@@ -1203,7 +1267,7 @@ const handleDeleteOne = async (record: Language) => {
     selectedRows.value = selectedRows.value.filter(r => r.languageId !== record.languageId)
   } catch (error) {
     logger.error('[Language] 删除失败', error)
-    message.error('删除失败')
+    message.error(t('common.msg.deletefail'))
   } finally {
     loading.value = false
   }
@@ -1213,16 +1277,21 @@ const handleDeleteOne = async (record: Language) => {
 const handleExport = async () => {
   try {
     loading.value = true
-    const query: LanguageQuery = {
-      ...advancedQueryForm,
+    const query = {
+      ...(advancedQueryForm as LanguageQuery),
       pageIndex: 1,
       pageSize: 10000,
-      keyWords: queryKeyword.value || undefined
-    }
+      KeyWords: queryKeyword.value || undefined
+    } as LanguageQuery
     
-    const blob = await languageApi.exportLanguageData(query, undefined, '语言')
-    const ts = new Date(); const t = (n: number, w = 2) => String(n).padStart(w, '0')
-    const fileName = `语言_${ts.getFullYear()}${t(ts.getMonth()+1)}${t(ts.getDate())}${t(ts.getHours())}${t(ts.getMinutes())}${t(ts.getSeconds())}.xlsx`
+    const blob = await languageApi.exportLanguageData(
+      query,
+      undefined,
+      t('routine.localization.language.messages.exportFilePrefix')
+    )
+    const ts = new Date()
+    const padNum = (n: number, w = 2) => String(n).padStart(w, '0')
+    const fileName = `${t('routine.localization.language.messages.exportFilePrefix')}_${ts.getFullYear()}${padNum(ts.getMonth() + 1)}${padNum(ts.getDate())}${padNum(ts.getHours())}${padNum(ts.getMinutes())}${padNum(ts.getSeconds())}.xlsx`
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -1231,27 +1300,28 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-    message.success('导出成功')
+    message.success(t('common.msg.exportsuccess'))
   } catch (error) {
     logger.error('[Language] 导出失败', error)
-    message.error('导出失败')
+    message.error(t('common.msg.exportfail'))
   } finally {
     loading.value = false
   }
 }
 
 // 状态切换
-const handleStatusChange = async (record: Language, checked: boolean) => {
+const handleStatusChange = async (record: Language, checked: unknown) => {
+  const on = Boolean(checked)
   try {
     await languageApi.updateLanguageStatus({
       languageId: record.languageId,
-      languageStatus: checked ? 0 : 1
+      languageStatus: on ? 0 : 1
     })
-    message.success('状态更新成功')
+    message.success(t('routine.localization.language.messages.statusUpdateSuccess'))
     await loadData()
   } catch (error) {
     logger.error('[Language] 状态更新失败', error)
-    message.error('状态更新失败')
+    message.error(t('routine.localization.language.messages.statusUpdateFail'))
   }
 }
 
@@ -1268,11 +1338,11 @@ const handleAdvancedQuerySubmit = () => {
 
 const handleAdvancedQueryReset = () => {
   Object.assign(advancedQueryForm, {
-    keyWords: '',
-    cultureCode: '',
-    languageStatus: undefined,
-    isDefault: undefined
+    KeyWords: '',
+    cultureCode: ''
   })
+  delete advancedQueryForm.languageStatus
+  delete advancedQueryForm.isDefault
 }
 
 // 列设置
@@ -1309,21 +1379,21 @@ const handleFormSubmit = async () => {
     if ('languageId' in formData && formData.languageId) {
       // 更新
       await languageApi.updateLanguage(formData.languageId, formData as LanguageUpdate)
-      message.success('更新成功')
+      message.success(t('common.msg.updatesuccess'))
     } else {
       // 新增
       await languageApi.createLanguage(formData as LanguageCreate)
-      message.success('新增成功')
+      message.success(t('common.msg.createsuccess'))
     }
     
     formVisible.value = false
     await loadData()
   } catch (error: any) {
     if (error?.errorFields) {
-      message.warning('请检查表单输入')
+      message.warning(t('routine.localization.language.messages.checkFormInput'))
     } else {
       logger.error('[Language] 保存失败', error)
-      message.error('保存失败')
+      message.error(t('routine.localization.translation.messages.saveFail'))
     }
   } finally {
     formLoading.value = false
@@ -1352,7 +1422,7 @@ const rowSelection = computed(() => ({
   onChange: (keys: (string | number)[], rows: Language[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
   onSelect: (record: Language, selected: boolean) => {
     if (selected) {
@@ -1363,7 +1433,7 @@ const rowSelection = computed(() => ({
   },
   onSelectAll: (selected: boolean, selectedRowsData: Language[]) => {
     if (selected) {
-      selectedRow.value = selectedRowsData.length === 1 ? selectedRowsData[0] : null
+      selectedRow.value = selectedRowsData.length === 1 ? (selectedRowsData[0] ?? null) : null
     } else {
       selectedRow.value = null
     }

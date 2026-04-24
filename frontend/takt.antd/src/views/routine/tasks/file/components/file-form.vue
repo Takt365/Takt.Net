@@ -8,25 +8,25 @@
     layout="horizontal"
   >
     <a-form-item
-      label="存储方式"
+      :label="t('entity.file.storagetype')"
       name="storageType"
     >
       <TaktSelect
         v-model:value="formState.storageType"
         dict-type="sys_storage_type"
-        placeholder="请选择存储方式"
+        :placeholder="t('routine.tasks.files.placeholders.selectStorageType')"
       />
     </a-form-item>
 
     <a-form-item
       v-if="formState.storageType === 0"
-      label="存储目录"
+      :label="t('routine.tasks.files.labels.storageDirectory')"
       name="storageDirectory"
     >
       <TaktSelect
         v-model:value="formState.storageDirectory"
         dict-type="sys_storage_directory"
-        placeholder="请选择存储目录"
+        :placeholder="t('routine.tasks.files.placeholders.selectStorageDirectory')"
       />
     </a-form-item>
 
@@ -35,7 +35,7 @@
       <a-form-item name="ossProvider">
         <template #label>
           <span>
-            OSS提供商
+            {{ t('routine.tasks.files.labels.ossProvider') }}
             <a-tooltip :title="getOssTooltipText(formState.ossProvider)">
               <RiQuestionFill style="margin-left: 4px; color: #1890ff; cursor: help;" />
             </a-tooltip>
@@ -44,7 +44,7 @@
         <TaktSelect
           v-model:value="formState.ossProvider"
           dict-type="sys_oss_provider"
-          placeholder="请选择OSS提供商"
+          :placeholder="t('routine.tasks.files.placeholders.selectOssProvider')"
         />
       </a-form-item>
     </template>
@@ -54,7 +54,7 @@
       <a-form-item name="ftpType">
         <template #label>
           <span>
-            FTP提供者
+            {{ t('routine.tasks.files.labels.ftpProvider') }}
             <a-tooltip :title="getFtpTooltipText(formState.ftpType)">
               <RiQuestionFill style="margin-left: 4px; color: #1890ff; cursor: help;" />
             </a-tooltip>
@@ -63,79 +63,79 @@
         <TaktSelect
           v-model:value="formState.ftpType"
           dict-type="sys_ftp_provider"
-          placeholder="请选择FTP服务提供商"
+          :placeholder="t('routine.tasks.files.placeholders.selectFtpProvider')"
         />
       </a-form-item>
     </template>
 
     <a-form-item
-      label="命名规则"
+      :label="t('routine.tasks.files.labels.storageNaming')"
       name="storageNaming"
     >
       <TaktSelect
         v-model:value="formState.storageNaming"
         dict-type="sys_storage_naming"
-        placeholder="请选择命名规则"
+        :placeholder="t('routine.tasks.files.placeholders.selectStorageNaming')"
       />
     </a-form-item>
 
     <a-form-item
       v-if="formState.storageNaming === 2"
-      label="自定义名称"
+      :label="t('routine.tasks.files.labels.storageNamingCustom')"
       name="storageNamingCustom"
     >
       <a-input
         v-model:value="formState.storageNamingCustom"
-        placeholder="请输入自定义名称"
+        :placeholder="t('routine.tasks.files.placeholders.namingCustom')"
       />
     </a-form-item>
 
     <a-form-item
-      label="是否公开"
+      :label="t('entity.file.ispublic')"
       name="isPublic"
     >
       <TaktSelect
         v-model:value="formState.isPublic"
         dict-type="sys_yes_no"
-        placeholder="请选择是否公开"
+        :placeholder="t('routine.tasks.files.placeholders.selectIsPublic')"
       />
     </a-form-item>
 
     <a-form-item
-      label="文件状态"
+      :label="t('entity.file.status')"
       name="fileStatus"
     >
       <TaktSelect
         v-model:value="formState.fileStatus"
         dict-type="sys_file_status"
-        placeholder="请选择文件状态"
+        :placeholder="t('routine.tasks.files.placeholders.selectFileStatus')"
       />
     </a-form-item>
 
     <a-form-item
-      label="文件描述"
+      :label="t('entity.file.description')"
       name="fileDescription"
     >
       <a-textarea
         v-model:value="formState.fileDescription"
-        placeholder="请输入文件描述"
+        :placeholder="t('routine.tasks.files.placeholders.fileDescription')"
         :rows="4"
       />
     </a-form-item>
 
     <a-form-item
-      label="备注"
+      :label="t('common.entity.remark')"
       name="remark"
     >
       <a-textarea
         v-model:value="formState.remark"
-        placeholder="请输入备注"
+        :placeholder="t('routine.tasks.files.placeholders.remark')"
         :rows="4"
       />
     </a-form-item>
 
     <a-form-item
-      label="文件标签"
+      :label="t('entity.file.tags')"
       name="fileTags"
     >
       <template
@@ -176,13 +176,13 @@
         @click="showTagInput"
       >
         <plus-outlined />
-        添加标签
+        {{ t('routine.tasks.files.labels.addTag') }}
       </a-tag>
     </a-form-item>
 
     <!-- 文件上传组件 - 放在最后 -->
     <a-form-item
-      label="文件上传"
+      :label="t('routine.tasks.files.labels.fileUpload')"
       name="fileUpload"
       :required="true"
     >
@@ -203,11 +203,13 @@
 </template>
 
 <script setup lang="ts">
+import { ref, reactive, computed, watch, nextTick, onMounted, getCurrentInstance } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { RiQuestionFill   } from '@remixicon/vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import type { UploadChangeParam } from 'ant-design-vue'
-import type { File as TaktFile } from '@/types/routine/tasks/file'
+import type { File as TaktFile } from '@/types/routine/tasks/files/file'
 import { useUserStore } from '@/stores/identity/user'
 import { logger } from '@/utils/logger'
 import { upload as uploadFileApi } from '@/api/routine/tasks/file'
@@ -218,7 +220,7 @@ import { message } from 'ant-design-vue'
 
 // 自定义上传请求选项类型
 interface CustomUploadRequestOption {
-  file: string | Blob | File
+  file: string | Blob | globalThis.File
   onSuccess?: (response: any, file: any) => void
   onError?: (error: Error) => void
   onProgress?: (event: { percent: number }) => void
@@ -233,6 +235,8 @@ const props = withDefaults(defineProps<Props>(), {
   formData: () => ({}),
   loading: false
 })
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
   'submit': [values: any]
@@ -249,16 +253,16 @@ const userStore = useUserStore()
 
 // 注意：字典数据在路由守卫中统一加载，组件中通过 TaktSelect 的 dict-type 属性直接使用即可
 
-// 生成默认文件描述：{用户名}于{YYYY-MM-DD HH:mm:ss}上传
+// 生成默认文件描述（文案见 routine.tasks.files.messages.defaultDescription）
 const generateDefaultFileDescription = (): string => {
-  const userName = userStore.userInfo?.userName || '未知用户'
+  const userName = userStore.userInfo?.userName || t('routine.tasks.files.messages.unknownUser')
   const instance = getCurrentInstance()
   const formatDateTime = instance?.appContext.config.globalProperties.formatDateTime as typeof DateTimeHelper.format | undefined
-  
-  const dateStr = formatDateTime?.(new Date(), 'YYYY-MM-DD HH:mm:ss') || 
+
+  const dateStr = formatDateTime?.(new Date(), 'YYYY-MM-DD HH:mm:ss') ||
     DateTimeHelper.format(new Date(), 'YYYY-MM-DD HH:mm:ss')
-  
-  return `${userName}于${dateStr}上传`
+
+  return t('routine.tasks.files.messages.defaultDescription', { user: userName, time: dateStr })
 }
 
 interface FormState {
@@ -282,10 +286,10 @@ interface FormState {
   // FTP配置
   ftpType?: string
   storageNaming?: number
-  storageNamingCustom?: string
+  storageNamingCustom: string
   isPublic?: number
-  fileDescription?: string
-  remark?: string
+  fileDescription: string
+  remark: string
   fileTags?: string
   fileStatus?: number
   fileUpload?: any[] // 文件上传列表，用于表单验证
@@ -335,7 +339,7 @@ const fileTagsList = computed({
 // 显示标签输入框
 const showTagInput = () => {
   if (fileTagsList.value.length >= 7) {
-    message.warning('最多只能添加7个标签')
+    message.warning(t('routine.tasks.files.messages.tagMax'))
     return
   }
   tagInputVisible.value = true
@@ -353,9 +357,9 @@ const handleTagInputConfirm = () => {
     tags = [...tags, inputValue]
     fileTagsList.value = tags
   } else if (tags.length >= 7) {
-    message.warning('最多只能添加7个标签')
+    message.warning(t('routine.tasks.files.messages.tagMax'))
   } else if (tags.indexOf(inputValue) !== -1) {
-    message.warning('标签已存在')
+    message.warning(t('routine.tasks.files.messages.tagDuplicate'))
   }
   
   tagInputVisible.value = false
@@ -370,16 +374,13 @@ const handleRemoveTag = (removedTag: string) => {
 
 // 注意：字段现在始终显示，不再需要 hasUploadedFile 来控制显示
 
-const rules: Record<string, Rule[]> = {
+const rules = computed<Record<string, Rule[]>>(() => ({
   fileUpload: [
     {
       validator: (_rule: any, value: any) => {
-        // 在手动上传模式下，只要文件列表中有文件（无论状态如何）就通过验证
-        // 文件会在提交时上传
-        // 检查 value（formState.fileUpload）或 filesFileList
         const fileList = (Array.isArray(value) ? value : filesFileList.value) || []
         if (fileList.length === 0) {
-          return Promise.reject('请先选择文件')
+          return Promise.reject(t('routine.tasks.files.messages.selectFileFirst'))
         }
         return Promise.resolve()
       },
@@ -387,13 +388,13 @@ const rules: Record<string, Rule[]> = {
     }
   ],
   storageType: [
-    { required: true, message: '请选择存储方式', trigger: 'change' }
+    { required: true, message: t('routine.tasks.files.messages.storageTypeRequired'), trigger: 'change' }
   ],
   storageDirectory: [
     {
       validator: (_rule: any, value: string) => {
         if (formState.storageType === 0 && !value) {
-          return Promise.reject('请选择存储目录')
+          return Promise.reject(t('routine.tasks.files.messages.storageDirRequired'))
         }
         return Promise.resolve()
       },
@@ -404,14 +405,14 @@ const rules: Record<string, Rule[]> = {
     {
       validator: (_rule: any, value: string) => {
         if (formState.storageNaming === 2 && !value) {
-          return Promise.reject('请输入自定义命名规则')
+          return Promise.reject(t('routine.tasks.files.messages.namingCustomRequired'))
         }
         return Promise.resolve()
       },
       trigger: 'blur'
     }
   ]
-}
+}))
 
 // 监听 formData 变化，更新 formState
 watch(
@@ -617,8 +618,7 @@ onMounted(() => {
           formState.storageDirectory = currentValue || 'default'
         })
       }
-      // 如果文件描述为空或只有"admin于上传"（不完整），设置默认值
-      if (!formState.fileDescription || formState.fileDescription.trim() === '' || formState.fileDescription === 'admin于上传') {
+      if (!formState.fileDescription || formState.fileDescription.trim() === '') {
         formState.fileDescription = generateDefaultFileDescription()
         logger.debug('[FileForm] 在 onMounted 中生成文件描述:', formState.fileDescription)
       }
@@ -633,50 +633,55 @@ onMounted(() => {
 // 获取OSS配置提示文本（用于问号图标）
 const getOssTooltipText = (provider?: string): string => {
   if (!provider) {
-    return '请先在 appsettings.json 中配置 OSS 参数，配置路径：Oss:{Provider}:{参数名}'
+    return t('routine.tasks.files.tooltips.ossDefault')
   }
-  
-  const configs: Record<string, string> = {
-    aliyun: '请先在 appsettings.json 中配置 OSS 参数，配置路径：Oss:aliyun:Endpoint, Oss:aliyun:AccessKeyId, Oss:aliyun:AccessKeySecret, Oss:aliyun:Bucket, Oss:aliyun:Region',
-    tencent: '请先在 appsettings.json 中配置 OSS 参数，配置路径：Oss:tencent:Endpoint, Oss:tencent:SecretId, Oss:tencent:SecretKey, Oss:tencent:Bucket, Oss:tencent:Region',
-    huawei: '请先在 appsettings.json 中配置 OSS 参数，配置路径：Oss:huawei:Endpoint, Oss:huawei:AccessKeyId, Oss:huawei:SecretAccessKey, Oss:huawei:Bucket, Oss:huawei:Region',
-    aws: '请先在 appsettings.json 中配置 OSS 参数，配置路径：Oss:aws:Endpoint, Oss:aws:AccessKeyId, Oss:aws:SecretAccessKey, Oss:aws:Bucket, Oss:aws:Region'
+
+  const keys: Record<string, 'routine.tasks.files.tooltips.ossAliyun' | 'routine.tasks.files.tooltips.ossTencent' | 'routine.tasks.files.tooltips.ossHuawei' | 'routine.tasks.files.tooltips.ossAws'> = {
+    aliyun: 'routine.tasks.files.tooltips.ossAliyun',
+    tencent: 'routine.tasks.files.tooltips.ossTencent',
+    huawei: 'routine.tasks.files.tooltips.ossHuawei',
+    aws: 'routine.tasks.files.tooltips.ossAws'
   }
-  
-  return configs[provider] || '请先在 appsettings.json 中配置 OSS 参数，配置路径：Oss:{Provider}:{参数名}'
+
+  const k = keys[provider]
+  return k ? t(k) : t('routine.tasks.files.tooltips.ossDefault')
 }
 
 // 获取FTP配置提示文本（用于问号图标）
 const getFtpTooltipText = (provider?: string): string => {
   if (!provider) {
-    return '请先在 appsettings.json 中配置 FTP 参数，配置路径：Ftp:{Provider}:{参数名}'
+    return t('routine.tasks.files.tooltips.ftpDefault')
   }
-  
-  const configs: Record<string, string> = {
-    teac_cn: '请先在 appsettings.json 中配置 FTP 参数，配置路径：Ftp:teac_cn:Host, Ftp:teac_cn:Port, Ftp:teac_cn:Username, Ftp:teac_cn:Password, Ftp:teac_cn:EnableSsl, Ftp:teac_cn:Timeout, Ftp:teac_cn:BasePath（默认Host: ftp.teac.com.cn）',
-    teac_jp: '请先在 appsettings.json 中配置 FTP 参数，配置路径：Ftp:teac_jp:Host, Ftp:teac_jp:Port, Ftp:teac_jp:Username, Ftp:teac_jp:Password, Ftp:teac_jp:EnableSsl, Ftp:teac_jp:Timeout, Ftp:teac_jp:BasePath（默认Host: rosu2.teac.co.jp）'
+
+  const keys: Record<string, 'routine.tasks.files.tooltips.ftpTeacCn' | 'routine.tasks.files.tooltips.ftpTeacJp'> = {
+    teac_cn: 'routine.tasks.files.tooltips.ftpTeacCn',
+    teac_jp: 'routine.tasks.files.tooltips.ftpTeacJp'
   }
-  
-  return configs[provider] || '请先在 appsettings.json 中配置 FTP 参数，配置路径：Ftp:{Provider}:{参数名}'
+
+  const k = keys[provider]
+  return k ? t(k) : t('routine.tasks.files.tooltips.ftpDefault')
 }
 
 // 文件类型验证：只允许 jpg, pdf, xlsx, rar
-const validateFileType = (file: File | any, fileList?: File[] | any[]): boolean => {
-  // 获取原生 File 对象
-  const originFile = (file).originFileObj || (file as File)
-  
+const validateFileType = (file: { originFileObj?: globalThis.File } | globalThis.File, _fileList?: unknown[]): boolean => {
+  const originFile = (file as { originFileObj?: globalThis.File }).originFileObj || (file as globalThis.File)
+
   if (!originFile || !(originFile instanceof File)) {
     return false
   }
-  
+
   const allowedExtensions = ['jpg', 'jpeg', 'pdf', 'xlsx', 'rar']
   const fileExtension = getFileExtension(originFile.name).toLowerCase()
-  
+
   if (!allowedExtensions.includes(fileExtension)) {
-    message.error(`只允许上传以下文件类型：${allowedExtensions.join(', ').toUpperCase()}`)
+    message.error(
+      t('routine.tasks.files.messages.allowedTypes', {
+        types: allowedExtensions.join(', ').toUpperCase()
+      })
+    )
     return false
   }
-  
+
   return true
 }
 
@@ -687,15 +692,15 @@ const handleFileUpload = async (options: CustomUploadRequestOption) => {
   // 确保 file 是 File 类型
   const uploadFile: globalThis.File | null = file instanceof File ? file : (typeof file === 'string' ? null : file as globalThis.File)
   if (!uploadFile || !(uploadFile instanceof File)) {
-    const err = new Error('无效的文件类型')
+    const err = new Error(t('routine.tasks.files.messages.invalidFile'))
     onError?.(err)
-    message.error('文件类型无效')
+    message.error(t('routine.tasks.files.messages.fileTypeInvalid'))
     return
   }
-  
+
   // 验证文件类型
   if (!validateFileType(uploadFile)) {
-    const err = new Error('不支持的文件类型')
+    const err = new Error(t('routine.tasks.files.messages.unsupportedFileType'))
     onError?.(err)
     return
   }
@@ -804,13 +809,13 @@ const handleFileUpload = async (options: CustomUploadRequestOption) => {
       onSuccess?.(uploadResult, uploadFile)
       // 注意：不在这里显示成功消息，因为上传和创建是合并操作的，成功消息会在创建成功后统一显示
     } else {
-      throw new Error('上传响应格式错误：缺少 fileCode')
+      throw new Error(t('routine.tasks.files.messages.uploadResponseNoCode'))
     }
   } catch (error: any) {
     const err = error instanceof Error ? error : new Error(String(error))
     
     // 记录详细错误信息
-    const errorMessage = error?.response?.data?.message || error?.message || '文件上传失败'
+    const errorMessage = error?.response?.data?.message || error?.message || t('routine.tasks.files.messages.uploadFailedGeneric')
     const errorStatus = error?.response?.status
     const errorStatusText = error?.response?.statusText
     
@@ -824,7 +829,11 @@ const handleFileUpload = async (options: CustomUploadRequestOption) => {
     })
     
     onError?.(err)
-    message.error(errorStatus === 403 ? '文件上传被拒绝，请检查权限' : (errorMessage || '文件上传失败'))
+    message.error(
+      errorStatus === 403
+        ? t('routine.tasks.files.messages.uploadRejected403')
+        : errorMessage || t('routine.tasks.files.messages.uploadFailedGeneric')
+    )
   }
 }
 

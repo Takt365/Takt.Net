@@ -1,3 +1,15 @@
+// ========================================
+// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
+// 命名空间：Takt.WebApi.Filters
+// 文件名称：TaktFluentValidationActionFilter.cs
+// 创建时间：2026-04-17
+// 创建人：Takt365(Cursor AI)
+// 功能描述：FluentValidation 全局执行过滤器，对当前 Action 参数按类型自动匹配并执行验证器；失败时统一抛出业务异常并附带字段级错误集合。
+// 
+// 版权信息：Copyright (c) 2026 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc.Filters;

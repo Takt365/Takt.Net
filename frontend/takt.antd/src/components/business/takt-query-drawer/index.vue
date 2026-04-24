@@ -75,19 +75,26 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   open: false,
-  title: undefined,
+  /** 空串表示未传入，由下方 computed 回落到 i18n（避免 withDefaults 写 undefined 触发 exactOptionalPropertyTypes） */
+  title: '',
   placement: 'right',
   width: 400,
   formModel: () => ({}),
   formLayout: 'vertical',
-  submitText: undefined,
-  resetText: undefined,
+  submitText: '',
+  resetText: '',
   submitLoading: false
 })
 
-const title = computed(() => props.title ?? t('common.button.advancedQuery'))
-const submitTextDisplay = computed(() => props.submitText ?? t('common.button.query'))
-const resetTextDisplay = computed(() => props.resetText ?? t('common.button.reset'))
+const title = computed(() =>
+  props.title !== '' ? props.title : t('common.button.advancedquery')
+)
+const submitTextDisplay = computed(() =>
+  props.submitText !== '' ? props.submitText : t('common.button.query')
+)
+const resetTextDisplay = computed(() =>
+  props.resetText !== '' ? props.resetText : t('common.button.reset')
+)
 
 const emit = defineEmits<{
   'update:open': [open: boolean]

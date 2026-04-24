@@ -1,34 +1,25 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.Application.Dtos.Routine.I18n
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：Takt.Application.Dtos.Routine.Tasks.I18n
 // 文件名称：TaktLanguageDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt语言DTO，包含语言相关的数据传输对象（查询、创建、更新）
-// 
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：语言表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
+//
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-
-// ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.Application.Dtos.Routine.I18n
-// 文件名称：TaktLanguageDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt语言DTO，包含语言相关的数据传输对象（查询、创建、更新）
-// 
-// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
-// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
-// ========================================
+using SqlSugar;
+using Takt.Application.Dtos;
+using Takt.Shared.Models;
 
 namespace Takt.Application.Dtos.Routine.Tasks.I18n;
 
 /// <summary>
-/// Takt语言DTO
+/// 语言表Dto
 /// </summary>
-public class TaktLanguageDto : TaktDtoBase
+public partial class TaktLanguageDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -38,66 +29,53 @@ public class TaktLanguageDto : TaktDtoBase
         LanguageName = string.Empty;
         CultureCode = string.Empty;
         NativeName = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 语言ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 语言表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long LanguageId { get; set; }
 
     /// <summary>
-    /// 语言名称（中文名称，如：简体中文）
+    /// 语言名称
     /// </summary>
     public string LanguageName { get; set; }
-
     /// <summary>
-    /// 语言编码（ISO 639-1/639-2，如：zh-CN、en-US）
+    /// 语言编码
     /// </summary>
     public string CultureCode { get; set; }
-
     /// <summary>
-    /// 本地化名称（该语言下的名称，如：简体中文、English）
+    /// 本地化名称
     /// </summary>
     public string NativeName { get; set; }
-
     /// <summary>
-    /// 语言图标（国旗图标或语言图标URL）
+    /// 语言图标
     /// </summary>
     public string? LanguageIcon { get; set; }
-
     /// <summary>
-    /// 排序号（越小越靠前）
-    /// </summary>
-    public int OrderNum { get; set; }
-
-    /// <summary>
-    /// 语言状态（0=启用，1=禁用）
-    /// </summary>
-    public int LanguageStatus { get; set; }
-
-    /// <summary>
-    /// 是否默认语言（1=是，0=否）
+    /// 是否默认语言
     /// </summary>
     public int IsDefault { get; set; }
-
     /// <summary>
-    /// 是否启用RTL（从右到左，1=是，0=否）
+    /// 是否启用RTL
     /// </summary>
     public int IsRtl { get; set; }
-
     /// <summary>
-    /// 翻译列表（主子表关系）
+    /// 排序号
     /// </summary>
-    public List<TaktTranslationDto>? TranslationList { get; set; }
+    public int SortOrder { get; set; }
+    /// <summary>
+    /// 语言状态
+    /// </summary>
+    public int LanguageStatus { get; set; }
 }
 
 /// <summary>
-/// Takt语言查询DTO
+/// 语言表查询DTO
 /// </summary>
-public class TaktLanguageQueryDto : TaktPagedQuery
+public partial class TaktLanguageQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -106,28 +84,75 @@ public class TaktLanguageQueryDto : TaktPagedQuery
     {
     }
 
-    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于在语言名称、语言编码、本地化名称中模糊查询
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
+    /// <summary>
+    /// 语言表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long LanguageId { get; set; }
+
+    /// <summary>
+    /// 语言名称
+    /// </summary>
+    public string? LanguageName { get; set; }
     /// <summary>
     /// 语言编码
     /// </summary>
     public string? CultureCode { get; set; }
-
     /// <summary>
-    /// 语言状态（0=启用，1=禁用）
+    /// 本地化名称
+    /// </summary>
+    public string? NativeName { get; set; }
+    /// <summary>
+    /// 语言图标
+    /// </summary>
+    public string? LanguageIcon { get; set; }
+    /// <summary>
+    /// 是否默认语言
+    /// </summary>
+    public int? IsDefault { get; set; }
+    /// <summary>
+    /// 是否启用RTL
+    /// </summary>
+    public int? IsRtl { get; set; }
+    /// <summary>
+    /// 排序号
+    /// </summary>
+    public int? SortOrder { get; set; }
+    /// <summary>
+    /// 语言状态
     /// </summary>
     public int? LanguageStatus { get; set; }
 
     /// <summary>
-    /// 是否默认语言（1=是，0=否）
+    /// 创建人ID
     /// </summary>
-    public int? IsDefault { get; set; }
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建语言DTO
+/// Takt创建语言表DTO
 /// </summary>
-public class TaktLanguageCreateDto
+public partial class TaktLanguageCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -139,61 +164,61 @@ public class TaktLanguageCreateDto
         NativeName = string.Empty;
     }
 
-    /// <summary>
-    /// 语言名称（中文名称，如：简体中文）
+        /// <summary>
+    /// 语言名称
     /// </summary>
     public string LanguageName { get; set; }
 
-    /// <summary>
-    /// 语言编码（ISO 639-1/639-2，如：zh-CN、en-US）
+        /// <summary>
+    /// 语言编码
     /// </summary>
     public string CultureCode { get; set; }
 
-    /// <summary>
-    /// 本地化名称（该语言下的名称，如：简体中文、English）
+        /// <summary>
+    /// 本地化名称
     /// </summary>
     public string NativeName { get; set; }
 
-    /// <summary>
-    /// 语言图标（国旗图标或语言图标URL）
+        /// <summary>
+    /// 语言图标
     /// </summary>
     public string? LanguageIcon { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 是否默认语言
     /// </summary>
-    public int OrderNum { get; set; }
+    public int IsDefault { get; set; }
+
+        /// <summary>
+    /// 是否启用RTL
+    /// </summary>
+    public int IsRtl { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
+
+        /// <summary>
+    /// 语言状态
+    /// </summary>
+    public int LanguageStatus { get; set; }
 
     /// <summary>
-    /// 语言状态（0=启用，1=禁用）
+    /// 扩展字段JSON
     /// </summary>
-    public int LanguageStatus { get; set; } = 0;
-
-    /// <summary>
-    /// 是否默认语言（1=是，0=否）
-    /// </summary>
-    public int IsDefault { get; set; } = 0;
-
-    /// <summary>
-    /// 是否启用RTL（从右到左，1=是，0=否）
-    /// </summary>
-    public int IsRtl { get; set; } = 0;
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
     /// </summary>
     public string? Remark { get; set; }
-
-    /// <summary>
-    /// 翻译列表（主子表关系）
-    /// </summary>
-    public List<TaktTranslationCreateDto>? TranslationList { get; set; }
 }
 
 /// <summary>
-/// Takt更新语言DTO
+/// Takt更新语言表DTO
 /// </summary>
-public class TaktLanguageUpdateDto : TaktLanguageCreateDto
+public partial class TaktLanguageUpdateDto : TaktLanguageCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -202,8 +227,8 @@ public class TaktLanguageUpdateDto : TaktLanguageCreateDto
     {
     }
 
-    /// <summary>
-    /// 语言ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 语言表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
@@ -211,9 +236,9 @@ public class TaktLanguageUpdateDto : TaktLanguageCreateDto
 }
 
 /// <summary>
-/// Takt语言状态DTO
+/// 语言表语言状态DTO
 /// </summary>
-public class TaktLanguageStatusDto
+public partial class TaktLanguageStatusDto
 {
     /// <summary>
     /// 构造函数
@@ -222,8 +247,8 @@ public class TaktLanguageStatusDto
     {
     }
 
-    /// <summary>
-    /// 语言ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 语言表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
@@ -232,13 +257,13 @@ public class TaktLanguageStatusDto
     /// <summary>
     /// 语言状态（0=禁用，1=启用）
     /// </summary>
-    public byte LanguageStatus { get; set; }
+    public int LanguageStatus { get; set; }
 }
 
 /// <summary>
-/// Takt语言导入模板DTO
+/// 语言表导入模板DTO
 /// </summary>
-public class TaktLanguageTemplateDto
+public partial class TaktLanguageTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -250,45 +275,50 @@ public class TaktLanguageTemplateDto
         NativeName = string.Empty;
     }
 
-    /// <summary>
-    /// 语言名称（中文名称，如：简体中文）
+        /// <summary>
+    /// 语言名称
     /// </summary>
     public string LanguageName { get; set; }
 
-    /// <summary>
-    /// 语言编码（ISO 639-1/639-2，如：zh-CN、en-US）
+        /// <summary>
+    /// 语言编码
     /// </summary>
     public string CultureCode { get; set; }
 
-    /// <summary>
-    /// 本地化名称（该语言下的名称，如：简体中文、English）
+        /// <summary>
+    /// 本地化名称
     /// </summary>
     public string NativeName { get; set; }
 
-    /// <summary>
-    /// 语言图标（国旗图标或语言图标URL）
+        /// <summary>
+    /// 语言图标
     /// </summary>
     public string? LanguageIcon { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 是否默认语言
     /// </summary>
-    public int OrderNum { get; set; } = 0;
+    public int IsDefault { get; set; }
+
+        /// <summary>
+    /// 是否启用RTL
+    /// </summary>
+    public int IsRtl { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
+
+        /// <summary>
+    /// 语言状态
+    /// </summary>
+    public int LanguageStatus { get; set; }
 
     /// <summary>
-    /// 语言状态（0=启用，1=禁用）
+    /// 扩展字段JSON
     /// </summary>
-    public int LanguageStatus { get; set; } = 0;
-
-    /// <summary>
-    /// 是否默认语言（1=是，0=否）
-    /// </summary>
-    public int IsDefault { get; set; } = 0;
-
-    /// <summary>
-    /// 是否启用RTL（从右到左，1=是，0=否）
-    /// </summary>
-    public int IsRtl { get; set; } = 0;
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -297,9 +327,9 @@ public class TaktLanguageTemplateDto
 }
 
 /// <summary>
-/// Takt语言导入DTO
+/// 语言表导入DTO
 /// </summary>
-public class TaktLanguageImportDto
+public partial class TaktLanguageImportDto
 {
     /// <summary>
     /// 构造函数
@@ -311,45 +341,50 @@ public class TaktLanguageImportDto
         NativeName = string.Empty;
     }
 
-    /// <summary>
-    /// 语言名称（中文名称，如：简体中文）
+        /// <summary>
+    /// 语言名称
     /// </summary>
     public string LanguageName { get; set; }
 
-    /// <summary>
-    /// 语言编码（ISO 639-1/639-2，如：zh-CN、en-US）
+        /// <summary>
+    /// 语言编码
     /// </summary>
     public string CultureCode { get; set; }
 
-    /// <summary>
-    /// 本地化名称（该语言下的名称，如：简体中文、English）
+        /// <summary>
+    /// 本地化名称
     /// </summary>
     public string NativeName { get; set; }
 
-    /// <summary>
-    /// 语言图标（国旗图标或语言图标URL）
+        /// <summary>
+    /// 语言图标
     /// </summary>
     public string? LanguageIcon { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 是否默认语言
     /// </summary>
-    public int OrderNum { get; set; } = 0;
+    public int IsDefault { get; set; }
+
+        /// <summary>
+    /// 是否启用RTL
+    /// </summary>
+    public int IsRtl { get; set; }
+
+        /// <summary>
+    /// 排序号
+    /// </summary>
+    public int SortOrder { get; set; }
+
+        /// <summary>
+    /// 语言状态
+    /// </summary>
+    public int LanguageStatus { get; set; }
 
     /// <summary>
-    /// 语言状态（0=启用，1=禁用）
+    /// 扩展字段JSON
     /// </summary>
-    public int LanguageStatus { get; set; } = 0;
-
-    /// <summary>
-    /// 是否默认语言（1=是，0=否）
-    /// </summary>
-    public int IsDefault { get; set; } = 0;
-
-    /// <summary>
-    /// 是否启用RTL（从右到左，1=是，0=否）
-    /// </summary>
-    public int IsRtl { get; set; } = 0;
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -358,69 +393,60 @@ public class TaktLanguageImportDto
 }
 
 /// <summary>
-/// Takt语言导出DTO
+/// 语言表导出DTO
 /// </summary>
-public class TaktLanguageExportDto
+public partial class TaktLanguageExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktLanguageExportDto()
     {
+        CreatedAt = DateTime.Now;
         LanguageName = string.Empty;
         CultureCode = string.Empty;
         NativeName = string.Empty;
-        LanguageIcon = string.Empty;
-        LanguageStatus = string.Empty;
-        IsDefault = string.Empty;
-        IsRtl = string.Empty;
-        CreatedAt = DateTime.Now;
     }
 
-    /// <summary>
-    /// 语言名称（中文名称，如：简体中文）
+        /// <summary>
+    /// 语言名称
     /// </summary>
     public string LanguageName { get; set; }
 
-    /// <summary>
-    /// 语言编码（ISO 639-1/639-2，如：zh-CN、en-US）
+        /// <summary>
+    /// 语言编码
     /// </summary>
     public string CultureCode { get; set; }
 
-    /// <summary>
-    /// 本地化名称（该语言下的名称，如：简体中文、English）
+        /// <summary>
+    /// 本地化名称
     /// </summary>
     public string NativeName { get; set; }
 
-    /// <summary>
-    /// 语言图标（国旗图标或语言图标URL）
+        /// <summary>
+    /// 语言图标
     /// </summary>
-    public string LanguageIcon { get; set; }
+    public string? LanguageIcon { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
-    /// </summary>
-    public int OrderNum { get; set; }
-
-    /// <summary>
-    /// 语言状态
-    /// </summary>
-    public string LanguageStatus { get; set; }
-
-    /// <summary>
+        /// <summary>
     /// 是否默认语言
     /// </summary>
-    public string IsDefault { get; set; }
+    public int IsDefault { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 是否启用RTL
     /// </summary>
-    public string IsRtl { get; set; }
+    public int IsRtl { get; set; }
 
-    /// <summary>
-    /// 备注
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public string? Remark { get; set; }
+    public int SortOrder { get; set; }
+
+        /// <summary>
+    /// 语言状态
+    /// </summary>
+    public int LanguageStatus { get; set; }
 
     /// <summary>
     /// 创建时间

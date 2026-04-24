@@ -49,7 +49,13 @@ export const useDictDataStore = defineStore('dictData', () => {
   
   // 是否已加载所有字典数据
   const isLoaded = ref(false)
-  const translate = (key: string): string => String(i18n.global.t(key))
+  type I18nT = (key: string, values?: object, options?: { locale?: string }) => string
+  const translate = (key: string): string => {
+    const t = i18n.global.t as I18nT
+    return String(t(key))
+  }
+  const toOptionValue = (value: unknown): string | number | undefined =>
+    typeof value === 'string' || typeof value === 'number' ? value : undefined
 
   /**
    * 解析字典显示文本：
@@ -106,10 +112,10 @@ export const useDictDataStore = defineStore('dictData', () => {
         // 后端已统一转换为 camelCase
         // 批量加载时：DictTypeCode 用于分组，ExtLabel 和 ExtValue 保持原始值
         const dictTypeCode = String(optionLike.dictTypeCode ?? '') // DictTypeCode 用于分组
-        const dictValue = optionLike.dictValue
+        const dictValue = toOptionValue(optionLike.dictValue)
         const dictLabel = optionLike.dictLabel
         const extLabel = optionLike.extLabel // ExtLabel 保持原始值
-        const extValue = optionLike.extValue // ExtValue 保持原始值
+        const extValue = toOptionValue(optionLike.extValue) // ExtValue 保持原始值
         const dictL10nKey = optionLike.dictL10nKey // DictL10nKey 保持原始值
         
         if (!dictTypeCode) {
@@ -123,22 +129,24 @@ export const useDictDataStore = defineStore('dictData', () => {
         
         // 保持原始数据结构，与单个查询完全一致
         // 批量加载时：所有字段都保持原始值，DictTypeCode 用于前端分组
-        groupedDictData[dictTypeCode].push({
+        const normalized: TaktSelectOption = {
           dictLabel: String(dictLabel),
-          dictValue: dictValue, // 后端：DictValue = DictValue（字典值，如 "0", "1", "2"）
-          dictL10nKey: dictL10nKey, // 后端：DictL10nKey = DictL10nKey（原始字典本地化键）
-          extLabel: extLabel, // 后端：ExtLabel = ExtLabel（原始扩展标签）
-          extValue: extValue, // 后端：ExtValue = ExtValue（原始扩展值）
-          // 后端已统一转换为 camelCase
-          cssClass: optionLike.cssClass,
-          listClass: optionLike.listClass,
           orderNum: optionLike.orderNum ?? 0
-        })
+        }
+        if (dictValue !== undefined) normalized.dictValue = dictValue
+        if (dictL10nKey !== undefined) normalized.dictL10nKey = dictL10nKey
+        if (extLabel !== undefined) normalized.extLabel = extLabel
+        if (extValue !== undefined) normalized.extValue = extValue
+        if (optionLike.cssClass !== undefined) normalized.cssClass = optionLike.cssClass
+        if (optionLike.listClass !== undefined) normalized.listClass = optionLike.listClass
+        groupedDictData[dictTypeCode].push(normalized)
       })
       
       // 对每个字典类型的数据按 orderNum 排序
       Object.keys(groupedDictData).forEach(key => {
-        groupedDictData[key].sort((a, b) => (a.orderNum || 0) - (b.orderNum || 0))
+        const items = groupedDictData[key]
+        if (!items) return
+        items.sort((a, b) => Number(a.orderNum ?? 0) - Number(b.orderNum ?? 0))
       })
 
       // 更新缓存
@@ -195,14 +203,14 @@ export const useDictDataStore = defineStore('dictData', () => {
       let value: string | number
       switch (valueField) {
         case 'extLabel':
-          value = item.extLabel ?? item.dictValue ?? ''
+          value = toOptionValue(item.extLabel) ?? toOptionValue(item.dictValue) ?? ''
           break
         case 'extValue':
-          value = item.extValue ?? item.dictValue ?? ''
+          value = toOptionValue(item.extValue) ?? toOptionValue(item.dictValue) ?? ''
           break
         case 'dictValue':
         default:
-          value = item.dictValue ?? ''
+          value = toOptionValue(item.dictValue) ?? ''
           break
       }
 

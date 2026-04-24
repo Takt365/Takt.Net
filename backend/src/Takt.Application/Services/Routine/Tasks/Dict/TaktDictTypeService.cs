@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Routine.Dict
 // 文件名称：TaktDictTypeService.cs
@@ -95,14 +95,14 @@ public class TaktDictTypeService : TaktServiceBase, ITaktDictTypeService
     {
         var dictTypes = await _dictTypeRepository.FindAsync(d => d.IsDeleted == 0 && d.DictTypeStatus == 0);
         return dictTypes
-            .OrderBy(d => d.OrderNum)
+            .OrderBy(d => d.SortOrder)
             .ThenBy(d => d.CreatedAt)
             .Select(d => new TaktSelectOption
             {
                 DictLabel = d.DictTypeName,
                 DictValue = d.Id,
                 ExtLabel = d.DictTypeCode,
-                OrderNum = d.OrderNum
+                SortOrder = d.SortOrder
             })
             .ToList();
     }
@@ -419,7 +419,7 @@ public class TaktDictTypeService : TaktServiceBase, ITaktDictTypeService
                         DataConfigId = string.IsNullOrWhiteSpace(item.DataConfigId) ? "0" : item.DataConfigId,
                         SqlScript = string.IsNullOrWhiteSpace(item.SqlScript) ? null : item.SqlScript,
                         IsBuiltIn = item.IsBuiltIn >= 0 ? item.IsBuiltIn : 1,
-                        OrderNum = item.OrderNum,
+                        SortOrder = item.SortOrder,
                         DictTypeStatus = item.DictTypeStatus >= 0 ? item.DictTypeStatus : 0, // 默认为启用（0=启用）
                         Remark = item.Remark
                     };
@@ -488,7 +488,7 @@ public class TaktDictTypeService : TaktServiceBase, ITaktDictTypeService
         {
             var dto = d.Adapt<TaktDictTypeExportDto>();
             // 处理需要特殊转换的字段
-            dto.DataSource = GetDataSourceString(d.DataSource);
+            dto.DataSourceString = GetDataSourceString(d.DataSource);
             return dto;
         }).ToList();
 
@@ -510,7 +510,7 @@ public class TaktDictTypeService : TaktServiceBase, ITaktDictTypeService
         // 加载字典数据
         var dictDataList = await _dictDataRepository.FindAsync(d => dictTypeIds.Contains(d.DictTypeId) && d.IsDeleted == 0);
         var dictDataDtos = dictDataList
-            .OrderBy(d => d.OrderNum)
+            .OrderBy(d => d.SortOrder)
             .ThenBy(d => d.CreatedAt)
             .Select(d => d.Adapt<TaktDictDataDto>())
             .ToList();
@@ -521,7 +521,7 @@ public class TaktDictTypeService : TaktServiceBase, ITaktDictTypeService
         {
             if (dictDict.TryGetValue(dictTypeDto.DictTypeId, out var dataList))
             {
-                dictTypeDto.DictDataList = dataList;
+                dictTypeDto.DictDataListObjects = dataList;
             }
         }
     }

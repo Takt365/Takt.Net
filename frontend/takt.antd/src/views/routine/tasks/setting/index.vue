@@ -9,7 +9,14 @@
   <div class="routine-setting">
     <TaktQueryBar
       v-model="queryKeyword"
-      placeholder="请输入设置键或设置名称"
+      :placeholder="
+        t('common.form.placeholder.search', {
+          keyword:
+            t('routine.setting.page.settingkey') +
+            t('common.action.or') +
+            t('routine.setting.page.settingname')
+        })
+      "
       :loading="loading"
       @search="handleSearch"
       @reset="handleReset"
@@ -30,9 +37,8 @@
       :show-column-setting="true"
       :show-fullscreen="true"
       :show-refresh="true"
-      :create-disabled="false"
-      :update-disabled="!selectedRow"
-      :delete-disabled="selectedRows.length === 0"
+      :update-disabled="updateDisabled"
+      :delete-disabled="deleteDisabled"
       :create-loading="loading"
       :update-loading="loading"
       :delete-loading="loading"
@@ -42,7 +48,7 @@
       @update="handleUpdate"
       @delete="handleDelete"
       @export="handleExport"
-      @import="() => (importVisible = true)"
+      @import="handleImport"
       @advanced-query="handleAdvancedQuery"
       @column-setting="handleColumnSetting"
       @refresh="handleRefresh"
@@ -53,10 +59,12 @@
       :data-source="dataSource"
       :loading="loading"
       :stripe="true"
-      :row-key="(record: any) => record.settingId || ''"
+      :row-key="getSettingId"
       :row-selection="rowSelection"
       :custom-row="onClickRow"
       :pagination="false"
+      :large-screen-column-count="9"
+      :small-screen-column-count="5"
       @change="handleTableChange"
       @resize-column="handleResizeColumn"
     >
@@ -64,16 +72,16 @@
         <template v-if="column.key === 'settingStatus'">
           <a-switch
             :checked="record.settingStatus === 0"
-            checked-children="启用"
-            un-checked-children="禁用"
-            @change="(checked: any) => handleStatusChange(record, !!checked)"
+            :checked-children="t('common.button.enable')"
+            :un-checked-children="t('common.button.disable')"
+            @change="(checked: unknown) => handleStatusChange(record, Boolean(checked))"
           />
         </template>
         <template v-else-if="column.key === 'isBuiltIn'">
-          {{ record.isBuiltIn === 0 ? '是' : '否' }}
+          {{ record.isBuiltIn === 0 ? t('common.button.yes') : t('common.button.no') }}
         </template>
         <template v-else-if="column.key === 'isEncrypted'">
-          {{ record.isEncrypted === 0 ? '是' : '否' }}
+          {{ record.isEncrypted === 0 ? t('common.button.yes') : t('common.button.no') }}
         </template>
       </template>
     </TaktSingleTable>
@@ -89,7 +97,8 @@
     <TaktModal
       v-model:open="formVisible"
       :title="formTitle"
-      :width="560"
+      width="50%"
+      wrap-class-name="takt-form-modal-resizable"
       :confirm-loading="formLoading"
       @ok="handleFormSubmit"
       @cancel="handleFormCancel"
@@ -107,27 +116,29 @@
       @submit="handleAdvancedQuerySubmit"
       @reset="handleAdvancedQueryReset"
     >
-      <a-form-item label="设置键">
+      <a-form-item :label="t('routine.setting.page.settingkey')">
         <a-input
           v-model:value="advancedQueryForm.settingKey"
-          placeholder="请输入设置键"
+          :placeholder="t('common.form.placeholder.required', { field: t('routine.setting.page.settingkey') })"
           allow-clear
         />
       </a-form-item>
-      <a-form-item label="设置分组">
+      <a-form-item :label="t('routine.setting.page.settinggroup')">
         <TaktSelect
           v-model:value="advancedQueryForm.settingGroup"
-          dict-type="sys_setting_group"
-          placeholder="请选择设置分组"
+          api-url="/api/TaktDictDatas/options?dictTypeCode=sys_setting_group"
+          :placeholder="t('common.form.placeholder.select', { field: t('routine.setting.page.settinggroup') })"
           allow-clear
+          :field-names="{ label: 'dictLabel', value: 'extLabel' }"
         />
       </a-form-item>
-      <a-form-item label="设置状态">
+      <a-form-item :label="t('routine.setting.page.settingstatus')">
         <TaktSelect
           v-model:value="advancedQueryForm.settingStatus"
-          dict-type="sys_status"
-          placeholder="请选择设置状态"
+          api-url="/api/TaktDictDatas/options?dictTypeCode=sys_status"
+          :placeholder="t('common.form.placeholder.select', { field: t('routine.setting.page.settingstatus') })"
           allow-clear
+          :field-names="{ label: 'dictLabel', value: 'extLabel' }"
         />
       </a-form-item>
     </TaktQueryDrawer>
@@ -136,46 +147,33 @@
       v-model:open="columnSettingVisible"
       :columns="columns"
       :checked-keys="visibleColumnKeys"
-      :id-column-key="'settingId'"
+      :id-column-key="'id'"
       :action-column-key="'action'"
       @update:checked-keys="handleColumnKeysChange"
       @reset="handleColumnSettingReset"
     />
 
-    <!-- 导入：模板下载 + 上传 -->
     <TaktModal
       v-model:open="importVisible"
-      title="导入设置"
-      :width="480"
+      :title="t('common.button.import') + t('routine.setting.page._self')"
+      :width="600"
       :footer="null"
-      @cancel="importVisible = false"
+      :cancel-text="t('common.button.close')"
+      @cancel="handleImportCancel"
     >
-      <a-space
-        direction="vertical"
-        style="width: 100%"
-      >
-        <a-button
-          type="link"
-          @click="handleDownloadTemplate"
-        >
-          <template #icon>
-            <DownloadOutlined />
-          </template>
-          下载导入模板
-        </a-button>
-        <a-upload
-          :before-upload="handleImportFile"
-          :show-upload-list="false"
-          accept=".xlsx,.xls"
-        >
-          <a-button type="primary">
-            <template #icon>
-              <UploadOutlined />
-            </template>
-            选择 Excel 文件并导入
-          </a-button>
-        </a-upload>
-      </a-space>
+      <TaktImportFile
+        file-type="xlsx"
+        :sheet-name="settingExcelNames.sheet"
+        :template-file-name="settingExcelNames.fileBase"
+        :download-template="handleDownloadTemplate"
+        :import-file="handleImportFile"
+        :template-text="t('common.action.import.templatetext', { entity: t('routine.setting.page._self') })"
+        :upload-text="t('common.action.import.uploadtext')"
+        :hint="t('common.action.import.hint')"
+        :max-size="10"
+        :max-rows="1000"
+        @success="handleImportSuccess"
+      />
     </TaktModal>
   </div>
 </template>
@@ -184,9 +182,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import type { TableColumnsType } from 'ant-design-vue'
-import { DownloadOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import { mergeDefaultColumns } from '@/utils/table-columns'
 import { useI18n } from 'vue-i18n'
+import { taktExcelEntityNames } from '@/utils/naming'
 import SettingForm from './components/setting-form.vue'
 import {
   getSettingList,
@@ -198,96 +196,211 @@ import {
   importSettings,
   exportSettings
 } from '@/api/routine/tasks/setting'
-import type { Setting, SettingQuery } from '@/types/routine/tasks/setting'
+import type {
+  Settings,
+  SettingsQuery,
+  SettingsCreate,
+  SettingsUpdate
+} from '@/types/routine/tasks/setting/settings'
 import { RiEditLine, RiDeleteBinLine } from '@remixicon/vue'
 import { logger } from '@/utils/logger'
 import { CreateActionColumn } from '@/components/business/takt-action-column'
-import { resolveExportDownloadFileName } from '@/utils/export-download-name'
-
 const { t } = useI18n()
+
+function pickErrorMessage(err: unknown, fallback: string): string {
+  if (err !== null && typeof err === 'object' && 'message' in err) {
+    const m = (err as { message?: unknown }).message
+    if (typeof m === 'string' && m.length > 0) {
+      return m
+    }
+  }
+  return fallback
+}
+
+const settingExcelNames = taktExcelEntityNames('TaktSettings')
+
+const getSettingField = (record: unknown, field: string): unknown =>
+  (record as Record<string, unknown>)?.[field]
+
+const getSettingId = (record: unknown): string => String(getSettingField(record, 'settingId') ?? '')
+
+function coerceAdvancedSettingStatus(value: string | number | undefined): number | undefined {
+  if (value === undefined || value === null || value === '') return undefined
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  const n = Number(value)
+  return Number.isFinite(n) ? n : undefined
+}
+
 const queryKeyword = ref('')
 const loading = ref(false)
-const dataSource = ref<Setting[]>([])
+const dataSource = ref<Settings[]>([])
 const currentPage = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
-const selectedRow = ref<Setting | null>(null)
-const selectedRows = ref<Setting[]>([])
+const selectedRow = ref<Settings | null>(null)
+const selectedRows = ref<Settings[]>([])
 const selectedRowKeys = ref<(string | number)[]>([])
 const formVisible = ref(false)
-const formTitle = ref('新增设置')
-const formData = ref<Partial<Setting>>({})
+const formTitle = ref('')
+const formData = ref<Partial<Settings>>({})
 const formLoading = ref(false)
 const formRef = ref()
 const advancedQueryVisible = ref(false)
 const advancedQueryForm = ref<{
   settingKey: string
-  settingGroup?: string
-  settingStatus?: number
+  settingGroup: string | number
+  settingStatus: string | number
 }>({
   settingKey: '',
-  settingGroup: undefined,
-  settingStatus: undefined
+  settingGroup: '',
+  settingStatus: ''
 })
 const columnSettingVisible = ref(false)
 const visibleColumnKeys = ref<string[]>([])
 const importVisible = ref(false)
 
-const columns = ref<TableColumnsType>([
-  { title: '设置ID', dataIndex: 'settingId', key: 'settingId', width: 120, fixed: 'left' },
-  { title: '设置键', dataIndex: 'settingKey', key: 'settingKey', width: 160, ellipsis: true, resizable: true },
-  { title: '设置值', dataIndex: 'settingValue', key: 'settingValue', width: 180, ellipsis: true, resizable: true },
-  { title: '设置名称', dataIndex: 'settingName', key: 'settingName', width: 140, ellipsis: true, resizable: true },
-  { title: '设置分组', dataIndex: 'settingGroup', key: 'settingGroup', width: 100 },
-  { title: '是否内置', dataIndex: 'isBuiltIn', key: 'isBuiltIn', width: 90 },
-  { title: '是否加密', dataIndex: 'isEncrypted', key: 'isEncrypted', width: 90 },
-  { title: '排序号', dataIndex: 'orderNum', key: 'orderNum', width: 80 },
-  { title: '设置状态', dataIndex: 'settingStatus', key: 'settingStatus', width: 100 },
-  { title: '备注', dataIndex: 'remark', key: 'remark', width: 160, ellipsis: true },
-  CreateActionColumn({
+const updateDisabled = computed(() => selectedRows.value.length !== 1)
+const deleteDisabled = computed(() => selectedRows.value.length === 0)
+
+const columns = computed<TableColumnsType>(() => [
+  {
+    title: t('common.entity.id'),
+    dataIndex: 'settingId',
+    key: 'id',
+    width: 80,
+    resizable: true,
+    ellipsis: true,
+    fixed: 'left',
+    customRender: ({ record }: { record: Settings }) => String(getSettingField(record, 'settingId') ?? '')
+  },
+  {
+    title: t('routine.setting.columns.settingKey'),
+    dataIndex: 'settingKey',
+    key: 'settingKey',
+    width: 160,
+    ellipsis: true,
+    resizable: true
+  },
+  {
+    title: t('routine.setting.columns.settingValue'),
+    dataIndex: 'settingValue',
+    key: 'settingValue',
+    width: 180,
+    ellipsis: true,
+    resizable: true
+  },
+  {
+    title: t('routine.setting.columns.settingName'),
+    dataIndex: 'settingName',
+    key: 'settingName',
+    width: 140,
+    ellipsis: true,
+    resizable: true
+  },
+  {
+    title: t('routine.setting.columns.settingGroup'),
+    dataIndex: 'settingGroup',
+    key: 'settingGroup',
+    width: 100
+  },
+  {
+    title: t('routine.setting.columns.isBuiltIn'),
+    dataIndex: 'isBuiltIn',
+    key: 'isBuiltIn',
+    width: 90
+  },
+  {
+    title: t('routine.setting.columns.isEncrypted'),
+    dataIndex: 'isEncrypted',
+    key: 'isEncrypted',
+    width: 90
+  },
+  {
+    title: t('routine.setting.columns.orderNum'),
+    dataIndex: 'orderNum',
+    key: 'orderNum',
+    width: 80
+  },
+  {
+    title: t('routine.setting.columns.settingStatus'),
+    dataIndex: 'settingStatus',
+    key: 'settingStatus',
+    width: 100
+  },
+  {
+    title: t('common.entity.remark'),
+    dataIndex: 'remark',
+    key: 'remark',
+    width: 160,
+    ellipsis: true
+  },
+  CreateActionColumn<Settings>({
     actions: [
-      { key: 'update', label: '编辑', shape: 'plain', icon: RiEditLine, permission: 'routine:tasks:setting:update', onClick: (r: Setting) => handleEdit(r) },
-      { key: 'delete', label: '删除', shape: 'plain', icon: RiDeleteBinLine, permission: 'routine:tasks:setting:delete', onClick: (r: Setting) => handleDeleteOne(r) }
+      {
+        key: 'update',
+        label: t('common.button.edit'),
+        shape: 'plain',
+        icon: RiEditLine,
+        permission: 'routine:tasks:setting:update',
+        onClick: (r: Settings) => handleEdit(r)
+      },
+      {
+        key: 'delete',
+        label: t('common.button.delete'),
+        shape: 'plain',
+        icon: RiDeleteBinLine,
+        permission: 'routine:tasks:setting:delete',
+        onClick: (r: Settings) => handleDeleteOne(r)
+      }
     ]
   })
 ])
 
-const mergedColumns = computed(() => mergeDefaultColumns(columns.value as any, t, true))
-const displayColumns = computed(() => {
+const mergedColumns = computed((): TableColumnsType => {
+  return mergeDefaultColumns(columns.value as TableColumnsType, t, true) as TableColumnsType
+})
+
+const displayColumns = computed((): TableColumnsType => {
   const keys = visibleColumnKeys.value || []
-  const merged: any = mergedColumns.value || []
+  const merged = mergedColumns.value || []
   if (keys.length === 0) return columns.value
   const keysSet = new Set(keys.map(k => String(k)))
-  return merged.filter((col: any) => {
-    const colKey = col.key || col.dataIndex || col.title
-    return colKey && keysSet.has(String(colKey))
-  })
+  const getColumnKey = (col: unknown): string => {
+    if (!col || typeof col !== 'object') return ''
+    const column = col as { key?: unknown; dataIndex?: unknown; title?: unknown }
+    const key = column.key ?? column.dataIndex ?? column.title
+    return key != null && String(key) !== '' ? String(key) : ''
+  }
+  return merged.filter((col) => {
+    const colKey = getColumnKey(col)
+    return colKey.length > 0 && keysSet.has(colKey)
+  }) as TableColumnsType
 })
 
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedRowKeys.value,
-  onChange: (keys: (string | number)[], rows: Setting[]) => {
+  onChange: (keys: (string | number)[], rows: Settings[]) => {
     selectedRowKeys.value = keys
     selectedRows.value = rows
-    selectedRow.value = rows.length === 1 ? rows[0] : null
+    selectedRow.value = rows.length === 1 ? (rows[0] ?? null) : null
   },
-  onSelect: (record: Setting, selected: boolean) => {
+  onSelect: (record: Settings, selected: boolean) => {
     if (selected) selectedRow.value = record
     else if (selectedRow.value?.settingId === record?.settingId) selectedRow.value = null
   },
-  onSelectAll: (selected: boolean, rows: Setting[]) => {
-    selectedRow.value = selected && rows.length === 1 ? rows[0] : null
+  onSelectAll: (selected: boolean, rows: Settings[]) => {
+    selectedRow.value = selected && rows.length === 1 ? (rows[0] ?? null) : null
   }
 }))
 
-const onClickRow = (record: Setting) => ({
+const onClickRow = (record: Settings) => ({
   onClick: () => {
-    const key = record.settingId || ''
+    const key = getSettingId(record)
     const idx = selectedRowKeys.value.indexOf(key)
     if (idx > -1) selectedRowKeys.value.splice(idx, 1)
     else selectedRowKeys.value.push(key)
-    selectedRows.value = dataSource.value.filter(item => selectedRowKeys.value.includes(item.settingId || ''))
-    selectedRow.value = selectedRowKeys.value.length === 1 ? selectedRows.value[0] : null
+    selectedRows.value = dataSource.value.filter((item: Settings) => selectedRowKeys.value.includes(getSettingId(item)))
+    selectedRow.value = selectedRowKeys.value.length === 1 ? (selectedRows.value[0] ?? null) : null
     rowSelection.value.onChange?.(selectedRowKeys.value, selectedRows.value)
   }
 })
@@ -295,23 +408,24 @@ const onClickRow = (record: Setting) => ({
 async function loadData() {
   try {
     loading.value = true
-    const params: SettingQuery = {
+    const params: SettingsQuery = {
       pageIndex: currentPage.value,
       pageSize: pageSize.value
     }
-    if (queryKeyword.value) params.keyWords = queryKeyword.value
+    if (queryKeyword.value) params.KeyWords = queryKeyword.value
     if (advancedQueryForm.value.settingKey) params.settingKey = advancedQueryForm.value.settingKey
-    if (advancedQueryForm.value.settingGroup) params.settingGroup = advancedQueryForm.value.settingGroup
-    if (advancedQueryForm.value.settingStatus !== undefined) params.settingStatus = advancedQueryForm.value.settingStatus
+    if (advancedQueryForm.value.settingGroup !== undefined && advancedQueryForm.value.settingGroup !== '') {
+      params.settingGroup = String(advancedQueryForm.value.settingGroup)
+    }
+    const advStatus = coerceAdvancedSettingStatus(advancedQueryForm.value.settingStatus)
+    if (advStatus !== undefined) params.settingStatus = advStatus
 
-    const response = await getSettingList(params) as any
-    const items = response?.data ?? []
-    const totalCount = response?.total ?? 0
-    dataSource.value = items
-    total.value = totalCount
-  } catch (error: any) {
+    const response = await getSettingList(params)
+    dataSource.value = response?.data ?? []
+    total.value = response?.total ?? 0
+  } catch (error: unknown) {
     logger.error('[Setting] 加载失败:', error)
-    message.error(error?.message || '加载失败')
+    message.error(pickErrorMessage(error, t('common.msg.loadfail')))
     dataSource.value = []
     total.value = 0
   } finally {
@@ -326,15 +440,27 @@ function handleSearch() {
 
 function handleReset() {
   queryKeyword.value = ''
-  advancedQueryForm.value = { settingKey: '', settingGroup: undefined, settingStatus: undefined }
+  advancedQueryForm.value = { settingKey: '', settingGroup: '', settingStatus: '' }
   currentPage.value = 1
   loadData()
 }
 
-function handleTableChange(_pagination: any, _filters: any, _sorter: any) {}
-function handleResizeColumn(w: number, col: any) {
-  const column = columns.value.find((c: any) => (c.key || c.dataIndex) === (col.key || col.dataIndex))
-  if (column) (column as any).width = w
+function handleTableChange(
+  _pagination: unknown,
+  _filters: unknown,
+  sorter: { order?: string; field?: unknown } | Array<{ order?: string; field?: unknown }>
+) {
+  const sorterInfo = Array.isArray(sorter) ? sorter[0] : sorter
+  if (sorterInfo?.order) logger.debug('[Setting] 排序:', sorterInfo.field, sorterInfo.order)
+}
+function handleResizeColumn(w: number, col: Record<string, unknown>) {
+  const column = columns.value.find((c) => {
+    const colKey = col['key'] ?? col['dataIndex'] ?? col['title']
+    const columnItem = c as { key?: unknown; dataIndex?: unknown; title?: unknown }
+    const cKey = columnItem.key ?? columnItem.dataIndex ?? columnItem.title
+    return colKey != null && cKey != null && String(colKey) === String(cKey)
+  }) as { width?: number } | undefined
+  if (column) column.width = w
 }
 
 function handlePaginationChange(page: number, size: number) {
@@ -343,55 +469,67 @@ function handlePaginationChange(page: number, size: number) {
   loadData()
 }
 
-function handlePaginationSizeChange(current: number, size: number) {
-  currentPage.value = current
+function handlePaginationSizeChange(_current: number, size: number) {
+  currentPage.value = 1
   pageSize.value = size
   loadData()
 }
 
 function handleCreate() {
-  formTitle.value = '新增设置'
+  formTitle.value = t('common.button.create') + t('routine.setting.page._self')
   formData.value = {}
   formVisible.value = true
 }
 
-function handleEdit(record: Setting) {
-  formTitle.value = '编辑设置'
+function handleEdit(record: Settings) {
+  formTitle.value = t('common.button.edit') + t('routine.setting.page._self')
   formData.value = { ...record }
   formVisible.value = true
 }
 
 function handleUpdate() {
   if (selectedRow.value) handleEdit(selectedRow.value)
-  else message.warning('请选择一条记录')
-}
-
-async function handleStatusChange(record: Setting, checked: boolean) {
-  const newStatus = checked ? 0 : 1
-  const oldStatus = record.settingStatus
-  const idx = dataSource.value.findIndex(s => s.settingId === record.settingId)
-  if (idx !== -1) dataSource.value[idx].settingStatus = newStatus
-  try {
-    await updateSettingStatus({ settingId: record.settingId, settingStatus: newStatus })
-    message.success(checked ? '已启用' : '已禁用')
-  } catch (e: any) {
-    if (idx !== -1) dataSource.value[idx].settingStatus = oldStatus
-    message.error(e?.message || '操作失败')
+  else {
+    message.warning(
+      t('common.action.warnselecttoaction', { action: t('common.button.edit'), entity: t('routine.setting.page._self') })
+    )
   }
 }
 
-function handleDeleteOne(record: Setting) {
+async function handleStatusChange(record: Settings, checked: boolean) {
+  const newStatus = checked ? 0 : 1
+  const oldStatus = record.settingStatus
+  const idx = dataSource.value.findIndex((s: { settingId?: string | number }) => s.settingId === record.settingId)
+  const row = idx !== -1 ? dataSource.value[idx] : undefined
+  if (row) {
+    row.settingStatus = newStatus
+  }
+  try {
+    await updateSettingStatus({ settingId: record.settingId, settingStatus: newStatus })
+    message.success(t('common.msg.updatesuccess'))
+  } catch (e: unknown) {
+    if (row) {
+      row.settingStatus = oldStatus
+    }
+    message.error(pickErrorMessage(e, t('common.msg.operatefail')))
+  }
+}
+
+function handleDeleteOne(record: Settings) {
+  const name = record.settingKey || t('common.action.thistarget', { target: t('routine.setting.page._self') })
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除设置 "${record.settingKey}" 吗？`,
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deleteentity', { entity: t('routine.setting.page._self'), name }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await deleteSetting(record.settingId)
-        message.success('删除成功')
+        message.success(t('common.msg.deletesuccess'))
         loadData()
-      } catch (e: any) {
-        message.error(e?.message || '删除失败')
+      } catch (e: unknown) {
+        message.error(pickErrorMessage(e, t('common.msg.deletefail')))
       } finally {
         loading.value = false
       }
@@ -401,23 +539,30 @@ function handleDeleteOne(record: Setting) {
 
 function handleDelete() {
   if (selectedRows.value.length === 0) {
-    message.warning('请选择要删除的记录')
+    message.warning(
+      t('common.action.warnselecttoaction', { action: t('common.button.delete'), entity: t('routine.setting.page._self') })
+    )
     return
   }
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除选中的 ${selectedRows.value.length} 条设置吗？`,
+    title: t('common.action.confirmdelete'),
+    content: t('common.confirm.deletecountentity', {
+      entity: t('routine.setting.page._self'),
+      count: selectedRows.value.length
+    }),
+    okText: t('common.button.delete'),
+    cancelText: t('common.button.cancel'),
     onOk: async () => {
       try {
         loading.value = true
         await Promise.all(selectedRows.value.map(s => deleteSetting(s.settingId)))
-        message.success('删除成功')
+        message.success(t('common.msg.deletesuccess'))
         selectedRowKeys.value = []
         selectedRows.value = []
         selectedRow.value = null
         loadData()
-      } catch (e: any) {
-        message.error(e?.message || '删除失败')
+      } catch (e: unknown) {
+        message.error(pickErrorMessage(e, t('common.msg.deletefail')))
       } finally {
         loading.value = false
       }
@@ -436,7 +581,7 @@ function handleAdvancedQuerySubmit() {
 }
 
 function handleAdvancedQueryReset() {
-  advancedQueryForm.value = { settingKey: '', settingGroup: undefined, settingStatus: undefined }
+  advancedQueryForm.value = { settingKey: '', settingGroup: '', settingStatus: '' }
 }
 
 function handleColumnSetting() {
@@ -458,18 +603,21 @@ function handleRefresh() {
 async function handleExport() {
   try {
     loading.value = true
-    const query: SettingQuery = {
+    const query: SettingsQuery = {
       pageIndex: 1,
-      pageSize: 99999,
-      keyWords: queryKeyword.value || undefined,
-      settingKey: advancedQueryForm.value.settingKey || undefined,
-      settingGroup: advancedQueryForm.value.settingGroup !== undefined ? String(advancedQueryForm.value.settingGroup) : undefined,
-      settingStatus: advancedQueryForm.value.settingStatus
+      pageSize: 99999
     }
+    if (queryKeyword.value) query.KeyWords = queryKeyword.value
+    if (advancedQueryForm.value.settingKey) query.settingKey = advancedQueryForm.value.settingKey
+    if (advancedQueryForm.value.settingGroup !== undefined && advancedQueryForm.value.settingGroup !== '') {
+      query.settingGroup = String(advancedQueryForm.value.settingGroup)
+    }
+    const advStatus = coerceAdvancedSettingStatus(advancedQueryForm.value.settingStatus)
+    if (advStatus !== undefined) query.settingStatus = advStatus
     const blob = await exportSettings(query)
     const ts = new Date()
     const pad = (n: number) => String(n).padStart(2, '0')
-    const name = `设置数据_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
+    const name = `${settingExcelNames.fileBase}_${ts.getFullYear()}${pad(ts.getMonth() + 1)}${pad(ts.getDate())}${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -479,44 +627,41 @@ async function handleExport() {
     link.click()
     document.body.removeChild(link)
     setTimeout(() => window.URL.revokeObjectURL(url), 100)
-    message.success('导出成功')
-  } catch (e: any) {
-    message.error(e?.message || '导出失败')
+    message.success(t('common.msg.exportsuccess'))
+  } catch (e: unknown) {
+    message.error(pickErrorMessage(e, t('common.msg.exportfail')))
   } finally {
     loading.value = false
   }
 }
 
-function handleDownloadTemplate() {
-  getSettingTemplate(undefined, '设置导入模板.xlsx')
-    .then((meta) => {
-      const d = new Date()
-      const pad = (n: number) => String(n).padStart(2, '0')
-      const fallbackBase = `设置导入模板_${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`
-      const url = window.URL.createObjectURL(meta.blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = resolveExportDownloadFileName({
-        contentDisposition: meta.contentDisposition,
-        contentType: meta.contentType,
-        fallbackBase
-      })
-      link.click()
-      window.URL.revokeObjectURL(url)
-      message.success('模板已下载')
-    })
-    .catch(() => message.error('下载模板失败'))
+const handleImport = () => {
+  importVisible.value = true
 }
 
-function handleImportFile(file: File) {
-  importSettings(file).then(res => {
-    message.success(`导入成功 ${res.success} 条，失败 ${res.fail} 条${res.errors?.length ? '；错误：' + res.errors.join('；') : ''}`)
-    importVisible.value = false
-    loadData()
-  }).catch(e => {
-    message.error(e?.message || '导入失败')
-  })
-  return false
+const handleImportCancel = () => {
+  importVisible.value = false
+}
+
+const handleDownloadTemplate = async (sheetName?: string, fileName?: string) => {
+  return await getSettingTemplate(sheetName, fileName)
+}
+
+const handleImportFile = async (
+  file: File,
+  sheetName?: string
+): Promise<{ success: number; fail: number; errors: string[] }> => {
+  const res = await importSettings(file, sheetName)
+  return {
+    success: res.success,
+    fail: res.fail,
+    errors: res.errors ?? []
+  }
+}
+
+const handleImportSuccess = (result: { success: number; fail: number; errors: string[] }) => {
+  loadData()
+  if (result.fail === 0) setTimeout(() => { importVisible.value = false }, 2000)
 }
 
 async function handleFormSubmit() {
@@ -526,18 +671,41 @@ async function handleFormSubmit() {
     const values = formRef.value.getValues()
     formLoading.value = true
     if ('settingId' in values && values.settingId) {
-      await updateSetting(values.settingId, values)
-      message.success('更新成功')
+      const payload: SettingsUpdate = {
+        settingId: values.settingId,
+        settingKey: values.settingKey,
+        settingValue: values.settingValue,
+        settingName: values.settingName,
+        settingGroup: values.settingGroup,
+        isBuiltIn: values.isBuiltIn,
+        isEncrypted: values.isEncrypted,
+        orderNum: values.orderNum,
+        remark: values.remark
+      }
+      await updateSetting(values.settingId, payload)
+      message.success(t('common.msg.updatesuccess'))
     } else {
-      await createSetting(values)
-      message.success('创建成功')
+      const createPayload: SettingsCreate = {
+        settingKey: values.settingKey,
+        settingValue: values.settingValue,
+        settingName: values.settingName,
+        settingGroup: values.settingGroup,
+        isBuiltIn: values.isBuiltIn,
+        isEncrypted: values.isEncrypted,
+        orderNum: values.orderNum,
+        remark: values.remark
+      }
+      await createSetting(createPayload)
+      message.success(t('common.msg.createsuccess'))
     }
     formVisible.value = false
     formData.value = {}
     loadData()
-  } catch (e: any) {
-    if (e?.errorFields) return
-    message.error(e?.message || '保存失败')
+  } catch (e: unknown) {
+    if (e !== null && typeof e === 'object' && 'errorFields' in e) {
+      return
+    }
+    message.error(pickErrorMessage(e, t('common.msg.operatefail')))
   } finally {
     formLoading.value = false
   }

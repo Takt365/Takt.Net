@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Code.Generator
 // 文件名称：TaktGenTable.cs
@@ -80,8 +80,8 @@ public class TaktGenTable : TaktEntityBase
     /// <summary>
     /// 生成模板类型（crud=单表操作，tree=树表操作，sub=主子表操作）
     /// </summary>
-    [SugarColumn(ColumnName = "gen_template", ColumnDescription = "生成类型", ColumnDataType = "nvarchar", Length = 50, IsNullable = false, DefaultValue = "crud")]
-    public string GenTemplate { get; set; } = "crud";
+    [SugarColumn(ColumnName = "gen_template_category", ColumnDescription = "生成模板类型", ColumnDataType = "nvarchar", Length = 50, IsNullable = false, DefaultValue = "crud")]
+    public string GenTemplateCategory { get; set; } = "crud";
     
     /// <summary>
   /// 模块名（功能模块名称）
@@ -102,11 +102,20 @@ public class TaktGenTable : TaktEntityBase
     public string? GenFunctionName { get; set; }
 
     /// <summary>
-    /// 权限前缀
+    /// 权限前缀（与生成控制器/菜单/前端权限一致；对应库列 <c>perms_prefix</c>）。
+    /// <para>推荐直接存三段：<b>业务领域:业务目录:实体</b>，全小写英文，段内无下划线（示例 <c>logistics:materials:plant</c>）。代码生成时先规范化本字段得到模板中的 <c>perms_prefix_canonical</c>（即 <c>PermsPrefixCanonical</c>），再与第四段 key（如 <c>list</c>、<c>update</c>）用冒号拼接为完整权限码。</para>
+    /// <para>兼容旧式：如 <c>logistics_materials:plant</c>（下划线拆成多段后与实体合并为三段）。若为空，则由 <see cref="GenModuleName"/> 与 <see cref="EntityClassName"/> 推导。</para>
+    /// <para>若误将第四段 key 写入本字段（如 <c>…:plant:list</c>），生成器会去掉末尾已知 key 后再取前三段。</para>
     /// </summary>
     [SugarColumn(ColumnName = "perms_prefix", ColumnDescription = "权限前缀", ColumnDataType = "nvarchar", Length = 100, IsNullable = false, DefaultValue = "")]
     public string PermsPrefix { get; set; } = string.Empty;
-    
+
+    /// <summary>
+    /// 菜单权限组
+    /// </summary>
+    [SugarColumn(ColumnName = "menu_button_group", ColumnDescription = "菜单权限组", ColumnDataType = "nvarchar", Length = 500, IsNullable = true)]
+    public string? MenuButtonGroup { get; set; }
+
     /// <summary>
   /// 命名空间前缀（用于生成类名、方法名等的前缀）
   /// </summary>
@@ -132,79 +141,82 @@ public class TaktGenTable : TaktEntityBase
     public string? DtoNamespace { get; set; } = "Takt.Application.Dtos";
 
     /// <summary>
-    /// 传输对象Dto类名
+    /// 传输对象 Dto 类名
     /// </summary>
     [SugarColumn(ColumnName = "dto_class_name", ColumnDescription = "传输对象Dto类名", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
     public string? DtoClassName { get; set; }
-
-    /// <summary>
-    /// 传输对象 Dto 类别，JSON 格式。对象形式：{"主传输对象":"Dto","查询传输对象":"QueryDto","创建传输对象":"CreateDto","更新传输对象":"UpdateDto",...}，键为中文说明、值为 DTO 类后缀；也支持数组 ["Dto","QueryDto",...] 或逗号分隔。
-    /// </summary>
-    [SugarColumn(ColumnName = "dto_category", ColumnDescription = "传输对象Dto类别", ColumnDataType = "nvarchar", Length = 500, IsNullable = true)]
-    public string? DtoCategory { get; set; }
-
+    
     /// <summary>
     /// 服务命名空间（默认当前项目：Takt.Application.Services）
     /// </summary>
     [SugarColumn(ColumnName = "service_namespace", ColumnDescription = "服务命名空间", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
     public string? ServiceNamespace { get; set; } = "Takt.Application.Services";
-
+    
     /// <summary>
     /// 服务接口类名称
     /// </summary>
     [SugarColumn(ColumnName = "i_service_class_name", ColumnDescription = "服务接口类名称", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
     public string? IServiceClassName { get; set; }
-
+    
     /// <summary>
     /// 服务类名称
     /// </summary>
     [SugarColumn(ColumnName = "service_class_name", ColumnDescription = "服务类名称", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
     public string? ServiceClassName { get; set; }
-
+    
     /// <summary>
     /// 控制器命名空间（默认当前项目：Takt.WebApi.Controllers）
     /// </summary>
     [SugarColumn(ColumnName = "controller_namespace", ColumnDescription = "控制器命名空间", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
     public string? ControllerNamespace { get; set; } = "Takt.WebApi.Controllers";
-
+    
     /// <summary>
     /// 控制器类名称
     /// </summary>
     [SugarColumn(ColumnName = "controller_class_name", ColumnDescription = "控制器类名称", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
     public string? ControllerClassName { get; set; }
-
+    
     /// <summary>
     /// 是否生成仓储层（1=是，0=否）
     /// </summary>
     [SugarColumn(ColumnName = "is_repository", ColumnDescription = "仓储层", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int IsRepository { get; set; } = 0;
-
+    
     /// <summary>
     /// 仓储接口命名空间（默认当前项目：Takt.Domain.Repositories）
     /// </summary>
     [SugarColumn(ColumnName = "repository_interface_namespace", ColumnDescription = "仓储接口命名空间", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
     public string? RepositoryInterfaceNamespace { get; set; } = "Takt.Domain.Repositories";
-
+    
     /// <summary>
     /// 仓储接口类名称
     /// </summary>
     [SugarColumn(ColumnName = "i_repository_class_name", ColumnDescription = "仓储接口类名称", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
     public string? IRepositoryClassName { get; set; }
-
+    
     /// <summary>
     /// 仓储命名空间（默认当前项目：Takt.Infrastructure.Repositories）
     /// </summary>
     [SugarColumn(ColumnName = "repository_namespace", ColumnDescription = "仓储命名空间", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
     public string? RepositoryNamespace { get; set; } = "Takt.Infrastructure.Repositories";
-
+    
     /// <summary>
     /// 仓储类名称
     /// </summary>
     [SugarColumn(ColumnName = "repository_class_name", ColumnDescription = "仓储类名称", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
     public string? RepositoryClassName { get; set; }
-
+    
     /// <summary>
     /// 生成功能，JSON 格式。对象形式：{"查看":"View","新增":"Create","更新":"Update","删除":"Delete",...}，键为中文功能名、值为英文标识；也支持数组 ["查询","新增",...] 或逗号分隔。
+    /// <para><b>核心设计</b>：GenFunction 不仅决定生成哪些 Controller Actions 和 Service Methods，还决定生成哪些 DTO 类。功能与 DTO 的映射关系如下：</para>
+    /// <para>- Query → QueryDto（查询传输对象）</para>
+    /// <para>- Create → CreateDto（创建传输对象）</para>
+    /// <para>- Update → UpdateDto（更新传输对象）</para>
+    /// <para>- Status → StatusDto（状态传输对象）</para>
+    /// <para>- Sort → SortDto（排序传输对象）</para>
+    /// <para>- Import → TemplateDto + ImportDto（模板+导入传输对象）</para>
+    /// <para>- Export → ExportDto（导出传输对象）</para>
+    /// <para>- 所有功能 → Dto（基础传输对象，包含所有字段）</para>
     /// </summary>
     [SugarColumn(ColumnName = "gen_function", ColumnDescription = "生成功能", ColumnDataType = "nvarchar", Length = 500, IsNullable = true)]
     public string? GenFunction { get; set; }
@@ -240,34 +252,34 @@ public class TaktGenTable : TaktEntityBase
     public int IsGenTranslation { get; set; } = 1;
 
     /// <summary>
-    /// 排序类型（asc=升序，desc=降序）
-    /// </summary>
-    [SugarColumn(ColumnName = "sort_type", ColumnDescription = "排序类型", ColumnDataType = "nvarchar", Length = 10, IsNullable = false, DefaultValue = "asc")]
-    public string SortType { get; set; } = "asc";
-
-    /// <summary>
     /// 排序字段
     /// </summary>
     [SugarColumn(ColumnName = "sort_field", ColumnDescription = "排序字段", ColumnDataType = "nvarchar", Length = 100, IsNullable = false, DefaultValue = "")]
     public string SortField { get; set; } = string.Empty;
 
     /// <summary>
-    /// 前端模板（1=element plus，2=ant design vue）
+    /// 排序类型（asc=升序，desc=降序）
     /// </summary>
-    [SugarColumn(ColumnName = "front_template", ColumnDescription = "前端模板", ColumnDataType = "int", IsNullable = false, DefaultValue = "1")]
-    public int FrontTemplate { get; set; } = 2;
+    [SugarColumn(ColumnName = "sort_type", ColumnDescription = "排序类型", ColumnDataType = "nvarchar", Length = 10, IsNullable = false, DefaultValue = "asc")]
+    public string SortType { get; set; } = "asc";
 
     /// <summary>
-    /// 前端样式（12=一行一列，24=一行两列）
+    /// 前端UI框架（1=element plus，2=ant design vue）
     /// </summary>
-    [SugarColumn(ColumnName = "front_style", ColumnDescription = "前端样式", ColumnDataType = "int", IsNullable = false, DefaultValue = "24")]
-    public int FrontStyle { get; set; } = 24;
+    [SugarColumn(ColumnName = "front_ui", ColumnDescription = "前端UI框架", ColumnDataType = "int", IsNullable = false, DefaultValue = "1")]
+    public int FrontUi { get; set; } = 2;
 
     /// <summary>
-    /// 操作按钮样式（0=文本，1=标准）
+    /// 前端表单布局（12=一行一列，24=一行两列）
     /// </summary>
-    [SugarColumn(ColumnName = "btn_style", ColumnDescription = "按钮样式", ColumnDataType = "int", IsNullable = false, DefaultValue = "1")]
-    public int BtnStyle { get; set; } = 1;
+    [SugarColumn(ColumnName = "front_form_layout", ColumnDescription = "前端表单布局", ColumnDataType = "int", IsNullable = false, DefaultValue = "24")]
+    public int FrontFormLayout { get; set; } = 24;
+
+    /// <summary>
+    /// 前端操作按钮样式（0=文本，1=标准）
+    /// </summary>
+    [SugarColumn(ColumnName = "front_btn_style", ColumnDescription = "前端按钮样式", ColumnDataType = "int", IsNullable = false, DefaultValue = "1")]
+    public int FrontBtnStyle { get; set; } = 1;
 
     /// <summary>
     /// 是否生成代码（1=是，0=否）
@@ -302,8 +314,8 @@ public class TaktGenTable : TaktEntityBase
     /// <summary>
     /// 其他生成选项（JSON格式，存储其他生成配置）
     /// </summary>
-    [SugarColumn(ColumnName = "options", ColumnDescription = "其他生成选项", ColumnDataType = "nvarchar", Length = 2000, IsNullable = true)]
-    public string? Options { get; set; }
+    [SugarColumn(ColumnName = "other_gen_options", ColumnDescription = "其他生成选项", ColumnDataType = "nvarchar", Length = 2000, IsNullable = true)]
+    public string? OtherGenOptions { get; set; }
 
     /// <summary>
     /// 字段配置列表（子表，外键：TaktGenTableColumn.TableId 关联本表 Id）

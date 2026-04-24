@@ -5,35 +5,35 @@
       size="large"
       style="width: 100%"
     >
-      <a-form-item :label="$t('components.navigation.systemSetting.showTabs')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.showtabs')">
         <a-switch
           v-model:checked="setting.showTabs"
           @change="handleChange"
         />
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.tabStyle')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.tabstyle')">
         <a-radio-group
           v-model:value="setting.tabStyle"
           @change="handleChange"
         >
           <a-radio-button value="card">
-            {{ $t('components.navigation.systemSetting.card') }}
+            {{ $t('components.navigation.page.systemsetting.card') }}
           </a-radio-button>
           <a-radio-button value="google">
-            {{ $t('components.navigation.systemSetting.google') }}
+            {{ $t('components.navigation.page.systemsetting.google') }}
           </a-radio-button>
         </a-radio-group>
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.persistTabs')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.persisttabs')">
         <a-switch
           v-model:checked="setting.persistTabs"
           @change="handleChange"
         />
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.maxTabs')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.maxtabs')">
         <a-input-number
           v-model:value="setting.maxTabs"
           :min="5"
@@ -42,7 +42,7 @@
         />
       </a-form-item>
 
-      <a-form-item :label="$t('components.navigation.systemSetting.enableMultiTab')">
+      <a-form-item :label="$t('components.navigation.page.systemsetting.enablemultitab')">
         <a-switch
           v-model:checked="setting.multiTab"
           @change="handleChange"

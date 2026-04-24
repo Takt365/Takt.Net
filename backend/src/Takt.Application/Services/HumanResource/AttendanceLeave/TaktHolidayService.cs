@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：TaktHolidayService.cs
@@ -93,7 +93,7 @@ public class TaktHolidayService : TaktServiceBase, ITaktHolidayService
                 DictLabel = h.HolidayName,
                 DictValue = h.Id,
                 ExtLabel = h.Region,
-                OrderNum = 0
+                SortOrder = 0
             })
             .ToList();
     }
@@ -378,4 +378,29 @@ public class TaktHolidayService : TaktServiceBase, ITaktHolidayService
 
         return exp.ToExpression();
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计假日总数
+    /// </summary>
+    public async Task<long> GetHolidayCountAsync()
+    {
+        return await _holidayRepository.CountAsync(h => h.IsDeleted == 0);
+    }
+
+    /// <summary>
+    /// 按地区统计假日天数分布
+    /// </summary>
+    public async Task<Dictionary<string, int>> GetHolidayCountByRegionAsync()
+    {
+        var holidays = await _holidayRepository.FindAsync(h => h.IsDeleted == 0);
+        
+        return holidays
+            .Where(h => !string.IsNullOrEmpty(h.Region))
+            .GroupBy(h => h.Region!)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+
+    #endregion
 }

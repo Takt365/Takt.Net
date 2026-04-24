@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Identity
 // 文件名称：ITaktTenantService.cs
@@ -115,4 +115,14 @@ public interface ITaktTenantService
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
     Task<(string fileName, byte[] content)> ExportTenantAsync(TaktTenantQueryDto query, string? sheetName, string? fileName);
+
+    #region 统计分析
+
+    /// <summary>
+    /// 统计租户总数
+    /// </summary>
+    /// <returns>租户总数</returns>
+    Task<long> GetTenantCountAsync();
+
+    #endregion
 }

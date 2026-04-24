@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.HumanResource.AttendanceLeave
 // 文件名称：TaktLeaveController.cs
@@ -14,7 +14,7 @@ using Takt.Application.Services.HumanResource.AttendanceLeave;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.HumanResource.AttendanceLeave;
 
@@ -52,9 +52,9 @@ public class TaktLeaveController : TaktControllerBase
     /// <returns>分页结果</returns>
     [HttpGet("list")]
     [TaktPermission("humanresource:attendanceleave:leave:list", "请假列表")]
-    public async Task<ActionResult<TaktPagedResult<TaktLeaveDto>>> GetListAsync([FromQuery] TaktLeaveQueryDto query)
+    public async Task<ActionResult<TaktPagedResult<TaktLeaveDto>>> GetLeaveListAsync([FromQuery] TaktLeaveQueryDto query)
     {
-        var result = await _leaveService.GetListAsync(query);
+        var result = await _leaveService.GetLeaveListAsync(query);
         return Ok(result);
     }
 
@@ -65,9 +65,9 @@ public class TaktLeaveController : TaktControllerBase
     /// <returns>请假 DTO；不存在时返回 404</returns>
     [HttpGet("{id}")]
     [TaktPermission("humanresource:attendanceleave:leave:detail", "请假详情")]
-    public async Task<ActionResult<TaktLeaveDto>> GetByIdAsync(long id)
+    public async Task<ActionResult<TaktLeaveDto>> GetLeaveByIdAsync(long id)
     {
-        var leave = await _leaveService.GetByIdAsync(id);
+        var leave = await _leaveService.GetLeaveByIdAsync(id);
         if (leave == null) return NotFound();
         return Ok(leave);
     }
@@ -79,9 +79,9 @@ public class TaktLeaveController : TaktControllerBase
     /// <returns>创建后的请假 DTO</returns>
     [HttpPost]
     [TaktPermission("humanresource:attendanceleave:leave:create", "创建请假")]
-    public async Task<ActionResult<TaktLeaveDto>> CreateAsync([FromBody] TaktLeaveCreateDto dto)
+    public async Task<ActionResult<TaktLeaveDto>> CreateLeaveAsync([FromBody] TaktLeaveCreateDto dto)
     {
-        var leave = await _leaveService.CreateAsync(dto);
+        var leave = await _leaveService.CreateLeaveAsync(dto);
         return Ok(leave);
     }
 
@@ -93,11 +93,11 @@ public class TaktLeaveController : TaktControllerBase
     /// <returns>更新后的请假 DTO</returns>
     [HttpPut("{id}")]
     [TaktPermission("humanresource:attendanceleave:leave:update", "更新请假")]
-    public async Task<ActionResult<TaktLeaveDto>> UpdateAsync(long id, [FromBody] TaktLeaveUpdateDto dto)
+    public async Task<ActionResult<TaktLeaveDto>> UpdateLeaveAsync(long id, [FromBody] TaktLeaveUpdateDto dto)
     {
         if (dto.LeaveId != id)
             return BadRequest(GetLocalizedString("validation.idRouteMismatch", "Frontend"));
-        var leave = await _leaveService.UpdateAsync(id, dto);
+        var leave = await _leaveService.UpdateLeaveAsync(id, dto);
         return Ok(leave);
     }
 
@@ -108,9 +108,9 @@ public class TaktLeaveController : TaktControllerBase
     /// <returns>无内容表示成功</returns>
     [HttpDelete("{id}")]
     [TaktPermission("humanresource:attendanceleave:leave:delete", "删除请假")]
-    public async Task<IActionResult> DeleteAsync(long id)
+    public async Task<IActionResult> DeleteLeaveByIdAsync(long id)
     {
-        await _leaveService.DeleteAsync(id);
+        await _leaveService.DeleteLeaveByIdAsync(id);
         return NoContent();
     }
 
@@ -121,9 +121,9 @@ public class TaktLeaveController : TaktControllerBase
     /// <returns>无内容表示成功</returns>
     [HttpDelete("batch")]
     [TaktPermission("humanresource:attendanceleave:leave:delete", "批量删除请假")]
-    public async Task<IActionResult> DeleteBatchAsync([FromBody] long[] ids)
+    public async Task<IActionResult> DeleteLeaveBatchAsync([FromBody] long[] ids)
     {
-        await _leaveService.DeleteAsync(ids);
+        await _leaveService.DeleteLeaveBatchAsync(ids);
         return NoContent();
     }
 
@@ -147,9 +147,9 @@ public class TaktLeaveController : TaktControllerBase
     /// <returns>更新后的请假 DTO</returns>
     [HttpPut("status")]
     [TaktPermission("humanresource:attendanceleave:leave:update", "更新请假状态")]
-    public async Task<ActionResult<TaktLeaveDto>> UpdateStatusAsync([FromBody] TaktLeaveStatusDto dto)
+    public async Task<ActionResult<TaktLeaveDto>> UpdateLeaveStatusAsync([FromBody] TaktLeaveStatusDto dto)
     {
-        var leave = await _leaveService.UpdateStatusAsync(dto);
+        var leave = await _leaveService.UpdateLeaveStatusAsync(dto);
         return Ok(leave);
     }
 
@@ -161,12 +161,12 @@ public class TaktLeaveController : TaktControllerBase
     /// <returns>Excel 模板文件</returns>
     [HttpGet("template")]
     [TaktPermission("humanresource:attendanceleave:leave:template", "获取请假导入模板")]
-    public async Task<IActionResult> GetTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> GetLeaveTemplateAsync([FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (resultFileName, content) = await _leaveService.GetTemplateAsync(sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.ExcelContentType, resultFileName);
+            var (resultFileName, content) = await _leaveService.GetLeaveTemplateAsync(sheetName, fileName);
+            return File(content, TaktExcelHelper.ExcelContentType, resultFileName);
         }
         catch (Exception ex)
         {
@@ -182,7 +182,7 @@ public class TaktLeaveController : TaktControllerBase
     /// <returns>导入结果</returns>
     [HttpPost("import")]
     [TaktPermission("humanresource:attendanceleave:leave:import", "导入请假数据")]
-    public async Task<ActionResult<object>> ImportAsync(IFormFile file, [FromForm] string? sheetName = null)
+    public async Task<ActionResult<object>> ImportLeaveAsync(IFormFile file, [FromForm] string? sheetName = null)
     {
         try
         {
@@ -198,7 +198,7 @@ public class TaktLeaveController : TaktControllerBase
             }
 
             using var stream = file.OpenReadStream();
-            var (success, fail, errors) = await _leaveService.ImportAsync(stream, sheetName);
+            var (success, fail, errors) = await _leaveService.ImportLeaveAsync(stream, sheetName);
             return Ok(new { success, fail, errors });
         }
         catch (Exception ex)
@@ -216,16 +216,32 @@ public class TaktLeaveController : TaktControllerBase
     /// <returns>Excel 文件；超过 <c>TaktExcelHelper.ExportAsync</c> 单表行数上限时为 zip 打包（基础设施统一逻辑）</returns>
     [HttpPost("export")]
     [TaktPermission("humanresource:attendanceleave:leave:export", "导出请假数据")]
-    public async Task<IActionResult> ExportAsync([FromBody] TaktLeaveQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
+    public async Task<IActionResult> ExportLeaveAsync([FromBody] TaktLeaveQueryDto query, [FromQuery] string? sheetName = null, [FromQuery] string? fileName = null)
     {
         try
         {
-            var (resultFileName, content) = await _leaveService.ExportAsync(query, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(resultFileName), resultFileName);
+            var (resultFileName, content) = await _leaveService.ExportLeaveAsync(query, sheetName, fileName);
+            return File(content, TaktExcelHelper.GetExportContentType(resultFileName), resultFileName);
         }
         catch (Exception ex)
         {
             return BadRequest(GetLocalizedExceptionMessage(ex));
         }
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 按请假类型统计结束日期大于等于今天的请假人员总数
+    /// </summary>
+    /// <returns>请假类型统计</returns>
+    [HttpGet("stats/active-by-type")]
+    [TaktPermission("humanresource:attendanceleave:leave:list", "统计当前请假人员")]
+    public async Task<ActionResult<Dictionary<int, int>>> GetActiveLeaveCountByTypeAsync()
+    {
+        var stats = await _leaveService.GetActiveLeaveCountByTypeAsync();
+        return Ok(stats);
+    }
+
+    #endregion
 }

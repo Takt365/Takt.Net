@@ -84,9 +84,9 @@
           class="takt-import-file-preview-tip"
         />
         <div class="takt-import-file-preview-info">
-          <p><strong>{{ t('components.common.import.fileName') }}</strong>{{ previewFileName }}</p>
-          <p><strong>{{ t('components.common.import.fileSize') }}</strong>{{ previewFileSize }}</p>
-          <p><strong>{{ t('components.common.import.fileType') }}</strong>{{ previewFileType }}</p>
+          <p><strong>{{ t('components.common.page.import.filename') }}</strong>{{ previewFileName }}</p>
+          <p><strong>{{ t('components.common.page.import.filesize') }}</strong>{{ previewFileSize }}</p>
+          <p><strong>{{ t('components.common.page.import.filetype') }}</strong>{{ previewFileType }}</p>
         </div>
         <a-button
           type="primary"
@@ -96,7 +96,7 @@
           <template #icon>
             <download-outlined />
           </template>
-          {{ t('components.common.import.downloadPreviewFile') }}
+          {{ t('components.common.page.import.downloadpreviewfile') }}
         </a-button>
       </div>
       <div
@@ -105,8 +105,8 @@
       >
         <a-result
           status="error"
-          :title="t('components.common.import.cannotPreview')"
-          :sub-title="t('components.common.import.previewExcelOnly')"
+          :title="t('components.common.page.import.cannotpreview')"
+          :sub-title="t('components.common.page.import.previewexcelonly')"
         />
       </div>
     </a-modal>
@@ -196,9 +196,9 @@ const props = withDefaults(defineProps<Props>(), {
   maxRows: 1000
 })
 
-const templateTextDisplay = computed(() => props.templateText ?? t('components.common.import.downloadTemplate'))
-const uploadTextDisplay = computed(() => props.uploadText ?? t('components.common.import.uploadText'))
-const hintDisplay = computed(() => props.hint ?? t('components.common.import.hint'))
+const templateTextDisplay = computed(() => props.templateText ?? t('components.common.page.import.downloadtemplate'))
+const uploadTextDisplay = computed(() => props.uploadText ?? t('components.common.page.import.uploadtext'))
+const hintDisplay = computed(() => props.hint ?? t('components.common.page.import.hint'))
 
 // 根据文件类型获取 accept 属性
 const accept = computed(() => {
@@ -254,13 +254,13 @@ const previewType = computed(() => {
 const getPreviewDescription = (): string => {
   switch (previewType.value) {
     case 'xlsx':
-      return t('components.common.import.openWithExcel')
+      return t('components.common.page.import.openwithexcel')
     case 'csv':
-      return t('components.common.import.openWithCsv')
+      return t('components.common.page.import.openwithcsv')
     case 'txt':
-      return t('components.common.import.openWithEditor')
+      return t('components.common.page.import.openwitheditor')
     default:
-      return t('components.common.import.openWithApp')
+      return t('components.common.page.import.openwithapp')
   }
 }
 
@@ -288,7 +288,7 @@ const formatTimestamp = () => {
 // 下载模板：优先服务端 Content-Disposition；否则沿用本地 名称_时间戳.{fileType}
 const handleDownloadTemplate = async () => {
   if (!props.downloadTemplate) {
-    message.warning(t('components.common.import.noTemplateFn'))
+    message.warning(t('components.common.page.import.notemplatefn'))
     return
   }
 
@@ -299,7 +299,7 @@ const handleDownloadTemplate = async () => {
     const baseName =
       (props.templateFileName && !props.templateFileName.endsWith(`.${props.fileType}`)
         ? props.templateFileName
-        : undefined) || t('components.common.import.template')
+        : undefined) || t('components.common.page.import.template')
     const fallbackStamped = `${baseName}_${formatTimestamp()}`
     const fileName = isBlobDownloadWithMeta(result)
       ? resolveExportDownloadFileName({
@@ -318,11 +318,11 @@ const handleDownloadTemplate = async () => {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
 
-    message.success(t('components.common.import.templateDownloadSuccess'))
+    message.success(t('components.common.page.import.templatedownloadsuccess'))
   } catch (error: unknown) {
     console.error('[TaktImportFile] 下载模板失败:', error)
     const err = error instanceof Error ? error : new Error(String(error))
-    message.error(err.message || t('components.common.import.templateDownloadFail'))
+    message.error(err.message || t('components.common.page.import.templatedownloadfail'))
     emit('error', err)
   } finally {
     templateLoading.value = false
@@ -340,13 +340,13 @@ const validateFileType = (fileName: string): boolean => {
 const getFileTypeText = (): string => {
   switch (props.fileType) {
     case 'txt':
-      return t('components.common.import.fileTypeTxt')
+      return t('components.common.page.import.filetypetxt')
     case 'csv':
-      return t('components.common.import.fileTypeCsv')
+      return t('components.common.page.import.filetypecsv')
     case 'xlsx':
-      return t('components.common.import.fileTypeXlsx')
+      return t('components.common.page.import.filetypexlsx')
     default:
-      return t('components.common.import.fileTypeFile')
+      return t('components.common.page.import.filetypefile')
   }
 }
 
@@ -398,22 +398,22 @@ const validateFileRows = async (file: File): Promise<boolean> => {
       case 'txt':
         rowCount = await countTextFileRows(file)
         if (rowCount > props.maxRows) {
-          message.error(t('components.common.import.rowCountExceed', { count: rowCount, max: props.maxRows }))
+          message.error(t('components.common.page.import.rowcountexceed', { count: rowCount, max: props.maxRows }))
           return false
         }
         if (rowCount === 0) {
-          message.warning(t('components.common.import.fileEmpty'))
+          message.warning(t('components.common.page.import.fileempty'))
           return false
         }
         break
       case 'csv':
         rowCount = await countCsvFileRows(file)
         if (rowCount > props.maxRows) {
-          message.error(t('components.common.import.rowCountExceed', { count: rowCount, max: props.maxRows }))
+          message.error(t('components.common.page.import.rowcountexceed', { count: rowCount, max: props.maxRows }))
           return false
         }
         if (rowCount === 0) {
-          message.warning(t('components.common.import.fileEmpty'))
+          message.warning(t('components.common.page.import.fileempty'))
           return false
         }
         break
@@ -422,13 +422,13 @@ const validateFileRows = async (file: File): Promise<boolean> => {
         // 检查文件大小，如果文件太大可能超过限制
         const fileSizeKB = file.size / 1024
         if (fileSizeKB > 500) {
-          message.warning(t('components.common.import.fileLargeHint', { size: Math.round(fileSizeKB), max: props.maxRows }))
+          message.warning(t('components.common.page.import.filelargehint', { size: Math.round(fileSizeKB), max: props.maxRows }))
         }
         // xlsx 文件的行数验证在服务端进行，这里只通过文件类型验证
         return true
       }
       default:
-        message.error(t('components.common.import.unsupportedFileType', { type: props.fileType }))
+        message.error(t('components.common.page.import.unsupportedfiletype', { type: props.fileType }))
         return false
     }
 
@@ -436,7 +436,7 @@ const validateFileRows = async (file: File): Promise<boolean> => {
   } catch (error: unknown) {
     console.error('[TaktImportFile] 验证文件记录数失败:', error)
     const err = error instanceof Error ? error : new Error(String(error))
-    message.error(err.message || t('components.common.import.validateRowCountFail'))
+    message.error(err.message || t('components.common.page.import.validaterowcountfail'))
     return false
   }
 }
@@ -450,7 +450,7 @@ const handleBeforeUpload = async (file: UploadFile | File) => {
   if (props.maxSize && originFile.size) {
     const fileSizeMB = originFile.size / 1024 / 1024
     if (fileSizeMB > props.maxSize) {
-      message.error(t('components.common.import.fileSizeExceed', { max: props.maxSize }))
+      message.error(t('components.common.page.import.filesizeexceed', { max: props.maxSize }))
       return false
     }
   }
@@ -458,7 +458,7 @@ const handleBeforeUpload = async (file: UploadFile | File) => {
   // 检查文件类型
   const fileName = originFile.name || ''
   if (!validateFileType(fileName)) {
-    message.error(t('components.common.import.onlySupportType', { type: getFileTypeText() }))
+    message.error(t('components.common.page.import.onlysupporttype', { type: getFileTypeText() }))
     return false
   }
 
@@ -476,9 +476,9 @@ const handleCustomRequest = async (options: UploadRequestOptions) => {
   const { file, onSuccess, onError, onProgress } = options
 
   if (!props.importFile) {
-    const error = new Error(t('components.common.import.noImportFn'))
+    const error = new Error(t('components.common.page.import.noimportfn'))
     onError(error)
-    message.error(t('components.common.import.noImportFn'))
+    message.error(t('components.common.page.import.noimportfn'))
     return
   }
 
@@ -499,15 +499,15 @@ const handleCustomRequest = async (options: UploadRequestOptions) => {
 
     // 显示成功消息
     if (result.fail > 0) {
-      message.warning(t('components.common.import.importDoneSummary', { success: result.success, fail: result.fail }))
+      message.warning(t('components.common.page.import.importdonesummary', { success: result.success, fail: result.fail }))
     } else {
-      message.success(t('components.common.import.importSuccessTotal', { success: result.success }))
+      message.success(t('components.common.page.import.importsuccesstotal', { success: result.success }))
     }
   } catch (error: unknown) {
     console.error('[TaktImportFile] 导入失败:', error)
     const err = error instanceof Error ? error : new Error(String(error))
     onError?.(err)
-    message.error(err.message || t('components.common.import.importFail'))
+    message.error(err.message || t('components.common.page.import.importfail'))
     emit('error', err)
   } finally {
     uploading.value = false
@@ -532,24 +532,24 @@ const handlePreview = (file: UploadFile) => {
   const originFile = file.originFileObj || file
   
   if (!originFile || !(originFile instanceof File)) {
-    message.warning(t('components.common.import.cannotPreview'))
+    message.warning(t('components.common.page.import.cannotpreview'))
     return
   }
 
   previewFile.value = originFile
-  previewTitle.value = t('components.common.import.previewTitle', { name: file.name || originFile.name || t('components.common.import.unknownFile') })
-  previewFileName.value = file.name || originFile.name || t('components.common.import.unknownFile')
+  previewTitle.value = t('components.common.page.import.previewtitle', { name: file.name || originFile.name || t('components.common.page.import.unknownfile') })
+  previewFileName.value = file.name || originFile.name || t('components.common.page.import.unknownfile')
   previewFileSize.value = formatFileSize(originFile.size || 0)
   
   const fileName = previewFileName.value
   if (fileName.endsWith('.xlsx')) {
-    previewFileType.value = t('components.common.import.excelWorkbook')
+    previewFileType.value = t('components.common.page.import.excelworkbook')
   } else if (fileName.endsWith('.csv')) {
-    previewFileType.value = t('components.common.import.csvFile')
+    previewFileType.value = t('components.common.page.import.csvfile')
   } else if (fileName.endsWith('.txt')) {
-    previewFileType.value = t('components.common.import.fileTypeTxt')
+    previewFileType.value = t('components.common.page.import.filetypetxt')
   } else {
-    previewFileType.value = t('components.common.import.unknownType')
+    previewFileType.value = t('components.common.page.import.unknowntype')
   }
 
   previewVisible.value = true
@@ -569,7 +569,7 @@ const handleCancelPreview = () => {
 // 下载预览文件
 const handleDownloadPreviewFile = () => {
   if (!previewFile.value) {
-    message.warning(t('components.common.import.previewNotExist'))
+    message.warning(t('components.common.page.import.previewnotexist'))
     return
   }
 
@@ -582,7 +582,7 @@ const handleDownloadPreviewFile = () => {
   document.body.removeChild(link)
   window.URL.revokeObjectURL(url)
   
-  message.success(t('components.common.import.fileDownloadSuccess'))
+  message.success(t('components.common.page.import.filedownloadsuccess'))
 }
 
 // 拖拽放下时的回调
@@ -601,9 +601,9 @@ const getResultMessage = (): string => {
   if (!importResult.value) return ''
   const { success, fail } = importResult.value
   if (fail > 0) {
-    return t('components.common.import.importDoneSummary', { success, fail })
+    return t('components.common.page.import.importdonesummary', { success, fail })
   }
-  return t('components.common.import.importSuccessTotal', { success })
+  return t('components.common.page.import.importsuccesstotal', { success })
 }
 
 // 获取结果描述
@@ -613,7 +613,7 @@ const getResultDescription = (): string => {
   }
   const errorCount = importResult.value.errors.length
   const displayedErrors = importResult.value.errors.slice(0, 5)
-  const remaining = errorCount > 5 ? t('components.common.import.errorsRemaining', { count: errorCount }) : ''
+  const remaining = errorCount > 5 ? t('components.common.page.import.errorsremaining', { count: errorCount }) : ''
   return displayedErrors.join('；') + remaining
 }
 </script>

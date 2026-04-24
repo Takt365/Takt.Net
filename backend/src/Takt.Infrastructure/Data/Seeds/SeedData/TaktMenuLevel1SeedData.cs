@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktMenuLevel1SeedData.cs
@@ -6,7 +6,7 @@
 // 创建人：Takt365(Cursor AI)
 // 功能描述：Takt 一级（顶级）菜单种子数据。
 //           初始化 ParentId = 0 的根节点：含主页、各业务域目录（MenuType=0）及少量直接挂接页面的根菜单（MenuType=1）。
-//           顺序与 OrderNum 需与 TaktMenuLevel2SeedData 中父级引用保持一致。
+//           顺序与 SortOrder 需与 TaktMenuLevel2SeedData 中父级引用保持一致。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -59,7 +59,7 @@ public class TaktMenuLevel1SeedData
                 Permission = "takt:home:list",
                 Path = "/home",
                 Component = "home/index",
-                OrderNum = 1,
+                SortOrder = 1,
                 MenuStatus = 0,
                 IsVisible = 0,
                 IsCache = 0,
@@ -79,7 +79,7 @@ public class TaktMenuLevel1SeedData
             homeMenu.Permission = "takt:home:list";
             homeMenu.Path = "/home";
             homeMenu.Component = "home/index";
-            homeMenu.OrderNum = 1;
+            homeMenu.SortOrder = 1;
             homeMenu.MenuStatus = 0;
             homeMenu.IsVisible = 0;
             homeMenu.IsCache = 0;
@@ -102,7 +102,7 @@ public class TaktMenuLevel1SeedData
                 MenuType = 0,
                 Path = "/dashboard",
                 Component = null,
-                OrderNum = 2,
+                SortOrder = 2,
                 MenuStatus = 1,
                 IsVisible = 1,
                 IsCache = 0,
@@ -121,7 +121,7 @@ public class TaktMenuLevel1SeedData
             dashboardMenu.MenuType = 0;
             dashboardMenu.Path = "/dashboard";
             dashboardMenu.Component = null;
-            dashboardMenu.OrderNum = 2;
+            dashboardMenu.SortOrder = 2;
             dashboardMenu.MenuStatus = 1;
             dashboardMenu.IsVisible = 1;
             dashboardMenu.IsCache = 0;
@@ -144,7 +144,7 @@ public class TaktMenuLevel1SeedData
                 MenuType = 0,
                 Path = "/workflow",
                 Component = null,
-                OrderNum = 3,
+                SortOrder = 3,
                 MenuStatus = 1,
                 IsVisible = 1,
                 IsCache = 0,
@@ -163,7 +163,7 @@ public class TaktMenuLevel1SeedData
             workflowMenu.MenuType = 0;
             workflowMenu.Path = "/workflow";
             workflowMenu.Component = null;
-            workflowMenu.OrderNum = 3;
+            workflowMenu.SortOrder = 3;
             workflowMenu.MenuStatus = 1;
             workflowMenu.IsVisible = 1;
             workflowMenu.IsCache = 0;
@@ -186,7 +186,7 @@ public class TaktMenuLevel1SeedData
                 MenuType = 0,
                 Path = "/routine",
                 Component = null,
-                OrderNum = 4,
+                SortOrder = 4,
                 MenuStatus = 1,
                 IsVisible = 1,
                 IsCache = 0,
@@ -205,7 +205,7 @@ public class TaktMenuLevel1SeedData
             routineMenu.MenuType = 0;
             routineMenu.Path = "/routine";
             routineMenu.Component = null;
-            routineMenu.OrderNum = 4;
+            routineMenu.SortOrder = 4;
             routineMenu.MenuStatus = 1;
             routineMenu.IsVisible = 1;
             routineMenu.IsCache = 0;
@@ -228,7 +228,7 @@ public class TaktMenuLevel1SeedData
                 MenuType = 0,
                 Path = "/accounting",
                 Component = null,
-                OrderNum = 5,
+                SortOrder = 5,
                 MenuStatus = 1,
                 IsVisible = 1,
                 IsCache = 0,
@@ -247,7 +247,7 @@ public class TaktMenuLevel1SeedData
             accountingMenu.MenuType = 0;
             accountingMenu.Path = "/accounting";
             accountingMenu.Component = null;
-            accountingMenu.OrderNum = 5;
+            accountingMenu.SortOrder = 5;
             accountingMenu.MenuStatus = 1;
             accountingMenu.IsVisible = 1;
             accountingMenu.IsCache = 0;
@@ -270,7 +270,7 @@ public class TaktMenuLevel1SeedData
                 MenuType = 0,
                 Path = "/logistics",
                 Component = null,
-                OrderNum = 6,
+                SortOrder = 6,
                 MenuStatus = 1,
                 IsVisible = 1,
                 IsCache = 0,
@@ -289,7 +289,7 @@ public class TaktMenuLevel1SeedData
             logisticsMenu.MenuType = 0;
             logisticsMenu.Path = "/logistics";
             logisticsMenu.Component = null;
-            logisticsMenu.OrderNum = 6;
+            logisticsMenu.SortOrder = 6;
             logisticsMenu.MenuStatus = 1;
             logisticsMenu.IsVisible = 1;
             logisticsMenu.IsCache = 0;
@@ -312,7 +312,7 @@ public class TaktMenuLevel1SeedData
                 MenuType = 0,
                 Path = "/identity",
                 Component = null,
-                OrderNum = 7,
+                SortOrder = 7,
                 MenuStatus = 1,
                 IsVisible = 1,
                 IsCache = 0,
@@ -331,7 +331,7 @@ public class TaktMenuLevel1SeedData
             identityMenu.MenuType = 0;
             identityMenu.Path = "/identity";
             identityMenu.Component = null;
-            identityMenu.OrderNum = 7;
+            identityMenu.SortOrder = 7;
             identityMenu.MenuStatus = 1;
             identityMenu.IsVisible = 1;
             identityMenu.IsCache = 0;
@@ -354,7 +354,7 @@ public class TaktMenuLevel1SeedData
                 MenuType = 0,
                 Path = "/human-resource",
                 Component = null,
-                OrderNum = 8,
+                SortOrder = 8,
                 MenuStatus = 1,
                 IsVisible = 1,
                 IsCache = 0,
@@ -373,7 +373,7 @@ public class TaktMenuLevel1SeedData
             humanResourceMenu.MenuType = 0;
             humanResourceMenu.Path = "/human-resource";
             humanResourceMenu.Component = null;
-            humanResourceMenu.OrderNum = 8;
+            humanResourceMenu.SortOrder = 8;
             humanResourceMenu.MenuStatus = 1;
             humanResourceMenu.IsVisible = 1;
             humanResourceMenu.IsCache = 0;
@@ -396,7 +396,7 @@ public class TaktMenuLevel1SeedData
                 MenuType = 0,
                 Path = "/code",
                 Component = null,
-                OrderNum = 9,
+                SortOrder = 9,
                 MenuStatus = 1,
                 IsVisible = 1,
                 IsCache = 0,
@@ -415,7 +415,7 @@ public class TaktMenuLevel1SeedData
             codeMenu.MenuType = 0;
             codeMenu.Path = "/code";
             codeMenu.Component = null;
-            codeMenu.OrderNum = 9;
+            codeMenu.SortOrder = 9;
             codeMenu.MenuStatus = 1;
             codeMenu.IsVisible = 1;
             codeMenu.IsCache = 0;
@@ -438,7 +438,7 @@ public class TaktMenuLevel1SeedData
                 MenuType = 0,
                 Path = "/statistics",
                 Component = null,
-                OrderNum = 10,
+                SortOrder = 10,
                 MenuStatus = 1,
                 IsVisible = 1,
                 IsCache = 0,
@@ -457,7 +457,7 @@ public class TaktMenuLevel1SeedData
             statisticsMenu.MenuType = 0;
             statisticsMenu.Path = "/statistics";
             statisticsMenu.Component = null;
-            statisticsMenu.OrderNum = 10;
+            statisticsMenu.SortOrder = 10;
             statisticsMenu.MenuStatus = 1;
             statisticsMenu.IsVisible = 1;
             statisticsMenu.IsCache = 0;
@@ -481,7 +481,7 @@ public class TaktMenuLevel1SeedData
                 Permission = "takt:about:list",
                 Path = "/about",
                 Component = "about/index",
-                OrderNum = 11,
+                SortOrder = 11,
                 MenuStatus = 1,
                 IsVisible = 1,
                 IsCache = 0,
@@ -501,7 +501,7 @@ public class TaktMenuLevel1SeedData
             aboutMenu.Permission = "takt:about:list";
             aboutMenu.Path = "/about";
             aboutMenu.Component = "about/index";
-            aboutMenu.OrderNum = 11;
+            aboutMenu.SortOrder = 11;
             aboutMenu.MenuStatus = 1;
             aboutMenu.IsVisible = 1;
             aboutMenu.IsCache = 0;

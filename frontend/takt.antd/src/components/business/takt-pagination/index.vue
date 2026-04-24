@@ -86,17 +86,15 @@ const computedShowQuickJumper = computed(() => {
   return totalPages.value >= 6
 })
 
-// 处理 showTotal：将 boolean 转换为 Function 或 undefined
-const computedShowTotal = computed(() => {
+// 处理 showTotal：将 boolean 转为函数或 false（勿用 undefined，以满足 a-pagination exactOptionalPropertyTypes）
+const computedShowTotal = computed((): boolean | ((total: number, range: [number, number]) => string) => {
   if (typeof props.showTotal === 'function') {
     return props.showTotal
   }
   if (props.showTotal === true) {
-    // 默认显示总数函数
-    return (total: number) => t('components.navigation.systemSetting.totalCount', { total })
+    return (total: number, _range: [number, number]) => t('components.navigation.page.systemsetting.totalcount', { total })
   }
-  // showTotal 为 false 或 undefined 时，返回 undefined（不显示总数）
-  return undefined
+  return false
 })
 
 // 监听 props 变化

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Accounting.Controlling
 // 文件名称：TaktCostCenterService.cs
@@ -87,14 +87,14 @@ public class TaktCostCenterService : TaktServiceBase, ITaktCostCenterService
     {
         var costCenters = await _costCenterRepository.FindAsync(c => c.IsDeleted == 0 && c.CostCenterStatus == 0);
         return costCenters
-            .OrderBy(c => c.OrderNum)
+            .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.CreatedAt)
             .Select(c => new TaktSelectOption
             {
                 DictLabel = c.CostCenterName,
                 DictValue = c.CostCenterCode,
                 ExtLabel = c.CostCenterCode,
-                OrderNum = c.OrderNum
+                SortOrder = c.SortOrder
             })
             .ToList();
     }
@@ -333,10 +333,12 @@ public class TaktCostCenterService : TaktServiceBase, ITaktCostCenterService
                         CostCenterType = item.CostCenterType >= 0 ? item.CostCenterType : 0,
                         ManagerName = item.ManagerName,
                         DeptName = item.DeptName,
-                        OrderNum = item.OrderNum,
+                        SortOrder = item.SortOrder,
                         CostCenterStatus = item.CostCenterStatus >= 0 ? item.CostCenterStatus : 0, // 默认为启用（0=启用）
                         CostCenterLevel = 1, // 导入时默认为1级
                         ParentId = 0, // 导入时默认为根节点
+                        ValidFrom = item.ValidFrom,
+                        ValidTo = item.ValidTo,
                         Remark = item.Remark
                     };
 
@@ -407,7 +409,6 @@ public class TaktCostCenterService : TaktServiceBase, ITaktCostCenterService
         {
             var dto = c.Adapt<TaktCostCenterExportDto>();
             // 处理需要特殊转换的字段
-            dto.CostCenterType = GetCostCenterTypeString(c.CostCenterType);
             dto.ManagerName = c.ManagerName ?? string.Empty;
             dto.DeptName = c.DeptName ?? string.Empty;
             return dto;

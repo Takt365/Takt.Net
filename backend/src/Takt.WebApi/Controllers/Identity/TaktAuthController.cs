@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using System.Linq;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using System.Security.Claims;
@@ -25,6 +26,7 @@ using Takt.Domain.Entities.Identity;
 using Takt.Domain.Interfaces;
 using Takt.Domain.Repositories;
 using Takt.Infrastructure.Attributes;
+using Takt.Infrastructure.User;
 using Takt.Shared.Helpers;
 using Takt.Shared.Models;
 using Takt.WebApi.Controllers;
@@ -40,7 +42,6 @@ namespace Takt.WebApi.Controllers.Identity;
 /// </remarks>
 [Route("api/[controller]", Name = "身份认证")]
 [ApiModule("Identity", "身份认证")]
-[AllowAnonymous]
 public class TaktAuthController : TaktControllerBase
 {
     private readonly ITaktAuthService _authService;
@@ -83,6 +84,7 @@ public class TaktAuthController : TaktControllerBase
     /// </summary>
     /// <returns>令牌响应</returns>
     [HttpPost("connect/token")]
+    [AllowAnonymous]
     [ApiModule("Identity", "身份认证")]
     [Produces("application/json")]
     [IgnoreAntiforgeryToken]
@@ -176,43 +178,8 @@ public class TaktAuthController : TaktControllerBase
                     }));
             }
 
-            // 创建Claims Principal
-            var identity = new ClaimsIdentity(
-                authenticationType: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                nameType: OpenIddictConstants.Claims.Name,
-                roleType: OpenIddictConstants.Claims.Role);
-
-            // 添加标准声明
-            identity.AddClaim(new Claim(OpenIddictConstants.Claims.Subject, user.Id.ToString()));
-            identity.AddClaim(new Claim(OpenIddictConstants.Claims.Name, user.UserName));
-            identity.AddClaim(new Claim(OpenIddictConstants.Claims.PreferredUsername, user.UserName));
-            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-            identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
-            var displayName = await _authService.GetUserDisplayNameAsync(user.Id);
-            identity.AddClaim(new Claim(ClaimTypes.GivenName, displayName));
-
-            if (!string.IsNullOrEmpty(user.UserEmail))
-            {
-                identity.AddClaim(new Claim(OpenIddictConstants.Claims.Email, user.UserEmail));
-                identity.AddClaim(new Claim(ClaimTypes.Email, user.UserEmail));
-            }
-
-            // 添加角色和权限声明
-            var roles = await _authService.GetUserRolesAsync(user.Id);
-            foreach (var role in roles)
-            {
-                identity.AddClaim(new Claim(OpenIddictConstants.Claims.Role, role));
-                identity.AddClaim(new Claim(ClaimTypes.Role, role));
-            }
-
-            // 添加权限声明（使用自定义 Claim 类型）
-            var permissions = await _authService.GetUserPermissionsAsync(user.Id);
-            foreach (var permission in permissions)
-            {
-                identity.AddClaim(new Claim("permission", permission));
-            }
-
-            claimsPrincipal = new ClaimsPrincipal(identity);
+            // 与刷新令牌一致：以库表 TaktUser 为源构建主体，保证 access_token 中含登录名（OpenIddict 默认不把未标注目的地的声明写入 JWT）
+            claimsPrincipal = await CreateClaimsPrincipalForValidatedUserAsync(user);
 
             // 设置作用域
             claimsPrincipal.SetScopes(new[]
@@ -232,13 +199,22 @@ public class TaktAuthController : TaktControllerBase
             }
             claimsPrincipal.SetResources(resources);
 
-            // 更新登录次数
-            user.LoginCount++;
-            user.UpdatedAt = DateTime.Now;
-            await _userRepository.UpdateAsync(user);
+            // Password 流程在 SignIn 之前 HttpContext.User 尚未为最终用户主体，仓储 Resolve 依赖 TaktUserContext.CurrentUser。
+            var previousCurrentUser = TaktUserContext.CurrentUser;
+            try
+            {
+                TaktUserContext.CurrentUser = user;
+                user.LoginCount++;
+                user.UpdatedAt = DateTime.Now;
+                await _userRepository.UpdateAsync(user);
 
-            // 记录登录日志和在线记录
-            await _authService.RecordLoginSuccessAsync(user, user.UserName);
+                // 记录登录日志和在线记录
+                await _authService.RecordLoginSuccessAsync(user, user.UserName);
+            }
+            finally
+            {
+                TaktUserContext.CurrentUser = previousCurrentUser;
+            }
 
             var requestCulture = HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture?.UICulture?.Name
                 ?? CultureInfo.CurrentUICulture.Name
@@ -250,12 +226,11 @@ public class TaktAuthController : TaktControllerBase
         // 处理刷新令牌流程
         else if (request.IsRefreshTokenGrantType())
         {
-            // 从当前认证结果中获取Claims Principal
+            // 从当前认证结果中获取 Claims Principal（仅用于解析 subject；新 access_token 的主体须与密码登录同源，否则旧令牌未含 name 时刷新后仍无登录名）
             var result = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-            claimsPrincipal = result?.Principal ?? throw new InvalidOperationException(GetLocalizedString("validation.authRefreshPrincipalMissing", "Frontend"));
+            var refreshPrincipal = result?.Principal ?? throw new InvalidOperationException(GetLocalizedString("validation.authRefreshPrincipalMissing", "Frontend"));
 
-            // 获取用户ID
-            var subject = claimsPrincipal.GetClaim(OpenIddictConstants.Claims.Subject);
+            var subject = refreshPrincipal.GetClaim(OpenIddictConstants.Claims.Subject);
             if (string.IsNullOrEmpty(subject) || !long.TryParse(subject, out var userId))
             {
                 return Forbid(
@@ -267,7 +242,6 @@ public class TaktAuthController : TaktControllerBase
                     }));
             }
 
-            // 验证用户状态（1=启用，0=禁用，2=锁定）
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null || user.IsDeleted != 0 || user.UserStatus != 1)
             {
@@ -279,6 +253,41 @@ public class TaktAuthController : TaktControllerBase
                         [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = GetLocalizedString("validation.authRefreshUserInvalid", "Frontend")
                     }));
             }
+
+            claimsPrincipal = await CreateClaimsPrincipalForValidatedUserAsync(user);
+
+            var requestScopes = request.GetScopes();
+            if (requestScopes.Any())
+            {
+                claimsPrincipal.SetScopes(requestScopes);
+            }
+            else
+            {
+                var inheritedScopes = refreshPrincipal.GetScopes();
+                if (inheritedScopes.Any())
+                {
+                    claimsPrincipal.SetScopes(inheritedScopes);
+                }
+                else
+                {
+                    claimsPrincipal.SetScopes(new[]
+                    {
+                        OpenIddictConstants.Scopes.OpenId,
+                        OpenIddictConstants.Scopes.Profile,
+                        OpenIddictConstants.Scopes.Email,
+                        OpenIddictConstants.Scopes.Roles,
+                        OpenIddictConstants.Scopes.OfflineAccess
+                    });
+                }
+            }
+
+            var refreshResources = new List<string>();
+            await foreach (var resource in _scopeManager.ListResourcesAsync(claimsPrincipal.GetScopes()))
+            {
+                refreshResources.Add(resource);
+            }
+
+            claimsPrincipal.SetResources(refreshResources);
         }
         else
         {
@@ -319,6 +328,7 @@ public class TaktAuthController : TaktControllerBase
     /// <param name="dto">登录请求DTO</param>
     /// <returns>登录响应DTO</returns>
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<ActionResult<TaktApiResult<TaktLoginResponseDto>>> LoginAsync([FromBody] TaktLoginDto dto)
     {
         try
@@ -338,6 +348,7 @@ public class TaktAuthController : TaktControllerBase
     /// <param name="dto">刷新令牌请求DTO</param>
     /// <returns>登录响应DTO</returns>
     [HttpPost("refresh-token")]
+    [AllowAnonymous]
     public async Task<ActionResult<TaktApiResult<TaktLoginResponseDto>>> RefreshTokenAsync([FromBody] TaktRefreshTokenDto dto)
     {
         try
@@ -357,6 +368,7 @@ public class TaktAuthController : TaktControllerBase
     /// <param name="refreshToken">刷新令牌</param>
     /// <returns>操作结果</returns>
     [HttpPost("logout")]
+    [AllowAnonymous]
     public async Task<ActionResult<TaktApiResult<object>>> LogoutAsync([FromBody] string refreshToken)
     {
         try
@@ -391,5 +403,70 @@ public class TaktAuthController : TaktControllerBase
         {
             return BadRequest(TaktApiResult<TaktUserInfoDto>.Fail(GetLocalizedExceptionMessage(ex)));
         }
+    }
+
+    /// <summary>
+    /// 按已校验的 <see cref="TaktUser"/>（前端以 <see cref="TaktUser.UserName"/> 登录）构建签发 access/refresh 使用的主体，
+    /// 并调用 OpenIddict <c>SetDestinations</c>，否则访问令牌 JWT 中默认仅含 <c>sub</c>，资源服务器与 SignalR 无法从 Claims 读取登录名。
+    /// </summary>
+    private async Task<ClaimsPrincipal> CreateClaimsPrincipalForValidatedUserAsync(TaktUser user)
+    {
+        var identity = new ClaimsIdentity(
+            authenticationType: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+            nameType: OpenIddictConstants.Claims.Name,
+            roleType: OpenIddictConstants.Claims.Role);
+
+        identity.AddClaim(new Claim(OpenIddictConstants.Claims.Subject, user.Id.ToString()));
+        identity.AddClaim(new Claim(OpenIddictConstants.Claims.Name, user.UserName));
+        identity.AddClaim(new Claim(OpenIddictConstants.Claims.PreferredUsername, user.UserName));
+        identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+        identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
+        var displayName = await _authService.GetUserDisplayNameAsync(user.Id);
+        identity.AddClaim(new Claim(ClaimTypes.GivenName, displayName));
+
+        if (!string.IsNullOrEmpty(user.UserEmail))
+        {
+            identity.AddClaim(new Claim(OpenIddictConstants.Claims.Email, user.UserEmail));
+            identity.AddClaim(new Claim(ClaimTypes.Email, user.UserEmail));
+        }
+
+        // 超级管理员：GetUserRolesAsync 会返回库中全部启用角色代码，逐条写入令牌与旧版「全量 permission」一样会把 JWE 撑到数百 KB，
+        // 导致 Authorization 头过大、OpenIddict 验签与 GET userinfo 超时。令牌内仅写入占位角色；真实角色列表由 GetUserInfoAsync 返回。
+        if (user.UserType == 2)
+        {
+            const string superAdminRoleMarker = "takt:super_admin";
+            identity.AddClaim(new Claim(OpenIddictConstants.Claims.Role, superAdminRoleMarker));
+            identity.AddClaim(new Claim(ClaimTypes.Role, superAdminRoleMarker));
+        }
+        else
+        {
+            var roles = await _authService.GetUserRolesAsync(user.Id);
+            foreach (var role in roles)
+            {
+                identity.AddClaim(new Claim(OpenIddictConstants.Claims.Role, role));
+                identity.AddClaim(new Claim(ClaimTypes.Role, role));
+            }
+        }
+
+        // 不把每条菜单 permission 写入 access_token（权限由 TaktPermissionMiddleware 与 GetUserInfoAsync 提供）。
+
+        var principal = new ClaimsPrincipal(identity);
+        ApplyTokenClaimDestinations(principal);
+        return principal;
+    }
+
+    /// <summary>
+    /// 将声明标注写入 access_token / identity_token 的目的地（OpenIddict 要求显式标注）。
+    /// </summary>
+    private static void ApplyTokenClaimDestinations(ClaimsPrincipal principal)
+    {
+        principal.SetDestinations(claim => claim.Type switch
+        {
+            OpenIddictConstants.Claims.Subject or OpenIddictConstants.Claims.Name or OpenIddictConstants.Claims.PreferredUsername
+            or OpenIddictConstants.Claims.Email or OpenIddictConstants.Claims.Role
+            or ClaimTypes.NameIdentifier or ClaimTypes.Name or ClaimTypes.GivenName or ClaimTypes.Email or ClaimTypes.Role
+                => [OpenIddictConstants.Destinations.AccessToken, OpenIddictConstants.Destinations.IdentityToken],
+            _ => [OpenIddictConstants.Destinations.AccessToken]
+        });
     }
 }

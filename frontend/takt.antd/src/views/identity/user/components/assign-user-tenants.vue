@@ -36,7 +36,7 @@
             width: '250px',
             height: '50vh',
           }"
-          :titles="[t('common.action.transferUnassigned'), t('common.action.transferAssigned')]"
+          :titles="[t('common.action.transferunassigned'), t('common.action.transferassigned')]"
           show-search
           :loading="optionsLoading"
           :render="item => item.title"
@@ -133,7 +133,7 @@ const loadUserTenants = async () => {
     const u = props.user
     const userId = u.userId
     if (!userId) {
-      message.error(t('common.msg.entityIdRequired', { entity: t('entity.user._self') }))
+      message.error(t('common.msg.entityidrequired', { entity: t('entity.user._self') }))
       return
     }
 
@@ -155,7 +155,7 @@ const loadUserTenants = async () => {
     })
   } catch (error: unknown) {
     logger.error('[AssignUserTenants] 加载用户租户失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.loadTargetFail', { target: t('entity.user._self') + t('entity.tenant._self') }))
+    message.error(getErrorMessage(error) || t('common.msg.loadtargetfail', { target: t('entity.user._self') + t('entity.tenant._self') }))
   } finally {
     loading.value = false
     optionsLoading.value = false
@@ -170,7 +170,7 @@ const handleTransferChange = (keys: string[], _direction: string, _moveKeys: str
 /** 提交 assignUserTenants */
 const handleSubmit = async () => {
   if (!props.user) {
-    message.error(t('common.msg.entityNotFound', { entity: t('entity.user._self') }))
+    message.error(t('common.msg.entitynotfound', { entity: t('entity.user._self') }))
     return
   }
 
@@ -180,19 +180,19 @@ const handleSubmit = async () => {
     // 获取用户ID
     const userId = props.user.userId
     if (!userId) {
-      message.error(t('common.msg.entityIdRequired', { entity: t('entity.user._self') }))
+      message.error(t('common.msg.entityidrequired', { entity: t('entity.user._self') }))
       return
     }
 
     // 调用分配API
     await assignUserTenants(String(userId), targetKeys.value)
     
-    message.success(t('common.msg.assignSuccess', { target: t('entity.tenant._self') }))
+    message.success(t('common.msg.assignsuccess', { target: t('entity.tenant._self') }))
     emit('success')
     handleCancel()
   } catch (error: unknown) {
     logger.error('[AssignUserTenants] 分配租户失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.assignFail', { target: t('entity.tenant._self') }))
+    message.error(getErrorMessage(error) || t('common.msg.assignfail', { target: t('entity.tenant._self') }))
   } finally {
     loading.value = false
   }

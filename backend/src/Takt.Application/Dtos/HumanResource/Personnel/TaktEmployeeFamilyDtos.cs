@@ -1,10 +1,10 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.Personnel
 // 文件名称：TaktEmployeeFamilyDtos.cs
-// 创建时间：2026-04-14
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt员工家庭成员DTO，包含员工家庭成员相关的数据传输对象（查询、创建、更新、导入导出）
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：员工家庭成员表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,9 +17,9 @@ using Takt.Shared.Models;
 namespace Takt.Application.Dtos.HumanResource.Personnel;
 
 /// <summary>
-/// Takt员工家庭成员DTO
+/// 员工家庭成员表Dto
 /// </summary>
-public class TaktEmployeeFamilyDto : TaktDtoBase
+public partial class TaktEmployeeFamilyDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -27,84 +27,141 @@ public class TaktEmployeeFamilyDto : TaktDtoBase
     public TaktEmployeeFamilyDto()
     {
         MemberName = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 员工家庭成员ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 员工家庭成员表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeFamilyId { get; set; }
 
     /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
-
     /// <summary>
     /// 成员姓名
     /// </summary>
     public string MemberName { get; set; }
-
     /// <summary>
     /// 关系类型
     /// </summary>
     public int RelationType { get; set; }
-
     /// <summary>
     /// 联系电话
     /// </summary>
     public string? PhoneNumber { get; set; }
-
     /// <summary>
     /// 工作单位
     /// </summary>
     public string? WorkUnit { get; set; }
-
     /// <summary>
     /// 职务
     /// </summary>
     public string? JobTitle { get; set; }
+    /// <summary>
+    /// 出生日期
+    /// </summary>
+    public DateTime? BirthDate { get; set; }
+    /// <summary>
+    /// 是否紧急联系人
+    /// </summary>
+    public int IsEmergencyContact { get; set; }
+}
 
+/// <summary>
+/// 员工家庭成员表查询DTO
+/// </summary>
+public partial class TaktEmployeeFamilyQueryDto : TaktPagedQuery
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktEmployeeFamilyQueryDto()
+    {
+    }
+
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
+    /// <summary>
+    /// 员工家庭成员表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeFamilyId { get; set; }
+
+    /// <summary>
+    /// 员工ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? EmployeeId { get; set; }
+    /// <summary>
+    /// 成员姓名
+    /// </summary>
+    public string? MemberName { get; set; }
+    /// <summary>
+    /// 关系类型
+    /// </summary>
+    public int? RelationType { get; set; }
+    /// <summary>
+    /// 联系电话
+    /// </summary>
+    public string? PhoneNumber { get; set; }
+    /// <summary>
+    /// 工作单位
+    /// </summary>
+    public string? WorkUnit { get; set; }
+    /// <summary>
+    /// 职务
+    /// </summary>
+    public string? JobTitle { get; set; }
     /// <summary>
     /// 出生日期
     /// </summary>
     public DateTime? BirthDate { get; set; }
 
     /// <summary>
-    /// 是否紧急联系人（0=否，1=是）
+    /// 出生日期开始时间
     /// </summary>
-    public int IsEmergencyContact { get; set; }
+    public DateTime? BirthDateStart { get; set; }
+    /// <summary>
+    /// 出生日期结束时间
+    /// </summary>
+    public DateTime? BirthDateEnd { get; set; }
+    /// <summary>
+    /// 是否紧急联系人
+    /// </summary>
+    public int? IsEmergencyContact { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt员工家庭成员查询DTO
+/// Takt创建员工家庭成员表DTO
 /// </summary>
-public class TaktEmployeeFamilyQueryDto : TaktPagedQuery
-{
-    /// <summary>
-    /// 员工ID（精确）
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long? EmployeeId { get; set; }
-
-    /// <summary>
-    /// 关系类型（精确）
-    /// </summary>
-    public int? RelationType { get; set; }
-
-    /// <summary>
-    /// 成员姓名（模糊）
-    /// </summary>
-    public string? MemberName { get; set; }
-}
-
-/// <summary>
-/// Takt创建员工家庭成员DTO
-/// </summary>
-public class TaktEmployeeFamilyCreateDto
+public partial class TaktEmployeeFamilyCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -114,77 +171,262 @@ public class TaktEmployeeFamilyCreateDto
         MemberName = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工ID
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 成员姓名
     /// </summary>
     public string MemberName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 关系类型
     /// </summary>
     public int RelationType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 联系电话
     /// </summary>
     public string? PhoneNumber { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 工作单位
     /// </summary>
     public string? WorkUnit { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 职务
     /// </summary>
     public string? JobTitle { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 出生日期
     /// </summary>
     public DateTime? BirthDate { get; set; }
 
-    /// <summary>
-    /// 是否紧急联系人（0=否，1=是）
+        /// <summary>
+    /// 是否紧急联系人
     /// </summary>
     public int IsEmergencyContact { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt更新员工家庭成员DTO
+/// Takt更新员工家庭成员表DTO
 /// </summary>
-public class TaktEmployeeFamilyUpdateDto : TaktEmployeeFamilyCreateDto
+public partial class TaktEmployeeFamilyUpdateDto : TaktEmployeeFamilyCreateDto
 {
     /// <summary>
-    /// 员工家庭成员ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 构造函数
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    public TaktEmployeeFamilyUpdateDto()
+    {
+    }
+
+        /// <summary>
+    /// 员工家庭成员表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeFamilyId { get; set; }
 }
 
 /// <summary>
-/// Takt员工家庭成员导入模板DTO
+/// 员工家庭成员表导入模板DTO
 /// </summary>
-public class TaktEmployeeFamilyTemplateDto : TaktEmployeeFamilyCreateDto
+public partial class TaktEmployeeFamilyTemplateDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktEmployeeFamilyTemplateDto()
+    {
+        MemberName = string.Empty;
+    }
+
+        /// <summary>
+    /// 员工ID
+    /// </summary>
+    public long EmployeeId { get; set; }
+
+        /// <summary>
+    /// 成员姓名
+    /// </summary>
+    public string MemberName { get; set; }
+
+        /// <summary>
+    /// 关系类型
+    /// </summary>
+    public int RelationType { get; set; }
+
+        /// <summary>
+    /// 联系电话
+    /// </summary>
+    public string? PhoneNumber { get; set; }
+
+        /// <summary>
+    /// 工作单位
+    /// </summary>
+    public string? WorkUnit { get; set; }
+
+        /// <summary>
+    /// 职务
+    /// </summary>
+    public string? JobTitle { get; set; }
+
+        /// <summary>
+    /// 出生日期
+    /// </summary>
+    public DateTime? BirthDate { get; set; }
+
+        /// <summary>
+    /// 是否紧急联系人
+    /// </summary>
+    public int IsEmergencyContact { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt员工家庭成员导入DTO
+/// 员工家庭成员表导入DTO
 /// </summary>
-public class TaktEmployeeFamilyImportDto : TaktEmployeeFamilyTemplateDto
+public partial class TaktEmployeeFamilyImportDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktEmployeeFamilyImportDto()
+    {
+        MemberName = string.Empty;
+    }
+
+        /// <summary>
+    /// 员工ID
+    /// </summary>
+    public long EmployeeId { get; set; }
+
+        /// <summary>
+    /// 成员姓名
+    /// </summary>
+    public string MemberName { get; set; }
+
+        /// <summary>
+    /// 关系类型
+    /// </summary>
+    public int RelationType { get; set; }
+
+        /// <summary>
+    /// 联系电话
+    /// </summary>
+    public string? PhoneNumber { get; set; }
+
+        /// <summary>
+    /// 工作单位
+    /// </summary>
+    public string? WorkUnit { get; set; }
+
+        /// <summary>
+    /// 职务
+    /// </summary>
+    public string? JobTitle { get; set; }
+
+        /// <summary>
+    /// 出生日期
+    /// </summary>
+    public DateTime? BirthDate { get; set; }
+
+        /// <summary>
+    /// 是否紧急联系人
+    /// </summary>
+    public int IsEmergencyContact { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
+
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public string? Remark { get; set; }
 }
 
 /// <summary>
-/// Takt员工家庭成员导出DTO
+/// 员工家庭成员表导出DTO
 /// </summary>
-public class TaktEmployeeFamilyExportDto : TaktEmployeeFamilyDto
+public partial class TaktEmployeeFamilyExportDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktEmployeeFamilyExportDto()
+    {
+        CreatedAt = DateTime.Now;
+        MemberName = string.Empty;
+    }
+
+        /// <summary>
+    /// 员工ID
+    /// </summary>
+    public long EmployeeId { get; set; }
+
+        /// <summary>
+    /// 成员姓名
+    /// </summary>
+    public string MemberName { get; set; }
+
+        /// <summary>
+    /// 关系类型
+    /// </summary>
+    public int RelationType { get; set; }
+
+        /// <summary>
+    /// 联系电话
+    /// </summary>
+    public string? PhoneNumber { get; set; }
+
+        /// <summary>
+    /// 工作单位
+    /// </summary>
+    public string? WorkUnit { get; set; }
+
+        /// <summary>
+    /// 职务
+    /// </summary>
+    public string? JobTitle { get; set; }
+
+        /// <summary>
+    /// 出生日期
+    /// </summary>
+    public DateTime? BirthDate { get; set; }
+
+        /// <summary>
+    /// 是否紧急联系人
+    /// </summary>
+    public int IsEmergencyContact { get; set; }
+
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime CreatedAt { get; set; }
 }

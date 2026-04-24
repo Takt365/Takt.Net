@@ -1,23 +1,25 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Identity
 // 文件名称：TaktMenuDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt菜单DTO，包含菜单相关的数据传输对象（查询、创建、更新）
-// 
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：菜单信息表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
+//
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
+using SqlSugar;
 using Takt.Application.Dtos;
+using Takt.Shared.Models;
 
 namespace Takt.Application.Dtos.Identity;
 
 /// <summary>
-/// Takt菜单DTO
+/// 菜单信息表Dto
 /// </summary>
-public class TaktMenuDto : TaktDtoBase
+public partial class TaktMenuDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -26,11 +28,10 @@ public class TaktMenuDto : TaktDtoBase
     {
         MenuName = string.Empty;
         MenuCode = string.Empty;
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 菜单ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 菜单信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
@@ -40,83 +41,69 @@ public class TaktMenuDto : TaktDtoBase
     /// 菜单名称
     /// </summary>
     public string MenuName { get; set; }
-
     /// <summary>
     /// 菜单编码
     /// </summary>
     public string MenuCode { get; set; }
-
     /// <summary>
-    /// 菜单本地化键（用于多语言翻译）
+    /// 菜单本地化键
     /// </summary>
     public string? MenuL10nKey { get; set; }
-
     /// <summary>
-    /// 菜单父级ID（树形结构，0表示根节点，序列化为string以避免Javascript精度问题）
+    /// 菜单父级ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long ParentId { get; set; }
-
     /// <summary>
     /// 路由路径
     /// </summary>
     public string? Path { get; set; }
-
     /// <summary>
     /// 组件路径
     /// </summary>
     public string? Component { get; set; }
-
     /// <summary>
     /// 图标
     /// </summary>
     public string? MenuIcon { get; set; }
-
     /// <summary>
-    /// 排序号（越小越靠前）
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
-
+    public int SortOrder { get; set; }
     /// <summary>
-    /// 菜单类型（0=目录，1=菜单，2=按钮）
+    /// 菜单类型
     /// </summary>
     public int MenuType { get; set; }
-
     /// <summary>
     /// 权限标识
     /// </summary>
     public string? Permission { get; set; }
-
     /// <summary>
-    /// 是否可见（1=是，0=否）
+    /// 是否可见
     /// </summary>
     public int IsVisible { get; set; }
-
     /// <summary>
-    /// 是否缓存（1=是，0=否）
+    /// 是否缓存
     /// </summary>
     public int IsCache { get; set; }
-
     /// <summary>
-    /// 是否外部链接（1=是，0=否）
+    /// 是否外部链接
     /// </summary>
     public int IsExternal { get; set; }
-
     /// <summary>
     /// 链接URL
     /// </summary>
     public string? LinkUrl { get; set; }
-
     /// <summary>
-    /// 菜单状态（1=启用，0=禁用）
+    /// 菜单状态
     /// </summary>
     public int MenuStatus { get; set; }
 }
 
 /// <summary>
-/// Takt菜单树形DTO
+/// 菜单信息表树形DTO
 /// </summary>
-public class TaktMenuTreeDto : TaktMenuDto
+public partial class TaktMenuTreeDto : TaktMenuDto
 {
     /// <summary>
     /// 构造函数
@@ -127,15 +114,15 @@ public class TaktMenuTreeDto : TaktMenuDto
     }
 
     /// <summary>
-    /// 子菜单列表
+    /// 子节点列表
     /// </summary>
     public List<TaktMenuTreeDto> Children { get; set; }
 }
 
 /// <summary>
-/// Takt菜单查询DTO
+/// 菜单信息表查询DTO
 /// </summary>
-public class TaktMenuQueryDto : TaktPagedQuery
+public partial class TaktMenuQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -144,39 +131,104 @@ public class TaktMenuQueryDto : TaktPagedQuery
     {
     }
 
-    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于在菜单名称、菜单编码中模糊查询
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
+
+    /// <summary>
+    /// 菜单信息表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long MenuId { get; set; }
 
     /// <summary>
     /// 菜单名称
     /// </summary>
     public string? MenuName { get; set; }
-
     /// <summary>
     /// 菜单编码
     /// </summary>
     public string? MenuCode { get; set; }
-
     /// <summary>
-    /// 父级ID
+    /// 菜单本地化键
+    /// </summary>
+    public string? MenuL10nKey { get; set; }
+    /// <summary>
+    /// 菜单父级ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? ParentId { get; set; }
-
     /// <summary>
-    /// 菜单类型（0=目录，1=菜单，2=按钮）
+    /// 路由路径
+    /// </summary>
+    public string? Path { get; set; }
+    /// <summary>
+    /// 组件路径
+    /// </summary>
+    public string? Component { get; set; }
+    /// <summary>
+    /// 图标
+    /// </summary>
+    public string? MenuIcon { get; set; }
+    /// <summary>
+    /// 排序号
+    /// </summary>
+    public int? SortOrder { get; set; }
+    /// <summary>
+    /// 菜单类型
     /// </summary>
     public int? MenuType { get; set; }
-
     /// <summary>
-    /// 菜单状态（1=启用，0=禁用）
+    /// 权限标识
+    /// </summary>
+    public string? Permission { get; set; }
+    /// <summary>
+    /// 是否可见
+    /// </summary>
+    public int? IsVisible { get; set; }
+    /// <summary>
+    /// 是否缓存
+    /// </summary>
+    public int? IsCache { get; set; }
+    /// <summary>
+    /// 是否外部链接
+    /// </summary>
+    public int? IsExternal { get; set; }
+    /// <summary>
+    /// 链接URL
+    /// </summary>
+    public string? LinkUrl { get; set; }
+    /// <summary>
+    /// 菜单状态
     /// </summary>
     public int? MenuStatus { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建菜单DTO
+/// Takt创建菜单信息表DTO
 /// </summary>
-public class TaktMenuCreateDto
+public partial class TaktMenuCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -187,76 +239,86 @@ public class TaktMenuCreateDto
         MenuCode = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 菜单名称
     /// </summary>
-    public string MenuName { get; set; } = string.Empty;
+    public string MenuName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 菜单编码
     /// </summary>
-    public string MenuCode { get; set; } = string.Empty;
+    public string MenuCode { get; set; }
 
-    /// <summary>
-    /// 菜单本地化键（用于多语言翻译）
+        /// <summary>
+    /// 菜单本地化键
     /// </summary>
     public string? MenuL10nKey { get; set; }
 
-    /// <summary>
-    /// 菜单父级ID（树形结构，0表示根节点，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 菜单父级ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long ParentId { get; set; } = 0;
+    public long ParentId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 路由路径
     /// </summary>
     public string? Path { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 组件路径
     /// </summary>
     public string? Component { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 图标
     /// </summary>
     public string? MenuIcon { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; } = 0;
+    public int SortOrder { get; set; }
 
-    /// <summary>
-    /// 菜单类型（0=目录，1=菜单，2=按钮）
+        /// <summary>
+    /// 菜单类型
     /// </summary>
-    public int MenuType { get; set; } = 0;
+    public int MenuType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 权限标识
     /// </summary>
     public string? Permission { get; set; }
 
-    /// <summary>
-    /// 是否可见（1=是，0=否）
+        /// <summary>
+    /// 是否可见
     /// </summary>
-    public int IsVisible { get; set; } = 0;
+    public int IsVisible { get; set; }
 
-    /// <summary>
-    /// 是否缓存（1=是，0=否）
+        /// <summary>
+    /// 是否缓存
     /// </summary>
-    public int IsCache { get; set; } = 1;
+    public int IsCache { get; set; }
 
-    /// <summary>
-    /// 是否外部链接（1=是，0=否）
+        /// <summary>
+    /// 是否外部链接
     /// </summary>
-    public int IsExternal { get; set; } = 1;
+    public int IsExternal { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 链接URL
     /// </summary>
     public string? LinkUrl { get; set; }
+
+        /// <summary>
+    /// 菜单状态
+    /// </summary>
+    public int MenuStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -265,9 +327,9 @@ public class TaktMenuCreateDto
 }
 
 /// <summary>
-/// Takt更新菜单DTO
+/// Takt更新菜单信息表DTO
 /// </summary>
-public class TaktMenuUpdateDto : TaktMenuCreateDto
+public partial class TaktMenuUpdateDto : TaktMenuCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -276,8 +338,8 @@ public class TaktMenuUpdateDto : TaktMenuCreateDto
     {
     }
 
-    /// <summary>
-    /// 菜单ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 菜单信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
@@ -285,9 +347,9 @@ public class TaktMenuUpdateDto : TaktMenuCreateDto
 }
 
 /// <summary>
-/// Takt菜单状态DTO
+/// 菜单信息表菜单状态DTO
 /// </summary>
-public class TaktMenuStatusDto
+public partial class TaktMenuStatusDto
 {
     /// <summary>
     /// 构造函数
@@ -296,98 +358,23 @@ public class TaktMenuStatusDto
     {
     }
 
-    /// <summary>
-    /// 菜单ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 菜单信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long MenuId { get; set; }
 
     /// <summary>
-    /// 菜单状态（1=启用，0=禁用）
+    /// 菜单状态（0=禁用，1=启用）
     /// </summary>
     public int MenuStatus { get; set; }
 }
 
 /// <summary>
-/// Takt菜单排序号DTO
+/// 菜单信息表导入模板DTO
 /// </summary>
-public class TaktMenuOrderNumDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktMenuOrderNumDto()
-    {
-    }
-
-    /// <summary>
-    /// 菜单ID（适配字段，序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [AdaptMember("Id")]
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long MenuId { get; set; }
-
-    /// <summary>
-    /// 排序号（越小越靠前）
-    /// </summary>
-    public int OrderNum { get; set; }
-}
-
-/// <summary>
-/// Takt菜单可见性DTO
-/// </summary>
-public class TaktMenuVisibleDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktMenuVisibleDto()
-    {
-    }
-
-    /// <summary>
-    /// 菜单ID（适配字段，序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [AdaptMember("Id")]
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long MenuId { get; set; }
-
-    /// <summary>
-    /// 是否可见（1=是，0=否）
-    /// </summary>
-    public int IsVisible { get; set; }
-}
-
-/// <summary>
-/// Takt菜单缓存DTO
-/// </summary>
-public class TaktMenuIsCacheDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktMenuIsCacheDto()
-    {
-    }
-
-    /// <summary>
-    /// 菜单ID（适配字段，序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [AdaptMember("Id")]
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long MenuId { get; set; }
-
-    /// <summary>
-    /// 是否缓存（1=是，0=否）
-    /// </summary>
-    public int IsCache { get; set; }
-}
-
-/// <summary>
-/// Takt菜单导入模板DTO
-/// </summary>
-public class TaktMenuTemplateDto
+public partial class TaktMenuTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -396,89 +383,87 @@ public class TaktMenuTemplateDto
     {
         MenuName = string.Empty;
         MenuCode = string.Empty;
-        Path = string.Empty;
-        Component = string.Empty;
-        MenuIcon = string.Empty;
-        Permission = string.Empty;
-        LinkUrl = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 菜单名称
     /// </summary>
     public string MenuName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 菜单编码
     /// </summary>
     public string MenuCode { get; set; }
 
-    /// <summary>
-    /// 菜单本地化键（用于多语言翻译）
+        /// <summary>
+    /// 菜单本地化键
     /// </summary>
     public string? MenuL10nKey { get; set; }
 
-    /// <summary>
-    /// 菜单父级ID（树形结构，0表示根节点）
+        /// <summary>
+    /// 菜单父级ID
     /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long ParentId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 路由路径
     /// </summary>
-    public string Path { get; set; }
+    public string? Path { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 组件路径
     /// </summary>
-    public string Component { get; set; }
+    public string? Component { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 图标
     /// </summary>
-    public string MenuIcon { get; set; }
+    public string? MenuIcon { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
-    /// <summary>
-    /// 菜单类型（0=目录，1=菜单，2=按钮）
+        /// <summary>
+    /// 菜单类型
     /// </summary>
     public int MenuType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 权限标识
     /// </summary>
-    public string Permission { get; set; }
+    public string? Permission { get; set; }
 
-    /// <summary>
-    /// 是否可见（1=是，0=否）
+        /// <summary>
+    /// 是否可见
     /// </summary>
     public int IsVisible { get; set; }
 
-    /// <summary>
-    /// 是否缓存（1=是，0=否）
+        /// <summary>
+    /// 是否缓存
     /// </summary>
     public int IsCache { get; set; }
 
-    /// <summary>
-    /// 是否外部链接（1=是，0=否）
+        /// <summary>
+    /// 是否外部链接
     /// </summary>
     public int IsExternal { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 链接URL
     /// </summary>
-    public string LinkUrl { get; set; }
+    public string? LinkUrl { get; set; }
 
-    /// <summary>
-    /// 菜单状态（1=启用，0=禁用）
+        /// <summary>
+    /// 菜单状态
     /// </summary>
     public int MenuStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -487,9 +472,9 @@ public class TaktMenuTemplateDto
 }
 
 /// <summary>
-/// Takt菜单导入DTO
+/// 菜单信息表导入DTO
 /// </summary>
-public class TaktMenuImportDto
+public partial class TaktMenuImportDto
 {
     /// <summary>
     /// 构造函数
@@ -498,89 +483,87 @@ public class TaktMenuImportDto
     {
         MenuName = string.Empty;
         MenuCode = string.Empty;
-        Path = string.Empty;
-        Component = string.Empty;
-        MenuIcon = string.Empty;
-        Permission = string.Empty;
-        LinkUrl = string.Empty;
-        Remark = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 菜单名称
     /// </summary>
     public string MenuName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 菜单编码
     /// </summary>
     public string MenuCode { get; set; }
 
-    /// <summary>
-    /// 菜单本地化键（用于多语言翻译）
+        /// <summary>
+    /// 菜单本地化键
     /// </summary>
     public string? MenuL10nKey { get; set; }
 
-    /// <summary>
-    /// 菜单父级ID（树形结构，0表示根节点）
+        /// <summary>
+    /// 菜单父级ID
     /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long ParentId { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 路由路径
     /// </summary>
-    public string Path { get; set; }
+    public string? Path { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 组件路径
     /// </summary>
-    public string Component { get; set; }
+    public string? Component { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 图标
     /// </summary>
-    public string MenuIcon { get; set; }
+    public string? MenuIcon { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
-    /// <summary>
-    /// 菜单类型（0=目录，1=菜单，2=按钮）
+        /// <summary>
+    /// 菜单类型
     /// </summary>
     public int MenuType { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 权限标识
     /// </summary>
-    public string Permission { get; set; }
+    public string? Permission { get; set; }
 
-    /// <summary>
-    /// 是否可见（1=是，0=否）
+        /// <summary>
+    /// 是否可见
     /// </summary>
     public int IsVisible { get; set; }
 
-    /// <summary>
-    /// 是否缓存（1=是，0=否）
+        /// <summary>
+    /// 是否缓存
     /// </summary>
     public int IsCache { get; set; }
 
-    /// <summary>
-    /// 是否外部链接（1=是，0=否）
+        /// <summary>
+    /// 是否外部链接
     /// </summary>
     public int IsExternal { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 链接URL
     /// </summary>
-    public string LinkUrl { get; set; }
+    public string? LinkUrl { get; set; }
 
-    /// <summary>
-    /// 菜单状态（1=启用，0=禁用）
+        /// <summary>
+    /// 菜单状态
     /// </summary>
     public int MenuStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -589,79 +572,92 @@ public class TaktMenuImportDto
 }
 
 /// <summary>
-/// Takt菜单导出DTO
+/// 菜单信息表导出DTO
 /// </summary>
-public class TaktMenuExportDto
+public partial class TaktMenuExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktMenuExportDto()
     {
+        CreatedAt = DateTime.Now;
         MenuName = string.Empty;
         MenuCode = string.Empty;
-        MenuType = string.Empty;
-        MenuStatus = 1;
-        CreatedAt = DateTime.Now;
     }
 
-    /// <summary>
+        /// <summary>
     /// 菜单名称
     /// </summary>
     public string MenuName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 菜单编码
     /// </summary>
     public string MenuCode { get; set; }
 
-    /// <summary>
-    /// 菜单类型
+        /// <summary>
+    /// 菜单本地化键
     /// </summary>
-    public string MenuType { get; set; }
+    public string? MenuL10nKey { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 菜单父级ID
+    /// </summary>
+    public long ParentId { get; set; }
+
+        /// <summary>
     /// 路由路径
     /// </summary>
     public string? Path { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 组件路径
     /// </summary>
     public string? Component { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 图标
     /// </summary>
     public string? MenuIcon { get; set; }
 
-    /// <summary>
-    /// 排序号（越小越靠前）
+        /// <summary>
+    /// 排序号
     /// </summary>
-    public int OrderNum { get; set; }
+    public int SortOrder { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 菜单类型
+    /// </summary>
+    public int MenuType { get; set; }
+
+        /// <summary>
     /// 权限标识
     /// </summary>
     public string? Permission { get; set; }
 
-    /// <summary>
-    /// 是否可见（1=是，0=否）
+        /// <summary>
+    /// 是否可见
     /// </summary>
     public int IsVisible { get; set; }
 
-    /// <summary>
-    /// 是否缓存（1=是，0=否）
+        /// <summary>
+    /// 是否缓存
     /// </summary>
     public int IsCache { get; set; }
 
-    /// <summary>
-    /// 是否外部链接（1=是，0=否）
+        /// <summary>
+    /// 是否外部链接
     /// </summary>
     public int IsExternal { get; set; }
 
-    /// <summary>
-    /// 菜单状态（1=启用，0=禁用）
+        /// <summary>
+    /// 链接URL
+    /// </summary>
+    public string? LinkUrl { get; set; }
+
+        /// <summary>
+    /// 菜单状态
     /// </summary>
     public int MenuStatus { get; set; }
 

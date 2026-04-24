@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：TaktOvertimeService.cs
@@ -211,8 +211,8 @@ public class TaktOvertimeService : TaktServiceBase, ITaktOvertimeService
         var exp = Expressionable.Create<TaktOvertime>();
         exp = exp.AndIF(q?.EmployeeId != null, x => x.EmployeeId == q!.EmployeeId!.Value);
         exp = exp.AndIF(q?.OvertimeStatus != null, x => x.OvertimeStatus == q!.OvertimeStatus!.Value);
-        exp = exp.AndIF(q?.OvertimeDateFrom != null, x => x.OvertimeDate >= q!.OvertimeDateFrom!.Value.Date);
-        exp = exp.AndIF(q?.OvertimeDateTo != null, x => x.OvertimeDate <= q!.OvertimeDateTo!.Value.Date);
+        exp = exp.AndIF(q?.OvertimeDateStart != null, x => x.OvertimeDate >= q!.OvertimeDateStart!.Value.Date);
+        exp = exp.AndIF(q?.OvertimeDateEnd != null, x => x.OvertimeDate <= q!.OvertimeDateEnd!.Value.Date);
         if (!string.IsNullOrEmpty(q?.KeyWords))
         {
             exp = exp.And(x =>
@@ -222,4 +222,26 @@ public class TaktOvertimeService : TaktServiceBase, ITaktOvertimeService
 
         return exp.ToExpression();
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 按加班类型统计昨天的加班总数（小时数）
+    /// </summary>
+    public async Task<Dictionary<int, decimal>> GetYesterdayOvertimeHoursByTypeAsync()
+    {
+        var yesterday = DateTime.Now.Date.AddDays(-1);
+        var tomorrow = yesterday.AddDays(1);
+        
+        var overtimes = await _repository.FindAsync(o => 
+            o.IsDeleted == 0 && 
+            o.OvertimeDate >= yesterday && 
+            o.OvertimeDate < tomorrow);
+        
+        return overtimes
+            .GroupBy(o => o.OvertimeType)
+            .ToDictionary(g => g.Key, g => g.Sum(o => o.PlannedHours));
+    }
+
+    #endregion
 }

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Routine.SignalR
 // 文件名称：TaktMessageService.cs
@@ -51,7 +51,7 @@ public class TaktMessageService : TaktServiceBase, ITaktMessageService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktMessageDto>> GetListAsync(TaktMessageQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktMessageDto>> GetMessageListAsync(TaktMessageQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
 
@@ -69,7 +69,7 @@ public class TaktMessageService : TaktServiceBase, ITaktMessageService
     /// </summary>
     /// <param name="id">消息ID</param>
     /// <returns>消息DTO</returns>
-    public async Task<TaktMessageDto?> GetByIdAsync(long id)
+    public async Task<TaktMessageDto?> GetMessageByIdAsync(long id)
     {
         var message = await _messageRepository.GetByIdAsync(id);
         if (message == null) return null;
@@ -82,11 +82,11 @@ public class TaktMessageService : TaktServiceBase, ITaktMessageService
     /// </summary>
     /// <param name="dto">创建消息DTO</param>
     /// <returns>消息DTO</returns>
-    public async Task<TaktMessageDto> CreateAsync(TaktMessageCreateDto dto)
+    public async Task<TaktMessageDto> CreateMessageAsync(TaktMessageCreateDto dto)
     {
         // 使用Mapster映射DTO到实体
         var message = dto.Adapt<TaktMessage>();
-        message.SendTime = dto.SendTime ?? DateTime.Now;
+        message.SendTime = dto.SendTime;
         message.ReadStatus = dto.ReadStatus;
 
         message = await _messageRepository.CreateAsync(message);
@@ -100,7 +100,7 @@ public class TaktMessageService : TaktServiceBase, ITaktMessageService
     /// <param name="id">消息ID</param>
     /// <param name="dto">更新消息DTO</param>
     /// <returns>消息DTO</returns>
-    public async Task<TaktMessageDto> UpdateAsync(long id, TaktMessageUpdateDto dto)
+    public async Task<TaktMessageDto> UpdateMessageAsync(long id, TaktMessageUpdateDto dto)
     {
         var message = await _messageRepository.GetByIdAsync(id);
         if (message == null)
@@ -120,7 +120,7 @@ public class TaktMessageService : TaktServiceBase, ITaktMessageService
     /// </summary>
     /// <param name="id">消息ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteMessageByIdAsync(long id)
     {
         await _messageRepository.DeleteAsync(id);
     }
@@ -130,7 +130,7 @@ public class TaktMessageService : TaktServiceBase, ITaktMessageService
     /// </summary>
     /// <param name="ids">消息ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(IEnumerable<long> ids)
+    public async Task DeleteMessageBatchAsync(IEnumerable<long> ids)
     {
         var idList = ids.ToList();
         if (idList.Count == 0)
@@ -145,7 +145,7 @@ public class TaktMessageService : TaktServiceBase, ITaktMessageService
     /// </summary>
     /// <param name="dto">消息已读DTO</param>
     /// <returns>消息DTO</returns>
-    public async Task<TaktMessageDto> MarkAsReadAsync(TaktMessageReadDto dto)
+    public async Task<TaktMessageDto> MarkMessageAsReadAsync(TaktMessageReadDto dto)
     {
         var message = await _messageRepository.GetByIdAsync(dto.MessageId);
         if (message == null)
@@ -167,7 +167,7 @@ public class TaktMessageService : TaktServiceBase, ITaktMessageService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktMessageQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportMessageAsync(TaktMessageQueryDto query, string? sheetName, string? fileName)
     {
         // 构建查询条件
         var predicate = QueryExpression(query);
@@ -201,7 +201,7 @@ public class TaktMessageService : TaktServiceBase, ITaktMessageService
             // 处理需要特殊转换的字段
             dto.MessageTitle = m.MessageTitle ?? string.Empty;
             dto.MessageGroup = m.MessageGroup ?? string.Empty;
-            dto.ReadStatus = GetReadStatusString(m.ReadStatus);
+            dto.ReadStatusString = GetReadStatusString(m.ReadStatus);
             return dto;
         }).ToList();
 

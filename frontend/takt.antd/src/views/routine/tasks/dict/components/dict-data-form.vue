@@ -15,116 +15,116 @@
     <a-form
       ref="formRef"
       :model="formState"
-      :rules="formRules"
+      :rules="formRulesComputed"
       :label-col="{ span: 4 }"
       :wrapper-col="{ span: 20 }"
       layout="horizontal"
     >
       <!-- 表单字段顺序与 DictData 接口字段顺序一致 -->
       <a-form-item
-        label="字典类型编码"
+        :label="t('entity.dictdata.dicttypecode')"
         name="dictTypeCode"
       >
         <a-input
           v-model:value="formState.dictTypeCode"
-          placeholder="字典类型编码"
+          :placeholder="t('routine.dict.type.placeholders.dictTypeCode')"
           :disabled="true"
         />
       </a-form-item>
 
       <a-form-item
-        label="字典标签"
+        :label="t('entity.dictdata.dictlabel')"
         name="dictLabel"
       >
         <a-input
           v-model:value="formState.dictLabel"
-          placeholder="请输入字典标签（在同一个字典类型下唯一）"
+          :placeholder="t('routine.dict.type.placeholders.dictLabelUnique')"
         />
       </a-form-item>
 
       <a-form-item
-        label="字典本地化键"
+        :label="t('entity.dictdata.dictl10nkey')"
         name="dictL10nKey"
       >
         <a-input
           v-model:value="formState.dictL10nKey"
-          placeholder="请输入字典本地化键（可选，用于多语言翻译）"
+          :placeholder="t('routine.dict.type.placeholders.dictL10nKey')"
         />
       </a-form-item>
 
       <a-form-item
-        label="字典值"
+        :label="t('entity.dictdata.dictvalue')"
         name="dictValue"
       >
         <a-input
           v-model:value="formState.dictValue"
-          placeholder="请输入字典值（显示值）"
+          :placeholder="t('routine.dict.type.placeholders.dictValue')"
         />
       </a-form-item>
 
       <a-form-item
-        label="CSS类名"
+        :label="t('entity.dictdata.cssclass')"
         name="cssClass"
       >
         <a-input-number
           v-model:value="formState.cssClass"
           :min="0"
-          placeholder="请输入CSS类名"
+          :placeholder="t('routine.dict.type.placeholders.cssClass')"
           style="width: 100%"
         />
       </a-form-item>
 
       <a-form-item
-        label="列表类名"
+        :label="t('entity.dictdata.listclass')"
         name="listClass"
       >
         <a-input-number
           v-model:value="formState.listClass"
           :min="0"
-          placeholder="请输入列表类名"
+          :placeholder="t('routine.dict.type.placeholders.listClass')"
           style="width: 100%"
         />
       </a-form-item>
 
       <a-form-item
-        label="扩展标签"
+        :label="t('entity.dictdata.extlabel')"
         name="extLabel"
       >
         <a-input
           v-model:value="formState.extLabel"
-          placeholder="请输入扩展标签（可选）"
+          :placeholder="t('routine.dict.type.placeholders.extLabel')"
         />
       </a-form-item>
 
       <a-form-item
-        label="扩展值"
+        :label="t('entity.dictdata.extvalue')"
         name="extValue"
       >
         <a-input
           v-model:value="formState.extValue"
-          placeholder="请输入扩展值（可选）"
+          :placeholder="t('routine.dict.type.placeholders.extValue')"
         />
       </a-form-item>
 
       <a-form-item
-        label="排序号"
+        :label="t('entity.dictdata.ordernum')"
         name="orderNum"
       >
         <a-input-number
           v-model:value="formState.orderNum"
           :min="0"
-          placeholder="请输入排序号（越小越靠前）"
+          :placeholder="t('routine.dict.type.placeholders.orderNumSort')"
           style="width: 100%"
         />
       </a-form-item>
 
       <a-form-item
-        label="备注"
+        :label="t('common.entity.remark')"
         name="remark"
       >
         <a-textarea
           v-model:value="formState.remark"
-          placeholder="请输入备注"
+          :placeholder="t('routine.dict.type.placeholders.remark')"
           :rows="3"
         />
       </a-form-item>
@@ -133,9 +133,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Rule } from 'ant-design-vue/es/form'
-import type { DictData, DictDataCreate, DictDataUpdate } from '@/types/routine/tasks/dict/dictdata'
+import type { DictData, DictDataCreate, DictDataUpdate } from '@/types/routine/tasks/dict/dict-data'
+
+const { t } = useI18n()
+
+/** 弹窗表单：`DictDataCreate` 中 `dictL10nKey`/`extLabel`/`extValue`/`remark` 为可选时与 `a-input`/`a-textarea` 在 exactOptionalPropertyTypes 下不兼容，此处收窄为必填 `string`（空串表示未填）。 */
+type DictDataFormState = Omit<DictDataCreate, 'dictL10nKey' | 'extLabel' | 'extValue' | 'remark'> & {
+  dictL10nKey: string
+  extLabel: string
+  extValue: string
+  remark: string
+  dictDataId?: string
+}
 
 // ========================================
 // Props & Emits
@@ -162,7 +174,7 @@ const props = withDefaults(defineProps<Props>(), {
 const formRef = ref()
 
 // 表单状态（与 DictData 接口字段顺序一致）
-const formState = reactive<DictDataCreate & { dictDataId?: string }>({
+const formState = reactive<DictDataFormState>({
   dictTypeId: '',
   dictTypeCode: '',
   dictLabel: '',
@@ -176,14 +188,14 @@ const formState = reactive<DictDataCreate & { dictDataId?: string }>({
   remark: ''
 })
 
-const formRules: Record<string, Rule[]> = {
+const formRulesComputed = computed<Record<string, Rule[]>>(() => ({
   dictLabel: [
-    { required: true, message: '请输入字典标签', trigger: 'blur' }
+    { required: true, message: t('routine.dict.type.rules.dictLabelRequired'), trigger: 'blur' }
   ],
   dictValue: [
-    { required: true, message: '请输入字典值', trigger: 'blur' }
+    { required: true, message: t('routine.dict.type.rules.dictValueRequired'), trigger: 'blur' }
   ]
-}
+}))
 
 // ========================================
 // 方法定义

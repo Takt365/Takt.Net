@@ -65,7 +65,8 @@ export interface CaptchaVerifyResult {
 export function generateCaptcha(): Promise<CaptchaGenerateResult> {
   return request({
     url: `${captchaUrl}/generate`,
-    method: 'post'
+    method: 'post',
+    timeout: 20_000
   }) as unknown as Promise<CaptchaGenerateResult>
 }
 

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Domain.Entities.HumanResource.AttendanceLeave
 // 文件名称：TaktShiftSchedule.cs
@@ -19,7 +19,7 @@ namespace Takt.Domain.Entities.HumanResource.AttendanceLeave;
 /// - ScheduleType = 0（部门排班）时，DeptId 必填，EmployeeId 为空；
 /// - ScheduleType = 1（人员排班）时，EmployeeId 必填，DeptId 可空。
 /// </summary>
-[SugarTable("takt_humanresource_shift_schedule", "排班表")]
+[SugarTable("takt_humanresource_shift_schedule", "排班信息表")]
 [SugarIndex("ix_takt_humanresource_shift_schedule_schedule_type", nameof(ScheduleType), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_shift_schedule_employee_id", nameof(EmployeeId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_shift_schedule_dept_id", nameof(DeptId), OrderByType.Asc)]

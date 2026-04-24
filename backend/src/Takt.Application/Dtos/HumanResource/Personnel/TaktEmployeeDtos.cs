@@ -1,10 +1,10 @@
 // ========================================
-// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.Personnel
 // 文件名称：TaktEmployeeDtos.cs
-// 创建时间：2025-01-20
-// 创建人：Takt365(Cursor AI)
-// 功能描述：Takt员工DTO，包含员工相关的数据传输对象（查询、创建、更新、导入导出）
+// 创建时间：2026-04-24
+// 创建人：Takt365
+// 功能描述：员工信息表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
 // 版权信息：Copyright (c) 2025 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -17,9 +17,9 @@ using Takt.Shared.Models;
 namespace Takt.Application.Dtos.HumanResource.Personnel;
 
 /// <summary>
-/// Takt员工DTO
+/// 员工信息表Dto
 /// </summary>
-public class TaktEmployeeDto : TaktDtoBase
+public partial class TaktEmployeeDto : TaktDtosEntityBase
 {
     /// <summary>
     /// 构造函数
@@ -30,122 +30,146 @@ public class TaktEmployeeDto : TaktDtoBase
         RealName = string.Empty;
         IdCard = string.Empty;
         Nationality = string.Empty;
-        BirthDate = new DateTime(1900, 1, 1);
-        ConfigId = "0";
     }
 
     /// <summary>
-    /// 员工ID（适配字段，序列化为string以避免Javascript精度问题）
+    /// 员工信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
     /// <summary>
     /// 员工编码
     /// </summary>
     public string EmployeeCode { get; set; }
-
     /// <summary>
-    /// 实名（身份证/户口本姓名）
+    /// 实名
     /// </summary>
     public string RealName { get; set; }
-
     /// <summary>
     /// 曾用名
     /// </summary>
     public string? FormerName { get; set; }
-
     /// <summary>
     /// 全名
     /// </summary>
     public string? FullName { get; set; }
-
     /// <summary>
-    /// 本地化姓名（按地区/界面语言习惯展示的姓名，可与实名不同）
+    /// 本地化姓名
     /// </summary>
     public string? NativeName { get; set; }
-
     /// <summary>
     /// 显示名
     /// </summary>
     public string? DisplayName { get; set; }
-
     /// <summary>
-    /// 性别（0=未知，1=男，2=女）
+    /// 性别
     /// </summary>
     public int Gender { get; set; }
-
     /// <summary>
     /// 出生日期
     /// </summary>
     public DateTime BirthDate { get; set; }
-
     /// <summary>
     /// 年龄
     /// </summary>
     public int? Age { get; set; }
-
     /// <summary>
     /// 身份证号
     /// </summary>
     public string IdCard { get; set; }
-
     /// <summary>
     /// 手机号
     /// </summary>
     public string? Phone { get; set; }
-
     /// <summary>
     /// 邮箱
     /// </summary>
     public string? Email { get; set; }
-
     /// <summary>
     /// 头像
     /// </summary>
     public string? Avatar { get; set; }
-
     /// <summary>
     /// 民族
     /// </summary>
     public string Nationality { get; set; }
-
     /// <summary>
-    /// 政治面貌（与字典 hr_political_status 一致：0=群众，1=共青团员，2=中共党员，3=中共预备党员，4=民革党员，5=民盟盟员，6=民建会员，7=民进会员，8=农工党党员，9=致公党党员，10=九三学社社员，11=台盟盟员，12=无党派民主人士）
+    /// 政治面貌
     /// </summary>
     public int PoliticalStatus { get; set; }
-
     /// <summary>
-    /// 婚姻状况（0=未婚，1=已婚，2=离异，3=丧偶）
+    /// 婚姻状况
     /// </summary>
     public int MaritalStatus { get; set; }
-
     /// <summary>
     /// 籍贯
     /// </summary>
     public string? NativePlace { get; set; }
-
     /// <summary>
     /// 现居住地址
     /// </summary>
     public string? CurrentAddress { get; set; }
-
     /// <summary>
     /// 户籍地址
     /// </summary>
     public string? RegisteredAddress { get; set; }
-
     /// <summary>
-    /// 员工状态（0=在职，1=离职，2=停薪留职，3=退休）
+    /// 员工状态
     /// </summary>
     public int EmployeeStatus { get; set; }
+
+    /// <summary>
+    /// 员工代理规则列表（外键在子表 ）
+    /// </summary>
+    public List<long>? EmployeeDelegateIds { get; set; }
+
+    /// <summary>
+    /// 员工职业信息列表（外键在子表 ）
+    /// </summary>
+    public List<long>? EmployeeCareerIds { get; set; }
+
+    /// <summary>
+    /// 员工附件列表（外键在子表 ）
+    /// </summary>
+    public List<long>? EmployeeAttachmentIds { get; set; }
+
+    /// <summary>
+    /// 员工合同列表（外键在子表 ）
+    /// </summary>
+    public List<long>? EmployeeContractIds { get; set; }
+
+    /// <summary>
+    /// 员工教育经历列表（外键在子表 ）
+    /// </summary>
+    public List<long>? EmployeeEducationIds { get; set; }
+
+    /// <summary>
+    /// 员工家庭成员列表（外键在子表 ）
+    /// </summary>
+    public List<long>? EmployeeFamilieIds { get; set; }
+
+    /// <summary>
+    /// 员工业务技能列表（外键在子表 ）
+    /// </summary>
+    public List<long>? EmployeeSkillIds { get; set; }
+
+    /// <summary>
+    /// 员工调动记录列表（外键在子表 ）
+    /// </summary>
+    public List<long>? EmployeeTransferIds { get; set; }
+
+    /// <summary>
+    /// 员工工作履历列表（外键在子表 ）
+    /// </summary>
+    public List<long>? EmployeeWorkIds { get; set; }
 }
 
 /// <summary>
-/// Takt员工查询DTO
+/// 员工信息表查询DTO
 /// </summary>
-public class TaktEmployeeQueryDto : TaktPagedQuery
+public partial class TaktEmployeeQueryDto : TaktPagedQuery
 {
     /// <summary>
     /// 构造函数
@@ -154,31 +178,132 @@ public class TaktEmployeeQueryDto : TaktPagedQuery
     {
     }
 
-    /// <summary>
-    /// 实名（身份证/户口本姓名）
-    /// </summary>
-    public string? RealName { get; set; }
+    // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
     /// <summary>
-    /// 员工编码（模糊匹配）
+    /// 员工信息表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeId { get; set; }
+
+    /// <summary>
+    /// 员工编码
     /// </summary>
     public string? EmployeeCode { get; set; }
+    /// <summary>
+    /// 实名
+    /// </summary>
+    public string? RealName { get; set; }
+    /// <summary>
+    /// 曾用名
+    /// </summary>
+    public string? FormerName { get; set; }
+    /// <summary>
+    /// 全名
+    /// </summary>
+    public string? FullName { get; set; }
+    /// <summary>
+    /// 本地化姓名
+    /// </summary>
+    public string? NativeName { get; set; }
+    /// <summary>
+    /// 显示名
+    /// </summary>
+    public string? DisplayName { get; set; }
+    /// <summary>
+    /// 性别
+    /// </summary>
+    public int? Gender { get; set; }
+    /// <summary>
+    /// 出生日期
+    /// </summary>
+    public DateTime? BirthDate { get; set; }
 
     /// <summary>
-    /// 手机号（模糊匹配）
+    /// 出生日期开始时间
+    /// </summary>
+    public DateTime? BirthDateStart { get; set; }
+    /// <summary>
+    /// 出生日期结束时间
+    /// </summary>
+    public DateTime? BirthDateEnd { get; set; }
+    /// <summary>
+    /// 年龄
+    /// </summary>
+    public int? Age { get; set; }
+    /// <summary>
+    /// 身份证号
+    /// </summary>
+    public string? IdCard { get; set; }
+    /// <summary>
+    /// 手机号
     /// </summary>
     public string? Phone { get; set; }
-
     /// <summary>
-    /// 员工状态（0=在职，1=离职，2=停薪留职，3=退休；null 表示全部）
+    /// 邮箱
+    /// </summary>
+    public string? Email { get; set; }
+    /// <summary>
+    /// 头像
+    /// </summary>
+    public string? Avatar { get; set; }
+    /// <summary>
+    /// 民族
+    /// </summary>
+    public string? Nationality { get; set; }
+    /// <summary>
+    /// 政治面貌
+    /// </summary>
+    public int? PoliticalStatus { get; set; }
+    /// <summary>
+    /// 婚姻状况
+    /// </summary>
+    public int? MaritalStatus { get; set; }
+    /// <summary>
+    /// 籍贯
+    /// </summary>
+    public string? NativePlace { get; set; }
+    /// <summary>
+    /// 现居住地址
+    /// </summary>
+    public string? CurrentAddress { get; set; }
+    /// <summary>
+    /// 户籍地址
+    /// </summary>
+    public string? RegisteredAddress { get; set; }
+    /// <summary>
+    /// 员工状态
     /// </summary>
     public int? EmployeeStatus { get; set; }
+
+    /// <summary>
+    /// 创建人ID
+    /// </summary>
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long? CreatedById { get; set; }
+    /// <summary>
+    /// 创建人
+    /// </summary>
+    public long? CreatedBy { get; set; }
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedAt { get; set; }
+    /// <summary>
+    /// 创建时间开始
+    /// </summary>
+    public DateTime? CreatedAtStart { get; set; }
+    /// <summary>
+    /// 创建时间结束
+    /// </summary>
+    public DateTime? CreatedAtEnd { get; set; }
 }
 
 /// <summary>
-/// Takt创建员工DTO
+/// Takt创建员工信息表DTO
 /// </summary>
-public class TaktEmployeeCreateDto
+public partial class TaktEmployeeCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -189,113 +314,112 @@ public class TaktEmployeeCreateDto
         RealName = string.Empty;
         IdCard = string.Empty;
         Nationality = string.Empty;
-        BirthDate = new DateTime(1900, 1, 1);
     }
 
-    /// <summary>
-    /// 员工编码。创建时由服务端按 ITaktNumberingRuleEngine（规则编码 EMPLOYEE_MALE / EMPLOYEE_FEMALE / EMPLOYEE_SYSTEM）与性别/系统规则自动生成，请求体传入值将被忽略。
+        /// <summary>
+    /// 员工编码
     /// </summary>
     public string EmployeeCode { get; set; }
 
-    /// <summary>
-    /// 是否使用用户编号(系统)规则（前缀 9，规则编码 EMPLOYEE_SYSTEM）。仅当前登录用户为管理员(1)或超级管理员(2)时可设为 true；与普通职员（男前缀 1 / 女前缀 2）规则互斥。
-    /// </summary>
-    public bool IsSystemEmployeeCode { get; set; }
-
-    /// <summary>
-    /// 实名（身份证/户口本姓名）
+        /// <summary>
+    /// 实名
     /// </summary>
     public string RealName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 曾用名
     /// </summary>
     public string? FormerName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 全名
     /// </summary>
     public string? FullName { get; set; }
 
-    /// <summary>
-    /// 本地化姓名（按地区/界面语言习惯展示的姓名，可与实名不同）
+        /// <summary>
+    /// 本地化姓名
     /// </summary>
     public string? NativeName { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 显示名
     /// </summary>
     public string? DisplayName { get; set; }
 
-    /// <summary>
-    /// 性别（0=未知，1=男，2=女）
+        /// <summary>
+    /// 性别
     /// </summary>
-    public int Gender { get; set; } = 0;
+    public int Gender { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 出生日期
     /// </summary>
     public DateTime BirthDate { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 年龄
     /// </summary>
     public int? Age { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 身份证号
     /// </summary>
     public string IdCard { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 手机号
     /// </summary>
     public string? Phone { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 邮箱
     /// </summary>
     public string? Email { get; set; }
 
-    /// <summary>
-    /// 头像（文件路径或URL）
+        /// <summary>
+    /// 头像
     /// </summary>
     public string? Avatar { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 民族
     /// </summary>
     public string Nationality { get; set; }
 
-    /// <summary>
-    /// 政治面貌（与字典 hr_political_status 一致：0=群众，1=共青团员，2=中共党员，3=中共预备党员，4=民革党员，5=民盟盟员，6=民建会员，7=民进会员，8=农工党党员，9=致公党党员，10=九三学社社员，11=台盟盟员，12=无党派民主人士）
+        /// <summary>
+    /// 政治面貌
     /// </summary>
-    public int PoliticalStatus { get; set; } = 0;
+    public int PoliticalStatus { get; set; }
 
-    /// <summary>
-    /// 婚姻状况（0=未婚，1=已婚，2=离异，3=丧偶）
+        /// <summary>
+    /// 婚姻状况
     /// </summary>
-    public int MaritalStatus { get; set; } = 0;
+    public int MaritalStatus { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 籍贯
     /// </summary>
     public string? NativePlace { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 现居住地址
     /// </summary>
     public string? CurrentAddress { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 户籍地址
     /// </summary>
     public string? RegisteredAddress { get; set; }
 
-    /// <summary>
-    /// 员工状态（0=在职，1=离职，2=停薪留职，3=退休）
+        /// <summary>
+    /// 员工状态
     /// </summary>
-    public int EmployeeStatus { get; set; } = 0;
+    public int EmployeeStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -304,9 +428,9 @@ public class TaktEmployeeCreateDto
 }
 
 /// <summary>
-/// Takt更新员工DTO
+/// Takt更新员工信息表DTO
 /// </summary>
-public class TaktEmployeeUpdateDto : TaktEmployeeCreateDto
+public partial class TaktEmployeeUpdateDto : TaktEmployeeCreateDto
 {
     /// <summary>
     /// 构造函数
@@ -315,17 +439,68 @@ public class TaktEmployeeUpdateDto : TaktEmployeeCreateDto
     {
     }
 
-    /// <summary>
-    /// 员工ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 员工信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
 }
 
 /// <summary>
-/// Takt员工状态DTO
+/// 员工信息表政治面貌DTO
 /// </summary>
-public class TaktEmployeeStatusDto
+public partial class TaktEmployeePoliticalStatusDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktEmployeePoliticalStatusDto()
+    {
+    }
+
+        /// <summary>
+    /// 员工信息表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeId { get; set; }
+
+    /// <summary>
+    /// 政治面貌（0=禁用，1=启用）
+    /// </summary>
+    public int PoliticalStatus { get; set; }
+}
+
+/// <summary>
+/// 员工信息表婚姻状况DTO
+/// </summary>
+public partial class TaktEmployeeMaritalStatusDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktEmployeeMaritalStatusDto()
+    {
+    }
+
+        /// <summary>
+    /// 员工信息表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long EmployeeId { get; set; }
+
+    /// <summary>
+    /// 婚姻状况（0=禁用，1=启用）
+    /// </summary>
+    public int MaritalStatus { get; set; }
+}
+
+/// <summary>
+/// 员工信息表员工状态DTO
+/// </summary>
+public partial class TaktEmployeeStatusDto
 {
     /// <summary>
     /// 构造函数
@@ -334,22 +509,23 @@ public class TaktEmployeeStatusDto
     {
     }
 
-    /// <summary>
-    /// 员工ID（适配字段，序列化为string以避免Javascript精度问题）
+        /// <summary>
+    /// 员工信息表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EmployeeId { get; set; }
 
     /// <summary>
-    /// 员工状态（0=在职，1=离职，2=停薪留职，3=退休）
+    /// 员工状态（0=禁用，1=启用）
     /// </summary>
     public int EmployeeStatus { get; set; }
 }
 
 /// <summary>
-/// Takt员工导入模板DTO
+/// 员工信息表导入模板DTO
 /// </summary>
-public class TaktEmployeeTemplateDto
+public partial class TaktEmployeeTemplateDto
 {
     /// <summary>
     /// 构造函数
@@ -358,58 +534,114 @@ public class TaktEmployeeTemplateDto
     {
         EmployeeCode = string.Empty;
         RealName = string.Empty;
-        Remark = string.Empty;
+        IdCard = string.Empty;
+        Nationality = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工编码
     /// </summary>
     public string EmployeeCode { get; set; }
 
-    /// <summary>
-    /// 实名（身份证/户口本姓名）
+        /// <summary>
+    /// 实名
     /// </summary>
     public string RealName { get; set; }
 
-    /// <summary>
-    /// 性别（0=未知，1=男，2=女）
+        /// <summary>
+    /// 曾用名
+    /// </summary>
+    public string? FormerName { get; set; }
+
+        /// <summary>
+    /// 全名
+    /// </summary>
+    public string? FullName { get; set; }
+
+        /// <summary>
+    /// 本地化姓名
+    /// </summary>
+    public string? NativeName { get; set; }
+
+        /// <summary>
+    /// 显示名
+    /// </summary>
+    public string? DisplayName { get; set; }
+
+        /// <summary>
+    /// 性别
     /// </summary>
     public int Gender { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 出生日期
     /// </summary>
-    public DateTime? BirthDate { get; set; }
+    public DateTime BirthDate { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 年龄
+    /// </summary>
+    public int? Age { get; set; }
+
+        /// <summary>
     /// 身份证号
     /// </summary>
-    public string? IdCard { get; set; }
+    public string IdCard { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 手机号
     /// </summary>
     public string? Phone { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 邮箱
     /// </summary>
     public string? Email { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 头像
+    /// </summary>
+    public string? Avatar { get; set; }
+
+        /// <summary>
+    /// 民族
+    /// </summary>
+    public string Nationality { get; set; }
+
+        /// <summary>
+    /// 政治面貌
+    /// </summary>
+    public int PoliticalStatus { get; set; }
+
+        /// <summary>
+    /// 婚姻状况
+    /// </summary>
+    public int MaritalStatus { get; set; }
+
+        /// <summary>
     /// 籍贯
     /// </summary>
     public string? NativePlace { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 现居住地址
     /// </summary>
     public string? CurrentAddress { get; set; }
 
-    /// <summary>
-    /// 员工状态（0=在职，1=离职，2=停薪留职，3=退休）
+        /// <summary>
+    /// 户籍地址
+    /// </summary>
+    public string? RegisteredAddress { get; set; }
+
+        /// <summary>
+    /// 员工状态
     /// </summary>
     public int EmployeeStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -418,9 +650,9 @@ public class TaktEmployeeTemplateDto
 }
 
 /// <summary>
-/// Takt员工导入DTO
+/// 员工信息表导入DTO
 /// </summary>
-public class TaktEmployeeImportDto
+public partial class TaktEmployeeImportDto
 {
     /// <summary>
     /// 构造函数
@@ -429,58 +661,114 @@ public class TaktEmployeeImportDto
     {
         EmployeeCode = string.Empty;
         RealName = string.Empty;
-        Remark = string.Empty;
+        IdCard = string.Empty;
+        Nationality = string.Empty;
     }
 
-    /// <summary>
+        /// <summary>
     /// 员工编码
     /// </summary>
     public string EmployeeCode { get; set; }
 
-    /// <summary>
-    /// 实名（身份证/户口本姓名）
+        /// <summary>
+    /// 实名
     /// </summary>
     public string RealName { get; set; }
 
-    /// <summary>
-    /// 性别（0=未知，1=男，2=女）
+        /// <summary>
+    /// 曾用名
+    /// </summary>
+    public string? FormerName { get; set; }
+
+        /// <summary>
+    /// 全名
+    /// </summary>
+    public string? FullName { get; set; }
+
+        /// <summary>
+    /// 本地化姓名
+    /// </summary>
+    public string? NativeName { get; set; }
+
+        /// <summary>
+    /// 显示名
+    /// </summary>
+    public string? DisplayName { get; set; }
+
+        /// <summary>
+    /// 性别
     /// </summary>
     public int Gender { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 出生日期
     /// </summary>
-    public DateTime? BirthDate { get; set; }
+    public DateTime BirthDate { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 年龄
+    /// </summary>
+    public int? Age { get; set; }
+
+        /// <summary>
     /// 身份证号
     /// </summary>
-    public string? IdCard { get; set; }
+    public string IdCard { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 手机号
     /// </summary>
     public string? Phone { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 邮箱
     /// </summary>
     public string? Email { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 头像
+    /// </summary>
+    public string? Avatar { get; set; }
+
+        /// <summary>
+    /// 民族
+    /// </summary>
+    public string Nationality { get; set; }
+
+        /// <summary>
+    /// 政治面貌
+    /// </summary>
+    public int PoliticalStatus { get; set; }
+
+        /// <summary>
+    /// 婚姻状况
+    /// </summary>
+    public int MaritalStatus { get; set; }
+
+        /// <summary>
     /// 籍贯
     /// </summary>
     public string? NativePlace { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 现居住地址
     /// </summary>
     public string? CurrentAddress { get; set; }
 
-    /// <summary>
-    /// 员工状态（0=在职，1=离职，2=停薪留职，3=退休）
+        /// <summary>
+    /// 户籍地址
+    /// </summary>
+    public string? RegisteredAddress { get; set; }
+
+        /// <summary>
+    /// 员工状态
     /// </summary>
     public int EmployeeStatus { get; set; }
+
+    /// <summary>
+    /// 扩展字段JSON
+    /// </summary>
+    public string? ExtFieldJson { get; set; }
 
     /// <summary>
     /// 备注
@@ -489,75 +777,119 @@ public class TaktEmployeeImportDto
 }
 
 /// <summary>
-/// Takt员工导出DTO
+/// 员工信息表导出DTO
 /// </summary>
-public class TaktEmployeeExportDto
+public partial class TaktEmployeeExportDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     public TaktEmployeeExportDto()
     {
+        CreatedAt = DateTime.Now;
         EmployeeCode = string.Empty;
         RealName = string.Empty;
         IdCard = string.Empty;
-        BirthDate = new DateTime(1900, 1, 1);
-        CreatedAt = DateTime.Now;
+        Nationality = string.Empty;
     }
 
-    /// <summary>
-    /// 员工ID
-    /// </summary>
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long EmployeeId { get; set; }
-
-    /// <summary>
+        /// <summary>
     /// 员工编码
     /// </summary>
     public string EmployeeCode { get; set; }
 
-    /// <summary>
-    /// 实名（身份证/户口本姓名）
+        /// <summary>
+    /// 实名
     /// </summary>
     public string RealName { get; set; }
 
-    /// <summary>
-    /// 性别（0=未知，1=男，2=女）
+        /// <summary>
+    /// 曾用名
+    /// </summary>
+    public string? FormerName { get; set; }
+
+        /// <summary>
+    /// 全名
+    /// </summary>
+    public string? FullName { get; set; }
+
+        /// <summary>
+    /// 本地化姓名
+    /// </summary>
+    public string? NativeName { get; set; }
+
+        /// <summary>
+    /// 显示名
+    /// </summary>
+    public string? DisplayName { get; set; }
+
+        /// <summary>
+    /// 性别
     /// </summary>
     public int Gender { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 出生日期
     /// </summary>
     public DateTime BirthDate { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 年龄
+    /// </summary>
+    public int? Age { get; set; }
+
+        /// <summary>
     /// 身份证号
     /// </summary>
     public string IdCard { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 手机号
     /// </summary>
     public string? Phone { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 邮箱
     /// </summary>
     public string? Email { get; set; }
 
-    /// <summary>
+        /// <summary>
+    /// 头像
+    /// </summary>
+    public string? Avatar { get; set; }
+
+        /// <summary>
+    /// 民族
+    /// </summary>
+    public string Nationality { get; set; }
+
+        /// <summary>
+    /// 政治面貌
+    /// </summary>
+    public int PoliticalStatus { get; set; }
+
+        /// <summary>
+    /// 婚姻状况
+    /// </summary>
+    public int MaritalStatus { get; set; }
+
+        /// <summary>
     /// 籍贯
     /// </summary>
     public string? NativePlace { get; set; }
 
-    /// <summary>
+        /// <summary>
     /// 现居住地址
     /// </summary>
     public string? CurrentAddress { get; set; }
 
-    /// <summary>
-    /// 员工状态（0=在职，1=离职，2=停薪留职，3=退休）
+        /// <summary>
+    /// 户籍地址
+    /// </summary>
+    public string? RegisteredAddress { get; set; }
+
+        /// <summary>
+    /// 员工状态
     /// </summary>
     public int EmployeeStatus { get; set; }
 
@@ -566,4 +898,3 @@ public class TaktEmployeeExportDto
     /// </summary>
     public DateTime CreatedAt { get; set; }
 }
-

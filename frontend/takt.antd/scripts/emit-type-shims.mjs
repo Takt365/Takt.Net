@@ -1,7 +1,24 @@
 /**
- * 根据 openapi 分组与 DTO 命名约定，生成 src/types 下各模块的薄类型别名（非手写 DTO 字段）。
- * 运行：node ./scripts/emit-type-shims.mjs
- * 全量契约：`npm run gen:contracts`（openapi-typescript → 本脚本），纯 Node，无需 Java。
+ * ========================================
+ * 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+ * 文件名称：emit-type-shims.mjs
+ * 创建时间：2025-02-02
+ * 功能描述：根据后端OpenAPI和DTO生成前端TypeScript薄类型
+ *   1. 解析后端C# DTO类，提取属性和继承关系
+ *   2. 生成src/types下各模块的.d.ts类型定义文件
+ *   3. 自动推导模块导出，避免手工硬编码维护
+ *   4. 支持TaktEntityBase、TaktPagedQuery等基类继承
+ * 
+ * 使用方法：
+ *   1. 生成类型定义：npm run gen:contracts
+ *   2. 手动运行：node scripts/emit-type-shims.mjs
+ *   3. 纯Node执行，无需Java，按后端C# Dto生成薄类型
+ * 
+ * 注意事项：
+ *   - common.d.ts、global-setting.d.ts为手写契约，不会被删除或覆盖
+ *   - 自动删除旧版多一层实体目录下的同名文件
+ *   - 类型生成失败不影响开发，会使用已提交的文件
+ * ========================================
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -11,327 +28,431 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
 const typesDir = path.join(root, 'src/types')
 
-/** @type {Record<string, string>} path -> OpenAPI 命名空间前缀（不含末尾类型名） */
-const NS_BY_PREFIX = [
-  ['human-resource/personnel/', 'Takt.Application.Dtos.HumanResource.Personnel.'],
-  ['human-resource/organization/', 'Takt.Application.Dtos.HumanResource.Organization.'],
-  ['human-resource/attendance-leave/', 'Takt.Application.Dtos.HumanResource.AttendanceLeave.'],
-  ['identity/', 'Takt.Application.Dtos.Identity.'],
-  ['generator/', 'Takt.Application.Dtos.Code.Generator.'],
-  ['accounting/controlling/', 'Takt.Application.Dtos.Accounting.Controlling.'],
-  ['accounting/financial/', 'Takt.Application.Dtos.Accounting.Financial.'],
-  ['accounting/', 'Takt.Application.Dtos.Accounting.'],
-  ['logistics/materials/', 'Takt.Application.Dtos.Logistics.Materials.'],
-  ['logistics/material/', 'Takt.Application.Dtos.Logistics.Materials.'],
-  ['logistics/maintenance/', 'Takt.Application.Dtos.Logistics.Maintenance.'],
-  ['routine/tasks/dict/', 'Takt.Application.Dtos.Routine.Tasks.Dict.'],
-  ['routine/tasks/i18n/', 'Takt.Application.Dtos.Routine.Tasks.I18n.'],
-  ['routine/tasks/numbering-rule', 'Takt.Application.Dtos.Routine.Tasks.NumberingRule.'],
-  ['routine/tasks/setting', 'Takt.Application.Dtos.Routine.Tasks.Setting.'],
-  ['routine/tasks/file', 'Takt.Application.Dtos.Routine.Tasks.Files.'],
-  ['routine/tasks/signalr/', 'Takt.Application.Dtos.Routine.Tasks.SignalR.'],
-  ['routine/tasks/wordfilter', 'Takt.Application.Dtos.Routine.Tasks.WordFilter.'],
-  ['routine/business/announcement', 'Takt.Application.Dtos.Routine.Business.Announcement.'],
-  ['statistics/logging/', 'Takt.Application.Dtos.Statistics.Logging.'],
-  ['workflow/', 'Takt.Application.Dtos.Workflow.']
-]
+const DTO_SKIP_SUFFIXES = new Set(['Template', 'Import', 'Export'])
+const ENTITY_BASE_FIELDS = new Set([
+  'configId',
+  'extFieldJson',
+  'remark',
+  'createdById',
+  'createdBy',
+  'createdAt',
+  'updatedById',
+  'updatedBy',
+  'updatedAt',
+  'isDeleted',
+  'deletedById',
+  'deletedBy',
+  'deletedAt'
+])
+const PAGED_QUERY_FIELDS = new Set(['pageIndex', 'pageSize', 'keyWords'])
 
-/** @type {Record<string, 'AccS'|'GenS'|'IdS'|'LogS'|'LgsS'|'OrgS'|'RouS'|'WfS'>} */
-const PICK = {
-  accounting: 'AccS',
-  generator: 'GenS',
-  identity: 'IdS',
-  'human-resource': 'OrgS',
-  logistics: 'LgsS',
-  routine: 'RouS',
-  statistics: 'LogS',
-  workflow: 'WfS'
+function pascalToKebab(input) {
+  return input
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .toLowerCase()
 }
 
-function bundleFor(relPath) {
-  const seg = relPath.split('/')[0]
-  if (seg === 'human-resource') return 'OrgS'
-  if (PICK[seg]) return PICK[seg]
-  return 'OrgS'
+function kebabToPascal(input) {
+  return input
+    .split('-')
+    .filter(Boolean)
+    .map(seg => seg.charAt(0).toUpperCase() + seg.slice(1))
+    .join('')
 }
 
-function nsFor(relPath) {
-  for (const [p, ns] of NS_BY_PREFIX) {
-    if (relPath.startsWith(p)) return ns
+function namespaceSegmentsToRelDir(segments) {
+  if (!Array.isArray(segments) || segments.length === 0) return undefined
+  const normalized = [...segments]
+  if (normalized.length === 0) return undefined
+  return normalized
+    .map(seg => pascalToKebab(seg))
+    .join('/')
+}
+
+function parseDtoExportMeta(schemaKey) {
+  if (!schemaKey.startsWith('Takt.Application.Dtos.')) return undefined
+  const namespacePart = schemaKey.replace('Takt.Application.Dtos.', '')
+  const lastDot = namespacePart.lastIndexOf('.')
+  if (lastDot < 0) return undefined
+
+  const dtoNamespace = namespacePart.slice(0, lastDot)
+  const className = namespacePart.slice(lastDot + 1)
+  if (!className.startsWith('Takt')) return undefined
+
+  const relDir = namespaceSegmentsToRelDir(dtoNamespace.split('.'))
+  if (!relDir) return undefined
+
+  let raw = className.slice('Takt'.length)
+  if (raw.endsWith('Dto')) raw = raw.slice(0, -3)
+  if (!raw) return undefined
+
+  const skipSuffix = [...DTO_SKIP_SUFFIXES].find(s => raw.endsWith(s))
+  if (skipSuffix) return undefined
+
+  return {
+    relDir,
+    exportName: raw,
+    schemaKey
   }
-  throw new Error(`No NS rule for path: ${relPath}`)
 }
 
-/** 全量 schema 键覆盖（path::exportName 或仅 exportName） */
-const SCHEMA_OVERRIDE = {
-  // routine setting：后端为 TaktSettings* 而非 TaktSetting*
-  'routine/tasks/setting::Setting': 'Takt.Application.Dtos.Routine.Tasks.Setting.TaktSettingsDto',
-  'routine/tasks/setting::SettingCreate': 'Takt.Application.Dtos.Routine.Tasks.Setting.TaktSettingsCreateDto',
-  'routine/tasks/setting::SettingUpdate': 'Takt.Application.Dtos.Routine.Tasks.Setting.TaktSettingsUpdateDto',
-  'routine/tasks/setting::SettingQuery': 'Takt.Application.Dtos.Routine.Tasks.Setting.TaktSettingsQueryDto',
-  'routine/tasks/setting::SettingStatus': 'Takt.Application.Dtos.Routine.Tasks.Setting.TaktSettingsStatusDto',
-  // workflow
-  'workflow/instance::FlowStartRequest': 'Takt.Application.Dtos.Workflow.TaktFlowStartDto',
-  'workflow/scheme::FlowSchemeCreateOrUpdate': 'Takt.Application.Dtos.Workflow.TaktFlowSchemeUpdateDto',
-  'workflow/form::FlowFormStatusUpdate': 'Takt.Application.Dtos.Workflow.TaktFlowFormStatusDto',
-  'workflow/scheme::FlowSchemeStatusUpdate': 'Takt.Application.Dtos.Workflow.TaktFlowSchemeStatusDto',
-  // translation 转置
-  'routine/tasks/i18n/translation::TranslationTransposed':
-    'Takt.Application.Dtos.Routine.Tasks.I18n.TaktTranslationTransposedDto',
-  'routine/tasks/i18n/translation::TranslationTransposedResult':
-    'Takt.Application.Dtos.Routine.Tasks.I18n.TaktTranslationTransposedResult'
+function inferGroupEntityFromDtoFile(filePath) {
+  const base = path.basename(filePath, '.cs')
+  const noPrefix = base.startsWith('Takt') ? base.slice(4) : base
+  return noPrefix.replace(/Dtos?$/, '') || 'Unknown'
 }
 
-function defaultSchemaKey(relPath, exportName) {
-  if (relPath === 'routine/tasks/wordfilter') {
-    return `${nsFor(relPath)}${exportName}`
+function walkFiles(dir, out) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true })
+  for (const e of entries) {
+    const p = path.join(dir, e.name)
+    if (e.isDirectory()) walkFiles(p, out)
+    else out.push(p)
   }
-  if (exportName.endsWith('Dto')) {
-    return `${nsFor(relPath)}Takt${exportName}`
+}
+
+function toCamelCase(name) {
+  if (!name) return name
+  return name.charAt(0).toLowerCase() + name.slice(1)
+}
+
+function mapCSharpTypeToTs(typeName, forceString = false) {
+  const t = typeName.trim().replace(/\?$/, '')
+  const listMatch = t.match(/^(?:List|IList|IEnumerable|ICollection)<\s*([A-Za-z0-9_?.]+)\s*>$/)
+  if (listMatch) {
+    const itemTs = mapCSharpTypeToTs(listMatch[1], forceString)
+    return `${itemTs}[]`
   }
-  return `${nsFor(relPath)}Takt${exportName}Dto`
+  if (t.endsWith('[]')) {
+    const itemTs = mapCSharpTypeToTs(t.slice(0, -2), forceString)
+    return `${itemTs}[]`
+  }
+
+  if (forceString && /^(long|ulong|int64|uint64)$/i.test(t)) return 'string'
+  if (/^(string|char)$/i.test(t)) return 'string'
+  if (/^(int|uint|short|ushort|long|ulong|byte|sbyte|float|double|decimal)$/i.test(t)) return 'number'
+  if (/^(bool|boolean)$/i.test(t)) return 'boolean'
+  if (/^(datetime|datetimeoffset)$/i.test(t)) return 'string'
+  if (/^guid$/i.test(t)) return 'string'
+  return 'unknown'
 }
 
-function schemaKey(relPath, exportName) {
-  const k1 = `${relPath}::${exportName}`
-  if (SCHEMA_OVERRIDE[k1]) return SCHEMA_OVERRIDE[k1]
-  if (SCHEMA_OVERRIDE[exportName]) return SCHEMA_OVERRIDE[exportName]
-  return defaultSchemaKey(relPath, exportName)
+function collectBackendDtoPropertyMap() {
+  const backendDtoRoot = path.resolve(root, '../../backend/src/Takt.Application/Dtos')
+  if (!fs.existsSync(backendDtoRoot)) return {}
+
+  const allFiles = []
+  walkFiles(backendDtoRoot, allFiles)
+  const dtoFiles = allFiles
+    .filter(p => p.endsWith('.cs') && path.basename(p).startsWith('Takt'))
+    .sort((a, b) => a.localeCompare(b))
+
+  const map = {}
+  for (const file of dtoFiles) {
+    const content = fs.readFileSync(file, 'utf8')
+    const classRe = /\bclass\s+(Takt[A-Za-z0-9_]+Dto)\b/g
+    let classMatch
+    while ((classMatch = classRe.exec(content)) != null) {
+      const className = classMatch[1]
+      const classNameEnd = classRe.lastIndex
+      const openBrace = content.indexOf('{', classNameEnd)
+      if (openBrace < 0) continue
+
+      let depth = 1
+      let i = openBrace + 1
+      while (i < content.length && depth > 0) {
+        const ch = content[i]
+        if (ch === '{') depth += 1
+        else if (ch === '}') depth -= 1
+        i += 1
+      }
+      if (depth !== 0) continue
+
+      const classBody = content.slice(openBrace + 1, i - 1)
+      const lines = classBody.split(/\r?\n/)
+      const props = []
+      for (let idx = 0; idx < lines.length; idx += 1) {
+        const line = lines[idx].trim()
+        // 允许同一行属性初始化器，如 `{ get; set; } = new();`、`= string.Empty;`（否则 List<string> Roles 等整行被跳过）
+        const propMatch = line.match(
+          /^public\s+([A-Za-z0-9_<>,?.\[\]]+)\s+([A-Za-z0-9_]+)\s*\{\s*get;\s*set;\s*\}(?:\s*=\s*[^;]+;)?\s*$/
+        )
+        if (!propMatch) continue
+
+        const csharpType = propMatch[1]
+        const propertyName = propMatch[2]
+        const contextStart = Math.max(0, idx - 6)
+        const context = lines.slice(contextStart, idx).join('\n')
+        const hasStringConverter = /ValueToStringConverter/.test(context)
+        const rawType = mapCSharpTypeToTs(csharpType, hasStringConverter)
+        props.push({
+          name: toCamelCase(propertyName),
+          optional: /\?$/.test(csharpType),
+          rawType
+        })
+      }
+      map[className] = props
+    }
+  }
+  return map
 }
 
-/** 自 collect-type-imports 汇总（export 名） */
-const MODULE_EXPORTS = {
-  'accounting/controlling/cost-center': [
-    'CostCenter',
-    'CostCenterQuery',
-    'CostCenterCreate',
-    'CostCenterUpdate',
-    'CostCenterStatus'
-  ],
-  'accounting/financial/title': [
-    'AccountingTitle',
-    'AccountingTitleTree',
-    'AccountingTitleQuery',
-    'AccountingTitleCreate',
-    'AccountingTitleUpdate',
-    'AccountingTitleStatus'
-  ],
-  'generator/table': ['GenTable', 'GenTableCreate', 'GenTableQuery', 'GenTableUpdate'],
-  'generator/table-column': ['GenTableColumn', 'GenTableColumnCreate', 'GenTableColumnQuery', 'GenTableColumnUpdate'],
-  'human-resource/attendance-leave/attendance-correction': [
-    'AttendanceCorrection',
-    'AttendanceCorrectionCreate',
-    'AttendanceCorrectionQuery',
-    'AttendanceCorrectionUpdate'
-  ],
-  'human-resource/attendance-leave/attendance-device': [
-    'AttendanceDevice',
-    'AttendanceDeviceCreate',
-    'AttendanceDeviceQuery',
-    'AttendanceDeviceUpdate'
-  ],
-  'human-resource/attendance-leave/attendance-exception': [
-    'AttendanceException',
-    'AttendanceExceptionCreate',
-    'AttendanceExceptionQuery',
-    'AttendanceExceptionUpdate'
-  ],
-  'human-resource/attendance-leave/attendance-punch': [
-    'AttendancePunch',
-    'AttendancePunchCreate',
-    'AttendancePunchQuery',
-    'AttendancePunchUpdate'
-  ],
-  'human-resource/attendance-leave/attendance-result': [
-    'AttendanceResult',
-    'AttendanceResultCreate',
-    'AttendanceResultQuery',
-    'AttendanceResultUpdate'
-  ],
-  'human-resource/attendance-leave/attendance-setting': [
-    'AttendanceSetting',
-    'AttendanceSettingCreate',
-    'AttendanceSettingQuery',
-    'AttendanceSettingUpdate'
-  ],
-  'human-resource/attendance-leave/attendance-source': [
-    'AttendanceSource',
-    'AttendanceSourceCreate',
-    'AttendanceSourceQuery',
-    'AttendanceSourceUpdate'
-  ],
-  'human-resource/attendance-leave/holiday': ['Holiday', 'HolidayCreate', 'HolidayQuery', 'HolidayUpdate'],
-  'human-resource/attendance-leave/leave': ['Leave', 'LeaveCreate', 'LeaveQuery', 'LeaveStatus', 'LeaveUpdate'],
-  'human-resource/attendance-leave/overtime': ['Overtime', 'OvertimeCreate', 'OvertimeQuery', 'OvertimeUpdate'],
-  'human-resource/attendance-leave/shift-schedule': [
-    'ShiftSchedule',
-    'ShiftScheduleCreate',
-    'ShiftScheduleQuery',
-    'ShiftScheduleUpdate'
-  ],
-  'human-resource/attendance-leave/work-shift': [
-    'WorkShift',
-    'WorkShiftCreate',
-    'WorkShiftQuery',
-    'WorkShiftUpdate'
-  ],
-  'human-resource/organization/dept': ['Dept', 'DeptCreate', 'DeptQuery', 'DeptStatus', 'DeptUpdate'],
-  'human-resource/organization/post': ['Post', 'PostCreate', 'PostQuery', 'PostStatus', 'PostUpdate'],
-  'human-resource/organization/role-dept': ['RoleDept'],
-  'human-resource/organization/user-dept': ['UserDept'],
-  'human-resource/organization/user-post': ['UserPost'],
-  'human-resource/personnel/employee': ['Employee', 'EmployeeCreate', 'EmployeeQuery', 'EmployeeUpdate'],
-  'human-resource/personnel/employee-attachment': [
-    'EmployeeAttachment',
-    'EmployeeAttachmentCreate',
-    'EmployeeAttachmentQuery',
-    'EmployeeAttachmentUpdate'
-  ],
-  'human-resource/personnel/employee-career': [
-    'EmployeeCareer',
-    'EmployeeCareerCreate',
-    'EmployeeCareerQuery',
-    'EmployeeCareerUpdate'
-  ],
-  'human-resource/personnel/employee-contract': [
-    'EmployeeContract',
-    'EmployeeContractCreate',
-    'EmployeeContractQuery',
-    'EmployeeContractUpdate'
-  ],
-  'human-resource/personnel/employee-education': [
-    'EmployeeEducation',
-    'EmployeeEducationCreate',
-    'EmployeeEducationQuery',
-    'EmployeeEducationUpdate'
-  ],
-  'human-resource/personnel/employee-family': [
-    'EmployeeFamily',
-    'EmployeeFamilyCreate',
-    'EmployeeFamilyQuery',
-    'EmployeeFamilyUpdate'
-  ],
-  'human-resource/personnel/employee-skill': [
-    'EmployeeSkill',
-    'EmployeeSkillCreate',
-    'EmployeeSkillQuery',
-    'EmployeeSkillUpdate'
-  ],
-  'human-resource/personnel/employee-transfer': [
-    'EmployeeTransfer',
-    'EmployeeTransferCreate',
-    'EmployeeTransferQuery',
-    'EmployeeTransferStatus',
-    'EmployeeTransferUpdate'
-  ],
-  'human-resource/personnel/employee-work': [
-    'EmployeeWork',
-    'EmployeeWorkCreate',
-    'EmployeeWorkQuery',
-    'EmployeeWorkUpdate'
-  ],
-  'identity/health': ['HealthCheck', 'HealthCheckDetailed', 'HealthCheckSignalR'],
-  'identity/role': ['Role', 'RoleCreate', 'RoleQuery', 'RoleStatus', 'RoleUpdate'],
-  'identity/role-menu': ['RoleMenu'],
-  'identity/tenant': ['Tenant', 'TenantCreate', 'TenantQuery', 'TenantStatus', 'TenantUpdate'],
-  'identity/user-role': ['UserRole'],
-  'identity/user-tenant': ['UserTenant'],
-  'logistics/maintenance/equipment': ['Equipment', 'EquipmentQuery'],
-  'logistics/material/purchase-order': ['PurchaseOrder', 'PurchaseOrderQuery'],
-  'logistics/material/purchase-price': ['PurchasePrice', 'PurchasePriceQuery'],
-  'routine/business/announcement': [
-    'Announcement',
-    'AnnouncementCreate',
-    'AnnouncementQuery',
-    'AnnouncementStatus',
-    'AnnouncementUpdate'
-  ],
-  'routine/tasks/dict/dictdata': ['DictData', 'DictDataCreate', 'DictDataQuery', 'DictDataUpdate'],
-  'routine/tasks/dict/dicttype': ['DictType', 'DictTypeCreate', 'DictTypeQuery', 'DictTypeStatus', 'DictTypeUpdate'],
-  'routine/tasks/file': [
-    'File',
-    'FileChange',
-    'FileCreate',
-    'FileIncrementDownloadCount',
-    'FileQuery',
-    'FileStatus',
-    'FileUpdate'
-  ],
-  'routine/tasks/i18n/language': ['Language', 'LanguageCreate', 'LanguageQuery', 'LanguageStatus', 'LanguageUpdate'],
-  'routine/tasks/i18n/translation': [
-    'Translation',
-    'TranslationCreate',
-    'TranslationQuery',
-    'TranslationTransposed',
-    'TranslationTransposedResult',
-    'TranslationUpdate'
-  ],
-  'routine/tasks/numbering-rule': [
-    'NumberingRule',
-    'NumberingRuleCreate',
-    'NumberingRuleQuery',
-    'NumberingRuleStatus',
-    'NumberingRuleUpdate'
-  ],
-  'routine/tasks/setting': ['Setting', 'SettingCreate', 'SettingQuery', 'SettingStatus', 'SettingUpdate'],
-  'routine/tasks/signalr/online': ['Online', 'OnlineQuery'],
-  'routine/tasks/signalr/signalr': [
-    'BroadcastMessage',
-    'MessageReadEvent',
-    'MessageSentEvent',
-    'OnlineMessageEvent',
-    'OnlineUser',
-    'SignalRErrorEvent',
-    'SignalRMessage',
-    'UserConnectedEvent',
-    'UserDisconnectedEvent'
-  ],
-  'routine/tasks/wordfilter': [
-    'AddWordsDto',
-    'AddWordsResultDto',
-    'CheckTextDto',
-    'CheckTextResultDto',
-    'FindWordsDto',
-    'FindWordsResultDto',
-    'HighlightWordsDto',
-    'HighlightWordsResultDto',
-    'IllegalWordDetailDto',
-    'RemoveWordsDto',
-    'RemoveWordsResultDto',
-    'ReplaceWordsDto',
-    'ReplaceWordsResultDto',
-    'WordFilterStatsDto',
-    'WordLibraryFileDto'
-  ],
-  'statistics/logging/aop-log': ['AopLog', 'AopLogQuery'],
-  'statistics/logging/login-log': ['LoginLog', 'LoginLogQuery'],
-  'statistics/logging/oper-log': ['OperLog', 'OperLogQuery'],
-  'statistics/logging/quartz-log': ['QuartzLog', 'QuartzLogQuery'],
-  'workflow/form': [
-    'FlowForm',
-    'FlowFormCreate',
-    'FlowFormQuery',
-    'FlowFormStatusUpdate',
-    'FlowFormUpdate'
-  ],
-  'workflow/scheme': ['FlowScheme', 'FlowSchemeCreateOrUpdate', 'FlowSchemeQuery', 'FlowSchemeStatusUpdate']
+/** 解析 `class TaktXxxDto : TaktYyyDto`，供同模块 TS `extends` 对齐后端 DTO 继承关系 */
+function collectBackendDtoExtendsMap() {
+  const backendDtoRoot = path.resolve(root, '../../backend/src/Takt.Application/Dtos')
+  if (!fs.existsSync(backendDtoRoot)) return {}
+
+  const allFiles = []
+  walkFiles(backendDtoRoot, allFiles)
+  const dtoFiles = allFiles
+    .filter(p => p.endsWith('.cs') && path.basename(p).startsWith('Takt'))
+    .sort((a, b) => a.localeCompare(b))
+
+  const extendsMap = {}
+  for (const file of dtoFiles) {
+    const content = fs.readFileSync(file, 'utf8')
+    const classRe = /\bclass\s+(Takt[A-Za-z0-9_]+Dto)\b/g
+    let classMatch
+    while ((classMatch = classRe.exec(content)) != null) {
+      const className = classMatch[1]
+      const classNameEnd = classRe.lastIndex
+      const openBrace = content.indexOf('{', classNameEnd)
+      if (openBrace < 0) continue
+      const headerSlice = content.slice(classNameEnd, openBrace)
+      const inh = headerSlice.match(/:\s*(Takt[A-Za-z0-9_]+Dto)\b/)
+      if (inh) extendsMap[className] = inh[1]
+    }
+  }
+  return extendsMap
 }
+
+function dtoClassNameToTsExportName(dtoClassName) {
+  if (!dtoClassName || !dtoClassName.startsWith('Takt') || !dtoClassName.endsWith('Dto')) return undefined
+  return dtoClassName.slice(4, -3)
+}
+
+function collectModuleExportsFromGenerated() {
+  const backendDtoRoot = path.resolve(root, '../../backend/src/Takt.Application/Dtos')
+  if (!fs.existsSync(backendDtoRoot)) return {}
+
+  const allFiles = []
+  walkFiles(backendDtoRoot, allFiles)
+  const dtoFiles = allFiles
+    .filter(p => p.endsWith('.cs') && path.basename(p).startsWith('Takt'))
+    .sort((a, b) => a.localeCompare(b))
+
+  const modules = {}
+  for (const file of dtoFiles) {
+    const rel = path.relative(backendDtoRoot, file).replace(/\\/g, '/')
+    const segments = rel.split('/')
+    if (segments.length < 2) continue
+    const namespaceSegments = segments.slice(0, -1)
+    const relDir = namespaceSegmentsToRelDir(namespaceSegments)
+    if (!relDir) continue
+
+    const content = fs.readFileSync(file, 'utf8')
+    // 模块键：后端 Dtos 相对目录（kebab）+ 该文件对应 stem，与 import 路径一致；写入磁盘时仅最后一段为文件名
+    const groupEntity = inferGroupEntityFromDtoFile(file)
+    const groupRelPath = `${relDir}/${pascalToKebab(groupEntity)}`
+    const classRe = /\bclass\s+(Takt[A-Za-z0-9_]+Dto)\b/g
+    let m
+    while ((m = classRe.exec(content)) != null) {
+      const className = m[1]
+      const schemaKey = `Takt.Application.Dtos.${namespaceSegments.join('.')}.${className}`
+      const meta = parseDtoExportMeta(schemaKey)
+      if (!meta) continue
+
+      if (!modules[groupRelPath]) modules[groupRelPath] = new Map()
+      modules[groupRelPath].set(meta.exportName, meta.schemaKey)
+    }
+  }
+
+  const result = {}
+  for (const [relPath, map] of Object.entries(modules)) {
+    result[relPath] = [...map.entries()]
+      .map(([exportName, schemaKey]) => ({ exportName, schemaKey }))
+  }
+  return result
+}
+
+function collectSchemaPropertyMap() {
+  const generatedDir = path.join(typesDir, 'generated')
+  if (!fs.existsSync(generatedDir)) return {}
+
+  const files = fs
+    .readdirSync(generatedDir)
+    .filter(name => /^openapi-.*\.d\.ts$/i.test(name))
+    .map(name => path.join(generatedDir, name))
+
+  const map = {}
+  for (const file of files) {
+    const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/)
+    let inSchemas = false
+    let schemaName = ''
+    let schemaDepth = 0
+    let props = []
+
+    const flushSchema = () => {
+      if (!schemaName) return
+      map[schemaName] = props
+      schemaName = ''
+      schemaDepth = 0
+      props = []
+    }
+
+    for (const line of lines) {
+      if (!inSchemas) {
+        if (/^\s{4}schemas:\s*\{/.test(line)) inSchemas = true
+        continue
+      }
+
+      if (/^\s{4}\};?\s*$/.test(line)) {
+        flushSchema()
+        inSchemas = false
+        continue
+      }
+
+      const schemaStart = line.match(/^\s{8}([A-Za-z0-9_`]+):\s*\{\s*$/)
+      if (schemaStart) {
+        flushSchema()
+        schemaName = schemaStart[1]
+        schemaDepth = 1
+        continue
+      }
+
+      if (!schemaName) continue
+
+      schemaDepth += (line.match(/\{/g) ?? []).length
+      schemaDepth -= (line.match(/\}/g) ?? []).length
+
+      const prop = line.match(/^\s{12}([A-Za-z0-9_]+)(\?)?:\s*(.+);\s*$/)
+      if (prop) {
+        props.push({
+          name: prop[1],
+          optional: prop[2] === '?',
+          rawType: prop[3]
+        })
+      }
+
+      if (schemaDepth <= 0) {
+        flushSchema()
+      }
+    }
+    flushSchema()
+  }
+  return map
+}
+
+function getSchemaShortName(schemaKey) {
+  const idx = schemaKey.lastIndexOf('.')
+  return idx >= 0 ? schemaKey.slice(idx + 1) : schemaKey
+}
+
+function normalizeTsType(typeText, propName) {
+  let t = typeText.trim().replace(/\s*\|\s*null/g, '').replace(/\s*\|\s*undefined/g, '')
+  if (t.includes('components["schemas"]')) {
+    t = t.endsWith('[]') ? 'Record<string, unknown>[]' : 'Record<string, unknown>'
+  }
+  if (/(^|[^A-Za-z0-9_])number([^A-Za-z0-9_]|$)/.test(t) && /Id(s)?$/i.test(propName)) {
+    t = t.replace(/\bnumber\[\]/g, 'string[]')
+    t = t.replace(/\bnumber\b/g, 'string')
+  }
+  return t
+}
+
+function inferEntityName(exportName) {
+  if (exportName.endsWith('Update')) return exportName.slice(0, -'Update'.length)
+  if (exportName.endsWith('Create')) return exportName.slice(0, -'Create'.length)
+  if (exportName.endsWith('Query')) return exportName.slice(0, -'Query'.length)
+  return exportName
+}
+
+function buildInterfaceForExport(exportName, schemaKey, entityName, schemaProps, moduleEntityName) {
+  const suffix = exportName.startsWith(entityName) ? exportName.slice(entityName.length) : ''
+  const isMain = exportName === moduleEntityName
+  const isQuery = suffix === 'Query'
+  const isUpdate = suffix === 'Update'
+  /** 与后端一致：存在 CreateDto 时 UpdateDto 继承 CreateDto；OpenAPI 未生成时仍从 BACKEND_DTO_PROPS 识别 */
+  const createDtoKey = `Takt${entityName}CreateDto`
+  const createSchemaPropsMerged = schemaProps[createDtoKey] ?? BACKEND_DTO_PROPS[createDtoKey] ?? []
+  const hasCreateSchema =
+    createSchemaPropsMerged.length > 0 ||
+    Object.prototype.hasOwnProperty.call(BACKEND_DTO_PROPS, createDtoKey)
+  let extendsText =
+    isMain ? ' extends TaktEntityBase'
+      : isQuery ? ' extends TaktPagedQuery'
+        : (isUpdate && hasCreateSchema) ? ` extends ${entityName}Create`
+          : ''
+
+  const schemaShortName = getSchemaShortName(schemaKey)
+  const parentDto = BACKEND_DTO_EXTENDS[schemaShortName]
+  if (!extendsText && parentDto) {
+    const parentExport = dtoClassNameToTsExportName(parentDto)
+    const modulePrefix = `Takt${moduleEntityName}`
+    if (
+      parentExport &&
+      parentDto.startsWith(modulePrefix) &&
+      parentDto.endsWith('Dto') &&
+      parentExport !== exportName
+    ) {
+      extendsText = ` extends ${parentExport}`
+    }
+  }
+  const props = [...(schemaProps[schemaShortName] ?? BACKEND_DTO_PROPS[schemaShortName] ?? [])]
+  const createSchemaProps = createSchemaPropsMerged
+  const createPropNames = new Set(createSchemaProps.map(p => p.name))
+  const mainDtoProps = schemaProps[`Takt${entityName}Dto`] ?? BACKEND_DTO_PROPS[`Takt${entityName}Dto`] ?? []
+  const lines = [
+    '/**',
+    ` * ${entityName}${suffix || ''}类型（对应后端 ${schemaKey}）`,
+    ' */',
+    `export interface ${exportName}${extendsText} {`
+  ]
+
+  let emittedCount = 0
+  for (const p of props) {
+    if (isMain && ENTITY_BASE_FIELDS.has(p.name)) continue
+    if (isQuery && PAGED_QUERY_FIELDS.has(p.name)) continue
+    if (isUpdate && hasCreateSchema && createPropNames.has(p.name)) continue
+    const fieldType = normalizeTsType(p.rawType, p.name)
+    lines.push(`  /** 对应后端字段 ${p.name} */`)
+    lines.push(`  ${p.name}${p.optional ? '?' : ''}: ${fieldType}`)
+    emittedCount += 1
+  }
+
+  if (isUpdate && hasCreateSchema && emittedCount === 0) {
+    const preferredId = `${entityName.charAt(0).toLowerCase()}${entityName.slice(1)}Id`
+    const idProp =
+      mainDtoProps.find(p => p.name === preferredId) ??
+      mainDtoProps.find(p => /Id$/i.test(p.name))
+    if (idProp) {
+      const idType = normalizeTsType(idProp.rawType, idProp.name)
+      lines.push(`  /** 对应后端字段 ${idProp.name} */`)
+      lines.push(`  ${idProp.name}${idProp.optional ? '?' : ''}: ${idType}`)
+    }
+  }
+  lines.push('}')
+  lines.push('')
+  return lines
+}
+
+function dtoFileName(exportName, entityName) {
+  return `${pascalToKebab(entityName)}`
+}
+
+/** 按后端 OpenAPI 产物自动推导模块导出，避免手工硬编码维护。 */
+const MODULE_EXPORTS = collectModuleExportsFromGenerated()
+const SCHEMA_PROPS = collectSchemaPropertyMap()
+const BACKEND_DTO_PROPS = collectBackendDtoPropertyMap()
+const BACKEND_DTO_EXTENDS = collectBackendDtoExtendsMap()
 
 /**
  * `emitSpecial` 写入的路径（相对 `src/types`）：与 OpenAPI schema 非一一对应的手拼层，无统一 MARKER。
  * 须与下方 `emitSpecial` 内 `writeFileSync` 目标保持一致。
  */
 export const SHIM_EMIT_SPECIAL_REL = [
-  'identity/auth.ts',
-  'identity/user.ts',
-  'identity/menu.ts',
-  'identity/health.ts',
-  'dashboard/data-board.ts',
-  'dashboard/workspace.ts',
-  'logistics/materials/plant.ts',
-  'workflow/instance.ts',
-  'common.ts',
-  'global-setting.ts'
+  // 无手工特例：统一由自动规则生成；业务自定义类型请维护在独立静态文件中。
 ]
 
 /**
@@ -340,8 +461,12 @@ export const SHIM_EMIT_SPECIAL_REL = [
  */
 export function getShimGitDiffPathsFromRepoRoot() {
   const set = new Set()
-  for (const mod of Object.keys(MODULE_EXPORTS)) {
-    set.add(`src/types/${mod}.ts`)
+  const moduleExports = collectModuleExportsFromGenerated()
+  for (const mod of Object.keys(moduleExports)) {
+    const segs = mod.split('/')
+    const fileName = segs.at(-1) || mod
+    const dir = segs.slice(0, -1).join('/')
+    set.add(dir ? `src/types/${dir}/${fileName}.d.ts` : `src/types/${fileName}.d.ts`)
   }
   for (const f of SHIM_EMIT_SPECIAL_REL) {
     set.add(`src/types/${f.replace(/\\/g, '/')}`)
@@ -349,311 +474,97 @@ export function getShimGitDiffPathsFromRepoRoot() {
   return [...set].sort()
 }
 
+/** 保证同一模块内 `{Entity}Create` 在 `{Entity}Update` 之前，满足 `extends` 解析顺序 */
+function compareDtoExportsForEmit(a, b, moduleEntityName) {
+  const order = name => {
+    if (name === moduleEntityName) return 0
+    if (name === `${moduleEntityName}Query`) return 10
+    if (name === `${moduleEntityName}Create`) return 20
+    if (name === `${moduleEntityName}Update`) return 30
+    if (name === `${moduleEntityName}Status`) return 40
+    if (name === `${moduleEntityName}Sort`) return 45
+    if (name === `${moduleEntityName}Template`) return 50
+    if (name === `${moduleEntityName}Import`) return 55
+    if (name === `${moduleEntityName}Export`) return 56
+    return 100
+  }
+  const da = order(a.exportName)
+  const db = order(b.exportName)
+  if (da !== db) return da - db
+  return a.exportName.localeCompare(b.exportName)
+}
+
 function emitGenericModule(relPath, exports) {
-  const pick = bundleFor(relPath)
+  // relPath =「后端 Dtos 下目录 kebab」+「/」+「该 cs 对应的类型文件 stem kebab」，例如 code/generator/gen-table
+  // 输出文件必须与后端文件夹一致：.../types/code/generator/gen-table.d.ts（不再多一层 gen-table 目录）
+  const relSegs = relPath.split('/')
+  const fileName = relSegs.at(-1) || relPath
+  const dirSegs = relSegs.slice(0, -1)
+  const outDir = path.join(typesDir, ...dirSegs)
+  fs.mkdirSync(outDir, { recursive: true })
+
+  const legacyMergedDts = path.join(typesDir, ...relSegs) + '.d.ts'
+  const legacyMergedTs = path.join(typesDir, ...relSegs) + '.ts'
+  if (fs.existsSync(legacyMergedDts)) fs.unlinkSync(legacyMergedDts)
+  if (fs.existsSync(legacyMergedTs)) fs.unlinkSync(legacyMergedTs)
+
+  const moduleEntityName = kebabToPascal(fileName)
+  const sorted = [...exports].sort((x, y) => compareDtoExportsForEmit(x, y, moduleEntityName))
   const lines = [
-    '/** 由 scripts/emit-type-shims.mjs 生成：从 OpenAPI components.schemas 映射别名，请勿手改字段。 */',
-    `import type { ${pick} } from '@/types/internal/openapi-pick'`,
+    '// ========================================',
+    '// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)',
+    `// 命名空间：@/types/${relPath}`,
+    `// 文件名称：${fileName}.d.ts`,
+    '// 创建时间：2025-02-02',
+    '// 创建人：Takt365',
+    `// 功能描述：${fileName}相关类型定义（自动生成）`,
+    '// ========================================',
+    '',
+    "import type { TaktEntityBase, TaktPagedQuery } from '@/types/common'",
     ''
   ]
-  for (const name of exports) {
-    const key = schemaKey(relPath, name)
-    lines.push(`export type ${name} = ${pick}<'${key}'>`)
+  for (const item of sorted) {
+    const entityName = inferEntityName(item.exportName)
+    lines.push(...buildInterfaceForExport(item.exportName, item.schemaKey, entityName, SCHEMA_PROPS, moduleEntityName))
   }
-  lines.push('')
-  const out = path.join(typesDir, ...relPath.split('/')) + '.ts'
-  fs.mkdirSync(path.dirname(out), { recursive: true })
+  const out = path.join(outDir, `${fileName}.d.ts`)
   fs.writeFileSync(out, lines.join('\n'), 'utf8')
+
+  // 删除旧版「多一层实体目录」下的同名文件，例如 .../code/generator/gen-table/gen-table.d.ts
+  const legacyNestedFile = path.join(typesDir, ...relSegs, `${fileName}.d.ts`)
+  if (legacyNestedFile !== out && fs.existsSync(legacyNestedFile)) {
+    fs.unlinkSync(legacyNestedFile)
+  }
+  try {
+    const legacyNestedDir = path.join(typesDir, ...relSegs)
+    if (legacyNestedDir !== outDir && fs.existsSync(legacyNestedDir)) {
+      const left = fs.readdirSync(legacyNestedDir)
+      if (left.length === 0) fs.rmdirSync(legacyNestedDir)
+    }
+  } catch {
+    // 非空目录等忽略
+  }
+
+  const allLegacy = fs.readdirSync(outDir).filter(n =>
+    n.endsWith('.d.ts') &&
+    n !== `${fileName}.d.ts` &&
+    n.endsWith('-dto.d.ts')
+  )
+  for (const legacy of allLegacy) {
+    fs.unlinkSync(path.join(outDir, legacy))
+  }
 }
 
 function emitSpecial() {
-  fs.mkdirSync(path.join(typesDir, 'identity'), { recursive: true })
-
-  const auth = `import type { IdS } from '@/types/internal/openapi-pick'
-
-export type UserInfo = IdS<'Takt.Application.Dtos.Identity.TaktUserInfoDto'>
-
-/** OAuth 密码模式 + userinfo 组合结果（非单一 swagger schema）。 */
-export interface LoginResponse {
-  token: string
-  refreshToken?: string
-  tokenType?: string
-  expiresIn?: number
-  userInfo: UserInfo
-}
-
-/** 登录表单与 OpenAPI TaktLoginDto 字段名不完全一致（username），此处为前端入参约定。 */
-export interface LoginParams {
-  username: string
-  password: string
-  rememberMe?: boolean
-}
-`
-  fs.writeFileSync(path.join(typesDir, 'identity/auth.ts'), auth, 'utf8')
-
-  const user = `import type { IdS } from '@/types/internal/openapi-pick'
-
-export type User = IdS<'Takt.Application.Dtos.Identity.TaktUserDto'>
-export type UserQuery = IdS<'Takt.Application.Dtos.Identity.TaktUserQueryDto'>
-export type UserCreate = IdS<'Takt.Application.Dtos.Identity.TaktUserCreateDto'>
-export type UserUpdate = IdS<'Takt.Application.Dtos.Identity.TaktUserUpdateDto'>
-export type UserStatus = IdS<'Takt.Application.Dtos.Identity.TaktUserStatusDto'>
-export type UserResetPwd = IdS<'Takt.Application.Dtos.Identity.TaktUserResetPwdDto'>
-export type UserChangePwd = IdS<'Takt.Application.Dtos.Identity.TaktUserChangePwdDto'>
-export type UserUnlock = IdS<'Takt.Application.Dtos.Identity.TaktUserUnlockDto'>
-export type UserAvatarUpdate = IdS<'Takt.Application.Dtos.Identity.TaktUserAvatarUpdateDto'>
-export type UserForgotPassword = IdS<'Takt.Application.Dtos.Identity.TaktUserForgotPasswordDto'>
-
-export type UserFormPermissionModel = Pick<UserCreate, 'roleIds' | 'deptIds' | 'postIds' | 'tenantIds'>
-
-export type UserFormModel = Required<
-  Pick<UserCreate, 'userName' | 'nickName' | 'userType' | 'userEmail' | 'userPhone' | 'userStatus' | 'remark'>
-> &
-  Pick<UserCreate, 'employeeId'> & { password?: string }
-
-export type UserFormValues = UserFormModel & UserFormPermissionModel
-
-export type UserChangePasswordFormModel = UserChangePwd & { confirmPassword?: string }
-`
-  fs.writeFileSync(path.join(typesDir, 'identity/user.ts'), user, 'utf8')
-
-  const menuTypes = `import type { IdS } from '@/types/internal/openapi-pick'
-
-type TaktMenuTree = IdS<'Takt.Application.Dtos.Identity.TaktMenuTreeDto'>
-
-/** 与后端菜单树 DTO 一致，并保留历史/树选择器兼容字段（dict*，小驼峰）。 */
-export type MenuTree = TaktMenuTree & {
-  dictLabel?: string | null
-  dictValue?: string | number | null
-  extLabel?: string | null
-  extValue?: string | number | null
-  transKey?: string
-  children?: MenuTree[] | null
-}
-
-export type Menu = IdS<'Takt.Application.Dtos.Identity.TaktMenuDto'>
-export type MenuCreate = IdS<'Takt.Application.Dtos.Identity.TaktMenuCreateDto'>
-export type MenuUpdate = IdS<'Takt.Application.Dtos.Identity.TaktMenuUpdateDto'>
-export type MenuQuery = IdS<'Takt.Application.Dtos.Identity.TaktMenuQueryDto'>
-export type MenuStatusDto = IdS<'Takt.Application.Dtos.Identity.TaktMenuStatusDto'>
-`
-  fs.writeFileSync(path.join(typesDir, 'identity/menu.ts'), menuTypes, 'utf8')
-
-  const health = `/** 健康检查端点当前 swagger 无 response schema，使用宽松类型占位。 */
-export type HealthCheck = Record<string, unknown>
-export type HealthCheckDetailed = Record<string, unknown>
-export type HealthCheckSignalR = Record<string, unknown>
-`
-  fs.writeFileSync(path.join(typesDir, 'identity/health.ts'), health, 'utf8')
-
-  const sr = `import type { RouS } from '@/types/internal/openapi-pick'
-
-export type OnlineUser = RouS<'Takt.Application.Dtos.Routine.Tasks.SignalR.TaktOnlineDto'>
-export type SignalRMessage = RouS<'Takt.Application.Dtos.Routine.Tasks.SignalR.TaktMessageDto'>
-export type BroadcastMessage = RouS<'Takt.Application.Dtos.Routine.Tasks.SignalR.TaktMessageDto'>
-
-/** Hub 推送载荷：无 OpenAPI schema，与后端 Hub 方法参数约定一致。 */
-export type UserConnectedEvent = Record<string, unknown>
-export type UserDisconnectedEvent = Record<string, unknown>
-export type MessageSentEvent = Record<string, unknown>
-export type MessageReadEvent = Record<string, unknown>
-export type SignalRErrorEvent = Record<string, unknown>
-export type OnlineMessageEvent = Record<string, unknown>
-`
-  fs.mkdirSync(path.join(typesDir, 'routine/tasks/signalr'), { recursive: true })
-  fs.writeFileSync(path.join(typesDir, 'routine/tasks/signalr/signalr.ts'), sr, 'utf8')
-
-  const dashBoard = `export type DataBoardModuleKey =
-  | 'overview'
-  | 'change'
-  | 'online'
-  | 'sales'
-  | 'production'
-  | 'custom'
-
-export interface DataBoardModuleMeta {
-  key: DataBoardModuleKey
-  titleKey: string
-  defaultSpan: number
-}
-
-export interface DataBoardModuleItem {
-  id: string
-  moduleKey: DataBoardModuleKey
-  span: number
-}
-`
-  fs.mkdirSync(path.join(typesDir, 'dashboard'), { recursive: true })
-  fs.writeFileSync(path.join(typesDir, 'dashboard/data-board.ts'), dashBoard, 'utf8')
-
-  const ws = `export type WorkspaceModuleKey =
-  | 'welcome'
-  | 'shortcut'
-  | 'todo'
-  | 'notice'
-  | 'custom'
-
-export interface WorkspaceModuleMeta {
-  key: WorkspaceModuleKey
-  titleKey: string
-  defaultSpan: number
-}
-
-export interface WorkspaceModuleItem {
-  id: string
-  moduleKey: WorkspaceModuleKey
-  span: number
-}
-`
-  fs.writeFileSync(path.join(typesDir, 'dashboard/workspace.ts'), ws, 'utf8')
-
-  const plant = `import type { LgsS } from '@/types/internal/openapi-pick'
-
-export type Plant = LgsS<'Takt.Application.Dtos.Logistics.Materials.TaktPlantDto'>
-export type PlantQuery = LgsS<'Takt.Application.Dtos.Logistics.Materials.TaktPlantQueryDto'>
-export type PlantCreate = LgsS<'Takt.Application.Dtos.Logistics.Materials.TaktPlantCreateDto'>
-export type PlantUpdate = LgsS<'Takt.Application.Dtos.Logistics.Materials.TaktPlantUpdateDto'>
-/** 导入/导出/模板接口在 swagger 中无独立 schema，占位为宽松对象。 */
-export type PlantTemplate = Record<string, unknown>
-export type PlantImport = Record<string, unknown>
-export type PlantExport = Record<string, unknown>
-`
-  fs.mkdirSync(path.join(typesDir, 'logistics/materials'), { recursive: true })
-  fs.writeFileSync(path.join(typesDir, 'logistics/materials/plant.ts'), plant, 'utf8')
-
-  const flowInstance = `import type { WfS } from '@/types/internal/openapi-pick'
-
-export type FlowStartRequest = WfS<'Takt.Application.Dtos.Workflow.TaktFlowStartDto'>
-export type FlowStartResult = WfS<'Takt.Application.Dtos.Workflow.TaktFlowStartResultDto'>
-export type FlowInstance = WfS<'Takt.Application.Dtos.Workflow.TaktFlowInstanceDto'>
-export type FlowInstanceDetail = WfS<'Takt.Application.Dtos.Workflow.TaktFlowInstanceDetailDto'>
-export type FlowInstanceQuery = WfS<'Takt.Application.Dtos.Workflow.TaktFlowInstanceQueryDto'>
-export type FlowTodoItem = WfS<'Takt.Application.Dtos.Workflow.TaktFlowTodoItemDto'>
-/** 待办列表查询参数在 swagger 中为匿名 query，占位。 */
-export type FlowTodoQuery = Record<string, unknown>
-export type FlowCompleteRequest = WfS<'Takt.Application.Dtos.Workflow.TaktFlowCompleteDto'>
-export type FlowOperateBase = Pick<
-  WfS<'Takt.WebApi.Controllers.Workflow.TaktFlowInstancesController+RevokeRequest'>,
-  'instanceCode' | 'flowInstanceId'
->
-export type FlowInstanceUpdate = WfS<'Takt.Application.Dtos.Workflow.TaktFlowInstanceUpdateDto'>
-export type FlowUndoVerification = WfS<'Takt.Application.Dtos.Workflow.TaktFlowUndoVerificationDto'>
-export type FlowSuspend = WfS<'Takt.Application.Dtos.Workflow.TaktFlowSuspendDto'>
-export type FlowResume = WfS<'Takt.Application.Dtos.Workflow.TaktFlowResumeDto'>
-export type FlowTerminate = WfS<'Takt.Application.Dtos.Workflow.TaktFlowTerminateDto'>
-export type FlowTransfer = WfS<'Takt.Application.Dtos.Workflow.TaktFlowTransferDto'>
-export type FlowAddApprovers = WfS<'Takt.Application.Dtos.Workflow.TaktFlowAddApproversDto'>
-export type FlowAddApproverItem = WfS<'Takt.Application.Dtos.Workflow.TaktFlowAddApproverItemDto'>
-export type FlowReduceApproval = WfS<'Takt.Application.Dtos.Workflow.TaktFlowReduceApprovalDto'>
-export type FlowOperationHistoryItem = WfS<'Takt.Application.Dtos.Workflow.TaktFlowOperationHistoryItemDto'>
-`
-  fs.mkdirSync(path.join(typesDir, 'workflow'), { recursive: true })
-  fs.writeFileSync(path.join(typesDir, 'workflow/instance.ts'), flowInstance, 'utf8')
-
-  const common = `import type { IdentityComponents } from '@/types/generated'
-import type { IdS, OrgS, RouS } from '@/types/internal/openapi-pick'
-
-type UserPaged =
-  IdentityComponents['schemas']["Takt.Shared.Models.TaktPagedResult\`1[[Takt.Application.Dtos.Identity.TaktUserDto, Takt.Application, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null]]"]
-
-export type TaktPagedResult<T> = Omit<UserPaged, 'data'> & { data: T[] }
-
-type ApiObj =
-  IdentityComponents['schemas']["Takt.Shared.Models.TaktApiResult\`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"]
-
-export type TaktApiResult<T> = Omit<ApiObj, 'data'> & { data: T | null }
-
-export type TaktPagedQuery = Pick<
-  OrgS<'Takt.Application.Dtos.HumanResource.Organization.TaktDeptQueryDto'>,
-  'pageIndex' | 'pageSize' | 'keyWords'
-> & { KeyWords?: string }
-
-type RawSelect = IdS<'Takt.Shared.Models.TaktSelectOption'>
-export type TaktSelectOption = Omit<RawSelect, 'dictValue' | 'extValue'> & {
-  dictValue?: string | number
-  extValue?: string | number
-}
-
-type RawTree = IdS<'Takt.Shared.Models.TaktTreeSelectOption'>
-export type TaktTreeSelectOption = Omit<RawTree, 'dictValue' | 'extValue' | 'children'> & {
-  dictValue?: string | number
-  extValue?: string | number
-  children?: TaktTreeSelectOption[]
-}
-
-export type LeaveProofAttachment = RouS<'Takt.Application.Dtos.Routine.Tasks.Files.TaktFileDto'>
-
-export type { TaktResultCode } from '@/utils/enum'
-`
-  fs.writeFileSync(path.join(typesDir, 'common.ts'), common, 'utf8')
-
-  const gs = `export type ThemeColor =
-  | 'blue'
-  | 'green'
-  | 'red'
-  | 'orange'
-  | 'purple'
-  | 'cyan'
-  | 'pink'
-  | 'yellow'
-  | 'indigo'
-  | 'brown'
-  | 'gray'
-  | 'custom'
-
-export interface ThemeColorConfig {
-  type: ThemeColor
-  customColor?: string
-}
-
-export interface AppSetting {
-  layout: 'side' | 'top' | 'mix' | 'content'
-  theme: 'light' | 'dark'
-  themeColor: ThemeColorConfig
-  borderRadius: 0 | 5 | 10 | 15 | 20
-  fontSize: number
-  colorWeak: boolean
-  grayscale: boolean
-  fixedHeader: boolean
-  fixedSider: boolean
-  showLogo: boolean
-  siderWidth: number
-  siderCollapsedWidth: number
-  showBreadcrumb: boolean
-  breadcrumbIcon: boolean
-  showTabs: boolean
-  tabStyle: 'google' | 'card'
-  persistTabs: boolean
-  maxTabs: number
-  showFooter: boolean
-  copyright: string
-  contentWidth: 'fluid' | 'fixed'
-  multiTab: boolean
-  watermark: boolean
-  watermarkContent: string
-  demo: boolean
-  menuAccordion: boolean
-  menuStyle: 'rounded' | 'plain'
-  defaultLocale: string
-  logo: string
-  logoText: string
-  logoCollapsedText: string
-  showForgotPassword: boolean
-  showRegister: boolean
-}
-`
-  fs.writeFileSync(path.join(typesDir, 'global-setting.ts'), gs, 'utf8')
+  // no-op: 移除手工模板硬编码，统一走自动生成/静态文件维护。
 }
 
 function main() {
-  emitSpecial()
   for (const [rel, exports] of Object.entries(MODULE_EXPORTS)) {
     emitGenericModule(rel, exports)
   }
-  for (const f of ['common.d.ts', 'global-setting.d.ts']) {
-    const p = path.join(typesDir, f)
-    if (fs.existsSync(p)) fs.unlinkSync(p)
-  }
+  emitSpecial()
+  // common.d.ts、global-setting.d.ts 为手写契约，不在此脚本中删除或覆盖。
   console.log('[emit-type-shims] wrote modules under', typesDir)
 }
 

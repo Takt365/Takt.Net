@@ -82,7 +82,7 @@ export const useSignalRStore = defineStore('signalr', () => {
     broadcastMessages.value.push(msg)
     // 显示通知
     message.info({
-      content: `[${tGlobal('stores.signalr.broadcastLabel')}] ${msg.messageContent}`,
+      content: `[${tGlobal('stores.page.signalr.broadcastlabel')}] ${msg.messageContent}`,
       duration: 5
     })
   }
@@ -105,7 +105,7 @@ export const useSignalRStore = defineStore('signalr', () => {
   const handleError = (error: SignalRErrorEvent) => {
     logger.error('[SignalR Store] SignalR 错误:', error)
     const errText = String(error.message ?? '').trim()
-    message.error(errText || tGlobal('stores.signalr.error'))
+    message.error(errText || tGlobal('stores.page.signalr.error'))
   }
 
   const handleOnlineMessage = (event: OnlineMessageEvent) => {
@@ -114,7 +114,7 @@ export const useSignalRStore = defineStore('signalr', () => {
     const description: VNodeChild = String(event.message ?? '')
     // 显示上线通知（使用 Notification，位置在右上角）
     notification.success({
-      message: tGlobal('stores.signalr.onlineNotify'),
+      message: tGlobal('stores.page.signalr.onlinenotify'),
       description,
       placement: 'topRight',
       duration: 10
@@ -162,7 +162,7 @@ export const useSignalRStore = defineStore('signalr', () => {
       }
     } catch (error: unknown) {
       logger.error('[SignalR Store] SignalR 连接失败，错误:', toErrorMessage(error))
-      message.error(tGlobal('stores.signalr.connectFail'))
+      message.error(tGlobal('stores.page.signalr.connectfail'))
       throw error
     }
   }
@@ -217,7 +217,7 @@ export const useSignalRStore = defineStore('signalr', () => {
       await signalRManager.sendMessage(toUserName, messageContent, messageTitle, messageType, messageGroup, messageExtData)
     } catch (error) {
       logger.error('[SignalR Store] 发送消息失败:', error)
-      message.error(tGlobal('stores.signalr.sendFail'))
+      message.error(tGlobal('stores.page.signalr.sendfail'))
       throw error
     }
   }
@@ -233,7 +233,7 @@ export const useSignalRStore = defineStore('signalr', () => {
       await signalRManager.broadcastMessage(messageContent, messageTitle, messageType, messageGroup)
     } catch (error) {
       logger.error('[SignalR Store] 发送广播消息失败:', error)
-      message.error(tGlobal('stores.signalr.broadcastFail'))
+      message.error(tGlobal('stores.page.signalr.broadcastfail'))
       throw error
     }
   }

@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds.SeedData
 // 文件名称：TaktFlowFormSeedData.cs
@@ -86,7 +86,7 @@ public class TaktFlowFormSeedData : ITaktSeedData
                 FormType = 0,
                 FormStatus = 1,
                 FormVersion = "1.0.0",
-                OrderNum = 0,
+                SortOrder = 0,
                 IsDatasource = 1,
                 RelatedDataBaseName = leaveDbName ?? "1",
                 RelatedTableName = "takt_humanresource_leave",
@@ -102,7 +102,7 @@ public class TaktFlowFormSeedData : ITaktSeedData
             leaveForm.FormType = 0;
             leaveForm.FormStatus = 1;
             leaveForm.FormVersion = "1.0.0";
-            leaveForm.OrderNum = 0;
+            leaveForm.SortOrder = 0;
             leaveForm.IsDatasource = 1;
             leaveForm.RelatedDataBaseName = leaveDbName ?? "1";
             leaveForm.RelatedTableName = "takt_humanresource_leave";
@@ -124,7 +124,7 @@ public class TaktFlowFormSeedData : ITaktSeedData
                 FormType = 0,
                 FormStatus = 1,
                 FormVersion = "1.0.0",
-                OrderNum = 1,
+                SortOrder = 1,
                 IsDatasource = 1,
                 RelatedDataBaseName = reimburseDbName ?? "2",
                 RelatedTableName = "takt_routine_expense_reimburse",
@@ -140,7 +140,7 @@ public class TaktFlowFormSeedData : ITaktSeedData
             reimburseForm.FormType = 0;
             reimburseForm.FormStatus = 1;
             reimburseForm.FormVersion = "1.0.0";
-            reimburseForm.OrderNum = 1;
+            reimburseForm.SortOrder = 1;
             reimburseForm.IsDatasource = 1;
             reimburseForm.RelatedDataBaseName = reimburseDbName ?? "2";
             reimburseForm.RelatedTableName = "takt_routine_expense_reimburse";

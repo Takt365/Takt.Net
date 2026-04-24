@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Domain.Entities.Accounting.Financial
 // 文件名称：TaktAsset.cs
@@ -18,7 +18,7 @@ namespace Takt.Domain.Entities.Accounting.Financial;
 /// <summary>
 /// Takt资产实体
 /// </summary>
-[SugarTable("takt_accounting_financial_asset", "资产表")]
+[SugarTable("takt_accounting_financial_asset", "固定资产表")]
 [SugarIndex("ix_takt_accounting_financial_asset_asset_code", nameof(AssetCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_financial_asset_asset_category_id", nameof(AssetCategoryId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_financial_asset_cost_center_id", nameof(CostCenterId), OrderByType.Asc)]

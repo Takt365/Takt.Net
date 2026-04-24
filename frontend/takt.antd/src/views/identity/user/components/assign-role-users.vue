@@ -36,7 +36,7 @@
             width: '250px',
             height: '50vh',
           }"
-          :titles="[t('common.action.transferUnassigned'), t('common.action.transferAssigned')]"
+          :titles="[t('common.action.transferunassigned'), t('common.action.transferassigned')]"
           show-search
           :loading="optionsLoading"
           :render="item => item.title"
@@ -134,7 +134,7 @@ const loadUserRoles = async () => {
     const u = props.user
     const userId = u.userId
     if (!userId) {
-      message.error(t('common.msg.entityIdRequired', { entity: t('entity.user._self') }))
+      message.error(t('common.msg.entityidrequired', { entity: t('entity.user._self') }))
       return
     }
 
@@ -162,7 +162,7 @@ const loadUserRoles = async () => {
     })
   } catch (error: unknown) {
     logger.error('[AssignRoleUsers] 加载用户角色失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.loadTargetFail', { target: t('entity.user._self') + t('entity.role._self') }))
+    message.error(getErrorMessage(error) || t('common.msg.loadtargetfail', { target: t('entity.user._self') + t('entity.role._self') }))
   } finally {
     loading.value = false
     optionsLoading.value = false
@@ -177,7 +177,7 @@ const handleTransferChange = (keys: string[], _direction: string, _moveKeys: str
 /** 提交 assignUserRoles */
 const handleSubmit = async () => {
   if (!props.user) {
-    message.error(t('common.msg.entityNotFound', { entity: t('entity.user._self') }))
+    message.error(t('common.msg.entitynotfound', { entity: t('entity.user._self') }))
     return
   }
 
@@ -187,19 +187,19 @@ const handleSubmit = async () => {
     // 获取用户ID
     const userId = props.user.userId
     if (!userId) {
-      message.error(t('common.msg.entityIdRequired', { entity: t('entity.user._self') }))
+      message.error(t('common.msg.entityidrequired', { entity: t('entity.user._self') }))
       return
     }
 
     // 调用分配API
     await assignUserRoles(String(userId), targetKeys.value)
     
-    message.success(t('common.msg.assignSuccess', { target: t('entity.role._self') }))
+    message.success(t('common.msg.assignsuccess', { target: t('entity.role._self') }))
     emit('success')
     handleCancel()
   } catch (error: unknown) {
     logger.error('[AssignRoleUsers] 分配角色失败:', error)
-    message.error(getErrorMessage(error) || t('common.msg.assignFail', { target: t('entity.role._self') }))
+    message.error(getErrorMessage(error) || t('common.msg.assignfail', { target: t('entity.role._self') }))
   } finally {
     loading.value = false
   }

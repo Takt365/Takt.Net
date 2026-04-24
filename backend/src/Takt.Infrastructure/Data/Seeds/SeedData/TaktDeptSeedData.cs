@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktDeptSeedData.cs
@@ -149,7 +149,7 @@ public class TaktDeptSeedData : ITaktSeedData
         string deptCode,
         string deptName,
         long parentId,
-        int orderNum,
+        int SortOrder,
         long deptHeadId)
     {
         var dept = await deptRepository.GetAsync(d => d.DeptCode == deptCode);
@@ -160,7 +160,7 @@ public class TaktDeptSeedData : ITaktSeedData
                 DeptName = deptName,
                 DeptCode = deptCode,
                 ParentId = parentId,
-                OrderNum = orderNum,
+                SortOrder = SortOrder,
                 DeptStatus = 0,
                 DataScope = 0,
                 IsDeleted = 0,
@@ -173,7 +173,7 @@ public class TaktDeptSeedData : ITaktSeedData
         {
             dept.DeptName = deptName;
             dept.ParentId = parentId;
-            dept.OrderNum = orderNum;
+            dept.SortOrder = SortOrder;
             dept.DeptStatus = 0;
             dept.DataScope = 0;
             dept.DeptHeadId = deptHeadId;

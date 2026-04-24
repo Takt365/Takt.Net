@@ -13,6 +13,9 @@ const isRecord = (value: unknown): value is MessageRecord =>
  * 使用 Vite 的 glob 功能自动扫描 locales 目录下的所有语言文件
  * 文件路径格式：./模块/子模块/.../语言代码.ts
  * 例如：./common/zh-CN.ts, ./identity/user/zh-CN.ts
+ * 合并规则：按文件路径深度合并为嵌套键（如 identity/user/zh-CN.ts → identity.user）。
+ * 业务模块（非 common、error、dashboard）须在各自语言文件中使用 `export default { page: { … } }`，
+ * 运行时键为 `模块…page.键`；common / error / dashboard 仍为顶层键，不在各文件内包 `page`。
  *
  * 支持的语言列表由 getSupportedLocalesFromModules() 从扫描到的路径动态收集，无需在此硬编码。
  *
@@ -141,8 +144,8 @@ function loadStaticMessages(supportedLocales: string[]): Record<string, MessageR
   return messages
 }
 
-// 初始化：从 glob 扫描结果动态得到语言列表并加载静态翻译
-const supportedLocales: string[] = getSupportedLocalesFromModules()
+// 初始化：从 glob 扫描结果动态得到语言列表并加载静态翻译（导出供语言下拉在无后端/超时时与静态文案一致）
+export const supportedLocales: string[] = getSupportedLocalesFromModules()
 const staticMessages = loadStaticMessages(supportedLocales)
 
 // 创建 i18n 实例
@@ -243,6 +246,16 @@ export async function loadTranslationsFromBackend(cultureCode: string, resourceT
     } else {
       logger.warn(`[I18n] 未找到后端翻译数据 (${cultureCode}, ${resourceType})`)
     }
+
+    // 与后端 Frontend 翻译加载同一位置触发假日主题判定（登录前/登录后统一链路）
+    if (resourceType === 'Frontend') {
+      try {
+        const { useUserStore } = await import('@/stores/identity/user')
+        await useUserStore().syncHolidayThemeFromPublicApi()
+      } catch (error) {
+        logger.warn('[I18n] 翻译加载后同步假日主题失败:', error)
+      }
+    }
   } catch (error) {
     logger.error(`[I18n] 加载后端翻译数据失败 (${cultureCode}, ${resourceType}):`, error)
   }
@@ -254,10 +267,13 @@ export async function loadTranslationsFromBackend(cultureCode: string, resourceT
  */
 export function setupI18n(app: App) {
   app.use(i18n)
-  
-  // 静态翻译已在初始化时加载完成
-  // 后端翻译数据将在用户登录并获取权限后加载
-  logger.info(`[I18n] 已加载支持的语言:`, supportedLocales)
+
+  // 此处语言码来自 import.meta.glob 扫描 locales 目录下的 **xx-YY.ts**，与 GET /api/TaktLanguages/options 无关；
+  // 下拉「启用语言」由 localeStore.loadLanguages() 拉后端后替换，见 stores/routine/localization/locale.ts。
+  logger.info(
+    '[I18n] 静态文案可用语言码（扫描 locales，非后端语言列表）:',
+    supportedLocales
+  )
 }
 
 /**

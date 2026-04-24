@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Statistics.Logging
 // 文件名称：TaktLoginLogService.cs
@@ -51,7 +51,7 @@ public class TaktLoginLogService : TaktServiceBase, ITaktLoginLogService
     /// </summary>
     /// <param name="queryDto">查询DTO</param>
     /// <returns>分页结果</returns>
-    public async Task<TaktPagedResult<TaktLoginLogDto>> GetListAsync(TaktLoginLogQueryDto queryDto)
+    public async Task<TaktPagedResult<TaktLoginLogDto>> GetLoginLogListAsync(TaktLoginLogQueryDto queryDto)
     {
         var predicate = QueryExpression(queryDto);
 
@@ -72,7 +72,7 @@ public class TaktLoginLogService : TaktServiceBase, ITaktLoginLogService
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>登录日志DTO</returns>
-    public async Task<TaktLoginLogDto?> GetByIdAsync(long id)
+    public async Task<TaktLoginLogDto?> GetLoginLogByIdAsync(long id)
     {
         var log = await _loginLogRepository.GetByIdAsync(id);
         if (log == null) return null;
@@ -85,10 +85,10 @@ public class TaktLoginLogService : TaktServiceBase, ITaktLoginLogService
     /// </summary>
     /// <param name="dto">创建登录日志DTO</param>
     /// <returns>登录日志DTO</returns>
-    public async Task<TaktLoginLogDto> CreateAsync(TaktCreateLoginLogDto dto)
+    public async Task<TaktLoginLogDto> CreateLoginLogAsync(TaktLoginLogCreateDto dto)
     {
         var log = dto.Adapt<TaktLoginLog>();
-        log.LoginTime = dto.LoginTime ?? DateTime.Now;
+        log.LoginTime = dto.LoginTime;
 
         log = await _loginLogRepository.CreateAsync(log);
         LogInformation($"创建登录日志：{log.UserName}");
@@ -103,7 +103,7 @@ public class TaktLoginLogService : TaktServiceBase, ITaktLoginLogService
     /// </summary>
     /// <param name="id">日志ID</param>
     /// <returns>任务</returns>
-    public async Task DeleteAsync(long id)
+    public async Task DeleteLoginLogByIdAsync(long id)
     {
         var log = await _loginLogRepository.GetByIdAsync(id);
         EnsureEntityExistsLocalized(log, "LoginLogNotFound");
@@ -117,7 +117,7 @@ public class TaktLoginLogService : TaktServiceBase, ITaktLoginLogService
     /// </summary>
     /// <param name="ids">日志ID列表</param>
     /// <returns>任务</returns>
-    public async Task DeleteBatchAsync(List<long> ids)
+    public async Task DeleteLoginLogBatchAsync(List<long> ids)
     {
         if (ids == null || ids.Count == 0)
         {
@@ -143,7 +143,7 @@ public class TaktLoginLogService : TaktServiceBase, ITaktLoginLogService
     /// <param name="sheetName">工作表名称</param>
     /// <param name="fileName">文件名</param>
     /// <returns>Excel文件信息（文件名和内容）</returns>
-    public async Task<(string fileName, byte[] content)> ExportAsync(TaktLoginLogQueryDto query, string? sheetName, string? fileName)
+    public async Task<(string fileName, byte[] content)> ExportLoginLogAsync(TaktLoginLogQueryDto query, string? sheetName, string? fileName)
     {
         // 构建查询条件
         var predicate = QueryExpression(query);
@@ -178,7 +178,7 @@ public class TaktLoginLogService : TaktServiceBase, ITaktLoginLogService
             dto.LoginIp = l.LoginIp ?? string.Empty;
             dto.LoginLocation = l.LoginLocation ?? string.Empty;
             dto.LoginType = l.LoginType ?? string.Empty;
-            dto.LoginStatus = GetLoginStatusString(l.LoginStatus);
+            dto.LoginStatusString = GetLoginStatusString(l.LoginStatus);
             dto.LoginMsg = LocalizeStoredFrontendMessage(l.LoginMsg);
             return dto;
         }).ToList();

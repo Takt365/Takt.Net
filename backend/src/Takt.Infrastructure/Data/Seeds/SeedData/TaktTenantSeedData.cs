@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktTenantSeedData.cs
@@ -40,37 +40,27 @@ public class TaktTenantSeedData : ITaktSeedData
         int insertCount = 0;
         int updateCount = 0;
 
-        // 定义租户数据：ConfigId 与库名一一对应 0=Identity, 1=HumanResource, 2=Routine, 3=Building, 4=Accounting, 5=Logistics
+        // 定义租户数据：只初始化系统管理租户（tenant_0），允许访问所有数据库
         var tenants = new[]
         {
-            new { ConfigId = "0", TenantCode = "tenant_0", TenantName = "Identity分库", StartTime = DateTime.Now, EndTime = new DateTime(9999, 12, 31), TenantStatus = 1, IsDeleted = 0 },
-            new { ConfigId = "1", TenantCode = "tenant_1", TenantName = "HumanResource分库", StartTime = DateTime.Now, EndTime = new DateTime(9999, 12, 31), TenantStatus = 1, IsDeleted = 0 },
-            new { ConfigId = "2", TenantCode = "tenant_2", TenantName = "Routine分库", StartTime = DateTime.Now, EndTime = new DateTime(9999, 12, 31), TenantStatus = 1, IsDeleted = 0 },
-            new { ConfigId = "3", TenantCode = "tenant_3", TenantName = "Building分库", StartTime = DateTime.Now, EndTime = new DateTime(9999, 12, 31), TenantStatus = 1, IsDeleted = 0 },
-            new { ConfigId = "4", TenantCode = "tenant_4", TenantName = "Accounting分库", StartTime = DateTime.Now, EndTime = new DateTime(9999, 12, 31), TenantStatus = 1, IsDeleted = 0 },
-            new { ConfigId = "5", TenantCode = "tenant_5", TenantName = "Logistics分库", StartTime = DateTime.Now, EndTime = new DateTime(9999, 12, 31), TenantStatus = 1, IsDeleted = 0 }
+            new { TenantCode = "tenant_0", TenantName = "系统管理", AllowedConfigIds = "[1,2,3,4,5]", SubscriptionStartTime = DateTime.Now, SubscriptionEndTime = new DateTime(9999, 12, 31), TenantStatus = 1, IsDeleted = 0 }
         };
 
-        // 根据 ConfigId 直接通过索引访问（ConfigId 与数组索引一致）
-        if (!int.TryParse(configId, out var configIdInt) || configIdInt < 0 || configIdInt >= tenants.Length)
-        {
-            return (0, 0);
-        }
+        // 只初始化系统管理租户
+        var tenant = tenants[0];
 
-        var tenant = tenants[configIdInt];
-
-        var existing = await tenantRepository.GetAsync(t => t.ConfigId == tenant.ConfigId);
+        var existing = await tenantRepository.GetAsync(t => t.TenantCode == tenant.TenantCode);
         
         if (existing == null)
         {
             // 不存在则插入
             var newTenant = new TaktTenant
             {
-                ConfigId = tenant.ConfigId,
                 TenantCode = tenant.TenantCode,
                 TenantName = tenant.TenantName,
-                StartTime = tenant.StartTime,
-                EndTime = tenant.EndTime,
+                AllowedConfigIds = tenant.AllowedConfigIds,
+                SubscriptionStartTime = tenant.SubscriptionStartTime,
+                SubscriptionEndTime = tenant.SubscriptionEndTime,
                 TenantStatus = tenant.TenantStatus,
                 IsDeleted = tenant.IsDeleted
             };
@@ -82,8 +72,9 @@ public class TaktTenantSeedData : ITaktSeedData
             // 存在则更新
             existing.TenantCode = tenant.TenantCode;
             existing.TenantName = tenant.TenantName;
-            existing.StartTime = tenant.StartTime;
-            existing.EndTime = tenant.EndTime;
+            existing.AllowedConfigIds = tenant.AllowedConfigIds;
+            existing.SubscriptionStartTime = tenant.SubscriptionStartTime;
+            existing.SubscriptionEndTime = tenant.SubscriptionEndTime;
             existing.TenantStatus = tenant.TenantStatus;
             await tenantRepository.UpdateAsync(existing);
             updateCount++;

@@ -4,33 +4,33 @@
       <template #title>
         <a-space>
           <CloudServerOutlined />
-          <span>缓存管理</span>
+          <span>{{ t('routine.tasks.cache.page.title') }}</span>
         </a-space>
       </template>
 
       <!-- 缓存配置信息 -->
       <a-descriptions
-        title="缓存配置"
+        :title="t('routine.tasks.cache.descriptions.configTitle')"
         :column="1"
         bordered
         size="small"
         style="margin-bottom: 24px"
       >
-        <a-descriptions-item label="提供者">
+        <a-descriptions-item :label="t('routine.tasks.cache.labels.provider')">
           {{ cacheInfo?.provider ?? '-' }}
         </a-descriptions-item>
-        <a-descriptions-item label="默认过期时间（分钟）">
+        <a-descriptions-item :label="t('routine.tasks.cache.labels.defaultExpirationMinutes')">
           {{ cacheInfo?.defaultExpirationMinutes ?? '-' }}
         </a-descriptions-item>
-        <a-descriptions-item label="滑动过期">
-          {{ cacheInfo?.enableSlidingExpiration ? '是' : '否' }}
+        <a-descriptions-item :label="t('routine.tasks.cache.labels.slidingExpiration')">
+          {{ cacheInfo?.enableSlidingExpiration ? t('common.button.yes') : t('common.button.no') }}
         </a-descriptions-item>
-        <a-descriptions-item label="多级缓存">
-          {{ cacheInfo?.enableMultiLevelCache ? '是' : '否' }}
+        <a-descriptions-item :label="t('routine.tasks.cache.labels.multiLevelCache')">
+          {{ cacheInfo?.enableMultiLevelCache ? t('common.button.yes') : t('common.button.no') }}
         </a-descriptions-item>
         <a-descriptions-item
           v-if="cacheInfo?.provider === 'Redis'"
-          label="Redis 实例前缀"
+          :label="t('routine.tasks.cache.labels.redisInstancePrefix')"
         >
           {{ cacheInfo?.redisInstanceName || '-' }}
         </a-descriptions-item>
@@ -38,31 +38,31 @@
 
       <!-- 缓存统计（仅 Memory 支持） -->
       <a-descriptions
-        title="缓存统计"
+        :title="t('routine.tasks.cache.descriptions.statsTitle')"
         :column="1"
         bordered
         size="small"
         style="margin-bottom: 24px"
       >
         <template v-if="!statistics?.supported || statistics?.message">
-          <a-descriptions-item label="说明">
-            {{ statistics?.message ?? '加载中…' }}
+          <a-descriptions-item :label="t('routine.tasks.cache.labels.note')">
+            {{ statistics?.message ?? t('routine.tasks.cache.labels.loadingHint') }}
           </a-descriptions-item>
         </template>
         <template v-else>
-          <a-descriptions-item label="当前缓存项数量">
+          <a-descriptions-item :label="t('routine.tasks.cache.labels.currentEntryCount')">
             {{ statistics?.currentEntryCount ?? '-' }}
           </a-descriptions-item>
-          <a-descriptions-item label="命中次数">
+          <a-descriptions-item :label="t('routine.tasks.cache.labels.totalHits')">
             {{ statistics?.totalHits ?? '-' }}
           </a-descriptions-item>
-          <a-descriptions-item label="未命中次数">
+          <a-descriptions-item :label="t('routine.tasks.cache.labels.totalMisses')">
             {{ statistics?.totalMisses ?? '-' }}
           </a-descriptions-item>
-          <a-descriptions-item label="命中率">
+          <a-descriptions-item :label="t('routine.tasks.cache.labels.hitRate')">
             {{ statistics?.hitRate != null ? (Math.round(statistics.hitRate * 10000) / 100 + '%') : '-' }}
           </a-descriptions-item>
-          <a-descriptions-item label="当前估算大小（字节）">
+          <a-descriptions-item :label="t('routine.tasks.cache.labels.estimatedSizeBytes')">
             {{ statistics?.currentEstimatedSizeBytes != null ? statistics.currentEstimatedSizeBytes : '-' }}
           </a-descriptions-item>
         </template>
@@ -71,7 +71,7 @@
       <a-divider />
 
       <!-- 按键操作 -->
-      <h4>按键操作</h4>
+      <h4>{{ t('routine.tasks.cache.labels.keyOps') }}</h4>
       <a-form
         layout="inline"
         :model="keyForm"
@@ -79,13 +79,13 @@
         @finish="handleCheckExists"
       >
         <a-form-item
-          label="缓存键"
+          :label="t('routine.tasks.cache.labels.cacheKey')"
           name="key"
-          :rules="[{ required: true, message: '请输入缓存键' }]"
+          :rules="keyFormRules"
         >
           <a-input
             v-model:value="keyForm.key"
-            placeholder="请输入缓存键"
+            :placeholder="t('routine.tasks.cache.placeholders.cacheKey')"
             style="width: 280px"
             allow-clear
           />
@@ -99,7 +99,7 @@
             <template #icon>
               <SearchOutlined />
             </template>
-            检查是否存在
+            {{ t('routine.tasks.cache.buttons.checkExists') }}
           </a-button>
           <a-button
             danger
@@ -111,7 +111,7 @@
             <template #icon>
               <DeleteOutlined />
             </template>
-            移除
+            {{ t('routine.tasks.cache.buttons.remove') }}
           </a-button>
         </a-form-item>
       </a-form>
@@ -119,7 +119,7 @@
       <a-alert
         v-if="existsResult !== null"
         :type="existsResult ? 'success' : 'warning'"
-        :message="existsResult ? '该键存在' : '该键不存在'"
+        :message="existsResult ? t('routine.tasks.cache.alerts.keyExists') : t('routine.tasks.cache.alerts.keyNotExists')"
         show-icon
         style="margin-top: 8px"
       />
@@ -128,10 +128,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { message } from 'ant-design-vue'
 import { CloudServerOutlined, SearchOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import { getCacheInfo, getCacheStatistics, existsCacheKey, removeCacheKey, type CacheInfoDto, type CacheStatisticsDto } from '@/api/routine/tasks/cache'
+import type { Rule } from 'ant-design-vue/es/form'
+
+const { t } = useI18n()
 
 const cacheInfo = ref<CacheInfoDto | null>(null)
 const statistics = ref<CacheStatisticsDto | null>(null)
@@ -141,27 +145,31 @@ const existsLoading = ref(false)
 const removeLoading = ref(false)
 const existsResult = ref<boolean | null>(null)
 
+const keyFormRules = computed<Rule[]>(() => [
+  { required: true, message: t('routine.tasks.cache.rules.cacheKeyRequired') }
+])
+
 async function loadCacheInfo() {
   infoLoading.value = true
   existsResult.value = null
   try {
     const [infoRes, statsRes] = await Promise.all([getCacheInfo(), getCacheStatistics()])
-    const infoData = (infoRes as any)?.data
+    const infoData = (infoRes as { data?: { success?: boolean; data?: CacheInfoDto } })?.data
     if (infoData?.success !== false && infoData?.data) {
       cacheInfo.value = infoData.data
     } else {
       cacheInfo.value = null
     }
-    const statsData = (statsRes as any)?.data
+    const statsData = (statsRes as { data?: { success?: boolean; data?: CacheStatisticsDto } })?.data
     if (statsData?.success !== false && statsData?.data) {
       statistics.value = statsData.data
     } else {
       statistics.value = null
     }
-  } catch (e) {
+  } catch {
     cacheInfo.value = null
     statistics.value = null
-    message.error('获取缓存信息失败')
+    message.error(t('routine.tasks.cache.messages.loadInfoFail'))
   } finally {
     infoLoading.value = false
   }
@@ -174,14 +182,14 @@ async function handleCheckExists() {
   existsResult.value = null
   try {
     const res = await existsCacheKey(key)
-    const data = (res as any)?.data
+    const data = (res as { data?: { success?: boolean; data?: { exists: boolean }; message?: string } })?.data
     if (data?.success !== false && data?.data) {
       existsResult.value = data.data.exists
     } else {
-      message.error(data?.message || '检查失败')
+      message.error(data?.message || t('routine.tasks.cache.messages.checkFail'))
     }
-  } catch (e) {
-    message.error('检查失败')
+  } catch {
+    message.error(t('routine.tasks.cache.messages.checkFail'))
   } finally {
     existsLoading.value = false
   }
@@ -194,10 +202,10 @@ async function handleRemove() {
   existsResult.value = null
   try {
     await removeCacheKey(key)
-    message.success('已移除')
+    message.success(t('routine.tasks.cache.messages.removeSuccess'))
     existsResult.value = false
-  } catch (e) {
-    message.error('移除失败')
+  } catch {
+    message.error(t('routine.tasks.cache.messages.removeFail'))
   } finally {
     removeLoading.value = false
   }

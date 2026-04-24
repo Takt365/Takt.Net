@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.WebApi.Controllers.Routine.SignalR
 // 文件名称：TaktOnlinesController.cs
@@ -17,7 +17,7 @@ using Takt.Application.Services.Routine.Tasks.SignalR;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Attributes;
 using Takt.Shared.Models;
-using Takt.WebApi.Helpers;
+using Takt.Shared.Helpers;
 
 namespace Takt.WebApi.Controllers.Routine.Tasks.SignalR;
 
@@ -61,11 +61,11 @@ public class TaktOnlinesController : TaktControllerBase
     /// <returns>分页结果</returns>
     [HttpGet("list")]
     [TaktPermission("routine:tasks:online:list", "查询在线用户列表")]
-    public async Task<ActionResult<TaktPagedResult<TaktOnlineDto>>> GetListAsync([FromQuery] TaktOnlineQueryDto queryDto)
+    public async Task<ActionResult<TaktPagedResult<TaktOnlineDto>>> GetOnlineListAsync([FromQuery] TaktOnlineQueryDto queryDto)
     {
         try
         {
-            var result = await _onlineService.GetListAsync(queryDto);
+            var result = await _onlineService.GetOnlineListAsync(queryDto);
             return Ok(result);
         }
         catch (Exception ex)
@@ -81,11 +81,11 @@ public class TaktOnlinesController : TaktControllerBase
     /// <returns>在线用户DTO</returns>
     [HttpGet("{id}")]
     [TaktPermission("routine:tasks:online:query", "查询在线用户详情")]
-    public async Task<ActionResult<TaktOnlineDto>> GetByIdAsync(long id)
+    public async Task<ActionResult<TaktOnlineDto>> GetOnlineByIdAsync(long id)
     {
         try
         {
-            var online = await _onlineService.GetByIdAsync(id);
+            var online = await _onlineService.GetOnlineByIdAsync(id);
             if (online == null)
                 return NotFound();
             return Ok(online);
@@ -103,11 +103,11 @@ public class TaktOnlinesController : TaktControllerBase
     /// <returns>在线用户DTO</returns>
     [HttpGet("connection/{connectionId}")]
     [TaktPermission("routine:tasks:online:query", "根据连接ID查询在线用户")]
-    public async Task<ActionResult<TaktOnlineDto>> GetByConnectionIdAsync(string connectionId)
+    public async Task<ActionResult<TaktOnlineDto>> GetOnlineByConnectionIdAsync(string connectionId)
     {
         try
         {
-            var online = await _onlineService.GetByConnectionIdAsync(connectionId);
+            var online = await _onlineService.GetOnlineByConnectionIdAsync(connectionId);
             if (online == null)
                 return NotFound();
             return Ok(online);
@@ -125,12 +125,12 @@ public class TaktOnlinesController : TaktControllerBase
     /// <returns>在线用户DTO</returns>
     [HttpPost]
     [TaktPermission("routine:tasks:online:create", "创建在线用户")]
-    public async Task<ActionResult<TaktOnlineDto>> CreateAsync([FromBody] TaktOnlineCreateDto dto)
+    public async Task<ActionResult<TaktOnlineDto>> CreateOnlineAsync([FromBody] TaktOnlineCreateDto dto)
     {
         try
         {
-            var online = await _onlineService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = online.OnlineId }, online);
+            var online = await _onlineService.CreateOnlineAsync(dto);
+            return CreatedAtAction(nameof(GetOnlineByIdAsync), new { id = online.OnlineId }, online);
         }
         catch (Exception ex)
         {
@@ -145,11 +145,11 @@ public class TaktOnlinesController : TaktControllerBase
     /// <returns>任务</returns>
     [HttpDelete("{id}")]
     [TaktPermission("routine:tasks:online:delete", "删除在线用户")]
-    public async Task<ActionResult> DeleteAsync(long id)
+    public async Task<ActionResult> DeleteOnlineByIdAsync(long id)
     {
         try
         {
-            await _onlineService.DeleteAsync(id);
+            await _onlineService.DeleteOnlineByIdAsync(id);
             return NoContent();
         }
         catch (Exception ex)
@@ -165,11 +165,11 @@ public class TaktOnlinesController : TaktControllerBase
     /// <returns>任务</returns>
     [HttpDelete("connection/{connectionId}")]
     [TaktPermission("routine:tasks:online:delete", "根据连接ID删除在线用户")]
-    public async Task<ActionResult> DeleteByConnectionIdAsync(string connectionId)
+    public async Task<ActionResult> DeleteOnlineByConnectionIdAsync(string connectionId)
     {
         try
         {
-            await _onlineService.DeleteByConnectionIdAsync(connectionId);
+            await _onlineService.DeleteOnlineByConnectionIdAsync(connectionId);
             return NoContent();
         }
         catch (Exception ex)
@@ -185,11 +185,11 @@ public class TaktOnlinesController : TaktControllerBase
     /// <returns>任务</returns>
     [HttpDelete("batch")]
     [TaktPermission("routine:tasks:online:delete", "批量删除在线用户")]
-    public async Task<ActionResult> DeleteBatchAsync([FromBody] List<long> ids)
+    public async Task<ActionResult> DeleteOnlineBatchAsync([FromBody] List<long> ids)
     {
         try
         {
-            await _onlineService.DeleteBatchAsync(ids);
+            await _onlineService.DeleteOnlineBatchAsync(ids);
             return NoContent();
         }
         catch (Exception ex)
@@ -205,11 +205,11 @@ public class TaktOnlinesController : TaktControllerBase
     /// <returns>任务</returns>
     [HttpPut("active/{connectionId}")]
     [TaktPermission("routine:tasks:online:update", "更新最后活动时间")]
-    public async Task<ActionResult> UpdateLastActiveTimeAsync(string connectionId)
+    public async Task<ActionResult> UpdateOnlineLastActiveTimeAsync(string connectionId)
     {
         try
         {
-            await _onlineService.UpdateLastActiveTimeAsync(connectionId);
+            await _onlineService.UpdateOnlineLastActiveTimeAsync(connectionId);
             return NoContent();
         }
         catch (Exception ex)
@@ -227,15 +227,15 @@ public class TaktOnlinesController : TaktControllerBase
     /// <returns>Excel 文件；超过 <c>TaktExcelHelper.ExportAsync</c> 单表行数上限时为 zip 打包（基础设施统一逻辑）</returns>
     [HttpGet("export")]
     [TaktPermission("routine:tasks:online:export", "导出在线用户")]
-    public async Task<ActionResult> ExportAsync(
+    public async Task<ActionResult> ExportOnlineAsync(
         [FromQuery] TaktOnlineQueryDto queryDto,
         [FromQuery] string? sheetName = null,
         [FromQuery] string? fileName = null)
     {
         try
         {
-            var (exportFileName, content) = await _onlineService.ExportAsync(queryDto, sheetName, fileName);
-            return File(content, TaktExcelExportFileHelper.GetExportContentType(exportFileName), exportFileName);
+            var (exportFileName, content) = await _onlineService.ExportOnlineAsync(queryDto, sheetName, fileName);
+            return File(content, TaktExcelHelper.GetExportContentType(exportFileName), exportFileName);
         }
         catch (Exception ex)
         {

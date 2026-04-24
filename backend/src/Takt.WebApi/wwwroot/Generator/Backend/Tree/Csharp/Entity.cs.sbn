@@ -1,0 +1,33 @@
+// ========================================
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：{{ table.entity_namespace }}
+// 文件名称：{{ table.entity_class_name }}.cs
+// 创建时间：2025-02-02
+// 创建人：{{ table.gen_author }}
+// 功能描述：{{ table.comment }}实体
+//
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+using SqlSugar;
+using Takt.Domain.Entities;
+
+namespace {{ table.entity_namespace }};
+
+/// <summary>
+/// {{ table.comment }}实体
+/// </summary>
+[SugarTable("{{ table.table_name }}", "{{ table.comment }}")]
+public class {{ table.entity_class_name }} : TaktEntityBase
+{
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" ~}}
+    /// <summary>
+    /// {{ col.comment }}
+    /// </summary>
+    [SugarColumn(ColumnName = "{{ col.database_column_name }}", ColumnDescription = "{{ col.comment }}", ColumnDataType = "{{ col.database_data_type }}", Length = {{ col.length }}{{ if col.csharp_data_type | string.downcase == "decimal" }}, DecimalDigits = {{ col.decimal_digits }}{{ end }}, IsNullable = {{ if col.csharp_data_type | string.downcase == "bool" }}false{{ else }}{{ col.is_required == 0 }}{{ end }}{{ if col.is_pk == 1 }}, IsPrimaryKey = true{{ end }}{{ if col.is_increment == 1 }}, IsIdentity = true{{ end }}{{ if col.csharp_data_type | string.downcase == "bool" }}, DefaultValue = "0"{{ end }})]
+    public {{ col.csharp_data_type }}{{ if col.csharp_data_type | string.downcase != "bool" && col.is_required == 0 }}?{{ end }} {{ col.csharp_column_name }} { get; set; }{{ if col.csharp_data_type | string.downcase == "bool" }} = false;{{ end }}
+{{~ end ~}}
+{{~ end ~}}
+}

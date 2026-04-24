@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Routine.Files
 // 文件名称：TaktFileService.cs
@@ -360,7 +360,7 @@ public class TaktFileService : TaktServiceBase, ITaktFileService
     /// </summary>
     /// <param name="dto">文件切换DTO</param>
     /// <returns>文件DTO</returns>
-    public async Task<TaktFileDto> ChangeIsPublicAsync(TaktFileChangeDto dto)
+    public async Task<TaktFileDto> ChangeIsPublicAsync(TaktFilePublicChangeDto dto)
     {
         var file = await _fileRepository.GetByIdAsync(dto.FileId);
         if (file == null)
@@ -524,10 +524,10 @@ public class TaktFileService : TaktServiceBase, ITaktFileService
         {
             var dto = f.Adapt<TaktFileExportDto>();
             // 处理需要特殊转换的字段
-            dto.FileCategory = GetFileCategoryString(f.FileCategory);
-            dto.StorageType = GetStorageTypeString(f.StorageType);
-            dto.FileStatus = GetFileStatusString(f.FileStatus);
-            dto.IsPublic = GetIsPublicString(f.IsPublic);
+            dto.FileCategoryString = GetFileCategoryString(f.FileCategory);
+            dto.StorageTypeString = GetStorageTypeString(f.StorageType);
+            dto.FileStatusString = GetFileStatusString(f.FileStatus);
+            dto.IsPublicString = GetIsPublicString(f.IsPublic);
             return dto;
         }).ToList();
 

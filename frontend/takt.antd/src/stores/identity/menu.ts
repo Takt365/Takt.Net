@@ -10,16 +10,24 @@ type MenuNode = MenuTree & {
   transKey?: string
   orderNum?: number
 }
+type I18nT = (key: string, values?: object, options?: { locale?: string }) => string
+type MenuItemEntry = NonNullable<MenuProps['items']>[number]
 type MenuItemNode = {
   key: string
   title: string
   label: string
   titleKey?: string
-  icon?: () => VNode | null
-  children?: MenuItemNode[]
+  icon?: (item: { key: string }) => VNode
+  children?: MenuItemEntry[]
 }
 type I18nReactiveValue = { value: unknown }
 const toMenuNode = (menu: MenuTree): MenuNode => menu as MenuNode
+const toPathString = (value: unknown): string =>
+  typeof value === 'string' ? value : ''
+const toStringOrEmpty = (value: unknown): string =>
+  typeof value === 'string' ? value : ''
+const toOptionalString = (value: unknown): string | undefined =>
+  typeof value === 'string' && value.length > 0 ? value : undefined
 
 export const useMenuStore = defineStore('menu', () => {
   const routes = ref<RouteRecordRaw[]>([])
@@ -113,7 +121,10 @@ export const useMenuStore = defineStore('menu', () => {
       // 获取用户信息中的权限（如果有）
       const { useUserStore } = await import('./user')
       const userStore = useUserStore()
-      const userPermissions = userStore.userInfo?.permissions || []
+      const rawUserPermissions = userStore.userInfo?.permissions
+      const userPermissions = Array.isArray(rawUserPermissions)
+        ? rawUserPermissions.filter((item): item is string => typeof item === 'string')
+        : []
       permissionStore.setPermissions(extractedPermissions, userPermissions)
 
       // 将菜单树转换为 Vue Router 路由
@@ -186,18 +197,21 @@ export const useMenuStore = defineStore('menu', () => {
   // 辅助函数：从菜单对象提取字段（后端已统一转换为 camelCase）
   const extractMenuFields = (menu: MenuTree) => {
     const node = toMenuNode(menu)
+    const menuCode = toStringOrEmpty(node.menuCode) || toStringOrEmpty(node.extLabel)
+    const menuName = toStringOrEmpty(node.menuName) || toStringOrEmpty(node.dictLabel)
+    const menuL10nKey = toOptionalString(node.menuL10nKey) ?? toOptionalString(node.transKey)
     return {
       menuId: node.menuId || node.dictValue,
-      menuName: node.menuName || node.dictLabel || '',
-      menuCode: node.menuCode || node.extLabel || '',
-      menuL10nKey: node.menuL10nKey || node.transKey,
-      menuIcon: node.menuIcon,
-      path: node.path || node.extValue || '',
-      component: node.component,
+      menuName,
+      menuCode,
+      menuL10nKey,
+      menuIcon: toOptionalString(node.menuIcon),
+      path: toPathString(node.path) || toPathString(node.extValue),
+      component: toStringOrEmpty(node.component),
       menuType: node.menuType ?? 0,
       menuStatus: node.menuStatus ?? 1,
       isVisible: node.isVisible ?? 1,
-      permission: node.permission,
+      permission: toOptionalString(node.permission),
       children: node.children
     }
   }
@@ -302,6 +316,7 @@ export const useMenuStore = defineStore('menu', () => {
         if (childRoutes.length > 0) {
           const normalizedChildRoutes = normalizeChildRoutes(childRoutes, absolutePath)
           const routePath = convertToRelativePath(absolutePath, parentPath)
+          const [firstChild] = normalizedChildRoutes
           
           const route: RouteRecordRaw = {
             path: routePath,
@@ -309,7 +324,7 @@ export const useMenuStore = defineStore('menu', () => {
             component: () => import('@/layouts/router-view.vue'),
             meta: createRouteMeta(menuL10nKey, menuName, menuIcon, permission, menuType),
             children: normalizedChildRoutes,
-            redirect: normalizedChildRoutes.length > 0 ? normalizedChildRoutes[0].path : undefined
+            ...(firstChild?.path ? { redirect: firstChild.path } : {})
           }
           // if (import.meta.env.DEV) {
           //   logger.debug(`[Menu Processing] 创建目录路由: ${routePath}, 子路由数量: ${normalizedChildRoutes.length}, 原始path: ${absolutePath}`)
@@ -341,6 +356,7 @@ export const useMenuStore = defineStore('menu', () => {
         if (childRoutes.length > 0) {
           const normalizedChildRoutes = normalizeChildRoutes(childRoutes, routePath)
           const finalPath = convertToRelativePath(routePath, parentPath)
+          const [firstChild] = normalizedChildRoutes
           
           const route: RouteRecordRaw = {
             path: finalPath,
@@ -348,7 +364,7 @@ export const useMenuStore = defineStore('menu', () => {
             component: () => import('@/layouts/router-view.vue'),
             meta: createRouteMeta(menuL10nKey, menuName, menuIcon, permission, menuType),
             children: normalizedChildRoutes,
-            redirect: normalizedChildRoutes[0].path
+            ...(firstChild?.path ? { redirect: firstChild.path } : {})
           }
           // if (import.meta.env.DEV) {
           //   logger.debug(`[Menu Processing] 创建菜单父路由: ${finalPath}, 子路由数量: ${normalizedChildRoutes.length}, 原始path: ${routePath}`)
@@ -438,10 +454,11 @@ export const useMenuStore = defineStore('menu', () => {
   // 菜单翻译来自后端 TaktTranslation，切换语言时 loadTranslationsFromBackend 会合并到 i18n.messages，故直接用 t() 即可，不依赖 locales/identity/menu 是否含当前语言
   const getTranslatedLabelForMenu = (menu: MenuTree): string => {
     const node = toMenuNode(menu)
-    const menuName = node.menuName || node.dictLabel || ''
-    const menuL10nKey = node.menuL10nKey || node.transKey
+    const menuName = toStringOrEmpty(node.menuName) || toStringOrEmpty(node.dictLabel)
+    const menuL10nKey = toOptionalString(node.menuL10nKey) ?? toOptionalString(node.transKey)
     if (!menuL10nKey) return menuName
-    const translated = String(i18n.global.t(menuL10nKey))
+    const t = i18n.global.t as I18nT
+    const translated = String(t(menuL10nKey))
     if (translated && translated !== menuL10nKey) return translated
     return menuName
   }
@@ -458,12 +475,13 @@ export const useMenuStore = defineStore('menu', () => {
         const isVisible = node.isVisible ?? 1
         if (menuType !== 2 && menuStatus === 1 && isVisible === 1) {
           if (menuType === 1) {
-            const path = node.path || node.extValue || ''
+            const path = toPathString(node.path) || toPathString(node.extValue)
             if (path) {
+              const iconName = toOptionalString(node.menuIcon)
               result.push({
                 path: path.startsWith('/') ? path : `/${path}`,
                 title: getTranslatedLabelForMenu(node),
-                iconName: node.menuIcon
+                ...(iconName ? { iconName } : {})
               })
             }
           }
@@ -499,7 +517,7 @@ export const useMenuStore = defineStore('menu', () => {
   // 获取图标渲染函数
   // 注意：Ant Design Vue 的菜单组件在使用 :items 时，icon 应该是渲染函数
   // 渲染函数会在菜单组件的上下文中执行，确保可以正确获取菜单上下文和 props
-  const getIconRenderer = (iconName: string | undefined): (() => VNode | null) | undefined => {
+  const getIconRenderer = (iconName: string | undefined): ((item: { key: string }) => VNode) | undefined => {
     if (!iconName) {
       return undefined
     }
@@ -514,8 +532,8 @@ export const useMenuStore = defineStore('menu', () => {
         // 使用 h() 函数渲染图标组件，确保 props 正确传递
         return h(IconComponent)
       }
-      // 如果图标还没加载完成，返回 null
-      return null
+      // 如果图标还没加载完成，返回空占位 VNode
+      return h('span')
     }
   }
 
@@ -534,21 +552,21 @@ export const useMenuStore = defineStore('menu', () => {
         const menuType = node.menuType ?? 0
         return menuType !== 2 && menuStatus === 1 && isVisible === 1
       })
-      .map((menu) => {
+      .map((menu): MenuItemEntry => {
         const node = toMenuNode(menu)
         // 提取菜单字段（后端已统一转换为 camelCase）
-        const menuL10nKey = node.menuL10nKey || node.transKey
-        const menuIcon = node.menuIcon
-        const path = node.path || node.extValue || ''
+        const menuL10nKey = toOptionalString(node.menuL10nKey) ?? toOptionalString(node.transKey)
+        const menuIcon = toOptionalString(node.menuIcon)
+        const path = toPathString(node.path) || toPathString(node.extValue)
         const children = node.children
         const translatedLabel = getTranslatedLabelForMenu(node)
 
         const item: MenuItemNode = {
           key: path,
           title: translatedLabel,
-          label: translatedLabel,
-          titleKey: menuL10nKey
+          label: translatedLabel
         }
+        if (menuL10nKey) item.titleKey = menuL10nKey
 
         // 图标处理：使用渲染函数
         // 注意：Ant Design Vue 的菜单组件在使用 :items 时，icon 应该是渲染函数
@@ -564,11 +582,11 @@ export const useMenuStore = defineStore('menu', () => {
           const childItems = formatMenuItems(children)
           // 只有当子菜单项不为空时才设置 children
           if (childItems && childItems.length > 0) {
-            item.children = childItems
+            item.children = childItems.filter((child): child is MenuItemEntry => child != null)
           }
         }
 
-        return item
+        return item as unknown as MenuItemEntry
       })
   }
 

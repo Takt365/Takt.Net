@@ -1,4 +1,4 @@
-// ========================================
+﻿// ========================================
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：TaktShiftScheduleService.cs
@@ -312,8 +312,8 @@ public class TaktShiftScheduleService : TaktServiceBase, ITaktShiftScheduleServi
         exp = exp.AndIF(q?.DeptId != null, x => x.DeptId == q!.DeptId!.Value);
         exp = exp.AndIF(q?.EmployeeId != null, x => x.EmployeeId == q!.EmployeeId!.Value);
         exp = exp.AndIF(q?.ShiftId != null, x => x.ShiftId == q!.ShiftId!.Value);
-        exp = exp.AndIF(q?.ScheduleDateFrom != null, x => x.ScheduleDate >= q!.ScheduleDateFrom!.Value.Date);
-        exp = exp.AndIF(q?.ScheduleDateTo != null, x => x.ScheduleDate <= q!.ScheduleDateTo!.Value.Date);
+        exp = exp.AndIF(q?.ScheduleDateStart != null, x => x.ScheduleDate >= q!.ScheduleDateStart!.Value.Date);
+        exp = exp.AndIF(q?.ScheduleDateEnd != null, x => x.ScheduleDate <= q!.ScheduleDateEnd!.Value.Date);
         if (!string.IsNullOrEmpty(q?.KeyWords))
             exp = exp.And(x => x.Remark != null && x.Remark.Contains(q!.KeyWords!));
         return exp.ToExpression();
@@ -341,4 +341,26 @@ public class TaktShiftScheduleService : TaktServiceBase, ITaktShiftScheduleServi
     {
         return $"{scheduleType}:{deptId?.ToString() ?? "-"}:{employeeId?.ToString() ?? "-"}:{date:yyyy-MM-dd}";
     }
+
+    #region 统计分析
+
+    /// <summary>
+    /// 根据排班类别统计人员总数
+    /// </summary>
+    public async Task<Dictionary<int, int>> GetEmployeeCountByScheduleTypeAsync()
+    {
+        var schedules = await _repository.FindAsync(s => s.IsDeleted == 0);
+        
+        // ScheduleType=0（部门排班）统计 DeptId，ScheduleType=1（人员排班）统计 EmployeeId
+        return schedules
+            .GroupBy(s => s.ScheduleType)
+            .ToDictionary(
+                g => g.Key, 
+                g => g.Key == 0 
+                    ? g.Where(s => s.DeptId.HasValue).Select(s => s.DeptId!.Value).Distinct().Count()
+                    : g.Where(s => s.EmployeeId.HasValue).Select(s => s.EmployeeId!.Value).Distinct().Count()
+            );
+    }
+
+    #endregion
 }
