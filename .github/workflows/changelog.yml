@@ -49,12 +49,27 @@ jobs:
         run: |
           find . -name "CHANGELOG.md" -not -path "./CHANGELOG.md" -delete
 
-      - name: Commit changelog
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          file_pattern: CHANGELOG.md
-          branch: changelog
-          commit_message: "chore(changelog): 同步 CHANGELOG [skip ci]"
-          commit_user_name: github-actions[bot]
-          commit_user_email: github-actions[bot]@users.noreply.github.com
-          create_branch: true
+      - name: Commit changelog to isolated branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 备份 CHANGELOG.md
+          cp CHANGELOG.md /tmp/CHANGELOG_BACKUP.md
+          
+          # 创建孤立分支（无历史）
+          git checkout --orphan changelog
+          
+          # 清空所有文件
+          git rm -rf . 2>/dev/null || true
+          rm -rf *
+          
+          # 恢复 CHANGELOG.md
+          mv /tmp/CHANGELOG_BACKUP.md CHANGELOG.md
+          
+          # 提交
+          git add CHANGELOG.md
+          git commit -m "chore(changelog): 同步 CHANGELOG [skip ci]"
+          
+          # 强制推送
+          git push origin changelog --force
