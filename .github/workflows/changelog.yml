@@ -45,6 +45,10 @@ jobs:
           GITHUB_REPO: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Remove any CHANGELOG.md in subdirectories
+        run: |
+          find . -name "CHANGELOG.md" -not -path "./CHANGELOG.md" -delete
+
       - name: Commit changelog
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
