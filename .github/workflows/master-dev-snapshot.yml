@@ -35,6 +35,19 @@ jobs:
           BEFORE_SHA: ${{ github.event.before }}
         run: |
           set -euo pipefail
+          
+          # 首次推送（强制推送后），BEFORE_SHA 可能是全零或不存在
+          if [[ "${BEFORE_SHA}" == "0000000000000000000000000000000000000000" ]]; then
+            echo "Initial push, no previous commit to snapshot"
+            exit 0
+          fi
+          
+          # 检查 BEFORE_SHA 是否存在
+          if ! git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+            echo "Previous commit ${BEFORE_SHA} not found (force push detected), skipping snapshot"
+            exit 0
+          fi
+          
           TS="$(date -u +%Y%m%d%H%M%S)"
           BRANCH="dev_${TS}"
           echo "Snapshot previous master ${BEFORE_SHA} -> origin/${BRANCH}"
