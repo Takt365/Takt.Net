@@ -52,3 +52,4 @@ jobs:
           commit_message: "chore(changelog): 同步 CHANGELOG [skip ci]"
           commit_user_name: github-actions[bot]
           commit_user_email: github-actions[bot]@users.noreply.github.com
+          commit_options: '-f'  # 强制提交被 .gitignore 排除的文件
