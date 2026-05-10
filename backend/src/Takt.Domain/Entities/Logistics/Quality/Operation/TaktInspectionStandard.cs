@@ -19,6 +19,7 @@ namespace Takt.Domain.Entities.Logistics.Quality.Operation;
 [SugarTable("takt_logistics_quality_inspection_standard", "检验标准表")]
 [SugarIndex("ix_takt_logistics_quality_inspection_standard_plant_code", nameof(PlantCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_inspection_standard_standard_code", nameof(StandardCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_quality_inspection_standard_is_unique", nameof(PlantCode), OrderByType.Asc, nameof(StandardCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_quality_inspection_standard_inspection_type", nameof(InspectionType), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_inspection_standard_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_inspection_standard_is_deleted", nameof(IsDeleted), OrderByType.Asc)]

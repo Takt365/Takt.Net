@@ -19,6 +19,7 @@ namespace Takt.Domain.Entities.HumanResource.Organization;
 /// </summary>
 [SugarTable("takt_humanresource_organization_dept", "部门信息表")]
 [SugarIndex("ix_takt_humanresource_organization_dept_DeptCode", nameof(DeptCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_humanresource_organization_dept_DeptName", nameof(DeptName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_humanresource_organization_dept_ParentId", nameof(ParentId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_organization_dept_DeptHeadId", nameof(DeptHeadId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_organization_dept_cost_center_code", nameof(CostCenterCode), OrderByType.Asc)]

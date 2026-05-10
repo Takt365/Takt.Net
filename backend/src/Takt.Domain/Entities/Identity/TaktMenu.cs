@@ -20,6 +20,7 @@ namespace Takt.Domain.Entities.Identity;
 /// </summary>
 [SugarTable("takt_identity_menu", "菜单信息表")]
 [SugarIndex("ix_takt_identity_menu_menu_code", nameof(MenuCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_identity_menu_mn_unique", nameof(MenuCode), OrderByType.Asc, nameof(MenuName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_identity_menu_parent_id", nameof(ParentId), OrderByType.Asc)]
 [SugarIndex("ix_takt_identity_menu_type", nameof(MenuType), OrderByType.Asc)]
 [SugarIndex("ix_takt_identity_menu_config_id", nameof(ConfigId), OrderByType.Asc)]

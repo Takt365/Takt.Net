@@ -58,7 +58,8 @@ public static class TaktInitializeCollectionExtensions
         // 3. 判断租户启用状态并输出配置状态
         var tenantSection = configuration.GetSection("Tenant");
         var useTenant = tenantSection.GetValue<bool>("Enabled", false);
-        var defaultConfigId = tenantSection["DefaultConfigId"] ?? "0";
+        var defaultConfigIdList = tenantSection.GetSection("DefaultConfigIds").Get<List<string>>() ?? new List<string> { "0" };
+        var defaultConfigId = string.Join(",", defaultConfigIdList);
         if (!useTenant)
         {
             logger.LogInformation("多租户功能已禁用，使用主库配置 ConfigId: {DefaultConfigId}", defaultConfigId);
@@ -106,10 +107,10 @@ public static class TaktInitializeCollectionExtensions
                     }
                 }
 
-                // 如果没有配置，至少初始化主库
+                // 如果没有配置，至少初始化所有共享库
                 if (configIds.Count == 0)
                 {
-                    configIds.Add(defaultConfigId);
+                    configIds.AddRange(defaultConfigIdList);
                 }
 
                 // 初始化顺序与 ConfigId 一致：0=Identity, 1=HumanResource, 2=Routine, 3=Building, 4=Accounting, 5=Logistics
@@ -125,9 +126,9 @@ public static class TaktInitializeCollectionExtensions
             }
             else
             {
-                // 如果没有配置，只初始化默认数据库
-                configIds.Add(defaultConfigId);
-                logger.LogWarning("未找到 dbConfigs 配置，仅初始化默认数据库 ConfigId: {DefaultConfigId}", defaultConfigId);
+                // 如果没有配置，初始化所有共享库
+                configIds.AddRange(defaultConfigIdList);
+                logger.LogWarning("未找到 dbConfigs 配置，初始化共享库 ConfigIds: [{DefaultConfigId}]", defaultConfigId);
             }
 
             if (useTenant)

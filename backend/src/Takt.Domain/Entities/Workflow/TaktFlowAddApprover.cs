@@ -24,6 +24,7 @@ namespace Takt.Domain.Entities.Workflow;
 [SugarIndex("ix_takt_workflow_add_approver_instance_id", nameof(InstanceId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_add_approver_activity_id", nameof(ActivityId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_add_approver_approver_id", nameof(ApproverUserId), OrderByType.Asc)]
+[SugarIndex("ix_takt_workflow_add_approver_aa_unique", nameof(InstanceId), OrderByType.Asc, nameof(ActivityId), OrderByType.Asc, nameof(ApproverUserId), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_workflow_add_approver_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_add_approver_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktFlowAddApprover : TaktEntityBase

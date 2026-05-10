@@ -397,9 +397,9 @@ public class TaktRbacSeedData : ITaktSeedData
             }
         }
 
-        // 用户-租户：admin/guest 关联默认租户 tenant_0
+        // 用户-租户：admin/guest 关联开发租户（develop）
         var defaultTenant = await db.Queryable<TaktTenant>()
-            .Where(t => t.ConfigId == "0" && t.TenantCode == "tenant_0")
+            .Where(t => t.ConfigId == "0" && t.TenantCode == "develop")
             .FirstAsync();
         if (defaultTenant != null)
         {

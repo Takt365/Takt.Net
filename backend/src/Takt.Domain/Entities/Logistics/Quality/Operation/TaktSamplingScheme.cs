@@ -21,6 +21,7 @@ namespace Takt.Domain.Entities.Logistics.Quality.Operation;
 [SugarTable("takt_logistics_quality_sampling_scheme", "抽样方案表")]
 [SugarIndex("ix_takt_logistics_quality_sampling_scheme_plant_code", nameof(PlantCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_sampling_scheme_scheme_code", nameof(SchemeCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_quality_sampling_scheme_ss_unique", nameof(PlantCode), OrderByType.Asc, nameof(SchemeCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_quality_sampling_scheme_scheme_type", nameof(SchemeType), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_sampling_scheme_inspection_level", nameof(InspectionLevel), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_sampling_scheme_config_id", nameof(ConfigId), OrderByType.Asc)]

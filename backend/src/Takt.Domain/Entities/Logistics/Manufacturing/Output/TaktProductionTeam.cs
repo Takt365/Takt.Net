@@ -22,8 +22,8 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.Output;
 /// </summary>
 [SugarTable("takt_logistics_manufacturing_output_production_team", "生产班组表")]
 [SugarIndex("ix_takt_logistics_manufacturing_output_production_team_plant_code", nameof(PlantCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_manufacturing_output_production_team_team_code", nameof(TeamCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_manufacturing_output_production_team_team_name", nameof(TeamName), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_manufacturing_output_production_team_team_code", nameof(TeamCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_manufacturing_output_production_team_team_unique", nameof(PlantCode), OrderByType.Asc, nameof(TeamCode), OrderByType.Asc, nameof(TeamName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_production_team_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_production_team_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktProductionTeam : TaktEntityBase

@@ -20,6 +20,7 @@ namespace Takt.Domain.Entities.Code.Generator;
 /// </summary>
 [SugarTable("takt_generator_table", "代码生成表配置表")]
 [SugarIndex("ix_takt_generator_table_table_name", nameof(TableName), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_generator_table_gt_unique", nameof(DataSource), OrderByType.Asc, nameof(TableName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_generator_table_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_generator_table_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktGenTable : TaktEntityBase

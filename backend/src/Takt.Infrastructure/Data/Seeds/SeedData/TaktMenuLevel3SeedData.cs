@@ -757,10 +757,10 @@ public class TaktMenuLevel3SeedData
         // ========== 生产管理下的三级菜单（6.后勤-生产）==========
         if (productionMenu != null)
         {
-            // BOM
+            // BOM管理
             var (insert1, update1) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_BOM", menu =>
             {
-                menu.MenuName = "BOM";
+                menu.MenuName = "BOM管理";
                 menu.MenuCode = "MANUFACTURING_BOM";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.bom._self";
                 menu.MenuIcon = "RiFileListLine";
@@ -838,10 +838,10 @@ public class TaktMenuLevel3SeedData
             insertCount += insert4;
             updateCount += update4;
 
-            // OUTPUT
+            // 产出管理
             var (insert5, update5) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_OUTPUT", menu =>
             {
-                menu.MenuName = "OUTPUT";
+                menu.MenuName = "产出管理";
                 menu.MenuCode = "MANUFACTURING_OUTPUT";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.output._self";
                 menu.MenuIcon = "RiBarChartLine";
@@ -1270,10 +1270,10 @@ public class TaktMenuLevel3SeedData
             insertCount += insertOfferApproval;
             updateCount += updateOfferApproval;
 
-            // Offer 发放
+            // 录用通知
             var (insertOfferIssue, updateOfferIssue) = await CreateOrUpdateMenuAsync(menuRepository, "HR_TALENT_OFFER_ISSUE", menu =>
             {
-                menu.MenuName = "Offer发放";
+                menu.MenuName = "录用通知";
                 menu.MenuCode = "HR_TALENT_OFFER_ISSUE";
                 menu.MenuL10nKey = "menu.humanresource.talent.offerissue";
                 menu.MenuIcon = "RiSendPlaneLine";
@@ -1815,7 +1815,7 @@ public class TaktMenuLevel3SeedData
 
             var (insertAopLog, updateAopLog) = await CreateOrUpdateMenuAsync(menuRepository, "LOGGING_AOP_LOG", menu =>
             {
-                menu.MenuName = "AOP日志";
+                menu.MenuName = "拦截日志";
                 menu.MenuCode = "LOGGING_AOP_LOG";
                 menu.MenuL10nKey = "menu.statistics.logging.aoplog";
                 menu.MenuIcon = "RiTerminalBoxLine";
@@ -1878,10 +1878,10 @@ public class TaktMenuLevel3SeedData
         // ========== 统计报表下的三级菜单（10.统计-报表）==========
         if (statisticsReportMenu != null)
         {
-            // 后勤
+            // 后勤报表
             var (insert12, update12) = await CreateOrUpdateMenuAsync(menuRepository, "STATISTICS_REPORT_LOGISTICS", menu =>
             {
-                menu.MenuName = "后勤";
+                menu.MenuName = "后勤报表";
                 menu.MenuCode = "STATISTICS_REPORT_LOGISTICS";
                 menu.MenuL10nKey = "menu.statistics.report.logistics";
                 menu.MenuIcon = "RiStackLine";
@@ -1899,10 +1899,10 @@ public class TaktMenuLevel3SeedData
             insertCount += insert12;
             updateCount += update12;
 
-            // 财务
+            // 财务报表
             var (insert13, update13) = await CreateOrUpdateMenuAsync(menuRepository, "STATISTICS_REPORT_FINANCIAL", menu =>
             {
-                menu.MenuName = "财务";
+                menu.MenuName = "财务报表";
                 menu.MenuCode = "STATISTICS_REPORT_FINANCIAL";
                 menu.MenuL10nKey = "menu.statistics.report.financial";
                 menu.MenuIcon = "RiPieChartLine";
@@ -1920,10 +1920,10 @@ public class TaktMenuLevel3SeedData
             insertCount += insert13;
             updateCount += update13;
 
-            // 人力资源
+            // 人力报表
             var (insert14, update14) = await CreateOrUpdateMenuAsync(menuRepository, "STATISTICS_REPORT_HR", menu =>
             {
-                menu.MenuName = "人力资源";
+                menu.MenuName = "人力报表";
                 menu.MenuCode = "STATISTICS_REPORT_HR";
                 menu.MenuL10nKey = "menu.statistics.report.humanresource";
                 menu.MenuIcon = "RiGroup3Line";
@@ -1945,10 +1945,10 @@ public class TaktMenuLevel3SeedData
         // ========== 看板管理下的三级菜单（10.统计-Kanban）==========
         if (statisticsBoardMenu != null)
         {
-            // 后勤
+            // 后勤看板
             var (insert15, update15) = await CreateOrUpdateMenuAsync(menuRepository, "STATISTICS_KANBAN_LOGISTICS", menu =>
             {
-                menu.MenuName = "后勤";
+                menu.MenuName = "后勤看板";
                 menu.MenuCode = "STATISTICS_KANBAN_LOGISTICS";
                 menu.MenuL10nKey = "menu.statistics.kanban.logistics";
                 menu.MenuIcon = "RiDashboard3Line";
@@ -1966,10 +1966,10 @@ public class TaktMenuLevel3SeedData
             insertCount += insert15;
             updateCount += update15;
 
-            // 财务
+            // 财务看板
             var (insert16, update16) = await CreateOrUpdateMenuAsync(menuRepository, "STATISTICS_KANBAN_FINANCIAL", menu =>
             {
-                menu.MenuName = "财务";
+                menu.MenuName = "财务看板";
                 menu.MenuCode = "STATISTICS_KANBAN_FINANCIAL";
                 menu.MenuL10nKey = "menu.statistics.kanban.financial";
                 menu.MenuIcon = "RiPieChart2Line";
@@ -1987,10 +1987,10 @@ public class TaktMenuLevel3SeedData
             insertCount += insert16;
             updateCount += update16;
 
-            // 人力资源
+            // 人力看板
             var (insert17, update17) = await CreateOrUpdateMenuAsync(menuRepository, "STATISTICS_KANBAN_HR", menu =>
             {
-                menu.MenuName = "人力资源";
+                menu.MenuName = "人力看板";
                 menu.MenuCode = "STATISTICS_KANBAN_HR";
                 menu.MenuL10nKey = "menu.statistics.kanban.humanresource";
                 menu.MenuIcon = "RiUserSharedLine";

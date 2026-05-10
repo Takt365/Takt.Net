@@ -25,7 +25,7 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.Output;
 [SugarIndex("ix_takt_logistics_manufacturing_output_personnel_operation_rate_production_line", nameof(ProductionLine), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_personnel_operation_rate_time_category", nameof(TimeCategory), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_personnel_operation_rate_start_date", nameof(StartDate), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_manufacturing_output_personnel_operation_rate_end_date", nameof(EndDate), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_manufacturing_output_personnel_operation_rate_por_unique", nameof(PlantCode), OrderByType.Asc, nameof(ProductionLine), OrderByType.Asc, nameof(TimeCategory), OrderByType.Asc, nameof(StartDate), OrderByType.Asc, nameof(ShiftNo), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_personnel_operation_rate_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_personnel_operation_rate_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktPersonnelOperationRate : TaktEntityBase

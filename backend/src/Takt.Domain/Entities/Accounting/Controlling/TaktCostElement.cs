@@ -20,6 +20,7 @@ namespace Takt.Domain.Entities.Accounting.Controlling;
 /// </summary>
 [SugarTable("takt_accounting_controlling_cost_element", "成本要素表")]
 [SugarIndex("ix_takt_accounting_controlling_cost_element_cost_element_code", nameof(CostElementCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_accounting_controlling_cost_element_ce_unique", nameof(CompanyCode), OrderByType.Asc, nameof(CostElementCode), OrderByType.Asc, nameof(CostElementName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_controlling_cost_element_parent_id", nameof(ParentId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_controlling_cost_element_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_controlling_cost_element_is_deleted", nameof(IsDeleted), OrderByType.Asc)]

@@ -24,6 +24,7 @@ namespace Takt.Domain.Entities.Logistics.Quality.Cost;
 [SugarIndex("ix_takt_logistics_quality_scrap_plant_code", nameof(PlantCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_scrap_scrap_date", nameof(ScrapDate), OrderByType.Desc)]
 [SugarIndex("ix_takt_logistics_quality_scrap_model", nameof(Model), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_quality_scrap_qs_unique", nameof(PlantCode), OrderByType.Asc, nameof(ScrapDate), OrderByType.Asc, nameof(Model), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_quality_scrap_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_scrap_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktQualityScrap : TaktEntityBase

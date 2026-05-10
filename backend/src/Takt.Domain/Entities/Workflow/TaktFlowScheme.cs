@@ -43,6 +43,7 @@ namespace Takt.Domain.Entities.Workflow;
 /// </remarks>
 [SugarTable("takt_workflow_scheme", "流程方案表")]
 [SugarIndex("ix_takt_workflow_scheme_scheme_key", nameof(SchemeKey), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_workflow_scheme_fs_unique", nameof(SchemeKey), OrderByType.Asc, nameof(SchemeVersion), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_workflow_scheme_scheme_category", nameof(SchemeCategory), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_scheme_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_workflow_scheme_is_deleted", nameof(IsDeleted), OrderByType.Asc)]

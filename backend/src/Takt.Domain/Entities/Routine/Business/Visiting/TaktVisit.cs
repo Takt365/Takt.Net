@@ -22,6 +22,7 @@ namespace Takt.Domain.Entities.Routine.Business.Visiting;
 [SugarIndex("ix_takt_routine_business_visiting_company_name", nameof(CompanyName), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_business_visiting_visit_start", nameof(VisitStartTime), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_business_visiting_visit_end", nameof(VisitEndTime), OrderByType.Asc)]
+[SugarIndex("ix_takt_routine_business_visiting_visit_unique", nameof(CompanyName), OrderByType.Asc, nameof(VisitStartTime), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_routine_business_visiting_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_business_visiting_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktVisit : TaktEntityBase

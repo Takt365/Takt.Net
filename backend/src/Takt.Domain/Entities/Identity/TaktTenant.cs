@@ -19,7 +19,8 @@ namespace Takt.Domain.Entities.Identity;
 /// </summary>
 [SugarTable("takt_identity_tenant", "租户信息表")]
 [SugarIndex("ix_takt_identity_tenant_tenant_code", nameof(TenantCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_identity_tenant_config_id", nameof(ConfigId), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_identity_tenant_tenant_name", nameof(TenantName), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_identity_tenant_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_identity_tenant_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_identity_tenant_tenant_status", nameof(TenantStatus), OrderByType.Asc)]
 public class TaktTenant : TaktEntityBase

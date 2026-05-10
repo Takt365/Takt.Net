@@ -28,7 +28,7 @@ public class TaktMenuLevel5SeedData
     /// <summary>
     /// 初始化五级菜单种子数据。
     /// <para>
-    /// 分别在各 PCBA/Assembly 父节点下写入生产 OPH、返修、返工、EPP 以及不良相关的检验与处理页面等。
+    /// 分别在各 PCBA/Assembly 父节点下写入生产 OPH、改修、返工、EPP 以及不良相关的检验与处理页面等。
     /// </para>
     /// </summary>
     /// <param name="serviceProvider">服务提供者，用于解析 <see cref="ITaktRepository{TaktMenu}"/>。</param>
@@ -50,10 +50,10 @@ public class TaktMenuLevel5SeedData
         // ========== OPH / PCBA 下的五级菜单（后勤-生产）==========
         if (manufacturingOutputPcbaMenu != null)
         {
-            // 生产 OPH
+            // PCBA日报
             var (insert1, update1) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_OUTPUT_PCBA_PRODUCTION", menu =>
             {
-                menu.MenuName = "生产 OPH";
+                menu.MenuName = "PCBA日报";
                 menu.MenuCode = "MANUFACTURING_OUTPUT_PCBA_PRODUCTION";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.output.pcba.production";
                 menu.MenuIcon = "RiFlashlightLine";
@@ -71,10 +71,10 @@ public class TaktMenuLevel5SeedData
             insertCount += insert1;
             updateCount += update1;
 
-            // 返修 OPH
+            // PCBA改修
             var (insert2, update2) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_OUTPUT_PCBA_REPAIR", menu =>
             {
-                menu.MenuName = "返修 OPH";
+                menu.MenuName = "PCBA改修";
                 menu.MenuCode = "MANUFACTURING_OUTPUT_PCBA_REPAIR";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.output.pcba.repair";
                 menu.MenuIcon = "RiSettings5Line";
@@ -92,10 +92,10 @@ public class TaktMenuLevel5SeedData
             insertCount += insert2;
             updateCount += update2;
 
-            // 返工 OPH
+            // PCBA返工
             var (insert3, update3) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_OUTPUT_PCBA_REWORK", menu =>
             {
-                menu.MenuName = "返工 OPH";
+                menu.MenuName = "PCBA返工";
                 menu.MenuCode = "MANUFACTURING_OUTPUT_PCBA_REWORK";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.output.pcba.rework";
                 menu.MenuIcon = "RiRefreshLine";
@@ -113,10 +113,10 @@ public class TaktMenuLevel5SeedData
             insertCount += insert3;
             updateCount += update3;
 
-            // EPP OPH
+            // PCBA EPP
             var (insert4, update4) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_OUTPUT_PCBA_EPP", menu =>
             {
-                menu.MenuName = "EPP OPH";
+                menu.MenuName = "PCBA EPP";
                 menu.MenuCode = "MANUFACTURING_OUTPUT_PCBA_EPP";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.output.pcba.epp";
                 menu.MenuIcon = "RiCodeSSlashLine";
@@ -138,10 +138,10 @@ public class TaktMenuLevel5SeedData
         // ========== OPH / Assembly 下的五级菜单（后勤-生产）==========
         if (manufacturingOutputAssemblyMenu != null)
         {
-            // 生产 OPH
+            // 组立日报
             var (insert5, update5) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_OUTPUT_ASSEMBLY_PRODUCTION", menu =>
             {
-                menu.MenuName = "生产 OPH";
+                menu.MenuName = "组立日报";
                 menu.MenuCode = "MANUFACTURING_OUTPUT_ASSEMBLY_PRODUCTION";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.output.assembly.production";
                 menu.MenuIcon = "RiSpeedLine";
@@ -159,10 +159,10 @@ public class TaktMenuLevel5SeedData
             insertCount += insert5;
             updateCount += update5;
 
-            // 返修 OPH
+            // 组立改修
             var (insert6, update6) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_OUTPUT_ASSEMBLY_REPAIR", menu =>
             {
-                menu.MenuName = "返修 OPH";
+                menu.MenuName = "组立改修";
                 menu.MenuCode = "MANUFACTURING_OUTPUT_ASSEMBLY_REPAIR";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.output.assembly.repair";
                 menu.MenuIcon = "RiSettings4Line";
@@ -180,10 +180,10 @@ public class TaktMenuLevel5SeedData
             insertCount += insert6;
             updateCount += update6;
 
-            // 返工 OPH
+            // 组立返工
             var (insert7, update7) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_OUTPUT_ASSEMBLY_REWORK", menu =>
             {
-                menu.MenuName = "返工 OPH";
+                menu.MenuName = "组立返工";
                 menu.MenuCode = "MANUFACTURING_OUTPUT_ASSEMBLY_REWORK";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.output.assembly.rework";
                 menu.MenuIcon = "RiRestartLine";
@@ -201,10 +201,10 @@ public class TaktMenuLevel5SeedData
             insertCount += insert7;
             updateCount += update7;
 
-            // EPP OPH
+            // 组立EPP
             var (insert8, update8) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_OUTPUT_ASSEMBLY_EPP", menu =>
             {
-                menu.MenuName = "EPP OPH";
+                menu.MenuName = "组立EPP";
                 menu.MenuCode = "MANUFACTURING_OUTPUT_ASSEMBLY_EPP";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.output.assembly.epp";
                 menu.MenuIcon = "RiBracesLine";
@@ -229,7 +229,7 @@ public class TaktMenuLevel5SeedData
             // SMT 检查
             var (insert9, update9) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_DEFECT_PCBA_SMT", menu =>
             {
-                menu.MenuName = "SMT 检查";
+                menu.MenuName = "SMT检查";
                 menu.MenuCode = "MANUFACTURING_DEFECT_PCBA_SMT";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.defect.pcba.smt";
                 menu.MenuIcon = "RiSearchLine";
@@ -247,10 +247,10 @@ public class TaktMenuLevel5SeedData
             insertCount += insert9;
             updateCount += update9;
 
-            // 修理
+            // PCBA修理
             var (insert10, update10) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_DEFECT_PCBA_REPAIR", menu =>
             {
-                menu.MenuName = "修理";
+                menu.MenuName = "PCBA修理";
                 menu.MenuCode = "MANUFACTURING_DEFECT_PCBA_REPAIR";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.defect.pcba.repair";
                 menu.MenuIcon = "RiSettings3Line";
@@ -272,10 +272,10 @@ public class TaktMenuLevel5SeedData
         // ========== 不良 / Assembly 下的五级菜单（后勤-生产）==========
         if (manufacturingDefectAssemblyMenu != null)
         {
-            // 生产不良
+            // 组立生产不良
             var (insert11, update11) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_DEFECT_ASSEMBLY_PRODUCTION", menu =>
             {
-                menu.MenuName = "生产不良";
+                menu.MenuName = "组立生产不良";
                 menu.MenuCode = "MANUFACTURING_DEFECT_ASSEMBLY_PRODUCTION";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.defect.assembly.production";
                 menu.MenuIcon = "RiCloseCircleLine";
@@ -293,10 +293,10 @@ public class TaktMenuLevel5SeedData
             insertCount += insert11;
             updateCount += update11;
 
-            // 返修不良
+            // 组立改修不良
             var (insert12, update12) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_DEFECT_ASSEMBLY_REPAIR", menu =>
             {
-                menu.MenuName = "返修不良";
+                menu.MenuName = "组立改修不良";
                 menu.MenuCode = "MANUFACTURING_DEFECT_ASSEMBLY_REPAIR";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.defect.assembly.repair";
                 menu.MenuIcon = "RiAlarmWarningLine";
@@ -314,10 +314,10 @@ public class TaktMenuLevel5SeedData
             insertCount += insert12;
             updateCount += update12;
 
-            // 返工不良
+            // 组立返工不良
             var (insert13, update13) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_DEFECT_ASSEMBLY_REWORK", menu =>
             {
-                menu.MenuName = "返工不良";
+                menu.MenuName = "组立返工不良";
                 menu.MenuCode = "MANUFACTURING_DEFECT_ASSEMBLY_REWORK";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.defect.assembly.rework";
                 menu.MenuIcon = "RiRepeatLine";
@@ -335,10 +335,10 @@ public class TaktMenuLevel5SeedData
             insertCount += insert13;
             updateCount += update13;
 
-            // EPP 不良
+            // 组立EPP不良
             var (insert14, update14) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_DEFECT_ASSEMBLY_EPP", menu =>
             {
-                menu.MenuName = "EPP 不良";
+                menu.MenuName = "组立EPP不良";
                 menu.MenuCode = "MANUFACTURING_DEFECT_ASSEMBLY_EPP";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.defect.assembly.epp";
                 menu.MenuIcon = "RiAlertLine";

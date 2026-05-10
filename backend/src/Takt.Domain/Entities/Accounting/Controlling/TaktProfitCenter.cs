@@ -20,6 +20,7 @@ namespace Takt.Domain.Entities.Accounting.Controlling;
 /// </summary>
 [SugarTable("takt_accounting_controlling_profit_center", "利润中心表")]
 [SugarIndex("ix_takt_accounting_controlling_profit_center_profit_center_code", nameof(ProfitCenterCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_accounting_controlling_profit_center_pc_unique", nameof(CompanyCode), OrderByType.Asc, nameof(ProfitCenterCode), OrderByType.Asc, nameof(ProfitCenterName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_controlling_profit_center_parent_id", nameof(ParentId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_controlling_profit_center_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_controlling_profit_center_is_deleted", nameof(IsDeleted), OrderByType.Asc)]

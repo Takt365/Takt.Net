@@ -20,6 +20,7 @@ namespace Takt.Domain.Entities.Accounting.Financial;
 /// </summary>
 [SugarTable("takt_accounting_financial_accounting_title", "会计科目表")]
 [SugarIndex("ix_takt_accounting_financial_accounting_title_title_code", nameof(TitleCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_accounting_financial_accounting_title_at_unique", nameof(CompanyCode), OrderByType.Asc, nameof(TitleCode), OrderByType.Asc, nameof(TitleName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_financial_accounting_title_parent_id", nameof(ParentId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_financial_accounting_title_title_type", nameof(TitleType), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_financial_accounting_title_config_id", nameof(ConfigId), OrderByType.Asc)]

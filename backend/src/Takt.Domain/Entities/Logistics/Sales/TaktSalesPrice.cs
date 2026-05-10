@@ -24,6 +24,7 @@ namespace Takt.Domain.Entities.Logistics.Sales;
 [SugarIndex("ix_takt_logistics_sales_price_price_type", nameof(PriceType), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_sales_price_effective_start_date", nameof(EffectiveStartDate), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_sales_price_effective_end_date", nameof(EffectiveEndDate), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_sales_price_sp_unique", nameof(PlantCode), OrderByType.Asc, nameof(CustomerCode), OrderByType.Asc, nameof(PriceType), OrderByType.Asc, nameof(EffectiveStartDate), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_sales_price_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_sales_price_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_sales_price_price_status", nameof(PriceStatus), OrderByType.Asc)]

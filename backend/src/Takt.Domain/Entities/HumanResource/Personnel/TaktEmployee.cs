@@ -22,6 +22,7 @@ namespace Takt.Domain.Entities.HumanResource.Personnel;
 /// </summary>
 [SugarTable("takt_humanresource_employee", "员工信息表")]
 [SugarIndex("ix_takt_humanresource_employee_employee_code", nameof(EmployeeCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_humanresource_employee_emp_unique", nameof(EmployeeCode), OrderByType.Asc, nameof(RealName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_humanresource_employee_id_card", nameof(IdCard), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_employee_phone", nameof(Phone), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_employee_email", nameof(Email), OrderByType.Asc)]

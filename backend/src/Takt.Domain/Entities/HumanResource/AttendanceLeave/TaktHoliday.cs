@@ -18,6 +18,7 @@ namespace Takt.Domain.Entities.HumanResource.AttendanceLeave;
 [SugarTable("takt_humanresource_holiday", "假日信息表")]
 [SugarIndex("ix_takt_humanresource_holiday_start_date", nameof(StartDate), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_holiday_end_date", nameof(EndDate), OrderByType.Asc)]
+[SugarIndex("ix_takt_humanresource_holiday_holiday_unique", nameof(Region), OrderByType.Asc, nameof(HolidayName), OrderByType.Asc, nameof(StartDate), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_humanresource_holiday_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_holiday_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_holiday_holiday_type", nameof(HolidayType), OrderByType.Asc)]

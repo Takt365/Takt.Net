@@ -564,10 +564,10 @@ public class TaktMenuLevel4SeedData
         // ========== OPH 下的四级菜单（6.后勤-生产）==========
         if (manufacturingOutputMenu != null)
         {
-            // Pcba
+            // 贴片生产
             var (insert13, update13) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_OUTPUT_PCBA", menu =>
             {
-                menu.MenuName = "Pcba";
+                menu.MenuName = "贴片生产";
                 menu.MenuCode = "MANUFACTURING_OUTPUT_PCBA";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.output.pcba._self";
                 menu.MenuIcon = "RiCpuLine";
@@ -584,10 +584,10 @@ public class TaktMenuLevel4SeedData
             insertCount += insert13;
             updateCount += update13;
 
-            // Assembly
+            // 组立生产
             var (insert14, update14) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_OUTPUT_ASSEMBLY", menu =>
             {
-                menu.MenuName = "Assembly";
+                menu.MenuName = "组立生产";
                 menu.MenuCode = "MANUFACTURING_OUTPUT_ASSEMBLY";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.output.assembly._self";
                 menu.MenuIcon = "RiSlideshow3Line";
@@ -608,10 +608,10 @@ public class TaktMenuLevel4SeedData
         // ========== 不良下的四级菜单（6.后勤-生产）==========
         if (manufacturingDefectMenu != null)
         {
-            // Pcba
+            // 贴片不良
             var (insert15, update15) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_DEFECT_PCBA", menu =>
             {
-                menu.MenuName = "Pcba";
+                menu.MenuName = "贴片不良";
                 menu.MenuCode = "MANUFACTURING_DEFECT_PCBA";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.defect.pcba._self";
                 menu.MenuIcon = "RiBugLine";
@@ -628,10 +628,10 @@ public class TaktMenuLevel4SeedData
             insertCount += insert15;
             updateCount += update15;
 
-            // Assembly
+            // 组立不良
             var (insert16, update16) = await CreateOrUpdateMenuAsync(menuRepository, "MANUFACTURING_DEFECT_ASSEMBLY", menu =>
             {
-                menu.MenuName = "Assembly";
+                menu.MenuName = "组立不良";
                 menu.MenuCode = "MANUFACTURING_DEFECT_ASSEMBLY";
                 menu.MenuL10nKey = "menu.logistics.manufacturing.defect.assembly._self";
                 menu.MenuIcon = "RiForbidLine";

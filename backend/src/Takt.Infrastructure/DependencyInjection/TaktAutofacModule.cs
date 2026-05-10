@@ -433,7 +433,8 @@ public class TaktAutofacModule : Module
             var serviceProvider = c.Resolve<IServiceProvider>();
             var configuration = c.Resolve<IConfiguration>();
             var tenantSection = configuration.GetSection("Tenant");
-            var configId = tenantSection["DefaultConfigId"] ?? "0";
+            var defaultConfigIdList = tenantSection.GetSection("DefaultConfigIds").Get<List<string>>() ?? new List<string> { "0" };
+            var configId = defaultConfigIdList.First();
             return new TaktDatabaseInitializer(client, seedDataProviders, serviceProvider, configId);
         }).AsSelf().InstancePerLifetimeScope();
 

@@ -44,16 +44,10 @@ public class TaktTenantSeedData : ITaktSeedData
 
         try
         {
-            // 租户数据存储在HR库（ConfigId="1"）
-            TaktTenantContext.CurrentConfigId = "1";
+            // 租户数据存储在Identity库（ConfigId="0"）
+            TaktTenantContext.CurrentConfigId = "0";
 
-            // 1. 初始化系统管理租户（tenant_0），允许访问所有业务库（3,4,5）
-            // 主库（ConfigId="0,1,2"）始终可访问（Identity、HR、日常）
-            var (i1, u1) = await CreateOrUpdateTenantAsync(
-                tenantRepository, "tenant_0", "系统管理", "[3,4,5]", DateTime.Now, new DateTime(9999, 12, 31));
-            insertCount += i1; updateCount += u1;
-
-            // 2. 初始化演示租户数据
+            // 初始化演示租户数据
             var demoTenants = GetDemoTenants();
             foreach (var demoTenant in demoTenants)
             {
@@ -67,59 +61,6 @@ public class TaktTenantSeedData : ITaktSeedData
         }
 
         return (insertCount, updateCount);
-    }
-
-    /// <summary>
-    /// 创建或更新租户（统一在方法内设置 TenantStatus = 1）
-    /// </summary>
-    private static async Task<(int InsertCount, int UpdateCount)> CreateOrUpdateTenantAsync(
-        ITaktRepository<TaktTenant> tenantRepository,
-        string tenantCode,
-        string tenantName,
-        string allowedConfigIds,
-        DateTime subscriptionStartTime,
-        DateTime subscriptionEndTime)
-    {
-        var tenant = await tenantRepository.GetAsync(t => t.TenantCode == tenantCode);
-        if (tenant == null)
-        {
-            tenant = new TaktTenant
-            {
-                TenantCode = tenantCode,
-                TenantName = tenantName,
-                AllowedConfigIds = allowedConfigIds,
-                SubscriptionStartTime = subscriptionStartTime,
-                SubscriptionEndTime = subscriptionEndTime,
-                TenantStatus = 1, // 1=启用
-                IsDeleted = 0
-            };
-            await tenantRepository.CreateAsync(tenant);
-            TaktLogger.Information("创建租户: {TenantCode} - {TenantName}, 允许访问库: {AllowedConfigIds}",
-                tenantCode, tenantName, allowedConfigIds);
-            return (1, 0);
-        }
-        else
-        {
-            var needsUpdate = tenant.TenantName != tenantName ||
-                             tenant.AllowedConfigIds != allowedConfigIds ||
-                             tenant.SubscriptionStartTime != subscriptionStartTime ||
-                             tenant.SubscriptionEndTime != subscriptionEndTime ||
-                             tenant.TenantStatus != 1;
-
-            if (needsUpdate)
-            {
-                tenant.TenantCode = tenantCode;
-                tenant.TenantName = tenantName;
-                tenant.AllowedConfigIds = allowedConfigIds;
-                tenant.SubscriptionStartTime = subscriptionStartTime;
-                tenant.SubscriptionEndTime = subscriptionEndTime;
-                tenant.TenantStatus = 1; // 1=启用
-                await tenantRepository.UpdateAsync(tenant);
-                TaktLogger.Information("更新租户: {TenantCode} - {TenantName}, 允许访问库: {AllowedConfigIds}",
-                    tenantCode, tenantName, allowedConfigIds);
-            }
-            return (0, needsUpdate ? 1 : 0);
-        }
     }
 
     /// <summary>
@@ -160,10 +101,11 @@ public class TaktTenantSeedData : ITaktSeedData
         // 主库（ConfigId="0,1,2"）始终可访问（Identity、HR、日常）
         new TaktTenant
         {
+            Id = 0,
             TenantCode = "develop",
             TenantName = "开发租户（Develop）",
             AllowedConfigIds = "[\"3\",\"4\",\"5\"]",
-            ConfigId = "1",  // 租户实体存储在HR库
+            ConfigId = "0",  // 租户实体存储在Identity库
             SubscriptionStartTime = DateTime.Now,
             SubscriptionEndTime = new DateTime(9999, 12, 31),
             TenantStatus = 1,  // 1=启用
@@ -175,10 +117,11 @@ public class TaktTenantSeedData : ITaktSeedData
         // 主库（ConfigId="0,1,2"）始终可访问（Identity、HR、日常）
         new TaktTenant
         {
+            Id = 0,
             TenantCode = "DTA",
             TenantName = "DTA租户",
             AllowedConfigIds = "[\"3\",\"5\"]",
-            ConfigId = "1",  // 租户实体存储在HR库
+            ConfigId = "0",  // 租户实体存储在Identity库
             SubscriptionStartTime = DateTime.Now,
             SubscriptionEndTime = new DateTime(9999, 12, 31),
             TenantStatus = 1,  // 1=启用
@@ -190,10 +133,11 @@ public class TaktTenantSeedData : ITaktSeedData
         // 主库（ConfigId="0,1,2"）始终可访问（Identity、HR、日常）
         new TaktTenant
         {
+            Id = 0,
             TenantCode = "TCJ",
             TenantName = "TCJ租户",
             AllowedConfigIds = "[\"5\"]",
-            ConfigId = "1",  // 租户实体存储在HR库
+            ConfigId = "0",  // 租户实体存储在Identity库
             SubscriptionStartTime = DateTime.Now,
             SubscriptionEndTime = new DateTime(9999, 12, 31),
             TenantStatus = 1,  // 1=启用

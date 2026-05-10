@@ -66,34 +66,47 @@ public class TaktTenantMiddleware
         // 检查多租户是否启用
         var tenantSection = _configuration.GetSection("Tenant");
         var useTenant = tenantSection.GetValue<bool>("Enabled", false);
-        var mainDb = tenantSection["DefaultConfigId"] ?? TaktAppConstants.DefaultConfigId;
+        
+        // 获取 DefaultConfigIds（JSON 数组格式，如 ["0","1","2"]）
+        var defaultConfigIdList = tenantSection.GetSection("DefaultConfigIds").Get<List<string>>() ?? new List<string> { "0" };
+        var mainDb = string.Join(",", defaultConfigIdList);
+        var firstDefaultConfigId = defaultConfigIdList.First();  // 第一个共享库作为默认主库
 
         // 设置租户启用状态
         TaktTenantContext.IsTenantEnabled = useTenant;
 
-        // 设置默认连接
-        var defaultConnectionString = await _tenantContext.GetConnectionStringAsync(mainDb);
+        // 设置默认连接（使用第一个共享库）
+        var defaultConnectionString = await _tenantContext.GetConnectionStringAsync(firstDefaultConfigId);
         TaktTenantContext.DefaultConnectionString = defaultConnectionString;
+
+        // 提前获取配置项（租户启用/未启用都需要）
+        var configIdHeaderName = tenantSection["ConfigIdHeaderName"] ?? TaktAppConstants.ConfigIdHeaderName;
+        var configIdQueryName = tenantSection["ConfigIdQueryName"] ?? TaktAppConstants.ConfigIdQueryName;
 
         if (!useTenant)
         {
-            // 多租户未启用，使用主库配置
-            TaktTenantContext.CurrentConnectionString = defaultConnectionString;
-            TaktTenantContext.CurrentConfigId = mainDb;
-            TaktLogger.Debug("多租户未启用，使用主库配置: ConfigId={ConfigId}", mainDb);
+            // 多租户未启用，允许访问任何请求的库
+            var requestedConfigIdForSingle = context.Request.Headers[configIdHeaderName].FirstOrDefault()
+                ?? context.Request.Query[configIdQueryName].FirstOrDefault()
+                ?? firstDefaultConfigId;
+            
+            // 获取请求库的连接字符串
+            var requestedConnectionString = await _tenantContext.GetConnectionStringAsync(requestedConfigIdForSingle);
+            
+            TaktTenantContext.CurrentConnectionString = requestedConnectionString;
+            TaktTenantContext.CurrentConfigId = requestedConfigIdForSingle;
+            TaktLogger.Debug("多租户未启用，允许访问任何库: ConfigId={ConfigId}", requestedConfigIdForSingle);
+            
             // 尝试加载默认租户信息
-            await LoadTenantInfoAsync(mainDb);
+            await LoadTenantInfoAsync(firstDefaultConfigId);
             await _next(context);
             return;
         }
 
-        // 多租户已启用，从Header或QueryString获取 ConfigId 或 TenantCode
-        var configIdHeaderName = tenantSection["ConfigIdHeaderName"] ?? TaktAppConstants.ConfigIdHeaderName;
-        var configIdQueryName = tenantSection["ConfigIdQueryName"] ?? TaktAppConstants.ConfigIdQueryName;
-
+        // 多租户已启用，从 Header 或 QueryString 获取 ConfigId 或 TenantCode
         var requestedConfigId = context.Request.Headers[configIdHeaderName].FirstOrDefault()
             ?? context.Request.Query[configIdQueryName].FirstOrDefault()
-            ?? mainDb;
+            ?? firstDefaultConfigId;  // 使用第一个共享库作为默认值
         
         TaktLogger.Debug("请求的 ConfigId={ConfigId}, 来源: Header={HeaderName} 或 Query={QueryName}", 
             requestedConfigId, configIdHeaderName, configIdQueryName);
@@ -108,12 +121,12 @@ public class TaktTenantMiddleware
                 TaktLogger.Debug("普通用户权限验证: UserId={UserId}, UserType={UserType}, RequestedConfigId={ConfigId}", 
                     currentUser.Id, currentUser.UserType, requestedConfigId);
                 
-                // 解析 DefaultConfigId（共享库列表，所有用户可无条件访问）
+                // 解析 DefaultConfigIds（共享库列表，所有用户可无条件访问）
                 var defaultConfigIds = mainDb.Split(',', StringSplitOptions.RemoveEmptyEntries)
                     .Select(id => id.Trim())
                     .ToList();
                 
-                // 检查是否访问的是共享库（DefaultConfigId 中配置的）
+                // 检查是否访问的是共享库（DefaultConfigIds 中配置的）
                 if (defaultConfigIds.Contains(requestedConfigId))
                 {
                     // 允许访问共享库（无条件放行）
@@ -124,7 +137,7 @@ public class TaktTenantMiddleware
                     // 访问的是非共享库，需要验证租户权限（通过 AllowedConfigIds 控制）
                     // 检查用户是否属于请求的租户
                     // 方式1：检查用户实体的 ConfigId（兼容旧的一对一关系）
-                    var userConfigId = currentUser.ConfigId ?? mainDb;
+                    var userConfigId = currentUser.ConfigId ?? firstDefaultConfigId;
                     if (requestedConfigId == userConfigId)
                     {
                         // 允许访问（兼容旧的一对一关系）
@@ -138,7 +151,7 @@ public class TaktTenantMiddleware
                         try
                         {
                             // 临时设置为主库，以便查询租户表和用户-租户关联表（这些表存储在主库）
-                            TaktTenantContext.CurrentConfigId = mainDb;
+                            TaktTenantContext.CurrentConfigId = firstDefaultConfigId;
                             TaktTenantContext.CurrentConnectionString = defaultConnectionString;
                             
                             // 先通过 ConfigId 查询租户，获取租户的 Id
@@ -193,18 +206,18 @@ public class TaktTenantMiddleware
                                 var allowedConfigIds = userTenantEntities.Select(t => t.ConfigId).ToList();
                                 
                                 // 兼容旧的一对一关系（用户实体的 ConfigId）
-                                if (!string.IsNullOrEmpty(userConfigId) && userConfigId != mainDb)
+                                if (!string.IsNullOrEmpty(userConfigId) && userConfigId != firstDefaultConfigId)
                                 {
                                     allowedConfigIds.Add(userConfigId);
                                 }
-                                allowedConfigIds.Add(mainDb);
+                                allowedConfigIds.Add(firstDefaultConfigId);
                                 
                                 TaktLogger.Warning("用户无权访问租户: UserId={UserId}, UserName={UserName}, RequestedConfigId={ConfigId}, AllowedConfigIds=[{Allowed}]", 
                                     currentUser.Id, currentUser.UserName, requestedConfigId, string.Join(", ", allowedConfigIds.Distinct()));
                                 
                                 throw new UnauthorizedAccessException(
                                     $"用户无权访问租户 ConfigId={requestedConfigId}，" +
-                                    $"用户只能访问主库（ConfigId={mainDb}）和以下租户库：{string.Join(", ", allowedConfigIds.Distinct())}");
+                                    $"用户只能访问主库（ConfigId={firstDefaultConfigId}）和以下租户库：{string.Join(", ", allowedConfigIds.Distinct())}");
                             }
                             else
                             {

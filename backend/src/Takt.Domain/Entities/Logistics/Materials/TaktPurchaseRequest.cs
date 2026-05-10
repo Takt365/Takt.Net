@@ -21,6 +21,7 @@ namespace Takt.Domain.Entities.Logistics.Materials;
 [SugarTable("takt_logistics_materials_purchase_request", "采购申请表")]
 [SugarIndex("ix_takt_logistics_materials_purchase_request_plant_code", nameof(PlantCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_request_request_code", nameof(RequestCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_materials_purchase_request_pr_unique", nameof(PlantCode), OrderByType.Asc, nameof(RequestCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_materials_purchase_request_request_date", nameof(RequestDate), OrderByType.Desc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_request_request_status", nameof(RequestStatus), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_request_request_by", nameof(RequestBy), OrderByType.Asc)]

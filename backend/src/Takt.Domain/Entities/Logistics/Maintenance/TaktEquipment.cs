@@ -20,6 +20,7 @@ namespace Takt.Domain.Entities.Logistics.Maintenance;
 /// </summary>
 [SugarTable("takt_logistics_maintenance_equipment", "工厂设备表")]
 [SugarIndex("ix_takt_logistics_maintenance_equipment_equipment_code", nameof(EquipmentCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_maintenance_equipment_eq_unique", nameof(EquipmentCode), OrderByType.Asc, nameof(EquipmentName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_maintenance_equipment_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_maintenance_equipment_equipment_status", nameof(EquipmentStatus), OrderByType.Asc)]
 public class TaktEquipment : TaktEntityBase

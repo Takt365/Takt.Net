@@ -19,6 +19,7 @@ namespace Takt.Domain.Entities.Routine.Tasks.I18n;
 /// </summary>
 [SugarTable("takt_routine_i18n_language", "语言表")]
 [SugarIndex("ix_takt_routine_i18n_language_culture_code", nameof(CultureCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_routine_i18n_language_lang_unique", nameof(LanguageName), OrderByType.Asc, nameof(CultureCode), OrderByType.Asc, nameof(NativeName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_routine_i18n_language_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_i18n_language_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_i18n_language_language_status", nameof(LanguageStatus), OrderByType.Asc)]

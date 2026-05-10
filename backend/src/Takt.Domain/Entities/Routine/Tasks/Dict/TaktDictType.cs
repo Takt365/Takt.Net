@@ -19,6 +19,7 @@ namespace Takt.Domain.Entities.Routine.Tasks.Dict;
 /// </summary>
 [SugarTable("takt_routine_dict_type", "字典类型表")]
 [SugarIndex("ix_takt_routine_dict_type_dict_type_code", nameof(DictTypeCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_routine_dict_type_dict_type_name", nameof(DictTypeName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_routine_dict_type_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_dict_type_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_routine_dict_type_dict_type_status", nameof(DictTypeStatus), OrderByType.Asc)]

@@ -24,6 +24,7 @@ namespace Takt.Domain.Entities.Logistics.Quality.Cost;
 [SugarIndex("ix_takt_logistics_quality_operation_plant_code", nameof(PlantCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_operation_operation_month", nameof(OperationMonth), OrderByType.Desc)]
 [SugarIndex("ix_takt_logistics_quality_operation_customer_name", nameof(CustomerName), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_quality_operation_qo_unique", nameof(PlantCode), OrderByType.Asc, nameof(OperationMonth), OrderByType.Asc, nameof(CustomerName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_quality_operation_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_operation_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktQualityOperation : TaktEntityBase

@@ -48,7 +48,7 @@ public class TaktMenuLevel2SeedData
         var dashboardMenu = await menuRepository.GetAsync(m => m.MenuCode == "DASHBOARD");
         var workflowMenu = await menuRepository.GetAsync(m => m.MenuCode == "WORKFLOW");
         var routineMenu = await menuRepository.GetAsync(m => m.MenuCode == "ROUTINE");
-        var accountingMenu = await menuRepository.GetAsync(m => m.MenuCode == "ACCOUNTING");    // 5. 财务会计
+        var accountingMenu = await menuRepository.GetAsync(m => m.MenuCode == "ACCOUNTING");    // 5. 财务核算
         var logisticsMenu = await menuRepository.GetAsync(m => m.MenuCode == "LOGISTICS");     // 6. 后勤管理
         var identityMenu = await menuRepository.GetAsync(m => m.MenuCode == "IDENTITY");        // 7. 身份认证
         var humanResourceMenu = await menuRepository.GetAsync(m => m.MenuCode == "HUMAN_RESOURCE"); // 8. 人力资源
@@ -268,12 +268,12 @@ public class TaktMenuLevel2SeedData
             insertCount += insertRoutineTasks;
         }
 
-        // ========== 财务会计下的二级菜单 ==========
+        // ========== 财务核算下的二级菜单 ==========
         if (accountingMenu != null)
         {
             var (insert11, update11) = await CreateOrUpdateMenuAsync(menuRepository, "ACCOUNTING_FINANCIAL", menu =>
             {
-                menu.MenuName = "财务会计";
+                menu.MenuName = "管理会计";
                 menu.MenuCode = "ACCOUNTING_FINANCIAL";
                 menu.MenuL10nKey = "menu.accounting.financial._self";
                 menu.MenuIcon = "RiMoneyDollarCircleLine";
@@ -292,7 +292,7 @@ public class TaktMenuLevel2SeedData
 
             var (insert12, update12) = await CreateOrUpdateMenuAsync(menuRepository, "ACCOUNTING_CONTROLLING", menu =>
             {
-                menu.MenuName = "管理会计";
+                menu.MenuName = "控制会计";
                 menu.MenuCode = "ACCOUNTING_CONTROLLING";
                 menu.MenuL10nKey = "menu.accounting.controlling._self";
                 menu.MenuIcon = "RiCalculatorLine";

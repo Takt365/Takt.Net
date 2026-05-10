@@ -22,6 +22,7 @@ namespace Takt.Domain.Entities.Accounting.Controlling;
 [SugarTable("takt_accounting_controlling_standard_wage_rate", "标准工资率表")]
 [SugarIndex("ix_takt_accounting_controlling_standard_wage_rate_plant_code", nameof(RelatedPlant), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_controlling_standard_wage_rate_year_month", nameof(YearMonth), OrderByType.Asc)]
+[SugarIndex("ix_takt_accounting_controlling_standard_wage_rate_swr_unique", nameof(CompanyCode), OrderByType.Asc, nameof(RelatedPlant), OrderByType.Asc, nameof(YearMonth), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_controlling_standard_wage_rate_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_controlling_standard_wage_rate_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktStandardWageRate : TaktEntityBase

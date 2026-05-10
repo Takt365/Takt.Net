@@ -22,6 +22,7 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.Output;
 [SugarIndex("ix_takt_logistics_manufacturing_output_standard_operation_rate_plant_code", nameof(PlantCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_standard_operation_rate_financial_year", nameof(FinancialYear), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_standard_operation_rate_operation_type", nameof(OperationType), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_manufacturing_output_standard_operation_rate_sor_unique", nameof(PlantCode), OrderByType.Asc, nameof(FinancialYear), OrderByType.Asc, nameof(OperationType), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_standard_operation_rate_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_standard_operation_rate_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktStandardOperationRate : TaktEntityBase

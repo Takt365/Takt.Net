@@ -214,13 +214,13 @@ public class TaktMenuLevel1SeedData
             updateCount++;
         }
 
-        // 5. 财务会计（目录）
+        // 5. 财务核算（目录）
         var accountingMenu = await menuRepository.GetAsync(m => m.MenuCode == "ACCOUNTING");
         if (accountingMenu == null)
         {
             accountingMenu = new TaktMenu
             {
-                MenuName = "财务会计",
+                MenuName = "财务核算",
                 MenuCode = "ACCOUNTING",
                 MenuL10nKey = "menu.accounting._self",
                 MenuIcon = "RiBankLine",
@@ -240,7 +240,7 @@ public class TaktMenuLevel1SeedData
         }
         else
         {
-            accountingMenu.MenuName = "财务会计";
+            accountingMenu.MenuName = "财务核算";
             accountingMenu.MenuL10nKey = "menu.accounting._self";
             accountingMenu.MenuIcon = "RiBankLine";
             accountingMenu.ParentId = 0;

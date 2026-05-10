@@ -121,7 +121,7 @@ public class TaktTenantProvider : ITaktTenantContext
     /// </summary>
     /// <param name="configId">ConfigId</param>
     /// <returns>连接字符串</returns>
-    public Task<string?> GetConnectionStringAsync(string configId)
+    public async Task<string?> GetConnectionStringAsync(string configId)
     {
         // 从 dbConfigs 配置节点获取配置
         var dbConfigsSection = _configuration.GetSection("dbConfigs");
@@ -132,15 +132,36 @@ public class TaktTenantProvider : ITaktTenantContext
                 var conn = dbConfig["Conn"];
                 if (!string.IsNullOrEmpty(conn))
                 {
-                    return Task.FromResult<string?>(conn);
+                    return conn;
                 }
             }
         }
 
-        // 如果没有找到，返回主库连接字符串
+        // 如果没有找到，尝试从共享库列表中获取连接字符串（避免无限递归）
         var tenantSection = _configuration.GetSection("Tenant");
-        var mainDb = tenantSection["DefaultConfigId"] ?? "0";
-        return GetConnectionStringAsync(mainDb);
+        
+        // DefaultConfigIds 是 JSON 数组格式，如 ["0","1","2"]
+        var defaultConfigIdList = tenantSection.GetSection("DefaultConfigIds").Get<List<string>>() ?? new List<string> { "0" };
+        
+        // 遍历所有共享库，返回第一个能找到连接字符串的
+        foreach (var defaultConfigId in defaultConfigIdList)
+        {
+            // 防止无限递归：跳过当前 configId
+            if (defaultConfigId == configId)
+            {
+                continue;
+            }
+            
+            // 递归获取共享库的连接字符串
+            var connectionString = await GetConnectionStringAsync(defaultConfigId);
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                return connectionString;
+            }
+        }
+        
+        // 所有共享库都找不到配置，返回 null
+        return null;
     }
 
     /// <summary>
