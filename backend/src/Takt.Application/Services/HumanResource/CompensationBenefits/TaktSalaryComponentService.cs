@@ -1,0 +1,424 @@
+// ========================================
+// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
+// 命名空间：Takt.Application.Services.HumanResource.CompensationBenefits
+// 文件名称：TaktSalaryComponentService.cs
+// 创建时间：2026-05-10
+// 创建人：Takt365(Cursor AI)
+// 功能描述：薪资组成表应用服务，提供SalaryComponent管理的业务逻辑
+//
+// 版权信息：Copyright (c) 2026 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+using SqlSugar;
+using Takt.Application.Dtos.HumanResource.CompensationBenefits;
+using Takt.Application.Services;
+using Takt.Domain.Entities.HumanResource.CompensationBenefits;
+using Takt.Domain.Interfaces;
+using Takt.Domain.Repositories;
+using Takt.Domain.Validation;
+using Takt.Shared.Exceptions;
+using Takt.Shared.Helpers;
+using Takt.Shared.Models;
+
+namespace Takt.Application.Services.HumanResource.CompensationBenefits;
+
+/// <summary>
+/// 薪资组成表应用服务
+/// </summary>
+public class TaktSalaryComponentService : TaktServiceBase, ITaktSalaryComponentService
+{
+    private readonly ITaktRepository<TaktSalaryComponent> _repository;
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="repository">SalaryComponent仓储</param>
+    /// <param name="userContext">用户上下文（可选）</param>
+    /// <param name="tenantContext">租户上下文（可选）</param>
+    /// <param name="localizer">本地化器（可选）</param>
+    public TaktSalaryComponentService(
+        ITaktRepository<TaktSalaryComponent> repository,
+        ITaktUserContext? userContext = null,
+        ITaktTenantContext? tenantContext = null,
+        ITaktLocalizer? localizer = null)
+        : base(userContext, tenantContext, localizer)
+    {
+        _repository = repository;
+    }
+
+
+    /// <summary>
+    /// 获取薪资组成表(SalaryComponent)列表（分页）
+    /// </summary>
+    /// <param name="queryDto">查询DTO</param>
+    /// <returns>分页结果</returns>
+    public async Task<TaktPagedResult<TaktSalaryComponentDto>> GetSalaryComponentListAsync(TaktSalaryComponentQueryDto queryDto)
+    {
+        var predicate = QueryExpression(queryDto);
+        var (data, total) = await _repository.GetPagedAsync(queryDto.PageIndex, queryDto.PageSize, predicate);
+        return TaktPagedResult<TaktSalaryComponentDto>.Create(
+            data.Adapt<List<TaktSalaryComponentDto>>(),
+            total,
+            queryDto.PageIndex,
+            queryDto.PageSize
+        );
+    }
+
+
+    /// <summary>
+    /// 根据ID获取薪资组成表(SalaryComponent)
+    /// </summary>
+    /// <param name="id">薪资组成表(SalaryComponent)ID</param>
+    /// <returns>薪资组成表(SalaryComponent)DTO</returns>
+    public async Task<TaktSalaryComponentDto?> GetSalaryComponentByIdAsync(long id)
+    {
+        var entity = await _repository.GetByIdAsync(id);
+        return entity == null ? null : entity.Adapt<TaktSalaryComponentDto>();
+    }
+
+
+    /// <summary>
+    /// 获取薪资组成表(SalaryComponent)选项列表（用于下拉框等）
+    /// </summary>
+    /// <returns>薪资组成表(SalaryComponent)选项列表</returns>
+    public async Task<List<TaktSelectOption>> GetSalaryComponentOptionsAsync()
+    {
+        var all = await _repository.FindAsync(x => x.IsDeleted == 0 && x.Status == 1);
+        return all.Select(x => new TaktSelectOption
+        {
+            DictLabel = x.ComponentName ?? string.Empty,
+            DictValue = x.ComponentCode,
+            SortOrder = x.SortOrder,
+        }).OrderBy(x => x.SortOrder).ToList();
+    }
+
+
+    /// <summary>
+    /// 创建薪资组成表(SalaryComponent)
+    /// </summary>
+    /// <param name="dto">创建薪资组成表(SalaryComponent)DTO</param>
+    /// <returns>薪资组成表(SalaryComponent)DTO</returns>
+    public async Task<TaktSalaryComponentDto> CreateSalaryComponentAsync(TaktSalaryComponentCreateDto dto)
+    {
+        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.ComponentCode, dto.ComponentCode, null, $"薪资组成表编码 {dto.ComponentCode} 已存在");
+
+        var entity = dto.Adapt<TaktSalaryComponent>();
+        entity = await _repository.CreateAsync(entity);
+        return (await GetSalaryComponentByIdAsync(entity.Id)) ?? entity.Adapt<TaktSalaryComponentDto>();
+    }
+
+
+    /// <summary>
+    /// 更新薪资组成表(SalaryComponent)
+    /// </summary>
+    /// <param name="id">薪资组成表(SalaryComponent)ID</param>
+    /// <param name="dto">更新薪资组成表(SalaryComponent)DTO</param>
+    /// <returns>薪资组成表(SalaryComponent)DTO</returns>
+    public async Task<TaktSalaryComponentDto> UpdateSalaryComponentAsync(long id, TaktSalaryComponentUpdateDto dto)
+    {
+        var entity = await _repository.GetByIdAsync(id);
+        if (entity == null)
+            throw new TaktBusinessException("validation.salarycomponentNotFound");
+
+        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.ComponentCode, dto.ComponentCode, id, $"薪资组成表编码 {dto.ComponentCode} 已存在");
+
+        dto.Adapt(entity, typeof(TaktSalaryComponentUpdateDto), typeof(TaktSalaryComponent));
+        entity.UpdatedAt = DateTime.Now;
+        await _repository.UpdateAsync(entity);
+
+        return (await GetSalaryComponentByIdAsync(id)) ?? entity.Adapt<TaktSalaryComponentDto>();
+    }
+
+
+    /// <summary>
+    /// 删除薪资组成表(SalaryComponent)
+    /// </summary>
+    /// <param name="id">薪资组成表(SalaryComponent)ID</param>
+    /// <returns>任务</returns>
+    public async Task DeleteSalaryComponentByIdAsync(long id)
+    {
+        var entity = await _repository.GetByIdAsync(id);
+        if (entity == null)
+            throw new TaktBusinessException("validation.salarycomponentNotFound");
+        
+        // 软删除：设置 IsDeleted = 1
+        entity.IsDeleted = 1;
+
+        // 同步更新状态字段为禁用状态（1）
+        entity.Status = 1;
+
+        await _repository.UpdateAsync(entity);
+    }
+
+
+    /// <summary>
+    /// 批量删除薪资组成表(SalaryComponent)
+    /// </summary>
+    /// <param name="ids">薪资组成表(SalaryComponent)ID列表</param>
+    /// <returns>任务</returns>
+    public async Task DeleteSalaryComponentBatchAsync(IEnumerable<long> ids)
+    {
+        var idList = ids.ToList();
+        if (idList.Count == 0) return;
+        // 获取所有要删除的实体
+        var entities = new List<TaktSalaryComponent>();
+        foreach (var id in idList)
+        {
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity != null) entities.Add(entity);
+        }
+        
+        if (entities.Count == 0) return;
+        
+        // 批量更新：设置 IsDeleted = 1，并同步更新 Status = 1（禁用）
+        foreach (var entity in entities)
+        {
+            entity.IsDeleted = 1;
+            entity.Status = 1;
+        }
+        
+        await _repository.UpdateRangeBulkAsync(entities);
+    }
+
+
+    /// <summary>
+    /// 更新薪资组成表(SalaryComponent)状态
+    /// </summary>
+    /// <param name="dto">薪资组成表(SalaryComponent)状态DTO</param>
+    /// <returns>薪资组成表(SalaryComponent)DTO</returns>
+    public async Task<TaktSalaryComponentDto> UpdateSalaryComponentStatusAsync(TaktSalaryComponentStatusDto dto)
+    {
+        var entity = await _repository.GetByIdAsync(dto.SalaryComponentId);
+        if (entity == null)
+            throw new TaktBusinessException("validation.salarycomponentNotFound");
+        entity.Status = dto.Status;
+        entity.UpdatedAt = DateTime.Now;
+        await _repository.UpdateAsync(entity);
+        return await GetSalaryComponentByIdAsync(entity.Id) ?? entity.Adapt<TaktSalaryComponentDto>();
+    }
+
+
+    /// <summary>
+    /// 更新薪资组成表(SalaryComponent)排序
+    /// </summary>
+    /// <param name="dto">薪资组成表(SalaryComponent)排序DTO</param>
+    /// <returns>薪资组成表(SalaryComponent)DTO</returns>
+    public async Task<TaktSalaryComponentDto> UpdateSalaryComponentSortAsync(TaktSalaryComponentSortDto dto)
+    {
+        var entity = await _repository.GetByIdAsync(dto.SalaryComponentId);
+        if (entity == null)
+            throw new TaktBusinessException("validation.salarycomponentNotFound");
+        entity.SortOrder = dto.SortOrder;
+        entity.UpdatedAt = DateTime.Now;
+        await _repository.UpdateAsync(entity);
+        return await GetSalaryComponentByIdAsync(entity.Id) ?? entity.Adapt<TaktSalaryComponentDto>();
+    }
+
+
+    /// <summary>
+    /// 获取薪资组成表(SalaryComponent)导入模板
+    /// </summary>
+    /// <param name="sheetName">工作表名称（可选）</param>
+    /// <param name="fileName">文件名（可选）</param>
+    /// <returns>Excel模板文件信息（文件名和内容）</returns>
+    public async Task<(string fileName, byte[] content)> GetSalaryComponentTemplateAsync(string? sheetName, string? fileName)
+    {
+        var (excelSheet, excelFile) = await ResolveExcelImportTemplateNamesAsync(sheetName, fileName, nameof(TaktSalaryComponent));
+        return await TaktExcelHelper.GenerateTemplateAsync<TaktSalaryComponentTemplateDto>(
+            sheetName: excelSheet,
+            fileName: excelFile
+        );
+    }
+
+
+    /// <summary>
+    /// 导入薪资组成表(SalaryComponent)
+    /// </summary>
+    /// <param name="fileStream">Excel文件流</param>
+    /// <param name="sheetName">工作表名称</param>
+    /// <returns>导入结果（成功数量、失败数量、错误信息列表）</returns>
+    public async Task<(int success, int fail, List<string> errors)> ImportSalaryComponentAsync(Stream fileStream, string? sheetName)
+    {
+        var (excelSheet, _) = await ResolveExcelImportTemplateNamesAsync(sheetName, null, nameof(TaktSalaryComponent));
+        var importData = await TaktExcelHelper.ImportAsync<TaktSalaryComponentImportDto>(fileStream, excelSheet);
+        
+        var successCount = 0;
+        var failCount = 0;
+        var errors = new List<string>();
+        var rowIndex = 0;
+
+        foreach (var item in importData)
+        {
+            rowIndex++;
+            try
+            {
+                // TODO: 添加必要的验证逻辑
+                var entity = item.Adapt<TaktSalaryComponent>();
+                await _repository.CreateAsync(entity);
+                successCount++;
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"行{rowIndex}: {ex.Message}");
+                failCount++;
+            }
+        }
+
+        return (successCount, failCount, errors);
+    }
+
+
+    /// <summary>
+    /// 导出薪资组成表(SalaryComponent)
+    /// </summary>
+    /// <param name="query">查询DTO（可为 null）</param>
+    /// <param name="sheetName">工作表名称（可选）</param>
+    /// <param name="fileName">文件名（可选）</param>
+    /// <returns>Excel 文件信息（文件名与内容）</returns>
+    public async Task<(string fileName, byte[] content)> ExportSalaryComponentAsync(TaktSalaryComponentQueryDto query, string? sheetName, string? fileName)
+    {
+        var predicate = QueryExpression(query ?? new TaktSalaryComponentQueryDto());
+        List<TaktSalaryComponent> list;
+        if (predicate != null)
+            list = await _repository.FindAsync(predicate);
+        else
+            list = await _repository.GetAllAsync();
+
+        var (excelSheet, excelFile) = await ResolveExcelExportNamesAsync(sheetName, fileName, nameof(TaktSalaryComponent));
+        if (list == null || list.Count == 0)
+        {
+            return await TaktExcelHelper.ExportAsync(
+                new List<TaktSalaryComponentExportDto>(),
+                excelSheet,
+                excelFile
+            );
+        }
+
+        var exportData = list.Select(x => x.Adapt<TaktSalaryComponentExportDto>()).ToList();
+        return await TaktExcelHelper.ExportAsync(
+            exportData,
+            excelSheet,
+            excelFile
+        );
+    }
+
+
+
+    /// <summary>
+    /// 构建薪资组成表查询表达式
+    /// </summary>
+    /// <param name="queryDto">薪资组成表查询DTO</param>
+    /// <returns>查询表达式</returns>
+    private static Expression<Func<TaktSalaryComponent, bool>> QueryExpression(TaktSalaryComponentQueryDto? queryDto)
+    {
+        var exp = Expressionable.Create<TaktSalaryComponent>();
+
+        if (!string.IsNullOrEmpty(queryDto?.KeyWords))
+        {
+            exp = exp.And(x =>
+                x.ComponentCode!.Contains(queryDto.KeyWords) ||
+                x.ComponentName!.Contains(queryDto.KeyWords) ||
+                x.ComponentType!.Contains(queryDto.KeyWords) ||
+                x.CalculationMethod!.Contains(queryDto.KeyWords) ||
+                x.CalculationFormula!.Contains(queryDto.KeyWords) ||
+                x.Description!.Contains(queryDto.KeyWords) ||
+                x.Remark!.Contains(queryDto.KeyWords) ||
+                x.ExtFieldJson!.Contains(queryDto.KeyWords) ||
+                x.CreatedBy!.Contains(queryDto.KeyWords)
+            );
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.ComponentCode))
+        {
+            exp = exp.And(x => x.ComponentCode!.Contains(queryDto.ComponentCode));
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.ComponentName))
+        {
+            exp = exp.And(x => x.ComponentName!.Contains(queryDto.ComponentName));
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.ComponentType))
+        {
+            exp = exp.And(x => x.ComponentType!.Contains(queryDto.ComponentType));
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.CalculationMethod))
+        {
+            exp = exp.And(x => x.CalculationMethod!.Contains(queryDto.CalculationMethod));
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.CalculationFormula))
+        {
+            exp = exp.And(x => x.CalculationFormula!.Contains(queryDto.CalculationFormula));
+        }
+
+        if (queryDto?.FixedAmount.HasValue == true)
+        {
+            exp = exp.And(x => x.FixedAmount == queryDto.FixedAmount);
+        }
+
+        if (queryDto?.Percentage.HasValue == true)
+        {
+            exp = exp.And(x => x.Percentage == queryDto.Percentage);
+        }
+
+        if (queryDto?.IsTaxable.HasValue == true)
+        {
+            exp = exp.And(x => x.IsTaxable == queryDto.IsTaxable);
+        }
+
+        if (queryDto?.IsSocialSecurityBase.HasValue == true)
+        {
+            exp = exp.And(x => x.IsSocialSecurityBase == queryDto.IsSocialSecurityBase);
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.Description))
+        {
+            exp = exp.And(x => x.Description!.Contains(queryDto.Description));
+        }
+
+        if (queryDto?.Status.HasValue == true)
+        {
+            exp = exp.And(x => x.Status == queryDto.Status);
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.Remark))
+        {
+            exp = exp.And(x => x.Remark!.Contains(queryDto.Remark));
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.ExtFieldJson))
+        {
+            exp = exp.And(x => x.ExtFieldJson!.Contains(queryDto.ExtFieldJson));
+        }
+
+        if (queryDto?.CreatedById.HasValue == true)
+        {
+            exp = exp.And(x => x.CreatedById == queryDto.CreatedById);
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.CreatedBy))
+        {
+            exp = exp.And(x => x.CreatedBy!.Contains(queryDto.CreatedBy));
+        }
+
+        if (queryDto?.CreatedAt.HasValue == true)
+        {
+            exp = exp.And(x => x.CreatedAt == queryDto.CreatedAt);
+        }
+
+        // CreatedAt 日期范围查询
+        if (queryDto?.CreatedAtStart.HasValue == true)
+        {
+            exp = exp.And(x => x.CreatedAt >= queryDto.CreatedAtStart);
+        }
+        if (queryDto?.CreatedAtEnd.HasValue == true)
+        {
+            exp = exp.And(x => x.CreatedAt <= queryDto.CreatedAtEnd);
+        }
+
+        return exp.ToExpression();
+    }
+}

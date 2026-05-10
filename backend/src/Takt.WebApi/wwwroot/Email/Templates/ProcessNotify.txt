@@ -1,0 +1,19 @@
+========================================
+{{Title}}
+========================================
+
+{{Greeting}}
+
+{{LabelProcessName}} {{ProcessName}}
+{{LabelApplicant}}   {{Applicant}}
+{{LabelApplyTime}} {{ApplyTime}}
+{{LabelCurrentNode}} {{CurrentNode}}
+
+{{Content}}
+
+{{LabelActionHint}} {{ActionHint}}
+
+----------------------------------------
+{{LabelDate}}{{Date}}
+{{Footer}}
+{{Copyright}}

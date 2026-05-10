@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="Common_Greeting" xml:space="preserve">
+    <value>عزيزي {0}({1}):</value>
+  </data>
+  <data name="Common_Date" xml:space="preserve">
+    <value>التاريخ: </value>
+  </data>
+  <data name="Common_Footer" xml:space="preserve">
+    <value>هذه رسالة آلية. يرجى عدم الرد.</value>
+  </data>
+  <data name="Common_Copyright" xml:space="preserve">
+    <value>© 2025 Takt Digital Factory (TDF)</value>
+  </data>
+  <data name="Common_SecurityTip" xml:space="preserve">
+    <value>[إشعار أمني]</value>
+  </data>
+  <data name="Common_SecurityTip1" xml:space="preserve">
+    <value>يرجى تسجيل الدخول وتغيير كلمة المرور في أقرب وقت ممكن.</value>
+  </data>
+  <data name="Common_SecurityTip2" xml:space="preserve">
+    <value>استخدم كلمة مرور قوية (حروف وأرقام ورموز خاصة).</value>
+  </data>
+  <data name="Common_SecurityTip3" xml:space="preserve">
+    <value>لا تشارك كلمة المرور مع الآخرين.</value>
+  </data>
+  <data name="InitialPassword_Subject" xml:space="preserve">
+    <value>نجاح التسجيل</value>
+  </data>
+  <data name="InitialPassword_Title" xml:space="preserve">
+    <value>[نجاح التسجيل]</value>
+  </data>
+  <data name="InitialPassword_UserSuffix" xml:space="preserve">
+    <value> مستخدم</value>
+  </data>
+  <data name="InitialPassword_MsgRegSuccess" xml:space="preserve">
+    <value>لقد سجلت بنجاح. تم إنشاء كلمة مرور أولية لك.</value>
+  </data>
+  <data name="InitialPassword_LabelPassword" xml:space="preserve">
+    <value>[كلمة المرور الأولية]</value>
+  </data>
+  <data name="ForgotPassword_Subject" xml:space="preserve">
+    <value>إعادة تعيين كلمة المرور</value>
+  </data>
+  <data name="ForgotPassword_Title" xml:space="preserve">
+    <value>[إعادة تعيين كلمة المرور]</value>
+  </data>
+  <data name="ForgotPassword_MsgResetIntro" xml:space="preserve">
+    <value>تلقينا طلب إعادة تعيين كلمة المرور للحساب {0}.&#10;تم الإرسال إلى {1}.</value>
+  </data>
+  <data name="ForgotPassword_LabelNewPassword" xml:space="preserve">
+    <value>[كلمة المرور الجديدة]</value>
+  </data>
+  <data name="ForgotPassword_MsgNotYou" xml:space="preserve">
+    <value>إذا لم تكن أنت، يرجى الاتصال بمسؤول النظام فوراً.</value>
+  </data>
+  <data name="ProcessNotify_LabelProcessName" xml:space="preserve">
+    <value>[العملية]</value>
+  </data>
+  <data name="ProcessNotify_LabelApplicant" xml:space="preserve">
+    <value>[مقدم الطلب]</value>
+  </data>
+  <data name="ProcessNotify_LabelApplyTime" xml:space="preserve">
+    <value>[وقت التقديم]</value>
+  </data>
+  <data name="ProcessNotify_LabelCurrentNode" xml:space="preserve">
+    <value>[العقدة الحالية]</value>
+  </data>
+  <data name="ProcessNotify_LabelActionHint" xml:space="preserve">
+    <value>[الإجراء]</value>
+  </data>
+</root>

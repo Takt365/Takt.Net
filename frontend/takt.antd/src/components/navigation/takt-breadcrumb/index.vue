@@ -1,0 +1,191 @@
+<!-- ========================================
+项目名称:节拍数字工厂 ·Takt Digital Factory (TDF) 
+命名空间:@/components/navigation/takt-breadcrumb
+文件名称:index.vue
+创建时间:2025-01-20
+创建人:Takt365(Cursor AI)
+功能描述:面包屑导航组件,显示当前页面路径层级
+
+版权信息:Copyright (c) 2025 Takt  All rights reserved.
+免责声明:此软件使用 MIT License,作者不承担任何使用风险。
+======================================== -->
+<template>
+  <a-breadcrumb v-if="show">
+    <a-breadcrumb-item
+      v-for="(item, index) in breadcrumbItems"
+      :key="index"
+    >
+      <router-link
+        v-if="item.path && index < breadcrumbItems.length - 1"
+        :to="item.path"
+        class="breadcrumb-link"
+      >
+        <component
+          :is="item.icon"
+          v-if="item.icon"
+        />
+        <span class="breadcrumb-title">{{ item.title }}</span>
+      </router-link>
+      <span
+        v-else
+        class="breadcrumb-plain"
+      >
+        <component
+          :is="item.icon"
+          v-if="item.icon"
+        />
+        <span class="breadcrumb-title">{{ item.title }}</span>
+      </span>
+    </a-breadcrumb-item>
+  </a-breadcrumb>
+</template>
+
+<script setup lang="ts">
+import type { Component } from 'vue'
+import { useRoute } from 'vue-router'
+import type { RouteMeta } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { storeToRefs } from 'pinia'
+import { defaultSetting, useSettingStore } from '@/stores/setting'
+import { useMenuStore } from '@/stores/identity/menu'
+import type { MenuTree } from '@/types/identity/menu'
+
+interface BreadcrumbItem {
+  title: string
+  path?: string
+  icon?: Component
+}
+
+const route = useRoute()
+const { setting } = storeToRefs(useSettingStore())
+const settingSafe = computed(() => setting.value ?? defaultSetting)
+const { t } = useI18n()
+const menuStore = useMenuStore()
+
+// 图标缓存
+const iconCache = ref<Record<string, Component>>({})
+type MenuTreeLegacy = MenuTree & {
+  extValue?: string
+  transKey?: string
+  dictLabel?: string
+}
+
+// 预加载图标（使用 @remixicon/vue 组件名，如 RiHomeLine）
+const preloadIcon = async (iconName: string) => {
+  if (iconCache.value[iconName]) {
+    return
+  }
+  try {
+    const module = await import('@remixicon/vue')
+    const iconModule = module as Record<string, unknown>
+    const IconComponent = iconModule[iconName]
+    if (IconComponent) {
+      iconCache.value[iconName] = markRaw(IconComponent as Component)
+    }
+  } catch {
+    // 图标加载失败，忽略
+  }
+}
+
+
+// 从菜单树中查找菜单项（通过 path 匹配，后端已统一转换为 camelCase）
+const findMenuByPath = (menus: MenuTree[], path: string): MenuTree | null => {
+  for (const menu of menus) {
+    const menuLegacy = menu as MenuTreeLegacy
+    const menuPath = menu.path || menuLegacy.extValue || ''
+    if (menuPath === path) {
+      return menu
+    }
+    if (menu.children) {
+      const found = findMenuByPath(menu.children, path)
+      if (found) {
+        return found
+      }
+    }
+  }
+  return null
+}
+
+// 获取翻译文本（后端已统一转换为 camelCase）
+const getTranslatedTitle = (menu: MenuTree | null, routeMeta: RouteMeta | undefined): string => {
+  if (menu) {
+    const menuLegacy = menu as MenuTreeLegacy
+    const menuL10nKey = menu.menuL10nKey || menuLegacy.transKey
+    if (menuL10nKey) {
+      try {
+        const translated = t(menuL10nKey)
+        // 如果翻译结果有效且不等于 key，使用翻译结果
+        if (translated && translated !== menuL10nKey) {
+          return translated
+        }
+      } catch {
+        // 翻译失败，继续使用 menuName
+      }
+    }
+    const menuName = menu.menuName || menuLegacy.dictLabel || ''
+    if (menuName) {
+      return menuName
+    }
+  }
+  // 如果没有找到菜单，使用路由 meta 中的 title（支持 i18n key）
+  const titleKey = (routeMeta?.title || routeMeta?.titleKey || '') as string
+  return titleKey ? t(titleKey) : ''
+}
+
+const show = computed(() => settingSafe.value.showBreadcrumb)
+
+const breadcrumbItems = computed(() => {
+  // 访问 iconCache 以建立响应式依赖
+  void iconCache.value
+  
+  const items: BreadcrumbItem[] = []
+  const matched = route.matched.filter(item => item.meta && item.meta.title)
+  
+  matched.forEach((item, index) => {
+    const routePath = item.path
+    // 从菜单 store 中查找对应的菜单项（后端已统一转换为 camelCase）
+    const menu = routePath ? findMenuByPath(menuStore.menuList, routePath) : null
+    
+    // 获取图标
+    const menuIcon = menu ? menu.menuIcon : (item.meta?.icon as string)
+    
+    // 预加载图标（异步）
+    if (menuIcon) {
+      preloadIcon(menuIcon)
+    }
+    
+    // 获取图标组件（可能还未加载完成，但会在加载完成后自动更新）
+    const iconComponent = menuIcon ? iconCache.value[menuIcon] : undefined
+    
+    // 获取翻译后的标题
+    const title = getTranslatedTitle(menu, item.meta)
+    
+    // 构建面包屑项，避免在可选属性上直接使用 undefined
+    const breadcrumbItem: BreadcrumbItem = {
+      title: title || item.name as string || ''
+    }
+    
+    if (index < matched.length - 1 && routePath !== undefined) {
+      breadcrumbItem.path = routePath
+    }
+    
+    if (setting.value.breadcrumbIcon && iconComponent) {
+      breadcrumbItem.icon = iconComponent
+    }
+    
+    items.push(breadcrumbItem)
+  })
+  
+  return items
+})
+</script>
+
+<style scoped lang="less">
+// 图标与文本间隔统一 6px
+:deep(.breadcrumb-link),
+:deep(.breadcrumb-plain) {
+  .breadcrumb-title {
+    margin-left: 6px;
+  }
+}
+</style>

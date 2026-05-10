@@ -1,0 +1,75 @@
+// ========================================
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：@/api/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}
+// 文件名称：{{ table.entity_name_kebab }}.ts
+// 创建时间：2025-02-02
+// 创建人：{{ table.gen_author }}
+// 功能描述：{{ table.comment }}相关 API，对应后端 {{ if table.controller_class_name != null && table.controller_class_name != ""; table.controller_class_name; else; table.entity_class_name + "sController"; end }}
+//
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+{{ has_export = false; has_template = false; for a in table.controller_actions; if a.MethodName == "ExportAsync"; has_export = true; end; if a.MethodName == "GetTemplateAsync"; has_template = true; end; end }}
+import request{{ if has_export || has_template }}, { type BlobDownloadWithMeta }{{ end }} from '@/api/request'
+import type { TaktPagedResult, TaktSelectOption } from '@/types/common'
+{{ ts_type_import_count = 0 }}
+{{~ for cat in table.dto_category_descriptors ~}}
+{{~ if cat.Name != "TemplateDto" && cat.Name != "ImportDto" && cat.Name != "ExportDto" ~}}{{ ts_type_import_count = ts_type_import_count + 1 }}{{~ end ~}}
+{{~ end ~}}
+{{ if ts_type_import_count > 0 }}
+import type {
+{{ ts_type_import_index = 0 }}
+{{~ for cat in table.dto_category_descriptors ~}}
+{{~ if cat.Name != "TemplateDto" && cat.Name != "ImportDto" && cat.Name != "ExportDto" ~}}
+{{ ts_type_import_index = ts_type_import_index + 1 }}
+  {{ cat.TsInterfaceName }}{{ if ts_type_import_index < ts_type_import_count }},{{ end }}
+{{~ end ~}}
+{{~ end ~}}
+} from '@/types/{{ table.frontend_module_path }}/{{ table.entity_name_kebab }}'
+{{ end }}
+
+// ========================================
+// {{ table.comment }}相关 API（按 table.controller_actions 顺序，与 TaktGenTemplateContext.BuildControllerActions 一致；含 list、{id}、options、增删改、批量删除 POST /delete、导入导出等）
+// ========================================
+
+const {{ table.entity_name_camel }}Url = '{{ table.api_base_path }}'
+
+{{~ for action in table.controller_actions ~}}
+/**
+ * {{ action.Summary }}
+ * 对应后端：{{ action.MethodName }}{{ if action.Route == "options" }} — GET /options（返回 TaktSelectOption[]，与 getUserOptions 约定一致）{{ end }}
+ */
+export function {{ action.FrontendMethodName }}({{ action.FrontendSignature }}): {{ if action.MethodName == "GetTemplateAsync" || action.MethodName == "ExportAsync" }}Promise<BlobDownloadWithMeta>{{ else }}{{ action.FrontendReturnType }}{{ end }} {
+{{ if action.MethodName == "ImportAsync" }}
+  const formData = new FormData()
+  formData.append('file', file)
+  if (sheetName) {
+    formData.append('sheetName', sheetName)
+  }
+{{ end }}
+  return request({
+{{ if action.Route == "{id}" }}
+    url: {{ "`" }}${{ table.entity_name_camel }}Url/${{ "{" }}id{{ "}" }}{{ "`" }},
+{{ else if action.Route == "" }}
+    url: {{ table.entity_name_camel }}Url,
+{{ else if action.Route == "options" }}
+    url: {{ "`" }}${{ table.entity_name_camel }}Url/options{{ "`" }},
+{{ else }}
+    url: {{ "`" }}${{ table.entity_name_camel }}Url/{{ action.Route }}{{ "`" }},
+{{ end }}
+    method: '{{ if action.HttpMethod == "HttpGet" }}get{{ else if action.HttpMethod == "HttpPost" }}post{{ else if action.HttpMethod == "HttpPut" }}put{{ else }}delete{{ end }}'{{ if action.MethodName == "GetTemplateAsync" }},
+    params: { sheetName, fileName }{{ else if action.MethodName == "ExportAsync" }},
+    data: query,
+    params: { sheetName, fileName }{{ else if action.FrontendRequestKey == "params" }},
+    params{{ else if action.FrontendRequestKey == "data" }},
+    data{{ else if action.FrontendRequestKey == "data: ids" }},
+    data: ids{{ else if action.FrontendRequestKey == "formData" }},
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }{{ end }}{{ if action.MethodName == "GetTemplateAsync" || action.MethodName == "ExportAsync" }},
+    responseType: 'blob',
+    blobWithHeaders: true{{ end }}
+  })
+}
+{{~ end ~}}

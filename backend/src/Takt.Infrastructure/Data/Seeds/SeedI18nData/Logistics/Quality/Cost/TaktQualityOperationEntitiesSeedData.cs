@@ -1,0 +1,176 @@
+// ========================================
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：Takt.Infrastructure.Data.Seeds
+// 文件名称：TaktQualityOperationEntitiesSeedData.cs
+// 创建时间：2026-05-10
+// 创建人：Takt365(AI Auto-Generated)
+// 功能描述：TaktQualityOperation 实体字段翻译种子数据（自动生成）
+//
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+using Microsoft.Extensions.DependencyInjection;
+using Takt.Domain.Entities.Routine.Tasks.I18n;
+using Takt.Domain.Repositories;
+using Takt.Infrastructure.Tenant;
+
+namespace Takt.Infrastructure.Data.Seeds.SeedI18nData.Logistics.Quality.Cost;
+
+/// <summary>
+/// TaktQualityOperation 实体翻译种子数据（自动生成，与 TaktQualityOperation.cs 属性一一对应）
+/// </summary>
+public class TaktQualityOperationEntitiesSeedData : ITaktSeedData
+{
+    public int Order => 999;
+
+    public async Task<(int InsertCount, int UpdateCount)> SeedAsync(IServiceProvider serviceProvider, string configId)
+    {
+        var translationRepository = serviceProvider.GetRequiredService<ITaktRepository<TaktTranslation>>();
+        var languageRepository = serviceProvider.GetRequiredService<ITaktRepository<TaktLanguage>>();
+
+        int insertCount = 0;
+        int updateCount = 0;
+        var originalConfigId = TaktTenantContext.CurrentConfigId;
+
+        try
+        {
+            var languages = await languageRepository.FindAsync(l => l.LanguageStatus == 1 && l.IsDeleted == 0);
+            if (languages == null || languages.Count == 0)
+                return (0, 0);
+
+            var cultureCodeToLanguageId = languages.ToDictionary(l => l.CultureCode, l => l.Id);
+            var allTranslations = GetAllTaktQualityOperationEntityTranslations();
+
+            foreach (var translation in allTranslations)
+            {
+                if (!cultureCodeToLanguageId.TryGetValue(translation.CultureCode, out var languageId))
+                    continue;
+
+                var existing = await translationRepository.GetAsync(t =>
+                    t.ResourceKey == translation.ResourceKey &&
+                    t.CultureCode == translation.CultureCode &&
+                    t.IsDeleted == 0);
+
+                if (existing == null)
+                {
+                    await translationRepository.CreateAsync(new TaktTranslation
+                    {
+                        LanguageId = languageId,
+                        CultureCode = translation.CultureCode,
+                        ResourceKey = translation.ResourceKey,
+                        TranslationValue = translation.TranslationValue,
+                        ResourceType = translation.ResourceType,
+                        ResourceGroup = translation.ResourceGroup,
+                        SortOrder = translation.SortOrder,
+                        IsDeleted = 0
+                    });
+                    insertCount++;
+                }
+                else if (existing.TranslationValue != translation.TranslationValue)
+                {
+                    existing.LanguageId = languageId;
+                    existing.TranslationValue = translation.TranslationValue;
+                    existing.ResourceType = translation.ResourceType;
+                    existing.ResourceGroup = translation.ResourceGroup;
+                    await translationRepository.UpdateAsync(existing);
+                    updateCount++;
+                }
+                else if (existing.LanguageId != languageId)
+                {
+                    existing.LanguageId = languageId;
+                    await translationRepository.UpdateAsync(existing);
+                    updateCount++;
+                }
+            }
+        }
+        finally
+        {
+            TaktTenantContext.CurrentConfigId = originalConfigId;
+        }
+
+        return (insertCount, updateCount);
+    }
+
+    /// <summary>
+    /// 获取所有 TaktQualityOperation 实体名称及字段翻译（自动生成，与 TaktQualityOperation.cs 一一对应）
+    /// </summary>
+    private static List<TaktTranslation> GetAllTaktQualityOperationEntityTranslations()
+    {
+        return new List<TaktTranslation>
+        {
+
+            // entity.qualityoperation（实体名称）
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityoperation._self", TranslationValue = "品质业务主", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 1 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityoperation._self", TranslationValue = "品质业务主", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 1 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityoperation._self", TranslationValue = "品质业务主", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 1 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityoperation._self", TranslationValue = "品质业务主", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 1 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityoperation._self", TranslationValue = "品质业务主", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 1 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityoperation._self", TranslationValue = "品质业务主", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 1 },
+
+            // entity.qualityoperation.plantcode
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityoperation.plantcode", TranslationValue = "Code", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityoperation.plantcode", TranslationValue = "コード", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityoperation.plantcode", TranslationValue = "코드", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityoperation.plantcode", TranslationValue = "工厂代码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityoperation.plantcode", TranslationValue = "代碼", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityoperation.plantcode", TranslationValue = "代碼", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
+
+            // entity.qualityoperation.no
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityoperation.no", TranslationValue = "Number", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityoperation.no", TranslationValue = "番号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityoperation.no", TranslationValue = "번호", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityoperation.no", TranslationValue = "品质业务编号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityoperation.no", TranslationValue = "編號", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityoperation.no", TranslationValue = "編號", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+
+            // entity.qualityoperation.month
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityoperation.month", TranslationValue = "业务年月", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityoperation.month", TranslationValue = "业务年月", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityoperation.month", TranslationValue = "业务年月", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityoperation.month", TranslationValue = "业务年月", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityoperation.month", TranslationValue = "业务年月", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityoperation.month", TranslationValue = "业务年月", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+
+            // entity.qualityoperation.customername
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityoperation.customername", TranslationValue = "顾客名", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityoperation.customername", TranslationValue = "顾客名", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityoperation.customername", TranslationValue = "顾客名", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityoperation.customername", TranslationValue = "顾客名", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityoperation.customername", TranslationValue = "顾客名", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityoperation.customername", TranslationValue = "顾客名", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+
+            // entity.qualityoperation.debitnoteno
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityoperation.debitnoteno", TranslationValue = "Debit Note No", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityoperation.debitnoteno", TranslationValue = "Debit Note No", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityoperation.debitnoteno", TranslationValue = "Debit Note No", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityoperation.debitnoteno", TranslationValue = "Debit Note No", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityoperation.debitnoteno", TranslationValue = "Debit Note No", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityoperation.debitnoteno", TranslationValue = "Debit Note No", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+
+            // entity.qualityoperation.recorder
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityoperation.recorder", TranslationValue = "记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityoperation.recorder", TranslationValue = "记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityoperation.recorder", TranslationValue = "记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityoperation.recorder", TranslationValue = "记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityoperation.recorder", TranslationValue = "记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityoperation.recorder", TranslationValue = "记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+
+            // entity.qualityoperation.totalqualitycost
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityoperation.totalqualitycost", TranslationValue = "质量总成本", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityoperation.totalqualitycost", TranslationValue = "质量总成本", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityoperation.totalqualitycost", TranslationValue = "质量总成本", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityoperation.totalqualitycost", TranslationValue = "质量总成本", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityoperation.totalqualitycost", TranslationValue = "质量总成本", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityoperation.totalqualitycost", TranslationValue = "质量总成本", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+
+            // entity.qualityoperation.costcurrency
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityoperation.costcurrency", TranslationValue = "成本币种", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityoperation.costcurrency", TranslationValue = "成本币种", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityoperation.costcurrency", TranslationValue = "成本币种", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityoperation.costcurrency", TranslationValue = "成本币种", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityoperation.costcurrency", TranslationValue = "成本币种", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityoperation.costcurrency", TranslationValue = "成本币种", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+        };
+    }
+}

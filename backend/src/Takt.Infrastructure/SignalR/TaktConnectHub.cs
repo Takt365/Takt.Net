@@ -1,0 +1,426 @@
+﻿// ========================================
+// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
+// 命名空间：Takt.Infrastructure.SignalR
+// 文件名称：TaktConnectHub.cs
+// 创建时间：2025-01-20
+// 创建人：Takt365(Cursor AI)
+// 功能描述：Takt连接Hub，用于管理在线用户连接
+// 
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using Takt.Application.Dtos.Routine.Tasks.SignalR;
+using Takt.Application.Services.Routine.Tasks.SignalR;
+using Takt.Application.Services.Routine.Tasks.SignalR.ConnectEngine;
+using Takt.Domain.Entities.Routine.Tasks.SignalR;
+using Takt.Domain.Events;
+using Takt.Domain.Interfaces;
+using Takt.Domain.Repositories;
+using Takt.Infrastructure.User;
+using Takt.Shared.Helpers;
+
+namespace Takt.Infrastructure.SignalR;
+
+/// <summary>
+/// Takt连接Hub，用于管理在线用户连接
+/// </summary>
+[Authorize] // 保护 Hub，要求连接必须携带有效 Token
+public class TaktConnectHub : Hub
+{
+    private readonly ITaktOnlineService _onlineService;
+    private readonly ITaktRepository<TaktOnline> _onlineRepository;
+    private readonly ITaktUserContext _userContext;
+    private readonly ITaktTenantContext? _tenantContext;
+    private readonly ITaktEventBus? _eventBus;
+    private readonly ITakeConnectEngineService? _signalREngine;
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="onlineService">在线用户服务</param>
+    /// <param name="onlineRepository">在线用户仓储</param>
+    /// <param name="userContext">用户上下文（须注入；与 HTTP 管道共用 <see cref="ITaktUserContext"/>)</param>
+    /// <param name="tenantContext">租户上下文（可选）</param>
+    /// <param name="eventBus">事件总线（可选）</param>
+    /// <param name="signalREngine">SignalR 引擎（可选）</param>
+    public TaktConnectHub(
+        ITaktOnlineService onlineService,
+        ITaktRepository<TaktOnline> onlineRepository,
+        ITaktUserContext userContext,
+        ITaktTenantContext? tenantContext = null,
+        ITaktEventBus? eventBus = null,
+        ITakeConnectEngineService? signalREngine = null)
+    {
+        _onlineService = onlineService;
+        _onlineRepository = onlineRepository;
+        _userContext = userContext;
+        _tenantContext = tenantContext;
+        _eventBus = eventBus;
+        _signalREngine = signalREngine;
+    }
+
+    /// <summary>
+    /// 客户端连接时调用
+    /// </summary>
+    public override async Task OnConnectedAsync()
+    {
+        var prevPrincipal = TaktUserContext.HubInvocationPrincipal;
+        TaktUserContext.HubInvocationPrincipal = Context.User;
+        try
+        {
+        var connectionId = Context.ConnectionId;
+        var httpContext = Context.GetHttpContext();
+        
+        // 调试信息：检查认证状态和 token
+        var isAuthenticated = httpContext?.User?.Identity?.IsAuthenticated ?? false;
+        var accessTokenFromQuery = httpContext?.Request.Query["access_token"].ToString();
+        var authHeader = httpContext?.Request.Headers["Authorization"].ToString();
+        
+        TaktLogger.Debug("SignalR 连接调试信息: ConnectionId: {ConnectionId}, IsAuthenticated: {IsAuthenticated}, HasAccessTokenFromQuery: {HasAccessToken}, HasAuthHeader: {HasAuthHeader}", 
+            connectionId ?? string.Empty, isAuthenticated, !string.IsNullOrEmpty(accessTokenFromQuery), !string.IsNullOrEmpty(authHeader));
+
+        await _userContext.GetCurrentUserAsync();
+        RequireResolvedLoginUser();
+        var userName = _userContext.GetCurrentUserName()!.Trim();
+        var userId = _userContext.GetCurrentUserId()!.Value;
+        TaktLogger.Information("开始处理连接 Hub 连接请求，用户: {UserName}, ConnectionId: {ConnectionId}", userName, connectionId ?? string.Empty);
+        
+        try
+        {
+
+            // 获取客户端信息
+            var connectIp = httpContext?.Connection.RemoteIpAddress?.ToString();
+            var userAgent = httpContext?.Request.Headers["User-Agent"].ToString();
+            var connectTime = DateTime.Now;
+
+            // 解析设备信息（简化版，实际可以使用 UserAgent 解析库）
+            var deviceType = ParseDeviceType(userAgent);
+            var browserType = ParseBrowserType(userAgent);
+            var operatingSystem = ParseOperatingSystem(userAgent);
+
+            // 创建在线用户记录（仓储工厂会自动根据 TaktOnline 实体类型切换到 Routine 数据库）
+            var createDto = new TaktOnlineCreateDto
+            {
+                ConnectionId = connectionId ?? string.Empty,
+                UserName = userName,
+                UserId = userId,
+                OnlineStatus = 0, // 0=在线
+                ConnectIp = connectIp,
+                ConnectLocation = null, // 可以通过IP地址解析地理位置
+                UserAgent = userAgent,
+                DeviceType = deviceType,
+                BrowserType = browserType,
+                OperatingSystem = operatingSystem,
+                ConnectTime = connectTime
+            };
+
+            await _onlineService.CreateOnlineAsync(createDto);
+
+            // 加入用户组（按用户名分组）
+            if (!string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(connectionId))
+            {
+                await Groups.AddToGroupAsync(connectionId, $"User_{userName}");
+            }
+
+            // 向当前客户端发送上线欢迎消息
+            var realName = _userContext.GetCurrentRealName();
+            var welcomeMessage = $"欢迎 {realName ?? userName} 上线！连接成功，当前时间：{connectTime:yyyy-MM-dd HH:mm:ss}";
+            // UserId 用字符串避免前端 JSON 数字精度丢失（雪花 Id 超出 JS 安全整数）
+            var userIdStr = userId.ToString();
+            
+            await Clients.Caller.SendAsync("OnlineMessage", new
+            {
+                Message = welcomeMessage,
+                MessageType = "Online",
+                UserName = userName,
+                UserId = userIdStr,
+                RealName = realName,
+                ConnectTime = connectTime,
+                ConnectIp = connectIp,
+                DeviceType = deviceType
+            });
+
+            // 通知其他客户端有新用户上线
+            await Clients.Others.SendAsync("UserConnected", new
+            {
+                UserName = userName,
+                UserId = userIdStr,
+                ConnectTime = connectTime
+            });
+
+            // 发布用户连接事件
+            if (_eventBus != null)
+            {
+                await _eventBus.PublishAsync(new TaktBusinessEvent
+                {
+                    Module = "SignalR",
+                    Action = "UserConnected",
+                    EntityId = userId,
+                    EntityType = "TaktOnline",
+                    OperatorId = userId,
+                    Data = new
+                    {
+                        UserName = userName,
+                        ConnectionId = connectionId,
+                        DeviceType = deviceType,
+                        ConnectIp = connectIp,
+                        ConnectTime = connectTime
+                    }
+                });
+            }
+
+            TaktLogger.Information("连接 Hub 连接成功，用户: {UserName}, ConnectionId: {ConnectionId}, IP: {ConnectIp}, 设备: {DeviceType}", 
+                userName, connectionId ?? string.Empty, connectIp ?? string.Empty, deviceType ?? string.Empty);
+
+            await base.OnConnectedAsync();
+        }
+        catch (Exception ex)
+        {
+            TaktLogger.Error(ex, "连接 Hub 连接失败，用户: {UserName}, ConnectionId: {ConnectionId}, 错误: {ErrorMessage}", 
+                userName ?? string.Empty, connectionId ?? string.Empty, ex.Message ?? string.Empty);
+            throw;
+        }
+        }
+        finally
+        {
+            TaktUserContext.HubInvocationPrincipal = prevPrincipal;
+        }
+    }
+
+    /// <summary>
+    /// 客户端断开连接时调用
+    /// </summary>
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        var prevPrincipal = TaktUserContext.HubInvocationPrincipal;
+        TaktUserContext.HubInvocationPrincipal = Context.User;
+        try
+        {
+        var connectionId = Context.ConnectionId;
+        await _userContext.GetCurrentUserAsync();
+        RequireResolvedLoginUser();
+        var userName = _userContext.GetCurrentUserName()!.Trim();
+        
+        if (exception != null)
+        {
+            TaktLogger.Warning("连接 Hub 断开连接（异常），用户: {UserName}, ConnectionId: {ConnectionId}, 错误: {ErrorMessage}", 
+                userName, connectionId, exception.Message);
+        }
+        else
+        {
+            TaktLogger.Information("连接 Hub 断开连接（正常），用户: {UserName}, ConnectionId: {ConnectionId}", 
+                userName, connectionId);
+        }
+        
+        try
+        {
+            // 查找在线用户记录（仓储工厂会自动根据 TaktOnline 实体类型切换到 Routine 数据库）
+            var online = await _onlineRepository.GetAsync(o => o.ConnectionId == connectionId && o.IsDeleted == 0);
+            if (online != null)
+            {
+                // 更新断开时间和连接时长
+                var disconnectTime = DateTime.Now;
+                var connectTime = online.ConnectTime;
+                var connectionDuration = (int)(disconnectTime - connectTime).TotalSeconds;
+
+                online.DisconnectTime = disconnectTime;
+                online.ConnectionDuration = connectionDuration;
+                online.OnlineStatus = 1; // 1=离线
+
+                await _onlineRepository.UpdateAsync(online);
+                TaktLogger.Information("连接 Hub 断开连接成功，用户: {UserName}, ConnectionId: {ConnectionId}, 连接时长: {Duration}秒", 
+                    userName, connectionId, connectionDuration);
+            }
+
+            // 从用户组中移除
+            if (!string.IsNullOrEmpty(userName))
+            {
+                await Groups.RemoveFromGroupAsync(connectionId, $"User_{userName}");
+            }
+
+            // 通知其他客户端用户已离线
+            await Clients.Others.SendAsync("UserDisconnected", new
+            {
+                UserName = userName,
+                DisconnectTime = DateTime.Now
+            });
+
+            // 发布用户断开连接事件
+            if (_eventBus != null)
+            {
+                await _eventBus.PublishAsync(new TaktBusinessEvent
+                {
+                    Module = "SignalR",
+                    Action = "UserDisconnected",
+                    EntityId = online?.UserId ?? 0,
+                    EntityType = "TaktOnline",
+                    OperatorId = online?.UserId,
+                    Data = new
+                    {
+                        UserName = userName,
+                        ConnectionId = connectionId,
+                        DisconnectTime = DateTime.Now
+                    }
+                });
+            }
+
+            await base.OnDisconnectedAsync(exception);
+        }
+        catch (Exception ex)
+        {
+            TaktLogger.Error(ex, "连接 Hub 断开连接处理失败，用户: {UserName}, ConnectionId: {ConnectionId}, 错误: {ErrorMessage}", 
+                userName, connectionId, ex.Message);
+            throw;
+        }
+        }
+        finally
+        {
+            TaktUserContext.HubInvocationPrincipal = prevPrincipal;
+        }
+    }
+
+    /// <summary>
+    /// 心跳更新（客户端定期调用以保持连接活跃）
+    /// </summary>
+    public async Task Heartbeat()
+    {
+        try
+        {
+            await _userContext.GetCurrentUserAsync();
+            RequireResolvedLoginUser();
+            var connectionId = Context.ConnectionId;
+            
+            // 使用 SignalR 引擎更新最后活动时间
+            if (_signalREngine != null)
+            {
+                await _signalREngine.UpdateLastActiveTimeAsync(new TaktOnlineLastActiveTimeUpdateDto { ConnectionId = connectionId });
+            }
+            else
+            {
+                // 降级：直接更新 LastActiveTime 字段（不依赖服务层）
+                var online = await _onlineRepository.GetAsync(o => o.ConnectionId == connectionId && o.IsDeleted == 0);
+                if (online != null)
+                {
+                    online.LastActiveTime = DateTime.Now;
+                    online.UpdatedAt = DateTime.Now;
+                    await _onlineRepository.UpdateAsync(online);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            if (ex is HubException)
+                throw;
+
+            TaktLogger.Error(ex, "处理心跳更新时发生错误");
+        }
+    }
+
+    /// <summary>
+    /// 获取在线用户列表
+    /// </summary>
+    public async Task<List<object>> GetOnlineUsers()
+    {
+        try
+        {
+            await _userContext.GetCurrentUserAsync();
+            RequireResolvedLoginUser();
+
+            // 直接使用仓储查询在线用户，避免复杂的查询表达式导致 SQL 转换错误
+            var onlines = await _onlineRepository.FindAsync(o => o.IsDeleted == 0 && o.OnlineStatus == 0);
+            
+            return onlines.Select(u => new
+            {
+                UserName = u.UserName,
+                UserId = u.UserId,
+                ConnectTime = u.ConnectTime,
+                LastActiveTime = u.LastActiveTime
+            }).Cast<object>().ToList();
+        }
+        catch (Exception ex)
+        {
+            if (ex is HubException)
+                throw;
+
+            TaktLogger.Error(ex, "获取在线用户列表时发生错误");
+            return new List<object>();
+        }
+    }
+
+    /// <summary>
+    /// 已认证 Hub 内必须能解析当前用户主键与登录名；否则立即失败，避免静默写入错误数据。
+    /// </summary>
+    private void RequireResolvedLoginUser()
+    {
+        var id = _userContext.GetCurrentUserId();
+        if (!id.HasValue || id.Value <= 0)
+            throw new HubException("无法解析当前登录用户，请重新登录后重试。");
+
+        var name = _userContext.GetCurrentUserName();
+        if (string.IsNullOrWhiteSpace(name))
+            throw new HubException("无法解析当前登录用户名，请重新登录后重试。");
+    }
+
+    /// <summary>
+    /// 解析设备类型
+    /// </summary>
+    private static string? ParseDeviceType(string? userAgent)
+    {
+        if (string.IsNullOrEmpty(userAgent))
+            return null;
+
+        var ua = userAgent.ToLower();
+        if (ua.Contains("mobile") || ua.Contains("android") || ua.Contains("iphone") || ua.Contains("ipad"))
+            return "Mobile";
+        if (ua.Contains("tablet"))
+            return "Tablet";
+        return "PC";
+    }
+
+    /// <summary>
+    /// 解析浏览器类型
+    /// </summary>
+    private static string? ParseBrowserType(string? userAgent)
+    {
+        if (string.IsNullOrEmpty(userAgent))
+            return null;
+
+        var ua = userAgent.ToLower();
+        if (ua.Contains("chrome") && !ua.Contains("edg"))
+            return "Chrome";
+        if (ua.Contains("firefox"))
+            return "Firefox";
+        if (ua.Contains("safari") && !ua.Contains("chrome"))
+            return "Safari";
+        if (ua.Contains("edg"))
+            return "Edge";
+        if (ua.Contains("opera"))
+            return "Opera";
+        return "Unknown";
+    }
+
+    /// <summary>
+    /// 解析操作系统
+    /// </summary>
+    private static string? ParseOperatingSystem(string? userAgent)
+    {
+        if (string.IsNullOrEmpty(userAgent))
+            return null;
+
+        var ua = userAgent.ToLower();
+        if (ua.Contains("windows"))
+            return "Windows";
+        if (ua.Contains("mac os") || ua.Contains("macos"))
+            return "macOS";
+        if (ua.Contains("linux"))
+            return "Linux";
+        if (ua.Contains("android"))
+            return "Android";
+        if (ua.Contains("ios") || ua.Contains("iphone") || ua.Contains("ipad"))
+            return "iOS";
+        return "Unknown";
+    }
+}

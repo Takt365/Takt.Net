@@ -1,0 +1,76 @@
+// ========================================
+// 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
+// 命名空间：{{ table.controller_namespace | string.replace ".Controllers." ".Validators." }}
+// 文件名称：{{ table.entity_class_name }}Validators.cs
+// 创建时间：2025-02-02
+// 创建人：{{ table.gen_author }}
+// 功能描述：{{ table.comment }} DTO 验证器（Create/Update）。UpdateDto 须继承 CreateDto（与 TaktUserUpdateDto 及 Dto.cs.sbn 生成一致），以便 UpdateValidator 使用 Include(CreateValidator)；其余与 Identity 模块相同：WebApi 注册 + TaktFluentValidationActionFilter。
+//
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+using FluentValidation;
+using {{ table.dto_namespace }};
+using Takt.Domain.Interfaces;
+using Takt.WebApi.Validation;
+
+namespace {{ table.controller_namespace | string.replace ".Controllers." ".Validators." }};
+
+{{ has_create = false }}
+{{ has_update = false }}
+{{~ for cat in table.dto_category_descriptors ~}}
+{{~ if cat.Name == "CreateDto" ~}}{{ has_create = true }}{{~ end ~}}
+{{~ if cat.Name == "UpdateDto" ~}}{{ has_update = true }}{{~ end ~}}
+{{~ end ~}}
+
+{{ if has_create }}
+/// <summary>
+/// {{ table.comment }}创建 DTO 验证器（对应 WebApi 入参校验第一层，用法同 <c>TaktUserCreateDtoValidator</c>）。
+/// </summary>
+public class {{ table.entity_class_name }}CreateDtoValidator : AbstractValidator<{{ table.entity_class_name }}CreateDto>
+{
+    public {{ table.entity_class_name }}CreateDtoValidator(ITaktLocalizer? localizer = null)
+    {
+{{~ for col in columns ~}}
+{{~ if col.csharp_column_name != "Id" && col.is_create == 1 ~}}
+{{ ctype = col.csharp_data_type | string.downcase }}
+{{ is_string = ctype == "string" }}
+{{ is_numeric = ctype == "int" || ctype == "long" || ctype == "short" || ctype == "decimal" || ctype == "double" || ctype == "float" }}
+{{ if col.is_required == 1 && is_string }}
+        RuleFor(x => x.{{ col.csharp_column_name }})
+            .NotEmpty().WithMessage(TaktValidationMessages.Required(localizer, "entity.{{ table.entity_name_pascal | string.downcase }}.{{ col.csharp_column_name | string.downcase }}"));
+{{ else if col.is_required == 1 && is_numeric }}
+        RuleFor(x => x.{{ col.csharp_column_name }})
+            .GreaterThan(0)
+            .WithMessage(TaktValidationMessages.Required(localizer, "entity.{{ table.entity_name_pascal | string.downcase }}.{{ col.csharp_column_name | string.downcase }}"));
+{{ end }}
+{{ if is_string && col.length > 0 }}
+        RuleFor(x => x.{{ col.csharp_column_name }})
+            .MaximumLength({{ col.length }}).WithMessage(TaktValidationMessages.LengthMax(localizer, "entity.{{ table.entity_name_pascal | string.downcase }}.{{ col.csharp_column_name | string.downcase }}", {{ col.length }}));
+{{ end }}
+
+{{~ end ~}}
+{{~ end ~}}
+    }
+}
+
+{{ end }}
+{{ if has_update }}
+/// <summary>
+/// {{ table.comment }}更新 DTO 验证器（要求 <c>{{ table.entity_class_name }}UpdateDto</c> 继承 <c>CreateDto</c>，与 <c>TaktUserUpdateDtoValidator</c> 相同使用 <c>Include(CreateValidator)</c>）。
+/// </summary>
+public class {{ table.entity_class_name }}UpdateDtoValidator : AbstractValidator<{{ table.entity_class_name }}UpdateDto>
+{
+    public {{ table.entity_class_name }}UpdateDtoValidator(ITaktLocalizer? localizer = null)
+    {
+{{ if has_create }}
+        Include(new {{ table.entity_class_name }}CreateDtoValidator(localizer));
+
+{{ end }}
+        RuleFor(x => x.{{ table.entity_class_name | string.replace "Takt" "" }}Id)
+            .GreaterThan(0)
+            .WithMessage(TaktValidationMessages.Required(localizer, "entity.{{ table.entity_name_pascal | string.downcase }}.{{ (table.entity_class_name | string.replace "Takt" "") | string.downcase }}id"));
+    }
+}
+{{ end }}

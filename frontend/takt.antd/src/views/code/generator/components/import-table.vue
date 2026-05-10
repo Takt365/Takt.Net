@@ -1,0 +1,112 @@
+<!-- ======================================== -->
+<!-- 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)  -->
+<!-- 命名空间：@/views/code/generator/components -->
+<!-- 文件名称：import-table.vue -->
+<!-- 功能描述：从数据库导入表（有表导入） -->
+<!-- ======================================== -->
+
+<template>
+  <a-form
+    :label-col="{ span: 6 }"
+    :wrapper-col="{ span: 16 }"
+  >
+    <!-- 选择数据库和表 -->
+    <a-form-item :label="t('common.page.button.datasource')">
+      <a-select
+        v-model:value="configId"
+        :placeholder="t('common.page.form.placeholder.select', { field: t('common.page.button.datasource') })"
+        allow-clear
+        style="width: 100%"
+        @change="handleConfigChange"
+      >
+        <a-select-option
+          v-for="c in databaseConfigs"
+          :key="c.configId"
+          :value="c.configId"
+        >
+          {{ c.displayName }} ({{ c.configId }})
+        </a-select-option>
+      </a-select>
+    </a-form-item>
+    <a-form-item :label="t('code.generator.page.importtable.datatable')">
+      <a-select
+        v-model:value="tableName"
+        :placeholder="t('common.page.form.placeholder.selectfirst', { field: t('common.page.button.datasource') })"
+        :disabled="!configId"
+        :loading="databaseTablesLoading"
+        allow-clear
+        style="width: 100%"
+      >
+        <a-select-option
+          v-for="tbl in databaseTables"
+          :key="tbl.tableName"
+          :value="tbl.tableName"
+        >
+          {{ tbl.tableName }} {{ tbl.tableComment ? `- ${tbl.tableComment}` : '' }}
+        </a-select-option>
+      </a-select>
+    </a-form-item>
+
+    <a-form-item :wrapper-col="{ offset: 6, span: 16 }">
+      <a-button
+        type="primary"
+        :loading="importLoading"
+        :disabled="!configId || !tableName"
+        @click="handleSubmit"
+      >
+        {{ t('common.page.button.import') }}
+      </a-button>
+    </a-form-item>
+  </a-form>
+</template>
+
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import type { DatabaseConfig, DatabaseTableInfo } from '@/api/code/generator/code-generator-specific'
+
+const { t } = useI18n()
+
+const props = withDefaults(
+  defineProps<{
+    open?: boolean
+    databaseConfigs: DatabaseConfig[]
+    databaseTables: DatabaseTableInfo[]
+    databaseTablesLoading?: boolean
+    importLoading?: boolean
+  }>(),
+  { open: false, databaseTablesLoading: false, importLoading: false }
+)
+
+const emit = defineEmits<{
+  'config-change': [configId: string]
+  'submit': [payload: { configId: string; tableName: string }]
+}>()
+
+const configId = ref<string | undefined>()
+const tableName = ref<string | undefined>()
+
+watch(
+  () => props.open,
+  (isOpen) => {
+    if (isOpen) reset()
+  }
+)
+
+function handleConfigChange() {
+  tableName.value = undefined
+  if (configId.value) emit('config-change', configId.value)
+}
+
+function handleSubmit() {
+  if (!configId.value || !tableName.value) return
+  emit('submit', { configId: configId.value, tableName: tableName.value })
+}
+
+function reset() {
+  configId.value = undefined
+  tableName.value = undefined
+}
+
+defineExpose({ reset })
+</script>

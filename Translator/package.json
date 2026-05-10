@@ -1,0 +1,26 @@
+{
+  "name": "takt-translator",
+  "version": "1.0.0",
+  "description": "Takt 智能翻译工具 - 前端后端通用",
+  "main": "src/translator.cjs",
+  "bin": {
+    "takt-translate": "./cli.cjs"
+  },
+  "scripts": {
+    "translate": "node cli.cjs",
+    "translate:all": "node cli.cjs --all",
+    "translate:help": "node cli.cjs --help"
+  },
+  "keywords": [
+    "translation",
+    "i18n",
+    "localization",
+    "libretranslate",
+    "takt"
+  ],
+  "author": "Takt",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

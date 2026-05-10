@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="Common_Greeting" xml:space="preserve">
+    <value>拝啓 {0}({1})：</value>
+  </data>
+  <data name="Common_Date" xml:space="preserve">
+    <value>日付：</value>
+  </data>
+  <data name="Common_Footer" xml:space="preserve">
+    <value>これは自動送信メールです。返信しないでください。</value>
+  </data>
+  <data name="Common_Copyright" xml:space="preserve">
+    <value>© 2025 Takt Digital Factory (TDF)</value>
+  </data>
+  <data name="Common_SecurityTip" xml:space="preserve">
+    <value>【セキュリティのお知らせ】</value>
+  </data>
+  <data name="Common_SecurityTip1" xml:space="preserve">
+    <value>できるだけ早くログインし、パスワードを変更してください。</value>
+  </data>
+  <data name="Common_SecurityTip2" xml:space="preserve">
+    <value>強力なパスワード（英字、数字、特殊文字を含む）をご使用ください。</value>
+  </data>
+  <data name="Common_SecurityTip3" xml:space="preserve">
+    <value>パスワードを他人に教えないでください。</value>
+  </data>
+  <data name="InitialPassword_Subject" xml:space="preserve">
+    <value>ユーザー登録完了のお知らせ</value>
+  </data>
+  <data name="InitialPassword_Title" xml:space="preserve">
+    <value>【ユーザー登録完了のお知らせ】</value>
+  </data>
+  <data name="InitialPassword_UserSuffix" xml:space="preserve">
+    <value>ユーザー</value>
+  </data>
+  <data name="InitialPassword_MsgRegSuccess" xml:space="preserve">
+    <value>登録が完了しました。初期パスワードが発行されています。</value>
+  </data>
+  <data name="InitialPassword_LabelPassword" xml:space="preserve">
+    <value>【初期パスワード】</value>
+  </data>
+  <data name="ForgotPassword_Subject" xml:space="preserve">
+    <value>パスワードリセットのお知らせ</value>
+  </data>
+  <data name="ForgotPassword_Title" xml:space="preserve">
+    <value>【パスワードリセットのお知らせ】</value>
+  </data>
+  <data name="ForgotPassword_MsgResetIntro" xml:space="preserve">
+    <value>アカウント {0} のパスワード再設定リクエストを受け付けました。&#10;{1} に送信しました。</value>
+  </data>
+  <data name="ForgotPassword_LabelNewPassword" xml:space="preserve">
+    <value>【新しいパスワード】</value>
+  </data>
+  <data name="ForgotPassword_MsgNotYou" xml:space="preserve">
+    <value>心当たりがない場合は、至急システム管理者にお問い合わせください。</value>
+  </data>
+  <data name="ProcessNotify_LabelProcessName" xml:space="preserve">
+    <value>【プロセス名】</value>
+  </data>
+  <data name="ProcessNotify_LabelApplicant" xml:space="preserve">
+    <value>【申請者】</value>
+  </data>
+  <data name="ProcessNotify_LabelApplyTime" xml:space="preserve">
+    <value>【申請日時】</value>
+  </data>
+  <data name="ProcessNotify_LabelCurrentNode" xml:space="preserve">
+    <value>【現在のノード】</value>
+  </data>
+  <data name="ProcessNotify_LabelActionHint" xml:space="preserve">
+    <value>【操作ヒント】</value>
+  </data>
+</root>

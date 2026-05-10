@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- IIS 配置示例 - 支持 Vue Router History 模式 -->
+<!-- 将此文件复制到构建产物目录（dist）并重命名为 web.config -->
+<!-- 
+  重要：生产环境必须配置 history fallback，否则刷新页面会出现 404 错误
+  所有非静态资源的请求都应该重定向到 index.html
+-->
+<configuration>
+  <system.webServer>
+    <rewrite>
+      <rules>
+        <!-- History fallback：所有请求都重定向到 index.html -->
+        <rule name="Vue Router History" stopProcessing="true">
+          <match url=".*" />
+          <conditions logicalGrouping="MatchAll">
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+          </conditions>
+          <action type="Rewrite" url="/index.html" />
+        </rule>
+      </rules>
+    </rewrite>
+    
+    <!-- 静态资源缓存 -->
+    <staticContent>
+      <clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="365.00:00:00" />
+    </staticContent>
+    
+    <!-- HTTP 响应头 -->
+    <httpProtocol>
+      <customHeaders>
+        <add name="X-Frame-Options" value="SAMEORIGIN" />
+        <add name="X-Content-Type-Options" value="nosniff" />
+        <add name="X-XSS-Protection" value="1; mode=block" />
+      </customHeaders>
+    </httpProtocol>
+  </system.webServer>
+</configuration>

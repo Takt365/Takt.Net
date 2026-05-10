@@ -1,0 +1,412 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+// View Transitions API 支持 - 主题切换过渡效果
+// 参考：https://developer.chrome.com/docs/web-platform/view-transitions/same-document
+@supports (view-transition-name: none) {
+  // 定义 CSS 变量控制 z-index
+  :root {
+    --view-transition-old-zindex: 9999;
+    --view-transition-new-zindex: 1;
+  }
+
+  // 暗黑主题时的 z-index 反转 - 使用 Ant Design Vue 官方示例的参数
+  [data-doc-theme='dark'] {
+    --view-transition-old-zindex: 1;
+    --view-transition-new-zindex: 9999;
+  }
+
+  // 禁用默认动画，使用自定义圆形展开动画
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
+  // 设置 z-index
+  ::view-transition-old(root) {
+    z-index: var(--view-transition-old-zindex);
+  }
+
+  ::view-transition-new(root) {
+    z-index: var(--view-transition-new-zindex);
+  }
+
+  // 可访问性：尊重用户的减少动画偏好
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation: none !important;
+    }
+  }
+}
+
+// 色弱模式
+.color-weak {
+  filter: invert(80%);
+}
+
+// 灰度模式
+.grayscale {
+  filter: grayscale(100%);
+}
+
+// 统一布局内容区域样式（左右 4px，与树表工具栏边距一致）
+.layout-content {
+  padding: 2px 4px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+// ========================================
+// 统一滚动条样式（避免重复配置）
+// ========================================
+// WebKit 浏览器滚动条基础样式（Edge/Chrome 默认宽度约 10-12px）
+.layout-content,
+.layout-sider,
+.ant-transfer-list-body,
+.tree-transfer :deep(.ant-transfer-list-body),
+.ant-table-body,
+.ant-table-container {
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  // Firefox 滚动条样式（thin 约 8-10px）
+  scrollbar-width: thin;
+}
+
+// 亮色主题滚动条样式（参考 Edge/Firefox 明亮主题默认样式）
+[data-doc-theme='light'] {
+  * {
+    &::-webkit-scrollbar-track {
+      background: transparent !important;
+    }
+  }
+  
+  .layout-content,
+  .layout-content-inner,
+  .layout-sider,
+  .ant-transfer-list-body,
+  .tree-transfer :deep(.ant-transfer-list-body),
+  .ant-table-body,
+  .ant-table-container {
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background-color: #c1c1c1;
+      border-radius: 5px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      transition: background-color 0.2s ease;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: #a8a8a8;
+    }
+    
+    &::-webkit-scrollbar-thumb:active {
+      background-color: #909090;
+    }
+    
+    // Firefox 明亮主题滚动条颜色
+    scrollbar-color: #c1c1c1 transparent;
+  }
+}
+
+// 暗色主题滚动条样式（参考浏览器默认暗黑主题样式）
+[data-doc-theme='dark'] {
+  * {
+    &::-webkit-scrollbar-track {
+      background: #2a2a2a !important;
+    }
+    
+    scrollbar-color: #999999 #2a2a2a !important;
+  }
+  
+  .layout-content,
+  .layout-content-inner,
+  .layout-sider,
+  .ant-transfer-list-body,
+  .tree-transfer :deep(.ant-transfer-list-body),
+  .ant-table-body,
+  .ant-table-container {
+    &::-webkit-scrollbar-track {
+      background: #2a2a2a;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background-color: #999999;
+      border-radius: 5px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      transition: background-color 0.2s ease;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: #a0a0a0;
+    }
+    
+    &::-webkit-scrollbar-thumb:active {
+      background-color: #b0b0b0;
+    }
+    
+    // Firefox 暗黑主题滚动条颜色（轨道使用深色背景）
+    scrollbar-color: #999999 #2a2a2a;
+  }
+}
+
+// 侧边栏容器特殊配置
+.layout-sider {
+  overflow-y: auto !important;
+}
+
+// Transfer 组件特殊配置
+.ant-transfer-list-body,
+.tree-transfer :deep(.ant-transfer-list-body) {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+// RemixIcon Vue 组件统一样式设置
+// 统一设置所有 RemixIcon Vue 组件的大小和对齐方式
+svg[class*="remixicon"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  // 使用负值微调垂直位置，确保图标与文本在同一基线上
+  // -0.125em 是一个经过验证的值，能够精确对齐图标和文本
+  vertical-align: -0.125em !important;
+  // 使用 em 单位确保图标大小与字体大小保持一致
+  font-size: 16px !important;
+  width: 1em !important;
+  height: 1em !important;
+  max-width: 1em !important;
+  max-height: 1em !important;
+}
+
+// 注意：Ant Design Vue 组件（包括 Table、Drawer、Transfer 等）通过 ConfigProvider 的 theme 配置自动适配主题系统，无需额外配置主题样式
+// 只保留必要的布局和功能样式（如文本换行等）
+.ant-table {
+  width: 100%;
+  
+  // 确保表格容器可以横向滚动
+  .ant-table-container {
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+  
+  .ant-table-tbody > tr > td {
+    word-break: break-word;
+  }
+}
+
+// ========================================
+// 表格斑马纹样式（统一配置，避免各组件重复设置）
+// ========================================
+// 亮色主题斑马纹样式
+[data-doc-theme='light'] .ant-table-striped .table-striped td {
+  background-color: #fafafa;
+}
+
+// 暗色主题斑马纹样式
+[data-doc-theme='dark'] .ant-table-striped .table-striped td {
+  background-color: rgb(29, 29, 29);
+}
+
+// ========================================
+// 表单弹窗统一：宽 50%、高 75vh、可拖拽调整宽高（用户/菜单/角色/部门/岗位等）
+// 与 TaktModal centered 一致：整窗在视口内水平垂直居中（避免仅靠子级 margin 时偏一侧）
+// ========================================
+.takt-form-modal-resizable.ant-modal-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.takt-form-modal-resizable.ant-modal-wrap .ant-modal {
+  max-width: 95vw;
+  top: 0;
+  padding-bottom: 0;
+  margin: 0;
+}
+.takt-form-modal-resizable.ant-modal-wrap .ant-modal-content {
+  height: 75vh;
+  min-height: 360px;
+  min-width: 480px;
+  resize: both;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+/* 确保 body 可滚动、footer（提交/取消）始终可见 */
+.takt-form-modal-resizable.ant-modal-wrap .ant-modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.takt-form-modal-resizable.ant-modal-wrap .ant-modal-footer {
+  flex-shrink: 0;
+}
+
+
+// ========================================
+// 表单内容区纵向行高：>=30 字段为 10 行高度，<30 为 5 行高度（约 58px/行）
+// ========================================
+.takt-form-content-rows-10 {
+  min-height: 580px; // 10 行
+}
+.takt-form-content-rows-5 {
+  min-height: 290px; // 5 行
+}
+
+// ========================================
+// 表单设计器（fc-designer）：与官方 https://form-create.com/v3/antd/designer/ 一致，保证右侧配置面板标签完整显示
+// ========================================
+.takt-form-designer,
+.takt-form-antdv-designer {
+  position: relative;
+  &.takt-form-designer--fullscreen,
+  &.takt-form-antdv-designer--fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--ant-color-bg-container, #fff);
+    display: flex;
+    flex-direction: column;
+    & > * {
+      flex: 1;
+      min-height: 0;
+    }
+  }
+  .takt-form-designer__desc,
+  .takt-form-antdv-designer__desc {
+    color: var(--ant-color-text-secondary);
+  }
+  // 右侧配置面板：最小宽度保证“表单布局”“表单对齐”“允许标签换行”等标签完整显示
+  // 兼容 fc-designer 类名及 Ant Design Layout 结构（右侧为最后一列 sider）
+  ._fc-r,
+  .ant-layout-sider._fc-r-wrap,
+  .ant-layout .ant-layout-sider:last-of-type {
+    min-width: 320px !important;
+    width: 320px !important;
+  }
+  ._fc-r-config,
+  ._fc-r-tab-props,
+  ._fc-r-tab-form {
+    min-width: 0;
+  }
+  // 表单项标签不截断、可换行完整显示（右侧配置区）
+  ._fc-r .ant-form-item-label,
+  ._fc-r .ant-form-item-label > label,
+  .ant-layout .ant-layout-sider:last-of-type .ant-form-item-label,
+  .ant-layout .ant-layout-sider:last-of-type .ant-form-item-label > label {
+    white-space: normal !important;
+    word-break: break-word;
+    overflow: visible;
+    text-overflow: unset;
+  }
+  ._fc-r .ant-form-item-label,
+  .ant-layout .ant-layout-sider:last-of-type .ant-form-item-label {
+    line-height: 1.5;
+  }
+  // 左侧组件面板标签完整显示
+  ._fc-l-label,
+  ._fc-l-title,
+  ._fc-l-name,
+  ._fc-l-item,
+  ._fc-r-title,
+  ._fc-r-tabs ._fc-r-tab {
+    white-space: normal !important;
+    overflow: visible;
+  }
+}
+
+// ========================================
+// 流程设计器（LogicFlow）control / dnd / 属性面板实色背景（不依赖 --ant-color-* 是否注入，带回退）
+// ========================================
+.takt-flow-logic-designer {
+  .lf-control,
+  .lf-dndpanel {
+    background-color: var(--ant-color-bg-container, #fff) !important;
+    background: var(--ant-color-bg-container, #fff) !important;
+    border-color: var(--ant-color-border, #d9d9d9) !important;
+  }
+  .lf-control-item {
+    color: var(--ant-color-text, rgba(0, 0, 0, 0.88));
+  }
+  .lf-control-item:hover {
+    background-color: var(--ant-color-fill-quaternary, rgba(0, 0, 0, 0.04)) !important;
+  }
+  .lf-dndpanel .lf-dnd-item,
+  .lf-dndpanel .lf-dnd-item-label {
+    color: var(--ant-color-text, rgba(0, 0, 0, 0.88));
+  }
+  .takt-flow-logic-designer__property-panel,
+  .takt-flow-logic-designer__property-body,
+  .takt-flow-logic-designer__property-title {
+    background-color: var(--ant-color-bg-container, #fff) !important;
+  }
+}
+// 暗色下 control/dnd/属性面板用深色回退（与组件内 .takt-flow-logic-designer--dark 一致）
+.takt-flow-logic-designer--dark {
+  .lf-control,
+  .lf-dndpanel {
+    background-color: var(--ant-color-bg-container, #1f1f1f) !important;
+    background: var(--ant-color-bg-container, #1f1f1f) !important;
+    border-color: var(--ant-color-border, rgba(255, 255, 255, 0.12)) !important;
+  }
+  .lf-control-item,
+  .lf-dndpanel .lf-dnd-item,
+  .lf-dndpanel .lf-dnd-item-label {
+    color: var(--ant-color-text, rgba(255, 255, 255, 0.85));
+  }
+  .lf-control-item svg,
+  .lf-control-item path,
+  .lf-control-item use {
+    fill: var(--ant-color-text, rgba(255, 255, 255, 0.85)) !important;
+    stroke: var(--ant-color-text, rgba(255, 255, 255, 0.85)) !important;
+  }
+  .lf-control-item:hover {
+    background-color: var(--ant-color-fill-quaternary, rgba(255, 255, 255, 0.08)) !important;
+  }
+  .takt-flow-logic-designer__property-panel,
+  .takt-flow-logic-designer__property-body,
+  .takt-flow-logic-designer__property-title {
+    background-color: var(--ant-color-bg-container, #1f1f1f) !important;
+  }
+}
+
+// ========================================
+// 流程设计器（Vue Flow）主题：已移至组件 takt-flow-vue-designer/index.vue 的 <style> 中
+// 原因：Vue Flow 的 CSS 在组件内 import，加载晚于全局 index.less。主题写在全局会被库样式覆盖，无法适配。
+// 必须在组件内、与库样式同块且位于 import 之后书写覆盖，才能随 Ant Design 主题变量生效。
+// ========================================
+
+// 导入样式文件
+@import './color-base.less';
+@import './button.less';
+@import './dict-tag.less';

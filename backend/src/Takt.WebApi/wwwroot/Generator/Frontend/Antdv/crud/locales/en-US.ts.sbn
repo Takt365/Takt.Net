@@ -1,0 +1,14 @@
+export default {
+  page: {
+    /** Field texts (only placeholders for IsRequired fields) */
+    fields: {
+{{~ for col in columns ~}}
+{{~ if col.is_required == 1 ~}}
+      {{ col.ts_column_name }}: {
+        placeholder: '{{ if col.html_type == "select" && col.dict_type }}Please select {{ col.comment }}{{ else }}Please enter {{ col.comment }}{{ end }}'
+      },
+{{~ end ~}}
+{{~ end ~}}
+    }
+  }
+}

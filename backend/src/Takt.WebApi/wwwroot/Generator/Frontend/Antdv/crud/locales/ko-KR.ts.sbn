@@ -1,0 +1,14 @@
+export default {
+  page: {
+    /** 필드 텍스트 (필수 필드의 placeholder 만) */
+    fields: {
+{{~ for col in columns ~}}
+{{~ if col.is_required == 1 ~}}
+      {{ col.ts_column_name }}: {
+        placeholder: '{{ if col.html_type == "select" && col.dict_type }}{{ col.comment }} 선택{{ else }}{{ col.comment }} 입력{{ end }}'
+      },
+{{~ end ~}}
+{{~ end ~}}
+    }
+  }
+}

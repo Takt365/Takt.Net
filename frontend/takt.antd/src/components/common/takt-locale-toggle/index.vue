@@ -1,0 +1,134 @@
+<!-- ========================================
+项目名称:节拍数字工厂 ·Takt Digital Factory (TDF) 
+命名空间:@/components/common/takt-locale-toggle
+文件名称:index.vue
+创建时间:2025-01-20
+创建人:Takt365(Cursor AI)
+功能描述:语言切换组件,用于切换系统显示语言
+
+版权信息:Copyright (c) 2025 Takt  All rights reserved.
+免责声明:此软件使用 MIT License,作者不承担任何使用风险。
+======================================== -->
+<template>
+  <a-dropdown
+    :trigger="['click']"
+    placement="bottomRight"
+  >
+    <a-button type="text">
+      <template #icon>
+        <RiTranslate />
+      </template>
+    </a-button>
+    <template #overlay>
+      <a-menu
+        :selected-keys="[localeStore.locale]"
+        @click="handleMenuClick"
+      >
+        <a-menu-item 
+          v-for="lang in localeStore.enabledLanguages" 
+          :key="lang.code"
+        >
+          <span style="display: inline-flex; align-items: center;">
+            <span
+              :class="getFlagClass(lang.code)"
+              style="font-size: 20px; margin-right: 8px;"
+            />
+            {{ lang.displayName || lang.name }}
+          </span>
+        </a-menu-item>
+      </a-menu>
+    </template>
+  </a-dropdown>
+</template>
+
+<script setup lang="ts">
+import { useLocaleStore } from '@/stores/routine/localization/locale'
+import { RiTranslate } from '@remixicon/vue'
+import { logger } from '@/utils/logger'
+
+const localeStore = useLocaleStore()
+
+/**
+ * 将语言代码映射到国家代码（用于 flag-icons）
+ * @param cultureCode 语言代码（如：zh-CN、en-US）
+ * @returns 国家代码（如：cn、us）
+ */
+const getCountryCode = (cultureCode: string): string => {
+  // 从 cultureCode 中提取国家代码（通常是最后两个字符，转为小写）
+  const parts = cultureCode.split('-')
+  if (parts.length >= 2) {
+    return parts[parts.length - 1]!.toLowerCase()
+  }
+  // 如果没有分隔符，尝试直接使用（转为小写）
+  return cultureCode.toLowerCase()
+}
+
+/**
+ * 获取国旗 CSS 类名（仅用于菜单项）
+ * @param cultureCode 语言代码
+ * @returns flag-icons CSS 类名
+ */
+const getFlagClass = (cultureCode: string): string => {
+  const countryCode = getCountryCode(cultureCode)
+  return `fi fi-${countryCode}`
+}
+
+// 处理菜单点击
+const handleMenuClick = ({ key }: { key: string | number }) => {
+  localeStore.setLocale(String(key))
+}
+
+// 组件挂载时向后端拉取语言列表（store 内已有占位项，避免请求挂起期间下拉为空；并发调用会合并为同一请求）
+onMounted(async () => {
+  await localeStore.loadLanguages()
+  
+  // 确保默认语言已设置（如果当前语言未设置或不在列表中）
+  if (!localeStore.locale || !localeStore.enabledLanguages.find(lang => lang.code === localeStore.locale)) {
+    // 获取设置中的默认语言
+    let defaultLocaleFromSetting: string | null = null
+    try {
+      const { getSetting } = await import('@/stores/setting')
+      const setting = getSetting()
+      if (setting.defaultLocale) {
+        defaultLocaleFromSetting = setting.defaultLocale
+      }
+    } catch (error) {
+      logger.warn('[Locale Toggle] 读取设置失败:', error)
+    }
+    
+    // 优先使用设置中的默认语言
+    if (defaultLocaleFromSetting) {
+      const settingLang = localeStore.enabledLanguages.find(lang => lang.code === defaultLocaleFromSetting)
+      if (settingLang) {
+        localeStore.setLocale(defaultLocaleFromSetting)
+      } else {
+        // 如果设置中的默认语言不可用，尝试使用中文
+        const zhCnLang = localeStore.enabledLanguages.find(lang => lang.code === 'zh-CN')
+        if (zhCnLang) {
+          localeStore.setLocale('zh-CN')
+        }
+      }
+    } else {
+      // 如果没有设置默认语言，使用中文
+      const zhCnLang = localeStore.enabledLanguages.find(lang => lang.code === 'zh-CN')
+      if (zhCnLang) {
+        localeStore.setLocale('zh-CN')
+      }
+    }
+  }
+  
+  // 输出组件使用的语言数据
+  if (import.meta.env.DEV) {
+    logger.debug('[Locale Toggle] 组件使用的语言数据:', {
+      当前语言: localeStore.locale,
+      语言列表: localeStore.languages,
+      启用的语言: localeStore.enabledLanguages,
+      当前语言信息: localeStore.currentLanguage
+    })
+  }
+})
+</script>
+
+<style scoped lang="less">
+
+</style>

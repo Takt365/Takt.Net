@@ -1,0 +1,14 @@
+export default {
+  page: {
+    /** フィールドテキスト（必須フィールドのプレースホルダーのみ） */
+    fields: {
+{{~ for col in columns ~}}
+{{~ if col.is_required == 1 ~}}
+      {{ col.ts_column_name }}: {
+        placeholder: '{{ if col.html_type == "select" && col.dict_type }}{{ col.comment }}を選択してください{{ else }}{{ col.comment }}を入力してください{{ end }}'
+      },
+{{~ end ~}}
+{{~ end ~}}
+    }
+  }
+}

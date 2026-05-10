@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="Common_Greeting" xml:space="preserve">
+    <value>Cher {0}({1}) :</value>
+  </data>
+  <data name="Common_Date" xml:space="preserve">
+    <value>Date : </value>
+  </data>
+  <data name="Common_Footer" xml:space="preserve">
+    <value>Ceci est un message automatique. Veuillez ne pas répondre.</value>
+  </data>
+  <data name="Common_Copyright" xml:space="preserve">
+    <value>© 2025 Takt Digital Factory (TDF)</value>
+  </data>
+  <data name="Common_SecurityTip" xml:space="preserve">
+    <value>[Avis de sécurité]</value>
+  </data>
+  <data name="Common_SecurityTip1" xml:space="preserve">
+    <value>Veuillez vous connecter et modifier votre mot de passe dès que possible.</value>
+  </data>
+  <data name="Common_SecurityTip2" xml:space="preserve">
+    <value>Utilisez un mot de passe fort (lettres, chiffres et caractères spéciaux).</value>
+  </data>
+  <data name="Common_SecurityTip3" xml:space="preserve">
+    <value>Ne partagez pas votre mot de passe avec d'autres.</value>
+  </data>
+  <data name="InitialPassword_Subject" xml:space="preserve">
+    <value>Inscription réussie</value>
+  </data>
+  <data name="InitialPassword_Title" xml:space="preserve">
+    <value>[Inscription réussie]</value>
+  </data>
+  <data name="InitialPassword_UserSuffix" xml:space="preserve">
+    <value> utilisateur</value>
+  </data>
+  <data name="InitialPassword_MsgRegSuccess" xml:space="preserve">
+    <value>Vous vous êtes inscrit avec succès. Un mot de passe initial a été généré pour vous.</value>
+  </data>
+  <data name="InitialPassword_LabelPassword" xml:space="preserve">
+    <value>[Mot de passe initial]</value>
+  </data>
+  <data name="ForgotPassword_Subject" xml:space="preserve">
+    <value>Réinitialisation du mot de passe</value>
+  </data>
+  <data name="ForgotPassword_Title" xml:space="preserve">
+    <value>[Réinitialisation du mot de passe]</value>
+  </data>
+  <data name="ForgotPassword_MsgResetIntro" xml:space="preserve">
+    <value>Nous avons reçu une demande de réinitialisation du mot de passe pour le compte {0}.&#10;Envoyé à {1}.</value>
+  </data>
+  <data name="ForgotPassword_LabelNewPassword" xml:space="preserve">
+    <value>[Nouveau mot de passe]</value>
+  </data>
+  <data name="ForgotPassword_MsgNotYou" xml:space="preserve">
+    <value>Si ce n'était pas vous, veuillez contacter l'administrateur système immédiatement.</value>
+  </data>
+  <data name="ProcessNotify_LabelProcessName" xml:space="preserve">
+    <value>[Processus]</value>
+  </data>
+  <data name="ProcessNotify_LabelApplicant" xml:space="preserve">
+    <value>[Demandeur]</value>
+  </data>
+  <data name="ProcessNotify_LabelApplyTime" xml:space="preserve">
+    <value>[Date de demande]</value>
+  </data>
+  <data name="ProcessNotify_LabelCurrentNode" xml:space="preserve">
+    <value>[Nœud actuel]</value>
+  </data>
+  <data name="ProcessNotify_LabelActionHint" xml:space="preserve">
+    <value>[Action]</value>
+  </data>
+</root>
