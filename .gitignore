@@ -43,7 +43,7 @@ backend/src/Takt.WebApi/appsettings.json
 backend/src/Takt.WebApi/appsettings.Development.json
 backend/src/Takt.WebApi/appsettings.Production.json
 
-# CHANGELOG（由 GitHub Actions 自动生成，本地不维护）
+# CHANGELOG（由 GitHub Actions 自动生成，仅存在于远程仓库）
 CHANGELOG.md
 
 
