@@ -54,11 +54,13 @@ jobs:
           git push origin "${BEFORE_SHA}:refs/heads/${BRANCH}"
 
           # 仅处理本工作流创建的 dev_YYYYMMDDHHMMSS 形态，避免误删其它 dev_ 分支
+          # 排除 master 和 changelog 分支（永远不被删除）
           mapfile -t all < <(
             git ls-remote --heads origin 'refs/heads/dev_*' \
               | awk '{print $2}' \
               | sed 's|^refs/heads/||' \
               | { grep -E '^dev_[0-9]{14}$' || true; } \
+              | grep -vE '^(master|changelog)$' \
               | sort
           )
 
