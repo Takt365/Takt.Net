@@ -16,7 +16,7 @@ export interface ProfitCenter extends TaktEntityBase {
   /** 对应后端字段 profitCenterId */
   profitCenterId: string
   /** 对应后端字段 companyCode */
-  companyCode?: string
+  companyCode: string
   /** 对应后端字段 profitCenterCode */
   profitCenterCode: string
   /** 对应后端字段 profitCenterName */
@@ -112,7 +112,7 @@ export interface ProfitCenterQuery extends TaktPagedQuery {
  */
 export interface ProfitCenterCreate {
   /** 对应后端字段 companyCode */
-  companyCode?: string
+  companyCode: string
   /** 对应后端字段 profitCenterCode */
   profitCenterCode: string
   /** 对应后端字段 profitCenterName */

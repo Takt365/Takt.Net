@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Sales
 // 文件名称：TaktSalesPriceItemDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：销售价格明细表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktSalesPriceItemDto : TaktDtosEntityBase
     /// </summary>
     public TaktSalesPriceItemDto()
     {
+        SalesPriceCode = string.Empty;
         MaterialCode = string.Empty;
         SalesUnit = string.Empty;
     }
@@ -38,6 +39,10 @@ public partial class TaktSalesPriceItemDto : TaktDtosEntityBase
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long SalesPriceId { get; set; }
+    /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
     /// <summary>
     /// 行号
     /// </summary>
@@ -62,10 +67,6 @@ public partial class TaktSalesPriceItemDto : TaktDtosEntityBase
     /// 最大订购量
     /// </summary>
     public decimal MaxOrderQuantity { get; set; }
-    /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 价格阶梯列表（主子表关系，一个物料价格可以有多个阶梯）（外键在子表 TaktSalesPriceScaleDto.ItemId）
@@ -97,6 +98,10 @@ public partial class TaktSalesPriceItemQueryDto : TaktPagedQuery
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? SalesPriceId { get; set; }
+    /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string? SalesPriceCode { get; set; }
     /// <summary>
     /// 行号
     /// </summary>
@@ -163,6 +168,7 @@ public partial class TaktSalesPriceItemCreateDto
     /// </summary>
     public TaktSalesPriceItemCreateDto()
     {
+        SalesPriceCode = string.Empty;
         MaterialCode = string.Empty;
         SalesUnit = string.Empty;
     }
@@ -172,6 +178,11 @@ public partial class TaktSalesPriceItemCreateDto
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long SalesPriceId { get; set; }
+
+        /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
 
         /// <summary>
     /// 行号
@@ -202,11 +213,6 @@ public partial class TaktSalesPriceItemCreateDto
     /// 最大订购量
     /// </summary>
     public decimal MaxOrderQuantity { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -247,31 +253,6 @@ public partial class TaktSalesPriceItemUpdateDto : TaktSalesPriceItemCreateDto
 }
 
 /// <summary>
-/// 销售价格明细表排序DTO
-/// </summary>
-public partial class TaktSalesPriceItemSortDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktSalesPriceItemSortDto()
-    {
-    }
-
-        /// <summary>
-    /// 销售价格明细表（适配字段，序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [AdaptMember("Id")]
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long SalesPriceItemId { get; set; } = 0;
-
-    /// <summary>
-    /// 排序号（越小越靠前）
-    /// </summary>
-    public int SortOrder { get; set; }
-}
-
-/// <summary>
 /// 销售价格明细表导入模板DTO
 /// </summary>
 public partial class TaktSalesPriceItemTemplateDto
@@ -281,6 +262,7 @@ public partial class TaktSalesPriceItemTemplateDto
     /// </summary>
     public TaktSalesPriceItemTemplateDto()
     {
+        SalesPriceCode = string.Empty;
         MaterialCode = string.Empty;
         SalesUnit = string.Empty;
     }
@@ -289,6 +271,11 @@ public partial class TaktSalesPriceItemTemplateDto
     /// 销售价格ID
     /// </summary>
     public long SalesPriceId { get; set; }
+
+        /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
 
         /// <summary>
     /// 行号
@@ -319,11 +306,6 @@ public partial class TaktSalesPriceItemTemplateDto
     /// 最大订购量
     /// </summary>
     public decimal MaxOrderQuantity { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -346,6 +328,7 @@ public partial class TaktSalesPriceItemImportDto
     /// </summary>
     public TaktSalesPriceItemImportDto()
     {
+        SalesPriceCode = string.Empty;
         MaterialCode = string.Empty;
         SalesUnit = string.Empty;
     }
@@ -354,6 +337,11 @@ public partial class TaktSalesPriceItemImportDto
     /// 销售价格ID
     /// </summary>
     public long SalesPriceId { get; set; }
+
+        /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
 
         /// <summary>
     /// 行号
@@ -384,11 +372,6 @@ public partial class TaktSalesPriceItemImportDto
     /// 最大订购量
     /// </summary>
     public decimal MaxOrderQuantity { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -412,6 +395,7 @@ public partial class TaktSalesPriceItemExportDto
     public TaktSalesPriceItemExportDto()
     {
         CreatedAt = DateTime.Now;
+        SalesPriceCode = string.Empty;
         MaterialCode = string.Empty;
         SalesUnit = string.Empty;
     }
@@ -420,6 +404,11 @@ public partial class TaktSalesPriceItemExportDto
     /// 销售价格ID
     /// </summary>
     public long SalesPriceId { get; set; }
+
+        /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
 
         /// <summary>
     /// 行号
@@ -450,11 +439,6 @@ public partial class TaktSalesPriceItemExportDto
     /// 最大订购量
     /// </summary>
     public decimal MaxOrderQuantity { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 创建时间

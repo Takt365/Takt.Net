@@ -16,9 +16,9 @@ export interface PurchaseRequest extends TaktEntityBase {
   /** 对应后端字段 purchaseRequestId */
   purchaseRequestId: string
   /** 对应后端字段 plantCode */
-  plantCode?: string
-  /** 对应后端字段 requestCode */
-  requestCode: string
+  plantCode: string
+  /** 对应后端字段 purchaseRequestCode */
+  purchaseRequestCode: string
   /** 对应后端字段 requestDate */
   requestDate: string
   /** 对应后端字段 requiredArrivalDate */
@@ -63,8 +63,8 @@ export interface PurchaseRequest extends TaktEntityBase {
 export interface PurchaseRequestQuery extends TaktPagedQuery {
   /** 对应后端字段 plantCode */
   plantCode?: string
-  /** 对应后端字段 requestCode */
-  requestCode?: string
+  /** 对应后端字段 purchaseRequestCode */
+  purchaseRequestCode?: string
   /** 对应后端字段 requestDate */
   requestDate?: string
   /** 对应后端字段 requestDateStart */
@@ -130,9 +130,9 @@ export interface PurchaseRequestQuery extends TaktPagedQuery {
  */
 export interface PurchaseRequestCreate {
   /** 对应后端字段 plantCode */
-  plantCode?: string
-  /** 对应后端字段 requestCode */
-  requestCode: string
+  plantCode: string
+  /** 对应后端字段 purchaseRequestCode */
+  purchaseRequestCode: string
   /** 对应后端字段 requestDate */
   requestDate: string
   /** 对应后端字段 requiredArrivalDate */

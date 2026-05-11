@@ -17,38 +17,42 @@ export interface FqcOrderItem extends TaktEntityBase {
   fqcOrderItemId: string
   /** 对应后端字段 fqcOrderId */
   fqcOrderId: string
+  /** 对应后端字段 fqcOrderCode */
+  fqcOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
-  /** 对应后端字段 itemCode */
-  itemCode: string
-  /** 对应后端字段 itemName */
-  itemName: string
-  /** 对应后端字段 itemType */
-  itemType: number
-  /** 对应后端字段 standardValue */
-  standardValue?: string
-  /** 对应后端字段 upperLimit */
-  upperLimit?: string
-  /** 对应后端字段 lowerLimit */
-  lowerLimit?: string
-  /** 对应后端字段 inspectionTool */
-  inspectionTool?: string
+  /** 对应后端字段 materialCode */
+  materialCode: string
+  /** 对应后端字段 materialName */
+  materialName: string
+  /** 对应后端字段 batchNo */
+  batchNo?: string
+  /** 对应后端字段 warehouseQuantity */
+  warehouseQuantity: number
+  /** 对应后端字段 standardCode */
+  standardCode: string
+  /** 对应后端字段 samplingSchemeCode */
+  samplingSchemeCode: string
   /** 对应后端字段 inspectionMethod */
-  inspectionMethod?: string
-  /** 对应后端字段 actualValue */
-  actualValue?: string
-  /** 对应后端字段 inspectionResult */
-  inspectionResult: number
-  /** 对应后端字段 defectQuantity */
-  defectQuantity: number
-  /** 对应后端字段 defectDescription */
-  defectDescription?: string
+  inspectionMethod: number
+  /** 对应后端字段 sampleQuantity */
+  sampleQuantity: number
+  /** 对应后端字段 qualifiedQuantity */
+  qualifiedQuantity: number
+  /** 对应后端字段 unqualifiedQuantity */
+  unqualifiedQuantity: number
+  /** 对应后端字段 inspectionReturnQuantity */
+  inspectionReturnQuantity: number
+  /** 对应后端字段 judgeStatus */
+  judgeStatus: number
+  /** 对应后端字段 sampleSerialNo */
+  sampleSerialNo?: string
+  /** 对应后端字段 inspectionDescription */
+  inspectionDescription?: string
   /** 对应后端字段 inspectorBy */
-  inspectorBy?: string
-  /** 对应后端字段 inspectionTime */
-  inspectionTime?: string
-  /** 对应后端字段 inspectionImages */
-  inspectionImages?: string
+  inspectorBy: string
+  /** 对应后端字段 inspectionDate */
+  inspectionDate: string
   /** 对应后端字段 order */
   order?: unknown
   /** 对应后端字段 defectHandlings */
@@ -61,42 +65,46 @@ export interface FqcOrderItem extends TaktEntityBase {
 export interface FqcOrderItemQuery extends TaktPagedQuery {
   /** 对应后端字段 fqcOrderId */
   fqcOrderId?: string
+  /** 对应后端字段 fqcOrderCode */
+  fqcOrderCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
-  /** 对应后端字段 itemCode */
-  itemCode?: string
-  /** 对应后端字段 itemName */
-  itemName?: string
-  /** 对应后端字段 itemType */
-  itemType?: number
-  /** 对应后端字段 standardValue */
-  standardValue?: string
-  /** 对应后端字段 upperLimit */
-  upperLimit?: string
-  /** 对应后端字段 lowerLimit */
-  lowerLimit?: string
-  /** 对应后端字段 inspectionTool */
-  inspectionTool?: string
+  /** 对应后端字段 materialCode */
+  materialCode?: string
+  /** 对应后端字段 materialName */
+  materialName?: string
+  /** 对应后端字段 batchNo */
+  batchNo?: string
+  /** 对应后端字段 warehouseQuantity */
+  warehouseQuantity?: number
+  /** 对应后端字段 standardCode */
+  standardCode?: string
+  /** 对应后端字段 samplingSchemeCode */
+  samplingSchemeCode?: string
   /** 对应后端字段 inspectionMethod */
-  inspectionMethod?: string
-  /** 对应后端字段 actualValue */
-  actualValue?: string
-  /** 对应后端字段 inspectionResult */
-  inspectionResult?: number
-  /** 对应后端字段 defectQuantity */
-  defectQuantity?: number
-  /** 对应后端字段 defectDescription */
-  defectDescription?: string
+  inspectionMethod?: number
+  /** 对应后端字段 sampleQuantity */
+  sampleQuantity?: number
+  /** 对应后端字段 qualifiedQuantity */
+  qualifiedQuantity?: number
+  /** 对应后端字段 unqualifiedQuantity */
+  unqualifiedQuantity?: number
+  /** 对应后端字段 inspectionReturnQuantity */
+  inspectionReturnQuantity?: number
+  /** 对应后端字段 judgeStatus */
+  judgeStatus?: number
+  /** 对应后端字段 sampleSerialNo */
+  sampleSerialNo?: string
+  /** 对应后端字段 inspectionDescription */
+  inspectionDescription?: string
   /** 对应后端字段 inspectorBy */
   inspectorBy?: string
-  /** 对应后端字段 inspectionTime */
-  inspectionTime?: string
-  /** 对应后端字段 inspectionTimeStart */
-  inspectionTimeStart?: string
-  /** 对应后端字段 inspectionTimeEnd */
-  inspectionTimeEnd?: string
-  /** 对应后端字段 inspectionImages */
-  inspectionImages?: string
+  /** 对应后端字段 inspectionDate */
+  inspectionDate?: string
+  /** 对应后端字段 inspectionDateStart */
+  inspectionDateStart?: string
+  /** 对应后端字段 inspectionDateEnd */
+  inspectionDateEnd?: string
   /** 对应后端字段 remark */
   remark?: string
   /** 对应后端字段 extFieldJson */
@@ -119,38 +127,42 @@ export interface FqcOrderItemQuery extends TaktPagedQuery {
 export interface FqcOrderItemCreate {
   /** 对应后端字段 fqcOrderId */
   fqcOrderId: string
+  /** 对应后端字段 fqcOrderCode */
+  fqcOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
-  /** 对应后端字段 itemCode */
-  itemCode: string
-  /** 对应后端字段 itemName */
-  itemName: string
-  /** 对应后端字段 itemType */
-  itemType: number
-  /** 对应后端字段 standardValue */
-  standardValue?: string
-  /** 对应后端字段 upperLimit */
-  upperLimit?: string
-  /** 对应后端字段 lowerLimit */
-  lowerLimit?: string
-  /** 对应后端字段 inspectionTool */
-  inspectionTool?: string
+  /** 对应后端字段 materialCode */
+  materialCode: string
+  /** 对应后端字段 materialName */
+  materialName: string
+  /** 对应后端字段 batchNo */
+  batchNo?: string
+  /** 对应后端字段 warehouseQuantity */
+  warehouseQuantity: number
+  /** 对应后端字段 standardCode */
+  standardCode: string
+  /** 对应后端字段 samplingSchemeCode */
+  samplingSchemeCode: string
   /** 对应后端字段 inspectionMethod */
-  inspectionMethod?: string
-  /** 对应后端字段 actualValue */
-  actualValue?: string
-  /** 对应后端字段 inspectionResult */
-  inspectionResult: number
-  /** 对应后端字段 defectQuantity */
-  defectQuantity: number
-  /** 对应后端字段 defectDescription */
-  defectDescription?: string
+  inspectionMethod: number
+  /** 对应后端字段 sampleQuantity */
+  sampleQuantity: number
+  /** 对应后端字段 qualifiedQuantity */
+  qualifiedQuantity: number
+  /** 对应后端字段 unqualifiedQuantity */
+  unqualifiedQuantity: number
+  /** 对应后端字段 inspectionReturnQuantity */
+  inspectionReturnQuantity: number
+  /** 对应后端字段 judgeStatus */
+  judgeStatus: number
+  /** 对应后端字段 sampleSerialNo */
+  sampleSerialNo?: string
+  /** 对应后端字段 inspectionDescription */
+  inspectionDescription?: string
   /** 对应后端字段 inspectorBy */
-  inspectorBy?: string
-  /** 对应后端字段 inspectionTime */
-  inspectionTime?: string
-  /** 对应后端字段 inspectionImages */
-  inspectionImages?: string
+  inspectorBy: string
+  /** 对应后端字段 inspectionDate */
+  inspectionDate: string
   /** 对应后端字段 extFieldJson */
   extFieldJson?: string
   /** 对应后端字段 remark */
@@ -165,4 +177,14 @@ export interface FqcOrderItemCreate {
 export interface FqcOrderItemUpdate extends FqcOrderItemCreate {
   /** 对应后端字段 fqcOrderItemId */
   fqcOrderItemId: string
+}
+
+/**
+ * FqcOrderItemJudgeStatus类型（对应后端 Takt.Application.Dtos.Logistics.Quality.Operation.TaktFqcOrderItemJudgeStatusDto）
+ */
+export interface FqcOrderItemJudgeStatus {
+  /** 对应后端字段 fqcOrderItemId */
+  fqcOrderItemId: string
+  /** 对应后端字段 judgeStatus */
+  judgeStatus: number
 }

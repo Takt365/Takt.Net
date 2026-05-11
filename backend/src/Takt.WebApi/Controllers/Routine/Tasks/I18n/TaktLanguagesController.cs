@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.Routine.Tasks.I18n
 // 文件名称：TaktLanguagesController.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：语言表控制器，提供Language管理的RESTful API接口
 //

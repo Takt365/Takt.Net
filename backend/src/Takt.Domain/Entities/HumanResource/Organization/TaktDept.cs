@@ -18,8 +18,7 @@ namespace Takt.Domain.Entities.HumanResource.Organization;
 /// Takt部门实体
 /// </summary>
 [SugarTable("takt_humanresource_organization_dept", "部门信息表")]
-[SugarIndex("ix_takt_humanresource_organization_dept_DeptCode", nameof(DeptCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_humanresource_organization_dept_DeptName", nameof(DeptName), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_humanresource_organization_dept_company_code_name_unique", nameof(CompanyCode), OrderByType.Asc, nameof(DeptCode), OrderByType.Asc, nameof(DeptName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_humanresource_organization_dept_ParentId", nameof(ParentId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_organization_dept_DeptHeadId", nameof(DeptHeadId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_organization_dept_cost_center_code", nameof(CostCenterCode), OrderByType.Asc)]
@@ -28,6 +27,12 @@ namespace Takt.Domain.Entities.HumanResource.Organization;
 [SugarIndex("ix_takt_humanresource_organization_dept_DeptStatus", nameof(DeptStatus), OrderByType.Asc)]
 public class TaktDept : TaktEntityBase
 {
+    /// <summary>
+    /// 公司代码（不可空）
+    /// </summary>
+    [SugarColumn(ColumnName = "company_code", ColumnDescription = "公司代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string CompanyCode { get; set; } = string.Empty;
+
     /// <summary>
     /// 部门名称
     /// </summary>

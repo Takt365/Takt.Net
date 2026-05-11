@@ -20,11 +20,7 @@ namespace Takt.Domain.Entities.Logistics.Quality.Cost;
 /// 品质问题应对主表,用于记录质量问题的基础信息(年月日、机种、批次)及汇总数据
 /// </summary>
 [SugarTable("takt_logistics_quality_issue", "品质问题应对主表")]
-[SugarIndex("ix_takt_logistics_quality_issue_issue_no", nameof(IssueNo), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_quality_issue_plant_code", nameof(PlantCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_issue_issue_date", nameof(IssueDate), OrderByType.Desc)]
-[SugarIndex("ix_takt_logistics_quality_issue_model", nameof(Model), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_issue_qi_unique", nameof(PlantCode), OrderByType.Asc, nameof(IssueDate), OrderByType.Asc, nameof(Model), OrderByType.Asc, nameof(Lot), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_quality_issue_qi_unique", nameof(PlantCode), OrderByType.Asc, nameof(QualityIssueCode), OrderByType.Asc, nameof(IssueDate), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_quality_issue_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_issue_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktQualityIssue : TaktEntityBase
@@ -36,10 +32,10 @@ public class TaktQualityIssue : TaktEntityBase
     public string PlantCode { get; set; } = string.Empty;
 
     /// <summary>
-    /// 问题编号（唯一，如：QI-2026-0001）
+    /// 品质问题编码（唯一，如：QI-2026-0001）
     /// </summary>
-    [SugarColumn(ColumnName = "issue_no", ColumnDescription = "问题编号", Length = 30, ColumnDataType = "nvarchar", IsNullable = false)]
-    public string IssueNo { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "quality_issue_code", ColumnDescription = "品质问题编码", Length = 30, ColumnDataType = "nvarchar", IsNullable = false)]
+    public string QualityIssueCode { get; set; } = string.Empty;
 
     // ==================== 基础日期与产品信息 ====================
     

@@ -11,8 +11,7 @@ import type {
   SalesPriceScale,
   SalesPriceScaleQuery,
   SalesPriceScaleCreate,
-  SalesPriceScaleUpdate,
-  SalesPriceScaleSort
+  SalesPriceScaleUpdate
 } from '@/types/logistics/sales/sales-price-scale'
 
 // ========================================
@@ -98,18 +97,6 @@ export function deleteSalesPriceScaleBatch(ids: string[]): Promise<void> {
     url: `${salesPriceScaleUrl}/batch`,
     method: 'delete',
     data: ids
-  })
-}
-
-/**
- * 更新SalesPriceScale排序
- * 对应后端：UpdateSalesPriceScaleSortAsync
- */
-export function updateSalesPriceScaleSort(data: SalesPriceScaleSort): Promise<SalesPriceScaleSort> {
-  return request({
-    url: `${salesPriceScaleUrl}/sort`,
-    method: 'put',
-    data
   })
 }
 

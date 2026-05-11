@@ -19,8 +19,7 @@ namespace Takt.Domain.Entities.Identity;
 /// Takt角色实体
 /// </summary>
 [SugarTable("takt_identity_role", "角色信息表")]
-[SugarIndex("ix_takt_identity_role_role_code", nameof(RoleCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_identity_role_role_name", nameof(RoleName), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_identity_role_role_code_name_unique", nameof(RoleCode), OrderByType.Asc, nameof(RoleName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_identity_role_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_identity_role_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_identity_role_role_status", nameof(RoleStatus), OrderByType.Asc)]

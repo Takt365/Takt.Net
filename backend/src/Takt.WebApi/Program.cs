@@ -22,9 +22,6 @@ using Takt.Infrastructure.Extensions;
 using Takt.Infrastructure.Helpers;
 using Takt.Infrastructure.Middleware;
 using Takt.Infrastructure.SignalR;
-using System.IO;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 using Takt.WebApi.Filters;
 using Takt.Application.Services.Routine.Tasks.Vocabulary.FilteringEngine;
 
@@ -165,9 +162,6 @@ try
 
     // 统一注册所有Takt服务（包括本地化、OpenIddict、SignalR等）
     builder.Services.AddTaktServices(builder.Configuration);
-
-    // 注册 MediatR 事件总线（用于业务解耦）
-    builder.Services.AddTaktMediatR();
 
     // 配置认证
     builder.Services.AddAuthentication(options =>

@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktOvertimeItemEntitiesSeedData.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(AI Auto-Generated)
 // 功能描述：TaktOvertimeItem 实体字段翻译种子数据（自动生成）
 //
@@ -148,13 +148,29 @@ public class TaktOvertimeItemEntitiesSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.overtimeitem.plannedhours", TranslationValue = "计划小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
             new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.overtimeitem.plannedhours", TranslationValue = "计划小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
 
+            // entity.overtimeitem.actualstarttime
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.overtimeitem.actualstarttime", TranslationValue = "Time", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.overtimeitem.actualstarttime", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.overtimeitem.actualstarttime", TranslationValue = "시간", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.overtimeitem.actualstarttime", TranslationValue = "实际开始时间", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.overtimeitem.actualstarttime", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.overtimeitem.actualstarttime", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+
+            // entity.overtimeitem.actualendtime
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.overtimeitem.actualendtime", TranslationValue = "Time", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.overtimeitem.actualendtime", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.overtimeitem.actualendtime", TranslationValue = "시간", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.overtimeitem.actualendtime", TranslationValue = "实际结束时间", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.overtimeitem.actualendtime", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.overtimeitem.actualendtime", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+
             // entity.overtimeitem.actualhours
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.overtimeitem.actualhours", TranslationValue = "实际小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.overtimeitem.actualhours", TranslationValue = "实际小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.overtimeitem.actualhours", TranslationValue = "实际小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.overtimeitem.actualhours", TranslationValue = "实际小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.overtimeitem.actualhours", TranslationValue = "实际小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.overtimeitem.actualhours", TranslationValue = "实际小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.overtimeitem.actualhours", TranslationValue = "实际小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.overtimeitem.actualhours", TranslationValue = "实际小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.overtimeitem.actualhours", TranslationValue = "实际小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.overtimeitem.actualhours", TranslationValue = "实际小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.overtimeitem.actualhours", TranslationValue = "实际小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.overtimeitem.actualhours", TranslationValue = "实际小时数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
         };
     }
 }

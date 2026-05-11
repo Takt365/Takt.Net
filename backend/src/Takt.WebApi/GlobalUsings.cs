@@ -36,4 +36,3 @@ global using Takt.Infrastructure.User;
 
 // Takt WebApi
 global using Takt.WebApi.Controllers;
-global using Takt.WebApi.Validation;

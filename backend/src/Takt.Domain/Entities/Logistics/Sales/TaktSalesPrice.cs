@@ -24,7 +24,7 @@ namespace Takt.Domain.Entities.Logistics.Sales;
 [SugarIndex("ix_takt_logistics_sales_price_price_type", nameof(PriceType), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_sales_price_effective_start_date", nameof(EffectiveStartDate), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_sales_price_effective_end_date", nameof(EffectiveEndDate), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_sales_price_sp_unique", nameof(PlantCode), OrderByType.Asc, nameof(CustomerCode), OrderByType.Asc, nameof(PriceType), OrderByType.Asc, nameof(EffectiveStartDate), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_sales_price_sp_unique", nameof(PlantCode), OrderByType.Asc, nameof(SalesPriceCode), OrderByType.Asc, nameof(CustomerCode), OrderByType.Asc, nameof(PriceType), OrderByType.Asc, nameof(EffectiveStartDate), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_sales_price_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_sales_price_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_sales_price_price_status", nameof(PriceStatus), OrderByType.Asc)]
@@ -35,6 +35,12 @@ public class TaktSalesPrice : TaktEntityBase
     /// </summary>
     [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
     public string? PlantCode { get; set; }
+
+    /// <summary>
+    /// 销售价格编码（唯一索引）
+    /// </summary>
+    [SugarColumn(ColumnName = "sales_price_code", ColumnDescription = "销售价格编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string SalesPriceCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 客户编码（如果为空则表示通用价格）

@@ -19,7 +19,7 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.Output;
 /// 生产工单实体
 /// </summary>
 [SugarTable("takt_logistics_manufacturing_output_production_order", "生产工单表")]
-[SugarIndex("ix_takt_logistics_manufacturing_output_production_order_prod_order_code", nameof(ProdOrderCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_manufacturing_output_production_order_plant_order_unique", nameof(PlantCode), OrderByType.Asc, nameof(ProdOrderType), OrderByType.Asc, nameof(ProdOrderCode), OrderByType.Asc, nameof(MaterialCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_production_order_plant_code", nameof(PlantCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_production_order_material_code", nameof(MaterialCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_production_order_status", nameof(Status), OrderByType.Asc)]

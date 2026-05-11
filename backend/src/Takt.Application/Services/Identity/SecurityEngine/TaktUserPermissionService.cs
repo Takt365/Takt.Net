@@ -11,18 +11,9 @@
 // ========================================
 
 using Microsoft.Extensions.Caching.Memory;
-using SqlSugar;
-using Takt.Application.Dtos;
-using Takt.Application.Services;
-using Takt.Domain.Entities;
 using Takt.Domain.Entities.Identity;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
 using Takt.Shared.Constants;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
+
 
 namespace Takt.Application.Services.Identity.SecurityEngine;
 

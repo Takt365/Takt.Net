@@ -17,7 +17,7 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.Scheduling;
 /// APS排程主表（高级计划与排程）
 /// </summary>
 [SugarTable("takt_logistics_manufacturing_scheduling_aps_schedule", "APS排程主表")]
-[SugarIndex("ix_takt_logistics_manufacturing_scheduling_aps_schedule_schedule_code", nameof(ScheduleCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_manufacturing_scheduling_aps_schedule_plant_code_unique", nameof(PlantCode), OrderByType.Asc, nameof(ScheduleCode), OrderByType.Asc, nameof(ScheduleName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_manufacturing_scheduling_aps_schedule_schedule_type", nameof(ScheduleType), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_scheduling_aps_schedule_schedule_status", nameof(ScheduleStatus), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_scheduling_aps_schedule_plan_date", nameof(PlanDate), OrderByType.Asc)]
@@ -25,6 +25,12 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.Scheduling;
 [SugarIndex("ix_takt_logistics_manufacturing_scheduling_aps_schedule_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktApsSchedule : TaktEntityBase
 {
+    /// <summary>
+    /// 工厂编码（不可空）
+    /// </summary>
+    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string PlantCode { get; set; } = string.Empty;
+
     /// <summary>
     /// 排程编码（唯一索引）
     /// </summary>
@@ -66,18 +72,6 @@ public class TaktApsSchedule : TaktEntityBase
     /// </summary>
     [SugarColumn(ColumnName = "plan_cycle", ColumnDescription = "计划周期", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int PlanCycle { get; set; } = 0;
-
-    /// <summary>
-    /// 工厂编码
-    /// </summary>
-    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? PlantCode { get; set; }
-
-    /// <summary>
-    /// 工厂名称
-    /// </summary>
-    [SugarColumn(ColumnName = "plant_name", ColumnDescription = "工厂名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
-    public string? PlantName { get; set; }
 
     /// <summary>
     /// 车间编码

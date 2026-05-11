@@ -17,6 +17,8 @@ export interface QualityIssueAssyRework extends TaktEntityBase {
   qualityIssueAssyReworkId: string
   /** 对应后端字段 qualityIssueId */
   qualityIssueId: string
+  /** 对应后端字段 qualityIssueCode */
+  qualityIssueCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 assyDefectParts */
@@ -57,6 +59,8 @@ export interface QualityIssueAssyRework extends TaktEntityBase {
 export interface QualityIssueAssyReworkQuery extends TaktPagedQuery {
   /** 对应后端字段 qualityIssueId */
   qualityIssueId?: string
+  /** 对应后端字段 qualityIssueCode */
+  qualityIssueCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 assyDefectParts */
@@ -109,6 +113,8 @@ export interface QualityIssueAssyReworkQuery extends TaktPagedQuery {
 export interface QualityIssueAssyReworkCreate {
   /** 对应后端字段 qualityIssueId */
   qualityIssueId: string
+  /** 对应后端字段 qualityIssueCode */
+  qualityIssueCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 assyDefectParts */

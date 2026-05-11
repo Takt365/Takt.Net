@@ -19,12 +19,17 @@ namespace Takt.Domain.Entities.Logistics.Maintenance;
 /// Takt工厂设备实体
 /// </summary>
 [SugarTable("takt_logistics_maintenance_equipment", "工厂设备表")]
-[SugarIndex("ix_takt_logistics_maintenance_equipment_equipment_code", nameof(EquipmentCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_maintenance_equipment_eq_unique", nameof(EquipmentCode), OrderByType.Asc, nameof(EquipmentName), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_maintenance_equipment_plant_code_name_unique", nameof(PlantCode), OrderByType.Asc, nameof(EquipmentCode), OrderByType.Asc, nameof(EquipmentName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_maintenance_equipment_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_maintenance_equipment_equipment_status", nameof(EquipmentStatus), OrderByType.Asc)]
 public class TaktEquipment : TaktEntityBase
 {
+    /// <summary>
+    /// 工厂代码（不可空）
+    /// </summary>
+    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string PlantCode { get; set; } = string.Empty;
+
     /// <summary>
     /// 设备编码（唯一索引）
     /// </summary>

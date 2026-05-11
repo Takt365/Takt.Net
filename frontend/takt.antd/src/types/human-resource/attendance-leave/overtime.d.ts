@@ -27,10 +27,10 @@ export interface Overtime extends TaktEntityBase {
   deptName?: string
   /** 对应后端字段 overtimeDate */
   overtimeDate: string
-  /** 对应后端字段 startTime */
-  startTime: string
-  /** 对应后端字段 endTime */
-  endTime: string
+  /** 对应后端字段 plannedStartTime */
+  plannedStartTime: string
+  /** 对应后端字段 plannedEndTime */
+  plannedEndTime: string
   /** 对应后端字段 totalEmployees */
   totalEmployees: number
   /** 对应后端字段 totalPlannedHours */
@@ -89,18 +89,18 @@ export interface OvertimeQuery extends TaktPagedQuery {
   overtimeDateStart?: string
   /** 对应后端字段 overtimeDateEnd */
   overtimeDateEnd?: string
-  /** 对应后端字段 startTime */
-  startTime?: string
-  /** 对应后端字段 startTimeStart */
-  startTimeStart?: string
-  /** 对应后端字段 startTimeEnd */
-  startTimeEnd?: string
-  /** 对应后端字段 endTime */
-  endTime?: string
-  /** 对应后端字段 endTimeStart */
-  endTimeStart?: string
-  /** 对应后端字段 endTimeEnd */
-  endTimeEnd?: string
+  /** 对应后端字段 plannedStartTime */
+  plannedStartTime?: string
+  /** 对应后端字段 plannedStartTimeStart */
+  plannedStartTimeStart?: string
+  /** 对应后端字段 plannedStartTimeEnd */
+  plannedStartTimeEnd?: string
+  /** 对应后端字段 plannedEndTime */
+  plannedEndTime?: string
+  /** 对应后端字段 plannedEndTimeStart */
+  plannedEndTimeStart?: string
+  /** 对应后端字段 plannedEndTimeEnd */
+  plannedEndTimeEnd?: string
   /** 对应后端字段 totalEmployees */
   totalEmployees?: number
   /** 对应后端字段 totalPlannedHours */
@@ -171,10 +171,10 @@ export interface OvertimeCreate {
   deptName?: string
   /** 对应后端字段 overtimeDate */
   overtimeDate: string
-  /** 对应后端字段 startTime */
-  startTime: string
-  /** 对应后端字段 endTime */
-  endTime: string
+  /** 对应后端字段 plannedStartTime */
+  plannedStartTime: string
+  /** 对应后端字段 plannedEndTime */
+  plannedEndTime: string
   /** 对应后端字段 totalEmployees */
   totalEmployees: number
   /** 对应后端字段 totalPlannedHours */

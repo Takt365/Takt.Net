@@ -17,6 +17,8 @@ export interface AssyOutputDetail extends TaktEntityBase {
   assyOutputDetailId: string
   /** 对应后端字段 assyOutputId */
   assyOutputId: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 timePeriod */
@@ -51,6 +53,8 @@ export interface AssyOutputDetail extends TaktEntityBase {
 export interface AssyOutputDetailQuery extends TaktPagedQuery {
   /** 对应后端字段 assyOutputId */
   assyOutputId?: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 timePeriod */
@@ -97,6 +101,8 @@ export interface AssyOutputDetailQuery extends TaktPagedQuery {
 export interface AssyOutputDetailCreate {
   /** 对应后端字段 assyOutputId */
   assyOutputId: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 timePeriod */

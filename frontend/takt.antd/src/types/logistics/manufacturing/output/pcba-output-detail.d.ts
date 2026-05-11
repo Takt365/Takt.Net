@@ -17,6 +17,8 @@ export interface PcbaOutputDetail extends TaktEntityBase {
   pcbaOutputDetailId: string
   /** 对应后端字段 pcbaOutputId */
   pcbaOutputId: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 timePeriod */
@@ -65,6 +67,8 @@ export interface PcbaOutputDetail extends TaktEntityBase {
 export interface PcbaOutputDetailQuery extends TaktPagedQuery {
   /** 对应后端字段 pcbaOutputId */
   pcbaOutputId?: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 timePeriod */
@@ -125,6 +129,8 @@ export interface PcbaOutputDetailQuery extends TaktPagedQuery {
 export interface PcbaOutputDetailCreate {
   /** 对应后端字段 pcbaOutputId */
   pcbaOutputId: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 timePeriod */

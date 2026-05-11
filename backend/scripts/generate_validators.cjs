@@ -18,7 +18,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ENTITIES_DIR = path.join(__dirname, '../src/Takt.Domain/Entities');
-const VALIDATORS_DIR = path.join(__dirname, '../src/Takt.WebApi/Validators');
+const VALIDATORS_DIR = path.join(__dirname, '../src/Takt.Application/Validators'); // ✅ 应用层
 
 /**
  * 检查文件路径是否在排除目录中（Engine 或其子目录）
@@ -37,29 +37,29 @@ const SPECIAL_FIELD_RULES = {
   // 邮箱字段
   email: {
     pattern: 'TaktRegexHelper.IsValidEmail',
-    message: 'TaktValidationMessages.Pattern(localizer, "validation.patternEmail", "{resourceKey}")',
+    message: '_validationMessages.Pattern("validation.patternEmail", "{resourceKey}")',
     when: true
   },
   useremail: {
     pattern: 'TaktRegexHelper.IsValidEmail',
-    message: 'TaktValidationMessages.Pattern(localizer, "validation.patternEmail", "{resourceKey}")',
+    message: '_validationMessages.Pattern("validation.patternEmail", "{resourceKey}")',
     when: true
   },
   
   // 手机/电话字段
   phone: {
     pattern: 'TaktRegexHelper.IsValidPhone',
-    message: 'TaktValidationMessages.Pattern(localizer, "validation.patternPhone", "{resourceKey}")',
+    message: '_validationMessages.Pattern("validation.patternPhone", "{resourceKey}")',
     when: true
   },
   userphone: {
     pattern: 'TaktRegexHelper.IsValidPhone',
-    message: 'TaktValidationMessages.Pattern(localizer, "validation.patternPhone", "{resourceKey}")',
+    message: '_validationMessages.Pattern("validation.patternPhone", "{resourceKey}")',
     when: true
   },
   mobile: {
     pattern: 'TaktRegexHelper.IsValidPhone',
-    message: 'TaktValidationMessages.Pattern(localizer, "validation.patternPhone", "{resourceKey}")',
+    message: '_validationMessages.Pattern("validation.patternPhone", "{resourceKey}")',
     when: true
   },
   
@@ -67,18 +67,18 @@ const SPECIAL_FIELD_RULES = {
   idcard: {
     required: true,
     pattern: 'TaktRegexHelper.IsValidIdCard',
-    message: 'TaktValidationMessages.IdCardInvalid(localizer, "{resourceKey}")'
+    message: '_validationMessages.IdCardInvalid("{resourceKey}")'
   },
   
   // 密码字段
   password: {
     pattern: 'TaktRegexHelper.IsValidPassword',
-    message: 'TaktValidationMessages.PatternPasswordStrong(localizer, "{resourceKey}")',
+    message: '_validationMessages.PatternPasswordStrong("{resourceKey}")',
     when: true
   },
   passwordhash: {
     pattern: 'TaktRegexHelper.IsValidPassword',
-    message: 'TaktValidationMessages.PatternPasswordStrong(localizer, "{resourceKey}")',
+    message: '_validationMessages.PatternPasswordStrong("{resourceKey}")',
     when: true
   },
   
@@ -86,22 +86,22 @@ const SPECIAL_FIELD_RULES = {
   realname: {
     required: true,
     pattern: 'TaktRegexHelper.IsValidFullName',
-    message: 'TaktValidationMessages.FormatInvalid(localizer, "{resourceKey}")'
+    message: '_validationMessages.FormatInvalid("{resourceKey}")'
   },
   username: {
     pattern: 'TaktRegexHelper.IsValidFullName',
-    message: 'TaktValidationMessages.FormatInvalid(localizer, "{resourceKey}")'
+    message: '_validationMessages.FormatInvalid("{resourceKey}")'
   },
   nickname: {
     pattern: 'v => string.IsNullOrWhiteSpace(v) || TaktRegexHelper.NickName.IsMatch(v.Trim())',
-    message: 'TaktValidationMessages.FormatInvalid(localizer, "{resourceKey}")'
+    message: '_validationMessages.FormatInvalid("{resourceKey}")'
   },
   
   // 角色编码
   rolecode: {
     required: true,
     pattern: 'v => TaktRegexHelper.IsMatch(TaktRegexHelper.RoleCode, v)',
-    message: 'TaktValidationMessages.FormatInvalid(localizer, "{resourceKey}")'
+    message: '_validationMessages.FormatInvalid("{resourceKey}")'
   },
   
   // 编码字段
@@ -124,37 +124,37 @@ const SPECIAL_FIELD_RULES = {
   plantcode: {
     required: true,
     pattern: 'TaktRegexHelper.IsValidPlantCode',
-    message: 'TaktValidationMessages.FormatInvalid(localizer, "{resourceKey}")'
+    message: '_validationMessages.FormatInvalid("{resourceKey}")'
   },
   companycode: {
     required: true,
     pattern: 'TaktRegexHelper.IsValidCompanyCode',
-    message: 'TaktValidationMessages.FormatInvalid(localizer, "{resourceKey}")'
+    message: '_validationMessages.FormatInvalid("{resourceKey}")'
   },
   profitcentercode: {
     required: true,
     pattern: 'TaktRegexHelper.IsValidProfitCenterCode',
-    message: 'TaktValidationMessages.FormatInvalid(localizer, "{resourceKey}")'
+    message: '_validationMessages.FormatInvalid("{resourceKey}")'
   },
   costelementcode: {
     required: true,
     pattern: 'TaktRegexHelper.IsValidCostElementCode',
-    message: 'TaktValidationMessages.FormatInvalid(localizer, "{resourceKey}")'
+    message: '_validationMessages.FormatInvalid("{resourceKey}")'
   },
   costcentercode: {
     required: true,
     pattern: 'TaktRegexHelper.IsValidCostCenterCode',
-    message: 'TaktValidationMessages.FormatInvalid(localizer, "{resourceKey}")'
+    message: '_validationMessages.FormatInvalid("{resourceKey}")'
   },
   titlecode: {
     required: true,
     pattern: 'TaktRegexHelper.IsValidTitleCode',
-    message: 'TaktValidationMessages.FormatInvalid(localizer, "{resourceKey}")'
+    message: '_validationMessages.FormatInvalid("{resourceKey}")'
   },
   assetcode: {
     required: true,
     pattern: 'TaktRegexHelper.IsValidAssetCode',
-    message: 'TaktValidationMessages.FormatInvalid(localizer, "{resourceKey}")'
+    message: '_validationMessages.FormatInvalid("{resourceKey}")'
   }
 };
 
@@ -362,7 +362,7 @@ function generateValidationRules(entity, fields, isUpdate = false) {
         // 强制必填的特殊字段（如 IdCard、RealName 等）
         rules.push(`
         RuleFor(x => x.${field.name})
-            .NotEmpty().WithMessage(TaktValidationMessages.Required(localizer, "${resourceKey}"))`);
+            .NotEmpty().WithMessage(_validationMessages.Required("${resourceKey}"))`);
         
         if (specialRule.pattern) {
           rules[rules.length - 1] += `
@@ -371,7 +371,7 @@ function generateValidationRules(entity, fields, isUpdate = false) {
         
         if (specialRule.maxLength) {
           rules[rules.length - 1] += `
-            .MaximumLength(${specialRule.maxLength}).WithMessage(TaktValidationMessages.LengthMax(localizer, "${resourceKey}", ${specialRule.maxLength}))`;
+            .MaximumLength(${specialRule.maxLength}).WithMessage(_validationMessages.LengthMax("${resourceKey}", ${specialRule.maxLength}))`;
         }
         
         rules[rules.length - 1] += ';';
@@ -383,7 +383,7 @@ function generateValidationRules(entity, fields, isUpdate = false) {
         
         if (field.sugarColumn?.length) {
           rules[rules.length - 1] += `
-            .MaximumLength(${field.sugarColumn.length}).WithMessage(TaktValidationMessages.LengthMax(localizer, "${resourceKey}", ${field.sugarColumn.length}))`;
+            .MaximumLength(${field.sugarColumn.length}).WithMessage(_validationMessages.LengthMax("${resourceKey}", ${field.sugarColumn.length}))`;
         }
         
         rules[rules.length - 1] += `
@@ -398,11 +398,11 @@ function generateValidationRules(entity, fields, isUpdate = false) {
         if (field.type === 'string') {
           rules.push(`
         RuleFor(x => x.${field.name})
-            .NotEmpty().WithMessage(TaktValidationMessages.Required(localizer, "${resourceKey}"))`);
+            .NotEmpty().WithMessage(_validationMessages.Required("${resourceKey}"))`);
           
           if (field.sugarColumn?.length) {
             rules[rules.length - 1] += `
-            .Length(1, ${field.sugarColumn.length}).WithMessage(TaktValidationMessages.LengthBetween(localizer, "${resourceKey}", 1, ${field.sugarColumn.length}))`;
+            .Length(1, ${field.sugarColumn.length}).WithMessage(_validationMessages.LengthBetween("${resourceKey}", 1, ${field.sugarColumn.length}))`;
           }
           
           rules[rules.length - 1] += ';';
@@ -413,7 +413,7 @@ function generateValidationRules(entity, fields, isUpdate = false) {
             rules.push(`
         RuleFor(x => x.${field.name})
             .InclusiveBetween(${enumRange.min}, ${enumRange.max})
-            .WithMessage(TaktValidationMessages.FormatInvalid(localizer, "${resourceKey}"));`);
+            .WithMessage(_validationMessages.FormatInvalid("${resourceKey}"));`);
           }
         }
       } else if (field.type === 'string') {
@@ -421,7 +421,7 @@ function generateValidationRules(entity, fields, isUpdate = false) {
         if (field.sugarColumn?.length) {
           rules.push(`
         RuleFor(x => x.${field.name})
-            .MaximumLength(${field.sugarColumn.length}).WithMessage(TaktValidationMessages.LengthMax(localizer, "${resourceKey}", ${field.sugarColumn.length}))
+            .MaximumLength(${field.sugarColumn.length}).WithMessage(_validationMessages.LengthMax("${resourceKey}", ${field.sugarColumn.length}))
             .When(x => !string.IsNullOrWhiteSpace(x.${field.name}));`);
         }
       }
@@ -452,7 +452,7 @@ function generateValidatorFile(entity, dtoNamespace) {
   
   const content = `// ========================================
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
-// 命名空间：Takt.WebApi.Validators.${entity.namespace.replace('Takt.Domain.Entities.', '')}
+// 命名空间：Takt.Application.Validators.${entity.namespace.replace('Takt.Domain.Entities.', '')}
 // 文件名称：Takt${entityName}Validators.cs
 // 创建时间：${new Date().toISOString().split('T')[0]}
 // 创建人：Takt365(AI Auto-Generated)
@@ -464,34 +464,65 @@ function generateValidatorFile(entity, dtoNamespace) {
 
 using FluentValidation;
 using ${dtoNamespace};
-using Takt.Domain.Interfaces;
-using Takt.Shared.Helpers;
-using Takt.WebApi.Validation;
 
-namespace Takt.WebApi.Validators.${entity.namespace.replace('Takt.Domain.Entities.', '')};
+namespace Takt.Application.Validators.${entity.namespace.replace('Takt.Domain.Entities.', '')};
 
 /// <summary>
 /// ${entityName}创建 DTO 验证器（与 <see cref="${entityFullName}"/> 字段对齐）。
 /// </summary>
+/// <remarks>
+/// 验证规则：
+/// <list type="bullet">
+///   <item>必填验证：根据实体字段的 IsNullable 特性自动生成</item>
+///   <item>长度验证：根据实体字段的 Length 特性自动生成</item>
+///   <item>格式验证：Email、Phone、IdCard 等特殊字段自动添加正则验证</item>
+/// </list>
+/// </remarks>
 public class ${createDtoName}Validator : AbstractValidator<${createDtoName}>
 {
-    public ${createDtoName}Validator(ITaktLocalizer? localizer = null)
-    {${createRules}
+    /// <summary>
+    /// 验证消息格式化器
+    /// </summary>
+    private readonly ITaktValidationMessages _validationMessages;
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="validationMessages">验证消息格式化器</param>
+    public ${createDtoName}Validator(ITaktValidationMessages validationMessages)
+    {
+        _validationMessages = validationMessages;${createRules}
     }
 }
 
 /// <summary>
 /// ${entityName}更新 DTO 验证器。
 /// </summary>
+/// <remarks>
+/// 继承 <see cref="${createDtoName}Validator"/> 的所有验证规则，并额外验证：
+/// <list type="bullet">
+///   <item>${entityName}Id 必须大于 0</item>
+/// </list>
+/// </remarks>
 public class ${updateDtoName}Validator : AbstractValidator<${updateDtoName}>
 {
-    public ${updateDtoName}Validator(ITaktLocalizer? localizer = null)
+    /// <summary>
+    /// 验证消息格式化器
+    /// </summary>
+    private readonly ITaktValidationMessages _validationMessages;
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="validationMessages">验证消息格式化器</param>
+    public ${updateDtoName}Validator(ITaktValidationMessages validationMessages)
     {
-        Include(new ${createDtoName}Validator(localizer));
+        _validationMessages = validationMessages;
+        Include(new ${createDtoName}Validator(validationMessages));
 
         RuleFor(x => x.${entityName}Id)
             .GreaterThan(0)
-            .WithMessage(TaktValidationMessages.Required(localizer, "${generateResourceKey(entity.className, entityName + 'Id')}"));
+            .WithMessage(_validationMessages.Required("${generateResourceKey(entity.className, entityName + 'Id')}"));
 ${updateRules}
     }
 }

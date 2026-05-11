@@ -19,9 +19,7 @@ namespace Takt.Domain.Entities.Logistics.Materials;
 /// Takt采购订单实体
 /// </summary>
 [SugarTable("takt_logistics_materials_purchase_order", "采购订单表")]
-[SugarIndex("ix_takt_logistics_materials_purchase_order_plant_code", nameof(PlantCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_materials_purchase_order_order_code", nameof(OrderCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_materials_purchase_order_po_unique", nameof(PlantCode), OrderByType.Asc, nameof(OrderCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_materials_purchase_order_po_unique", nameof(PlantCode), OrderByType.Asc, nameof(PurchaseOrderCode), OrderByType.Asc, nameof(SupplierCode), OrderByType.Asc, nameof(OrderDate), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_materials_purchase_order_supplier_code", nameof(SupplierCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_order_order_date", nameof(OrderDate), OrderByType.Desc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_order_order_status", nameof(OrderStatus), OrderByType.Asc)]
@@ -31,16 +29,16 @@ namespace Takt.Domain.Entities.Logistics.Materials;
 public class TaktPurchaseOrder : TaktEntityBase
 {
     /// <summary>
-    /// 工厂代码
+    /// 工厂代码（不可空）
     /// </summary>
-    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? PlantCode { get; set; }
+    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string PlantCode { get; set; } = string.Empty;
 
     /// <summary>
-    /// 订单编码（唯一索引）
+    /// 采购订单编码（唯一索引）
     /// </summary>
-    [SugarColumn(ColumnName = "order_code", ColumnDescription = "订单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
-    public string OrderCode { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "purchase_order_code", ColumnDescription = "采购订单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string PurchaseOrderCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 供应商编码

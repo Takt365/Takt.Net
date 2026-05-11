@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktFqcOrderItemEntitiesSeedData.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(AI Auto-Generated)
 // 功能描述：TaktFqcOrderItem 实体字段翻译种子数据（自动生成）
 //
@@ -116,133 +116,149 @@ public class TaktFqcOrderItemEntitiesSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.fqcorderid", TranslationValue = "ID", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
             new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.fqcorderid", TranslationValue = "ID", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
 
+            // entity.fqcorderitem.fqcordercode
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.fqcordercode", TranslationValue = "FQC检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.fqcordercode", TranslationValue = "FQC检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.fqcordercode", TranslationValue = "FQC检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.fqcordercode", TranslationValue = "FQC检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.fqcordercode", TranslationValue = "FQC检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.fqcordercode", TranslationValue = "FQC检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+
             // entity.fqcorderitem.linenumber
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
 
-            // entity.fqcorderitem.code
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.code", TranslationValue = "检验项目编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.code", TranslationValue = "检验项目编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.code", TranslationValue = "检验项目编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.code", TranslationValue = "检验项目编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.code", TranslationValue = "检验项目编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.code", TranslationValue = "检验项目编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            // entity.fqcorderitem.materialcode
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
 
-            // entity.fqcorderitem.name
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.name", TranslationValue = "Name", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.name", TranslationValue = "名称", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.name", TranslationValue = "이름", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.name", TranslationValue = "检验项目名称", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.name", TranslationValue = "名稱", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.name", TranslationValue = "名稱", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            // entity.fqcorderitem.materialname
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.materialname", TranslationValue = "Name", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.materialname", TranslationValue = "名称", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.materialname", TranslationValue = "이름", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.materialname", TranslationValue = "物料名称", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.materialname", TranslationValue = "名稱", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.materialname", TranslationValue = "名稱", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
 
-            // entity.fqcorderitem.type
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.type", TranslationValue = "Type", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.type", TranslationValue = "タイプ", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.type", TranslationValue = "유형", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.type", TranslationValue = "检验项目类型", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.type", TranslationValue = "類型", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.type", TranslationValue = "類型", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            // entity.fqcorderitem.batchno
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.batchno", TranslationValue = "批次号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.batchno", TranslationValue = "批次号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.batchno", TranslationValue = "批次号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.batchno", TranslationValue = "批次号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.batchno", TranslationValue = "批次号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.batchno", TranslationValue = "批次号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
 
-            // entity.fqcorderitem.standardvalue
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.standardvalue", TranslationValue = "检验标准值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.standardvalue", TranslationValue = "检验标准值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.standardvalue", TranslationValue = "检验标准值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.standardvalue", TranslationValue = "检验标准值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.standardvalue", TranslationValue = "检验标准值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.standardvalue", TranslationValue = "检验标准值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            // entity.fqcorderitem.warehousequantity
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.warehousequantity", TranslationValue = "Quantity", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.warehousequantity", TranslationValue = "数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.warehousequantity", TranslationValue = "수량", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.warehousequantity", TranslationValue = "入库数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.warehousequantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.warehousequantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
 
-            // entity.fqcorderitem.upperlimit
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.upperlimit", TranslationValue = "检验上限值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.upperlimit", TranslationValue = "检验上限值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.upperlimit", TranslationValue = "检验上限值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.upperlimit", TranslationValue = "检验上限值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.upperlimit", TranslationValue = "检验上限值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.upperlimit", TranslationValue = "检验上限值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            // entity.fqcorderitem.standardcode
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.standardcode", TranslationValue = "检验标准编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.standardcode", TranslationValue = "检验标准编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.standardcode", TranslationValue = "检验标准编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.standardcode", TranslationValue = "检验标准编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.standardcode", TranslationValue = "检验标准编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.standardcode", TranslationValue = "检验标准编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
 
-            // entity.fqcorderitem.lowerlimit
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.lowerlimit", TranslationValue = "检验下限值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.lowerlimit", TranslationValue = "检验下限值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.lowerlimit", TranslationValue = "检验下限值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.lowerlimit", TranslationValue = "检验下限值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.lowerlimit", TranslationValue = "检验下限值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.lowerlimit", TranslationValue = "检验下限值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-
-            // entity.fqcorderitem.inspectiontool
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.inspectiontool", TranslationValue = "检验工具", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.inspectiontool", TranslationValue = "检验工具", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.inspectiontool", TranslationValue = "检验工具", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.inspectiontool", TranslationValue = "检验工具", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.inspectiontool", TranslationValue = "检验工具", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.inspectiontool", TranslationValue = "检验工具", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            // entity.fqcorderitem.samplingschemecode
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.samplingschemecode", TranslationValue = "抽样方案编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.samplingschemecode", TranslationValue = "抽样方案编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.samplingschemecode", TranslationValue = "抽样方案编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.samplingschemecode", TranslationValue = "抽样方案编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.samplingschemecode", TranslationValue = "抽样方案编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.samplingschemecode", TranslationValue = "抽样方案编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
 
             // entity.fqcorderitem.inspectionmethod
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.inspectionmethod", TranslationValue = "检验方法", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.inspectionmethod", TranslationValue = "检验方法", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.inspectionmethod", TranslationValue = "检验方法", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.inspectionmethod", TranslationValue = "检验方法", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.inspectionmethod", TranslationValue = "检验方法", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.inspectionmethod", TranslationValue = "检验方法", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.inspectionmethod", TranslationValue = "检验方式", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.inspectionmethod", TranslationValue = "检验方式", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.inspectionmethod", TranslationValue = "检验方式", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.inspectionmethod", TranslationValue = "检验方式", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.inspectionmethod", TranslationValue = "检验方式", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.inspectionmethod", TranslationValue = "检验方式", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
 
-            // entity.fqcorderitem.actualvalue
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.actualvalue", TranslationValue = "实际检验值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.actualvalue", TranslationValue = "实际检验值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.actualvalue", TranslationValue = "实际检验值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.actualvalue", TranslationValue = "实际检验值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.actualvalue", TranslationValue = "实际检验值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.actualvalue", TranslationValue = "实际检验值", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            // entity.fqcorderitem.samplequantity
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.samplequantity", TranslationValue = "Quantity", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.samplequantity", TranslationValue = "数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.samplequantity", TranslationValue = "수량", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.samplequantity", TranslationValue = "抽样数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.samplequantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.samplequantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
 
-            // entity.fqcorderitem.inspectionresult
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.inspectionresult", TranslationValue = "检验结果", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.inspectionresult", TranslationValue = "检验结果", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.inspectionresult", TranslationValue = "检验结果", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.inspectionresult", TranslationValue = "检验结果", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.inspectionresult", TranslationValue = "检验结果", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.inspectionresult", TranslationValue = "检验结果", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            // entity.fqcorderitem.qualifiedquantity
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.qualifiedquantity", TranslationValue = "Quantity", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.qualifiedquantity", TranslationValue = "数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.qualifiedquantity", TranslationValue = "수량", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.qualifiedquantity", TranslationValue = "合格数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.qualifiedquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.qualifiedquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
 
-            // entity.fqcorderitem.defectquantity
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.defectquantity", TranslationValue = "Quantity", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.defectquantity", TranslationValue = "数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.defectquantity", TranslationValue = "수량", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.defectquantity", TranslationValue = "不良数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.defectquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.defectquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            // entity.fqcorderitem.unqualifiedquantity
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.unqualifiedquantity", TranslationValue = "Quantity", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.unqualifiedquantity", TranslationValue = "数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.unqualifiedquantity", TranslationValue = "수량", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.unqualifiedquantity", TranslationValue = "不合格数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.unqualifiedquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.unqualifiedquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
 
-            // entity.fqcorderitem.defectdescription
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.defectdescription", TranslationValue = "Description", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.defectdescription", TranslationValue = "説明", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.defectdescription", TranslationValue = "설명", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.defectdescription", TranslationValue = "不良描述", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.defectdescription", TranslationValue = "描述", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.defectdescription", TranslationValue = "描述", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            // entity.fqcorderitem.inspectionreturnquantity
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.inspectionreturnquantity", TranslationValue = "Quantity", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.inspectionreturnquantity", TranslationValue = "数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.inspectionreturnquantity", TranslationValue = "수량", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.inspectionreturnquantity", TranslationValue = "验退数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.inspectionreturnquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.inspectionreturnquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+
+            // entity.fqcorderitem.judgestatus
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.judgestatus", TranslationValue = "Status", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.judgestatus", TranslationValue = "状態", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.judgestatus", TranslationValue = "상태", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.judgestatus", TranslationValue = "判定状态", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.judgestatus", TranslationValue = "狀態", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.judgestatus", TranslationValue = "狀態", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+
+            // entity.fqcorderitem.sampleserialno
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.sampleserialno", TranslationValue = "抽检序列号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.sampleserialno", TranslationValue = "抽检序列号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.sampleserialno", TranslationValue = "抽检序列号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.sampleserialno", TranslationValue = "抽检序列号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.sampleserialno", TranslationValue = "抽检序列号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.sampleserialno", TranslationValue = "抽检序列号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+
+            // entity.fqcorderitem.inspectiondescription
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.inspectiondescription", TranslationValue = "检验说明", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.inspectiondescription", TranslationValue = "检验说明", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.inspectiondescription", TranslationValue = "检验说明", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.inspectiondescription", TranslationValue = "检验说明", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.inspectiondescription", TranslationValue = "检验说明", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.inspectiondescription", TranslationValue = "检验说明", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
 
             // entity.fqcorderitem.inspectorby
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.inspectorby", TranslationValue = "检验员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.inspectorby", TranslationValue = "检验员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.inspectorby", TranslationValue = "检验员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.inspectorby", TranslationValue = "检验员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.inspectorby", TranslationValue = "检验员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.inspectorby", TranslationValue = "检验员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.inspectorby", TranslationValue = "检验员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 20 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.inspectorby", TranslationValue = "检验员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 20 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.inspectorby", TranslationValue = "检验员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 20 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.inspectorby", TranslationValue = "检验员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 20 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.inspectorby", TranslationValue = "检验员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 20 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.inspectorby", TranslationValue = "检验员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 20 },
 
-            // entity.fqcorderitem.inspectiontime
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.inspectiontime", TranslationValue = "Time", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.inspectiontime", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.inspectiontime", TranslationValue = "시간", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.inspectiontime", TranslationValue = "检验时间", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.inspectiontime", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.inspectiontime", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
-
-            // entity.fqcorderitem.inspectionimages
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.inspectionimages", TranslationValue = "检验图片", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.inspectionimages", TranslationValue = "检验图片", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.inspectionimages", TranslationValue = "检验图片", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.inspectionimages", TranslationValue = "检验图片", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.inspectionimages", TranslationValue = "检验图片", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.inspectionimages", TranslationValue = "检验图片", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
+            // entity.fqcorderitem.inspectiondate
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcorderitem.inspectiondate", TranslationValue = "Date", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 21 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcorderitem.inspectiondate", TranslationValue = "日付", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 21 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcorderitem.inspectiondate", TranslationValue = "날짜", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 21 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcorderitem.inspectiondate", TranslationValue = "检验日期", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 21 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcorderitem.inspectiondate", TranslationValue = "日期", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 21 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcorderitem.inspectiondate", TranslationValue = "日期", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 21 },
         };
     }
 }

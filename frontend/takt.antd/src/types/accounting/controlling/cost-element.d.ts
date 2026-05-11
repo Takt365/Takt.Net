@@ -16,7 +16,7 @@ export interface CostElement extends TaktEntityBase {
   /** 对应后端字段 costElementId */
   costElementId: string
   /** 对应后端字段 companyCode */
-  companyCode?: string
+  companyCode: string
   /** 对应后端字段 costElementCode */
   costElementCode: string
   /** 对应后端字段 costElementName */
@@ -100,7 +100,7 @@ export interface CostElementQuery extends TaktPagedQuery {
  */
 export interface CostElementCreate {
   /** 对应后端字段 companyCode */
-  companyCode?: string
+  companyCode: string
   /** 对应后端字段 costElementCode */
   costElementCode: string
   /** 对应后端字段 costElementName */

@@ -19,7 +19,7 @@ namespace Takt.Domain.Entities.Logistics.Materials;
 /// Takt采购价格实体（供应商价格主表，一个供应商可以有多个物料价格）
 /// </summary>
 [SugarTable("takt_logistics_materials_purchase_price", "采购价格表")]
-[SugarIndex("ix_takt_logistics_materials_purchase_price_plant_code", nameof(PlantCode), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_materials_purchase_price_price_unique", nameof(PlantCode), OrderByType.Asc, nameof(PurchasePriceCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_materials_purchase_price_supplier_code", nameof(SupplierCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_price_price_type", nameof(PriceType), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_price_effective_start_date", nameof(EffectiveStartDate), OrderByType.Asc)]
@@ -30,10 +30,16 @@ namespace Takt.Domain.Entities.Logistics.Materials;
 public class TaktPurchasePrice : TaktEntityBase
 {
     /// <summary>
-    /// 工厂代码
+    /// 工厂代码（不可空）
     /// </summary>
-    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? PlantCode { get; set; }
+    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string PlantCode { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 采购价格编码（唯一索引）
+    /// </summary>
+    [SugarColumn(ColumnName = "purchase_price_code", ColumnDescription = "采购价格编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string PurchasePriceCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 供应商编码

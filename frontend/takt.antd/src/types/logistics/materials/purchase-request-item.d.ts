@@ -17,6 +17,8 @@ export interface PurchaseRequestItem extends TaktEntityBase {
   purchaseRequestItemId: string
   /** 对应后端字段 purchaseRequestId */
   purchaseRequestId: string
+  /** 对应后端字段 purchaseRequestCode */
+  purchaseRequestCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 materialCode */
@@ -47,6 +49,8 @@ export interface PurchaseRequestItem extends TaktEntityBase {
 export interface PurchaseRequestItemQuery extends TaktPagedQuery {
   /** 对应后端字段 purchaseRequestId */
   purchaseRequestId?: string
+  /** 对应后端字段 purchaseRequestCode */
+  purchaseRequestCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 materialCode */
@@ -91,6 +95,8 @@ export interface PurchaseRequestItemQuery extends TaktPagedQuery {
 export interface PurchaseRequestItemCreate {
   /** 对应后端字段 purchaseRequestId */
   purchaseRequestId: string
+  /** 对应后端字段 purchaseRequestCode */
+  purchaseRequestCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 materialCode */

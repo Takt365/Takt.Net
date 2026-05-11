@@ -16,7 +16,7 @@ export interface Asset extends TaktEntityBase {
   /** 对应后端字段 assetId */
   assetId: string
   /** 对应后端字段 companyCode */
-  companyCode?: string
+  companyCode: string
   /** 对应后端字段 assetCode */
   assetCode: string
   /** 对应后端字段 assetName */
@@ -158,7 +158,7 @@ export interface AssetQuery extends TaktPagedQuery {
  */
 export interface AssetCreate {
   /** 对应后端字段 companyCode */
-  companyCode?: string
+  companyCode: string
   /** 对应后端字段 assetCode */
   assetCode: string
   /** 对应后端字段 assetName */

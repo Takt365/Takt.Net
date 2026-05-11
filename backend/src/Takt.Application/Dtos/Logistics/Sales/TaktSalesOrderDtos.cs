@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Sales
 // 文件名称：TaktSalesOrderDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：销售订单表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,7 +22,7 @@ public partial class TaktSalesOrderDto : TaktDtosEntityBase
     /// </summary>
     public TaktSalesOrderDto()
     {
-        OrderCode = string.Empty;
+        SalesOrderCode = string.Empty;
         CustomerCode = string.Empty;
         CustomerName = string.Empty;
     }
@@ -39,9 +39,9 @@ public partial class TaktSalesOrderDto : TaktDtosEntityBase
     /// </summary>
     public string? PlantCode { get; set; }
     /// <summary>
-    /// 订单编码
+    /// 销售订单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string SalesOrderCode { get; set; }
     /// <summary>
     /// 客户编码
     /// </summary>
@@ -149,9 +149,9 @@ public partial class TaktSalesOrderQueryDto : TaktPagedQuery
     /// </summary>
     public string? PlantCode { get; set; }
     /// <summary>
-    /// 订单编码
+    /// 销售订单编码
     /// </summary>
-    public string? OrderCode { get; set; }
+    public string? SalesOrderCode { get; set; }
     /// <summary>
     /// 客户编码
     /// </summary>
@@ -297,7 +297,7 @@ public partial class TaktSalesOrderCreateDto
     /// </summary>
     public TaktSalesOrderCreateDto()
     {
-        OrderCode = string.Empty;
+        SalesOrderCode = string.Empty;
         CustomerCode = string.Empty;
         CustomerName = string.Empty;
     }
@@ -308,9 +308,9 @@ public partial class TaktSalesOrderCreateDto
     public string? PlantCode { get; set; }
 
         /// <summary>
-    /// 订单编码
+    /// 销售订单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string SalesOrderCode { get; set; }
 
         /// <summary>
     /// 客户编码
@@ -511,7 +511,7 @@ public partial class TaktSalesOrderTemplateDto
     /// </summary>
     public TaktSalesOrderTemplateDto()
     {
-        OrderCode = string.Empty;
+        SalesOrderCode = string.Empty;
         CustomerCode = string.Empty;
         CustomerName = string.Empty;
     }
@@ -522,9 +522,9 @@ public partial class TaktSalesOrderTemplateDto
     public string? PlantCode { get; set; }
 
         /// <summary>
-    /// 订单编码
+    /// 销售订单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string SalesOrderCode { get; set; }
 
         /// <summary>
     /// 客户编码
@@ -642,7 +642,7 @@ public partial class TaktSalesOrderImportDto
     /// </summary>
     public TaktSalesOrderImportDto()
     {
-        OrderCode = string.Empty;
+        SalesOrderCode = string.Empty;
         CustomerCode = string.Empty;
         CustomerName = string.Empty;
     }
@@ -653,9 +653,9 @@ public partial class TaktSalesOrderImportDto
     public string? PlantCode { get; set; }
 
         /// <summary>
-    /// 订单编码
+    /// 销售订单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string SalesOrderCode { get; set; }
 
         /// <summary>
     /// 客户编码
@@ -774,7 +774,7 @@ public partial class TaktSalesOrderExportDto
     public TaktSalesOrderExportDto()
     {
         CreatedAt = DateTime.Now;
-        OrderCode = string.Empty;
+        SalesOrderCode = string.Empty;
         CustomerCode = string.Empty;
         CustomerName = string.Empty;
     }
@@ -785,9 +785,9 @@ public partial class TaktSalesOrderExportDto
     public string? PlantCode { get; set; }
 
         /// <summary>
-    /// 订单编码
+    /// 销售订单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string SalesOrderCode { get; set; }
 
         /// <summary>
     /// 客户编码

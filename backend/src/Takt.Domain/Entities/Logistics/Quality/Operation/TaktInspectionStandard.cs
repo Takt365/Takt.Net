@@ -17,9 +17,7 @@ namespace Takt.Domain.Entities.Logistics.Quality.Operation;
 /// 检验标准实体（IQC/IPQC/FQC通用）
 /// </summary>
 [SugarTable("takt_logistics_quality_inspection_standard", "检验标准表")]
-[SugarIndex("ix_takt_logistics_quality_inspection_standard_plant_code", nameof(PlantCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_inspection_standard_standard_code", nameof(StandardCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_quality_inspection_standard_is_unique", nameof(PlantCode), OrderByType.Asc, nameof(StandardCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_quality_inspection_standard_is_unique", nameof(PlantCode), OrderByType.Asc, nameof(StandardCode), OrderByType.Asc, nameof(StandardName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_quality_inspection_standard_inspection_type", nameof(InspectionType), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_inspection_standard_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_inspection_standard_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
@@ -51,53 +49,28 @@ public class TaktInspectionStandard : TaktEntityBase
     public int InspectionType { get; set; } = 0;
 
     /// <summary>
-    /// 适用物料类别编码（为空表示通用标准）
+    /// 物料类别编码
     /// </summary>
-    [SugarColumn(ColumnName = "material_category_code", ColumnDescription = "适用物料类别编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? MaterialCategoryCode { get; set; }
+    [SugarColumn(ColumnName = "material_category_code", ColumnDescription = "物料类别编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string MaterialCategoryCode { get; set; } = string.Empty;
 
     /// <summary>
-    /// 适用物料类别名称
+    /// 物料类别名称
     /// </summary>
-    [SugarColumn(ColumnName = "material_category_name", ColumnDescription = "适用物料类别名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
-    public string? MaterialCategoryName { get; set; }
+    [SugarColumn(ColumnName = "material_category_name", ColumnDescription = "物料类别名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
+    public string MaterialCategoryName { get; set; } = string.Empty;
 
     /// <summary>
-    /// 抽样方案ID（主子表关系，序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [SugarColumn(ColumnName = "sampling_scheme_id", ColumnDescription = "抽样方案ID", ColumnDataType = "bigint", IsNullable = true)]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long? SamplingSchemeId { get; set; }
-
-    /// <summary>
-    /// 抽样方案编码（冗余字段，便于查询）
+    /// 抽样方案编码
     /// </summary>
     [SugarColumn(ColumnName = "sampling_scheme_code", ColumnDescription = "抽样方案编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
     public string? SamplingSchemeCode { get; set; }
 
     /// <summary>
-    /// 检验项目列表（JSON格式，存储检验项目定义）
+    /// 抽样方案名称
     /// </summary>
-    [SugarColumn(ColumnName = "inspection_items_json", ColumnDescription = "检验项目列表", ColumnDataType = "nvarchar", Length = -1, IsNullable = true)]
-    public string? InspectionItemsJson { get; set; }
-
-    /// <summary>
-    /// 检验方法说明
-    /// </summary>
-    [SugarColumn(ColumnName = "inspection_method", ColumnDescription = "检验方法", ColumnDataType = "nvarchar", Length = 1000, IsNullable = true)]
-    public string? InspectionMethod { get; set; }
-
-    /// <summary>
-    /// 检验工具/设备要求
-    /// </summary>
-    [SugarColumn(ColumnName = "inspection_tools", ColumnDescription = "检验工具", ColumnDataType = "nvarchar", Length = 500, IsNullable = true)]
-    public string? InspectionTools { get; set; }
-
-    /// <summary>
-    /// 判定规则（JSON格式，存储合格/不合格的判定条件）
-    /// </summary>
-    [SugarColumn(ColumnName = "judgment_rules", ColumnDescription = "判定规则", ColumnDataType = "nvarchar", Length = 2000, IsNullable = true)]
-    public string? JudgmentRules { get; set; }
+    [SugarColumn(ColumnName = "sampling_scheme_name", ColumnDescription = "抽样方案名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
+    public string? SamplingSchemeName { get; set; }
 
     /// <summary>
     /// 是否启用（0=否，1=是）
@@ -118,9 +91,8 @@ public class TaktInspectionStandard : TaktEntityBase
     public string? StandardDescription { get; set; }
 
     /// <summary>
-    /// 排序号（越小越靠前）
+    /// 检验标准明细列表（主子表关系）
     /// </summary>
-    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int SortOrder { get; set; } = 0;
-
+    [Navigate(NavigateType.OneToMany, nameof(TaktInspectionStandardItem.InspectionStandardId))]
+    public List<TaktInspectionStandardItem>? Items { get; set; }
 }

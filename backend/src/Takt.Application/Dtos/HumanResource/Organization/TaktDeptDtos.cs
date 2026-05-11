@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.Organization
 // 文件名称：TaktDeptDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：部门信息表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktDeptDto : TaktDtosEntityBase
     /// </summary>
     public TaktDeptDto()
     {
+        CompanyCode = string.Empty;
         DeptName = string.Empty;
         DeptCode = string.Empty;
     }
@@ -33,6 +34,10 @@ public partial class TaktDeptDto : TaktDtosEntityBase
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long DeptId { get; set; } = 0;
 
+    /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string CompanyCode { get; set; }
     /// <summary>
     /// 部门名称
     /// </summary>
@@ -128,6 +133,10 @@ public partial class TaktDeptQueryDto : TaktPagedQuery
     // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
     /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string? CompanyCode { get; set; }
+    /// <summary>
     /// 部门名称
     /// </summary>
     public string? DeptName { get; set; }
@@ -219,9 +228,15 @@ public partial class TaktDeptCreateDto
     /// </summary>
     public TaktDeptCreateDto()
     {
+        CompanyCode = string.Empty;
         DeptName = string.Empty;
         DeptCode = string.Empty;
     }
+
+        /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 部门名称
@@ -388,9 +403,15 @@ public partial class TaktDeptTemplateDto
     /// </summary>
     public TaktDeptTemplateDto()
     {
+        CompanyCode = string.Empty;
         DeptName = string.Empty;
         DeptCode = string.Empty;
     }
+
+        /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 部门名称
@@ -478,9 +499,15 @@ public partial class TaktDeptImportDto
     /// </summary>
     public TaktDeptImportDto()
     {
+        CompanyCode = string.Empty;
         DeptName = string.Empty;
         DeptCode = string.Empty;
     }
+
+        /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 部门名称
@@ -569,9 +596,15 @@ public partial class TaktDeptExportDto
     public TaktDeptExportDto()
     {
         CreatedAt = DateTime.Now;
+        CompanyCode = string.Empty;
         DeptName = string.Empty;
         DeptCode = string.Empty;
     }
+
+        /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 部门名称

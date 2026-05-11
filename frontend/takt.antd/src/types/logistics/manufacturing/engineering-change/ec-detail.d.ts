@@ -19,6 +19,8 @@ export interface EcDetail extends TaktEntityBase {
   ecnId: string
   /** 对应后端字段 ecnNo */
   ecnNo: string
+  /** 对应后端字段 lineNumber */
+  lineNumber: number
   /** 对应后端字段 ecnModel */
   ecnModel: string
   /** 对应后端字段 ecnBomItem */
@@ -77,6 +79,8 @@ export interface EcDetailQuery extends TaktPagedQuery {
   ecnId?: string
   /** 对应后端字段 ecnNo */
   ecnNo?: string
+  /** 对应后端字段 lineNumber */
+  lineNumber?: number
   /** 对应后端字段 ecnModel */
   ecnModel?: string
   /** 对应后端字段 ecnBomItem */
@@ -153,6 +157,8 @@ export interface EcDetailCreate {
   ecnId: string
   /** 对应后端字段 ecnNo */
   ecnNo: string
+  /** 对应后端字段 lineNumber */
+  lineNumber: number
   /** 对应后端字段 ecnModel */
   ecnModel: string
   /** 对应后端字段 ecnBomItem */

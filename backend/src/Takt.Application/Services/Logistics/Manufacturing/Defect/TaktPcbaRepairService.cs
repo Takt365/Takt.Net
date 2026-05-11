@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Manufacturing.Defect
 // 文件名称：TaktPcbaRepairService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：PCBA改修日报表应用服务，提供PcbaRepair管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Manufacturing.Defect;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Manufacturing.Defect;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Manufacturing.Defect;
 
@@ -29,18 +21,21 @@ namespace Takt.Application.Services.Logistics.Manufacturing.Defect;
 public class TaktPcbaRepairService : TaktServiceBase, ITaktPcbaRepairService
 {
     private readonly ITaktRepository<TaktPcbaRepair> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktPcbaRepairDetail> _pcbaRepairDetailRepository;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">PcbaRepair仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="pcbaRepairDetailRepository">PcbaRepairDetail仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktPcbaRepairService(
         ITaktRepository<TaktPcbaRepair> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktPcbaRepairDetail> pcbaRepairDetailRepository,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
@@ -48,6 +43,7 @@ public class TaktPcbaRepairService : TaktServiceBase, ITaktPcbaRepairService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _pcbaRepairDetailRepository = pcbaRepairDetailRepository;
     }
 
@@ -112,9 +108,12 @@ public class TaktPcbaRepairService : TaktServiceBase, ITaktPcbaRepairService
     /// <returns>PCBA改修日报表(PcbaRepair)DTO</returns>
     public async Task<TaktPcbaRepairDto> CreatePcbaRepairAsync(TaktPcbaRepairCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.PlantCode, dto.PlantCode, null, $"PCBA改修日报表编码 {dto.PlantCode} 已存在");
-
         var entity = dto.Adapt<TaktPcbaRepair>();
+        // 验证工厂编码、ProdCategory、ProdDate、ProdLine、ShiftNo、ProdOrderCode组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.ProdCategory == dto.ProdCategory && x.ProdDate == dto.ProdDate && x.ProdLine == dto.ProdLine && x.ShiftNo == dto.ShiftNo && x.ProdOrderCode == dto.ProdOrderCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"PCBA改修日报表工厂编码、ProdCategory、ProdDate、ProdLine、ShiftNo、ProdOrderCode组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -147,8 +146,10 @@ public class TaktPcbaRepairService : TaktServiceBase, ITaktPcbaRepairService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.pcbarepairNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.PlantCode, dto.PlantCode, id, $"PCBA改修日报表编码 {dto.PlantCode} 已存在");
+        // 验证工厂编码、ProdCategory、ProdDate、ProdLine、ShiftNo、ProdOrderCode组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.ProdCategory == dto.ProdCategory && x.ProdDate == dto.ProdDate && x.ProdLine == dto.ProdLine && x.ShiftNo == dto.ShiftNo && x.ProdOrderCode == dto.ProdOrderCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"PCBA改修日报表工厂编码、ProdCategory、ProdDate、ProdLine、ShiftNo、ProdOrderCode组合已存在");
 
         dto.Adapt(entity, typeof(TaktPcbaRepairUpdateDto), typeof(TaktPcbaRepair));
         entity.UpdatedAt = DateTime.Now;

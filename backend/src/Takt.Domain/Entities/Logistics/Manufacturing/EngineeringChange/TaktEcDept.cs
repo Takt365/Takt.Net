@@ -28,6 +28,18 @@ public class TaktEcDept : TaktEntityBase
     public long EcnDetailId { get; set; }
 
     /// <summary>
+    /// 设变单号（冗余字段,便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "ecn_no", ColumnDescription = "设变单号", ColumnDataType = "nvarchar", Length = 10, IsNullable = false)]
+    public string EcnNo { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 项号（行号）
+    /// </summary>
+    [SugarColumn(ColumnName = "line_number", ColumnDescription = "项号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int LineNumber { get; set; } = 0;
+
+    /// <summary>
     /// 部门编码。顺序严格为：Eng=技术, Pmc=生管, Mp=采购, Iqc=受检, Mc=部管, Pcba=制二, Assy=制一, Qa=品管, Te=制技。
     /// </summary>
     [SugarColumn(ColumnName = "dept_code", ColumnDescription = "部门编码", ColumnDataType = "nvarchar", Length = 20, IsNullable = false)]

@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Maintenance
 // 文件名称：TaktMaintenanceService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：设备维护记录表应用服务，提供Maintenance管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Maintenance;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Maintenance;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Maintenance;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Logistics.Maintenance;
 public class TaktMaintenanceService : TaktServiceBase, ITaktMaintenanceService
 {
     private readonly ITaktRepository<TaktMaintenance> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">Maintenance仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktMaintenanceService(
         ITaktRepository<TaktMaintenance> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -87,8 +83,8 @@ public class TaktMaintenanceService : TaktServiceBase, ITaktMaintenanceService
         var all = await _repository.FindAsync(x => x.IsDeleted == 0 && x.MaintenanceStatus == 1);
         return all.Select(x => new TaktSelectOption
         {
-            DictLabel = x.Id.ToString() ?? string.Empty,
-            DictValue = x.Id.ToString()
+            DictLabel = x.EquipmentCode ?? string.Empty,
+            DictValue = x.EquipmentCode
 
         }).ToList();
     }
@@ -102,6 +98,11 @@ public class TaktMaintenanceService : TaktServiceBase, ITaktMaintenanceService
     public async Task<TaktMaintenanceDto> CreateMaintenanceAsync(TaktMaintenanceCreateDto dto)
     {
         var entity = dto.Adapt<TaktMaintenance>();
+        // 验证EquipmentId、MaintenanceDate组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.EquipmentId == dto.EquipmentId && x.MaintenanceDate == dto.MaintenanceDate);
+        if (!isUnique)
+            throw new TaktBusinessException($"设备维护记录表EquipmentId、MaintenanceDate组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetMaintenanceByIdAsync(entity.Id)) ?? entity.Adapt<TaktMaintenanceDto>();
     }
@@ -118,6 +119,10 @@ public class TaktMaintenanceService : TaktServiceBase, ITaktMaintenanceService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.maintenanceNotFound");
+        // 验证EquipmentId、MaintenanceDate组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.EquipmentId == dto.EquipmentId && x.MaintenanceDate == dto.MaintenanceDate, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"设备维护记录表EquipmentId、MaintenanceDate组合已存在");
 
         dto.Adapt(entity, typeof(TaktMaintenanceUpdateDto), typeof(TaktMaintenance));
         entity.UpdatedAt = DateTime.Now;
@@ -296,6 +301,7 @@ public class TaktMaintenanceService : TaktServiceBase, ITaktMaintenanceService
         if (!string.IsNullOrEmpty(queryDto?.KeyWords))
         {
             exp = exp.And(x =>
+                x.EquipmentCode!.Contains(queryDto.KeyWords) ||
                 x.MaintenanceCompany!.Contains(queryDto.KeyWords) ||
                 x.MaintenanceTechnician!.Contains(queryDto.KeyWords) ||
                 x.MaintenanceContent!.Contains(queryDto.KeyWords) ||
@@ -315,6 +321,11 @@ public class TaktMaintenanceService : TaktServiceBase, ITaktMaintenanceService
         if (queryDto?.EquipmentId.HasValue == true)
         {
             exp = exp.And(x => x.EquipmentId == queryDto.EquipmentId);
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.EquipmentCode))
+        {
+            exp = exp.And(x => x.EquipmentCode!.Contains(queryDto.EquipmentCode));
         }
 
         if (queryDto?.LineNumber.HasValue == true)

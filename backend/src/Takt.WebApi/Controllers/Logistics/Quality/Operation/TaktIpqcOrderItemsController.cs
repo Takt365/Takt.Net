@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.Logistics.Quality.Operation
 // 文件名称：TaktIpqcOrderItemsController.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：制程检验单明细表控制器，提供IpqcOrderItem管理的RESTful API接口
 //
@@ -128,6 +128,18 @@ public class TaktIpqcOrderItemsController : TaktControllerBase
     {
         await _service.DeleteIpqcOrderItemBatchAsync(ids);
         return Ok();
+    }
+
+
+    /// <summary>
+    /// 更新制程检验单明细表(IpqcOrderItem)Judge
+    /// </summary>
+    [HttpPut("status-judge")]
+    [TaktPermission("logistics:quality:operation:ipqcorderitem:update", "更新制程检验单明细表(IpqcOrderItem)Judge")]
+    public async Task<ActionResult<TaktIpqcOrderItemDto>> UpdateIpqcOrderItemJudgeStatusAsync([FromBody] TaktIpqcOrderItemJudgeStatusDto dto)
+    {
+        var result = await _service.UpdateIpqcOrderItemJudgeStatusAsync(dto);
+        return Ok(result);
     }
 
 

@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.Personnel
 // 文件名称：TaktEmployeeService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：员工信息表应用服务，提供Employee管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.HumanResource.Personnel;
-using Takt.Application.Services;
 using Takt.Domain.Entities.HumanResource.Personnel;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.HumanResource.Personnel;
 
@@ -29,6 +21,7 @@ namespace Takt.Application.Services.HumanResource.Personnel;
 public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
 {
     private readonly ITaktRepository<TaktEmployee> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktEmployeeDelegate> _employeeDelegateRepository;
     private readonly ITaktRepository<TaktEmployeeCareer> _employeeCareerRepository;
     private readonly ITaktRepository<TaktEmployeeAttachment> _employeeAttachmentRepository;
@@ -43,6 +36,7 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
     /// 构造函数
     /// </summary>
     /// <param name="repository">Employee仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="employeeDelegateRepository">EmployeeDelegate仓储</param>
     /// <param name="employeeCareerRepository">EmployeeCareer仓储</param>
     /// <param name="employeeAttachmentRepository">EmployeeAttachment仓储</param>
@@ -57,6 +51,7 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
     /// <param name="localizer">本地化器（可选）</param>
     public TaktEmployeeService(
         ITaktRepository<TaktEmployee> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktEmployeeDelegate> employeeDelegateRepository,
         ITaktRepository<TaktEmployeeCareer> employeeCareerRepository,
         ITaktRepository<TaktEmployeeAttachment> employeeAttachmentRepository,
@@ -72,6 +67,7 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _employeeDelegateRepository = employeeDelegateRepository;
         _employeeCareerRepository = employeeCareerRepository;
         _employeeAttachmentRepository = employeeAttachmentRepository;
@@ -160,9 +156,12 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
     /// <returns>员工信息表(Employee)DTO</returns>
     public async Task<TaktEmployeeDto> CreateEmployeeAsync(TaktEmployeeCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.EmployeeCode, dto.EmployeeCode, null, $"员工信息表编码 {dto.EmployeeCode} 已存在");
-
         var entity = dto.Adapt<TaktEmployee>();
+        // 验证员工编码、RealName组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.EmployeeCode == dto.EmployeeCode && x.RealName == dto.RealName);
+        if (!isUnique)
+            throw new TaktBusinessException($"员工信息表员工编码、RealName组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -275,8 +274,10 @@ public class TaktEmployeeService : TaktServiceBase, ITaktEmployeeService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.employeeNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.EmployeeCode, dto.EmployeeCode, id, $"员工信息表编码 {dto.EmployeeCode} 已存在");
+        // 验证员工编码、RealName组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.EmployeeCode == dto.EmployeeCode && x.RealName == dto.RealName, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"员工信息表员工编码、RealName组合已存在");
 
         dto.Adapt(entity, typeof(TaktEmployeeUpdateDto), typeof(TaktEmployee));
         entity.UpdatedAt = DateTime.Now;

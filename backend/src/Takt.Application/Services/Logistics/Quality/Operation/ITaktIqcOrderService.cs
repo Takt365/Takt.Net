@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Logistics.Quality.Operation
 // 文件名称：ITaktIqcOrderService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：进货检验单表应用服务接口（主子表），定义IqcOrder管理的业务操作
 // 
@@ -70,11 +70,11 @@ public interface ITaktIqcOrderService
     Task DeleteIqcOrderBatchAsync(IEnumerable<long> ids);
 
     /// <summary>
-    /// 更新进货检验单表(IqcOrder)OrderStatus
+    /// 更新进货检验单表(IqcOrder)JudgeStatus
     /// </summary>
-    /// <param name="dto">进货检验单表(IqcOrder)OrderStatusDTO</param>
+    /// <param name="dto">进货检验单表(IqcOrder)JudgeStatusDTO</param>
     /// <returns>进货检验单表(IqcOrder)DTO</returns>
-    Task<TaktIqcOrderDto> UpdateIqcOrderOrderStatusAsync(TaktIqcOrderOrderStatusDto dto);
+    Task<TaktIqcOrderDto> UpdateIqcOrderJudgeStatusAsync(TaktIqcOrderJudgeStatusDto dto);
 
     /// <summary>
     /// 获取导入模板

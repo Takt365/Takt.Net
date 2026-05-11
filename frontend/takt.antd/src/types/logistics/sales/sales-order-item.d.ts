@@ -17,6 +17,8 @@ export interface SalesOrderItem extends TaktEntityBase {
   salesOrderItemId: string
   /** 对应后端字段 salesOrderId */
   salesOrderId: string
+  /** 对应后端字段 salesOrderCode */
+  salesOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 materialCode */
@@ -53,6 +55,8 @@ export interface SalesOrderItem extends TaktEntityBase {
 export interface SalesOrderItemQuery extends TaktPagedQuery {
   /** 对应后端字段 salesOrderId */
   salesOrderId?: string
+  /** 对应后端字段 salesOrderCode */
+  salesOrderCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 materialCode */
@@ -103,6 +107,8 @@ export interface SalesOrderItemQuery extends TaktPagedQuery {
 export interface SalesOrderItemCreate {
   /** 对应后端字段 salesOrderId */
   salesOrderId: string
+  /** 对应后端字段 salesOrderCode */
+  salesOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 materialCode */

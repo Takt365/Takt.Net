@@ -15,6 +15,8 @@ import type { TaktEntityBase, TaktPagedQuery } from '@/types/common'
 export interface ApsSchedule extends TaktEntityBase {
   /** 对应后端字段 apsScheduleId */
   apsScheduleId: string
+  /** 对应后端字段 plantCode */
+  plantCode: string
   /** 对应后端字段 scheduleCode */
   scheduleCode: string
   /** 对应后端字段 scheduleName */
@@ -29,10 +31,6 @@ export interface ApsSchedule extends TaktEntityBase {
   planEndTime: string
   /** 对应后端字段 planCycle */
   planCycle: number
-  /** 对应后端字段 plantCode */
-  plantCode?: string
-  /** 对应后端字段 plantName */
-  plantName?: string
   /** 对应后端字段 workshopCode */
   workshopCode?: string
   /** 对应后端字段 workshopName */
@@ -71,6 +69,8 @@ export interface ApsSchedule extends TaktEntityBase {
  * ApsScheduleQuery类型（对应后端 Takt.Application.Dtos.Logistics.Manufacturing.Scheduling.TaktApsScheduleQueryDto）
  */
 export interface ApsScheduleQuery extends TaktPagedQuery {
+  /** 对应后端字段 plantCode */
+  plantCode?: string
   /** 对应后端字段 scheduleCode */
   scheduleCode?: string
   /** 对应后端字段 scheduleName */
@@ -97,10 +97,6 @@ export interface ApsScheduleQuery extends TaktPagedQuery {
   planEndTimeEnd?: string
   /** 对应后端字段 planCycle */
   planCycle?: number
-  /** 对应后端字段 plantCode */
-  plantCode?: string
-  /** 对应后端字段 plantName */
-  plantName?: string
   /** 对应后端字段 workshopCode */
   workshopCode?: string
   /** 对应后端字段 workshopName */
@@ -153,6 +149,8 @@ export interface ApsScheduleQuery extends TaktPagedQuery {
  * ApsScheduleCreate类型（对应后端 Takt.Application.Dtos.Logistics.Manufacturing.Scheduling.TaktApsScheduleCreateDto）
  */
 export interface ApsScheduleCreate {
+  /** 对应后端字段 plantCode */
+  plantCode: string
   /** 对应后端字段 scheduleCode */
   scheduleCode: string
   /** 对应后端字段 scheduleName */
@@ -167,10 +165,6 @@ export interface ApsScheduleCreate {
   planEndTime: string
   /** 对应后端字段 planCycle */
   planCycle: number
-  /** 对应后端字段 plantCode */
-  plantCode?: string
-  /** 对应后端字段 plantName */
-  plantName?: string
   /** 对应后端字段 workshopCode */
   workshopCode?: string
   /** 对应后端字段 workshopName */

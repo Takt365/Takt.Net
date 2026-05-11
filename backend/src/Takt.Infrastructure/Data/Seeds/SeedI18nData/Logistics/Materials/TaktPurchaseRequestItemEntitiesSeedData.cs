@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktPurchaseRequestItemEntitiesSeedData.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(AI Auto-Generated)
 // 功能描述：TaktPurchaseRequestItem 实体字段翻译种子数据（自动生成）
 //
@@ -116,93 +116,101 @@ public class TaktPurchaseRequestItemEntitiesSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.purchaserequestid", TranslationValue = "ID", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
             new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.purchaserequestid", TranslationValue = "ID", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
 
+            // entity.purchaserequestitem.purchaserequestcode
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.purchaserequestcode", TranslationValue = "采购申请编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.purchaserequestcode", TranslationValue = "采购申请编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.purchaserequestcode", TranslationValue = "采购申请编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.purchaserequestcode", TranslationValue = "采购申请编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.purchaserequestcode", TranslationValue = "采购申请编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.purchaserequestcode", TranslationValue = "采购申请编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+
             // entity.purchaserequestitem.linenumber
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.linenumber", TranslationValue = "行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
 
             // entity.purchaserequestitem.materialcode
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.materialcode", TranslationValue = "物料编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
 
             // entity.purchaserequestitem.materialname
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.materialname", TranslationValue = "Name", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.materialname", TranslationValue = "名称", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.materialname", TranslationValue = "이름", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.materialname", TranslationValue = "物料名称", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.materialname", TranslationValue = "名稱", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.materialname", TranslationValue = "名稱", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.materialname", TranslationValue = "Name", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.materialname", TranslationValue = "名称", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.materialname", TranslationValue = "이름", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.materialname", TranslationValue = "物料名称", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.materialname", TranslationValue = "名稱", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.materialname", TranslationValue = "名稱", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
 
             // entity.purchaserequestitem.materialspecification
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.materialspecification", TranslationValue = "物料规格", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.materialspecification", TranslationValue = "物料规格", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.materialspecification", TranslationValue = "物料规格", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.materialspecification", TranslationValue = "物料规格", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.materialspecification", TranslationValue = "物料规格", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.materialspecification", TranslationValue = "物料规格", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.materialspecification", TranslationValue = "物料规格", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.materialspecification", TranslationValue = "物料规格", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.materialspecification", TranslationValue = "物料规格", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.materialspecification", TranslationValue = "物料规格", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.materialspecification", TranslationValue = "物料规格", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.materialspecification", TranslationValue = "物料规格", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
 
             // entity.purchaserequestitem.requestunit
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.requestunit", TranslationValue = "申请单位", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.requestunit", TranslationValue = "申请单位", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.requestunit", TranslationValue = "申请单位", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.requestunit", TranslationValue = "申请单位", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.requestunit", TranslationValue = "申请单位", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.requestunit", TranslationValue = "申请单位", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.requestunit", TranslationValue = "申请单位", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.requestunit", TranslationValue = "申请单位", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.requestunit", TranslationValue = "申请单位", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.requestunit", TranslationValue = "申请单位", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.requestunit", TranslationValue = "申请单位", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.requestunit", TranslationValue = "申请单位", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
 
             // entity.purchaserequestitem.requestquantity
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.requestquantity", TranslationValue = "Quantity", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.requestquantity", TranslationValue = "数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.requestquantity", TranslationValue = "수량", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.requestquantity", TranslationValue = "申请数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.requestquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.requestquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.requestquantity", TranslationValue = "Quantity", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.requestquantity", TranslationValue = "数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.requestquantity", TranslationValue = "수량", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.requestquantity", TranslationValue = "申请数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.requestquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.requestquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
 
             // entity.purchaserequestitem.convertedquantity
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.convertedquantity", TranslationValue = "Quantity", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.convertedquantity", TranslationValue = "数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.convertedquantity", TranslationValue = "수량", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.convertedquantity", TranslationValue = "已转订单数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.convertedquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.convertedquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.convertedquantity", TranslationValue = "Quantity", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.convertedquantity", TranslationValue = "数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.convertedquantity", TranslationValue = "수량", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.convertedquantity", TranslationValue = "已转订单数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.convertedquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.convertedquantity", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
 
             // entity.purchaserequestitem.estimatedunitprice
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.estimatedunitprice", TranslationValue = "预计单价", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.estimatedunitprice", TranslationValue = "预计单价", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.estimatedunitprice", TranslationValue = "预计单价", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.estimatedunitprice", TranslationValue = "预计单价", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.estimatedunitprice", TranslationValue = "预计单价", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.estimatedunitprice", TranslationValue = "预计单价", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.estimatedunitprice", TranslationValue = "预计单价", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.estimatedunitprice", TranslationValue = "预计单价", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.estimatedunitprice", TranslationValue = "预计单价", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.estimatedunitprice", TranslationValue = "预计单价", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.estimatedunitprice", TranslationValue = "预计单价", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.estimatedunitprice", TranslationValue = "预计单价", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
 
             // entity.purchaserequestitem.estimatedamount
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.estimatedamount", TranslationValue = "Amount", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.estimatedamount", TranslationValue = "金額", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.estimatedamount", TranslationValue = "금액", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.estimatedamount", TranslationValue = "预计金额", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.estimatedamount", TranslationValue = "金額", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.estimatedamount", TranslationValue = "金額", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.estimatedamount", TranslationValue = "Amount", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.estimatedamount", TranslationValue = "金額", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.estimatedamount", TranslationValue = "금액", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.estimatedamount", TranslationValue = "预计金额", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.estimatedamount", TranslationValue = "金額", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.estimatedamount", TranslationValue = "金額", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
 
             // entity.purchaserequestitem.referencesuppliercode
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.referencesuppliercode", TranslationValue = "参考供应商编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.referencesuppliercode", TranslationValue = "参考供应商编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.referencesuppliercode", TranslationValue = "参考供应商编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.referencesuppliercode", TranslationValue = "参考供应商编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.referencesuppliercode", TranslationValue = "参考供应商编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.referencesuppliercode", TranslationValue = "参考供应商编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.referencesuppliercode", TranslationValue = "参考供应商编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.referencesuppliercode", TranslationValue = "参考供应商编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.referencesuppliercode", TranslationValue = "参考供应商编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.referencesuppliercode", TranslationValue = "参考供应商编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.referencesuppliercode", TranslationValue = "参考供应商编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.referencesuppliercode", TranslationValue = "参考供应商编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
 
             // entity.purchaserequestitem.referencesuppliername
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.referencesuppliername", TranslationValue = "Name", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.referencesuppliername", TranslationValue = "名称", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.referencesuppliername", TranslationValue = "이름", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.referencesuppliername", TranslationValue = "参考供应商名称", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.referencesuppliername", TranslationValue = "名稱", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.referencesuppliername", TranslationValue = "名稱", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.purchaserequestitem.referencesuppliername", TranslationValue = "Name", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.purchaserequestitem.referencesuppliername", TranslationValue = "名称", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.purchaserequestitem.referencesuppliername", TranslationValue = "이름", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.purchaserequestitem.referencesuppliername", TranslationValue = "参考供应商名称", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.purchaserequestitem.referencesuppliername", TranslationValue = "名稱", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.purchaserequestitem.referencesuppliername", TranslationValue = "名稱", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
         };
     }
 }

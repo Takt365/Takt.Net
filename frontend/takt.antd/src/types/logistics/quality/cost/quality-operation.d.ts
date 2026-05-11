@@ -17,8 +17,8 @@ export interface QualityOperation extends TaktEntityBase {
   qualityOperationId: string
   /** 对应后端字段 plantCode */
   plantCode: string
-  /** 对应后端字段 operationNo */
-  operationNo: string
+  /** 对应后端字段 qualityOperationCode */
+  qualityOperationCode: string
   /** 对应后端字段 operationMonth */
   operationMonth: string
   /** 对应后端字段 customerName */
@@ -53,8 +53,8 @@ export interface QualityOperation extends TaktEntityBase {
 export interface QualityOperationQuery extends TaktPagedQuery {
   /** 对应后端字段 plantCode */
   plantCode?: string
-  /** 对应后端字段 operationNo */
-  operationNo?: string
+  /** 对应后端字段 qualityOperationCode */
+  qualityOperationCode?: string
   /** 对应后端字段 operationMonth */
   operationMonth?: string
   /** 对应后端字段 customerName */
@@ -89,8 +89,8 @@ export interface QualityOperationQuery extends TaktPagedQuery {
 export interface QualityOperationCreate {
   /** 对应后端字段 plantCode */
   plantCode: string
-  /** 对应后端字段 operationNo */
-  operationNo: string
+  /** 对应后端字段 qualityOperationCode */
+  qualityOperationCode: string
   /** 对应后端字段 operationMonth */
   operationMonth: string
   /** 对应后端字段 customerName */

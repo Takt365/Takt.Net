@@ -19,7 +19,8 @@ namespace Takt.Domain.Entities.Logistics.Quality.Operation;
 [SugarTable("takt_logistics_quality_iqc_order_item", "进货检验单明细表")]
 [SugarIndex("ix_takt_logistics_quality_iqc_order_item_iqc_order_id", nameof(IqcOrderId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_iqc_order_item_order_line", nameof(IqcOrderId), OrderByType.Asc, nameof(LineNumber), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_quality_iqc_order_item_item_code", nameof(ItemCode), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_quality_iqc_order_item_material_code", nameof(MaterialCode), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_quality_iqc_order_item_standard_code", nameof(StandardCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_iqc_order_item_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktIqcOrderItem : TaktEntityBase
 {
@@ -31,100 +32,112 @@ public class TaktIqcOrderItem : TaktEntityBase
     public long IqcOrderId { get; set; }
 
     /// <summary>
-    /// 行号/项号（检验单明细行号，与OrderId组成联合唯一索引）
+    /// IQC检验单编码（冗余字段，便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "iqc_order_code", ColumnDescription = "IQC检验单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string IqcOrderCode { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 行号/项号（检验单明细行号，与IqcOrderId组成联合唯一索引）
     /// </summary>
     [SugarColumn(ColumnName = "line_number", ColumnDescription = "行号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int LineNumber { get; set; } = 0;
 
     /// <summary>
-    /// 检验项目编码
+    /// 物料编码
     /// </summary>
-    [SugarColumn(ColumnName = "item_code", ColumnDescription = "检验项目编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
-    public string ItemCode { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "material_code", ColumnDescription = "物料编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string MaterialCode { get; set; } = string.Empty;
 
     /// <summary>
-    /// 检验项目名称
+    /// 物料名称
     /// </summary>
-    [SugarColumn(ColumnName = "item_name", ColumnDescription = "检验项目名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
-    public string ItemName { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "material_name", ColumnDescription = "物料名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
+    public string MaterialName { get; set; } = string.Empty;
 
     /// <summary>
-    /// 检验项目类型（0=外观，1=尺寸，2=性能，3=材质，4=功能）
+    /// 批次号
     /// </summary>
-    [SugarColumn(ColumnName = "item_type", ColumnDescription = "检验项目类型", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int ItemType { get; set; } = 0;
+    [SugarColumn(ColumnName = "batch_no", ColumnDescription = "批次号", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
+    public string? BatchNo { get; set; }
 
     /// <summary>
-    /// 检验标准值
+    /// 进货数量
     /// </summary>
-    [SugarColumn(ColumnName = "standard_value", ColumnDescription = "检验标准值", ColumnDataType = "nvarchar", Length = 500, IsNullable = true)]
-    public string? StandardValue { get; set; }
+    [SugarColumn(ColumnName = "purchase_quantity", ColumnDescription = "进货数量", ColumnDataType = "decimal", Length = 18, DecimalDigits = 4, IsNullable = false, DefaultValue = "0")]
+    public decimal PurchaseQuantity { get; set; } = 0;
 
     /// <summary>
-    /// 检验上限值
+    /// 检验标准编码
     /// </summary>
-    [SugarColumn(ColumnName = "upper_limit", ColumnDescription = "检验上限值", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
-    public string? UpperLimit { get; set; }
+    [SugarColumn(ColumnName = "standard_code", ColumnDescription = "检验标准编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string StandardCode { get; set; } = string.Empty;
 
     /// <summary>
-    /// 检验下限值
+    /// 抽样方案编码
     /// </summary>
-    [SugarColumn(ColumnName = "lower_limit", ColumnDescription = "检验下限值", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
-    public string? LowerLimit { get; set; }
+    [SugarColumn(ColumnName = "sampling_scheme_code", ColumnDescription = "抽样方案编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string SamplingSchemeCode { get; set; } = string.Empty;
 
     /// <summary>
-    /// 检验工具
+    /// 检验方式（0=免检，1=减量，2=正常，3=加严，4=全检）
     /// </summary>
-    [SugarColumn(ColumnName = "inspection_tool", ColumnDescription = "检验工具", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
-    public string? InspectionTool { get; set; }
+    [SugarColumn(ColumnName = "inspection_method", ColumnDescription = "检验方式", ColumnDataType = "int", IsNullable = false, DefaultValue = "2")]
+    public int InspectionMethod { get; set; } = 2;
 
     /// <summary>
-    /// 检验方法
+    /// 抽样数量
     /// </summary>
-    [SugarColumn(ColumnName = "inspection_method", ColumnDescription = "检验方法", ColumnDataType = "nvarchar", Length = 500, IsNullable = true)]
-    public string? InspectionMethod { get; set; }
+    [SugarColumn(ColumnName = "sample_quantity", ColumnDescription = "抽样数量", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SampleQuantity { get; set; } = 0;
 
     /// <summary>
-    /// 实际检验值
+    /// 合格数量
     /// </summary>
-    [SugarColumn(ColumnName = "actual_value", ColumnDescription = "实际检验值", ColumnDataType = "nvarchar", Length = 500, IsNullable = true)]
-    public string? ActualValue { get; set; }
+    [SugarColumn(ColumnName = "qualified_quantity", ColumnDescription = "合格数量", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int QualifiedQuantity { get; set; } = 0;
 
     /// <summary>
-    /// 检验结果（0=待检验，1=合格，2=不合格，3=不适用）
+    /// 不合格数量
     /// </summary>
-    [SugarColumn(ColumnName = "inspection_result", ColumnDescription = "检验结果", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int InspectionResult { get; set; } = 0;
+    [SugarColumn(ColumnName = "unqualified_quantity", ColumnDescription = "不合格数量", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int UnqualifiedQuantity { get; set; } = 0;
 
     /// <summary>
-    /// 不良数量
+    /// 验退数量
     /// </summary>
-    [SugarColumn(ColumnName = "defect_quantity", ColumnDescription = "不良数量", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int DefectQuantity { get; set; } = 0;
+    [SugarColumn(ColumnName = "inspection_return_quantity", ColumnDescription = "验退数量", ColumnDataType = "decimal", Length = 16, DecimalDigits = 6, IsNullable = false, DefaultValue = "0")]
+    public decimal InspectionReturnQuantity { get; set; } = 0;
 
     /// <summary>
-    /// 不良描述
+    /// 判定状态（0=待判定，1=合格，2=不合格，3=让步接收，4=退货）
     /// </summary>
-    [SugarColumn(ColumnName = "defect_description", ColumnDescription = "不良描述", ColumnDataType = "nvarchar", Length = 1000, IsNullable = true)]
-    public string? DefectDescription { get; set; }
+    [SugarColumn(ColumnName = "judge_status", ColumnDescription = "判定状态", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int JudgeStatus { get; set; } = 0;
+
+    /// <summary>
+    /// 抽检序列号
+    /// </summary>
+    [SugarColumn(ColumnName = "sample_serial_no", ColumnDescription = "抽检序列号", ColumnDataType = "nvarchar", Length = 100, IsNullable = true)]
+    public string? SampleSerialNo { get; set; }
+
+    /// <summary>
+    /// 检验说明
+    /// </summary>
+    [SugarColumn(ColumnName = "inspection_description", ColumnDescription = "检验说明", ColumnDataType = "nvarchar", Length = 1000, IsNullable = true)]
+    public string? InspectionDescription { get; set; }
 
     /// <summary>
     /// 检验员（人员代码）
     /// </summary>
-    [SugarColumn(ColumnName = "inspector_by", ColumnDescription = "检验员", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? InspectorBy { get; set; }
+    [SugarColumn(ColumnName = "inspector_by", ColumnDescription = "检验员", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string InspectorBy { get; set; } = string.Empty;
 
     /// <summary>
-    /// 检验时间
+    /// 检验日期
     /// </summary>
-    [SugarColumn(ColumnName = "inspection_time", ColumnDescription = "检验时间", ColumnDataType = "datetime", IsNullable = true)]
-    public DateTime? InspectionTime { get; set; }
-
-    /// <summary>
-    /// 检验图片（JSON格式，存储图片URL列表）
-    /// </summary>
-    [SugarColumn(ColumnName = "inspection_images", ColumnDescription = "检验图片", ColumnDataType = "nvarchar", Length = 2000, IsNullable = true)]
-    public string? InspectionImages { get; set; }
+    [SugarColumn(ColumnName = "inspection_date", ColumnDescription = "检验日期", ColumnDataType = "date", IsNullable = false)]
+    public DateTime InspectionDate { get; set; }
 
     /// <summary>
     /// IQC检验单（主表）

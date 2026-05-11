@@ -17,6 +17,8 @@ export interface PcbaRepairDetail extends TaktEntityBase {
   pcbaRepairDetailId: string
   /** 对应后端字段 pcbaRepairId */
   pcbaRepairId: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 pcbaBoardType */
@@ -51,6 +53,8 @@ export interface PcbaRepairDetail extends TaktEntityBase {
 export interface PcbaRepairDetailQuery extends TaktPagedQuery {
   /** 对应后端字段 pcbaRepairId */
   pcbaRepairId?: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 pcbaBoardType */
@@ -97,6 +101,8 @@ export interface PcbaRepairDetailQuery extends TaktPagedQuery {
 export interface PcbaRepairDetailCreate {
   /** 对应后端字段 pcbaRepairId */
   pcbaRepairId: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 pcbaBoardType */

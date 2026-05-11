@@ -32,6 +32,7 @@ using Takt.Infrastructure.Repositories;
 using Takt.Infrastructure.Security;
 using Takt.Infrastructure.Tenant;
 using Takt.Infrastructure.User;
+using Takt.Infrastructure.Validation;
 
 namespace Takt.Infrastructure.Extensions;
 
@@ -114,6 +115,16 @@ public static class TaktServiceCollectionExtensions
         // 注册本地化器（实现 Domain 层的 ITaktLocalizer）
         builder.RegisterType<TaktLocalizer>()
             .As<ITaktLocalizer>()
+            .InstancePerLifetimeScope();
+
+        // 注册验证消息服务（实现 Domain 层的 ITaktValidationMessages）
+        builder.RegisterType<TaktValidationMessages>()
+            .As<ITaktValidationMessages>()
+            .InstancePerLifetimeScope();
+
+        // 注册唯一性验证器（实现 Domain 层的 ITaktUniqueValidator）
+        builder.RegisterType<TaktUniqueValidator>()
+            .As<ITaktUniqueValidator>()
             .InstancePerLifetimeScope();
 
         // 注册缓存服务（实现 Domain 层的 ITaktCache）

@@ -1,0 +1,90 @@
+// ========================================
+// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
+// 命名空间：Takt.Application.Validators.Logistics.Manufacturing.Output
+// 文件名称：TaktStandardOperationRateValidators.cs
+// 创建时间：2026-05-11
+// 创建人：Takt365(AI Auto-Generated)
+// 功能描述：StandardOperationRate DTO 验证器（根据实体 TaktStandardOperationRate 自动生成）
+// 
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+using FluentValidation;
+using Takt.Application.Dtos.Logistics.Manufacturing.Output;
+
+namespace Takt.Application.Validators.Logistics.Manufacturing.Output;
+
+/// <summary>
+/// StandardOperationRate创建 DTO 验证器（与 <see cref="Takt.Domain.Entities.Logistics.Manufacturing.Output.TaktStandardOperationRate"/> 字段对齐）。
+/// </summary>
+/// <remarks>
+/// 验证规则：
+/// <list type="bullet">
+///   <item>必填验证：根据实体字段的 IsNullable 特性自动生成</item>
+///   <item>长度验证：根据实体字段的 Length 特性自动生成</item>
+///   <item>格式验证：Email、Phone、IdCard 等特殊字段自动添加正则验证</item>
+/// </list>
+/// </remarks>
+public class TaktStandardOperationRateCreateDtoValidator : AbstractValidator<TaktStandardOperationRateCreateDto>
+{
+    /// <summary>
+    /// 验证消息格式化器
+    /// </summary>
+    private readonly ITaktValidationMessages _validationMessages;
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="validationMessages">验证消息格式化器</param>
+    public TaktStandardOperationRateCreateDtoValidator(ITaktValidationMessages validationMessages)
+    {
+        _validationMessages = validationMessages;
+        RuleFor(x => x.PlantCode)
+            .NotEmpty().WithMessage(_validationMessages.Required("entity.standardoperationrate.plantcode"))
+            .Must(TaktRegexHelper.IsValidPlantCode).WithMessage(_validationMessages.FormatInvalid("entity.standardoperationrate.plantcode"));
+
+        RuleFor(x => x.FinancialYear)
+            .NotEmpty().WithMessage(_validationMessages.Required("entity.standardoperationrate.financialyear"))
+            .Length(1, 4).WithMessage(_validationMessages.LengthBetween("entity.standardoperationrate.financialyear", 1, 4));
+
+        RuleFor(x => x.OperationType)
+            .InclusiveBetween(1, 5)
+            .WithMessage(_validationMessages.FormatInvalid("entity.standardoperationrate.operationtype"));
+    }
+}
+
+/// <summary>
+/// StandardOperationRate更新 DTO 验证器。
+/// </summary>
+/// <remarks>
+/// 继承 <see cref="TaktStandardOperationRateCreateDtoValidator"/> 的所有验证规则，并额外验证：
+/// <list type="bullet">
+///   <item>StandardOperationRateId 必须大于 0</item>
+/// </list>
+/// </remarks>
+public class TaktStandardOperationRateUpdateDtoValidator : AbstractValidator<TaktStandardOperationRateUpdateDto>
+{
+    /// <summary>
+    /// 验证消息格式化器
+    /// </summary>
+    private readonly ITaktValidationMessages _validationMessages;
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="validationMessages">验证消息格式化器</param>
+    public TaktStandardOperationRateUpdateDtoValidator(ITaktValidationMessages validationMessages)
+    {
+        _validationMessages = validationMessages;
+        Include(new TaktStandardOperationRateCreateDtoValidator(validationMessages));
+
+        RuleFor(x => x.StandardOperationRateId)
+            .GreaterThan(0)
+            .WithMessage(_validationMessages.Required("entity.standardoperationrate.standardoperationrateid"));
+
+        RuleFor(x => x.FinancialYear)
+            .MaximumLength(4).WithMessage(_validationMessages.LengthMax("entity.standardoperationrate.financialyear", 4))
+            .When(x => !string.IsNullOrWhiteSpace(x.FinancialYear));
+    }
+}

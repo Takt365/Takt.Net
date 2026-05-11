@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Manufacturing.Output
 // 文件名称：TaktAssyOutputDetailDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：组立日报明细表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktAssyOutputDetailDto : TaktDtosEntityBase
     /// </summary>
     public TaktAssyOutputDetailDto()
     {
+        ProdOrderCode = string.Empty;
         TimePeriod = string.Empty;
     }
 
@@ -37,6 +38,10 @@ public partial class TaktAssyOutputDetailDto : TaktDtosEntityBase
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long AssyOutputId { get; set; }
+    /// <summary>
+    /// 生产工单号
+    /// </summary>
+    public string ProdOrderCode { get; set; }
     /// <summary>
     /// 项号
     /// </summary>
@@ -111,6 +116,10 @@ public partial class TaktAssyOutputDetailQueryDto : TaktPagedQuery
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? AssyOutputId { get; set; }
+    /// <summary>
+    /// 生产工单号
+    /// </summary>
+    public string? ProdOrderCode { get; set; }
     /// <summary>
     /// 项号
     /// </summary>
@@ -201,6 +210,7 @@ public partial class TaktAssyOutputDetailCreateDto
     /// </summary>
     public TaktAssyOutputDetailCreateDto()
     {
+        ProdOrderCode = string.Empty;
         TimePeriod = string.Empty;
     }
 
@@ -209,6 +219,11 @@ public partial class TaktAssyOutputDetailCreateDto
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long AssyOutputId { get; set; }
+
+        /// <summary>
+    /// 生产工单号
+    /// </summary>
+    public string ProdOrderCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -312,6 +327,7 @@ public partial class TaktAssyOutputDetailTemplateDto
     /// </summary>
     public TaktAssyOutputDetailTemplateDto()
     {
+        ProdOrderCode = string.Empty;
         TimePeriod = string.Empty;
     }
 
@@ -319,6 +335,11 @@ public partial class TaktAssyOutputDetailTemplateDto
     /// 组立日报ID
     /// </summary>
     public long AssyOutputId { get; set; }
+
+        /// <summary>
+    /// 生产工单号
+    /// </summary>
+    public string ProdOrderCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -401,6 +422,7 @@ public partial class TaktAssyOutputDetailImportDto
     /// </summary>
     public TaktAssyOutputDetailImportDto()
     {
+        ProdOrderCode = string.Empty;
         TimePeriod = string.Empty;
     }
 
@@ -408,6 +430,11 @@ public partial class TaktAssyOutputDetailImportDto
     /// 组立日报ID
     /// </summary>
     public long AssyOutputId { get; set; }
+
+        /// <summary>
+    /// 生产工单号
+    /// </summary>
+    public string ProdOrderCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -491,6 +518,7 @@ public partial class TaktAssyOutputDetailExportDto
     public TaktAssyOutputDetailExportDto()
     {
         CreatedAt = DateTime.Now;
+        ProdOrderCode = string.Empty;
         TimePeriod = string.Empty;
     }
 
@@ -498,6 +526,11 @@ public partial class TaktAssyOutputDetailExportDto
     /// 组立日报ID
     /// </summary>
     public long AssyOutputId { get; set; }
+
+        /// <summary>
+    /// 生产工单号
+    /// </summary>
+    public string ProdOrderCode { get; set; }
 
         /// <summary>
     /// 项号

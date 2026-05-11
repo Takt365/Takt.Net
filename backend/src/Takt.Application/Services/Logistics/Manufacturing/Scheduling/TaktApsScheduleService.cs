@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Manufacturing.Scheduling
 // 文件名称：TaktApsScheduleService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：APS排程主表应用服务，提供ApsSchedule管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Manufacturing.Scheduling;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Manufacturing.Scheduling;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Manufacturing.Scheduling;
 
@@ -29,6 +21,7 @@ namespace Takt.Application.Services.Logistics.Manufacturing.Scheduling;
 public class TaktApsScheduleService : TaktServiceBase, ITaktApsScheduleService
 {
     private readonly ITaktRepository<TaktApsSchedule> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktApsScheduleItem> _apsScheduleItemRepository;
     private readonly ITaktRepository<TaktApsScheduleChangeLog> _apsScheduleChangeLogRepository;
 
@@ -36,6 +29,7 @@ public class TaktApsScheduleService : TaktServiceBase, ITaktApsScheduleService
     /// 构造函数
     /// </summary>
     /// <param name="repository">ApsSchedule仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="apsScheduleItemRepository">ApsScheduleItem仓储</param>
     /// <param name="apsScheduleChangeLogRepository">ApsScheduleChangeLog仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
@@ -43,6 +37,7 @@ public class TaktApsScheduleService : TaktServiceBase, ITaktApsScheduleService
     /// <param name="localizer">本地化器（可选）</param>
     public TaktApsScheduleService(
         ITaktRepository<TaktApsSchedule> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktApsScheduleItem> apsScheduleItemRepository,
         ITaktRepository<TaktApsScheduleChangeLog> apsScheduleChangeLogRepository,
         ITaktUserContext? userContext = null,
@@ -51,6 +46,7 @@ public class TaktApsScheduleService : TaktServiceBase, ITaktApsScheduleService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _apsScheduleItemRepository = apsScheduleItemRepository;
         _apsScheduleChangeLogRepository = apsScheduleChangeLogRepository;
     }
@@ -105,7 +101,7 @@ public class TaktApsScheduleService : TaktServiceBase, ITaktApsScheduleService
         return all.Select(x => new TaktSelectOption
         {
             DictLabel = x.ScheduleName ?? string.Empty,
-            DictValue = x.ScheduleCode
+            DictValue = x.PlantCode
 
         }).ToList();
     }
@@ -118,9 +114,12 @@ public class TaktApsScheduleService : TaktServiceBase, ITaktApsScheduleService
     /// <returns>APS排程主表(ApsSchedule)DTO</returns>
     public async Task<TaktApsScheduleDto> CreateApsScheduleAsync(TaktApsScheduleCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.ScheduleCode, dto.ScheduleCode, null, $"APS排程主表编码 {dto.ScheduleCode} 已存在");
-
         var entity = dto.Adapt<TaktApsSchedule>();
+        // 验证工厂编码、ScheduleCode、ScheduleName组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.ScheduleCode == dto.ScheduleCode && x.ScheduleName == dto.ScheduleName);
+        if (!isUnique)
+            throw new TaktBusinessException($"APS排程主表工厂编码、ScheduleCode、ScheduleName组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -163,8 +162,10 @@ public class TaktApsScheduleService : TaktServiceBase, ITaktApsScheduleService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.apsscheduleNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.ScheduleCode, dto.ScheduleCode, id, $"APS排程主表编码 {dto.ScheduleCode} 已存在");
+        // 验证工厂编码、ScheduleCode、ScheduleName组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.ScheduleCode == dto.ScheduleCode && x.ScheduleName == dto.ScheduleName, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"APS排程主表工厂编码、ScheduleCode、ScheduleName组合已存在");
 
         dto.Adapt(entity, typeof(TaktApsScheduleUpdateDto), typeof(TaktApsSchedule));
         entity.UpdatedAt = DateTime.Now;
@@ -451,10 +452,9 @@ public class TaktApsScheduleService : TaktServiceBase, ITaktApsScheduleService
         if (!string.IsNullOrEmpty(queryDto?.KeyWords))
         {
             exp = exp.And(x =>
+                x.PlantCode!.Contains(queryDto.KeyWords) ||
                 x.ScheduleCode!.Contains(queryDto.KeyWords) ||
                 x.ScheduleName!.Contains(queryDto.KeyWords) ||
-                x.PlantCode!.Contains(queryDto.KeyWords) ||
-                x.PlantName!.Contains(queryDto.KeyWords) ||
                 x.WorkshopCode!.Contains(queryDto.KeyWords) ||
                 x.WorkshopName!.Contains(queryDto.KeyWords) ||
                 x.ProductionLineCode!.Contains(queryDto.KeyWords) ||
@@ -466,6 +466,11 @@ public class TaktApsScheduleService : TaktServiceBase, ITaktApsScheduleService
                 x.ExtFieldJson!.Contains(queryDto.KeyWords) ||
                 x.CreatedBy!.Contains(queryDto.KeyWords)
             );
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.PlantCode))
+        {
+            exp = exp.And(x => x.PlantCode!.Contains(queryDto.PlantCode));
         }
 
         if (!string.IsNullOrEmpty(queryDto?.ScheduleCode))
@@ -501,16 +506,6 @@ public class TaktApsScheduleService : TaktServiceBase, ITaktApsScheduleService
         if (queryDto?.PlanCycle.HasValue == true)
         {
             exp = exp.And(x => x.PlanCycle == queryDto.PlanCycle);
-        }
-
-        if (!string.IsNullOrEmpty(queryDto?.PlantCode))
-        {
-            exp = exp.And(x => x.PlantCode!.Contains(queryDto.PlantCode));
-        }
-
-        if (!string.IsNullOrEmpty(queryDto?.PlantName))
-        {
-            exp = exp.And(x => x.PlantName!.Contains(queryDto.PlantName));
         }
 
         if (!string.IsNullOrEmpty(queryDto?.WorkshopCode))

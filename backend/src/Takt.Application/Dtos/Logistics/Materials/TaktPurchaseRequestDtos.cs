@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Materials
 // 文件名称：TaktPurchaseRequestDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：采购申请表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,7 +22,8 @@ public partial class TaktPurchaseRequestDto : TaktDtosEntityBase
     /// </summary>
     public TaktPurchaseRequestDto()
     {
-        RequestCode = string.Empty;
+        PlantCode = string.Empty;
+        PurchaseRequestCode = string.Empty;
         RequestBy = string.Empty;
     }
 
@@ -36,11 +37,11 @@ public partial class TaktPurchaseRequestDto : TaktDtosEntityBase
     /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
     /// <summary>
-    /// 申请编码
+    /// 采购申请编码
     /// </summary>
-    public string RequestCode { get; set; }
+    public string PurchaseRequestCode { get; set; }
     /// <summary>
     /// 申请日期
     /// </summary>
@@ -139,9 +140,9 @@ public partial class TaktPurchaseRequestQueryDto : TaktPagedQuery
     /// </summary>
     public string? PlantCode { get; set; }
     /// <summary>
-    /// 申请编码
+    /// 采购申请编码
     /// </summary>
-    public string? RequestCode { get; set; }
+    public string? PurchaseRequestCode { get; set; }
     /// <summary>
     /// 申请日期
     /// </summary>
@@ -278,19 +279,20 @@ public partial class TaktPurchaseRequestCreateDto
     /// </summary>
     public TaktPurchaseRequestCreateDto()
     {
-        RequestCode = string.Empty;
+        PlantCode = string.Empty;
+        PurchaseRequestCode = string.Empty;
         RequestBy = string.Empty;
     }
 
         /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
-    /// 申请编码
+    /// 采购申请编码
     /// </summary>
-    public string RequestCode { get; set; }
+    public string PurchaseRequestCode { get; set; }
 
         /// <summary>
     /// 申请日期
@@ -479,19 +481,20 @@ public partial class TaktPurchaseRequestTemplateDto
     /// </summary>
     public TaktPurchaseRequestTemplateDto()
     {
-        RequestCode = string.Empty;
+        PlantCode = string.Empty;
+        PurchaseRequestCode = string.Empty;
         RequestBy = string.Empty;
     }
 
         /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
-    /// 申请编码
+    /// 采购申请编码
     /// </summary>
-    public string RequestCode { get; set; }
+    public string PurchaseRequestCode { get; set; }
 
         /// <summary>
     /// 申请日期
@@ -594,19 +597,20 @@ public partial class TaktPurchaseRequestImportDto
     /// </summary>
     public TaktPurchaseRequestImportDto()
     {
-        RequestCode = string.Empty;
+        PlantCode = string.Empty;
+        PurchaseRequestCode = string.Empty;
         RequestBy = string.Empty;
     }
 
         /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
-    /// 申请编码
+    /// 采购申请编码
     /// </summary>
-    public string RequestCode { get; set; }
+    public string PurchaseRequestCode { get; set; }
 
         /// <summary>
     /// 申请日期
@@ -710,19 +714,20 @@ public partial class TaktPurchaseRequestExportDto
     public TaktPurchaseRequestExportDto()
     {
         CreatedAt = DateTime.Now;
-        RequestCode = string.Empty;
+        PlantCode = string.Empty;
+        PurchaseRequestCode = string.Empty;
         RequestBy = string.Empty;
     }
 
         /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
-    /// 申请编码
+    /// 采购申请编码
     /// </summary>
-    public string RequestCode { get; set; }
+    public string PurchaseRequestCode { get; set; }
 
         /// <summary>
     /// 申请日期

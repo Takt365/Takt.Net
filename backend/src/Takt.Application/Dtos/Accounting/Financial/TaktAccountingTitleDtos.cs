@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Accounting.Financial
 // 文件名称：TaktAccountingTitleDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：会计科目表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktAccountingTitleDto : TaktDtosEntityBase
     /// </summary>
     public TaktAccountingTitleDto()
     {
+        CompanyCode = string.Empty;
         TitleCode = string.Empty;
         TitleName = string.Empty;
     }
@@ -36,7 +37,7 @@ public partial class TaktAccountingTitleDto : TaktDtosEntityBase
     /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
     /// <summary>
     /// 科目编码
     /// </summary>
@@ -279,6 +280,7 @@ public partial class TaktAccountingTitleCreateDto
     /// </summary>
     public TaktAccountingTitleCreateDto()
     {
+        CompanyCode = string.Empty;
         TitleCode = string.Empty;
         TitleName = string.Empty;
     }
@@ -286,7 +288,7 @@ public partial class TaktAccountingTitleCreateDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 科目编码
@@ -471,6 +473,7 @@ public partial class TaktAccountingTitleTemplateDto
     /// </summary>
     public TaktAccountingTitleTemplateDto()
     {
+        CompanyCode = string.Empty;
         TitleCode = string.Empty;
         TitleName = string.Empty;
     }
@@ -478,7 +481,7 @@ public partial class TaktAccountingTitleTemplateDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 科目编码
@@ -591,6 +594,7 @@ public partial class TaktAccountingTitleImportDto
     /// </summary>
     public TaktAccountingTitleImportDto()
     {
+        CompanyCode = string.Empty;
         TitleCode = string.Empty;
         TitleName = string.Empty;
     }
@@ -598,7 +602,7 @@ public partial class TaktAccountingTitleImportDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 科目编码
@@ -712,6 +716,7 @@ public partial class TaktAccountingTitleExportDto
     public TaktAccountingTitleExportDto()
     {
         CreatedAt = DateTime.Now;
+        CompanyCode = string.Empty;
         TitleCode = string.Empty;
         TitleName = string.Empty;
     }
@@ -719,7 +724,7 @@ public partial class TaktAccountingTitleExportDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 科目编码

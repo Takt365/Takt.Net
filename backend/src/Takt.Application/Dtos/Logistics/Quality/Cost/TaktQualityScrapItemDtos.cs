@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Quality.Cost
 // 文件名称：TaktQualityScrapItemDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：品质废弃明细表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktQualityScrapItemDto : TaktDtosEntityBase
     /// </summary>
     public TaktQualityScrapItemDto()
     {
+        QualityScrapCode = string.Empty;
         MaterialCode = string.Empty;
         MaterialName = string.Empty;
     }
@@ -38,6 +39,10 @@ public partial class TaktQualityScrapItemDto : TaktDtosEntityBase
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long QualityScrapId { get; set; }
+    /// <summary>
+    /// 品质废弃编码
+    /// </summary>
+    public string QualityScrapCode { get; set; }
     /// <summary>
     /// 项号
     /// </summary>
@@ -116,6 +121,10 @@ public partial class TaktQualityScrapItemQueryDto : TaktPagedQuery
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? QualityScrapId { get; set; }
+    /// <summary>
+    /// 品质废弃编码
+    /// </summary>
+    public string? QualityScrapCode { get; set; }
     /// <summary>
     /// 项号
     /// </summary>
@@ -210,6 +219,7 @@ public partial class TaktQualityScrapItemCreateDto
     /// </summary>
     public TaktQualityScrapItemCreateDto()
     {
+        QualityScrapCode = string.Empty;
         MaterialCode = string.Empty;
         MaterialName = string.Empty;
     }
@@ -219,6 +229,11 @@ public partial class TaktQualityScrapItemCreateDto
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long QualityScrapId { get; set; }
+
+        /// <summary>
+    /// 品质废弃编码
+    /// </summary>
+    public string QualityScrapCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -327,6 +342,7 @@ public partial class TaktQualityScrapItemTemplateDto
     /// </summary>
     public TaktQualityScrapItemTemplateDto()
     {
+        QualityScrapCode = string.Empty;
         MaterialCode = string.Empty;
         MaterialName = string.Empty;
     }
@@ -335,6 +351,11 @@ public partial class TaktQualityScrapItemTemplateDto
     /// 品质废弃主表ID
     /// </summary>
     public long QualityScrapId { get; set; }
+
+        /// <summary>
+    /// 品质废弃编码
+    /// </summary>
+    public string QualityScrapCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -422,6 +443,7 @@ public partial class TaktQualityScrapItemImportDto
     /// </summary>
     public TaktQualityScrapItemImportDto()
     {
+        QualityScrapCode = string.Empty;
         MaterialCode = string.Empty;
         MaterialName = string.Empty;
     }
@@ -430,6 +452,11 @@ public partial class TaktQualityScrapItemImportDto
     /// 品质废弃主表ID
     /// </summary>
     public long QualityScrapId { get; set; }
+
+        /// <summary>
+    /// 品质废弃编码
+    /// </summary>
+    public string QualityScrapCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -518,6 +545,7 @@ public partial class TaktQualityScrapItemExportDto
     public TaktQualityScrapItemExportDto()
     {
         CreatedAt = DateTime.Now;
+        QualityScrapCode = string.Empty;
         MaterialCode = string.Empty;
         MaterialName = string.Empty;
     }
@@ -526,6 +554,11 @@ public partial class TaktQualityScrapItemExportDto
     /// 品质废弃主表ID
     /// </summary>
     public long QualityScrapId { get; set; }
+
+        /// <summary>
+    /// 品质废弃编码
+    /// </summary>
+    public string QualityScrapCode { get; set; }
 
         /// <summary>
     /// 项号

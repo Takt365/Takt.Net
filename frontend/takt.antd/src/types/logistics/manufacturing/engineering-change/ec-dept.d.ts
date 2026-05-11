@@ -17,6 +17,10 @@ export interface EcDept extends TaktEntityBase {
   ecDeptId: string
   /** 对应后端字段 ecnDetailId */
   ecnDetailId: string
+  /** 对应后端字段 ecnNo */
+  ecnNo: string
+  /** 对应后端字段 lineNumber */
+  lineNumber: number
   /** 对应后端字段 deptCode */
   deptCode: string
   /** 对应后端字段 isImplemented */
@@ -73,6 +77,10 @@ export interface EcDept extends TaktEntityBase {
 export interface EcDeptQuery extends TaktPagedQuery {
   /** 对应后端字段 ecnDetailId */
   ecnDetailId?: string
+  /** 对应后端字段 ecnNo */
+  ecnNo?: string
+  /** 对应后端字段 lineNumber */
+  lineNumber?: number
   /** 对应后端字段 deptCode */
   deptCode?: string
   /** 对应后端字段 isImplemented */
@@ -165,6 +173,10 @@ export interface EcDeptQuery extends TaktPagedQuery {
 export interface EcDeptCreate {
   /** 对应后端字段 ecnDetailId */
   ecnDetailId: string
+  /** 对应后端字段 ecnNo */
+  ecnNo: string
+  /** 对应后端字段 lineNumber */
+  lineNumber: number
   /** 对应后端字段 deptCode */
   deptCode: string
   /** 对应后端字段 isImplemented */

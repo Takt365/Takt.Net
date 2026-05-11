@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Identity
 // 文件名称：TaktRoleService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：角色信息表应用服务，提供Role管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Identity;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Identity;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Identity;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Identity;
 public class TaktRoleService : TaktServiceBase, ITaktRoleService
 {
     private readonly ITaktRepository<TaktRole> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">Role仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktRoleService(
         ITaktRepository<TaktRole> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -101,9 +97,12 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
     /// <returns>角色信息表(Role)DTO</returns>
     public async Task<TaktRoleDto> CreateRoleAsync(TaktRoleCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.RoleCode, dto.RoleCode, null, $"角色信息表编码 {dto.RoleCode} 已存在");
-
         var entity = dto.Adapt<TaktRole>();
+        // 验证角色编码、RoleName组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.RoleCode == dto.RoleCode && x.RoleName == dto.RoleName);
+        if (!isUnique)
+            throw new TaktBusinessException($"角色信息表角色编码、RoleName组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetRoleByIdAsync(entity.Id)) ?? entity.Adapt<TaktRoleDto>();
     }
@@ -120,8 +119,10 @@ public class TaktRoleService : TaktServiceBase, ITaktRoleService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.roleNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.RoleCode, dto.RoleCode, id, $"角色信息表编码 {dto.RoleCode} 已存在");
+        // 验证角色编码、RoleName组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.RoleCode == dto.RoleCode && x.RoleName == dto.RoleName, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"角色信息表角色编码、RoleName组合已存在");
 
         dto.Adapt(entity, typeof(TaktRoleUpdateDto), typeof(TaktRole));
         entity.UpdatedAt = DateTime.Now;

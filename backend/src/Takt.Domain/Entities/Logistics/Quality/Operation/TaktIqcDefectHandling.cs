@@ -17,18 +17,17 @@ namespace Takt.Domain.Entities.Logistics.Quality.Operation;
 /// IQC进货检验不良处理记录实体
 /// </summary>
 [SugarTable("takt_logistics_quality_iqc_defect_handling", "进货检验不良处理记录表")]
-[SugarIndex("ix_takt_logistics_quality_iqc_defect_handling_handling_code", nameof(HandlingCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_quality_iqc_defect_handling_iqc_order_item_id", nameof(IqcOrderItemId), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_quality_iqc_defect_handling_unique", nameof(IqcOrderItemId), OrderByType.Asc, nameof(DefectCode), OrderByType.Asc, nameof(HandlingMethod), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_quality_iqc_defect_handling_defect_type", nameof(DefectType), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_iqc_defect_handling_handling_status", nameof(HandlingStatus), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_iqc_defect_handling_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktIqcDefectHandling : TaktEntityBase
 {
     /// <summary>
-    /// 不良处理编码（唯一索引）
+    /// IQC不良处理编码
     /// </summary>
-    [SugarColumn(ColumnName = "handling_code", ColumnDescription = "不良处理编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
-    public string HandlingCode { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "iqc_defect_handling_code", ColumnDescription = "IQC不良处理编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string IqcDefectHandlingCode { get; set; } = string.Empty;
 
     /// <summary>
     /// IQC检验单明细ID（主子表关系，序列化为string以避免Javascript精度问题）
@@ -38,10 +37,10 @@ public class TaktIqcDefectHandling : TaktEntityBase
     public long IqcOrderItemId { get; set; }
 
     /// <summary>
-    /// 检验单编码（冗余字段，便于查询）
+    /// IQC检验单编码（冗余字段，便于查询）
     /// </summary>
-    [SugarColumn(ColumnName = "order_code", ColumnDescription = "检验单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
-    public string OrderCode { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "iqc_order_code", ColumnDescription = "IQC检验单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string IqcOrderCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 检验单行号（冗余字段，便于查询）

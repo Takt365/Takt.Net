@@ -20,7 +20,8 @@ namespace Takt.Domain.Entities.Logistics.Materials;
 /// </summary>
 [SugarTable("takt_logistics_materials_purchase_price_item", "采购价格明细表")]
 [SugarIndex("ix_takt_logistics_materials_purchase_price_item_purchase_price_id", nameof(PurchasePriceId), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_materials_purchase_price_item_price_line", nameof(PurchasePriceId), OrderByType.Asc, nameof(LineNumber), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_materials_purchase_price_item_price_line", nameof(PurchasePriceId), OrderByType.Asc, nameof(LineNumber), OrderByType.Asc, nameof(MaterialCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_materials_purchase_price_item_purchase_price_code", nameof(PurchasePriceCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_price_item_material_code", nameof(MaterialCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_price_item_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_price_item_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
@@ -34,7 +35,13 @@ public class TaktPurchasePriceItem : TaktEntityBase
     public long PurchasePriceId { get; set; }
 
     /// <summary>
-    /// 行号/项号（价格明细行号，与PurchasePriceId组成联合唯一索引）
+    /// 采购价格编码（冗余字段，便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "purchase_price_code", ColumnDescription = "采购价格编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string PurchasePriceCode { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 行号/项号（价格明细行号，与PurchasePriceId和MaterialCode组成联合唯一索引）
     /// </summary>
     [SugarColumn(ColumnName = "line_number", ColumnDescription = "行号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int LineNumber { get; set; } = 0;

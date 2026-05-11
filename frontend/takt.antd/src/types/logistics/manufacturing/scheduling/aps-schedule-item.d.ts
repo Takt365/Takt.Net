@@ -21,8 +21,6 @@ export interface ApsScheduleItem extends TaktEntityBase {
   lineNumber: number
   /** 对应后端字段 workOrderCode */
   workOrderCode: string
-  /** 对应后端字段 workOrderId */
-  workOrderId: string
   /** 对应后端字段 productCode */
   productCode: string
   /** 对应后端字段 productName */
@@ -53,14 +51,6 @@ export interface ApsScheduleItem extends TaktEntityBase {
   actualStartTime?: string
   /** 对应后端字段 actualEndTime */
   actualEndTime?: string
-  /** 对应后端字段 equipmentCode */
-  equipmentCode?: string
-  /** 对应后端字段 equipmentName */
-  equipmentName?: string
-  /** 对应后端字段 teamCode */
-  teamCode?: string
-  /** 对应后端字段 teamName */
-  teamName?: string
   /** 对应后端字段 processStatus */
   processStatus: number
   /** 对应后端字段 priority */
@@ -79,8 +69,6 @@ export interface ApsScheduleItemQuery extends TaktPagedQuery {
   lineNumber?: number
   /** 对应后端字段 workOrderCode */
   workOrderCode?: string
-  /** 对应后端字段 workOrderId */
-  workOrderId?: string
   /** 对应后端字段 productCode */
   productCode?: string
   /** 对应后端字段 productName */
@@ -127,14 +115,6 @@ export interface ApsScheduleItemQuery extends TaktPagedQuery {
   actualEndTimeStart?: string
   /** 对应后端字段 actualEndTimeEnd */
   actualEndTimeEnd?: string
-  /** 对应后端字段 equipmentCode */
-  equipmentCode?: string
-  /** 对应后端字段 equipmentName */
-  equipmentName?: string
-  /** 对应后端字段 teamCode */
-  teamCode?: string
-  /** 对应后端字段 teamName */
-  teamName?: string
   /** 对应后端字段 processStatus */
   processStatus?: number
   /** 对应后端字段 priority */
@@ -165,8 +145,6 @@ export interface ApsScheduleItemCreate {
   lineNumber: number
   /** 对应后端字段 workOrderCode */
   workOrderCode: string
-  /** 对应后端字段 workOrderId */
-  workOrderId: string
   /** 对应后端字段 productCode */
   productCode: string
   /** 对应后端字段 productName */
@@ -197,14 +175,6 @@ export interface ApsScheduleItemCreate {
   actualStartTime?: string
   /** 对应后端字段 actualEndTime */
   actualEndTime?: string
-  /** 对应后端字段 equipmentCode */
-  equipmentCode?: string
-  /** 对应后端字段 equipmentName */
-  equipmentName?: string
-  /** 对应后端字段 teamCode */
-  teamCode?: string
-  /** 对应后端字段 teamName */
-  teamName?: string
   /** 对应后端字段 processStatus */
   processStatus: number
   /** 对应后端字段 priority */

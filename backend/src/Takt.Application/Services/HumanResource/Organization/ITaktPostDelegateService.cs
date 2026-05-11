@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.HumanResource.Organization
 // 文件名称：ITaktPostDelegateService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：岗位代理表应用服务接口，定义PostDelegate管理的业务操作
 // 

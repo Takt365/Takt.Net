@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Maintenance
 // 文件名称：TaktMaintenanceDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：设备维护记录表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -18,6 +18,14 @@ namespace Takt.Application.Dtos.Logistics.Maintenance;
 public partial class TaktMaintenanceDto : TaktDtosEntityBase
 {
     /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktMaintenanceDto()
+    {
+        EquipmentCode = string.Empty;
+    }
+
+    /// <summary>
     /// 设备维护记录表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
@@ -29,6 +37,10 @@ public partial class TaktMaintenanceDto : TaktDtosEntityBase
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EquipmentId { get; set; }
+    /// <summary>
+    /// 设备编码
+    /// </summary>
+    public string EquipmentCode { get; set; }
     /// <summary>
     /// 项号
     /// </summary>
@@ -139,6 +151,10 @@ public partial class TaktMaintenanceQueryDto : TaktPagedQuery
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? EquipmentId { get; set; }
+    /// <summary>
+    /// 设备编码
+    /// </summary>
+    public string? EquipmentCode { get; set; }
     /// <summary>
     /// 项号
     /// </summary>
@@ -305,11 +321,24 @@ public partial class TaktMaintenanceQueryDto : TaktPagedQuery
 /// </summary>
 public partial class TaktMaintenanceCreateDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktMaintenanceCreateDto()
+    {
+        EquipmentCode = string.Empty;
+    }
+
         /// <summary>
     /// 设备ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EquipmentId { get; set; }
+
+        /// <summary>
+    /// 设备编码
+    /// </summary>
+    public string EquipmentCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -478,10 +507,23 @@ public partial class TaktMaintenanceStatusDto
 /// </summary>
 public partial class TaktMaintenanceTemplateDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktMaintenanceTemplateDto()
+    {
+        EquipmentCode = string.Empty;
+    }
+
         /// <summary>
     /// 设备ID
     /// </summary>
     public long EquipmentId { get; set; }
+
+        /// <summary>
+    /// 设备编码
+    /// </summary>
+    public string EquipmentCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -604,10 +646,23 @@ public partial class TaktMaintenanceTemplateDto
 /// </summary>
 public partial class TaktMaintenanceImportDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktMaintenanceImportDto()
+    {
+        EquipmentCode = string.Empty;
+    }
+
         /// <summary>
     /// 设备ID
     /// </summary>
     public long EquipmentId { get; set; }
+
+        /// <summary>
+    /// 设备编码
+    /// </summary>
+    public string EquipmentCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -736,12 +791,18 @@ public partial class TaktMaintenanceExportDto
     public TaktMaintenanceExportDto()
     {
         CreatedAt = DateTime.Now;
+        EquipmentCode = string.Empty;
     }
 
         /// <summary>
     /// 设备ID
     /// </summary>
     public long EquipmentId { get; set; }
+
+        /// <summary>
+    /// 设备编码
+    /// </summary>
+    public string EquipmentCode { get; set; }
 
         /// <summary>
     /// 项号

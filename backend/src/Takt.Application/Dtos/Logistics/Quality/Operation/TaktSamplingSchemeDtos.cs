@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Quality.Operation
 // 文件名称：TaktSamplingSchemeDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：抽样方案表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,8 +22,9 @@ public partial class TaktSamplingSchemeDto : TaktDtosEntityBase
     /// </summary>
     public TaktSamplingSchemeDto()
     {
-        SchemeCode = string.Empty;
-        SchemeName = string.Empty;
+        PlantCode = string.Empty;
+        SamplingSchemeCode = string.Empty;
+        SamplingSchemeName = string.Empty;
     }
 
     /// <summary>
@@ -36,19 +37,19 @@ public partial class TaktSamplingSchemeDto : TaktDtosEntityBase
     /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
     /// <summary>
     /// 抽样方案编码
     /// </summary>
-    public string SchemeCode { get; set; }
+    public string SamplingSchemeCode { get; set; }
     /// <summary>
     /// 抽样方案名称
     /// </summary>
-    public string SchemeName { get; set; }
+    public string SamplingSchemeName { get; set; }
     /// <summary>
     /// 抽样方案类型
     /// </summary>
-    public int SchemeType { get; set; }
+    public int SamplingSchemeType { get; set; }
     /// <summary>
     /// 抽样标准
     /// </summary>
@@ -94,24 +95,16 @@ public partial class TaktSamplingSchemeDto : TaktDtosEntityBase
     /// </summary>
     public string? TransferRuleConfig { get; set; }
     /// <summary>
-    /// 是否启用
-    /// </summary>
-    public int IsEnabled { get; set; }
-    /// <summary>
     /// 抽样方案状态
     /// </summary>
-    public int SchemeStatus { get; set; }
+    public int SamplingSchemeStatus { get; set; }
     /// <summary>
     /// 抽样方案描述
     /// </summary>
     public string? SchemeDescription { get; set; }
-    /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
-    /// 检验标准列表（主子表关系）（外键在子表 TaktInspectionStandardDto.SamplingSchemeId）
+    /// 检验标准列表（主子表关系）（外键在子表 TaktInspectionStandardDto.SamplingSchemeCode）
     /// </summary>
     public List<TaktInspectionStandardDto>? InspectionStandards { get; set; }
 }
@@ -137,15 +130,15 @@ public partial class TaktSamplingSchemeQueryDto : TaktPagedQuery
     /// <summary>
     /// 抽样方案编码
     /// </summary>
-    public string? SchemeCode { get; set; }
+    public string? SamplingSchemeCode { get; set; }
     /// <summary>
     /// 抽样方案名称
     /// </summary>
-    public string? SchemeName { get; set; }
+    public string? SamplingSchemeName { get; set; }
     /// <summary>
     /// 抽样方案类型
     /// </summary>
-    public int? SchemeType { get; set; }
+    public int? SamplingSchemeType { get; set; }
     /// <summary>
     /// 抽样标准
     /// </summary>
@@ -191,13 +184,9 @@ public partial class TaktSamplingSchemeQueryDto : TaktPagedQuery
     /// </summary>
     public string? TransferRuleConfig { get; set; }
     /// <summary>
-    /// 是否启用
-    /// </summary>
-    public int? IsEnabled { get; set; }
-    /// <summary>
     /// 抽样方案状态
     /// </summary>
-    public int? SchemeStatus { get; set; }
+    public int? SamplingSchemeStatus { get; set; }
     /// <summary>
     /// 抽样方案描述
     /// </summary>
@@ -244,29 +233,30 @@ public partial class TaktSamplingSchemeCreateDto
     /// </summary>
     public TaktSamplingSchemeCreateDto()
     {
-        SchemeCode = string.Empty;
-        SchemeName = string.Empty;
+        PlantCode = string.Empty;
+        SamplingSchemeCode = string.Empty;
+        SamplingSchemeName = string.Empty;
     }
 
         /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 抽样方案编码
     /// </summary>
-    public string SchemeCode { get; set; }
+    public string SamplingSchemeCode { get; set; }
 
         /// <summary>
     /// 抽样方案名称
     /// </summary>
-    public string SchemeName { get; set; }
+    public string SamplingSchemeName { get; set; }
 
         /// <summary>
     /// 抽样方案类型
     /// </summary>
-    public int SchemeType { get; set; }
+    public int SamplingSchemeType { get; set; }
 
         /// <summary>
     /// 抽样标准
@@ -324,24 +314,14 @@ public partial class TaktSamplingSchemeCreateDto
     public string? TransferRuleConfig { get; set; }
 
         /// <summary>
-    /// 是否启用
-    /// </summary>
-    public int IsEnabled { get; set; }
-
-        /// <summary>
     /// 抽样方案状态
     /// </summary>
-    public int SchemeStatus { get; set; }
+    public int SamplingSchemeStatus { get; set; }
 
         /// <summary>
     /// 抽样方案描述
     /// </summary>
     public string? SchemeDescription { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -355,7 +335,7 @@ public partial class TaktSamplingSchemeCreateDto
 
 
     /// <summary>
-    /// 检验标准列表（主子表关系）（外键在子表 TaktInspectionStandardCreateDto.SamplingSchemeId）
+    /// 检验标准列表（主子表关系）（外键在子表 TaktInspectionStandardCreateDto.SamplingSchemeCode）
     /// </summary>
     public List<TaktInspectionStandardCreateDto>? InspectionStandards { get; set; }
 
@@ -384,12 +364,12 @@ public partial class TaktSamplingSchemeUpdateDto : TaktSamplingSchemeCreateDto
 /// <summary>
 /// 抽样方案表抽样方案状态DTO
 /// </summary>
-public partial class TaktSamplingSchemeSchemeStatusDto
+public partial class TaktSamplingSchemeStatusDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
-    public TaktSamplingSchemeSchemeStatusDto()
+    public TaktSamplingSchemeStatusDto()
     {
     }
 
@@ -403,32 +383,7 @@ public partial class TaktSamplingSchemeSchemeStatusDto
     /// <summary>
     /// 抽样方案状态（0=禁用，1=启用）
     /// </summary>
-    public int SchemeStatus { get; set; }
-}
-
-/// <summary>
-/// 抽样方案表排序DTO
-/// </summary>
-public partial class TaktSamplingSchemeSortDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktSamplingSchemeSortDto()
-    {
-    }
-
-        /// <summary>
-    /// 抽样方案表（适配字段，序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [AdaptMember("Id")]
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long SamplingSchemeId { get; set; } = 0;
-
-    /// <summary>
-    /// 排序号（越小越靠前）
-    /// </summary>
-    public int SortOrder { get; set; }
+    public int SamplingSchemeStatus { get; set; }
 }
 
 /// <summary>
@@ -441,29 +396,30 @@ public partial class TaktSamplingSchemeTemplateDto
     /// </summary>
     public TaktSamplingSchemeTemplateDto()
     {
-        SchemeCode = string.Empty;
-        SchemeName = string.Empty;
+        PlantCode = string.Empty;
+        SamplingSchemeCode = string.Empty;
+        SamplingSchemeName = string.Empty;
     }
 
         /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 抽样方案编码
     /// </summary>
-    public string SchemeCode { get; set; }
+    public string SamplingSchemeCode { get; set; }
 
         /// <summary>
     /// 抽样方案名称
     /// </summary>
-    public string SchemeName { get; set; }
+    public string SamplingSchemeName { get; set; }
 
         /// <summary>
     /// 抽样方案类型
     /// </summary>
-    public int SchemeType { get; set; }
+    public int SamplingSchemeType { get; set; }
 
         /// <summary>
     /// 抽样标准
@@ -521,24 +477,14 @@ public partial class TaktSamplingSchemeTemplateDto
     public string? TransferRuleConfig { get; set; }
 
         /// <summary>
-    /// 是否启用
-    /// </summary>
-    public int IsEnabled { get; set; }
-
-        /// <summary>
     /// 抽样方案状态
     /// </summary>
-    public int SchemeStatus { get; set; }
+    public int SamplingSchemeStatus { get; set; }
 
         /// <summary>
     /// 抽样方案描述
     /// </summary>
     public string? SchemeDescription { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -561,29 +507,30 @@ public partial class TaktSamplingSchemeImportDto
     /// </summary>
     public TaktSamplingSchemeImportDto()
     {
-        SchemeCode = string.Empty;
-        SchemeName = string.Empty;
+        PlantCode = string.Empty;
+        SamplingSchemeCode = string.Empty;
+        SamplingSchemeName = string.Empty;
     }
 
         /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 抽样方案编码
     /// </summary>
-    public string SchemeCode { get; set; }
+    public string SamplingSchemeCode { get; set; }
 
         /// <summary>
     /// 抽样方案名称
     /// </summary>
-    public string SchemeName { get; set; }
+    public string SamplingSchemeName { get; set; }
 
         /// <summary>
     /// 抽样方案类型
     /// </summary>
-    public int SchemeType { get; set; }
+    public int SamplingSchemeType { get; set; }
 
         /// <summary>
     /// 抽样标准
@@ -641,24 +588,14 @@ public partial class TaktSamplingSchemeImportDto
     public string? TransferRuleConfig { get; set; }
 
         /// <summary>
-    /// 是否启用
-    /// </summary>
-    public int IsEnabled { get; set; }
-
-        /// <summary>
     /// 抽样方案状态
     /// </summary>
-    public int SchemeStatus { get; set; }
+    public int SamplingSchemeStatus { get; set; }
 
         /// <summary>
     /// 抽样方案描述
     /// </summary>
     public string? SchemeDescription { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -682,29 +619,30 @@ public partial class TaktSamplingSchemeExportDto
     public TaktSamplingSchemeExportDto()
     {
         CreatedAt = DateTime.Now;
-        SchemeCode = string.Empty;
-        SchemeName = string.Empty;
+        PlantCode = string.Empty;
+        SamplingSchemeCode = string.Empty;
+        SamplingSchemeName = string.Empty;
     }
 
         /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 抽样方案编码
     /// </summary>
-    public string SchemeCode { get; set; }
+    public string SamplingSchemeCode { get; set; }
 
         /// <summary>
     /// 抽样方案名称
     /// </summary>
-    public string SchemeName { get; set; }
+    public string SamplingSchemeName { get; set; }
 
         /// <summary>
     /// 抽样方案类型
     /// </summary>
-    public int SchemeType { get; set; }
+    public int SamplingSchemeType { get; set; }
 
         /// <summary>
     /// 抽样标准
@@ -762,24 +700,14 @@ public partial class TaktSamplingSchemeExportDto
     public string? TransferRuleConfig { get; set; }
 
         /// <summary>
-    /// 是否启用
-    /// </summary>
-    public int IsEnabled { get; set; }
-
-        /// <summary>
     /// 抽样方案状态
     /// </summary>
-    public int SchemeStatus { get; set; }
+    public int SamplingSchemeStatus { get; set; }
 
         /// <summary>
     /// 抽样方案描述
     /// </summary>
     public string? SchemeDescription { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 创建时间

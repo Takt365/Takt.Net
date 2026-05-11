@@ -19,7 +19,6 @@ namespace Takt.Domain.Entities.Accounting.Financial;
 /// Takt资产实体
 /// </summary>
 [SugarTable("takt_accounting_financial_asset", "固定资产表")]
-[SugarIndex("ix_takt_accounting_financial_asset_asset_code", nameof(AssetCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_financial_asset_asset_unique", nameof(CompanyCode), OrderByType.Asc, nameof(AssetCode), OrderByType.Asc, nameof(AssetName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_financial_asset_asset_category_id", nameof(AssetCategoryId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_financial_asset_cost_center_id", nameof(CostCenterId), OrderByType.Asc)]
@@ -30,10 +29,10 @@ namespace Takt.Domain.Entities.Accounting.Financial;
 public class TaktAsset : TaktEntityBase
 {
     /// <summary>
-    /// 公司代码
+    /// 公司代码（不可空）
     /// </summary>
-    [SugarColumn(ColumnName = "company_code", ColumnDescription = "公司代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? CompanyCode { get; set; }
+    [SugarColumn(ColumnName = "company_code", ColumnDescription = "公司代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string CompanyCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 资产编码（唯一索引）

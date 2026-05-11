@@ -17,6 +17,7 @@ namespace Takt.Domain.Entities.HumanResource.AttendanceLeave;
 /// 请假实体（考勤请假）。FlowInstanceId 存流程实例 Id，由业务方在发起流程后写入；流程引擎不识别本表，BusinessKey/BusinessType 与“请假”的对应关系由调用方（请假业务模块）约定并实现。
 /// </summary>
 [SugarTable("takt_humanresource_leave", "请假信息表")]
+[SugarIndex("ix_takt_humanresource_leave_employee_start_date", nameof(EmployeeId), OrderByType.Asc, nameof(StartDate), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_humanresource_leave_employee_id", nameof(EmployeeId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_leave_dept_id", nameof(DeptId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_leave_flow_instance_id", nameof(FlowInstanceId), OrderByType.Asc)]

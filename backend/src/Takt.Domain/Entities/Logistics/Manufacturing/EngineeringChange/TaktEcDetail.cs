@@ -24,17 +24,23 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.EngineeringChange;
 public class TaktEcDetail : TaktEntityBase
 {
     /// <summary>
-    /// 设变主表ID（主表主键，序列化为string以避免Javascript精度问题）
+    /// 设变主表ID（主表主键,序列化为string以避免Javascript精度问题）
     /// </summary>
     [SugarColumn(ColumnName = "ecn_id", ColumnDescription = "设变ID", ColumnDataType = "bigint", IsNullable = false)]
     [JsonConverter(typeof(ValueToStringConverter))]
     public long EcnId { get; set; }
 
     /// <summary>
-    /// 设变编号（Ec_no）
+    /// 设变单号（冗余字段,便于查询）
     /// </summary>
-    [SugarColumn(ColumnName = "ec_no", ColumnDescription = "设变编号", Length = 50, ColumnDataType = "nvarchar", IsNullable = false)]
+    [SugarColumn(ColumnName = "ecn_no", ColumnDescription = "设变单号", ColumnDataType = "nvarchar", Length = 10, IsNullable = false)]
     public string EcnNo { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 项号（行号）
+    /// </summary>
+    [SugarColumn(ColumnName = "line_number", ColumnDescription = "项号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int LineNumber { get; set; } = 0;
 
     /// <summary>
     /// 型号（Ec_model）

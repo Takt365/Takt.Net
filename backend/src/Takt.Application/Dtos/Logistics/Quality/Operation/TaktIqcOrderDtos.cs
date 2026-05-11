@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Quality.Operation
 // 文件名称：TaktIqcOrderDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：进货检验单表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,13 +22,10 @@ public partial class TaktIqcOrderDto : TaktDtosEntityBase
     /// </summary>
     public TaktIqcOrderDto()
     {
-        OrderCode = string.Empty;
+        PlantCode = string.Empty;
         SourceCode = string.Empty;
-        StandardCode = string.Empty;
-        MaterialCode = string.Empty;
-        MaterialName = string.Empty;
+        IqcOrderCode = string.Empty;
         SupplierCode = string.Empty;
-        SupplierName = string.Empty;
     }
 
     /// <summary>
@@ -39,81 +36,61 @@ public partial class TaktIqcOrderDto : TaktDtosEntityBase
     public long IqcOrderId { get; set; } = 0;
 
     /// <summary>
-    /// 检验单编码
+    /// 工厂代码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string PlantCode { get; set; }
     /// <summary>
     /// 来源单号
     /// </summary>
     public string SourceCode { get; set; }
     /// <summary>
-    /// 检验计划编码
+    /// 检验日期
     /// </summary>
-    public string? PlanCode { get; set; }
+    public DateTime? InspectionDate { get; set; }
     /// <summary>
-    /// 检验标准编码
+    /// IQC检验单编码
     /// </summary>
-    public string StandardCode { get; set; }
-    /// <summary>
-    /// 物料编码
-    /// </summary>
-    public string MaterialCode { get; set; }
-    /// <summary>
-    /// 物料名称
-    /// </summary>
-    public string MaterialName { get; set; }
-    /// <summary>
-    /// 批次号
-    /// </summary>
-    public string? BatchNo { get; set; }
+    public string IqcOrderCode { get; set; }
     /// <summary>
     /// 供应商编码
     /// </summary>
     public string SupplierCode { get; set; }
     /// <summary>
-    /// 供应商名称
+    /// 进货总数
     /// </summary>
-    public string SupplierName { get; set; }
+    public decimal TotalPurchaseQuantity { get; set; }
     /// <summary>
-    /// 来料数量
+    /// 总抽样数量
     /// </summary>
-    public decimal IncomingQuantity { get; set; }
+    public int TotalSampleQuantity { get; set; }
     /// <summary>
-    /// 抽样方案编码
+    /// 总合格数量
     /// </summary>
-    public string? SamplingSchemeCode { get; set; }
+    public int TotalQualifiedQuantity { get; set; }
     /// <summary>
-    /// 抽样数量
+    /// 总不合格数量
     /// </summary>
-    public int SampleQuantity { get; set; }
+    public int TotalUnqualifiedQuantity { get; set; }
     /// <summary>
-    /// 合格数量
+    /// 总验退数量
     /// </summary>
-    public int QualifiedQuantity { get; set; }
+    public decimal TotalInspectionReturnQuantity { get; set; }
     /// <summary>
-    /// 不合格数量
+    /// 判定状态
     /// </summary>
-    public int UnqualifiedQuantity { get; set; }
-    /// <summary>
-    /// 检验结论
-    /// </summary>
-    public int InspectionConclusion { get; set; }
+    public int JudgeStatus { get; set; }
     /// <summary>
     /// 判定人
     /// </summary>
     public string? JudgeBy { get; set; }
     /// <summary>
-    /// 判定时间
+    /// 判定日期
     /// </summary>
-    public DateTime? JudgeTime { get; set; }
+    public DateTime? JudgeDate { get; set; }
     /// <summary>
-    /// 检验备注
+    /// 判定说明
     /// </summary>
-    public string? InspectionRemark { get; set; }
-    /// <summary>
-    /// 检验单状态
-    /// </summary>
-    public int OrderStatus { get; set; }
+    public string? JudgeDescription { get; set; }
 
     /// <summary>
     /// IQC检验单明细列表（主子表关系）（外键在子表 TaktIqcOrderItemDto.IqcOrderId）
@@ -141,90 +118,79 @@ public partial class TaktIqcOrderQueryDto : TaktPagedQuery
     // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
     /// <summary>
-    /// 检验单编码
+    /// 工厂代码
     /// </summary>
-    public string? OrderCode { get; set; }
+    public string? PlantCode { get; set; }
     /// <summary>
     /// 来源单号
     /// </summary>
     public string? SourceCode { get; set; }
     /// <summary>
-    /// 检验计划编码
+    /// 检验日期
     /// </summary>
-    public string? PlanCode { get; set; }
+    public DateTime? InspectionDate { get; set; }
+
     /// <summary>
-    /// 检验标准编码
+    /// 检验日期开始时间
     /// </summary>
-    public string? StandardCode { get; set; }
+    public DateTime? InspectionDateStart { get; set; }
     /// <summary>
-    /// 物料编码
+    /// 检验日期结束时间
     /// </summary>
-    public string? MaterialCode { get; set; }
+    public DateTime? InspectionDateEnd { get; set; }
     /// <summary>
-    /// 物料名称
+    /// IQC检验单编码
     /// </summary>
-    public string? MaterialName { get; set; }
-    /// <summary>
-    /// 批次号
-    /// </summary>
-    public string? BatchNo { get; set; }
+    public string? IqcOrderCode { get; set; }
     /// <summary>
     /// 供应商编码
     /// </summary>
     public string? SupplierCode { get; set; }
     /// <summary>
-    /// 供应商名称
+    /// 进货总数
     /// </summary>
-    public string? SupplierName { get; set; }
+    public decimal? TotalPurchaseQuantity { get; set; }
     /// <summary>
-    /// 来料数量
+    /// 总抽样数量
     /// </summary>
-    public decimal? IncomingQuantity { get; set; }
+    public int? TotalSampleQuantity { get; set; }
     /// <summary>
-    /// 抽样方案编码
+    /// 总合格数量
     /// </summary>
-    public string? SamplingSchemeCode { get; set; }
+    public int? TotalQualifiedQuantity { get; set; }
     /// <summary>
-    /// 抽样数量
+    /// 总不合格数量
     /// </summary>
-    public int? SampleQuantity { get; set; }
+    public int? TotalUnqualifiedQuantity { get; set; }
     /// <summary>
-    /// 合格数量
+    /// 总验退数量
     /// </summary>
-    public int? QualifiedQuantity { get; set; }
+    public decimal? TotalInspectionReturnQuantity { get; set; }
     /// <summary>
-    /// 不合格数量
+    /// 判定状态
     /// </summary>
-    public int? UnqualifiedQuantity { get; set; }
-    /// <summary>
-    /// 检验结论
-    /// </summary>
-    public int? InspectionConclusion { get; set; }
+    public int? JudgeStatus { get; set; }
     /// <summary>
     /// 判定人
     /// </summary>
     public string? JudgeBy { get; set; }
     /// <summary>
-    /// 判定时间
+    /// 判定日期
     /// </summary>
-    public DateTime? JudgeTime { get; set; }
+    public DateTime? JudgeDate { get; set; }
 
     /// <summary>
-    /// 判定时间开始时间
+    /// 判定日期开始时间
     /// </summary>
-    public DateTime? JudgeTimeStart { get; set; }
+    public DateTime? JudgeDateStart { get; set; }
     /// <summary>
-    /// 判定时间结束时间
+    /// 判定日期结束时间
     /// </summary>
-    public DateTime? JudgeTimeEnd { get; set; }
+    public DateTime? JudgeDateEnd { get; set; }
     /// <summary>
-    /// 检验备注
+    /// 判定说明
     /// </summary>
-    public string? InspectionRemark { get; set; }
-    /// <summary>
-    /// 检验单状态
-    /// </summary>
-    public int? OrderStatus { get; set; }
+    public string? JudgeDescription { get; set; }
 
     /// <summary>
     /// 备注
@@ -267,19 +233,16 @@ public partial class TaktIqcOrderCreateDto
     /// </summary>
     public TaktIqcOrderCreateDto()
     {
-        OrderCode = string.Empty;
+        PlantCode = string.Empty;
         SourceCode = string.Empty;
-        StandardCode = string.Empty;
-        MaterialCode = string.Empty;
-        MaterialName = string.Empty;
+        IqcOrderCode = string.Empty;
         SupplierCode = string.Empty;
-        SupplierName = string.Empty;
     }
 
         /// <summary>
-    /// 检验单编码
+    /// 工厂代码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 来源单号
@@ -287,29 +250,14 @@ public partial class TaktIqcOrderCreateDto
     public string SourceCode { get; set; }
 
         /// <summary>
-    /// 检验计划编码
+    /// 检验日期
     /// </summary>
-    public string? PlanCode { get; set; }
+    public DateTime? InspectionDate { get; set; }
 
         /// <summary>
-    /// 检验标准编码
+    /// IQC检验单编码
     /// </summary>
-    public string StandardCode { get; set; }
-
-        /// <summary>
-    /// 物料编码
-    /// </summary>
-    public string MaterialCode { get; set; }
-
-        /// <summary>
-    /// 物料名称
-    /// </summary>
-    public string MaterialName { get; set; }
-
-        /// <summary>
-    /// 批次号
-    /// </summary>
-    public string? BatchNo { get; set; }
+    public string IqcOrderCode { get; set; }
 
         /// <summary>
     /// 供应商编码
@@ -317,39 +265,34 @@ public partial class TaktIqcOrderCreateDto
     public string SupplierCode { get; set; }
 
         /// <summary>
-    /// 供应商名称
+    /// 进货总数
     /// </summary>
-    public string SupplierName { get; set; }
+    public decimal TotalPurchaseQuantity { get; set; }
 
         /// <summary>
-    /// 来料数量
+    /// 总抽样数量
     /// </summary>
-    public decimal IncomingQuantity { get; set; }
+    public int TotalSampleQuantity { get; set; }
 
         /// <summary>
-    /// 抽样方案编码
+    /// 总合格数量
     /// </summary>
-    public string? SamplingSchemeCode { get; set; }
+    public int TotalQualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 抽样数量
+    /// 总不合格数量
     /// </summary>
-    public int SampleQuantity { get; set; }
+    public int TotalUnqualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 合格数量
+    /// 总验退数量
     /// </summary>
-    public int QualifiedQuantity { get; set; }
+    public decimal TotalInspectionReturnQuantity { get; set; }
 
         /// <summary>
-    /// 不合格数量
+    /// 判定状态
     /// </summary>
-    public int UnqualifiedQuantity { get; set; }
-
-        /// <summary>
-    /// 检验结论
-    /// </summary>
-    public int InspectionConclusion { get; set; }
+    public int JudgeStatus { get; set; }
 
         /// <summary>
     /// 判定人
@@ -357,19 +300,14 @@ public partial class TaktIqcOrderCreateDto
     public string? JudgeBy { get; set; }
 
         /// <summary>
-    /// 判定时间
+    /// 判定日期
     /// </summary>
-    public DateTime? JudgeTime { get; set; }
+    public DateTime? JudgeDate { get; set; }
 
         /// <summary>
-    /// 检验备注
+    /// 判定说明
     /// </summary>
-    public string? InspectionRemark { get; set; }
-
-        /// <summary>
-    /// 检验单状态
-    /// </summary>
-    public int OrderStatus { get; set; }
+    public string? JudgeDescription { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -416,14 +354,14 @@ public partial class TaktIqcOrderUpdateDto : TaktIqcOrderCreateDto
 }
 
 /// <summary>
-/// 进货检验单表检验单状态DTO
+/// 进货检验单表判定状态DTO
 /// </summary>
-public partial class TaktIqcOrderOrderStatusDto
+public partial class TaktIqcOrderJudgeStatusDto
 {
     /// <summary>
     /// 构造函数
     /// </summary>
-    public TaktIqcOrderOrderStatusDto()
+    public TaktIqcOrderJudgeStatusDto()
     {
     }
 
@@ -435,9 +373,9 @@ public partial class TaktIqcOrderOrderStatusDto
     public long IqcOrderId { get; set; } = 0;
 
     /// <summary>
-    /// 检验单状态（0=禁用，1=启用）
+    /// 判定状态（0=禁用，1=启用）
     /// </summary>
-    public int OrderStatus { get; set; }
+    public int JudgeStatus { get; set; }
 }
 
 /// <summary>
@@ -450,19 +388,16 @@ public partial class TaktIqcOrderTemplateDto
     /// </summary>
     public TaktIqcOrderTemplateDto()
     {
-        OrderCode = string.Empty;
+        PlantCode = string.Empty;
         SourceCode = string.Empty;
-        StandardCode = string.Empty;
-        MaterialCode = string.Empty;
-        MaterialName = string.Empty;
+        IqcOrderCode = string.Empty;
         SupplierCode = string.Empty;
-        SupplierName = string.Empty;
     }
 
         /// <summary>
-    /// 检验单编码
+    /// 工厂代码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 来源单号
@@ -470,29 +405,14 @@ public partial class TaktIqcOrderTemplateDto
     public string SourceCode { get; set; }
 
         /// <summary>
-    /// 检验计划编码
+    /// 检验日期
     /// </summary>
-    public string? PlanCode { get; set; }
+    public DateTime? InspectionDate { get; set; }
 
         /// <summary>
-    /// 检验标准编码
+    /// IQC检验单编码
     /// </summary>
-    public string StandardCode { get; set; }
-
-        /// <summary>
-    /// 物料编码
-    /// </summary>
-    public string MaterialCode { get; set; }
-
-        /// <summary>
-    /// 物料名称
-    /// </summary>
-    public string MaterialName { get; set; }
-
-        /// <summary>
-    /// 批次号
-    /// </summary>
-    public string? BatchNo { get; set; }
+    public string IqcOrderCode { get; set; }
 
         /// <summary>
     /// 供应商编码
@@ -500,39 +420,34 @@ public partial class TaktIqcOrderTemplateDto
     public string SupplierCode { get; set; }
 
         /// <summary>
-    /// 供应商名称
+    /// 进货总数
     /// </summary>
-    public string SupplierName { get; set; }
+    public decimal TotalPurchaseQuantity { get; set; }
 
         /// <summary>
-    /// 来料数量
+    /// 总抽样数量
     /// </summary>
-    public decimal IncomingQuantity { get; set; }
+    public int TotalSampleQuantity { get; set; }
 
         /// <summary>
-    /// 抽样方案编码
+    /// 总合格数量
     /// </summary>
-    public string? SamplingSchemeCode { get; set; }
+    public int TotalQualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 抽样数量
+    /// 总不合格数量
     /// </summary>
-    public int SampleQuantity { get; set; }
+    public int TotalUnqualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 合格数量
+    /// 总验退数量
     /// </summary>
-    public int QualifiedQuantity { get; set; }
+    public decimal TotalInspectionReturnQuantity { get; set; }
 
         /// <summary>
-    /// 不合格数量
+    /// 判定状态
     /// </summary>
-    public int UnqualifiedQuantity { get; set; }
-
-        /// <summary>
-    /// 检验结论
-    /// </summary>
-    public int InspectionConclusion { get; set; }
+    public int JudgeStatus { get; set; }
 
         /// <summary>
     /// 判定人
@@ -540,19 +455,14 @@ public partial class TaktIqcOrderTemplateDto
     public string? JudgeBy { get; set; }
 
         /// <summary>
-    /// 判定时间
+    /// 判定日期
     /// </summary>
-    public DateTime? JudgeTime { get; set; }
+    public DateTime? JudgeDate { get; set; }
 
         /// <summary>
-    /// 检验备注
+    /// 判定说明
     /// </summary>
-    public string? InspectionRemark { get; set; }
-
-        /// <summary>
-    /// 检验单状态
-    /// </summary>
-    public int OrderStatus { get; set; }
+    public string? JudgeDescription { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -575,19 +485,16 @@ public partial class TaktIqcOrderImportDto
     /// </summary>
     public TaktIqcOrderImportDto()
     {
-        OrderCode = string.Empty;
+        PlantCode = string.Empty;
         SourceCode = string.Empty;
-        StandardCode = string.Empty;
-        MaterialCode = string.Empty;
-        MaterialName = string.Empty;
+        IqcOrderCode = string.Empty;
         SupplierCode = string.Empty;
-        SupplierName = string.Empty;
     }
 
         /// <summary>
-    /// 检验单编码
+    /// 工厂代码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 来源单号
@@ -595,29 +502,14 @@ public partial class TaktIqcOrderImportDto
     public string SourceCode { get; set; }
 
         /// <summary>
-    /// 检验计划编码
+    /// 检验日期
     /// </summary>
-    public string? PlanCode { get; set; }
+    public DateTime? InspectionDate { get; set; }
 
         /// <summary>
-    /// 检验标准编码
+    /// IQC检验单编码
     /// </summary>
-    public string StandardCode { get; set; }
-
-        /// <summary>
-    /// 物料编码
-    /// </summary>
-    public string MaterialCode { get; set; }
-
-        /// <summary>
-    /// 物料名称
-    /// </summary>
-    public string MaterialName { get; set; }
-
-        /// <summary>
-    /// 批次号
-    /// </summary>
-    public string? BatchNo { get; set; }
+    public string IqcOrderCode { get; set; }
 
         /// <summary>
     /// 供应商编码
@@ -625,39 +517,34 @@ public partial class TaktIqcOrderImportDto
     public string SupplierCode { get; set; }
 
         /// <summary>
-    /// 供应商名称
+    /// 进货总数
     /// </summary>
-    public string SupplierName { get; set; }
+    public decimal TotalPurchaseQuantity { get; set; }
 
         /// <summary>
-    /// 来料数量
+    /// 总抽样数量
     /// </summary>
-    public decimal IncomingQuantity { get; set; }
+    public int TotalSampleQuantity { get; set; }
 
         /// <summary>
-    /// 抽样方案编码
+    /// 总合格数量
     /// </summary>
-    public string? SamplingSchemeCode { get; set; }
+    public int TotalQualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 抽样数量
+    /// 总不合格数量
     /// </summary>
-    public int SampleQuantity { get; set; }
+    public int TotalUnqualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 合格数量
+    /// 总验退数量
     /// </summary>
-    public int QualifiedQuantity { get; set; }
+    public decimal TotalInspectionReturnQuantity { get; set; }
 
         /// <summary>
-    /// 不合格数量
+    /// 判定状态
     /// </summary>
-    public int UnqualifiedQuantity { get; set; }
-
-        /// <summary>
-    /// 检验结论
-    /// </summary>
-    public int InspectionConclusion { get; set; }
+    public int JudgeStatus { get; set; }
 
         /// <summary>
     /// 判定人
@@ -665,19 +552,14 @@ public partial class TaktIqcOrderImportDto
     public string? JudgeBy { get; set; }
 
         /// <summary>
-    /// 判定时间
+    /// 判定日期
     /// </summary>
-    public DateTime? JudgeTime { get; set; }
+    public DateTime? JudgeDate { get; set; }
 
         /// <summary>
-    /// 检验备注
+    /// 判定说明
     /// </summary>
-    public string? InspectionRemark { get; set; }
-
-        /// <summary>
-    /// 检验单状态
-    /// </summary>
-    public int OrderStatus { get; set; }
+    public string? JudgeDescription { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -701,19 +583,16 @@ public partial class TaktIqcOrderExportDto
     public TaktIqcOrderExportDto()
     {
         CreatedAt = DateTime.Now;
-        OrderCode = string.Empty;
+        PlantCode = string.Empty;
         SourceCode = string.Empty;
-        StandardCode = string.Empty;
-        MaterialCode = string.Empty;
-        MaterialName = string.Empty;
+        IqcOrderCode = string.Empty;
         SupplierCode = string.Empty;
-        SupplierName = string.Empty;
     }
 
         /// <summary>
-    /// 检验单编码
+    /// 工厂代码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 来源单号
@@ -721,29 +600,14 @@ public partial class TaktIqcOrderExportDto
     public string SourceCode { get; set; }
 
         /// <summary>
-    /// 检验计划编码
+    /// 检验日期
     /// </summary>
-    public string? PlanCode { get; set; }
+    public DateTime? InspectionDate { get; set; }
 
         /// <summary>
-    /// 检验标准编码
+    /// IQC检验单编码
     /// </summary>
-    public string StandardCode { get; set; }
-
-        /// <summary>
-    /// 物料编码
-    /// </summary>
-    public string MaterialCode { get; set; }
-
-        /// <summary>
-    /// 物料名称
-    /// </summary>
-    public string MaterialName { get; set; }
-
-        /// <summary>
-    /// 批次号
-    /// </summary>
-    public string? BatchNo { get; set; }
+    public string IqcOrderCode { get; set; }
 
         /// <summary>
     /// 供应商编码
@@ -751,39 +615,34 @@ public partial class TaktIqcOrderExportDto
     public string SupplierCode { get; set; }
 
         /// <summary>
-    /// 供应商名称
+    /// 进货总数
     /// </summary>
-    public string SupplierName { get; set; }
+    public decimal TotalPurchaseQuantity { get; set; }
 
         /// <summary>
-    /// 来料数量
+    /// 总抽样数量
     /// </summary>
-    public decimal IncomingQuantity { get; set; }
+    public int TotalSampleQuantity { get; set; }
 
         /// <summary>
-    /// 抽样方案编码
+    /// 总合格数量
     /// </summary>
-    public string? SamplingSchemeCode { get; set; }
+    public int TotalQualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 抽样数量
+    /// 总不合格数量
     /// </summary>
-    public int SampleQuantity { get; set; }
+    public int TotalUnqualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 合格数量
+    /// 总验退数量
     /// </summary>
-    public int QualifiedQuantity { get; set; }
+    public decimal TotalInspectionReturnQuantity { get; set; }
 
         /// <summary>
-    /// 不合格数量
+    /// 判定状态
     /// </summary>
-    public int UnqualifiedQuantity { get; set; }
-
-        /// <summary>
-    /// 检验结论
-    /// </summary>
-    public int InspectionConclusion { get; set; }
+    public int JudgeStatus { get; set; }
 
         /// <summary>
     /// 判定人
@@ -791,19 +650,14 @@ public partial class TaktIqcOrderExportDto
     public string? JudgeBy { get; set; }
 
         /// <summary>
-    /// 判定时间
+    /// 判定日期
     /// </summary>
-    public DateTime? JudgeTime { get; set; }
+    public DateTime? JudgeDate { get; set; }
 
         /// <summary>
-    /// 检验备注
+    /// 判定说明
     /// </summary>
-    public string? InspectionRemark { get; set; }
-
-        /// <summary>
-    /// 检验单状态
-    /// </summary>
-    public int OrderStatus { get; set; }
+    public string? JudgeDescription { get; set; }
 
     /// <summary>
     /// 创建时间

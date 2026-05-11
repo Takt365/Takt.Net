@@ -19,17 +19,16 @@ namespace Takt.Domain.Entities.Code.Generator;
 /// Takt代码生成表配置实体
 /// </summary>
 [SugarTable("takt_generator_table", "代码生成表配置表")]
-[SugarIndex("ix_takt_generator_table_table_name", nameof(TableName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_generator_table_gt_unique", nameof(DataSource), OrderByType.Asc, nameof(TableName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_generator_table_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_generator_table_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktGenTable : TaktEntityBase
 {
     /// <summary>
-    /// 数据源（前面是数据库名称，后面是 ConfigId，如：Takt_Identity_Dev:0）
+    /// 数据源（前面是数据库名称，后面是 ConfigId，如：Takt_Identity_Dev:0，不可空）
     /// </summary>
-    [SugarColumn(ColumnName = "data_source", ColumnDescription = "数据源", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
-    public string? DataSource { get; set; }
+    [SugarColumn(ColumnName = "data_source", ColumnDescription = "数据源", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
+    public string DataSource { get; set; } = string.Empty;
 
     /// <summary>
     /// 数据表名称（唯一索引）

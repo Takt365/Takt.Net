@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Accounting.Controlling
 // 文件名称：TaktCostElementService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：成本要素表应用服务，提供CostElement管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Accounting.Controlling;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Accounting.Controlling;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Accounting.Controlling;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Accounting.Controlling;
 public class TaktCostElementService : TaktServiceBase, ITaktCostElementService
 {
     private readonly ITaktRepository<TaktCostElement> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">CostElement仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktCostElementService(
         ITaktRepository<TaktCostElement> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -88,7 +84,7 @@ public class TaktCostElementService : TaktServiceBase, ITaktCostElementService
         return all.Select(x => new TaktSelectOption
         {
             DictLabel = x.CostElementName ?? string.Empty,
-            DictValue = x.CostElementCode,
+            DictValue = x.CompanyCode,
             SortOrder = x.SortOrder,
         }).OrderBy(x => x.SortOrder).ToList();
     }
@@ -116,7 +112,7 @@ public class TaktCostElementService : TaktServiceBase, ITaktCostElementService
         {
             var option = new TaktTreeSelectOption
             {
-                DictValue = item.CostElementCode,
+                DictValue = item.CompanyCode,
                 DictLabel = item.CostElementName ?? string.Empty,
                 SortOrder = item.SortOrder,
             };
@@ -222,9 +218,12 @@ public class TaktCostElementService : TaktServiceBase, ITaktCostElementService
     /// <returns>成本要素表(CostElement)DTO</returns>
     public async Task<TaktCostElementDto> CreateCostElementAsync(TaktCostElementCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.CostElementCode, dto.CostElementCode, null, $"成本要素表编码 {dto.CostElementCode} 已存在");
-
         var entity = dto.Adapt<TaktCostElement>();
+        // 验证公司代码、CostElementCode、CostElementName组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.CompanyCode == dto.CompanyCode && x.CostElementCode == dto.CostElementCode && x.CostElementName == dto.CostElementName);
+        if (!isUnique)
+            throw new TaktBusinessException($"成本要素表公司代码、CostElementCode、CostElementName组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetCostElementByIdAsync(entity.Id)) ?? entity.Adapt<TaktCostElementDto>();
     }
@@ -241,8 +240,10 @@ public class TaktCostElementService : TaktServiceBase, ITaktCostElementService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.costelementNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.CostElementCode, dto.CostElementCode, id, $"成本要素表编码 {dto.CostElementCode} 已存在");
+        // 验证公司代码、CostElementCode、CostElementName组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.CompanyCode == dto.CompanyCode && x.CostElementCode == dto.CostElementCode && x.CostElementName == dto.CostElementName, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"成本要素表公司代码、CostElementCode、CostElementName组合已存在");
 
         dto.Adapt(entity, typeof(TaktCostElementUpdateDto), typeof(TaktCostElement));
         entity.UpdatedAt = DateTime.Now;

@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Manufacturing.Defect
 // 文件名称：TaktPcbaInspectionDetailDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：PCBA检查明细表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -18,6 +18,14 @@ namespace Takt.Application.Dtos.Logistics.Manufacturing.Defect;
 public partial class TaktPcbaInspectionDetailDto : TaktDtosEntityBase
 {
     /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktPcbaInspectionDetailDto()
+    {
+        ProdOrderCode = string.Empty;
+    }
+
+    /// <summary>
     /// PCBA检查明细表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
@@ -29,6 +37,10 @@ public partial class TaktPcbaInspectionDetailDto : TaktDtosEntityBase
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long PcbaInspectionId { get; set; }
+    /// <summary>
+    /// 生产工单号
+    /// </summary>
+    public string ProdOrderCode { get; set; }
     /// <summary>
     /// 项号
     /// </summary>
@@ -131,6 +143,10 @@ public partial class TaktPcbaInspectionDetailQueryDto : TaktPagedQuery
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? PcbaInspectionId { get; set; }
+    /// <summary>
+    /// 生产工单号
+    /// </summary>
+    public string? ProdOrderCode { get; set; }
     /// <summary>
     /// 项号
     /// </summary>
@@ -262,11 +278,24 @@ public partial class TaktPcbaInspectionDetailQueryDto : TaktPagedQuery
 /// </summary>
 public partial class TaktPcbaInspectionDetailCreateDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktPcbaInspectionDetailCreateDto()
+    {
+        ProdOrderCode = string.Empty;
+    }
+
         /// <summary>
     /// PCBA检查ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long PcbaInspectionId { get; set; }
+
+        /// <summary>
+    /// 生产工单号
+    /// </summary>
+    public string ProdOrderCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -425,10 +454,23 @@ public partial class TaktPcbaInspectionDetailInspectionStatusDto
 /// </summary>
 public partial class TaktPcbaInspectionDetailTemplateDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktPcbaInspectionDetailTemplateDto()
+    {
+        ProdOrderCode = string.Empty;
+    }
+
         /// <summary>
     /// PCBA检查ID
     /// </summary>
     public long PcbaInspectionId { get; set; }
+
+        /// <summary>
+    /// 生产工单号
+    /// </summary>
+    public string ProdOrderCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -541,10 +583,23 @@ public partial class TaktPcbaInspectionDetailTemplateDto
 /// </summary>
 public partial class TaktPcbaInspectionDetailImportDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktPcbaInspectionDetailImportDto()
+    {
+        ProdOrderCode = string.Empty;
+    }
+
         /// <summary>
     /// PCBA检查ID
     /// </summary>
     public long PcbaInspectionId { get; set; }
+
+        /// <summary>
+    /// 生产工单号
+    /// </summary>
+    public string ProdOrderCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -663,12 +718,18 @@ public partial class TaktPcbaInspectionDetailExportDto
     public TaktPcbaInspectionDetailExportDto()
     {
         CreatedAt = DateTime.Now;
+        ProdOrderCode = string.Empty;
     }
 
         /// <summary>
     /// PCBA检查ID
     /// </summary>
     public long PcbaInspectionId { get; set; }
+
+        /// <summary>
+    /// 生产工单号
+    /// </summary>
+    public string ProdOrderCode { get; set; }
 
         /// <summary>
     /// 项号

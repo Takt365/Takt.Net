@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Quality.Cost
 // 文件名称：TaktQualityScrapService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：品质废弃主表应用服务，提供QualityScrap管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Quality.Cost;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Quality.Cost;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Quality.Cost;
 
@@ -29,18 +21,21 @@ namespace Takt.Application.Services.Logistics.Quality.Cost;
 public class TaktQualityScrapService : TaktServiceBase, ITaktQualityScrapService
 {
     private readonly ITaktRepository<TaktQualityScrap> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktQualityScrapItem> _qualityScrapItemRepository;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">QualityScrap仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="qualityScrapItemRepository">QualityScrapItem仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktQualityScrapService(
         ITaktRepository<TaktQualityScrap> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktQualityScrapItem> qualityScrapItemRepository,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
@@ -48,6 +43,7 @@ public class TaktQualityScrapService : TaktServiceBase, ITaktQualityScrapService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _qualityScrapItemRepository = qualityScrapItemRepository;
     }
 
@@ -112,9 +108,12 @@ public class TaktQualityScrapService : TaktServiceBase, ITaktQualityScrapService
     /// <returns>品质废弃主表(QualityScrap)DTO</returns>
     public async Task<TaktQualityScrapDto> CreateQualityScrapAsync(TaktQualityScrapCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.ScrapNo, dto.ScrapNo, null, $"品质废弃主表编码 {dto.ScrapNo} 已存在");
-
         var entity = dto.Adapt<TaktQualityScrap>();
+        // 验证工厂编码、QualityScrapCode、ScrapDate组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.QualityScrapCode == dto.QualityScrapCode && x.ScrapDate == dto.ScrapDate);
+        if (!isUnique)
+            throw new TaktBusinessException($"品质废弃主表工厂编码、QualityScrapCode、ScrapDate组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -147,8 +146,10 @@ public class TaktQualityScrapService : TaktServiceBase, ITaktQualityScrapService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.qualityscrapNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.ScrapNo, dto.ScrapNo, id, $"品质废弃主表编码 {dto.ScrapNo} 已存在");
+        // 验证工厂编码、QualityScrapCode、ScrapDate组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.QualityScrapCode == dto.QualityScrapCode && x.ScrapDate == dto.ScrapDate, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"品质废弃主表工厂编码、QualityScrapCode、ScrapDate组合已存在");
 
         dto.Adapt(entity, typeof(TaktQualityScrapUpdateDto), typeof(TaktQualityScrap));
         entity.UpdatedAt = DateTime.Now;
@@ -365,7 +366,7 @@ public class TaktQualityScrapService : TaktServiceBase, ITaktQualityScrapService
         {
             exp = exp.And(x =>
                 x.PlantCode!.Contains(queryDto.KeyWords) ||
-                x.ScrapNo!.Contains(queryDto.KeyWords) ||
+                x.QualityScrapCode!.Contains(queryDto.KeyWords) ||
                 x.Model!.Contains(queryDto.KeyWords) ||
                 x.ScrapReason!.Contains(queryDto.KeyWords) ||
                 x.CostCurrency!.Contains(queryDto.KeyWords) ||
@@ -380,9 +381,9 @@ public class TaktQualityScrapService : TaktServiceBase, ITaktQualityScrapService
             exp = exp.And(x => x.PlantCode!.Contains(queryDto.PlantCode));
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.ScrapNo))
+        if (!string.IsNullOrEmpty(queryDto?.QualityScrapCode))
         {
-            exp = exp.And(x => x.ScrapNo!.Contains(queryDto.ScrapNo));
+            exp = exp.And(x => x.QualityScrapCode!.Contains(queryDto.QualityScrapCode));
         }
 
         if (queryDto?.ScrapDate.HasValue == true)

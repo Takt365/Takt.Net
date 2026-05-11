@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktFqcDefectHandlingEntitiesSeedData.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(AI Auto-Generated)
 // 功能描述：TaktFqcDefectHandling 实体字段翻译种子数据（自动生成）
 //
@@ -109,12 +109,12 @@ public class TaktFqcDefectHandlingEntitiesSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcdefecthandling._self", TranslationValue = "出货检验不良处理记录", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 1 },
 
             // entity.fqcdefecthandling.code
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcdefecthandling.code", TranslationValue = "不良处理编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcdefecthandling.code", TranslationValue = "不良处理编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcdefecthandling.code", TranslationValue = "不良处理编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcdefecthandling.code", TranslationValue = "不良处理编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcdefecthandling.code", TranslationValue = "不良处理编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcdefecthandling.code", TranslationValue = "不良处理编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcdefecthandling.code", TranslationValue = "FQC不良处理编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcdefecthandling.code", TranslationValue = "FQC不良处理编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcdefecthandling.code", TranslationValue = "FQC不良处理编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcdefecthandling.code", TranslationValue = "FQC不良处理编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcdefecthandling.code", TranslationValue = "FQC不良处理编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcdefecthandling.code", TranslationValue = "FQC不良处理编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
 
             // entity.fqcdefecthandling.fqcorderitemid
             new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcdefecthandling.fqcorderitemid", TranslationValue = "ID", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
@@ -124,13 +124,13 @@ public class TaktFqcDefectHandlingEntitiesSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcdefecthandling.fqcorderitemid", TranslationValue = "ID", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
             new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcdefecthandling.fqcorderitemid", TranslationValue = "ID", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
 
-            // entity.fqcdefecthandling.ordercode
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcdefecthandling.ordercode", TranslationValue = "检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcdefecthandling.ordercode", TranslationValue = "检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcdefecthandling.ordercode", TranslationValue = "检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcdefecthandling.ordercode", TranslationValue = "检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcdefecthandling.ordercode", TranslationValue = "检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcdefecthandling.ordercode", TranslationValue = "检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            // entity.fqcdefecthandling.fqcordercode
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcdefecthandling.fqcordercode", TranslationValue = "FQC检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.fqcdefecthandling.fqcordercode", TranslationValue = "FQC检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.fqcdefecthandling.fqcordercode", TranslationValue = "FQC检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.fqcdefecthandling.fqcordercode", TranslationValue = "FQC检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.fqcdefecthandling.fqcordercode", TranslationValue = "FQC检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.fqcdefecthandling.fqcordercode", TranslationValue = "FQC检验单编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
 
             // entity.fqcdefecthandling.linenumber
             new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.fqcdefecthandling.linenumber", TranslationValue = "检验单行号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },

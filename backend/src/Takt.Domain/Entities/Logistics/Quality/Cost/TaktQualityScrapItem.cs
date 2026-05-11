@@ -21,7 +21,7 @@ namespace Takt.Domain.Entities.Logistics.Quality.Cost;
 /// </summary>
 [SugarTable("takt_logistics_quality_scrap_item", "品质废弃明细表")]
 [SugarIndex("ix_takt_logistics_quality_scrap_item_quality_scrap_id", nameof(QualityScrapId), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_scrap_item_line_number", nameof(LineNumber), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_quality_scrap_item_line_number", nameof(QualityScrapId), OrderByType.Asc, nameof(LineNumber), OrderByType.Asc, nameof(MaterialCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_quality_scrap_item_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_scrap_item_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktQualityScrapItem : TaktEntityBase
@@ -32,6 +32,12 @@ public class TaktQualityScrapItem : TaktEntityBase
     [SugarColumn(ColumnName = "quality_scrap_id", ColumnDescription = "品质废弃主表ID", ColumnDataType = "bigint", IsNullable = false)]
     [JsonConverter(typeof(ValueToStringConverter))]
     public long QualityScrapId { get; set; }
+
+    /// <summary>
+    /// 品质废弃编码（冗余字段，便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "quality_scrap_code", ColumnDescription = "品质废弃编码", Length = 30, ColumnDataType = "nvarchar", IsNullable = false)]
+    public string QualityScrapCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 项号(行号)

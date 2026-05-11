@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Accounting.Financial
 // 文件名称：TaktAccountingTitleChangeLogService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：会计科目变更记录表应用服务，提供AccountingTitleChangeLog管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Accounting.Financial;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Accounting.Financial;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Accounting.Financial;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Accounting.Financial;
 public class TaktAccountingTitleChangeLogService : TaktServiceBase, ITaktAccountingTitleChangeLogService
 {
     private readonly ITaktRepository<TaktAccountingTitleChangeLog> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">AccountingTitleChangeLog仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktAccountingTitleChangeLogService(
         ITaktRepository<TaktAccountingTitleChangeLog> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -101,9 +97,12 @@ public class TaktAccountingTitleChangeLogService : TaktServiceBase, ITaktAccount
     /// <returns>会计科目变更记录表(AccountingTitleChangeLog)DTO</returns>
     public async Task<TaktAccountingTitleChangeLogDto> CreateAccountingTitleChangeLogAsync(TaktAccountingTitleChangeLogCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.TitleCode, dto.TitleCode, null, $"会计科目变更记录表编码 {dto.TitleCode} 已存在");
-
         var entity = dto.Adapt<TaktAccountingTitleChangeLog>();
+        // 验证TitleCode的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.TitleCode, dto.TitleCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"会计科目变更记录表TitleCode {dto.TitleCode} 已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetAccountingTitleChangeLogByIdAsync(entity.Id)) ?? entity.Adapt<TaktAccountingTitleChangeLogDto>();
     }
@@ -120,8 +119,10 @@ public class TaktAccountingTitleChangeLogService : TaktServiceBase, ITaktAccount
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.accountingtitlechangelogNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.TitleCode, dto.TitleCode, id, $"会计科目变更记录表编码 {dto.TitleCode} 已存在");
+        // 验证TitleCode的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.TitleCode, dto.TitleCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"会计科目变更记录表TitleCode {dto.TitleCode} 已存在");
 
         dto.Adapt(entity, typeof(TaktAccountingTitleChangeLogUpdateDto), typeof(TaktAccountingTitleChangeLog));
         entity.UpdatedAt = DateTime.Now;

@@ -33,6 +33,12 @@ public class TaktSalesOrderItem : TaktEntityBase
     public long SalesOrderId { get; set; }
 
     /// <summary>
+    /// 销售订单编码（冗余字段，便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "sales_order_code", ColumnDescription = "销售订单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string SalesOrderCode { get; set; } = string.Empty;
+
+    /// <summary>
     /// 行号/项号（订单明细行号，与SalesOrderId组成联合唯一索引）
     /// </summary>
     [SugarColumn(ColumnName = "line_number", ColumnDescription = "行号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]

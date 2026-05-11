@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.CompensationBenefits
 // 文件名称：TaktBenefitPlanService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：福利方案表应用服务，提供BenefitPlan管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.HumanResource.CompensationBenefits;
-using Takt.Application.Services;
 using Takt.Domain.Entities.HumanResource.CompensationBenefits;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.HumanResource.CompensationBenefits;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.HumanResource.CompensationBenefits;
 public class TaktBenefitPlanService : TaktServiceBase, ITaktBenefitPlanService
 {
     private readonly ITaktRepository<TaktBenefitPlan> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">BenefitPlan仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktBenefitPlanService(
         ITaktRepository<TaktBenefitPlan> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -101,9 +97,12 @@ public class TaktBenefitPlanService : TaktServiceBase, ITaktBenefitPlanService
     /// <returns>福利方案表(BenefitPlan)DTO</returns>
     public async Task<TaktBenefitPlanDto> CreateBenefitPlanAsync(TaktBenefitPlanCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.PlanCode, dto.PlanCode, null, $"福利方案表编码 {dto.PlanCode} 已存在");
-
         var entity = dto.Adapt<TaktBenefitPlan>();
+        // 验证PlanCode的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlanCode, dto.PlanCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"福利方案表PlanCode {dto.PlanCode} 已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetBenefitPlanByIdAsync(entity.Id)) ?? entity.Adapt<TaktBenefitPlanDto>();
     }
@@ -120,8 +119,10 @@ public class TaktBenefitPlanService : TaktServiceBase, ITaktBenefitPlanService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.benefitplanNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.PlanCode, dto.PlanCode, id, $"福利方案表编码 {dto.PlanCode} 已存在");
+        // 验证PlanCode的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlanCode, dto.PlanCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"福利方案表PlanCode {dto.PlanCode} 已存在");
 
         dto.Adapt(entity, typeof(TaktBenefitPlanUpdateDto), typeof(TaktBenefitPlan));
         entity.UpdatedAt = DateTime.Now;

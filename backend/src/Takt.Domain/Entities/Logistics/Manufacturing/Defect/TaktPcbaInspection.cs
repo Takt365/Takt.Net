@@ -19,7 +19,7 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.Defect;
 /// PCBA检查日报实体
 /// </summary>
 [SugarTable("takt_logistics_manufacturing_defect_pcba_inspection", "PCBA检查日报表")]
-[SugarIndex("ix_takt_logistics_manufacturing_defect_pcba_inspection_plant_code", nameof(PlantCode), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_manufacturing_defect_pcba_inspection_unique", nameof(PlantCode), OrderByType.Asc, nameof(ProdCategory), OrderByType.Asc, nameof(ProdDate), OrderByType.Asc, nameof(ProdOrderCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_manufacturing_defect_pcba_inspection_prod_date", nameof(ProdDate), OrderByType.Desc)]
 [SugarIndex("ix_takt_logistics_manufacturing_defect_pcba_inspection_prod_order_code", nameof(ProdOrderCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_defect_pcba_inspection_status", nameof(Status), OrderByType.Asc)]

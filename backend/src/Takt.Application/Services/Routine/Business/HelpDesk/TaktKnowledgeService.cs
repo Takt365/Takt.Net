@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Routine.Business.HelpDesk
 // 文件名称：TaktKnowledgeService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：知识库表应用服务，提供Knowledge管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Routine.Business.HelpDesk;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Routine.Business.HelpDesk;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Routine.Business.HelpDesk;
 
@@ -29,18 +21,21 @@ namespace Takt.Application.Services.Routine.Business.HelpDesk;
 public class TaktKnowledgeService : TaktServiceBase, ITaktKnowledgeService
 {
     private readonly ITaktRepository<TaktKnowledge> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktKnowledgeChangeLog> _knowledgeChangeLogRepository;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">Knowledge仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="knowledgeChangeLogRepository">KnowledgeChangeLog仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktKnowledgeService(
         ITaktRepository<TaktKnowledge> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktKnowledgeChangeLog> knowledgeChangeLogRepository,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
@@ -48,6 +43,7 @@ public class TaktKnowledgeService : TaktServiceBase, ITaktKnowledgeService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _knowledgeChangeLogRepository = knowledgeChangeLogRepository;
     }
 
@@ -145,7 +141,6 @@ public class TaktKnowledgeService : TaktServiceBase, ITaktKnowledgeService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.knowledgeNotFound");
-
         dto.Adapt(entity, typeof(TaktKnowledgeUpdateDto), typeof(TaktKnowledge));
         entity.UpdatedAt = DateTime.Now;
         await _repository.UpdateAsync(entity);

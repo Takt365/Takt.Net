@@ -375,6 +375,13 @@ public class TaktMenuI18nSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.routine.tasks.Numbering", TranslationValue = "編碼規則", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.routine.tasks.Numbering", TranslationValue = "編碼規則", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
 
+            // menu.routine.tasks.message
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.routine.tasks.message", TranslationValue = "Message", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.routine.tasks.message", TranslationValue = "メッセージ", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.routine.tasks.message", TranslationValue = "메시지", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.routine.tasks.message", TranslationValue = "消息", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.routine.tasks.message", TranslationValue = "消息", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.routine.tasks.message", TranslationValue = "消息", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             // menu.routine.tasks.dict
             new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.routine.tasks.dict", TranslationValue = "Dictionary", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.routine.tasks.dict", TranslationValue = "辞書", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
@@ -510,6 +517,46 @@ public class TaktMenuI18nSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.accounting.controlling._self", TranslationValue = "控制会计", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.accounting.controlling._self", TranslationValue = "控制會計", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.accounting.controlling._self", TranslationValue = "控制會計", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.accounting.controlling.costelement
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.accounting.controlling.costelement", TranslationValue = "Cost Element", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.accounting.controlling.costelement", TranslationValue = "原価要素", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.accounting.controlling.costelement", TranslationValue = "원가 요소", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.accounting.controlling.costelement", TranslationValue = "成本要素", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.accounting.controlling.costelement", TranslationValue = "成本要素", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.accounting.controlling.costelement", TranslationValue = "成本要素", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.accounting.controlling.profitcenter
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.accounting.controlling.profitcenter", TranslationValue = "Profit Center", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.accounting.controlling.profitcenter", TranslationValue = "利益センター", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.accounting.controlling.profitcenter", TranslationValue = "이익 센터", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.accounting.controlling.profitcenter", TranslationValue = "利润中心", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.accounting.controlling.profitcenter", TranslationValue = "利潤中心", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.accounting.controlling.profitcenter", TranslationValue = "利潤中心", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.accounting.controlling.wagerate
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.accounting.controlling.wagerate", TranslationValue = "Wage Rate", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.accounting.controlling.wagerate", TranslationValue = "賃率", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.accounting.controlling.wagerate", TranslationValue = "임금률", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.accounting.controlling.wagerate", TranslationValue = "工资率", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.accounting.controlling.wagerate", TranslationValue = "工資率", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.accounting.controlling.wagerate", TranslationValue = "工資率", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.accounting.financial.countersign
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.accounting.financial.countersign", TranslationValue = "Countersign", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.accounting.financial.countersign", TranslationValue = "連署", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.accounting.financial.countersign", TranslationValue = "연서", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.accounting.financial.countersign", TranslationValue = "会签", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.accounting.financial.countersign", TranslationValue = "會簽", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.accounting.financial.countersign", TranslationValue = "會簽", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.accounting.financial.fixedasset
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.accounting.financial.fixedasset", TranslationValue = "Fixed Asset", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.accounting.financial.fixedasset", TranslationValue = "固定資産", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.accounting.financial.fixedasset", TranslationValue = "고정 자산", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.accounting.financial.fixedasset", TranslationValue = "固定资产", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.accounting.financial.fixedasset", TranslationValue = "固定資產", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.accounting.financial.fixedasset", TranslationValue = "固定資產", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
 
             // menu.accounting.controlling.costcenter
             new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.accounting.controlling.costcenter", TranslationValue = "Cost Center", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
@@ -653,7 +700,7 @@ public class TaktMenuI18nSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.logistics.sales.service", TranslationValue = "고객서비스", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.logistics.sales.service", TranslationValue = "客户服务", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.logistics.sales.service", TranslationValue = "客戶服務", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.sales.service", TranslationValue = "客戶服務", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.service._self", TranslationValue = "客戶服務", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
 
             // menu.logistics.sales.quotation
             new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.logistics.sales.quotation", TranslationValue = "Quotation", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
@@ -1008,6 +1055,86 @@ public class TaktMenuI18nSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.logistics.quality.samplingscheme", TranslationValue = "抽樣方案", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.quality.samplingscheme", TranslationValue = "抽樣方案", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
 
+            // menu.logistics.quality.cost._self
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.logistics.quality.cost._self", TranslationValue = "Quality Cost", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.logistics.quality.cost._self", TranslationValue = "品質コスト", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.logistics.quality.cost._self", TranslationValue = "품질 비용", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.logistics.quality.cost._self", TranslationValue = "品质成本", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.logistics.quality.cost._self", TranslationValue = "品質成本", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.quality.cost._self", TranslationValue = "品質成本", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.logistics.quality.cost.operation
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.logistics.quality.cost.operation", TranslationValue = "Quality Business", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.logistics.quality.cost.operation", TranslationValue = "品質業務", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.logistics.quality.cost.operation", TranslationValue = "품질 업무", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.logistics.quality.cost.operation", TranslationValue = "品质业务", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.logistics.quality.cost.operation", TranslationValue = "品質業務", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.quality.cost.operation", TranslationValue = "品質業務", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.logistics.quality.cost.issue
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.logistics.quality.cost.issue", TranslationValue = "Quality Issue", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.logistics.quality.cost.issue", TranslationValue = "品質問題", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.logistics.quality.cost.issue", TranslationValue = "품질 문제", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.logistics.quality.cost.issue", TranslationValue = "品质问题", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.logistics.quality.cost.issue", TranslationValue = "品質問題", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.quality.cost.issue", TranslationValue = "品質問題", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.logistics.quality.cost.scrap
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.logistics.quality.cost.scrap", TranslationValue = "Quality Accident", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.logistics.quality.cost.scrap", TranslationValue = "品質事故", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.logistics.quality.cost.scrap", TranslationValue = "품질 사고", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.logistics.quality.cost.scrap", TranslationValue = "品质事故", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.logistics.quality.cost.scrap", TranslationValue = "品質事故", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.quality.cost.scrap", TranslationValue = "品質事故", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.logistics.quality.operation._self
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.logistics.quality.operation._self", TranslationValue = "Quality Operation", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.logistics.quality.operation._self", TranslationValue = "品質業務", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.logistics.quality.operation._self", TranslationValue = "품질 업무", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.logistics.quality.operation._self", TranslationValue = "质量业务", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.logistics.quality.operation._self", TranslationValue = "質量業務", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.quality.operation._self", TranslationValue = "質量業務", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.logistics.quality.operation.samplingscheme
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.logistics.quality.operation.samplingscheme", TranslationValue = "Sampling Scheme", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.logistics.quality.operation.samplingscheme", TranslationValue = "サンプリング計画", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.logistics.quality.operation.samplingscheme", TranslationValue = "샘플링 계획", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.logistics.quality.operation.samplingscheme", TranslationValue = "抽样方案", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.logistics.quality.operation.samplingscheme", TranslationValue = "抽樣方案", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.quality.operation.samplingscheme", TranslationValue = "抽樣方案", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.logistics.quality.operation.inspectionstandard
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.logistics.quality.operation.inspectionstandard", TranslationValue = "Inspection Standard", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.logistics.quality.operation.inspectionstandard", TranslationValue = "検査基準", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.logistics.quality.operation.inspectionstandard", TranslationValue = "검사 표준", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.logistics.quality.operation.inspectionstandard", TranslationValue = "检验标准", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.logistics.quality.operation.inspectionstandard", TranslationValue = "檢驗標準", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.quality.operation.inspectionstandard", TranslationValue = "檢驗標準", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.logistics.quality.operation.iqcorder
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.logistics.quality.operation.iqcorder", TranslationValue = "Incoming Inspection", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.logistics.quality.operation.iqcorder", TranslationValue = "入荷検査", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.logistics.quality.operation.iqcorder", TranslationValue = "입고 검사", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.logistics.quality.operation.iqcorder", TranslationValue = "进货检验", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.logistics.quality.operation.iqcorder", TranslationValue = "進貨檢驗", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.quality.operation.iqcorder", TranslationValue = "進貨檢驗", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.logistics.quality.operation.ipqcorder
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.logistics.quality.operation.ipqcorder", TranslationValue = "Process Inspection", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.logistics.quality.operation.ipqcorder", TranslationValue = "工程検査", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.logistics.quality.operation.ipqcorder", TranslationValue = "공정 검사", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.logistics.quality.operation.ipqcorder", TranslationValue = "制程检验", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.logistics.quality.operation.ipqcorder", TranslationValue = "製程檢驗", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.quality.operation.ipqcorder", TranslationValue = "製程檢驗", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.logistics.quality.operation.fqcorder
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.logistics.quality.operation.fqcorder", TranslationValue = "Warehouse Inspection", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.logistics.quality.operation.fqcorder", TranslationValue = "入庫検査", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.logistics.quality.operation.fqcorder", TranslationValue = "입고 검사", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.logistics.quality.operation.fqcorder", TranslationValue = "入库检验", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.logistics.quality.operation.fqcorder", TranslationValue = "入庫檢驗", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.logistics.quality.operation.fqcorder", TranslationValue = "入庫檢驗", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
             // menu.logistics.maintenance._self
             new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.logistics.maintenance._self", TranslationValue = "Maintenance", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.logistics.maintenance._self", TranslationValue = "メンテナンス", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
@@ -1127,6 +1254,54 @@ public class TaktMenuI18nSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.humanresource.personnel._self", TranslationValue = "人事管理", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.humanresource.personnel._self", TranslationValue = "人事管理", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.humanresource.personnel._self", TranslationValue = "人事管理", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.humanresource.personnel.employeecontract
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.humanresource.personnel.employeecontract", TranslationValue = "Employee Contract", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.humanresource.personnel.employeecontract", TranslationValue = "従業員契約", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.humanresource.personnel.employeecontract", TranslationValue = "직원 계약", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.humanresource.personnel.employeecontract", TranslationValue = "员工合同", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.humanresource.personnel.employeecontract", TranslationValue = "員工合約", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.humanresource.personnel.employeecontract", TranslationValue = "員工合約", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.humanresource.personnel.employeedelegate
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.humanresource.personnel.employeedelegate", TranslationValue = "Employee Delegate", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.humanresource.personnel.employeedelegate", TranslationValue = "従業員代理", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.humanresource.personnel.employeedelegate", TranslationValue = "직원 대리", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.humanresource.personnel.employeedelegate", TranslationValue = "员工代理人", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.humanresource.personnel.employeedelegate", TranslationValue = "員工代理人", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.humanresource.personnel.employeedelegate", TranslationValue = "員工代理人", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.humanresource.personnel.employeeeducation
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.humanresource.personnel.employeeeducation", TranslationValue = "Employee Education", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.humanresource.personnel.employeeeducation", TranslationValue = "従業員学歴", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.humanresource.personnel.employeeeducation", TranslationValue = "직원 학력", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.humanresource.personnel.employeeeducation", TranslationValue = "员工教育", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.humanresource.personnel.employeeeducation", TranslationValue = "員工教育", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.humanresource.personnel.employeeeducation", TranslationValue = "員工教育", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.humanresource.personnel.employeefamily
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.humanresource.personnel.employeefamily", TranslationValue = "Employee Family", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.humanresource.personnel.employeefamily", TranslationValue = "従業員家族", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.humanresource.personnel.employeefamily", TranslationValue = "직원 가족", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.humanresource.personnel.employeefamily", TranslationValue = "员工家属", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.humanresource.personnel.employeefamily", TranslationValue = "員工家屬", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.humanresource.personnel.employeefamily", TranslationValue = "員工家屬", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.humanresource.personnel.employeeskill
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.humanresource.personnel.employeeskill", TranslationValue = "Employee Skill", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.humanresource.personnel.employeeskill", TranslationValue = "従業員スキル", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.humanresource.personnel.employeeskill", TranslationValue = "직원 기술", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.humanresource.personnel.employeeskill", TranslationValue = "员工技能", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.humanresource.personnel.employeeskill", TranslationValue = "員工技能", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.humanresource.personnel.employeeskill", TranslationValue = "員工技能", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.humanresource.personnel.employeework
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.humanresource.personnel.employeework", TranslationValue = "Employee Work", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.humanresource.personnel.employeework", TranslationValue = "従業員職歴", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.humanresource.personnel.employeework", TranslationValue = "직원 경력", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.humanresource.personnel.employeework", TranslationValue = "员工工作经历", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.humanresource.personnel.employeework", TranslationValue = "員工工作經歷", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.humanresource.personnel.employeework", TranslationValue = "員工工作經歷", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
 
             // menu.humanresource.personnel.employee（员工档案，三级菜单 Path 与 personnel/employee 对齐）
             new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.humanresource.personnel.employee", TranslationValue = "Employee Record", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
@@ -1486,7 +1661,15 @@ public class TaktMenuI18nSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.statistics.logging.servermonitor", TranslationValue = "서버 모니터링", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.statistics.logging.servermonitor", TranslationValue = "服务监控", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.statistics.logging.servermonitor", TranslationValue = "服務監控", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.statistics.logging.servermonitor", TranslationValue = "服務監控", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.statistics.logging.servermonitor", TranslationValue = "服務器監控", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+
+            // menu.statistics.logging.eventbus
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.statistics.logging.eventbus", TranslationValue = "Event Bus Log", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "menu.statistics.logging.eventbus", TranslationValue = "イベントバスログ", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "menu.statistics.logging.eventbus", TranslationValue = "이벤트 버스 로그", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "menu.statistics.logging.eventbus", TranslationValue = "事件总线日志", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "menu.statistics.logging.eventbus", TranslationValue = "事件總線日誌", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "menu.statistics.logging.eventbus", TranslationValue = "事件總線日誌", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
 
             // menu.statistics.report._self
             new TaktTranslation { CultureCode = "en-US", ResourceKey = "menu.statistics.report._self", TranslationValue = "Report", ResourceType = "Frontend", ResourceGroup = "Menu", SortOrder = 0 },
@@ -1556,3 +1739,4 @@ public class TaktMenuI18nSeedData : ITaktSeedData
         };
     }
 }
+

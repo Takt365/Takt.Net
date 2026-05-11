@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.HumanResource.AttendanceLeave
 // 文件名称：TaktAttendanceSettingsController.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：考勤设置表控制器，提供AttendanceSetting管理的RESTful API接口
 //

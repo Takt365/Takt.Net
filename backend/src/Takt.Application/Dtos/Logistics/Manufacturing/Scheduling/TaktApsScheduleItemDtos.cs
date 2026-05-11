@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Manufacturing.Scheduling
 // 文件名称：TaktApsScheduleItemDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：APS排程明细表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -49,11 +49,6 @@ public partial class TaktApsScheduleItemDto : TaktDtosEntityBase
     /// 生产工单编码
     /// </summary>
     public string WorkOrderCode { get; set; }
-    /// <summary>
-    /// 生产工单ID
-    /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long WorkOrderId { get; set; }
     /// <summary>
     /// 产品编码
     /// </summary>
@@ -115,22 +110,6 @@ public partial class TaktApsScheduleItemDto : TaktDtosEntityBase
     /// </summary>
     public DateTime? ActualEndTime { get; set; }
     /// <summary>
-    /// 设备编码
-    /// </summary>
-    public string? EquipmentCode { get; set; }
-    /// <summary>
-    /// 设备名称
-    /// </summary>
-    public string? EquipmentName { get; set; }
-    /// <summary>
-    /// 班组编码
-    /// </summary>
-    public string? TeamCode { get; set; }
-    /// <summary>
-    /// 班组名称
-    /// </summary>
-    public string? TeamName { get; set; }
-    /// <summary>
     /// 工序状态
     /// </summary>
     public int ProcessStatus { get; set; }
@@ -172,11 +151,6 @@ public partial class TaktApsScheduleItemQueryDto : TaktPagedQuery
     /// 生产工单编码
     /// </summary>
     public string? WorkOrderCode { get; set; }
-    /// <summary>
-    /// 生产工单ID
-    /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long? WorkOrderId { get; set; }
     /// <summary>
     /// 产品编码
     /// </summary>
@@ -274,22 +248,6 @@ public partial class TaktApsScheduleItemQueryDto : TaktPagedQuery
     /// </summary>
     public DateTime? ActualEndTimeEnd { get; set; }
     /// <summary>
-    /// 设备编码
-    /// </summary>
-    public string? EquipmentCode { get; set; }
-    /// <summary>
-    /// 设备名称
-    /// </summary>
-    public string? EquipmentName { get; set; }
-    /// <summary>
-    /// 班组编码
-    /// </summary>
-    public string? TeamCode { get; set; }
-    /// <summary>
-    /// 班组名称
-    /// </summary>
-    public string? TeamName { get; set; }
-    /// <summary>
     /// 工序状态
     /// </summary>
     public int? ProcessStatus { get; set; }
@@ -361,12 +319,6 @@ public partial class TaktApsScheduleItemCreateDto
     /// 生产工单编码
     /// </summary>
     public string WorkOrderCode { get; set; }
-
-        /// <summary>
-    /// 生产工单ID
-    /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long WorkOrderId { get; set; }
 
         /// <summary>
     /// 产品编码
@@ -442,26 +394,6 @@ public partial class TaktApsScheduleItemCreateDto
     /// 实际结束时间
     /// </summary>
     public DateTime? ActualEndTime { get; set; }
-
-        /// <summary>
-    /// 设备编码
-    /// </summary>
-    public string? EquipmentCode { get; set; }
-
-        /// <summary>
-    /// 设备名称
-    /// </summary>
-    public string? EquipmentName { get; set; }
-
-        /// <summary>
-    /// 班组编码
-    /// </summary>
-    public string? TeamCode { get; set; }
-
-        /// <summary>
-    /// 班组名称
-    /// </summary>
-    public string? TeamName { get; set; }
 
         /// <summary>
     /// 工序状态
@@ -563,11 +495,6 @@ public partial class TaktApsScheduleItemTemplateDto
     public string WorkOrderCode { get; set; }
 
         /// <summary>
-    /// 生产工单ID
-    /// </summary>
-    public long WorkOrderId { get; set; }
-
-        /// <summary>
     /// 产品编码
     /// </summary>
     public string ProductCode { get; set; }
@@ -641,26 +568,6 @@ public partial class TaktApsScheduleItemTemplateDto
     /// 实际结束时间
     /// </summary>
     public DateTime? ActualEndTime { get; set; }
-
-        /// <summary>
-    /// 设备编码
-    /// </summary>
-    public string? EquipmentCode { get; set; }
-
-        /// <summary>
-    /// 设备名称
-    /// </summary>
-    public string? EquipmentName { get; set; }
-
-        /// <summary>
-    /// 班组编码
-    /// </summary>
-    public string? TeamCode { get; set; }
-
-        /// <summary>
-    /// 班组名称
-    /// </summary>
-    public string? TeamName { get; set; }
 
         /// <summary>
     /// 工序状态
@@ -716,11 +623,6 @@ public partial class TaktApsScheduleItemImportDto
     public string WorkOrderCode { get; set; }
 
         /// <summary>
-    /// 生产工单ID
-    /// </summary>
-    public long WorkOrderId { get; set; }
-
-        /// <summary>
     /// 产品编码
     /// </summary>
     public string ProductCode { get; set; }
@@ -794,26 +696,6 @@ public partial class TaktApsScheduleItemImportDto
     /// 实际结束时间
     /// </summary>
     public DateTime? ActualEndTime { get; set; }
-
-        /// <summary>
-    /// 设备编码
-    /// </summary>
-    public string? EquipmentCode { get; set; }
-
-        /// <summary>
-    /// 设备名称
-    /// </summary>
-    public string? EquipmentName { get; set; }
-
-        /// <summary>
-    /// 班组编码
-    /// </summary>
-    public string? TeamCode { get; set; }
-
-        /// <summary>
-    /// 班组名称
-    /// </summary>
-    public string? TeamName { get; set; }
 
         /// <summary>
     /// 工序状态
@@ -870,11 +752,6 @@ public partial class TaktApsScheduleItemExportDto
     public string WorkOrderCode { get; set; }
 
         /// <summary>
-    /// 生产工单ID
-    /// </summary>
-    public long WorkOrderId { get; set; }
-
-        /// <summary>
     /// 产品编码
     /// </summary>
     public string ProductCode { get; set; }
@@ -948,26 +825,6 @@ public partial class TaktApsScheduleItemExportDto
     /// 实际结束时间
     /// </summary>
     public DateTime? ActualEndTime { get; set; }
-
-        /// <summary>
-    /// 设备编码
-    /// </summary>
-    public string? EquipmentCode { get; set; }
-
-        /// <summary>
-    /// 设备名称
-    /// </summary>
-    public string? EquipmentName { get; set; }
-
-        /// <summary>
-    /// 班组编码
-    /// </summary>
-    public string? TeamCode { get; set; }
-
-        /// <summary>
-    /// 班组名称
-    /// </summary>
-    public string? TeamName { get; set; }
 
         /// <summary>
     /// 工序状态

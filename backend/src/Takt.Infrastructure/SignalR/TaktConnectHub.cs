@@ -16,7 +16,6 @@ using Takt.Application.Dtos.Routine.Tasks.SignalR;
 using Takt.Application.Services.Routine.Tasks.SignalR;
 using Takt.Application.Services.Routine.Tasks.SignalR.ConnectEngine;
 using Takt.Domain.Entities.Routine.Tasks.SignalR;
-using Takt.Domain.Events;
 using Takt.Domain.Interfaces;
 using Takt.Domain.Repositories;
 using Takt.Infrastructure.User;
@@ -34,7 +33,6 @@ public class TaktConnectHub : Hub
     private readonly ITaktRepository<TaktOnline> _onlineRepository;
     private readonly ITaktUserContext _userContext;
     private readonly ITaktTenantContext? _tenantContext;
-    private readonly ITaktEventBus? _eventBus;
     private readonly ITakeConnectEngineService? _signalREngine;
 
     /// <summary>
@@ -44,21 +42,18 @@ public class TaktConnectHub : Hub
     /// <param name="onlineRepository">在线用户仓储</param>
     /// <param name="userContext">用户上下文（须注入；与 HTTP 管道共用 <see cref="ITaktUserContext"/>)</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
-    /// <param name="eventBus">事件总线（可选）</param>
     /// <param name="signalREngine">SignalR 引擎（可选）</param>
     public TaktConnectHub(
         ITaktOnlineService onlineService,
         ITaktRepository<TaktOnline> onlineRepository,
         ITaktUserContext userContext,
         ITaktTenantContext? tenantContext = null,
-        ITaktEventBus? eventBus = null,
         ITakeConnectEngineService? signalREngine = null)
     {
         _onlineService = onlineService;
         _onlineRepository = onlineRepository;
         _userContext = userContext;
         _tenantContext = tenantContext;
-        _eventBus = eventBus;
         _signalREngine = signalREngine;
     }
 
@@ -151,27 +146,6 @@ public class TaktConnectHub : Hub
                 ConnectTime = connectTime
             });
 
-            // 发布用户连接事件
-            if (_eventBus != null)
-            {
-                await _eventBus.PublishAsync(new TaktBusinessEvent
-                {
-                    Module = "SignalR",
-                    Action = "UserConnected",
-                    EntityId = userId,
-                    EntityType = "TaktOnline",
-                    OperatorId = userId,
-                    Data = new
-                    {
-                        UserName = userName,
-                        ConnectionId = connectionId,
-                        DeviceType = deviceType,
-                        ConnectIp = connectIp,
-                        ConnectTime = connectTime
-                    }
-                });
-            }
-
             TaktLogger.Information("连接 Hub 连接成功，用户: {UserName}, ConnectionId: {ConnectionId}, IP: {ConnectIp}, 设备: {DeviceType}", 
                 userName, connectionId ?? string.Empty, connectIp ?? string.Empty, deviceType ?? string.Empty);
 
@@ -247,25 +221,6 @@ public class TaktConnectHub : Hub
                 UserName = userName,
                 DisconnectTime = DateTime.Now
             });
-
-            // 发布用户断开连接事件
-            if (_eventBus != null)
-            {
-                await _eventBus.PublishAsync(new TaktBusinessEvent
-                {
-                    Module = "SignalR",
-                    Action = "UserDisconnected",
-                    EntityId = online?.UserId ?? 0,
-                    EntityType = "TaktOnline",
-                    OperatorId = online?.UserId,
-                    Data = new
-                    {
-                        UserName = userName,
-                        ConnectionId = connectionId,
-                        DisconnectTime = DateTime.Now
-                    }
-                });
-            }
 
             await base.OnDisconnectedAsync(exception);
         }

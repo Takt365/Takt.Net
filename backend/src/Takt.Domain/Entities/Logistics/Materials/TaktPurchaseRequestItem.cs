@@ -20,7 +20,8 @@ namespace Takt.Domain.Entities.Logistics.Materials;
 /// </summary>
 [SugarTable("takt_logistics_materials_purchase_request_item", "采购申请明细表")]
 [SugarIndex("ix_takt_logistics_materials_purchase_request_item_purchase_request_id", nameof(PurchaseRequestId), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_materials_purchase_request_item_request_line", nameof(PurchaseRequestId), OrderByType.Asc, nameof(LineNumber), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_materials_purchase_request_item_request_line", nameof(PurchaseRequestId), OrderByType.Asc, nameof(LineNumber), OrderByType.Asc, nameof(MaterialCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_materials_purchase_request_item_purchase_request_code", nameof(PurchaseRequestCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_request_item_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_request_item_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktPurchaseRequestItem : TaktEntityBase
@@ -33,7 +34,13 @@ public class TaktPurchaseRequestItem : TaktEntityBase
     public long PurchaseRequestId { get; set; }
 
     /// <summary>
-    /// 行号/项号（申请明细行号，与PurchaseRequestId组成联合唯一索引）
+    /// 采购申请编码（冗余字段，便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "purchase_request_code", ColumnDescription = "采购申请编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string PurchaseRequestCode { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 行号/项号（申请明细行号，与PurchaseRequestId和MaterialCode组成联合唯一索引）
     /// </summary>
     [SugarColumn(ColumnName = "line_number", ColumnDescription = "行号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int LineNumber { get; set; } = 0;
@@ -59,8 +66,8 @@ public class TaktPurchaseRequestItem : TaktEntityBase
     /// <summary>
     /// 申请单位
     /// </summary>
-    [SugarColumn(ColumnName = "request_unit", ColumnDescription = "申请单位", ColumnDataType = "nvarchar", Length = 20, IsNullable = false, DefaultValue = "个")]
-    public string RequestUnit { get; set; } = "个";
+    [SugarColumn(ColumnName = "request_unit", ColumnDescription = "申请单位", ColumnDataType = "nvarchar", Length = 20, IsNullable = false, DefaultValue = "PC")]
+    public string RequestUnit { get; set; } = "PC";
 
     /// <summary>
     /// 申请数量（基本单位数量）

@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Sales
 // 文件名称：TaktSalesPriceScaleService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：销售价格阶梯表应用服务，提供SalesPriceScale管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Sales;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Sales;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Sales;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Logistics.Sales;
 public class TaktSalesPriceScaleService : TaktServiceBase, ITaktSalesPriceScaleService
 {
     private readonly ITaktRepository<TaktSalesPriceScale> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">SalesPriceScale仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktSalesPriceScaleService(
         ITaktRepository<TaktSalesPriceScale> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -87,10 +83,10 @@ public class TaktSalesPriceScaleService : TaktServiceBase, ITaktSalesPriceScaleS
         var all = await _repository.FindAsync(x => x.IsDeleted == 0);
         return all.Select(x => new TaktSelectOption
         {
-            DictLabel = x.Id.ToString() ?? string.Empty,
-            DictValue = x.Id.ToString(),
-            SortOrder = x.SortOrder,
-        }).OrderBy(x => x.SortOrder).ToList();
+            DictLabel = x.SalesPriceCode ?? string.Empty,
+            DictValue = x.SalesPriceCode
+
+        }).ToList();
     }
 
 
@@ -101,9 +97,12 @@ public class TaktSalesPriceScaleService : TaktServiceBase, ITaktSalesPriceScaleS
     /// <returns>销售价格阶梯表(SalesPriceScale)DTO</returns>
     public async Task<TaktSalesPriceScaleDto> CreateSalesPriceScaleAsync(TaktSalesPriceScaleCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.ItemId, dto.ItemId, null, $"销售价格阶梯表编码 {dto.ItemId} 已存在");
-
         var entity = dto.Adapt<TaktSalesPriceScale>();
+        // 验证ItemId、LineNumber组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.ItemId == dto.ItemId && x.LineNumber == dto.LineNumber);
+        if (!isUnique)
+            throw new TaktBusinessException($"销售价格阶梯表ItemId、LineNumber组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetSalesPriceScaleByIdAsync(entity.Id)) ?? entity.Adapt<TaktSalesPriceScaleDto>();
     }
@@ -120,8 +119,10 @@ public class TaktSalesPriceScaleService : TaktServiceBase, ITaktSalesPriceScaleS
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.salespricescaleNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.ItemId, dto.ItemId, id, $"销售价格阶梯表编码 {dto.ItemId} 已存在");
+        // 验证ItemId、LineNumber组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.ItemId == dto.ItemId && x.LineNumber == dto.LineNumber, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"销售价格阶梯表ItemId、LineNumber组合已存在");
 
         dto.Adapt(entity, typeof(TaktSalesPriceScaleUpdateDto), typeof(TaktSalesPriceScale));
         entity.UpdatedAt = DateTime.Now;
@@ -175,23 +176,6 @@ public class TaktSalesPriceScaleService : TaktServiceBase, ITaktSalesPriceScaleS
         }
         
         await _repository.UpdateRangeBulkAsync(entities);
-    }
-
-
-    /// <summary>
-    /// 更新销售价格阶梯表(SalesPriceScale)排序
-    /// </summary>
-    /// <param name="dto">销售价格阶梯表(SalesPriceScale)排序DTO</param>
-    /// <returns>销售价格阶梯表(SalesPriceScale)DTO</returns>
-    public async Task<TaktSalesPriceScaleDto> UpdateSalesPriceScaleSortAsync(TaktSalesPriceScaleSortDto dto)
-    {
-        var entity = await _repository.GetByIdAsync(dto.SalesPriceScaleId);
-        if (entity == null)
-            throw new TaktBusinessException("validation.salespricescaleNotFound");
-        entity.SortOrder = dto.SortOrder;
-        entity.UpdatedAt = DateTime.Now;
-        await _repository.UpdateAsync(entity);
-        return await GetSalesPriceScaleByIdAsync(entity.Id) ?? entity.Adapt<TaktSalesPriceScaleDto>();
     }
 
 
@@ -296,6 +280,7 @@ public class TaktSalesPriceScaleService : TaktServiceBase, ITaktSalesPriceScaleS
         if (!string.IsNullOrEmpty(queryDto?.KeyWords))
         {
             exp = exp.And(x =>
+                x.SalesPriceCode!.Contains(queryDto.KeyWords) ||
                 x.Remark!.Contains(queryDto.KeyWords) ||
                 x.ExtFieldJson!.Contains(queryDto.KeyWords) ||
                 x.CreatedBy!.Contains(queryDto.KeyWords)
@@ -305,6 +290,11 @@ public class TaktSalesPriceScaleService : TaktServiceBase, ITaktSalesPriceScaleS
         if (queryDto?.ItemId.HasValue == true)
         {
             exp = exp.And(x => x.ItemId == queryDto.ItemId);
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.SalesPriceCode))
+        {
+            exp = exp.And(x => x.SalesPriceCode!.Contains(queryDto.SalesPriceCode));
         }
 
         if (queryDto?.LineNumber.HasValue == true)

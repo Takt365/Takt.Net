@@ -17,6 +17,8 @@ export interface AssyDefectDetail extends TaktEntityBase {
   assyDefectDetailId: string
   /** 对应后端字段 assyDefectId */
   assyDefectId: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 defectCategory */
@@ -49,6 +51,8 @@ export interface AssyDefectDetail extends TaktEntityBase {
 export interface AssyDefectDetailQuery extends TaktPagedQuery {
   /** 对应后端字段 assyDefectId */
   assyDefectId?: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 defectCategory */
@@ -93,6 +97,8 @@ export interface AssyDefectDetailQuery extends TaktPagedQuery {
 export interface AssyDefectDetailCreate {
   /** 对应后端字段 assyDefectId */
   assyDefectId: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 defectCategory */

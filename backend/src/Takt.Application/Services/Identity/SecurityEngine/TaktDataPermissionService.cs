@@ -13,7 +13,6 @@
 
 using Takt.Domain.Entities.HumanResource.Organization;
 using Takt.Domain.Entities.Identity;
-using Takt.Domain.Repositories;
 using Takt.Shared.Constants;
 
 namespace Takt.Application.Services.Identity.SecurityEngine;

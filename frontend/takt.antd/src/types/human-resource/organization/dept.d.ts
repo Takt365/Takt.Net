@@ -15,6 +15,8 @@ import type { TaktEntityBase, TaktPagedQuery } from '@/types/common'
 export interface Dept extends TaktEntityBase {
   /** 对应后端字段 deptId */
   deptId: string
+  /** 对应后端字段 companyCode */
+  companyCode: string
   /** 对应后端字段 deptName */
   deptName: string
   /** 对应后端字段 deptCode */
@@ -57,6 +59,8 @@ export interface DeptTree extends Dept {
  * DeptQuery类型（对应后端 Takt.Application.Dtos.HumanResource.Organization.TaktDeptQueryDto）
  */
 export interface DeptQuery extends TaktPagedQuery {
+  /** 对应后端字段 companyCode */
+  companyCode?: string
   /** 对应后端字段 deptName */
   deptName?: string
   /** 对应后端字段 deptCode */
@@ -101,6 +105,8 @@ export interface DeptQuery extends TaktPagedQuery {
  * DeptCreate类型（对应后端 Takt.Application.Dtos.HumanResource.Organization.TaktDeptCreateDto）
  */
 export interface DeptCreate {
+  /** 对应后端字段 companyCode */
+  companyCode: string
   /** 对应后端字段 deptName */
   deptName: string
   /** 对应后端字段 deptCode */

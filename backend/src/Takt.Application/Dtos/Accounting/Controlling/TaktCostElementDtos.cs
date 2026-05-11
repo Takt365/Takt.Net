@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Accounting.Controlling
 // 文件名称：TaktCostElementDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：成本要素表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktCostElementDto : TaktDtosEntityBase
     /// </summary>
     public TaktCostElementDto()
     {
+        CompanyCode = string.Empty;
         CostElementCode = string.Empty;
         CostElementName = string.Empty;
     }
@@ -36,7 +37,7 @@ public partial class TaktCostElementDto : TaktDtosEntityBase
     /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
     /// <summary>
     /// 成本要素编码
     /// </summary>
@@ -215,6 +216,7 @@ public partial class TaktCostElementCreateDto
     /// </summary>
     public TaktCostElementCreateDto()
     {
+        CompanyCode = string.Empty;
         CostElementCode = string.Empty;
         CostElementName = string.Empty;
     }
@@ -222,7 +224,7 @@ public partial class TaktCostElementCreateDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 成本要素编码
@@ -367,6 +369,7 @@ public partial class TaktCostElementTemplateDto
     /// </summary>
     public TaktCostElementTemplateDto()
     {
+        CompanyCode = string.Empty;
         CostElementCode = string.Empty;
         CostElementName = string.Empty;
     }
@@ -374,7 +377,7 @@ public partial class TaktCostElementTemplateDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 成本要素编码
@@ -447,6 +450,7 @@ public partial class TaktCostElementImportDto
     /// </summary>
     public TaktCostElementImportDto()
     {
+        CompanyCode = string.Empty;
         CostElementCode = string.Empty;
         CostElementName = string.Empty;
     }
@@ -454,7 +458,7 @@ public partial class TaktCostElementImportDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 成本要素编码
@@ -528,6 +532,7 @@ public partial class TaktCostElementExportDto
     public TaktCostElementExportDto()
     {
         CreatedAt = DateTime.Now;
+        CompanyCode = string.Empty;
         CostElementCode = string.Empty;
         CostElementName = string.Empty;
     }
@@ -535,7 +540,7 @@ public partial class TaktCostElementExportDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 成本要素编码

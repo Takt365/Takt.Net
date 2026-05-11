@@ -20,7 +20,8 @@ namespace Takt.Domain.Entities.Logistics.Materials;
 /// </summary>
 [SugarTable("takt_logistics_materials_purchase_order_item", "采购订单明细表")]
 [SugarIndex("ix_takt_logistics_materials_purchase_order_item_purchase_order_id", nameof(PurchaseOrderId), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_materials_purchase_order_item_order_line", nameof(PurchaseOrderId), OrderByType.Asc, nameof(LineNumber), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_materials_purchase_order_item_order_line", nameof(PurchaseOrderId), OrderByType.Asc, nameof(LineNumber), OrderByType.Asc, nameof(MaterialCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_materials_purchase_order_item_purchase_order_code", nameof(PurchaseOrderCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_order_item_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_order_item_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktPurchaseOrderItem : TaktEntityBase
@@ -33,7 +34,13 @@ public class TaktPurchaseOrderItem : TaktEntityBase
     public long PurchaseOrderId { get; set; }
 
     /// <summary>
-    /// 行号/项号（订单明细行号，与PurchaseOrderId组成联合唯一索引）
+    /// 采购订单编码（冗余字段，便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "purchase_order_code", ColumnDescription = "采购订单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string PurchaseOrderCode { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 行号/项号（订单明细行号，与PurchaseOrderId和MaterialCode组成联合唯一索引）
     /// </summary>
     [SugarColumn(ColumnName = "line_number", ColumnDescription = "行号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
     public int LineNumber { get; set; } = 0;

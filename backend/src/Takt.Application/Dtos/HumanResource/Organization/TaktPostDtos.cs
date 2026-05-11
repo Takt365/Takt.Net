@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.Organization
 // 文件名称：TaktPostDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：岗位信息表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktPostDto : TaktDtosEntityBase
     /// </summary>
     public TaktPostDto()
     {
+        CompanyCode = string.Empty;
         PostName = string.Empty;
         PostCode = string.Empty;
         PostCategory = string.Empty;
@@ -34,6 +35,10 @@ public partial class TaktPostDto : TaktDtosEntityBase
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long PostId { get; set; } = 0;
 
+    /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string CompanyCode { get; set; }
     /// <summary>
     /// 岗位名称
     /// </summary>
@@ -96,6 +101,10 @@ public partial class TaktPostQueryDto : TaktPagedQuery
 
     // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
+    /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string? CompanyCode { get; set; }
     /// <summary>
     /// 岗位名称
     /// </summary>
@@ -175,10 +184,16 @@ public partial class TaktPostCreateDto
     /// </summary>
     public TaktPostCreateDto()
     {
+        CompanyCode = string.Empty;
         PostName = string.Empty;
         PostCode = string.Empty;
         PostCategory = string.Empty;
     }
+
+        /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 岗位名称
@@ -329,10 +344,16 @@ public partial class TaktPostTemplateDto
     /// </summary>
     public TaktPostTemplateDto()
     {
+        CompanyCode = string.Empty;
         PostName = string.Empty;
         PostCode = string.Empty;
         PostCategory = string.Empty;
     }
+
+        /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 岗位名称
@@ -405,10 +426,16 @@ public partial class TaktPostImportDto
     /// </summary>
     public TaktPostImportDto()
     {
+        CompanyCode = string.Empty;
         PostName = string.Empty;
         PostCode = string.Empty;
         PostCategory = string.Empty;
     }
+
+        /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 岗位名称
@@ -482,10 +509,16 @@ public partial class TaktPostExportDto
     public TaktPostExportDto()
     {
         CreatedAt = DateTime.Now;
+        CompanyCode = string.Empty;
         PostName = string.Empty;
         PostCode = string.Empty;
         PostCategory = string.Empty;
     }
+
+        /// <summary>
+    /// 公司代码
+    /// </summary>
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 岗位名称

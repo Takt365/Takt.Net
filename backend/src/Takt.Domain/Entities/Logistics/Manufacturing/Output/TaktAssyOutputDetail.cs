@@ -25,12 +25,18 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.Output;
 public class TaktAssyOutputDetail : TaktEntityBase
 {
     /// <summary>
-    /// 组立日报ID（主表主键，序列化为string以避免Javascript精度问题）
+    /// 组立日报ID（主表主键,序列化为string以避免Javascript精度问题）
     /// </summary>
     [SugarColumn(ColumnName = "assy_output_id", ColumnDescription = "组立日报ID", ColumnDataType = "bigint", IsNullable = false)]
     [JsonConverter(typeof(ValueToStringConverter))]
     public long AssyOutputId { get; set; }
-
+    
+    /// <summary>
+    /// 生产工单号（冗余字段,便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "prod_order_code", ColumnDescription = "生产工单号", ColumnDataType = "nvarchar", Length = 20, IsNullable = false)]
+    public string ProdOrderCode { get; set; } = string.Empty;
+    
     /// <summary>
     /// 项号（行号）
     /// </summary>

@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.Organization
 // 文件名称：TaktUserDeptService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：部门用户关联表应用服务，提供UserDept管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.HumanResource.Organization;
-using Takt.Application.Services;
 using Takt.Domain.Entities.HumanResource.Organization;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.HumanResource.Organization;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.HumanResource.Organization;
 public class TaktUserDeptService : TaktServiceBase, ITaktUserDeptService
 {
     private readonly ITaktRepository<TaktUserDept> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">UserDept仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktUserDeptService(
         ITaktRepository<TaktUserDept> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -101,9 +97,12 @@ public class TaktUserDeptService : TaktServiceBase, ITaktUserDeptService
     /// <returns>部门用户关联表(UserDept)DTO</returns>
     public async Task<TaktUserDeptDto> CreateUserDeptAsync(TaktUserDeptCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.DeptId, dto.DeptId, null, $"部门用户关联表编码 {dto.DeptId} 已存在");
-
         var entity = dto.Adapt<TaktUserDept>();
+        // 验证DeptId、UserId组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.DeptId == dto.DeptId && x.UserId == dto.UserId);
+        if (!isUnique)
+            throw new TaktBusinessException($"部门用户关联表DeptId、UserId组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetUserDeptByIdAsync(entity.Id)) ?? entity.Adapt<TaktUserDeptDto>();
     }
@@ -120,8 +119,10 @@ public class TaktUserDeptService : TaktServiceBase, ITaktUserDeptService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.userdeptNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.DeptId, dto.DeptId, id, $"部门用户关联表编码 {dto.DeptId} 已存在");
+        // 验证DeptId、UserId组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.DeptId == dto.DeptId && x.UserId == dto.UserId, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"部门用户关联表DeptId、UserId组合已存在");
 
         dto.Adapt(entity, typeof(TaktUserDeptUpdateDto), typeof(TaktUserDept));
         entity.UpdatedAt = DateTime.Now;

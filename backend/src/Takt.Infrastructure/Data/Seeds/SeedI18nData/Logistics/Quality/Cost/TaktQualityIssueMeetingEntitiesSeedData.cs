@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktQualityIssueMeetingEntitiesSeedData.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(AI Auto-Generated)
 // 功能描述：TaktQualityIssueMeeting 实体字段翻译种子数据（自动生成）
 //
@@ -116,117 +116,125 @@ public class TaktQualityIssueMeetingEntitiesSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.qualityissueid", TranslationValue = "ID", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
             new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.qualityissueid", TranslationValue = "ID", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
 
+            // entity.qualityissuemeeting.qualityissuecode
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.qualityissuecode", TranslationValue = "品质问题编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.qualityissuecode", TranslationValue = "品质问题编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.qualityissuecode", TranslationValue = "品质问题编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.qualityissuecode", TranslationValue = "品质问题编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.qualityissuecode", TranslationValue = "品质问题编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.qualityissuecode", TranslationValue = "品质问题编码", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+
             // entity.qualityissuemeeting.linenumber
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
 
             // entity.qualityissuemeeting.directmanpowercostperminute
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.directmanpowercostperminute", TranslationValue = "直接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.directmanpowercostperminute", TranslationValue = "直接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.directmanpowercostperminute", TranslationValue = "直接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.directmanpowercostperminute", TranslationValue = "直接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.directmanpowercostperminute", TranslationValue = "直接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.directmanpowercostperminute", TranslationValue = "直接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.directmanpowercostperminute", TranslationValue = "直接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.directmanpowercostperminute", TranslationValue = "直接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.directmanpowercostperminute", TranslationValue = "直接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.directmanpowercostperminute", TranslationValue = "直接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.directmanpowercostperminute", TranslationValue = "直接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.directmanpowercostperminute", TranslationValue = "直接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
 
             // entity.qualityissuemeeting.indirectmanpowercostperminute
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.indirectmanpowercostperminute", TranslationValue = "间接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.indirectmanpowercostperminute", TranslationValue = "间接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.indirectmanpowercostperminute", TranslationValue = "间接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.indirectmanpowercostperminute", TranslationValue = "间接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.indirectmanpowercostperminute", TranslationValue = "间接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.indirectmanpowercostperminute", TranslationValue = "间接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.indirectmanpowercostperminute", TranslationValue = "间接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.indirectmanpowercostperminute", TranslationValue = "间接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.indirectmanpowercostperminute", TranslationValue = "间接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.indirectmanpowercostperminute", TranslationValue = "间接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.indirectmanpowercostperminute", TranslationValue = "间接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.indirectmanpowercostperminute", TranslationValue = "间接人员费率", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
 
             // entity.qualityissuemeeting.investigationcontent
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.investigationcontent", TranslationValue = "讨论调查试验内容", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.investigationcontent", TranslationValue = "讨论调查试验内容", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.investigationcontent", TranslationValue = "讨论调查试验内容", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.investigationcontent", TranslationValue = "讨论调查试验内容", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.investigationcontent", TranslationValue = "讨论调查试验内容", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.investigationcontent", TranslationValue = "讨论调查试验内容", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.investigationcontent", TranslationValue = "讨论调查试验内容", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.investigationcontent", TranslationValue = "讨论调查试验内容", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.investigationcontent", TranslationValue = "讨论调查试验内容", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.investigationcontent", TranslationValue = "讨论调查试验内容", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.investigationcontent", TranslationValue = "讨论调查试验内容", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.investigationcontent", TranslationValue = "讨论调查试验内容", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
 
             // entity.qualityissuemeeting.investigationcost
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.investigationcost", TranslationValue = "讨论调查试验费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.investigationcost", TranslationValue = "讨论调查试验费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.investigationcost", TranslationValue = "讨论调查试验费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.investigationcost", TranslationValue = "讨论调查试验费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.investigationcost", TranslationValue = "讨论调查试验费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.investigationcost", TranslationValue = "讨论调查试验费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.investigationcost", TranslationValue = "讨论调查试验费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.investigationcost", TranslationValue = "讨论调查试验费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.investigationcost", TranslationValue = "讨论调查试验费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.investigationcost", TranslationValue = "讨论调查试验费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.investigationcost", TranslationValue = "讨论调查试验费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.investigationcost", TranslationValue = "讨论调查试验费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
 
             // entity.qualityissuemeeting.timeminutes
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.timeminutes", TranslationValue = "Time", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.timeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.timeminutes", TranslationValue = "시간", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.timeminutes", TranslationValue = "检讨会使用时间", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.timeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.timeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.timeminutes", TranslationValue = "Time", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.timeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.timeminutes", TranslationValue = "시간", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.timeminutes", TranslationValue = "检讨会使用时间", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.timeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.timeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
 
             // entity.qualityissuemeeting.directparticipantcount
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.directparticipantcount", TranslationValue = "直接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.directparticipantcount", TranslationValue = "直接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.directparticipantcount", TranslationValue = "直接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.directparticipantcount", TranslationValue = "直接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.directparticipantcount", TranslationValue = "直接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.directparticipantcount", TranslationValue = "直接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.directparticipantcount", TranslationValue = "直接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.directparticipantcount", TranslationValue = "直接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.directparticipantcount", TranslationValue = "直接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.directparticipantcount", TranslationValue = "直接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.directparticipantcount", TranslationValue = "直接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.directparticipantcount", TranslationValue = "直接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
 
             // entity.qualityissuemeeting.indirectparticipantcount
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.indirectparticipantcount", TranslationValue = "间接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.indirectparticipantcount", TranslationValue = "间接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.indirectparticipantcount", TranslationValue = "间接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.indirectparticipantcount", TranslationValue = "间接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.indirectparticipantcount", TranslationValue = "间接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.indirectparticipantcount", TranslationValue = "间接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.indirectparticipantcount", TranslationValue = "间接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.indirectparticipantcount", TranslationValue = "间接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.indirectparticipantcount", TranslationValue = "间接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.indirectparticipantcount", TranslationValue = "间接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.indirectparticipantcount", TranslationValue = "间接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.indirectparticipantcount", TranslationValue = "间接人员参加人数", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
 
             // entity.qualityissuemeeting.investigationworktimeminutes
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.investigationworktimeminutes", TranslationValue = "Time", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.investigationworktimeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.investigationworktimeminutes", TranslationValue = "시간", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.investigationworktimeminutes", TranslationValue = "调查评价试验工作时间", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.investigationworktimeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.investigationworktimeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.investigationworktimeminutes", TranslationValue = "Time", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.investigationworktimeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.investigationworktimeminutes", TranslationValue = "시간", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.investigationworktimeminutes", TranslationValue = "调查评价试验工作时间", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.investigationworktimeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.investigationworktimeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
 
             // entity.qualityissuemeeting.travelcost
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.travelcost", TranslationValue = "交通费旅费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.travelcost", TranslationValue = "交通费旅费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.travelcost", TranslationValue = "交通费旅费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.travelcost", TranslationValue = "交通费旅费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.travelcost", TranslationValue = "交通费旅费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.travelcost", TranslationValue = "交通费旅费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.travelcost", TranslationValue = "交通费旅费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.travelcost", TranslationValue = "交通费旅费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.travelcost", TranslationValue = "交通费旅费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.travelcost", TranslationValue = "交通费旅费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.travelcost", TranslationValue = "交通费旅费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.travelcost", TranslationValue = "交通费旅费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
 
             // entity.qualityissuemeeting.otherexpenses
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.otherexpenses", TranslationValue = "其他费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.otherexpenses", TranslationValue = "其他费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.otherexpenses", TranslationValue = "其他费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.otherexpenses", TranslationValue = "其他费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.otherexpenses", TranslationValue = "其他费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.otherexpenses", TranslationValue = "其他费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.otherexpenses", TranslationValue = "其他费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.otherexpenses", TranslationValue = "其他费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.otherexpenses", TranslationValue = "其他费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.otherexpenses", TranslationValue = "其他费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.otherexpenses", TranslationValue = "其他费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.otherexpenses", TranslationValue = "其他费用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
 
             // entity.qualityissuemeeting.otherworktimeminutes
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.otherworktimeminutes", TranslationValue = "Time", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.otherworktimeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.otherworktimeminutes", TranslationValue = "시간", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.otherworktimeminutes", TranslationValue = "其他作业时间", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.otherworktimeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.otherworktimeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.otherworktimeminutes", TranslationValue = "Time", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.otherworktimeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.otherworktimeminutes", TranslationValue = "시간", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.otherworktimeminutes", TranslationValue = "其他作业时间", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.otherworktimeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.otherworktimeminutes", TranslationValue = "時間", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
 
             // entity.qualityissuemeeting.otherapparatuscost
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.otherapparatuscost", TranslationValue = "其他设备工程搬运费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.otherapparatuscost", TranslationValue = "其他设备工程搬运费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.otherapparatuscost", TranslationValue = "其他设备工程搬运费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.otherapparatuscost", TranslationValue = "其他设备工程搬运费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.otherapparatuscost", TranslationValue = "其他设备工程搬运费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.otherapparatuscost", TranslationValue = "其他设备工程搬运费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.otherapparatuscost", TranslationValue = "其他设备工程搬运费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.otherapparatuscost", TranslationValue = "其他设备工程搬运费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.otherapparatuscost", TranslationValue = "其他设备工程搬运费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.otherapparatuscost", TranslationValue = "其他设备工程搬运费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.otherapparatuscost", TranslationValue = "其他设备工程搬运费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.otherapparatuscost", TranslationValue = "其他设备工程搬运费", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
 
             // entity.qualityissuemeeting.recorder
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.recorder", TranslationValue = "品质问题对应记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.recorder", TranslationValue = "品质问题对应记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.recorder", TranslationValue = "品质问题对应记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.recorder", TranslationValue = "品质问题对应记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.recorder", TranslationValue = "品质问题对应记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.recorder", TranslationValue = "品质问题对应记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.qualityissuemeeting.recorder", TranslationValue = "品质问题对应记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.qualityissuemeeting.recorder", TranslationValue = "品质问题对应记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.qualityissuemeeting.recorder", TranslationValue = "品质问题对应记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.qualityissuemeeting.recorder", TranslationValue = "品质问题对应记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.qualityissuemeeting.recorder", TranslationValue = "品质问题对应记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.qualityissuemeeting.recorder", TranslationValue = "品质问题对应记录者", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
         };
     }
 }

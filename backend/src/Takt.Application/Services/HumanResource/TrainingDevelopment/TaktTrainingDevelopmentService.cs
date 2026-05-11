@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.TrainingDevelopment
 // 文件名称：TaktTrainingDevelopmentService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：培训发展表应用服务，提供TrainingDevelopment管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.HumanResource.TrainingDevelopment;
-using Takt.Application.Services;
 using Takt.Domain.Entities.HumanResource.TrainingDevelopment;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.HumanResource.TrainingDevelopment;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.HumanResource.TrainingDevelopment;
 public class TaktTrainingDevelopmentService : TaktServiceBase, ITaktTrainingDevelopmentService
 {
     private readonly ITaktRepository<TaktTrainingDevelopment> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">TrainingDevelopment仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktTrainingDevelopmentService(
         ITaktRepository<TaktTrainingDevelopment> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -101,9 +97,12 @@ public class TaktTrainingDevelopmentService : TaktServiceBase, ITaktTrainingDeve
     /// <returns>培训发展表(TrainingDevelopment)DTO</returns>
     public async Task<TaktTrainingDevelopmentDto> CreateTrainingDevelopmentAsync(TaktTrainingDevelopmentCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.CertificateNo, dto.CertificateNo, null, $"培训发展表编码 {dto.CertificateNo} 已存在");
-
         var entity = dto.Adapt<TaktTrainingDevelopment>();
+        // 验证CertificateNo的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.CertificateNo, dto.CertificateNo);
+        if (!isUnique)
+            throw new TaktBusinessException($"培训发展表CertificateNo {dto.CertificateNo} 已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetTrainingDevelopmentByIdAsync(entity.Id)) ?? entity.Adapt<TaktTrainingDevelopmentDto>();
     }
@@ -120,8 +119,10 @@ public class TaktTrainingDevelopmentService : TaktServiceBase, ITaktTrainingDeve
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.trainingdevelopmentNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.CertificateNo, dto.CertificateNo, id, $"培训发展表编码 {dto.CertificateNo} 已存在");
+        // 验证CertificateNo的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.CertificateNo, dto.CertificateNo, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"培训发展表CertificateNo {dto.CertificateNo} 已存在");
 
         dto.Adapt(entity, typeof(TaktTrainingDevelopmentUpdateDto), typeof(TaktTrainingDevelopment));
         entity.UpdatedAt = DateTime.Now;

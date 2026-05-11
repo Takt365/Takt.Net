@@ -19,9 +19,7 @@ namespace Takt.Domain.Entities.Logistics.Materials;
 /// Takt采购申请实体
 /// </summary>
 [SugarTable("takt_logistics_materials_purchase_request", "采购申请表")]
-[SugarIndex("ix_takt_logistics_materials_purchase_request_plant_code", nameof(PlantCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_materials_purchase_request_request_code", nameof(RequestCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_materials_purchase_request_pr_unique", nameof(PlantCode), OrderByType.Asc, nameof(RequestCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_materials_purchase_request_pr_unique", nameof(PlantCode), OrderByType.Asc, nameof(PurchaseRequestCode), OrderByType.Asc, nameof(RequestDate), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_materials_purchase_request_request_date", nameof(RequestDate), OrderByType.Desc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_request_request_status", nameof(RequestStatus), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_materials_purchase_request_request_by", nameof(RequestBy), OrderByType.Asc)]
@@ -32,16 +30,16 @@ namespace Takt.Domain.Entities.Logistics.Materials;
 public class TaktPurchaseRequest : TaktEntityBase
 {
     /// <summary>
-    /// 工厂代码
+    /// 工厂代码（不可空）
     /// </summary>
-    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? PlantCode { get; set; }
+    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string PlantCode { get; set; } = string.Empty;
 
     /// <summary>
-    /// 申请编码（唯一索引）
+    /// 采购申请编码（唯一索引）
     /// </summary>
-    [SugarColumn(ColumnName = "request_code", ColumnDescription = "申请编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
-    public string RequestCode { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "purchase_request_code", ColumnDescription = "采购申请编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string PurchaseRequestCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 申请日期

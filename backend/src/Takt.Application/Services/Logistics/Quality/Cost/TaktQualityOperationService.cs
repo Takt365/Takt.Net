@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Quality.Cost
 // 文件名称：TaktQualityOperationService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：品质业务主表应用服务，提供QualityOperation管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Quality.Cost;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Quality.Cost;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Quality.Cost;
 
@@ -29,6 +21,7 @@ namespace Takt.Application.Services.Logistics.Quality.Cost;
 public class TaktQualityOperationService : TaktServiceBase, ITaktQualityOperationService
 {
     private readonly ITaktRepository<TaktQualityOperation> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktQualityOperationIncoming> _qualityOperationIncomingRepository;
     private readonly ITaktRepository<TaktQualityOperationFirstArticle> _qualityOperationFirstArticleRepository;
     private readonly ITaktRepository<TaktQualityOperationCalibration> _qualityOperationCalibrationRepository;
@@ -41,6 +34,7 @@ public class TaktQualityOperationService : TaktServiceBase, ITaktQualityOperatio
     /// 构造函数
     /// </summary>
     /// <param name="repository">QualityOperation仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="qualityOperationIncomingRepository">QualityOperationIncoming仓储</param>
     /// <param name="qualityOperationFirstArticleRepository">QualityOperationFirstArticle仓储</param>
     /// <param name="qualityOperationCalibrationRepository">QualityOperationCalibration仓储</param>
@@ -53,6 +47,7 @@ public class TaktQualityOperationService : TaktServiceBase, ITaktQualityOperatio
     /// <param name="localizer">本地化器（可选）</param>
     public TaktQualityOperationService(
         ITaktRepository<TaktQualityOperation> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktQualityOperationIncoming> qualityOperationIncomingRepository,
         ITaktRepository<TaktQualityOperationFirstArticle> qualityOperationFirstArticleRepository,
         ITaktRepository<TaktQualityOperationCalibration> qualityOperationCalibrationRepository,
@@ -66,6 +61,7 @@ public class TaktQualityOperationService : TaktServiceBase, ITaktQualityOperatio
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _qualityOperationIncomingRepository = qualityOperationIncomingRepository;
         _qualityOperationFirstArticleRepository = qualityOperationFirstArticleRepository;
         _qualityOperationCalibrationRepository = qualityOperationCalibrationRepository;
@@ -148,9 +144,12 @@ public class TaktQualityOperationService : TaktServiceBase, ITaktQualityOperatio
     /// <returns>品质业务主表(QualityOperation)DTO</returns>
     public async Task<TaktQualityOperationDto> CreateQualityOperationAsync(TaktQualityOperationCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.OperationNo, dto.OperationNo, null, $"品质业务主表编码 {dto.OperationNo} 已存在");
-
         var entity = dto.Adapt<TaktQualityOperation>();
+        // 验证工厂编码、QualityOperationCode、OperationMonth、CustomerName、DebitNoteNo组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.QualityOperationCode == dto.QualityOperationCode && x.OperationMonth == dto.OperationMonth && x.CustomerName == dto.CustomerName && x.DebitNoteNo == dto.DebitNoteNo);
+        if (!isUnique)
+            throw new TaktBusinessException($"品质业务主表工厂编码、QualityOperationCode、OperationMonth、CustomerName、DebitNoteNo组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -243,8 +242,10 @@ public class TaktQualityOperationService : TaktServiceBase, ITaktQualityOperatio
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.qualityoperationNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.OperationNo, dto.OperationNo, id, $"品质业务主表编码 {dto.OperationNo} 已存在");
+        // 验证工厂编码、QualityOperationCode、OperationMonth、CustomerName、DebitNoteNo组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.QualityOperationCode == dto.QualityOperationCode && x.OperationMonth == dto.OperationMonth && x.CustomerName == dto.CustomerName && x.DebitNoteNo == dto.DebitNoteNo, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"品质业务主表工厂编码、QualityOperationCode、OperationMonth、CustomerName、DebitNoteNo组合已存在");
 
         dto.Adapt(entity, typeof(TaktQualityOperationUpdateDto), typeof(TaktQualityOperation));
         entity.UpdatedAt = DateTime.Now;
@@ -761,7 +762,7 @@ public class TaktQualityOperationService : TaktServiceBase, ITaktQualityOperatio
         {
             exp = exp.And(x =>
                 x.PlantCode!.Contains(queryDto.KeyWords) ||
-                x.OperationNo!.Contains(queryDto.KeyWords) ||
+                x.QualityOperationCode!.Contains(queryDto.KeyWords) ||
                 x.OperationMonth!.Contains(queryDto.KeyWords) ||
                 x.CustomerName!.Contains(queryDto.KeyWords) ||
                 x.DebitNoteNo!.Contains(queryDto.KeyWords) ||
@@ -778,9 +779,9 @@ public class TaktQualityOperationService : TaktServiceBase, ITaktQualityOperatio
             exp = exp.And(x => x.PlantCode!.Contains(queryDto.PlantCode));
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.OperationNo))
+        if (!string.IsNullOrEmpty(queryDto?.QualityOperationCode))
         {
-            exp = exp.And(x => x.OperationNo!.Contains(queryDto.OperationNo));
+            exp = exp.And(x => x.QualityOperationCode!.Contains(queryDto.QualityOperationCode));
         }
 
         if (!string.IsNullOrEmpty(queryDto?.OperationMonth))

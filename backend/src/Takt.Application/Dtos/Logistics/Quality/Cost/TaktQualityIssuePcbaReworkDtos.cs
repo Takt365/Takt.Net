@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Quality.Cost
 // 文件名称：TaktQualityIssuePcbaReworkDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：质量问题PCBA不良改修费用明细表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -18,6 +18,14 @@ namespace Takt.Application.Dtos.Logistics.Quality.Cost;
 public partial class TaktQualityIssuePcbaReworkDto : TaktDtosEntityBase
 {
     /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktQualityIssuePcbaReworkDto()
+    {
+        QualityIssueCode = string.Empty;
+    }
+
+    /// <summary>
     /// 质量问题PCBA不良改修费用明细表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
@@ -29,6 +37,10 @@ public partial class TaktQualityIssuePcbaReworkDto : TaktDtosEntityBase
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long QualityIssueId { get; set; }
+    /// <summary>
+    /// 品质问题编码
+    /// </summary>
+    public string QualityIssueCode { get; set; }
     /// <summary>
     /// 项号
     /// </summary>
@@ -115,6 +127,10 @@ public partial class TaktQualityIssuePcbaReworkQueryDto : TaktPagedQuery
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? QualityIssueId { get; set; }
+    /// <summary>
+    /// 品质问题编码
+    /// </summary>
+    public string? QualityIssueCode { get; set; }
     /// <summary>
     /// 项号
     /// </summary>
@@ -212,11 +228,24 @@ public partial class TaktQualityIssuePcbaReworkQueryDto : TaktPagedQuery
 /// </summary>
 public partial class TaktQualityIssuePcbaReworkCreateDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktQualityIssuePcbaReworkCreateDto()
+    {
+        QualityIssueCode = string.Empty;
+    }
+
         /// <summary>
     /// 品质问题主表ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long QualityIssueId { get; set; }
+
+        /// <summary>
+    /// 品质问题编码
+    /// </summary>
+    public string QualityIssueCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -330,10 +359,23 @@ public partial class TaktQualityIssuePcbaReworkUpdateDto : TaktQualityIssuePcbaR
 /// </summary>
 public partial class TaktQualityIssuePcbaReworkTemplateDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktQualityIssuePcbaReworkTemplateDto()
+    {
+        QualityIssueCode = string.Empty;
+    }
+
         /// <summary>
     /// 品质问题主表ID
     /// </summary>
     public long QualityIssueId { get; set; }
+
+        /// <summary>
+    /// 品质问题编码
+    /// </summary>
+    public string QualityIssueCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -426,10 +468,23 @@ public partial class TaktQualityIssuePcbaReworkTemplateDto
 /// </summary>
 public partial class TaktQualityIssuePcbaReworkImportDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktQualityIssuePcbaReworkImportDto()
+    {
+        QualityIssueCode = string.Empty;
+    }
+
         /// <summary>
     /// 品质问题主表ID
     /// </summary>
     public long QualityIssueId { get; set; }
+
+        /// <summary>
+    /// 品质问题编码
+    /// </summary>
+    public string QualityIssueCode { get; set; }
 
         /// <summary>
     /// 项号
@@ -528,12 +583,18 @@ public partial class TaktQualityIssuePcbaReworkExportDto
     public TaktQualityIssuePcbaReworkExportDto()
     {
         CreatedAt = DateTime.Now;
+        QualityIssueCode = string.Empty;
     }
 
         /// <summary>
     /// 品质问题主表ID
     /// </summary>
     public long QualityIssueId { get; set; }
+
+        /// <summary>
+    /// 品质问题编码
+    /// </summary>
+    public string QualityIssueCode { get; set; }
 
         /// <summary>
     /// 项号

@@ -882,18 +882,17 @@ public class TaktMenuLevel3SeedData
         // ========== 质量管理下的三级菜单（6.后勤-质量）==========
         if (logisticsQualityMenu != null)
         {
-            // 抽样方案
-            var (insert10, update10) = await CreateOrUpdateMenuAsync(menuRepository, "LOGISTICS_QUALITY_SAMPLING_SCHEME", menu =>
+            // 品质成本（目录）
+            var (insert10, update10) = await CreateOrUpdateMenuAsync(menuRepository, "LOGISTICS_QUALITY_COST", menu =>
             {
-                menu.MenuName = "抽样方案";
-                menu.MenuCode = "LOGISTICS_QUALITY_SAMPLING_SCHEME";
-                menu.MenuL10nKey = "menu.logistics.quality.samplingscheme";
-                menu.MenuIcon = "RiFlaskLine";
+                menu.MenuName = "品质成本";
+                menu.MenuCode = "LOGISTICS_QUALITY_COST";
+                menu.MenuL10nKey = "menu.logistics.quality.cost._self";
+                menu.MenuIcon = "RiMoneyDollarCircleLine";
                 menu.ParentId = logisticsQualityMenu.Id;
-                menu.MenuType = 1; // 页面
-                menu.Permission = "logistics:quality:samplingscheme:list";
-                menu.Path = "/logistics/quality/sampling-scheme";
-                menu.Component = "logistics/quality/sampling-scheme/index";
+                menu.MenuType = 0; // 目录
+                menu.Path = "/logistics/quality/cost";
+                menu.Component = null;
                 menu.SortOrder = 1;
                 menu.MenuStatus = 1;
                 menu.IsVisible = 1;
@@ -902,6 +901,26 @@ public class TaktMenuLevel3SeedData
             });
             insertCount += insert10;
             updateCount += update10;
+
+            // 质量业务（目录）
+            var (insert11, update11) = await CreateOrUpdateMenuAsync(menuRepository, "LOGISTICS_QUALITY_OPERATION", menu =>
+            {
+                menu.MenuName = "质量业务";
+                menu.MenuCode = "LOGISTICS_QUALITY_OPERATION";
+                menu.MenuL10nKey = "menu.logistics.quality.operation._self";
+                menu.MenuIcon = "RiClipboardLine";
+                menu.ParentId = logisticsQualityMenu.Id;
+                menu.MenuType = 0; // 目录
+                menu.Path = "/logistics/quality/operation";
+                menu.Component = null;
+                menu.SortOrder = 2;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insert11;
+            updateCount += update11;
         }
 
         // ========== 组织管理下的三级菜单（8.人力资源-组织）==========
@@ -1873,6 +1892,27 @@ public class TaktMenuLevel3SeedData
             });
             insertCount += insertServerMonitor;
             updateCount += updateServerMonitor;
+
+            // 事件总线
+            var (insertEventBus, updateEventBus) = await CreateOrUpdateMenuAsync(menuRepository, "LOGGING_EVENT_BUS", menu =>
+            {
+                menu.MenuName = "事件总线";
+                menu.MenuCode = "LOGGING_EVENT_BUS";
+                menu.MenuL10nKey = "menu.statistics.logging.eventbus";
+                menu.MenuIcon = "RiRouterLine";
+                menu.ParentId = statisticsLoggingMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "statistics:logging:eventbus:list";
+                menu.Path = "/statistics/logging/event-bus";
+                menu.Component = "statistics/logging/event-bus/index";
+                menu.SortOrder = 6;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insertEventBus;
+            updateCount += updateEventBus;
         }
 
         // ========== 统计报表下的三级菜单（10.统计-报表）==========

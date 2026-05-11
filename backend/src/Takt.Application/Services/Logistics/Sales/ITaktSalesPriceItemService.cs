@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Logistics.Sales
 // 文件名称：ITaktSalesPriceItemService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：销售价格明细表应用服务接口（主子表），定义SalesPriceItem管理的业务操作
 // 
@@ -68,13 +68,6 @@ public interface ITaktSalesPriceItemService
     /// <param name="ids">销售价格明细表(SalesPriceItem)ID列表</param>
     /// <returns>任务</returns>
     Task DeleteSalesPriceItemBatchAsync(IEnumerable<long> ids);
-
-    /// <summary>
-    /// 更新销售价格明细表(SalesPriceItem)排序
-    /// </summary>
-    /// <param name="dto">销售价格明细表(SalesPriceItem)排序DTO</param>
-    /// <returns>销售价格明细表(SalesPriceItem)DTO</returns>
-    Task<TaktSalesPriceItemDto> UpdateSalesPriceItemSortAsync(TaktSalesPriceItemSortDto dto);
 
     /// <summary>
     /// 获取导入模板

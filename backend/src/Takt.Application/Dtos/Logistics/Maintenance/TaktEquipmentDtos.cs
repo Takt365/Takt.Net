@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Maintenance
 // 文件名称：TaktEquipmentDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：工厂设备表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktEquipmentDto : TaktDtosEntityBase
     /// </summary>
     public TaktEquipmentDto()
     {
+        PlantCode = string.Empty;
         EquipmentCode = string.Empty;
         EquipmentName = string.Empty;
     }
@@ -33,6 +34,10 @@ public partial class TaktEquipmentDto : TaktDtosEntityBase
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EquipmentId { get; set; } = 0;
 
+    /// <summary>
+    /// 工厂代码
+    /// </summary>
+    public string PlantCode { get; set; }
     /// <summary>
     /// 设备编码
     /// </summary>
@@ -166,6 +171,10 @@ public partial class TaktEquipmentQueryDto : TaktPagedQuery
 
     // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
+    /// <summary>
+    /// 工厂代码
+    /// </summary>
+    public string? PlantCode { get; set; }
     /// <summary>
     /// 设备编码
     /// </summary>
@@ -365,9 +374,15 @@ public partial class TaktEquipmentCreateDto
     /// </summary>
     public TaktEquipmentCreateDto()
     {
+        PlantCode = string.Empty;
         EquipmentCode = string.Empty;
         EquipmentName = string.Empty;
     }
+
+        /// <summary>
+    /// 工厂代码
+    /// </summary>
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 设备编码
@@ -607,9 +622,15 @@ public partial class TaktEquipmentTemplateDto
     /// </summary>
     public TaktEquipmentTemplateDto()
     {
+        PlantCode = string.Empty;
         EquipmentCode = string.Empty;
         EquipmentName = string.Empty;
     }
+
+        /// <summary>
+    /// 工厂代码
+    /// </summary>
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 设备编码
@@ -772,9 +793,15 @@ public partial class TaktEquipmentImportDto
     /// </summary>
     public TaktEquipmentImportDto()
     {
+        PlantCode = string.Empty;
         EquipmentCode = string.Empty;
         EquipmentName = string.Empty;
     }
+
+        /// <summary>
+    /// 工厂代码
+    /// </summary>
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 设备编码
@@ -938,9 +965,15 @@ public partial class TaktEquipmentExportDto
     public TaktEquipmentExportDto()
     {
         CreatedAt = DateTime.Now;
+        PlantCode = string.Empty;
         EquipmentCode = string.Empty;
         EquipmentName = string.Empty;
     }
+
+        /// <summary>
+    /// 工厂代码
+    /// </summary>
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 设备编码

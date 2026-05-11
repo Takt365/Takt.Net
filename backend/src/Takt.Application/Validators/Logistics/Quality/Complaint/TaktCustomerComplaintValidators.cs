@@ -1,0 +1,158 @@
+// ========================================
+// 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
+// 命名空间：Takt.Application.Validators.Logistics.Quality.Complaint
+// 文件名称：TaktCustomerComplaintValidators.cs
+// 创建时间：2026-05-11
+// 创建人：Takt365(AI Auto-Generated)
+// 功能描述：CustomerComplaint DTO 验证器（根据实体 TaktCustomerComplaint 自动生成）
+// 
+// 版权信息：Copyright (c) 2025 Takt  All rights reserved.
+// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
+// ========================================
+
+using FluentValidation;
+using Takt.Application.Dtos.Logistics.Quality.Complaint;
+
+namespace Takt.Application.Validators.Logistics.Quality.Complaint;
+
+/// <summary>
+/// CustomerComplaint创建 DTO 验证器（与 <see cref="Takt.Domain.Entities.Logistics.Quality.Complaint.TaktCustomerComplaint"/> 字段对齐）。
+/// </summary>
+/// <remarks>
+/// 验证规则：
+/// <list type="bullet">
+///   <item>必填验证：根据实体字段的 IsNullable 特性自动生成</item>
+///   <item>长度验证：根据实体字段的 Length 特性自动生成</item>
+///   <item>格式验证：Email、Phone、IdCard 等特殊字段自动添加正则验证</item>
+/// </list>
+/// </remarks>
+public class TaktCustomerComplaintCreateDtoValidator : AbstractValidator<TaktCustomerComplaintCreateDto>
+{
+    /// <summary>
+    /// 验证消息格式化器
+    /// </summary>
+    private readonly ITaktValidationMessages _validationMessages;
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="validationMessages">验证消息格式化器</param>
+    public TaktCustomerComplaintCreateDtoValidator(ITaktValidationMessages validationMessages)
+    {
+        _validationMessages = validationMessages;
+        RuleFor(x => x.CompanyCode)
+            .NotEmpty().WithMessage(_validationMessages.Required("entity.customercomplaint.companycode"))
+            .Must(TaktRegexHelper.IsValidCompanyCode).WithMessage(_validationMessages.FormatInvalid("entity.customercomplaint.companycode"));
+
+        RuleFor(x => x.CustomerComplaintCode)
+            .NotEmpty().WithMessage(_validationMessages.Required("entity.customercomplaint.customercomplaintcode"))
+            .Length(1, 50).WithMessage(_validationMessages.LengthBetween("entity.customercomplaint.customercomplaintcode", 1, 50));
+
+        RuleFor(x => x.CustomerName)
+            .NotEmpty().WithMessage(_validationMessages.Required("entity.customercomplaint.customername"))
+            .Length(1, 200).WithMessage(_validationMessages.LengthBetween("entity.customercomplaint.customername", 1, 200));
+
+        RuleFor(x => x.CustomerCode)
+            .MaximumLength(50).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.customercode", 50))
+            .When(x => !string.IsNullOrWhiteSpace(x.CustomerCode));
+
+        RuleFor(x => x.ComplaintMethod)
+            .InclusiveBetween(0, 4)
+            .WithMessage(_validationMessages.FormatInvalid("entity.customercomplaint.complaintmethod"));
+
+        RuleFor(x => x.ComplaintType)
+            .InclusiveBetween(0, 4)
+            .WithMessage(_validationMessages.FormatInvalid("entity.customercomplaint.complainttype"));
+
+        RuleFor(x => x.ComplaintLevel)
+            .InclusiveBetween(0, 3)
+            .WithMessage(_validationMessages.FormatInvalid("entity.customercomplaint.complaintlevel"));
+
+        RuleFor(x => x.ResponsibleDeptName)
+            .MaximumLength(100).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.responsibledeptname", 100))
+            .When(x => !string.IsNullOrWhiteSpace(x.ResponsibleDeptName));
+
+        RuleFor(x => x.ResponsiblePersonName)
+            .MaximumLength(50).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.responsiblepersonname", 50))
+            .When(x => !string.IsNullOrWhiteSpace(x.ResponsiblePersonName));
+
+        RuleFor(x => x.ComplaintStatus)
+            .InclusiveBetween(0, 4)
+            .WithMessage(_validationMessages.FormatInvalid("entity.customercomplaint.complaintstatus"));
+
+        RuleFor(x => x.ComplaintDescription)
+            .NotEmpty().WithMessage(_validationMessages.Required("entity.customercomplaint.complaintdescription"))
+            .Length(1, 2000).WithMessage(_validationMessages.LengthBetween("entity.customercomplaint.complaintdescription", 1, 2000));
+
+        RuleFor(x => x.HandlingResult)
+            .MaximumLength(2000).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.handlingresult", 2000))
+            .When(x => !string.IsNullOrWhiteSpace(x.HandlingResult));
+
+        RuleFor(x => x.RelatedPlant)
+            .MaximumLength(50).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.relatedplant", 50))
+            .When(x => !string.IsNullOrWhiteSpace(x.RelatedPlant));
+    }
+}
+
+/// <summary>
+/// CustomerComplaint更新 DTO 验证器。
+/// </summary>
+/// <remarks>
+/// 继承 <see cref="TaktCustomerComplaintCreateDtoValidator"/> 的所有验证规则，并额外验证：
+/// <list type="bullet">
+///   <item>CustomerComplaintId 必须大于 0</item>
+/// </list>
+/// </remarks>
+public class TaktCustomerComplaintUpdateDtoValidator : AbstractValidator<TaktCustomerComplaintUpdateDto>
+{
+    /// <summary>
+    /// 验证消息格式化器
+    /// </summary>
+    private readonly ITaktValidationMessages _validationMessages;
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="validationMessages">验证消息格式化器</param>
+    public TaktCustomerComplaintUpdateDtoValidator(ITaktValidationMessages validationMessages)
+    {
+        _validationMessages = validationMessages;
+        Include(new TaktCustomerComplaintCreateDtoValidator(validationMessages));
+
+        RuleFor(x => x.CustomerComplaintId)
+            .GreaterThan(0)
+            .WithMessage(_validationMessages.Required("entity.customercomplaint.customercomplaintid"));
+
+        RuleFor(x => x.CustomerComplaintCode)
+            .MaximumLength(50).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.customercomplaintcode", 50))
+            .When(x => !string.IsNullOrWhiteSpace(x.CustomerComplaintCode));
+
+        RuleFor(x => x.CustomerName)
+            .MaximumLength(200).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.customername", 200))
+            .When(x => !string.IsNullOrWhiteSpace(x.CustomerName));
+
+        RuleFor(x => x.CustomerCode)
+            .MaximumLength(50).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.customercode", 50))
+            .When(x => !string.IsNullOrWhiteSpace(x.CustomerCode));
+
+        RuleFor(x => x.ResponsibleDeptName)
+            .MaximumLength(100).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.responsibledeptname", 100))
+            .When(x => !string.IsNullOrWhiteSpace(x.ResponsibleDeptName));
+
+        RuleFor(x => x.ResponsiblePersonName)
+            .MaximumLength(50).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.responsiblepersonname", 50))
+            .When(x => !string.IsNullOrWhiteSpace(x.ResponsiblePersonName));
+
+        RuleFor(x => x.ComplaintDescription)
+            .MaximumLength(2000).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.complaintdescription", 2000))
+            .When(x => !string.IsNullOrWhiteSpace(x.ComplaintDescription));
+
+        RuleFor(x => x.HandlingResult)
+            .MaximumLength(2000).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.handlingresult", 2000))
+            .When(x => !string.IsNullOrWhiteSpace(x.HandlingResult));
+
+        RuleFor(x => x.RelatedPlant)
+            .MaximumLength(50).WithMessage(_validationMessages.LengthMax("entity.customercomplaint.relatedplant", 50))
+            .When(x => !string.IsNullOrWhiteSpace(x.RelatedPlant));
+    }
+}

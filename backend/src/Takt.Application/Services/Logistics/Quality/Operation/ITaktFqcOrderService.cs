@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Logistics.Quality.Operation
 // 文件名称：ITaktFqcOrderService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：出货检验单表应用服务接口（主子表），定义FqcOrder管理的业务操作
 // 
@@ -70,11 +70,11 @@ public interface ITaktFqcOrderService
     Task DeleteFqcOrderBatchAsync(IEnumerable<long> ids);
 
     /// <summary>
-    /// 更新出货检验单表(FqcOrder)OrderStatus
+    /// 更新出货检验单表(FqcOrder)JudgeStatus
     /// </summary>
-    /// <param name="dto">出货检验单表(FqcOrder)OrderStatusDTO</param>
+    /// <param name="dto">出货检验单表(FqcOrder)JudgeStatusDTO</param>
     /// <returns>出货检验单表(FqcOrder)DTO</returns>
-    Task<TaktFqcOrderDto> UpdateFqcOrderOrderStatusAsync(TaktFqcOrderOrderStatusDto dto);
+    Task<TaktFqcOrderDto> UpdateFqcOrderJudgeStatusAsync(TaktFqcOrderJudgeStatusDto dto);
 
     /// <summary>
     /// 获取导入模板

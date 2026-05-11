@@ -19,7 +19,7 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.EngineeringChange;
 /// 设变（ECN）主表实体。FlowInstanceId 存流程实例 Id，由业务方在发起流程后写入；流程引擎不识别本表，BusinessKey/BusinessType 与“设变”的对应由调用方（设变业务模块）约定并实现。联络等文档见附件表 Attachments。
 /// </summary>
 [SugarTable("takt_logistics_manufacturing_ecn", "设变主表")]
-[SugarIndex("ix_takt_logistics_manufacturing_ecn_ecn_no", nameof(EcnNo), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_manufacturing_ecn_plant_ecn_no_unique", nameof(PlantCode), OrderByType.Asc, nameof(EcnNo), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_manufacturing_ecn_plant_code", nameof(PlantCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_ecn_ecn_issue_date", nameof(EcnIssueDate), OrderByType.Desc)]
 [SugarIndex("ix_takt_logistics_manufacturing_ecn_ecn_entry_date", nameof(EcnEntryDate), OrderByType.Desc)]

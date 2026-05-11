@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Manufacturing.Bom
 // 文件名称：TaktPackagingService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：物料包装信息表应用服务，提供Packaging管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Manufacturing.Bom;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Manufacturing.Bom;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Manufacturing.Bom;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Logistics.Manufacturing.Bom;
 public class TaktPackagingService : TaktServiceBase, ITaktPackagingService
 {
     private readonly ITaktRepository<TaktPackaging> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">Packaging仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktPackagingService(
         ITaktRepository<TaktPackaging> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -101,9 +97,12 @@ public class TaktPackagingService : TaktServiceBase, ITaktPackagingService
     /// <returns>物料包装信息表(Packaging)DTO</returns>
     public async Task<TaktPackagingDto> CreatePackagingAsync(TaktPackagingCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.MaterialCode, dto.MaterialCode, null, $"物料包装信息表编码 {dto.MaterialCode} 已存在");
-
         var entity = dto.Adapt<TaktPackaging>();
+        // 验证MaterialCode的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.MaterialCode, dto.MaterialCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"物料包装信息表MaterialCode {dto.MaterialCode} 已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetPackagingByIdAsync(entity.Id)) ?? entity.Adapt<TaktPackagingDto>();
     }
@@ -120,8 +119,10 @@ public class TaktPackagingService : TaktServiceBase, ITaktPackagingService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.packagingNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.MaterialCode, dto.MaterialCode, id, $"物料包装信息表编码 {dto.MaterialCode} 已存在");
+        // 验证MaterialCode的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.MaterialCode, dto.MaterialCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"物料包装信息表MaterialCode {dto.MaterialCode} 已存在");
 
         dto.Adapt(entity, typeof(TaktPackagingUpdateDto), typeof(TaktPackaging));
         entity.UpdatedAt = DateTime.Now;

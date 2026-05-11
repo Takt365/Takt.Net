@@ -17,6 +17,8 @@ export interface QualityIssuePcbaRework extends TaktEntityBase {
   qualityIssuePcbaReworkId: string
   /** 对应后端字段 qualityIssueId */
   qualityIssueId: string
+  /** 对应后端字段 qualityIssueCode */
+  qualityIssueCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 pcbaDefectParts */
@@ -57,6 +59,8 @@ export interface QualityIssuePcbaRework extends TaktEntityBase {
 export interface QualityIssuePcbaReworkQuery extends TaktPagedQuery {
   /** 对应后端字段 qualityIssueId */
   qualityIssueId?: string
+  /** 对应后端字段 qualityIssueCode */
+  qualityIssueCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 pcbaDefectParts */
@@ -109,6 +113,8 @@ export interface QualityIssuePcbaReworkQuery extends TaktPagedQuery {
 export interface QualityIssuePcbaReworkCreate {
   /** 对应后端字段 qualityIssueId */
   qualityIssueId: string
+  /** 对应后端字段 qualityIssueCode */
+  qualityIssueCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 pcbaDefectParts */

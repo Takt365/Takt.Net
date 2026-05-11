@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Code.Generator
 // 文件名称：TaktGenTableDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：代码生成表配置表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktGenTableDto : TaktDtosEntityBase
     /// </summary>
     public TaktGenTableDto()
     {
+        DataSource = string.Empty;
         TableName = string.Empty;
         GenTemplateCategory = string.Empty;
         GenBusinessName = string.Empty;
@@ -43,7 +44,7 @@ public partial class TaktGenTableDto : TaktDtosEntityBase
     /// <summary>
     /// 数据源
     /// </summary>
-    public string? DataSource { get; set; }
+    public string DataSource { get; set; }
     /// <summary>
     /// 表名称
     /// </summary>
@@ -481,6 +482,7 @@ public partial class TaktGenTableCreateDto
     /// </summary>
     public TaktGenTableCreateDto()
     {
+        DataSource = string.Empty;
         TableName = string.Empty;
         GenTemplateCategory = string.Empty;
         GenBusinessName = string.Empty;
@@ -495,7 +497,7 @@ public partial class TaktGenTableCreateDto
         /// <summary>
     /// 数据源
     /// </summary>
-    public string? DataSource { get; set; }
+    public string DataSource { get; set; }
 
         /// <summary>
     /// 表名称
@@ -776,6 +778,7 @@ public partial class TaktGenTableTemplateDto
     /// </summary>
     public TaktGenTableTemplateDto()
     {
+        DataSource = string.Empty;
         TableName = string.Empty;
         GenTemplateCategory = string.Empty;
         GenBusinessName = string.Empty;
@@ -790,7 +793,7 @@ public partial class TaktGenTableTemplateDto
         /// <summary>
     /// 数据源
     /// </summary>
-    public string? DataSource { get; set; }
+    public string DataSource { get; set; }
 
         /// <summary>
     /// 表名称
@@ -1043,6 +1046,7 @@ public partial class TaktGenTableImportDto
     /// </summary>
     public TaktGenTableImportDto()
     {
+        DataSource = string.Empty;
         TableName = string.Empty;
         GenTemplateCategory = string.Empty;
         GenBusinessName = string.Empty;
@@ -1057,7 +1061,7 @@ public partial class TaktGenTableImportDto
         /// <summary>
     /// 数据源
     /// </summary>
-    public string? DataSource { get; set; }
+    public string DataSource { get; set; }
 
         /// <summary>
     /// 表名称
@@ -1311,6 +1315,7 @@ public partial class TaktGenTableExportDto
     public TaktGenTableExportDto()
     {
         CreatedAt = DateTime.Now;
+        DataSource = string.Empty;
         TableName = string.Empty;
         GenTemplateCategory = string.Empty;
         GenBusinessName = string.Empty;
@@ -1325,7 +1330,7 @@ public partial class TaktGenTableExportDto
         /// <summary>
     /// 数据源
     /// </summary>
-    public string? DataSource { get; set; }
+    public string DataSource { get; set; }
 
         /// <summary>
     /// 表名称

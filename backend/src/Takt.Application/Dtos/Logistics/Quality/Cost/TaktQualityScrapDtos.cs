@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Quality.Cost
 // 文件名称：TaktQualityScrapDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：品质废弃主表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -23,7 +23,7 @@ public partial class TaktQualityScrapDto : TaktDtosEntityBase
     public TaktQualityScrapDto()
     {
         PlantCode = string.Empty;
-        ScrapNo = string.Empty;
+        QualityScrapCode = string.Empty;
         Model = string.Empty;
         CostCurrency = string.Empty;
     }
@@ -40,9 +40,9 @@ public partial class TaktQualityScrapDto : TaktDtosEntityBase
     /// </summary>
     public string PlantCode { get; set; }
     /// <summary>
-    /// 废弃单号
+    /// 品质废弃编码
     /// </summary>
-    public string ScrapNo { get; set; }
+    public string QualityScrapCode { get; set; }
     /// <summary>
     /// 废弃日期
     /// </summary>
@@ -97,9 +97,9 @@ public partial class TaktQualityScrapQueryDto : TaktPagedQuery
     /// </summary>
     public string? PlantCode { get; set; }
     /// <summary>
-    /// 废弃单号
+    /// 品质废弃编码
     /// </summary>
-    public string? ScrapNo { get; set; }
+    public string? QualityScrapCode { get; set; }
     /// <summary>
     /// 废弃日期
     /// </summary>
@@ -180,7 +180,7 @@ public partial class TaktQualityScrapCreateDto
     public TaktQualityScrapCreateDto()
     {
         PlantCode = string.Empty;
-        ScrapNo = string.Empty;
+        QualityScrapCode = string.Empty;
         Model = string.Empty;
         CostCurrency = string.Empty;
     }
@@ -191,9 +191,9 @@ public partial class TaktQualityScrapCreateDto
     public string PlantCode { get; set; }
 
         /// <summary>
-    /// 废弃单号
+    /// 品质废弃编码
     /// </summary>
-    public string ScrapNo { get; set; }
+    public string QualityScrapCode { get; set; }
 
         /// <summary>
     /// 废弃日期
@@ -279,7 +279,7 @@ public partial class TaktQualityScrapTemplateDto
     public TaktQualityScrapTemplateDto()
     {
         PlantCode = string.Empty;
-        ScrapNo = string.Empty;
+        QualityScrapCode = string.Empty;
         Model = string.Empty;
         CostCurrency = string.Empty;
     }
@@ -290,9 +290,9 @@ public partial class TaktQualityScrapTemplateDto
     public string PlantCode { get; set; }
 
         /// <summary>
-    /// 废弃单号
+    /// 品质废弃编码
     /// </summary>
-    public string ScrapNo { get; set; }
+    public string QualityScrapCode { get; set; }
 
         /// <summary>
     /// 废弃日期
@@ -351,7 +351,7 @@ public partial class TaktQualityScrapImportDto
     public TaktQualityScrapImportDto()
     {
         PlantCode = string.Empty;
-        ScrapNo = string.Empty;
+        QualityScrapCode = string.Empty;
         Model = string.Empty;
         CostCurrency = string.Empty;
     }
@@ -362,9 +362,9 @@ public partial class TaktQualityScrapImportDto
     public string PlantCode { get; set; }
 
         /// <summary>
-    /// 废弃单号
+    /// 品质废弃编码
     /// </summary>
-    public string ScrapNo { get; set; }
+    public string QualityScrapCode { get; set; }
 
         /// <summary>
     /// 废弃日期
@@ -424,7 +424,7 @@ public partial class TaktQualityScrapExportDto
     {
         CreatedAt = DateTime.Now;
         PlantCode = string.Empty;
-        ScrapNo = string.Empty;
+        QualityScrapCode = string.Empty;
         Model = string.Empty;
         CostCurrency = string.Empty;
     }
@@ -435,9 +435,9 @@ public partial class TaktQualityScrapExportDto
     public string PlantCode { get; set; }
 
         /// <summary>
-    /// 废弃单号
+    /// 品质废弃编码
     /// </summary>
-    public string ScrapNo { get; set; }
+    public string QualityScrapCode { get; set; }
 
         /// <summary>
     /// 废弃日期

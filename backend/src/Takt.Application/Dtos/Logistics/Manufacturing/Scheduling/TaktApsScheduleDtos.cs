@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Manufacturing.Scheduling
 // 文件名称：TaktApsScheduleDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：APS排程主表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktApsScheduleDto : TaktDtosEntityBase
     /// </summary>
     public TaktApsScheduleDto()
     {
+        PlantCode = string.Empty;
         ScheduleCode = string.Empty;
         ScheduleName = string.Empty;
     }
@@ -33,6 +34,10 @@ public partial class TaktApsScheduleDto : TaktDtosEntityBase
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long ApsScheduleId { get; set; } = 0;
 
+    /// <summary>
+    /// 工厂编码
+    /// </summary>
+    public string PlantCode { get; set; }
     /// <summary>
     /// 排程编码
     /// </summary>
@@ -61,14 +66,6 @@ public partial class TaktApsScheduleDto : TaktDtosEntityBase
     /// 计划周期
     /// </summary>
     public int PlanCycle { get; set; }
-    /// <summary>
-    /// 工厂编码
-    /// </summary>
-    public string? PlantCode { get; set; }
-    /// <summary>
-    /// 工厂名称
-    /// </summary>
-    public string? PlantName { get; set; }
     /// <summary>
     /// 车间编码
     /// </summary>
@@ -154,6 +151,10 @@ public partial class TaktApsScheduleQueryDto : TaktPagedQuery
     // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
     /// <summary>
+    /// 工厂编码
+    /// </summary>
+    public string? PlantCode { get; set; }
+    /// <summary>
     /// 排程编码
     /// </summary>
     public string? ScheduleCode { get; set; }
@@ -208,14 +209,6 @@ public partial class TaktApsScheduleQueryDto : TaktPagedQuery
     /// 计划周期
     /// </summary>
     public int? PlanCycle { get; set; }
-    /// <summary>
-    /// 工厂编码
-    /// </summary>
-    public string? PlantCode { get; set; }
-    /// <summary>
-    /// 工厂名称
-    /// </summary>
-    public string? PlantName { get; set; }
     /// <summary>
     /// 车间编码
     /// </summary>
@@ -325,9 +318,15 @@ public partial class TaktApsScheduleCreateDto
     /// </summary>
     public TaktApsScheduleCreateDto()
     {
+        PlantCode = string.Empty;
         ScheduleCode = string.Empty;
         ScheduleName = string.Empty;
     }
+
+        /// <summary>
+    /// 工厂编码
+    /// </summary>
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 排程编码
@@ -363,16 +362,6 @@ public partial class TaktApsScheduleCreateDto
     /// 计划周期
     /// </summary>
     public int PlanCycle { get; set; }
-
-        /// <summary>
-    /// 工厂编码
-    /// </summary>
-    public string? PlantCode { get; set; }
-
-        /// <summary>
-    /// 工厂名称
-    /// </summary>
-    public string? PlantName { get; set; }
 
         /// <summary>
     /// 车间编码
@@ -525,9 +514,15 @@ public partial class TaktApsScheduleTemplateDto
     /// </summary>
     public TaktApsScheduleTemplateDto()
     {
+        PlantCode = string.Empty;
         ScheduleCode = string.Empty;
         ScheduleName = string.Empty;
     }
+
+        /// <summary>
+    /// 工厂编码
+    /// </summary>
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 排程编码
@@ -563,16 +558,6 @@ public partial class TaktApsScheduleTemplateDto
     /// 计划周期
     /// </summary>
     public int PlanCycle { get; set; }
-
-        /// <summary>
-    /// 工厂编码
-    /// </summary>
-    public string? PlantCode { get; set; }
-
-        /// <summary>
-    /// 工厂名称
-    /// </summary>
-    public string? PlantName { get; set; }
 
         /// <summary>
     /// 车间编码
@@ -665,9 +650,15 @@ public partial class TaktApsScheduleImportDto
     /// </summary>
     public TaktApsScheduleImportDto()
     {
+        PlantCode = string.Empty;
         ScheduleCode = string.Empty;
         ScheduleName = string.Empty;
     }
+
+        /// <summary>
+    /// 工厂编码
+    /// </summary>
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 排程编码
@@ -703,16 +694,6 @@ public partial class TaktApsScheduleImportDto
     /// 计划周期
     /// </summary>
     public int PlanCycle { get; set; }
-
-        /// <summary>
-    /// 工厂编码
-    /// </summary>
-    public string? PlantCode { get; set; }
-
-        /// <summary>
-    /// 工厂名称
-    /// </summary>
-    public string? PlantName { get; set; }
 
         /// <summary>
     /// 车间编码
@@ -806,9 +787,15 @@ public partial class TaktApsScheduleExportDto
     public TaktApsScheduleExportDto()
     {
         CreatedAt = DateTime.Now;
+        PlantCode = string.Empty;
         ScheduleCode = string.Empty;
         ScheduleName = string.Empty;
     }
+
+        /// <summary>
+    /// 工厂编码
+    /// </summary>
+    public string PlantCode { get; set; }
 
         /// <summary>
     /// 排程编码
@@ -844,16 +831,6 @@ public partial class TaktApsScheduleExportDto
     /// 计划周期
     /// </summary>
     public int PlanCycle { get; set; }
-
-        /// <summary>
-    /// 工厂编码
-    /// </summary>
-    public string? PlantCode { get; set; }
-
-        /// <summary>
-    /// 工厂名称
-    /// </summary>
-    public string? PlantName { get; set; }
 
         /// <summary>
     /// 车间编码

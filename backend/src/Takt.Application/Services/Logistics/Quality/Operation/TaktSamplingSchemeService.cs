@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Quality.Operation
 // 文件名称：TaktSamplingSchemeService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：抽样方案表应用服务，提供SamplingScheme管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Quality.Operation;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Quality.Operation;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Quality.Operation;
 
@@ -29,26 +21,26 @@ namespace Takt.Application.Services.Logistics.Quality.Operation;
 public class TaktSamplingSchemeService : TaktServiceBase, ITaktSamplingSchemeService
 {
     private readonly ITaktRepository<TaktSamplingScheme> _repository;
-    private readonly ITaktRepository<TaktInspectionStandard> _inspectionStandardRepository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">SamplingScheme仓储</param>
-    /// <param name="inspectionStandardRepository">InspectionStandard仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktSamplingSchemeService(
         ITaktRepository<TaktSamplingScheme> repository,
-        ITaktRepository<TaktInspectionStandard> inspectionStandardRepository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
-        _inspectionStandardRepository = inspectionStandardRepository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -78,14 +70,7 @@ public class TaktSamplingSchemeService : TaktServiceBase, ITaktSamplingSchemeSer
     public async Task<TaktSamplingSchemeDto?> GetSamplingSchemeByIdAsync(long id)
     {
         var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) return null;
-        var dto = entity.Adapt<TaktSamplingSchemeDto>();
-        
-        // 手动加载子表
-        dto.InspectionStandards = (await _inspectionStandardRepository.FindAsync(x => x.SamplingSchemeId == id && x.IsDeleted == 0))
-            .Adapt<List<TaktInspectionStandardDto>>();
-        
-        return dto;
+        return entity == null ? null : entity.Adapt<TaktSamplingSchemeDto>();
     }
 
 
@@ -95,13 +80,13 @@ public class TaktSamplingSchemeService : TaktServiceBase, ITaktSamplingSchemeSer
     /// <returns>抽样方案表(SamplingScheme)选项列表</returns>
     public async Task<List<TaktSelectOption>> GetSamplingSchemeOptionsAsync()
     {
-        var all = await _repository.FindAsync(x => x.IsDeleted == 0 && x.SchemeStatus == 1);
+        var all = await _repository.FindAsync(x => x.IsDeleted == 0 && x.SamplingSchemeStatus == 1);
         return all.Select(x => new TaktSelectOption
         {
-            DictLabel = x.SchemeName ?? string.Empty,
-            DictValue = x.SchemeCode,
-            SortOrder = x.SortOrder,
-        }).OrderBy(x => x.SortOrder).ToList();
+            DictLabel = x.SamplingSchemeName ?? string.Empty,
+            DictValue = x.PlantCode
+
+        }).ToList();
     }
 
 
@@ -112,26 +97,13 @@ public class TaktSamplingSchemeService : TaktServiceBase, ITaktSamplingSchemeSer
     /// <returns>抽样方案表(SamplingScheme)DTO</returns>
     public async Task<TaktSamplingSchemeDto> CreateSamplingSchemeAsync(TaktSamplingSchemeCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.SchemeCode, dto.SchemeCode, null, $"抽样方案表编码 {dto.SchemeCode} 已存在");
-
         var entity = dto.Adapt<TaktSamplingScheme>();
-        entity = await _repository.CreateAsync(entity);
-        
-        // 创建子表数据
-        if (entity.Id > 0)
-        {
-            // 创建InspectionStandard列表
-            if (dto.InspectionStandards != null && dto.InspectionStandards.Count > 0)
-            {
-                var inspectionStandardList = dto.InspectionStandards.Select(x => {
-                    var childEntity = x.Adapt<TaktInspectionStandard>();
-                    childEntity.SamplingSchemeId = entity.Id;
-                    return childEntity;
-                }).ToList();
-                await _inspectionStandardRepository.CreateRangeBulkAsync(inspectionStandardList);
-            }
-        }
+        // 验证工厂编码、SamplingSchemeCode、SamplingSchemeName组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.SamplingSchemeCode == dto.SamplingSchemeCode && x.SamplingSchemeName == dto.SamplingSchemeName);
+        if (!isUnique)
+            throw new TaktBusinessException($"抽样方案表工厂编码、SamplingSchemeCode、SamplingSchemeName组合已存在");
 
+        entity = await _repository.CreateAsync(entity);
         return (await GetSamplingSchemeByIdAsync(entity.Id)) ?? entity.Adapt<TaktSamplingSchemeDto>();
     }
 
@@ -147,36 +119,14 @@ public class TaktSamplingSchemeService : TaktServiceBase, ITaktSamplingSchemeSer
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.samplingschemeNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.SchemeCode, dto.SchemeCode, id, $"抽样方案表编码 {dto.SchemeCode} 已存在");
+        // 验证工厂编码、SamplingSchemeCode、SamplingSchemeName组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.SamplingSchemeCode == dto.SamplingSchemeCode && x.SamplingSchemeName == dto.SamplingSchemeName, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"抽样方案表工厂编码、SamplingSchemeCode、SamplingSchemeName组合已存在");
 
         dto.Adapt(entity, typeof(TaktSamplingSchemeUpdateDto), typeof(TaktSamplingScheme));
         entity.UpdatedAt = DateTime.Now;
         await _repository.UpdateAsync(entity);
-        
-        // 更新子表数据（删旧建新）
-        // 删除旧的InspectionStandard列表
-        var oldInspectionStandards = await _inspectionStandardRepository.FindAsync(x => x.SamplingSchemeId == id && x.IsDeleted == 0);
-        if (oldInspectionStandards != null && oldInspectionStandards.Count > 0)
-        {
-            foreach (var oldInspectionStandard in oldInspectionStandards)
-            {
-                oldInspectionStandard.IsDeleted = 1;
-            }
-            await _inspectionStandardRepository.UpdateRangeBulkAsync(oldInspectionStandards);
-        }
-
-        // 创建新的InspectionStandard列表
-        if (dto.InspectionStandards != null && dto.InspectionStandards.Count > 0)
-        {
-            var inspectionStandardList = dto.InspectionStandards.Select(x => {
-                var childEntity = x.Adapt<TaktInspectionStandard>();
-                childEntity.SamplingSchemeId = id;
-                return childEntity;
-            }).ToList();
-            await _inspectionStandardRepository.CreateRangeBulkAsync(inspectionStandardList);
-        }
-
 
         return (await GetSamplingSchemeByIdAsync(id)) ?? entity.Adapt<TaktSamplingSchemeDto>();
     }
@@ -193,24 +143,11 @@ public class TaktSamplingSchemeService : TaktServiceBase, ITaktSamplingSchemeSer
         if (entity == null)
             throw new TaktBusinessException("validation.samplingschemeNotFound");
         
-        // 级联删除子表数据
-        // 级联删除InspectionStandard列表
-        var inspectionStandards = await _inspectionStandardRepository.FindAsync(x => x.SamplingSchemeId == id && x.IsDeleted == 0);
-        if (inspectionStandards != null && inspectionStandards.Count > 0)
-        {
-            foreach (var inspectionStandard in inspectionStandards)
-            {
-                inspectionStandard.IsDeleted = 1;
-            }
-            await _inspectionStandardRepository.UpdateRangeBulkAsync(inspectionStandards);
-        }
-
-        
         // 软删除：设置 IsDeleted = 1
         entity.IsDeleted = 1;
 
         // 同步更新状态字段为禁用状态（1）
-        entity.SchemeStatus = 1;
+        entity.SamplingSchemeStatus = 1;
 
         await _repository.UpdateAsync(entity);
     }
@@ -233,34 +170,13 @@ public class TaktSamplingSchemeService : TaktServiceBase, ITaktSamplingSchemeSer
             if (entity != null) entities.Add(entity);
         }
         
-        if (entities.Count == 0) return;        
-        // 批量级联删除子表数据
-        // 批量级联删除InspectionStandard列表
-        var inspectionStandardsToDelete = new List<TaktInspectionStandard>();
-        foreach (var id in idList)
-        {
-            var inspectionStandards = await _inspectionStandardRepository.FindAsync(x => x.SamplingSchemeId == id && x.IsDeleted == 0);
-            if (inspectionStandards != null && inspectionStandards.Count > 0)
-            {
-                inspectionStandardsToDelete.AddRange(inspectionStandards);
-            }
-        }
+        if (entities.Count == 0) return;
         
-        if (inspectionStandardsToDelete.Count > 0)
-        {
-            foreach (var inspectionStandard in inspectionStandardsToDelete)
-            {
-                inspectionStandard.IsDeleted = 1;
-            }
-            await _inspectionStandardRepository.UpdateRangeBulkAsync(inspectionStandardsToDelete);
-        }
-
-        
-        // 批量更新：设置 IsDeleted = 1，并同步更新 SchemeStatus = 1（禁用）
+        // 批量更新：设置 IsDeleted = 1，并同步更新 SamplingSchemeStatus = 1（禁用）
         foreach (var entity in entities)
         {
             entity.IsDeleted = 1;
-            entity.SchemeStatus = 1;
+            entity.SamplingSchemeStatus = 1;
         }
         
         await _repository.UpdateRangeBulkAsync(entities);
@@ -272,29 +188,12 @@ public class TaktSamplingSchemeService : TaktServiceBase, ITaktSamplingSchemeSer
     /// </summary>
     /// <param name="dto">抽样方案表(SamplingScheme)状态DTO</param>
     /// <returns>抽样方案表(SamplingScheme)DTO</returns>
-    public async Task<TaktSamplingSchemeDto> UpdateSamplingSchemeSchemeStatusAsync(TaktSamplingSchemeSchemeStatusDto dto)
+    public async Task<TaktSamplingSchemeDto> UpdateSamplingSchemeStatusAsync(TaktSamplingSchemeStatusDto dto)
     {
         var entity = await _repository.GetByIdAsync(dto.SamplingSchemeId);
         if (entity == null)
             throw new TaktBusinessException("validation.samplingschemeNotFound");
-        entity.SchemeStatus = dto.SchemeStatus;
-        entity.UpdatedAt = DateTime.Now;
-        await _repository.UpdateAsync(entity);
-        return await GetSamplingSchemeByIdAsync(entity.Id) ?? entity.Adapt<TaktSamplingSchemeDto>();
-    }
-
-
-    /// <summary>
-    /// 更新抽样方案表(SamplingScheme)排序
-    /// </summary>
-    /// <param name="dto">抽样方案表(SamplingScheme)排序DTO</param>
-    /// <returns>抽样方案表(SamplingScheme)DTO</returns>
-    public async Task<TaktSamplingSchemeDto> UpdateSamplingSchemeSortAsync(TaktSamplingSchemeSortDto dto)
-    {
-        var entity = await _repository.GetByIdAsync(dto.SamplingSchemeId);
-        if (entity == null)
-            throw new TaktBusinessException("validation.samplingschemeNotFound");
-        entity.SortOrder = dto.SortOrder;
+        entity.SamplingSchemeStatus = dto.SamplingSchemeStatus;
         entity.UpdatedAt = DateTime.Now;
         await _repository.UpdateAsync(entity);
         return await GetSamplingSchemeByIdAsync(entity.Id) ?? entity.Adapt<TaktSamplingSchemeDto>();
@@ -403,8 +302,8 @@ public class TaktSamplingSchemeService : TaktServiceBase, ITaktSamplingSchemeSer
         {
             exp = exp.And(x =>
                 x.PlantCode!.Contains(queryDto.KeyWords) ||
-                x.SchemeCode!.Contains(queryDto.KeyWords) ||
-                x.SchemeName!.Contains(queryDto.KeyWords) ||
+                x.SamplingSchemeCode!.Contains(queryDto.KeyWords) ||
+                x.SamplingSchemeName!.Contains(queryDto.KeyWords) ||
                 x.TransferRuleConfig!.Contains(queryDto.KeyWords) ||
                 x.SchemeDescription!.Contains(queryDto.KeyWords) ||
                 x.Remark!.Contains(queryDto.KeyWords) ||
@@ -418,19 +317,19 @@ public class TaktSamplingSchemeService : TaktServiceBase, ITaktSamplingSchemeSer
             exp = exp.And(x => x.PlantCode!.Contains(queryDto.PlantCode));
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.SchemeCode))
+        if (!string.IsNullOrEmpty(queryDto?.SamplingSchemeCode))
         {
-            exp = exp.And(x => x.SchemeCode!.Contains(queryDto.SchemeCode));
+            exp = exp.And(x => x.SamplingSchemeCode!.Contains(queryDto.SamplingSchemeCode));
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.SchemeName))
+        if (!string.IsNullOrEmpty(queryDto?.SamplingSchemeName))
         {
-            exp = exp.And(x => x.SchemeName!.Contains(queryDto.SchemeName));
+            exp = exp.And(x => x.SamplingSchemeName!.Contains(queryDto.SamplingSchemeName));
         }
 
-        if (queryDto?.SchemeType.HasValue == true)
+        if (queryDto?.SamplingSchemeType.HasValue == true)
         {
-            exp = exp.And(x => x.SchemeType == queryDto.SchemeType);
+            exp = exp.And(x => x.SamplingSchemeType == queryDto.SamplingSchemeType);
         }
 
         if (queryDto?.SamplingStandard.HasValue == true)
@@ -488,14 +387,9 @@ public class TaktSamplingSchemeService : TaktServiceBase, ITaktSamplingSchemeSer
             exp = exp.And(x => x.TransferRuleConfig!.Contains(queryDto.TransferRuleConfig));
         }
 
-        if (queryDto?.IsEnabled.HasValue == true)
+        if (queryDto?.SamplingSchemeStatus.HasValue == true)
         {
-            exp = exp.And(x => x.IsEnabled == queryDto.IsEnabled);
-        }
-
-        if (queryDto?.SchemeStatus.HasValue == true)
-        {
-            exp = exp.And(x => x.SchemeStatus == queryDto.SchemeStatus);
+            exp = exp.And(x => x.SamplingSchemeStatus == queryDto.SamplingSchemeStatus);
         }
 
         if (!string.IsNullOrEmpty(queryDto?.SchemeDescription))

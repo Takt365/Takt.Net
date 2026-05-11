@@ -33,6 +33,12 @@ public class TaktSalesPriceItem : TaktEntityBase
     public long SalesPriceId { get; set; }
 
     /// <summary>
+    /// 销售价格编码（冗余字段，便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "sales_price_code", ColumnDescription = "销售价格编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string SalesPriceCode { get; set; } = string.Empty;
+
+    /// <summary>
     /// 行号/项号（价格明细行号，与SalesPriceId组成联合唯一索引）
     /// </summary>
     [SugarColumn(ColumnName = "line_number", ColumnDescription = "行号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
@@ -67,12 +73,6 @@ public class TaktSalesPriceItem : TaktEntityBase
     /// </summary>
     [SugarColumn(ColumnName = "max_order_quantity", ColumnDescription = "最大订购量", ColumnDataType = "decimal", Length = 18, DecimalDigits = 4, IsNullable = false, DefaultValue = "0")]
     public decimal MaxOrderQuantity { get; set; } = 0;
-
-    /// <summary>
-    /// 排序号（越小越靠前）
-    /// </summary>
-    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int SortOrder { get; set; } = 0;
 
     /// <summary>
     /// 价格阶梯列表（主子表关系，一个物料价格可以有多个阶梯）

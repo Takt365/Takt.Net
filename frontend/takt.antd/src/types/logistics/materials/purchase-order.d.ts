@@ -16,9 +16,9 @@ export interface PurchaseOrder extends TaktEntityBase {
   /** 对应后端字段 purchaseOrderId */
   purchaseOrderId: string
   /** 对应后端字段 plantCode */
-  plantCode?: string
-  /** 对应后端字段 orderCode */
-  orderCode: string
+  plantCode: string
+  /** 对应后端字段 purchaseOrderCode */
+  purchaseOrderCode: string
   /** 对应后端字段 supplierCode */
   supplierCode: string
   /** 对应后端字段 supplierName */
@@ -69,8 +69,8 @@ export interface PurchaseOrder extends TaktEntityBase {
 export interface PurchaseOrderQuery extends TaktPagedQuery {
   /** 对应后端字段 plantCode */
   plantCode?: string
-  /** 对应后端字段 orderCode */
-  orderCode?: string
+  /** 对应后端字段 purchaseOrderCode */
+  purchaseOrderCode?: string
   /** 对应后端字段 supplierCode */
   supplierCode?: string
   /** 对应后端字段 supplierName */
@@ -142,9 +142,9 @@ export interface PurchaseOrderQuery extends TaktPagedQuery {
  */
 export interface PurchaseOrderCreate {
   /** 对应后端字段 plantCode */
-  plantCode?: string
-  /** 对应后端字段 orderCode */
-  orderCode: string
+  plantCode: string
+  /** 对应后端字段 purchaseOrderCode */
+  purchaseOrderCode: string
   /** 对应后端字段 supplierCode */
   supplierCode: string
   /** 对应后端字段 supplierName */

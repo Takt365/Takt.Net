@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Statistics.Report
 // 文件名称：ITaktReportExecutionLogService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：报表执行日志表应用服务接口，定义ReportExecutionLog管理的业务操作
 // 

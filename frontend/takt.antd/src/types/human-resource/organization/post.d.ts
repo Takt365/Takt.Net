@@ -15,6 +15,8 @@ import type { TaktEntityBase, TaktPagedQuery } from '@/types/common'
 export interface Post extends TaktEntityBase {
   /** 对应后端字段 postId */
   postId: string
+  /** 对应后端字段 companyCode */
+  companyCode: string
   /** 对应后端字段 postName */
   postName: string
   /** 对应后端字段 postCode */
@@ -43,6 +45,8 @@ export interface Post extends TaktEntityBase {
  * PostQuery类型（对应后端 Takt.Application.Dtos.HumanResource.Organization.TaktPostQueryDto）
  */
 export interface PostQuery extends TaktPagedQuery {
+  /** 对应后端字段 companyCode */
+  companyCode?: string
   /** 对应后端字段 postName */
   postName?: string
   /** 对应后端字段 postCode */
@@ -81,6 +85,8 @@ export interface PostQuery extends TaktPagedQuery {
  * PostCreate类型（对应后端 Takt.Application.Dtos.HumanResource.Organization.TaktPostCreateDto）
  */
 export interface PostCreate {
+  /** 对应后端字段 companyCode */
+  companyCode: string
   /** 对应后端字段 postName */
   postName: string
   /** 对应后端字段 postCode */

@@ -16,7 +16,7 @@ export interface GenTable extends TaktEntityBase {
   /** 对应后端字段 genTableId */
   genTableId: string
   /** 对应后端字段 dataSource */
-  dataSource?: string
+  dataSource: string
   /** 对应后端字段 tableName */
   tableName: string
   /** 对应后端字段 tableComment */
@@ -232,7 +232,7 @@ export interface GenTableQuery extends TaktPagedQuery {
  */
 export interface GenTableCreate {
   /** 对应后端字段 dataSource */
-  dataSource?: string
+  dataSource: string
   /** 对应后端字段 tableName */
   tableName: string
   /** 对应后端字段 tableComment */

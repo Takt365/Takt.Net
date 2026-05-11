@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Quality.Operation
 // 文件名称：TaktIqcOrderItemDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：进货检验单明细表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,8 +22,12 @@ public partial class TaktIqcOrderItemDto : TaktDtosEntityBase
     /// </summary>
     public TaktIqcOrderItemDto()
     {
-        ItemCode = string.Empty;
-        ItemName = string.Empty;
+        IqcOrderCode = string.Empty;
+        MaterialCode = string.Empty;
+        MaterialName = string.Empty;
+        StandardCode = string.Empty;
+        SamplingSchemeCode = string.Empty;
+        InspectorBy = string.Empty;
     }
 
     /// <summary>
@@ -39,69 +43,77 @@ public partial class TaktIqcOrderItemDto : TaktDtosEntityBase
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long IqcOrderId { get; set; }
     /// <summary>
+    /// IQC检验单编码
+    /// </summary>
+    public string IqcOrderCode { get; set; }
+    /// <summary>
     /// 行号
     /// </summary>
     public int LineNumber { get; set; }
     /// <summary>
-    /// 检验项目编码
+    /// 物料编码
     /// </summary>
-    public string ItemCode { get; set; }
+    public string MaterialCode { get; set; }
     /// <summary>
-    /// 检验项目名称
+    /// 物料名称
     /// </summary>
-    public string ItemName { get; set; }
+    public string MaterialName { get; set; }
     /// <summary>
-    /// 检验项目类型
+    /// 批次号
     /// </summary>
-    public int ItemType { get; set; }
+    public string? BatchNo { get; set; }
     /// <summary>
-    /// 检验标准值
+    /// 进货数量
     /// </summary>
-    public string? StandardValue { get; set; }
+    public decimal PurchaseQuantity { get; set; }
     /// <summary>
-    /// 检验上限值
+    /// 检验标准编码
     /// </summary>
-    public string? UpperLimit { get; set; }
+    public string StandardCode { get; set; }
     /// <summary>
-    /// 检验下限值
+    /// 抽样方案编码
     /// </summary>
-    public string? LowerLimit { get; set; }
+    public string SamplingSchemeCode { get; set; }
     /// <summary>
-    /// 检验工具
+    /// 检验方式
     /// </summary>
-    public string? InspectionTool { get; set; }
+    public int InspectionMethod { get; set; }
     /// <summary>
-    /// 检验方法
+    /// 抽样数量
     /// </summary>
-    public string? InspectionMethod { get; set; }
+    public int SampleQuantity { get; set; }
     /// <summary>
-    /// 实际检验值
+    /// 合格数量
     /// </summary>
-    public string? ActualValue { get; set; }
+    public int QualifiedQuantity { get; set; }
     /// <summary>
-    /// 检验结果
+    /// 不合格数量
     /// </summary>
-    public int InspectionResult { get; set; }
+    public int UnqualifiedQuantity { get; set; }
     /// <summary>
-    /// 不良数量
+    /// 验退数量
     /// </summary>
-    public int DefectQuantity { get; set; }
+    public decimal InspectionReturnQuantity { get; set; }
     /// <summary>
-    /// 不良描述
+    /// 判定状态
     /// </summary>
-    public string? DefectDescription { get; set; }
+    public int JudgeStatus { get; set; }
+    /// <summary>
+    /// 抽检序列号
+    /// </summary>
+    public string? SampleSerialNo { get; set; }
+    /// <summary>
+    /// 检验说明
+    /// </summary>
+    public string? InspectionDescription { get; set; }
     /// <summary>
     /// 检验员
     /// </summary>
-    public string? InspectorBy { get; set; }
+    public string InspectorBy { get; set; }
     /// <summary>
-    /// 检验时间
+    /// 检验日期
     /// </summary>
-    public DateTime? InspectionTime { get; set; }
-    /// <summary>
-    /// 检验图片
-    /// </summary>
-    public string? InspectionImages { get; set; }
+    public DateTime InspectionDate { get; set; }
 
     /// <summary>
     /// IQC检验单（主表）
@@ -134,78 +146,86 @@ public partial class TaktIqcOrderItemQueryDto : TaktPagedQuery
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? IqcOrderId { get; set; }
     /// <summary>
+    /// IQC检验单编码
+    /// </summary>
+    public string? IqcOrderCode { get; set; }
+    /// <summary>
     /// 行号
     /// </summary>
     public int? LineNumber { get; set; }
     /// <summary>
-    /// 检验项目编码
+    /// 物料编码
     /// </summary>
-    public string? ItemCode { get; set; }
+    public string? MaterialCode { get; set; }
     /// <summary>
-    /// 检验项目名称
+    /// 物料名称
     /// </summary>
-    public string? ItemName { get; set; }
+    public string? MaterialName { get; set; }
     /// <summary>
-    /// 检验项目类型
+    /// 批次号
     /// </summary>
-    public int? ItemType { get; set; }
+    public string? BatchNo { get; set; }
     /// <summary>
-    /// 检验标准值
+    /// 进货数量
     /// </summary>
-    public string? StandardValue { get; set; }
+    public decimal? PurchaseQuantity { get; set; }
     /// <summary>
-    /// 检验上限值
+    /// 检验标准编码
     /// </summary>
-    public string? UpperLimit { get; set; }
+    public string? StandardCode { get; set; }
     /// <summary>
-    /// 检验下限值
+    /// 抽样方案编码
     /// </summary>
-    public string? LowerLimit { get; set; }
+    public string? SamplingSchemeCode { get; set; }
     /// <summary>
-    /// 检验工具
+    /// 检验方式
     /// </summary>
-    public string? InspectionTool { get; set; }
+    public int? InspectionMethod { get; set; }
     /// <summary>
-    /// 检验方法
+    /// 抽样数量
     /// </summary>
-    public string? InspectionMethod { get; set; }
+    public int? SampleQuantity { get; set; }
     /// <summary>
-    /// 实际检验值
+    /// 合格数量
     /// </summary>
-    public string? ActualValue { get; set; }
+    public int? QualifiedQuantity { get; set; }
     /// <summary>
-    /// 检验结果
+    /// 不合格数量
     /// </summary>
-    public int? InspectionResult { get; set; }
+    public int? UnqualifiedQuantity { get; set; }
     /// <summary>
-    /// 不良数量
+    /// 验退数量
     /// </summary>
-    public int? DefectQuantity { get; set; }
+    public decimal? InspectionReturnQuantity { get; set; }
     /// <summary>
-    /// 不良描述
+    /// 判定状态
     /// </summary>
-    public string? DefectDescription { get; set; }
+    public int? JudgeStatus { get; set; }
+    /// <summary>
+    /// 抽检序列号
+    /// </summary>
+    public string? SampleSerialNo { get; set; }
+    /// <summary>
+    /// 检验说明
+    /// </summary>
+    public string? InspectionDescription { get; set; }
     /// <summary>
     /// 检验员
     /// </summary>
     public string? InspectorBy { get; set; }
     /// <summary>
-    /// 检验时间
+    /// 检验日期
     /// </summary>
-    public DateTime? InspectionTime { get; set; }
+    public DateTime? InspectionDate { get; set; }
 
     /// <summary>
-    /// 检验时间开始时间
+    /// 检验日期开始时间
     /// </summary>
-    public DateTime? InspectionTimeStart { get; set; }
+    public DateTime? InspectionDateStart { get; set; }
     /// <summary>
-    /// 检验时间结束时间
+    /// 检验日期结束时间
     /// </summary>
-    public DateTime? InspectionTimeEnd { get; set; }
-    /// <summary>
-    /// 检验图片
-    /// </summary>
-    public string? InspectionImages { get; set; }
+    public DateTime? InspectionDateEnd { get; set; }
 
     /// <summary>
     /// 备注
@@ -248,8 +268,12 @@ public partial class TaktIqcOrderItemCreateDto
     /// </summary>
     public TaktIqcOrderItemCreateDto()
     {
-        ItemCode = string.Empty;
-        ItemName = string.Empty;
+        IqcOrderCode = string.Empty;
+        MaterialCode = string.Empty;
+        MaterialName = string.Empty;
+        StandardCode = string.Empty;
+        SamplingSchemeCode = string.Empty;
+        InspectorBy = string.Empty;
     }
 
         /// <summary>
@@ -259,84 +283,94 @@ public partial class TaktIqcOrderItemCreateDto
     public long IqcOrderId { get; set; }
 
         /// <summary>
+    /// IQC检验单编码
+    /// </summary>
+    public string IqcOrderCode { get; set; }
+
+        /// <summary>
     /// 行号
     /// </summary>
     public int LineNumber { get; set; }
 
         /// <summary>
-    /// 检验项目编码
+    /// 物料编码
     /// </summary>
-    public string ItemCode { get; set; }
+    public string MaterialCode { get; set; }
 
         /// <summary>
-    /// 检验项目名称
+    /// 物料名称
     /// </summary>
-    public string ItemName { get; set; }
+    public string MaterialName { get; set; }
 
         /// <summary>
-    /// 检验项目类型
+    /// 批次号
     /// </summary>
-    public int ItemType { get; set; }
+    public string? BatchNo { get; set; }
 
         /// <summary>
-    /// 检验标准值
+    /// 进货数量
     /// </summary>
-    public string? StandardValue { get; set; }
+    public decimal PurchaseQuantity { get; set; }
 
         /// <summary>
-    /// 检验上限值
+    /// 检验标准编码
     /// </summary>
-    public string? UpperLimit { get; set; }
+    public string StandardCode { get; set; }
 
         /// <summary>
-    /// 检验下限值
+    /// 抽样方案编码
     /// </summary>
-    public string? LowerLimit { get; set; }
+    public string SamplingSchemeCode { get; set; }
 
         /// <summary>
-    /// 检验工具
+    /// 检验方式
     /// </summary>
-    public string? InspectionTool { get; set; }
+    public int InspectionMethod { get; set; }
 
         /// <summary>
-    /// 检验方法
+    /// 抽样数量
     /// </summary>
-    public string? InspectionMethod { get; set; }
+    public int SampleQuantity { get; set; }
 
         /// <summary>
-    /// 实际检验值
+    /// 合格数量
     /// </summary>
-    public string? ActualValue { get; set; }
+    public int QualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 检验结果
+    /// 不合格数量
     /// </summary>
-    public int InspectionResult { get; set; }
+    public int UnqualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 不良数量
+    /// 验退数量
     /// </summary>
-    public int DefectQuantity { get; set; }
+    public decimal InspectionReturnQuantity { get; set; }
 
         /// <summary>
-    /// 不良描述
+    /// 判定状态
     /// </summary>
-    public string? DefectDescription { get; set; }
+    public int JudgeStatus { get; set; }
+
+        /// <summary>
+    /// 抽检序列号
+    /// </summary>
+    public string? SampleSerialNo { get; set; }
+
+        /// <summary>
+    /// 检验说明
+    /// </summary>
+    public string? InspectionDescription { get; set; }
 
         /// <summary>
     /// 检验员
     /// </summary>
-    public string? InspectorBy { get; set; }
+    public string InspectorBy { get; set; }
 
         /// <summary>
-    /// 检验时间
+    /// 检验日期
     /// </summary>
-    public DateTime? InspectionTime { get; set; }
-
-        /// <summary>
-    /// 检验图片
-    /// </summary>
-    public string? InspectionImages { get; set; }
+    public DateTime InspectionDate { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -377,6 +411,31 @@ public partial class TaktIqcOrderItemUpdateDto : TaktIqcOrderItemCreateDto
 }
 
 /// <summary>
+/// 进货检验单明细表判定状态DTO
+/// </summary>
+public partial class TaktIqcOrderItemJudgeStatusDto
+{
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktIqcOrderItemJudgeStatusDto()
+    {
+    }
+
+        /// <summary>
+    /// 进货检验单明细表（适配字段，序列化为string以避免Javascript精度问题）
+    /// </summary>
+    [AdaptMember("Id")]
+    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
+    public long IqcOrderItemId { get; set; } = 0;
+
+    /// <summary>
+    /// 判定状态（0=禁用，1=启用）
+    /// </summary>
+    public int JudgeStatus { get; set; }
+}
+
+/// <summary>
 /// 进货检验单明细表导入模板DTO
 /// </summary>
 public partial class TaktIqcOrderItemTemplateDto
@@ -386,8 +445,12 @@ public partial class TaktIqcOrderItemTemplateDto
     /// </summary>
     public TaktIqcOrderItemTemplateDto()
     {
-        ItemCode = string.Empty;
-        ItemName = string.Empty;
+        IqcOrderCode = string.Empty;
+        MaterialCode = string.Empty;
+        MaterialName = string.Empty;
+        StandardCode = string.Empty;
+        SamplingSchemeCode = string.Empty;
+        InspectorBy = string.Empty;
     }
 
         /// <summary>
@@ -396,84 +459,94 @@ public partial class TaktIqcOrderItemTemplateDto
     public long IqcOrderId { get; set; }
 
         /// <summary>
+    /// IQC检验单编码
+    /// </summary>
+    public string IqcOrderCode { get; set; }
+
+        /// <summary>
     /// 行号
     /// </summary>
     public int LineNumber { get; set; }
 
         /// <summary>
-    /// 检验项目编码
+    /// 物料编码
     /// </summary>
-    public string ItemCode { get; set; }
+    public string MaterialCode { get; set; }
 
         /// <summary>
-    /// 检验项目名称
+    /// 物料名称
     /// </summary>
-    public string ItemName { get; set; }
+    public string MaterialName { get; set; }
 
         /// <summary>
-    /// 检验项目类型
+    /// 批次号
     /// </summary>
-    public int ItemType { get; set; }
+    public string? BatchNo { get; set; }
 
         /// <summary>
-    /// 检验标准值
+    /// 进货数量
     /// </summary>
-    public string? StandardValue { get; set; }
+    public decimal PurchaseQuantity { get; set; }
 
         /// <summary>
-    /// 检验上限值
+    /// 检验标准编码
     /// </summary>
-    public string? UpperLimit { get; set; }
+    public string StandardCode { get; set; }
 
         /// <summary>
-    /// 检验下限值
+    /// 抽样方案编码
     /// </summary>
-    public string? LowerLimit { get; set; }
+    public string SamplingSchemeCode { get; set; }
 
         /// <summary>
-    /// 检验工具
+    /// 检验方式
     /// </summary>
-    public string? InspectionTool { get; set; }
+    public int InspectionMethod { get; set; }
 
         /// <summary>
-    /// 检验方法
+    /// 抽样数量
     /// </summary>
-    public string? InspectionMethod { get; set; }
+    public int SampleQuantity { get; set; }
 
         /// <summary>
-    /// 实际检验值
+    /// 合格数量
     /// </summary>
-    public string? ActualValue { get; set; }
+    public int QualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 检验结果
+    /// 不合格数量
     /// </summary>
-    public int InspectionResult { get; set; }
+    public int UnqualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 不良数量
+    /// 验退数量
     /// </summary>
-    public int DefectQuantity { get; set; }
+    public decimal InspectionReturnQuantity { get; set; }
 
         /// <summary>
-    /// 不良描述
+    /// 判定状态
     /// </summary>
-    public string? DefectDescription { get; set; }
+    public int JudgeStatus { get; set; }
+
+        /// <summary>
+    /// 抽检序列号
+    /// </summary>
+    public string? SampleSerialNo { get; set; }
+
+        /// <summary>
+    /// 检验说明
+    /// </summary>
+    public string? InspectionDescription { get; set; }
 
         /// <summary>
     /// 检验员
     /// </summary>
-    public string? InspectorBy { get; set; }
+    public string InspectorBy { get; set; }
 
         /// <summary>
-    /// 检验时间
+    /// 检验日期
     /// </summary>
-    public DateTime? InspectionTime { get; set; }
-
-        /// <summary>
-    /// 检验图片
-    /// </summary>
-    public string? InspectionImages { get; set; }
+    public DateTime InspectionDate { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -496,8 +569,12 @@ public partial class TaktIqcOrderItemImportDto
     /// </summary>
     public TaktIqcOrderItemImportDto()
     {
-        ItemCode = string.Empty;
-        ItemName = string.Empty;
+        IqcOrderCode = string.Empty;
+        MaterialCode = string.Empty;
+        MaterialName = string.Empty;
+        StandardCode = string.Empty;
+        SamplingSchemeCode = string.Empty;
+        InspectorBy = string.Empty;
     }
 
         /// <summary>
@@ -506,84 +583,94 @@ public partial class TaktIqcOrderItemImportDto
     public long IqcOrderId { get; set; }
 
         /// <summary>
+    /// IQC检验单编码
+    /// </summary>
+    public string IqcOrderCode { get; set; }
+
+        /// <summary>
     /// 行号
     /// </summary>
     public int LineNumber { get; set; }
 
         /// <summary>
-    /// 检验项目编码
+    /// 物料编码
     /// </summary>
-    public string ItemCode { get; set; }
+    public string MaterialCode { get; set; }
 
         /// <summary>
-    /// 检验项目名称
+    /// 物料名称
     /// </summary>
-    public string ItemName { get; set; }
+    public string MaterialName { get; set; }
 
         /// <summary>
-    /// 检验项目类型
+    /// 批次号
     /// </summary>
-    public int ItemType { get; set; }
+    public string? BatchNo { get; set; }
 
         /// <summary>
-    /// 检验标准值
+    /// 进货数量
     /// </summary>
-    public string? StandardValue { get; set; }
+    public decimal PurchaseQuantity { get; set; }
 
         /// <summary>
-    /// 检验上限值
+    /// 检验标准编码
     /// </summary>
-    public string? UpperLimit { get; set; }
+    public string StandardCode { get; set; }
 
         /// <summary>
-    /// 检验下限值
+    /// 抽样方案编码
     /// </summary>
-    public string? LowerLimit { get; set; }
+    public string SamplingSchemeCode { get; set; }
 
         /// <summary>
-    /// 检验工具
+    /// 检验方式
     /// </summary>
-    public string? InspectionTool { get; set; }
+    public int InspectionMethod { get; set; }
 
         /// <summary>
-    /// 检验方法
+    /// 抽样数量
     /// </summary>
-    public string? InspectionMethod { get; set; }
+    public int SampleQuantity { get; set; }
 
         /// <summary>
-    /// 实际检验值
+    /// 合格数量
     /// </summary>
-    public string? ActualValue { get; set; }
+    public int QualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 检验结果
+    /// 不合格数量
     /// </summary>
-    public int InspectionResult { get; set; }
+    public int UnqualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 不良数量
+    /// 验退数量
     /// </summary>
-    public int DefectQuantity { get; set; }
+    public decimal InspectionReturnQuantity { get; set; }
 
         /// <summary>
-    /// 不良描述
+    /// 判定状态
     /// </summary>
-    public string? DefectDescription { get; set; }
+    public int JudgeStatus { get; set; }
+
+        /// <summary>
+    /// 抽检序列号
+    /// </summary>
+    public string? SampleSerialNo { get; set; }
+
+        /// <summary>
+    /// 检验说明
+    /// </summary>
+    public string? InspectionDescription { get; set; }
 
         /// <summary>
     /// 检验员
     /// </summary>
-    public string? InspectorBy { get; set; }
+    public string InspectorBy { get; set; }
 
         /// <summary>
-    /// 检验时间
+    /// 检验日期
     /// </summary>
-    public DateTime? InspectionTime { get; set; }
-
-        /// <summary>
-    /// 检验图片
-    /// </summary>
-    public string? InspectionImages { get; set; }
+    public DateTime InspectionDate { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -607,8 +694,12 @@ public partial class TaktIqcOrderItemExportDto
     public TaktIqcOrderItemExportDto()
     {
         CreatedAt = DateTime.Now;
-        ItemCode = string.Empty;
-        ItemName = string.Empty;
+        IqcOrderCode = string.Empty;
+        MaterialCode = string.Empty;
+        MaterialName = string.Empty;
+        StandardCode = string.Empty;
+        SamplingSchemeCode = string.Empty;
+        InspectorBy = string.Empty;
     }
 
         /// <summary>
@@ -617,84 +708,94 @@ public partial class TaktIqcOrderItemExportDto
     public long IqcOrderId { get; set; }
 
         /// <summary>
+    /// IQC检验单编码
+    /// </summary>
+    public string IqcOrderCode { get; set; }
+
+        /// <summary>
     /// 行号
     /// </summary>
     public int LineNumber { get; set; }
 
         /// <summary>
-    /// 检验项目编码
+    /// 物料编码
     /// </summary>
-    public string ItemCode { get; set; }
+    public string MaterialCode { get; set; }
 
         /// <summary>
-    /// 检验项目名称
+    /// 物料名称
     /// </summary>
-    public string ItemName { get; set; }
+    public string MaterialName { get; set; }
 
         /// <summary>
-    /// 检验项目类型
+    /// 批次号
     /// </summary>
-    public int ItemType { get; set; }
+    public string? BatchNo { get; set; }
 
         /// <summary>
-    /// 检验标准值
+    /// 进货数量
     /// </summary>
-    public string? StandardValue { get; set; }
+    public decimal PurchaseQuantity { get; set; }
 
         /// <summary>
-    /// 检验上限值
+    /// 检验标准编码
     /// </summary>
-    public string? UpperLimit { get; set; }
+    public string StandardCode { get; set; }
 
         /// <summary>
-    /// 检验下限值
+    /// 抽样方案编码
     /// </summary>
-    public string? LowerLimit { get; set; }
+    public string SamplingSchemeCode { get; set; }
 
         /// <summary>
-    /// 检验工具
+    /// 检验方式
     /// </summary>
-    public string? InspectionTool { get; set; }
+    public int InspectionMethod { get; set; }
 
         /// <summary>
-    /// 检验方法
+    /// 抽样数量
     /// </summary>
-    public string? InspectionMethod { get; set; }
+    public int SampleQuantity { get; set; }
 
         /// <summary>
-    /// 实际检验值
+    /// 合格数量
     /// </summary>
-    public string? ActualValue { get; set; }
+    public int QualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 检验结果
+    /// 不合格数量
     /// </summary>
-    public int InspectionResult { get; set; }
+    public int UnqualifiedQuantity { get; set; }
 
         /// <summary>
-    /// 不良数量
+    /// 验退数量
     /// </summary>
-    public int DefectQuantity { get; set; }
+    public decimal InspectionReturnQuantity { get; set; }
 
         /// <summary>
-    /// 不良描述
+    /// 判定状态
     /// </summary>
-    public string? DefectDescription { get; set; }
+    public int JudgeStatus { get; set; }
+
+        /// <summary>
+    /// 抽检序列号
+    /// </summary>
+    public string? SampleSerialNo { get; set; }
+
+        /// <summary>
+    /// 检验说明
+    /// </summary>
+    public string? InspectionDescription { get; set; }
 
         /// <summary>
     /// 检验员
     /// </summary>
-    public string? InspectorBy { get; set; }
+    public string InspectorBy { get; set; }
 
         /// <summary>
-    /// 检验时间
+    /// 检验日期
     /// </summary>
-    public DateTime? InspectionTime { get; set; }
-
-        /// <summary>
-    /// 检验图片
-    /// </summary>
-    public string? InspectionImages { get; set; }
+    public DateTime InspectionDate { get; set; }
 
     /// <summary>
     /// 创建时间

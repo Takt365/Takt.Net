@@ -15,46 +15,34 @@ import type { TaktEntityBase, TaktPagedQuery } from '@/types/common'
 export interface FqcOrder extends TaktEntityBase {
   /** 对应后端字段 fqcOrderId */
   fqcOrderId: string
-  /** 对应后端字段 orderCode */
-  orderCode: string
+  /** 对应后端字段 plantCode */
+  plantCode: string
   /** 对应后端字段 sourceCode */
   sourceCode: string
-  /** 对应后端字段 planCode */
-  planCode?: string
-  /** 对应后端字段 standardCode */
-  standardCode: string
-  /** 对应后端字段 materialCode */
-  materialCode: string
-  /** 对应后端字段 materialName */
-  materialName: string
-  /** 对应后端字段 batchNo */
-  batchNo?: string
+  /** 对应后端字段 inspectionDate */
+  inspectionDate?: string
+  /** 对应后端字段 fqcOrderCode */
+  fqcOrderCode: string
   /** 对应后端字段 customerCode */
-  customerCode: string
-  /** 对应后端字段 customerName */
-  customerName: string
-  /** 对应后端字段 outgoingQuantity */
-  outgoingQuantity: number
-  /** 对应后端字段 deliveryOrderCode */
-  deliveryOrderCode?: string
-  /** 对应后端字段 samplingSchemeCode */
-  samplingSchemeCode?: string
-  /** 对应后端字段 sampleQuantity */
-  sampleQuantity: number
-  /** 对应后端字段 qualifiedQuantity */
-  qualifiedQuantity: number
-  /** 对应后端字段 unqualifiedQuantity */
-  unqualifiedQuantity: number
-  /** 对应后端字段 inspectionConclusion */
-  inspectionConclusion: number
+  customerCode?: string
+  /** 对应后端字段 totalWarehouseQuantity */
+  totalWarehouseQuantity: number
+  /** 对应后端字段 totalSampleQuantity */
+  totalSampleQuantity: number
+  /** 对应后端字段 totalQualifiedQuantity */
+  totalQualifiedQuantity: number
+  /** 对应后端字段 totalUnqualifiedQuantity */
+  totalUnqualifiedQuantity: number
+  /** 对应后端字段 totalInspectionReturnQuantity */
+  totalInspectionReturnQuantity: number
+  /** 对应后端字段 judgeStatus */
+  judgeStatus: number
   /** 对应后端字段 judgeBy */
   judgeBy?: string
-  /** 对应后端字段 judgeTime */
-  judgeTime?: string
-  /** 对应后端字段 inspectionRemark */
-  inspectionRemark?: string
-  /** 对应后端字段 orderStatus */
-  orderStatus: number
+  /** 对应后端字段 judgeDate */
+  judgeDate?: string
+  /** 对应后端字段 judgeDescription */
+  judgeDescription?: string
   /** 对应后端字段 items */
   items?: unknown[]
   /** 对应后端字段 changeLogs */
@@ -65,50 +53,42 @@ export interface FqcOrder extends TaktEntityBase {
  * FqcOrderQuery类型（对应后端 Takt.Application.Dtos.Logistics.Quality.Operation.TaktFqcOrderQueryDto）
  */
 export interface FqcOrderQuery extends TaktPagedQuery {
-  /** 对应后端字段 orderCode */
-  orderCode?: string
+  /** 对应后端字段 plantCode */
+  plantCode?: string
   /** 对应后端字段 sourceCode */
   sourceCode?: string
-  /** 对应后端字段 planCode */
-  planCode?: string
-  /** 对应后端字段 standardCode */
-  standardCode?: string
-  /** 对应后端字段 materialCode */
-  materialCode?: string
-  /** 对应后端字段 materialName */
-  materialName?: string
-  /** 对应后端字段 batchNo */
-  batchNo?: string
+  /** 对应后端字段 inspectionDate */
+  inspectionDate?: string
+  /** 对应后端字段 inspectionDateStart */
+  inspectionDateStart?: string
+  /** 对应后端字段 inspectionDateEnd */
+  inspectionDateEnd?: string
+  /** 对应后端字段 fqcOrderCode */
+  fqcOrderCode?: string
   /** 对应后端字段 customerCode */
   customerCode?: string
-  /** 对应后端字段 customerName */
-  customerName?: string
-  /** 对应后端字段 outgoingQuantity */
-  outgoingQuantity?: number
-  /** 对应后端字段 deliveryOrderCode */
-  deliveryOrderCode?: string
-  /** 对应后端字段 samplingSchemeCode */
-  samplingSchemeCode?: string
-  /** 对应后端字段 sampleQuantity */
-  sampleQuantity?: number
-  /** 对应后端字段 qualifiedQuantity */
-  qualifiedQuantity?: number
-  /** 对应后端字段 unqualifiedQuantity */
-  unqualifiedQuantity?: number
-  /** 对应后端字段 inspectionConclusion */
-  inspectionConclusion?: number
+  /** 对应后端字段 totalWarehouseQuantity */
+  totalWarehouseQuantity?: number
+  /** 对应后端字段 totalSampleQuantity */
+  totalSampleQuantity?: number
+  /** 对应后端字段 totalQualifiedQuantity */
+  totalQualifiedQuantity?: number
+  /** 对应后端字段 totalUnqualifiedQuantity */
+  totalUnqualifiedQuantity?: number
+  /** 对应后端字段 totalInspectionReturnQuantity */
+  totalInspectionReturnQuantity?: number
+  /** 对应后端字段 judgeStatus */
+  judgeStatus?: number
   /** 对应后端字段 judgeBy */
   judgeBy?: string
-  /** 对应后端字段 judgeTime */
-  judgeTime?: string
-  /** 对应后端字段 judgeTimeStart */
-  judgeTimeStart?: string
-  /** 对应后端字段 judgeTimeEnd */
-  judgeTimeEnd?: string
-  /** 对应后端字段 inspectionRemark */
-  inspectionRemark?: string
-  /** 对应后端字段 orderStatus */
-  orderStatus?: number
+  /** 对应后端字段 judgeDate */
+  judgeDate?: string
+  /** 对应后端字段 judgeDateStart */
+  judgeDateStart?: string
+  /** 对应后端字段 judgeDateEnd */
+  judgeDateEnd?: string
+  /** 对应后端字段 judgeDescription */
+  judgeDescription?: string
   /** 对应后端字段 remark */
   remark?: string
   /** 对应后端字段 extFieldJson */
@@ -129,46 +109,34 @@ export interface FqcOrderQuery extends TaktPagedQuery {
  * FqcOrderCreate类型（对应后端 Takt.Application.Dtos.Logistics.Quality.Operation.TaktFqcOrderCreateDto）
  */
 export interface FqcOrderCreate {
-  /** 对应后端字段 orderCode */
-  orderCode: string
+  /** 对应后端字段 plantCode */
+  plantCode: string
   /** 对应后端字段 sourceCode */
   sourceCode: string
-  /** 对应后端字段 planCode */
-  planCode?: string
-  /** 对应后端字段 standardCode */
-  standardCode: string
-  /** 对应后端字段 materialCode */
-  materialCode: string
-  /** 对应后端字段 materialName */
-  materialName: string
-  /** 对应后端字段 batchNo */
-  batchNo?: string
+  /** 对应后端字段 inspectionDate */
+  inspectionDate?: string
+  /** 对应后端字段 fqcOrderCode */
+  fqcOrderCode: string
   /** 对应后端字段 customerCode */
-  customerCode: string
-  /** 对应后端字段 customerName */
-  customerName: string
-  /** 对应后端字段 outgoingQuantity */
-  outgoingQuantity: number
-  /** 对应后端字段 deliveryOrderCode */
-  deliveryOrderCode?: string
-  /** 对应后端字段 samplingSchemeCode */
-  samplingSchemeCode?: string
-  /** 对应后端字段 sampleQuantity */
-  sampleQuantity: number
-  /** 对应后端字段 qualifiedQuantity */
-  qualifiedQuantity: number
-  /** 对应后端字段 unqualifiedQuantity */
-  unqualifiedQuantity: number
-  /** 对应后端字段 inspectionConclusion */
-  inspectionConclusion: number
+  customerCode?: string
+  /** 对应后端字段 totalWarehouseQuantity */
+  totalWarehouseQuantity: number
+  /** 对应后端字段 totalSampleQuantity */
+  totalSampleQuantity: number
+  /** 对应后端字段 totalQualifiedQuantity */
+  totalQualifiedQuantity: number
+  /** 对应后端字段 totalUnqualifiedQuantity */
+  totalUnqualifiedQuantity: number
+  /** 对应后端字段 totalInspectionReturnQuantity */
+  totalInspectionReturnQuantity: number
+  /** 对应后端字段 judgeStatus */
+  judgeStatus: number
   /** 对应后端字段 judgeBy */
   judgeBy?: string
-  /** 对应后端字段 judgeTime */
-  judgeTime?: string
-  /** 对应后端字段 inspectionRemark */
-  inspectionRemark?: string
-  /** 对应后端字段 orderStatus */
-  orderStatus: number
+  /** 对应后端字段 judgeDate */
+  judgeDate?: string
+  /** 对应后端字段 judgeDescription */
+  judgeDescription?: string
   /** 对应后端字段 extFieldJson */
   extFieldJson?: string
   /** 对应后端字段 remark */
@@ -188,11 +156,11 @@ export interface FqcOrderUpdate extends FqcOrderCreate {
 }
 
 /**
- * FqcOrderOrderStatus类型（对应后端 Takt.Application.Dtos.Logistics.Quality.Operation.TaktFqcOrderOrderStatusDto）
+ * FqcOrderJudgeStatus类型（对应后端 Takt.Application.Dtos.Logistics.Quality.Operation.TaktFqcOrderJudgeStatusDto）
  */
-export interface FqcOrderOrderStatus {
+export interface FqcOrderJudgeStatus {
   /** 对应后端字段 fqcOrderId */
   fqcOrderId: string
-  /** 对应后端字段 orderStatus */
-  orderStatus: number
+  /** 对应后端字段 judgeStatus */
+  judgeStatus: number
 }

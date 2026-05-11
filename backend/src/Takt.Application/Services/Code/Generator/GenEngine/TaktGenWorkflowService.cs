@@ -13,8 +13,7 @@
 using Takt.Application.Dtos.Code.Generator;
 using Takt.Domain.Entities.Code.Generator;
 using Takt.Domain.Entities.Routine.Tasks.Dict;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Validation;
+
 
 namespace Takt.Application.Services.Code.Generator.GenEngine;
 
@@ -30,6 +29,7 @@ public class TaktGenWorkflowService : ITaktGenWorkflowService
     private readonly ITaktRepository<TaktGenTableColumn> _genTableColumnRepository;
     private readonly ITaktRepository<TaktDictData> _dictDataRepository;
     private readonly ITaktGenEngine _codeEngine;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
@@ -39,18 +39,21 @@ public class TaktGenWorkflowService : ITaktGenWorkflowService
     /// <param name="genTableColumnRepository">代码生成字段配置仓储</param>
     /// <param name="dictDataRepository">字典数据仓储</param>
     /// <param name="codeEngine">通用代码生成引擎（Scriban 渲染）</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     public TaktGenWorkflowService(
         ITaktDatabaseSchemaProvider schemaProvider,
         ITaktRepository<TaktGenTable> genTableRepository,
         ITaktRepository<TaktGenTableColumn> genTableColumnRepository,
         ITaktRepository<TaktDictData> dictDataRepository,
-        ITaktGenEngine codeEngine)
+        ITaktGenEngine codeEngine,
+        ITaktUniqueValidator uniqueValidator)
     {
         _schemaProvider = schemaProvider ?? throw new ArgumentNullException(nameof(schemaProvider));
         _genTableRepository = genTableRepository ?? throw new ArgumentNullException(nameof(genTableRepository));
         _genTableColumnRepository = genTableColumnRepository ?? throw new ArgumentNullException(nameof(genTableColumnRepository));
         _dictDataRepository = dictDataRepository ?? throw new ArgumentNullException(nameof(dictDataRepository));
         _codeEngine = codeEngine ?? throw new ArgumentNullException(nameof(codeEngine));
+        _uniqueValidator = uniqueValidator ?? throw new ArgumentNullException(nameof(uniqueValidator));
     }
 
     /// <summary>
@@ -84,12 +87,9 @@ public class TaktGenWorkflowService : ITaktGenWorkflowService
 
         // 重复导入直接提示，避免唯一索引冲突
         TaktLogger.Debug("[CodeGenWorkflow] 开始从数据库导入表: ConfigId={ConfigId}, TableName={TableName}", configId, tableName);
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(
-            _genTableRepository,
-            t => t.TableName,
-            tableName,
-            null,
-            $"表 {tableName} 已导入，请勿重复导入").ConfigureAwait(false);
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_genTableRepository, t => t.TableName, tableName, null);
+        if (!isUnique)
+            throw new TaktBusinessException($"表 {tableName} 已导入，请勿重复导入");
 
         var columns = await _schemaProvider.GetColumnsAsync(configId, tableName).ConfigureAwait(false);
         if (columns == null || columns.Count == 0)

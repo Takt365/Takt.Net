@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Logistics.Quality.Cost
 // 文件名称：ITaktQualityOperationFirstArticleService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：品质业务初期定期检定费用明细表应用服务接口（主子表），定义QualityOperationFirstArticle管理的业务操作
 // 

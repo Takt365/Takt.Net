@@ -25,6 +25,10 @@ export interface OvertimeItem extends TaktEntityBase {
   employeeName: string
   /** 对应后端字段 plannedHours */
   plannedHours: number
+  /** 对应后端字段 actualStartTime */
+  actualStartTime?: string
+  /** 对应后端字段 actualEndTime */
+  actualEndTime?: string
   /** 对应后端字段 actualHours */
   actualHours?: number
   /** 对应后端字段 overtime */
@@ -45,6 +49,18 @@ export interface OvertimeItemQuery extends TaktPagedQuery {
   employeeName?: string
   /** 对应后端字段 plannedHours */
   plannedHours?: number
+  /** 对应后端字段 actualStartTime */
+  actualStartTime?: string
+  /** 对应后端字段 actualStartTimeStart */
+  actualStartTimeStart?: string
+  /** 对应后端字段 actualStartTimeEnd */
+  actualStartTimeEnd?: string
+  /** 对应后端字段 actualEndTime */
+  actualEndTime?: string
+  /** 对应后端字段 actualEndTimeStart */
+  actualEndTimeStart?: string
+  /** 对应后端字段 actualEndTimeEnd */
+  actualEndTimeEnd?: string
   /** 对应后端字段 actualHours */
   actualHours?: number
   /** 对应后端字段 remark */
@@ -77,6 +93,10 @@ export interface OvertimeItemCreate {
   employeeName: string
   /** 对应后端字段 plannedHours */
   plannedHours: number
+  /** 对应后端字段 actualStartTime */
+  actualStartTime?: string
+  /** 对应后端字段 actualEndTime */
+  actualEndTime?: string
   /** 对应后端字段 actualHours */
   actualHours?: number
   /** 对应后端字段 extFieldJson */

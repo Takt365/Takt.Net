@@ -17,6 +17,10 @@ export interface EcAttachment extends TaktEntityBase {
   ecAttachmentId: string
   /** 对应后端字段 ecnId */
   ecnId: string
+  /** 对应后端字段 ecnNo */
+  ecnNo: string
+  /** 对应后端字段 lineNumber */
+  lineNumber: number
   /** 对应后端字段 attachmentType */
   attachmentType: string
   /** 对应后端字段 docNo */
@@ -37,6 +41,10 @@ export interface EcAttachment extends TaktEntityBase {
 export interface EcAttachmentQuery extends TaktPagedQuery {
   /** 对应后端字段 ecnId */
   ecnId?: string
+  /** 对应后端字段 ecnNo */
+  ecnNo?: string
+  /** 对应后端字段 lineNumber */
+  lineNumber?: number
   /** 对应后端字段 attachmentType */
   attachmentType?: string
   /** 对应后端字段 docNo */
@@ -67,6 +75,10 @@ export interface EcAttachmentQuery extends TaktPagedQuery {
 export interface EcAttachmentCreate {
   /** 对应后端字段 ecnId */
   ecnId: string
+  /** 对应后端字段 ecnNo */
+  ecnNo: string
+  /** 对应后端字段 lineNumber */
+  lineNumber: number
   /** 对应后端字段 attachmentType */
   attachmentType: string
   /** 对应后端字段 docNo */

@@ -13,7 +13,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using Takt.Domain.Entities.Identity;
-using Takt.Domain.Events;
 using Takt.Domain.Interfaces;
 using Takt.Shared.Exceptions;
 using Takt.Shared.Helpers;
@@ -28,7 +27,6 @@ public abstract class TaktServiceBase
     protected readonly ITaktUserContext? _userContext;
     protected readonly ITaktTenantContext? _tenantContext;
     protected readonly ITaktLocalizer? _localizer;
-    protected readonly ITaktEventBus? _eventBus;
 
     /// <summary>
     /// 构造函数（可选依赖注入）
@@ -36,17 +34,14 @@ public abstract class TaktServiceBase
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
-    /// <param name="eventBus">事件总线（可选）</param>
     protected TaktServiceBase(
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
-        ITaktLocalizer? localizer = null,
-        ITaktEventBus? eventBus = null)
+        ITaktLocalizer? localizer = null)
     {
         _userContext = userContext;
         _tenantContext = tenantContext;
         _localizer = localizer;
-        _eventBus = eventBus;
 
         // 输出用户和租户上下文信息日志
         LogContextInfo();

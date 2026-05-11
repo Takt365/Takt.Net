@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Routine.Business.Visiting
 // 文件名称：TaktVisitService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：参访公司表应用服务，提供Visit管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Routine.Business.Visiting;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Routine.Business.Visiting;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Routine.Business.Visiting;
 
@@ -29,18 +21,21 @@ namespace Takt.Application.Services.Routine.Business.Visiting;
 public class TaktVisitService : TaktServiceBase, ITaktVisitService
 {
     private readonly ITaktRepository<TaktVisit> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktVisitPerson> _visitPersonRepository;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">Visit仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="visitPersonRepository">VisitPerson仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktVisitService(
         ITaktRepository<TaktVisit> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktVisitPerson> visitPersonRepository,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
@@ -48,6 +43,7 @@ public class TaktVisitService : TaktServiceBase, ITaktVisitService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _visitPersonRepository = visitPersonRepository;
     }
 
@@ -113,6 +109,11 @@ public class TaktVisitService : TaktServiceBase, ITaktVisitService
     public async Task<TaktVisitDto> CreateVisitAsync(TaktVisitCreateDto dto)
     {
         var entity = dto.Adapt<TaktVisit>();
+        // 验证CompanyName、VisitStartTime组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.CompanyName == dto.CompanyName && x.VisitStartTime == dto.VisitStartTime);
+        if (!isUnique)
+            throw new TaktBusinessException($"参访公司表CompanyName、VisitStartTime组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -145,6 +146,10 @@ public class TaktVisitService : TaktServiceBase, ITaktVisitService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.visitNotFound");
+        // 验证CompanyName、VisitStartTime组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.CompanyName == dto.CompanyName && x.VisitStartTime == dto.VisitStartTime, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"参访公司表CompanyName、VisitStartTime组合已存在");
 
         dto.Adapt(entity, typeof(TaktVisitUpdateDto), typeof(TaktVisit));
         entity.UpdatedAt = DateTime.Now;

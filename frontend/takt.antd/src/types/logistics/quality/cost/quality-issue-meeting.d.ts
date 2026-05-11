@@ -17,6 +17,8 @@ export interface QualityIssueMeeting extends TaktEntityBase {
   qualityIssueMeetingId: string
   /** 对应后端字段 qualityIssueId */
   qualityIssueId: string
+  /** 对应后端字段 qualityIssueCode */
+  qualityIssueCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 directManpowerCostPerMinute */
@@ -55,6 +57,8 @@ export interface QualityIssueMeeting extends TaktEntityBase {
 export interface QualityIssueMeetingQuery extends TaktPagedQuery {
   /** 对应后端字段 qualityIssueId */
   qualityIssueId?: string
+  /** 对应后端字段 qualityIssueCode */
+  qualityIssueCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 directManpowerCostPerMinute */
@@ -105,6 +109,8 @@ export interface QualityIssueMeetingQuery extends TaktPagedQuery {
 export interface QualityIssueMeetingCreate {
   /** 对应后端字段 qualityIssueId */
   qualityIssueId: string
+  /** 对应后端字段 qualityIssueCode */
+  qualityIssueCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 directManpowerCostPerMinute */

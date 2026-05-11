@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktPcbaRepairDetailEntitiesSeedData.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(AI Auto-Generated)
 // 功能描述：TaktPcbaRepairDetail 实体字段翻译种子数据（自动生成）
 //
@@ -116,101 +116,109 @@ public class TaktPcbaRepairDetailEntitiesSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.pcbarepairid", TranslationValue = "ID", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
             new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.pcbarepairid", TranslationValue = "ID", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 3 },
 
+            // entity.pcbarepairdetail.prodordercode
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.prodordercode", TranslationValue = "生产工单号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.prodordercode", TranslationValue = "生产工单号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.prodordercode", TranslationValue = "生产工单号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.prodordercode", TranslationValue = "生产工单号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.prodordercode", TranslationValue = "生产工单号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.prodordercode", TranslationValue = "生产工单号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+
             // entity.pcbarepairdetail.linenumber
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 4 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.linenumber", TranslationValue = "项号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
 
             // entity.pcbarepairdetail.pcbaboardtype
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.pcbaboardtype", TranslationValue = "PCBA板别", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.pcbaboardtype", TranslationValue = "PCBA板别", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.pcbaboardtype", TranslationValue = "PCBA板别", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.pcbaboardtype", TranslationValue = "PCBA板别", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.pcbaboardtype", TranslationValue = "PCBA板别", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.pcbaboardtype", TranslationValue = "PCBA板别", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 5 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.pcbaboardtype", TranslationValue = "PCBA板别", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.pcbaboardtype", TranslationValue = "PCBA板别", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.pcbaboardtype", TranslationValue = "PCBA板别", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.pcbaboardtype", TranslationValue = "PCBA板别", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.pcbaboardtype", TranslationValue = "PCBA板别", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.pcbaboardtype", TranslationValue = "PCBA板别", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
 
             // entity.pcbarepairdetail.prodactualqty
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.prodactualqty", TranslationValue = "生产实绩", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.prodactualqty", TranslationValue = "生产实绩", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.prodactualqty", TranslationValue = "生产实绩", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.prodactualqty", TranslationValue = "生产实绩", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.prodactualqty", TranslationValue = "生产实绩", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.prodactualqty", TranslationValue = "生产实绩", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 6 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.prodactualqty", TranslationValue = "生产实绩", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.prodactualqty", TranslationValue = "生产实绩", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.prodactualqty", TranslationValue = "生产实绩", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.prodactualqty", TranslationValue = "生产实绩", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.prodactualqty", TranslationValue = "生产实绩", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.prodactualqty", TranslationValue = "生产实绩", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
 
             // entity.pcbarepairdetail.prodline
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.prodline", TranslationValue = "生产线", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.prodline", TranslationValue = "生产线", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.prodline", TranslationValue = "生产线", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.prodline", TranslationValue = "生产线", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.prodline", TranslationValue = "生产线", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.prodline", TranslationValue = "生产线", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 7 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.prodline", TranslationValue = "生产线", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.prodline", TranslationValue = "生产线", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.prodline", TranslationValue = "生产线", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.prodline", TranslationValue = "生产线", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.prodline", TranslationValue = "生产线", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.prodline", TranslationValue = "生产线", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
 
             // entity.pcbarepairdetail.cardno
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.cardno", TranslationValue = "卡号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.cardno", TranslationValue = "卡号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.cardno", TranslationValue = "卡号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.cardno", TranslationValue = "卡号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.cardno", TranslationValue = "卡号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.cardno", TranslationValue = "卡号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 8 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.cardno", TranslationValue = "卡号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.cardno", TranslationValue = "卡号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.cardno", TranslationValue = "卡号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.cardno", TranslationValue = "卡号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.cardno", TranslationValue = "卡号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.cardno", TranslationValue = "卡号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
 
             // entity.pcbarepairdetail.defectsymptom
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.defectsymptom", TranslationValue = "不良症状", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.defectsymptom", TranslationValue = "不良症状", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.defectsymptom", TranslationValue = "不良症状", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.defectsymptom", TranslationValue = "不良症状", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.defectsymptom", TranslationValue = "不良症状", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.defectsymptom", TranslationValue = "不良症状", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 9 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.defectsymptom", TranslationValue = "不良症状", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.defectsymptom", TranslationValue = "不良症状", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.defectsymptom", TranslationValue = "不良症状", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.defectsymptom", TranslationValue = "不良症状", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.defectsymptom", TranslationValue = "不良症状", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.defectsymptom", TranslationValue = "不良症状", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
 
             // entity.pcbarepairdetail.defectengineering
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.defectengineering", TranslationValue = "检出工程", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.defectengineering", TranslationValue = "检出工程", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.defectengineering", TranslationValue = "检出工程", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.defectengineering", TranslationValue = "检出工程", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.defectengineering", TranslationValue = "检出工程", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.defectengineering", TranslationValue = "检出工程", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 10 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.defectengineering", TranslationValue = "检出工程", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.defectengineering", TranslationValue = "检出工程", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.defectengineering", TranslationValue = "检出工程", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.defectengineering", TranslationValue = "检出工程", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.defectengineering", TranslationValue = "检出工程", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.defectengineering", TranslationValue = "检出工程", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
 
             // entity.pcbarepairdetail.defectreason
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.defectreason", TranslationValue = "不良原因", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.defectreason", TranslationValue = "不良原因", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.defectreason", TranslationValue = "不良原因", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.defectreason", TranslationValue = "不良原因", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.defectreason", TranslationValue = "不良原因", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.defectreason", TranslationValue = "不良原因", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 11 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.defectreason", TranslationValue = "不良原因", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.defectreason", TranslationValue = "不良原因", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.defectreason", TranslationValue = "不良原因", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.defectreason", TranslationValue = "不良原因", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.defectreason", TranslationValue = "不良原因", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.defectreason", TranslationValue = "不良原因", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
 
             // entity.pcbarepairdetail.defectqty
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.defectqty", TranslationValue = "Quantity", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.defectqty", TranslationValue = "数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.defectqty", TranslationValue = "수량", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.defectqty", TranslationValue = "不良数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.defectqty", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.defectqty", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 12 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.defectqty", TranslationValue = "Quantity", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.defectqty", TranslationValue = "数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.defectqty", TranslationValue = "수량", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.defectqty", TranslationValue = "不良数量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.defectqty", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.defectqty", TranslationValue = "數量", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
 
             // entity.pcbarepairdetail.defectresponsibility
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.defectresponsibility", TranslationValue = "责任归属", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.defectresponsibility", TranslationValue = "责任归属", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.defectresponsibility", TranslationValue = "责任归属", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.defectresponsibility", TranslationValue = "责任归属", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.defectresponsibility", TranslationValue = "责任归属", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.defectresponsibility", TranslationValue = "责任归属", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 13 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.defectresponsibility", TranslationValue = "责任归属", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.defectresponsibility", TranslationValue = "责任归属", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.defectresponsibility", TranslationValue = "责任归属", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.defectresponsibility", TranslationValue = "责任归属", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.defectresponsibility", TranslationValue = "责任归属", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.defectresponsibility", TranslationValue = "责任归属", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
 
             // entity.pcbarepairdetail.defectnature
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.defectnature", TranslationValue = "不良性质", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.defectnature", TranslationValue = "不良性质", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.defectnature", TranslationValue = "不良性质", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.defectnature", TranslationValue = "不良性质", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.defectnature", TranslationValue = "不良性质", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.defectnature", TranslationValue = "不良性质", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 14 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.defectnature", TranslationValue = "不良性质", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.defectnature", TranslationValue = "不良性质", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.defectnature", TranslationValue = "不良性质", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.defectnature", TranslationValue = "不良性质", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.defectnature", TranslationValue = "不良性质", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.defectnature", TranslationValue = "不良性质", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
 
             // entity.pcbarepairdetail.repairoperator
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.repairoperator", TranslationValue = "修理员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.repairoperator", TranslationValue = "修理员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.repairoperator", TranslationValue = "修理员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.repairoperator", TranslationValue = "修理员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.repairoperator", TranslationValue = "修理员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.repairoperator", TranslationValue = "修理员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 15 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.pcbarepairdetail.repairoperator", TranslationValue = "修理员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.pcbarepairdetail.repairoperator", TranslationValue = "修理员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.pcbarepairdetail.repairoperator", TranslationValue = "修理员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.pcbarepairdetail.repairoperator", TranslationValue = "修理员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.pcbarepairdetail.repairoperator", TranslationValue = "修理员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.pcbarepairdetail.repairoperator", TranslationValue = "修理员", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 16 },
         };
     }
 }

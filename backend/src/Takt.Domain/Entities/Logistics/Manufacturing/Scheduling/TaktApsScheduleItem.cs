@@ -43,13 +43,6 @@ public class TaktApsScheduleItem : TaktEntityBase
     public string WorkOrderCode { get; set; } = string.Empty;
 
     /// <summary>
-    /// 生产工单ID
-    /// </summary>
-    [SugarColumn(ColumnName = "work_order_id", ColumnDescription = "生产工单ID", ColumnDataType = "bigint", IsNullable = false)]
-    [JsonConverter(typeof(ValueToStringConverter))]
-    public long WorkOrderId { get; set; }
-
-    /// <summary>
     /// 产品编码
     /// </summary>
     [SugarColumn(ColumnName = "product_code", ColumnDescription = "产品编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
@@ -138,30 +131,6 @@ public class TaktApsScheduleItem : TaktEntityBase
     /// </summary>
     [SugarColumn(ColumnName = "actual_end_time", ColumnDescription = "实际结束时间", ColumnDataType = "datetime", IsNullable = true)]
     public DateTime? ActualEndTime { get; set; }
-
-    /// <summary>
-    /// 设备编码
-    /// </summary>
-    [SugarColumn(ColumnName = "equipment_code", ColumnDescription = "设备编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? EquipmentCode { get; set; }
-
-    /// <summary>
-    /// 设备名称
-    /// </summary>
-    [SugarColumn(ColumnName = "equipment_name", ColumnDescription = "设备名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
-    public string? EquipmentName { get; set; }
-
-    /// <summary>
-    /// 班组编码
-    /// </summary>
-    [SugarColumn(ColumnName = "team_code", ColumnDescription = "班组编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? TeamCode { get; set; }
-
-    /// <summary>
-    /// 班组名称
-    /// </summary>
-    [SugarColumn(ColumnName = "team_name", ColumnDescription = "班组名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = true)]
-    public string? TeamName { get; set; }
 
     /// <summary>
     /// 工序状态（0=未开始，1=准备中，2=加工中，3=已完工，4=已暂停，5=已取消）

@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Accounting.Controlling
 // 文件名称：TaktCostCenterDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：成本中心表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktCostCenterDto : TaktDtosEntityBase
     /// </summary>
     public TaktCostCenterDto()
     {
+        CompanyCode = string.Empty;
         CostCenterCode = string.Empty;
         CostCenterName = string.Empty;
     }
@@ -36,7 +37,7 @@ public partial class TaktCostCenterDto : TaktDtosEntityBase
     /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
     /// <summary>
     /// 成本中心编码
     /// </summary>
@@ -251,6 +252,7 @@ public partial class TaktCostCenterCreateDto
     /// </summary>
     public TaktCostCenterCreateDto()
     {
+        CompanyCode = string.Empty;
         CostCenterCode = string.Empty;
         CostCenterName = string.Empty;
     }
@@ -258,7 +260,7 @@ public partial class TaktCostCenterCreateDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 成本中心编码
@@ -425,6 +427,7 @@ public partial class TaktCostCenterTemplateDto
     /// </summary>
     public TaktCostCenterTemplateDto()
     {
+        CompanyCode = string.Empty;
         CostCenterCode = string.Empty;
         CostCenterName = string.Empty;
     }
@@ -432,7 +435,7 @@ public partial class TaktCostCenterTemplateDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 成本中心编码
@@ -525,6 +528,7 @@ public partial class TaktCostCenterImportDto
     /// </summary>
     public TaktCostCenterImportDto()
     {
+        CompanyCode = string.Empty;
         CostCenterCode = string.Empty;
         CostCenterName = string.Empty;
     }
@@ -532,7 +536,7 @@ public partial class TaktCostCenterImportDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 成本中心编码
@@ -626,6 +630,7 @@ public partial class TaktCostCenterExportDto
     public TaktCostCenterExportDto()
     {
         CreatedAt = DateTime.Now;
+        CompanyCode = string.Empty;
         CostCenterCode = string.Empty;
         CostCenterName = string.Empty;
     }
@@ -633,7 +638,7 @@ public partial class TaktCostCenterExportDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 成本中心编码

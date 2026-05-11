@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Routine.Business.News
 // 文件名称：TaktNewsCommentService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：新闻评论表应用服务，提供NewsComment管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Routine.Business.News;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Routine.Business.News;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Routine.Business.News;
 
@@ -29,18 +21,21 @@ namespace Takt.Application.Services.Routine.Business.News;
 public class TaktNewsCommentService : TaktServiceBase, ITaktNewsCommentService
 {
     private readonly ITaktRepository<TaktNewsComment> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktNewsCommentLike> _newsCommentLikeRepository;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">NewsComment仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="newsCommentLikeRepository">NewsCommentLike仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktNewsCommentService(
         ITaktRepository<TaktNewsComment> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktNewsCommentLike> newsCommentLikeRepository,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
@@ -48,6 +43,7 @@ public class TaktNewsCommentService : TaktServiceBase, ITaktNewsCommentService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _newsCommentLikeRepository = newsCommentLikeRepository;
     }
 
@@ -266,7 +262,6 @@ public class TaktNewsCommentService : TaktServiceBase, ITaktNewsCommentService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.newscommentNotFound");
-
         dto.Adapt(entity, typeof(TaktNewsCommentUpdateDto), typeof(TaktNewsComment));
         entity.UpdatedAt = DateTime.Now;
         await _repository.UpdateAsync(entity);

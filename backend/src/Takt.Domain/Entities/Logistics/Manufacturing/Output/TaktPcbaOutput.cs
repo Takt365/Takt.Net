@@ -19,7 +19,7 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.Output;
 /// PCBA日报实体
 /// </summary>
 [SugarTable("takt_logistics_manufacturing_output_pcba_output", "PCBA日报表")]
-[SugarIndex("ix_takt_logistics_manufacturing_output_pcba_output_plant_code", nameof(PlantCode), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_manufacturing_output_pcba_output_unique", nameof(PlantCode), OrderByType.Asc, nameof(ProdCategory), OrderByType.Asc, nameof(ProdDate), OrderByType.Asc, nameof(ProdLine), OrderByType.Asc, nameof(ShiftNo), OrderByType.Asc, nameof(ProdOrderCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_pcba_output_prod_date", nameof(ProdDate), OrderByType.Desc)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_pcba_output_prod_line", nameof(ProdLine), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_pcba_output_prod_order_code", nameof(ProdOrderCode), OrderByType.Asc)]

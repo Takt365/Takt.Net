@@ -17,8 +17,8 @@ export interface QualityIssue extends TaktEntityBase {
   qualityIssueId: string
   /** 对应后端字段 plantCode */
   plantCode: string
-  /** 对应后端字段 issueNo */
-  issueNo: string
+  /** 对应后端字段 qualityIssueCode */
+  qualityIssueCode: string
   /** 对应后端字段 issueDate */
   issueDate: string
   /** 对应后端字段 model */
@@ -51,8 +51,8 @@ export interface QualityIssue extends TaktEntityBase {
 export interface QualityIssueQuery extends TaktPagedQuery {
   /** 对应后端字段 plantCode */
   plantCode?: string
-  /** 对应后端字段 issueNo */
-  issueNo?: string
+  /** 对应后端字段 qualityIssueCode */
+  qualityIssueCode?: string
   /** 对应后端字段 issueDate */
   issueDate?: string
   /** 对应后端字段 issueDateStart */
@@ -97,8 +97,8 @@ export interface QualityIssueQuery extends TaktPagedQuery {
 export interface QualityIssueCreate {
   /** 对应后端字段 plantCode */
   plantCode: string
-  /** 对应后端字段 issueNo */
-  issueNo: string
+  /** 对应后端字段 qualityIssueCode */
+  qualityIssueCode: string
   /** 对应后端字段 issueDate */
   issueDate: string
   /** 对应后端字段 model */

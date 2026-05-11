@@ -16,7 +16,7 @@ export interface CostCenter extends TaktEntityBase {
   /** 对应后端字段 costCenterId */
   costCenterId: string
   /** 对应后端字段 companyCode */
-  companyCode?: string
+  companyCode: string
   /** 对应后端字段 costCenterCode */
   costCenterCode: string
   /** 对应后端字段 costCenterName */
@@ -116,7 +116,7 @@ export interface CostCenterQuery extends TaktPagedQuery {
  */
 export interface CostCenterCreate {
   /** 对应后端字段 companyCode */
-  companyCode?: string
+  companyCode: string
   /** 对应后端字段 costCenterCode */
   costCenterCode: string
   /** 对应后端字段 costCenterName */

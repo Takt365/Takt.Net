@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Manufacturing.EngineeringChange
 // 文件名称：TaktEcDeptService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：设变部门表应用服务，提供EcDept管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Manufacturing.EngineeringChange;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Manufacturing.EngineeringChange;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Manufacturing.EngineeringChange;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Logistics.Manufacturing.EngineeringChange;
 public class TaktEcDeptService : TaktServiceBase, ITaktEcDeptService
 {
     private readonly ITaktRepository<TaktEcDept> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">EcDept仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktEcDeptService(
         ITaktRepository<TaktEcDept> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -87,7 +83,7 @@ public class TaktEcDeptService : TaktServiceBase, ITaktEcDeptService
         var all = await _repository.FindAsync(x => x.IsDeleted == 0);
         return all.Select(x => new TaktSelectOption
         {
-            DictLabel = x.DeptCode ?? string.Empty,
+            DictLabel = x.EcnNo ?? string.Empty,
             DictValue = x.DeptCode
 
         }).ToList();
@@ -101,9 +97,12 @@ public class TaktEcDeptService : TaktServiceBase, ITaktEcDeptService
     /// <returns>设变部门表(EcDept)DTO</returns>
     public async Task<TaktEcDeptDto> CreateEcDeptAsync(TaktEcDeptCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.DeptCode, dto.DeptCode, null, $"设变部门表编码 {dto.DeptCode} 已存在");
-
         var entity = dto.Adapt<TaktEcDept>();
+        // 验证部门编码的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.DeptCode, dto.DeptCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"设变部门表部门编码 {dto.DeptCode} 已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetEcDeptByIdAsync(entity.Id)) ?? entity.Adapt<TaktEcDeptDto>();
     }
@@ -120,8 +119,10 @@ public class TaktEcDeptService : TaktServiceBase, ITaktEcDeptService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.ecdeptNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.DeptCode, dto.DeptCode, id, $"设变部门表编码 {dto.DeptCode} 已存在");
+        // 验证部门编码的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.DeptCode, dto.DeptCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"设变部门表部门编码 {dto.DeptCode} 已存在");
 
         dto.Adapt(entity, typeof(TaktEcDeptUpdateDto), typeof(TaktEcDept));
         entity.UpdatedAt = DateTime.Now;
@@ -279,6 +280,7 @@ public class TaktEcDeptService : TaktServiceBase, ITaktEcDeptService
         if (!string.IsNullOrEmpty(queryDto?.KeyWords))
         {
             exp = exp.And(x =>
+                x.EcnNo!.Contains(queryDto.KeyWords) ||
                 x.DeptCode!.Contains(queryDto.KeyWords) ||
                 x.Content!.Contains(queryDto.KeyWords) ||
                 x.ScheduledBatch!.Contains(queryDto.KeyWords) ||
@@ -303,6 +305,16 @@ public class TaktEcDeptService : TaktServiceBase, ITaktEcDeptService
         if (queryDto?.EcnDetailId.HasValue == true)
         {
             exp = exp.And(x => x.EcnDetailId == queryDto.EcnDetailId);
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.EcnNo))
+        {
+            exp = exp.And(x => x.EcnNo!.Contains(queryDto.EcnNo));
+        }
+
+        if (queryDto?.LineNumber.HasValue == true)
+        {
+            exp = exp.And(x => x.LineNumber == queryDto.LineNumber);
         }
 
         if (!string.IsNullOrEmpty(queryDto?.DeptCode))

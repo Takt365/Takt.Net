@@ -17,8 +17,8 @@ export interface SalesOrder extends TaktEntityBase {
   salesOrderId: string
   /** 对应后端字段 plantCode */
   plantCode?: string
-  /** 对应后端字段 orderCode */
-  orderCode: string
+  /** 对应后端字段 salesOrderCode */
+  salesOrderCode: string
   /** 对应后端字段 customerCode */
   customerCode: string
   /** 对应后端字段 customerName */
@@ -69,8 +69,8 @@ export interface SalesOrder extends TaktEntityBase {
 export interface SalesOrderQuery extends TaktPagedQuery {
   /** 对应后端字段 plantCode */
   plantCode?: string
-  /** 对应后端字段 orderCode */
-  orderCode?: string
+  /** 对应后端字段 salesOrderCode */
+  salesOrderCode?: string
   /** 对应后端字段 customerCode */
   customerCode?: string
   /** 对应后端字段 customerName */
@@ -143,8 +143,8 @@ export interface SalesOrderQuery extends TaktPagedQuery {
 export interface SalesOrderCreate {
   /** 对应后端字段 plantCode */
   plantCode?: string
-  /** 对应后端字段 orderCode */
-  orderCode: string
+  /** 对应后端字段 salesOrderCode */
+  salesOrderCode: string
   /** 对应后端字段 customerCode */
   customerCode: string
   /** 对应后端字段 customerName */

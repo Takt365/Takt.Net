@@ -18,14 +18,19 @@ namespace Takt.Domain.Entities.HumanResource.Organization;
 /// Takt岗位实体
 /// </summary>
 [SugarTable("takt_humanresource_organization_post", "岗位信息表")]
-[SugarIndex("ix_takt_humanresource_organization_post_PostCode", nameof(PostCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_humanresource_organization_post_PostName", nameof(PostName), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_humanresource_organization_post_company_code_name_unique", nameof(CompanyCode), OrderByType.Asc, nameof(PostCode), OrderByType.Asc, nameof(PostName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_humanresource_organization_post_DeptId", nameof(DeptId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_organization_post_ConfigId", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_organization_post_IsDeleted", nameof(IsDeleted), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_organization_post_PostStatus", nameof(PostStatus), OrderByType.Asc)]
 public class TaktPost : TaktEntityBase
 {
+    /// <summary>
+    /// 公司代码（不可空）
+    /// </summary>
+    [SugarColumn(ColumnName = "company_code", ColumnDescription = "公司代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string CompanyCode { get; set; } = string.Empty;
+
     /// <summary>
     /// 岗位名称
     /// </summary>

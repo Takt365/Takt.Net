@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Quality.Operation
 // 文件名称：TaktInspectionStandardDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：检验标准表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -24,6 +24,8 @@ public partial class TaktInspectionStandardDto : TaktDtosEntityBase
     {
         StandardCode = string.Empty;
         StandardName = string.Empty;
+        MaterialCategoryCode = string.Empty;
+        MaterialCategoryName = string.Empty;
     }
 
     /// <summary>
@@ -50,38 +52,21 @@ public partial class TaktInspectionStandardDto : TaktDtosEntityBase
     /// </summary>
     public int InspectionType { get; set; }
     /// <summary>
-    /// 适用物料类别编码
+    /// 物料类别编码
     /// </summary>
-    public string? MaterialCategoryCode { get; set; }
+    public string MaterialCategoryCode { get; set; }
     /// <summary>
-    /// 适用物料类别名称
+    /// 物料类别名称
     /// </summary>
-    public string? MaterialCategoryName { get; set; }
-    /// <summary>
-    /// 抽样方案ID
-    /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long? SamplingSchemeId { get; set; }
+    public string MaterialCategoryName { get; set; }
     /// <summary>
     /// 抽样方案编码
     /// </summary>
     public string? SamplingSchemeCode { get; set; }
     /// <summary>
-    /// 检验项目列表
+    /// 抽样方案名称
     /// </summary>
-    public string? InspectionItemsJson { get; set; }
-    /// <summary>
-    /// 检验方法
-    /// </summary>
-    public string? InspectionMethod { get; set; }
-    /// <summary>
-    /// 检验工具
-    /// </summary>
-    public string? InspectionTools { get; set; }
-    /// <summary>
-    /// 判定规则
-    /// </summary>
-    public string? JudgmentRules { get; set; }
+    public string? SamplingSchemeName { get; set; }
     /// <summary>
     /// 是否启用
     /// </summary>
@@ -94,10 +79,11 @@ public partial class TaktInspectionStandardDto : TaktDtosEntityBase
     /// 检验标准描述
     /// </summary>
     public string? StandardDescription { get; set; }
+
     /// <summary>
-    /// 排序号
+    /// 检验标准明细列表（主子表关系）（外键在子表 TaktInspectionStandardItemDto.InspectionStandardId）
     /// </summary>
-    public int SortOrder { get; set; }
+    public List<TaktInspectionStandardItemDto>? Items { get; set; }
 }
 
 /// <summary>
@@ -131,38 +117,21 @@ public partial class TaktInspectionStandardQueryDto : TaktPagedQuery
     /// </summary>
     public int? InspectionType { get; set; }
     /// <summary>
-    /// 适用物料类别编码
+    /// 物料类别编码
     /// </summary>
     public string? MaterialCategoryCode { get; set; }
     /// <summary>
-    /// 适用物料类别名称
+    /// 物料类别名称
     /// </summary>
     public string? MaterialCategoryName { get; set; }
-    /// <summary>
-    /// 抽样方案ID
-    /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long? SamplingSchemeId { get; set; }
     /// <summary>
     /// 抽样方案编码
     /// </summary>
     public string? SamplingSchemeCode { get; set; }
     /// <summary>
-    /// 检验项目列表
+    /// 抽样方案名称
     /// </summary>
-    public string? InspectionItemsJson { get; set; }
-    /// <summary>
-    /// 检验方法
-    /// </summary>
-    public string? InspectionMethod { get; set; }
-    /// <summary>
-    /// 检验工具
-    /// </summary>
-    public string? InspectionTools { get; set; }
-    /// <summary>
-    /// 判定规则
-    /// </summary>
-    public string? JudgmentRules { get; set; }
+    public string? SamplingSchemeName { get; set; }
     /// <summary>
     /// 是否启用
     /// </summary>
@@ -219,6 +188,8 @@ public partial class TaktInspectionStandardCreateDto
     {
         StandardCode = string.Empty;
         StandardName = string.Empty;
+        MaterialCategoryCode = string.Empty;
+        MaterialCategoryName = string.Empty;
     }
 
         /// <summary>
@@ -242,20 +213,14 @@ public partial class TaktInspectionStandardCreateDto
     public int InspectionType { get; set; }
 
         /// <summary>
-    /// 适用物料类别编码
+    /// 物料类别编码
     /// </summary>
-    public string? MaterialCategoryCode { get; set; }
+    public string MaterialCategoryCode { get; set; }
 
         /// <summary>
-    /// 适用物料类别名称
+    /// 物料类别名称
     /// </summary>
-    public string? MaterialCategoryName { get; set; }
-
-        /// <summary>
-    /// 抽样方案ID
-    /// </summary>
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long? SamplingSchemeId { get; set; }
+    public string MaterialCategoryName { get; set; }
 
         /// <summary>
     /// 抽样方案编码
@@ -263,24 +228,9 @@ public partial class TaktInspectionStandardCreateDto
     public string? SamplingSchemeCode { get; set; }
 
         /// <summary>
-    /// 检验项目列表
+    /// 抽样方案名称
     /// </summary>
-    public string? InspectionItemsJson { get; set; }
-
-        /// <summary>
-    /// 检验方法
-    /// </summary>
-    public string? InspectionMethod { get; set; }
-
-        /// <summary>
-    /// 检验工具
-    /// </summary>
-    public string? InspectionTools { get; set; }
-
-        /// <summary>
-    /// 判定规则
-    /// </summary>
-    public string? JudgmentRules { get; set; }
+    public string? SamplingSchemeName { get; set; }
 
         /// <summary>
     /// 是否启用
@@ -297,11 +247,6 @@ public partial class TaktInspectionStandardCreateDto
     /// </summary>
     public string? StandardDescription { get; set; }
 
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
-
     /// <summary>
     /// 扩展字段JSON
     /// </summary>
@@ -311,6 +256,12 @@ public partial class TaktInspectionStandardCreateDto
     /// 备注
     /// </summary>
     public string? Remark { get; set; }
+
+
+    /// <summary>
+    /// 检验标准明细列表（主子表关系）（外键在子表 TaktInspectionStandardItemCreateDto.InspectionStandardId）
+    /// </summary>
+    public List<TaktInspectionStandardItemCreateDto>? Items { get; set; }
 
 }
 
@@ -360,31 +311,6 @@ public partial class TaktInspectionStandardStandardStatusDto
 }
 
 /// <summary>
-/// 检验标准表排序DTO
-/// </summary>
-public partial class TaktInspectionStandardSortDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktInspectionStandardSortDto()
-    {
-    }
-
-        /// <summary>
-    /// 检验标准表（适配字段，序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [AdaptMember("Id")]
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long InspectionStandardId { get; set; } = 0;
-
-    /// <summary>
-    /// 排序号（越小越靠前）
-    /// </summary>
-    public int SortOrder { get; set; }
-}
-
-/// <summary>
 /// 检验标准表导入模板DTO
 /// </summary>
 public partial class TaktInspectionStandardTemplateDto
@@ -396,6 +322,8 @@ public partial class TaktInspectionStandardTemplateDto
     {
         StandardCode = string.Empty;
         StandardName = string.Empty;
+        MaterialCategoryCode = string.Empty;
+        MaterialCategoryName = string.Empty;
     }
 
         /// <summary>
@@ -419,19 +347,14 @@ public partial class TaktInspectionStandardTemplateDto
     public int InspectionType { get; set; }
 
         /// <summary>
-    /// 适用物料类别编码
+    /// 物料类别编码
     /// </summary>
-    public string? MaterialCategoryCode { get; set; }
+    public string MaterialCategoryCode { get; set; }
 
         /// <summary>
-    /// 适用物料类别名称
+    /// 物料类别名称
     /// </summary>
-    public string? MaterialCategoryName { get; set; }
-
-        /// <summary>
-    /// 抽样方案ID
-    /// </summary>
-    public long? SamplingSchemeId { get; set; }
+    public string MaterialCategoryName { get; set; }
 
         /// <summary>
     /// 抽样方案编码
@@ -439,24 +362,9 @@ public partial class TaktInspectionStandardTemplateDto
     public string? SamplingSchemeCode { get; set; }
 
         /// <summary>
-    /// 检验项目列表
+    /// 抽样方案名称
     /// </summary>
-    public string? InspectionItemsJson { get; set; }
-
-        /// <summary>
-    /// 检验方法
-    /// </summary>
-    public string? InspectionMethod { get; set; }
-
-        /// <summary>
-    /// 检验工具
-    /// </summary>
-    public string? InspectionTools { get; set; }
-
-        /// <summary>
-    /// 判定规则
-    /// </summary>
-    public string? JudgmentRules { get; set; }
+    public string? SamplingSchemeName { get; set; }
 
         /// <summary>
     /// 是否启用
@@ -472,11 +380,6 @@ public partial class TaktInspectionStandardTemplateDto
     /// 检验标准描述
     /// </summary>
     public string? StandardDescription { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -501,6 +404,8 @@ public partial class TaktInspectionStandardImportDto
     {
         StandardCode = string.Empty;
         StandardName = string.Empty;
+        MaterialCategoryCode = string.Empty;
+        MaterialCategoryName = string.Empty;
     }
 
         /// <summary>
@@ -524,19 +429,14 @@ public partial class TaktInspectionStandardImportDto
     public int InspectionType { get; set; }
 
         /// <summary>
-    /// 适用物料类别编码
+    /// 物料类别编码
     /// </summary>
-    public string? MaterialCategoryCode { get; set; }
+    public string MaterialCategoryCode { get; set; }
 
         /// <summary>
-    /// 适用物料类别名称
+    /// 物料类别名称
     /// </summary>
-    public string? MaterialCategoryName { get; set; }
-
-        /// <summary>
-    /// 抽样方案ID
-    /// </summary>
-    public long? SamplingSchemeId { get; set; }
+    public string MaterialCategoryName { get; set; }
 
         /// <summary>
     /// 抽样方案编码
@@ -544,24 +444,9 @@ public partial class TaktInspectionStandardImportDto
     public string? SamplingSchemeCode { get; set; }
 
         /// <summary>
-    /// 检验项目列表
+    /// 抽样方案名称
     /// </summary>
-    public string? InspectionItemsJson { get; set; }
-
-        /// <summary>
-    /// 检验方法
-    /// </summary>
-    public string? InspectionMethod { get; set; }
-
-        /// <summary>
-    /// 检验工具
-    /// </summary>
-    public string? InspectionTools { get; set; }
-
-        /// <summary>
-    /// 判定规则
-    /// </summary>
-    public string? JudgmentRules { get; set; }
+    public string? SamplingSchemeName { get; set; }
 
         /// <summary>
     /// 是否启用
@@ -577,11 +462,6 @@ public partial class TaktInspectionStandardImportDto
     /// 检验标准描述
     /// </summary>
     public string? StandardDescription { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -607,6 +487,8 @@ public partial class TaktInspectionStandardExportDto
         CreatedAt = DateTime.Now;
         StandardCode = string.Empty;
         StandardName = string.Empty;
+        MaterialCategoryCode = string.Empty;
+        MaterialCategoryName = string.Empty;
     }
 
         /// <summary>
@@ -630,19 +512,14 @@ public partial class TaktInspectionStandardExportDto
     public int InspectionType { get; set; }
 
         /// <summary>
-    /// 适用物料类别编码
+    /// 物料类别编码
     /// </summary>
-    public string? MaterialCategoryCode { get; set; }
+    public string MaterialCategoryCode { get; set; }
 
         /// <summary>
-    /// 适用物料类别名称
+    /// 物料类别名称
     /// </summary>
-    public string? MaterialCategoryName { get; set; }
-
-        /// <summary>
-    /// 抽样方案ID
-    /// </summary>
-    public long? SamplingSchemeId { get; set; }
+    public string MaterialCategoryName { get; set; }
 
         /// <summary>
     /// 抽样方案编码
@@ -650,24 +527,9 @@ public partial class TaktInspectionStandardExportDto
     public string? SamplingSchemeCode { get; set; }
 
         /// <summary>
-    /// 检验项目列表
+    /// 抽样方案名称
     /// </summary>
-    public string? InspectionItemsJson { get; set; }
-
-        /// <summary>
-    /// 检验方法
-    /// </summary>
-    public string? InspectionMethod { get; set; }
-
-        /// <summary>
-    /// 检验工具
-    /// </summary>
-    public string? InspectionTools { get; set; }
-
-        /// <summary>
-    /// 判定规则
-    /// </summary>
-    public string? JudgmentRules { get; set; }
+    public string? SamplingSchemeName { get; set; }
 
         /// <summary>
     /// 是否启用
@@ -683,11 +545,6 @@ public partial class TaktInspectionStandardExportDto
     /// 检验标准描述
     /// </summary>
     public string? StandardDescription { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 创建时间

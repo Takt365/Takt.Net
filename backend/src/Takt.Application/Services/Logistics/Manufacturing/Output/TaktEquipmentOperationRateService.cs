@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Manufacturing.Output
 // 文件名称：TaktEquipmentOperationRateService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：机器稼动率表应用服务，提供EquipmentOperationRate管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Manufacturing.Output;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Manufacturing.Output;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Manufacturing.Output;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Logistics.Manufacturing.Output;
 public class TaktEquipmentOperationRateService : TaktServiceBase, ITaktEquipmentOperationRateService
 {
     private readonly ITaktRepository<TaktEquipmentOperationRate> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">EquipmentOperationRate仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktEquipmentOperationRateService(
         ITaktRepository<TaktEquipmentOperationRate> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -101,9 +97,12 @@ public class TaktEquipmentOperationRateService : TaktServiceBase, ITaktEquipment
     /// <returns>机器稼动率表(EquipmentOperationRate)DTO</returns>
     public async Task<TaktEquipmentOperationRateDto> CreateEquipmentOperationRateAsync(TaktEquipmentOperationRateCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.PlantCode, dto.PlantCode, null, $"机器稼动率表编码 {dto.PlantCode} 已存在");
-
         var entity = dto.Adapt<TaktEquipmentOperationRate>();
+        // 验证工厂编码、EquipmentCode、TimeCategory、StartDate、ShiftNo组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.EquipmentCode == dto.EquipmentCode && x.TimeCategory == dto.TimeCategory && x.StartDate == dto.StartDate && x.ShiftNo == dto.ShiftNo);
+        if (!isUnique)
+            throw new TaktBusinessException($"机器稼动率表工厂编码、EquipmentCode、TimeCategory、StartDate、ShiftNo组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetEquipmentOperationRateByIdAsync(entity.Id)) ?? entity.Adapt<TaktEquipmentOperationRateDto>();
     }
@@ -120,8 +119,10 @@ public class TaktEquipmentOperationRateService : TaktServiceBase, ITaktEquipment
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.equipmentoperationrateNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.PlantCode, dto.PlantCode, id, $"机器稼动率表编码 {dto.PlantCode} 已存在");
+        // 验证工厂编码、EquipmentCode、TimeCategory、StartDate、ShiftNo组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.EquipmentCode == dto.EquipmentCode && x.TimeCategory == dto.TimeCategory && x.StartDate == dto.StartDate && x.ShiftNo == dto.ShiftNo, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"机器稼动率表工厂编码、EquipmentCode、TimeCategory、StartDate、ShiftNo组合已存在");
 
         dto.Adapt(entity, typeof(TaktEquipmentOperationRateUpdateDto), typeof(TaktEquipmentOperationRate));
         entity.UpdatedAt = DateTime.Now;

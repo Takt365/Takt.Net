@@ -19,7 +19,7 @@ namespace Takt.Domain.Entities.Logistics.Maintenance;
 /// Takt设备维护记录实体（TaktEquipment的子表）
 /// </summary>
 [SugarTable("takt_logistics_maintenance_record", "设备维护记录表")]
-[SugarIndex("ix_takt_logistics_maintenance_equipment_id", nameof(EquipmentId), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_maintenance_equipment_date_unique", nameof(EquipmentId), OrderByType.Asc, nameof(MaintenanceDate), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_maintenance_maintenance_type", nameof(MaintenanceType), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_maintenance_maintenance_date", nameof(MaintenanceDate), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_maintenance_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
@@ -31,6 +31,12 @@ public class TaktMaintenance : TaktEntityBase
     [SugarColumn(ColumnName = "equipment_id", ColumnDescription = "设备ID", ColumnDataType = "bigint", IsNullable = false)]
     [JsonConverter(typeof(ValueToStringConverter))]
     public long EquipmentId { get; set; }
+
+    /// <summary>
+    /// 设备编码（冗余字段,便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "equipment_code", ColumnDescription = "设备编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string EquipmentCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 项号（行号）

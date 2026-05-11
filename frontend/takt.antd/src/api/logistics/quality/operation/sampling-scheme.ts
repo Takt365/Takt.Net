@@ -12,7 +12,7 @@ import type {
   SamplingSchemeQuery,
   SamplingSchemeCreate,
   SamplingSchemeUpdate,
-  SamplingSchemeSort
+  SamplingSchemeStatus
 } from '@/types/logistics/quality/operation/sampling-scheme'
 
 // ========================================
@@ -102,12 +102,12 @@ export function deleteSamplingSchemeBatch(ids: string[]): Promise<void> {
 }
 
 /**
- * 更新SamplingScheme排序
- * 对应后端：UpdateSamplingSchemeSortAsync
+ * 更新SamplingScheme状态
+ * 对应后端：UpdateSamplingSchemeStatusAsync
  */
-export function updateSamplingSchemeSort(data: SamplingSchemeSort): Promise<SamplingSchemeSort> {
+export function updateSamplingSchemeStatus(data: SamplingSchemeStatus): Promise<SamplingSchemeStatus> {
   return request({
-    url: `${samplingSchemeUrl}/sort`,
+    url: `${samplingSchemeUrl}/status`,
     method: 'put',
     data
   })

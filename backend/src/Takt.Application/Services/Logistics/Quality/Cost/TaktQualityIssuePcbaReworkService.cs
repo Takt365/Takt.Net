@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Quality.Cost
 // 文件名称：TaktQualityIssuePcbaReworkService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：质量问题PCBA不良改修费用明细表应用服务，提供QualityIssuePcbaRework管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Quality.Cost;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Quality.Cost;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Quality.Cost;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Logistics.Quality.Cost;
 public class TaktQualityIssuePcbaReworkService : TaktServiceBase, ITaktQualityIssuePcbaReworkService
 {
     private readonly ITaktRepository<TaktQualityIssuePcbaRework> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">QualityIssuePcbaRework仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktQualityIssuePcbaReworkService(
         ITaktRepository<TaktQualityIssuePcbaRework> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -87,8 +83,8 @@ public class TaktQualityIssuePcbaReworkService : TaktServiceBase, ITaktQualityIs
         var all = await _repository.FindAsync(x => x.IsDeleted == 0);
         return all.Select(x => new TaktSelectOption
         {
-            DictLabel = x.Id.ToString() ?? string.Empty,
-            DictValue = x.Id.ToString()
+            DictLabel = x.QualityIssueCode ?? string.Empty,
+            DictValue = x.QualityIssueCode
 
         }).ToList();
     }
@@ -102,6 +98,11 @@ public class TaktQualityIssuePcbaReworkService : TaktServiceBase, ITaktQualityIs
     public async Task<TaktQualityIssuePcbaReworkDto> CreateQualityIssuePcbaReworkAsync(TaktQualityIssuePcbaReworkCreateDto dto)
     {
         var entity = dto.Adapt<TaktQualityIssuePcbaRework>();
+        // 验证QualityIssueCode的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.QualityIssueCode, dto.QualityIssueCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"质量问题PCBA不良改修费用明细表QualityIssueCode {dto.QualityIssueCode} 已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetQualityIssuePcbaReworkByIdAsync(entity.Id)) ?? entity.Adapt<TaktQualityIssuePcbaReworkDto>();
     }
@@ -118,6 +119,10 @@ public class TaktQualityIssuePcbaReworkService : TaktServiceBase, ITaktQualityIs
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.qualityissuepcbareworkNotFound");
+        // 验证QualityIssueCode的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.QualityIssueCode, dto.QualityIssueCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"质量问题PCBA不良改修费用明细表QualityIssueCode {dto.QualityIssueCode} 已存在");
 
         dto.Adapt(entity, typeof(TaktQualityIssuePcbaReworkUpdateDto), typeof(TaktQualityIssuePcbaRework));
         entity.UpdatedAt = DateTime.Now;
@@ -275,6 +280,7 @@ public class TaktQualityIssuePcbaReworkService : TaktServiceBase, ITaktQualityIs
         if (!string.IsNullOrEmpty(queryDto?.KeyWords))
         {
             exp = exp.And(x =>
+                x.QualityIssueCode!.Contains(queryDto.KeyWords) ||
                 x.PcbaDefectParts!.Contains(queryDto.KeyWords) ||
                 x.PcbaReworkNote!.Contains(queryDto.KeyWords) ||
                 x.PcbaCustomerName!.Contains(queryDto.KeyWords) ||
@@ -290,6 +296,11 @@ public class TaktQualityIssuePcbaReworkService : TaktServiceBase, ITaktQualityIs
         if (queryDto?.QualityIssueId.HasValue == true)
         {
             exp = exp.And(x => x.QualityIssueId == queryDto.QualityIssueId);
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.QualityIssueCode))
+        {
+            exp = exp.And(x => x.QualityIssueCode!.Contains(queryDto.QualityIssueCode));
         }
 
         if (queryDto?.LineNumber.HasValue == true)

@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Quality.Cost
 // 文件名称：TaktQualityIssueService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：品质问题应对主表应用服务，提供QualityIssue管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Quality.Cost;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Quality.Cost;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Quality.Cost;
 
@@ -29,6 +21,7 @@ namespace Takt.Application.Services.Logistics.Quality.Cost;
 public class TaktQualityIssueService : TaktServiceBase, ITaktQualityIssueService
 {
     private readonly ITaktRepository<TaktQualityIssue> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktQualityIssueMeeting> _qualityIssueMeetingRepository;
     private readonly ITaktRepository<TaktQualityIssueAssyRework> _qualityIssueAssyReworkRepository;
     private readonly ITaktRepository<TaktQualityIssuePcbaRework> _qualityIssuePcbaReworkRepository;
@@ -37,6 +30,7 @@ public class TaktQualityIssueService : TaktServiceBase, ITaktQualityIssueService
     /// 构造函数
     /// </summary>
     /// <param name="repository">QualityIssue仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="qualityIssueMeetingRepository">QualityIssueMeeting仓储</param>
     /// <param name="qualityIssueAssyReworkRepository">QualityIssueAssyRework仓储</param>
     /// <param name="qualityIssuePcbaReworkRepository">QualityIssuePcbaRework仓储</param>
@@ -45,6 +39,7 @@ public class TaktQualityIssueService : TaktServiceBase, ITaktQualityIssueService
     /// <param name="localizer">本地化器（可选）</param>
     public TaktQualityIssueService(
         ITaktRepository<TaktQualityIssue> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktQualityIssueMeeting> qualityIssueMeetingRepository,
         ITaktRepository<TaktQualityIssueAssyRework> qualityIssueAssyReworkRepository,
         ITaktRepository<TaktQualityIssuePcbaRework> qualityIssuePcbaReworkRepository,
@@ -54,6 +49,7 @@ public class TaktQualityIssueService : TaktServiceBase, ITaktQualityIssueService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _qualityIssueMeetingRepository = qualityIssueMeetingRepository;
         _qualityIssueAssyReworkRepository = qualityIssueAssyReworkRepository;
         _qualityIssuePcbaReworkRepository = qualityIssuePcbaReworkRepository;
@@ -124,9 +120,12 @@ public class TaktQualityIssueService : TaktServiceBase, ITaktQualityIssueService
     /// <returns>品质问题应对主表(QualityIssue)DTO</returns>
     public async Task<TaktQualityIssueDto> CreateQualityIssueAsync(TaktQualityIssueCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.IssueNo, dto.IssueNo, null, $"品质问题应对主表编码 {dto.IssueNo} 已存在");
-
         var entity = dto.Adapt<TaktQualityIssue>();
+        // 验证工厂编码、QualityIssueCode、IssueDate组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.QualityIssueCode == dto.QualityIssueCode && x.IssueDate == dto.IssueDate);
+        if (!isUnique)
+            throw new TaktBusinessException($"品质问题应对主表工厂编码、QualityIssueCode、IssueDate组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -179,8 +178,10 @@ public class TaktQualityIssueService : TaktServiceBase, ITaktQualityIssueService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.qualityissueNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.IssueNo, dto.IssueNo, id, $"品质问题应对主表编码 {dto.IssueNo} 已存在");
+        // 验证工厂编码、QualityIssueCode、IssueDate组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.QualityIssueCode == dto.QualityIssueCode && x.IssueDate == dto.IssueDate, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"品质问题应对主表工厂编码、QualityIssueCode、IssueDate组合已存在");
 
         dto.Adapt(entity, typeof(TaktQualityIssueUpdateDto), typeof(TaktQualityIssue));
         entity.UpdatedAt = DateTime.Now;
@@ -497,7 +498,7 @@ public class TaktQualityIssueService : TaktServiceBase, ITaktQualityIssueService
         {
             exp = exp.And(x =>
                 x.PlantCode!.Contains(queryDto.KeyWords) ||
-                x.IssueNo!.Contains(queryDto.KeyWords) ||
+                x.QualityIssueCode!.Contains(queryDto.KeyWords) ||
                 x.Model!.Contains(queryDto.KeyWords) ||
                 x.Lot!.Contains(queryDto.KeyWords) ||
                 x.QualityProblemsResponse!.Contains(queryDto.KeyWords) ||
@@ -515,9 +516,9 @@ public class TaktQualityIssueService : TaktServiceBase, ITaktQualityIssueService
             exp = exp.And(x => x.PlantCode!.Contains(queryDto.PlantCode));
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.IssueNo))
+        if (!string.IsNullOrEmpty(queryDto?.QualityIssueCode))
         {
-            exp = exp.And(x => x.IssueNo!.Contains(queryDto.IssueNo));
+            exp = exp.And(x => x.QualityIssueCode!.Contains(queryDto.QualityIssueCode));
         }
 
         if (queryDto?.IssueDate.HasValue == true)

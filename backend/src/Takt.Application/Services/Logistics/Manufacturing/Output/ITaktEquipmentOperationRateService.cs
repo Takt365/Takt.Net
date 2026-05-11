@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Logistics.Manufacturing.Output
 // 文件名称：ITaktEquipmentOperationRateService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：机器稼动率表应用服务接口，定义EquipmentOperationRate管理的业务操作
 // 

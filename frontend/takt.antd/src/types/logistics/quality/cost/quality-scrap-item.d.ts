@@ -17,6 +17,8 @@ export interface QualityScrapItem extends TaktEntityBase {
   qualityScrapItemId: string
   /** 对应后端字段 qualityScrapId */
   qualityScrapId: string
+  /** 对应后端字段 qualityScrapCode */
+  qualityScrapCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 materialCode */
@@ -53,6 +55,8 @@ export interface QualityScrapItem extends TaktEntityBase {
 export interface QualityScrapItemQuery extends TaktPagedQuery {
   /** 对应后端字段 qualityScrapId */
   qualityScrapId?: string
+  /** 对应后端字段 qualityScrapCode */
+  qualityScrapCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 materialCode */
@@ -101,6 +105,8 @@ export interface QualityScrapItemQuery extends TaktPagedQuery {
 export interface QualityScrapItemCreate {
   /** 对应后端字段 qualityScrapId */
   qualityScrapId: string
+  /** 对应后端字段 qualityScrapCode */
+  qualityScrapCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 materialCode */

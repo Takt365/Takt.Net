@@ -17,6 +17,8 @@ export interface Maintenance extends TaktEntityBase {
   maintenanceId: string
   /** 对应后端字段 equipmentId */
   equipmentId: string
+  /** 对应后端字段 equipmentCode */
+  equipmentCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 maintenanceType */
@@ -69,6 +71,8 @@ export interface Maintenance extends TaktEntityBase {
 export interface MaintenanceQuery extends TaktPagedQuery {
   /** 对应后端字段 equipmentId */
   equipmentId?: string
+  /** 对应后端字段 equipmentCode */
+  equipmentCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 maintenanceType */
@@ -153,6 +157,8 @@ export interface MaintenanceQuery extends TaktPagedQuery {
 export interface MaintenanceCreate {
   /** 对应后端字段 equipmentId */
   equipmentId: string
+  /** 对应后端字段 equipmentCode */
+  equipmentCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 maintenanceType */

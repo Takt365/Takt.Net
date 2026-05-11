@@ -17,6 +17,7 @@ namespace Takt.Domain.Entities.HumanResource.AttendanceLeave;
 /// 加班申请明细（一次申请可包含多个人员的加班记录）。
 /// </summary>
 [SugarTable("takt_humanresource_overtime_item", "加班明细表")]
+[SugarIndex("ix_takt_humanresource_overtime_item_employee_actual_start_unique", nameof(EmployeeId), OrderByType.Asc, nameof(ActualStartTime), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_humanresource_overtime_item_overtime_id", nameof(OvertimeId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_overtime_item_employee_id", nameof(EmployeeId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_overtime_item_line_number", nameof(LineNumber), OrderByType.Asc)]
@@ -57,7 +58,19 @@ public class TaktOvertimeItem : TaktEntityBase
     public decimal PlannedHours { get; set; } = 0;
 
     /// <summary>
-    /// 实际加班小时数（可后填）
+    /// 实际加班开始时间（默认等于主表计划开始时间）
+    /// </summary>
+    [SugarColumn(ColumnName = "actual_start_time", ColumnDescription = "实际开始时间", ColumnDataType = "datetime", IsNullable = true)]
+    public DateTime? ActualStartTime { get; set; }
+
+    /// <summary>
+    /// 实际加班结束时间（默认等于主表计划结束时间）
+    /// </summary>
+    [SugarColumn(ColumnName = "actual_end_time", ColumnDescription = "实际结束时间", ColumnDataType = "datetime", IsNullable = true)]
+    public DateTime? ActualEndTime { get; set; }
+
+    /// <summary>
+    /// 实际加班小时数（可后填，根据实际起止时间计算）
     /// </summary>
     [SugarColumn(ColumnName = "actual_hours", ColumnDescription = "实际小时数", ColumnDataType = "decimal", Length = 8, DecimalDigits = 2, IsNullable = true)]
     public decimal? ActualHours { get; set; }

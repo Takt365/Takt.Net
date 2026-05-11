@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Manufacturing.EngineeringChange
 // 文件名称：TaktEcAttachmentDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：设变附件表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktEcAttachmentDto : TaktDtosEntityBase
     /// </summary>
     public TaktEcAttachmentDto()
     {
+        EcnNo = string.Empty;
         AttachmentType = string.Empty;
         DocNo = string.Empty;
         FileName = string.Empty;
@@ -40,6 +41,14 @@ public partial class TaktEcAttachmentDto : TaktDtosEntityBase
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EcnId { get; set; }
+    /// <summary>
+    /// 设变单号
+    /// </summary>
+    public string EcnNo { get; set; }
+    /// <summary>
+    /// 项号
+    /// </summary>
+    public int LineNumber { get; set; }
     /// <summary>
     /// 文件类别
     /// </summary>
@@ -86,6 +95,14 @@ public partial class TaktEcAttachmentQueryDto : TaktPagedQuery
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? EcnId { get; set; }
+    /// <summary>
+    /// 设变单号
+    /// </summary>
+    public string? EcnNo { get; set; }
+    /// <summary>
+    /// 项号
+    /// </summary>
+    public int? LineNumber { get; set; }
     /// <summary>
     /// 文件类别
     /// </summary>
@@ -144,6 +161,7 @@ public partial class TaktEcAttachmentCreateDto
     /// </summary>
     public TaktEcAttachmentCreateDto()
     {
+        EcnNo = string.Empty;
         AttachmentType = string.Empty;
         DocNo = string.Empty;
         FileName = string.Empty;
@@ -155,6 +173,16 @@ public partial class TaktEcAttachmentCreateDto
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EcnId { get; set; }
+
+        /// <summary>
+    /// 设变单号
+    /// </summary>
+    public string EcnNo { get; set; }
+
+        /// <summary>
+    /// 项号
+    /// </summary>
+    public int LineNumber { get; set; }
 
         /// <summary>
     /// 文件类别
@@ -248,6 +276,7 @@ public partial class TaktEcAttachmentTemplateDto
     /// </summary>
     public TaktEcAttachmentTemplateDto()
     {
+        EcnNo = string.Empty;
         AttachmentType = string.Empty;
         DocNo = string.Empty;
         FileName = string.Empty;
@@ -258,6 +287,16 @@ public partial class TaktEcAttachmentTemplateDto
     /// 设变ID
     /// </summary>
     public long EcnId { get; set; }
+
+        /// <summary>
+    /// 设变单号
+    /// </summary>
+    public string EcnNo { get; set; }
+
+        /// <summary>
+    /// 项号
+    /// </summary>
+    public int LineNumber { get; set; }
 
         /// <summary>
     /// 文件类别
@@ -305,6 +344,7 @@ public partial class TaktEcAttachmentImportDto
     /// </summary>
     public TaktEcAttachmentImportDto()
     {
+        EcnNo = string.Empty;
         AttachmentType = string.Empty;
         DocNo = string.Empty;
         FileName = string.Empty;
@@ -315,6 +355,16 @@ public partial class TaktEcAttachmentImportDto
     /// 设变ID
     /// </summary>
     public long EcnId { get; set; }
+
+        /// <summary>
+    /// 设变单号
+    /// </summary>
+    public string EcnNo { get; set; }
+
+        /// <summary>
+    /// 项号
+    /// </summary>
+    public int LineNumber { get; set; }
 
         /// <summary>
     /// 文件类别
@@ -363,6 +413,7 @@ public partial class TaktEcAttachmentExportDto
     public TaktEcAttachmentExportDto()
     {
         CreatedAt = DateTime.Now;
+        EcnNo = string.Empty;
         AttachmentType = string.Empty;
         DocNo = string.Empty;
         FileName = string.Empty;
@@ -373,6 +424,16 @@ public partial class TaktEcAttachmentExportDto
     /// 设变ID
     /// </summary>
     public long EcnId { get; set; }
+
+        /// <summary>
+    /// 设变单号
+    /// </summary>
+    public string EcnNo { get; set; }
+
+        /// <summary>
+    /// 项号
+    /// </summary>
+    public int LineNumber { get; set; }
 
         /// <summary>
     /// 文件类别

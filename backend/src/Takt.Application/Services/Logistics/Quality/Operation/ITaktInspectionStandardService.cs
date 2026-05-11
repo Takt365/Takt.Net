@@ -2,9 +2,9 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Logistics.Quality.Operation
 // 文件名称：ITaktInspectionStandardService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
-// 功能描述：检验标准表应用服务接口，定义InspectionStandard管理的业务操作
+// 功能描述：检验标准表应用服务接口（主子表），定义InspectionStandard管理的业务操作
 // 
 // 版权信息：Copyright (c) 2026 Takt  All rights reserved.
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
@@ -16,7 +16,7 @@ using Takt.Shared.Models;
 namespace Takt.Application.Services.Logistics.Quality.Operation;
 
 /// <summary>
-/// 检验标准表应用服务接口
+/// 检验标准表应用服务接口（主子表）
 /// </summary>
 public interface ITaktInspectionStandardService
 {
@@ -28,7 +28,7 @@ public interface ITaktInspectionStandardService
     Task<TaktPagedResult<TaktInspectionStandardDto>> GetInspectionStandardListAsync(TaktInspectionStandardQueryDto queryDto);
 
     /// <summary>
-    /// 根据ID获取检验标准表
+    /// 根据ID获取检验标准表（包含子表数据）
     /// </summary>
     /// <param name="id">检验标准表ID</param>
     /// <returns>检验标准表DTO</returns>
@@ -41,14 +41,14 @@ public interface ITaktInspectionStandardService
     Task<List<TaktSelectOption>> GetInspectionStandardOptionsAsync();
 
     /// <summary>
-    /// 创建检验标准表
+    /// 创建检验标准表（包含子表数据）
     /// </summary>
     /// <param name="dto">创建检验标准表DTO</param>
     /// <returns>检验标准表DTO</returns>
     Task<TaktInspectionStandardDto> CreateInspectionStandardAsync(TaktInspectionStandardCreateDto dto);
 
     /// <summary>
-    /// 更新检验标准表
+    /// 更新检验标准表（包含子表数据）
     /// </summary>
     /// <param name="id">检验标准表ID</param>
     /// <param name="dto">更新检验标准表DTO</param>
@@ -56,14 +56,14 @@ public interface ITaktInspectionStandardService
     Task<TaktInspectionStandardDto> UpdateInspectionStandardAsync(long id, TaktInspectionStandardUpdateDto dto);
 
     /// <summary>
-    /// 删除检验标准表(InspectionStandard)
+    /// 删除检验标准表(InspectionStandard)（级联删除子表）
     /// </summary>
     /// <param name="id">检验标准表(InspectionStandard)ID</param>
     /// <returns>任务</returns>
     Task DeleteInspectionStandardByIdAsync(long id);
 
     /// <summary>
-    /// 批量删除检验标准表(InspectionStandard)
+    /// 批量删除检验标准表(InspectionStandard)（级联删除子表）
     /// </summary>
     /// <param name="ids">检验标准表(InspectionStandard)ID列表</param>
     /// <returns>任务</returns>
@@ -75,13 +75,6 @@ public interface ITaktInspectionStandardService
     /// <param name="dto">检验标准表(InspectionStandard)StandardStatusDTO</param>
     /// <returns>检验标准表(InspectionStandard)DTO</returns>
     Task<TaktInspectionStandardDto> UpdateInspectionStandardStandardStatusAsync(TaktInspectionStandardStandardStatusDto dto);
-
-    /// <summary>
-    /// 更新检验标准表(InspectionStandard)排序
-    /// </summary>
-    /// <param name="dto">检验标准表(InspectionStandard)排序DTO</param>
-    /// <returns>检验标准表(InspectionStandard)DTO</returns>
-    Task<TaktInspectionStandardDto> UpdateInspectionStandardSortAsync(TaktInspectionStandardSortDto dto);
 
     /// <summary>
     /// 获取导入模板

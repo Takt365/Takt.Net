@@ -17,6 +17,8 @@ export interface SalesPriceScale extends TaktEntityBase {
   salesPriceScaleId: string
   /** 对应后端字段 itemId */
   itemId: string
+  /** 对应后端字段 salesPriceCode */
+  salesPriceCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 startQuantity */
@@ -25,8 +27,6 @@ export interface SalesPriceScale extends TaktEntityBase {
   endQuantity: number
   /** 对应后端字段 scalePrice */
   scalePrice: number
-  /** 对应后端字段 sortOrder */
-  sortOrder: number
   /** 对应后端字段 priceItem */
   priceItem?: unknown
 }
@@ -37,6 +37,8 @@ export interface SalesPriceScale extends TaktEntityBase {
 export interface SalesPriceScaleQuery extends TaktPagedQuery {
   /** 对应后端字段 itemId */
   itemId?: string
+  /** 对应后端字段 salesPriceCode */
+  salesPriceCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 startQuantity */
@@ -67,6 +69,8 @@ export interface SalesPriceScaleQuery extends TaktPagedQuery {
 export interface SalesPriceScaleCreate {
   /** 对应后端字段 itemId */
   itemId: string
+  /** 对应后端字段 salesPriceCode */
+  salesPriceCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 startQuantity */
@@ -75,8 +79,6 @@ export interface SalesPriceScaleCreate {
   endQuantity: number
   /** 对应后端字段 scalePrice */
   scalePrice: number
-  /** 对应后端字段 sortOrder */
-  sortOrder: number
   /** 对应后端字段 extFieldJson */
   extFieldJson?: string
   /** 对应后端字段 remark */
@@ -89,14 +91,4 @@ export interface SalesPriceScaleCreate {
 export interface SalesPriceScaleUpdate extends SalesPriceScaleCreate {
   /** 对应后端字段 salesPriceScaleId */
   salesPriceScaleId: string
-}
-
-/**
- * SalesPriceScaleSort类型（对应后端 Takt.Application.Dtos.Logistics.Sales.TaktSalesPriceScaleSortDto）
- */
-export interface SalesPriceScaleSort {
-  /** 对应后端字段 salesPriceScaleId */
-  salesPriceScaleId: string
-  /** 对应后端字段 sortOrder */
-  sortOrder: number
 }

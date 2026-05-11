@@ -41,13 +41,15 @@ public class TaktMenuLevel4SeedData
         int insertCount = 0;
         int updateCount = 0;
 
-        // 获取父级菜单（三级菜单，严格按 TaktMenuLevel1SeedData 顶层顺序：本层仅 6.后勤管理 下四级，顺序为：物料-采购 → 生产-BOM/排程/设变/OUTPUT/不良）
+        // 获取父级菜单（三级菜单，严格按 TaktMenuLevel1SeedData 顶层顺序：本层仅 6.后勤管理 下四级，顺序为：物料-采购 → 生产-BOM/排程/设变/OUTPUT/不良 → 质量-品质成本/质量业务）
         var logisticsMaterialPurchasingMenu = await menuRepository.GetAsync(m => m.MenuCode == "LOGISTICS_MATERIAL_PURCHASING"); // 物料-采购
         var manufacturingBomMenu = await menuRepository.GetAsync(m => m.MenuCode == "MANUFACTURING_BOM");                       // 生产-BOM
         var manufacturingSchedulingMenu = await menuRepository.GetAsync(m => m.MenuCode == "MANUFACTURING_SCHEDULING");         // 生产-排程
         var manufacturingEcnMenu = await menuRepository.GetAsync(m => m.MenuCode == "MANUFACTURING_ECN");                       // 生产-设变
         var manufacturingOutputMenu = await menuRepository.GetAsync(m => m.MenuCode == "MANUFACTURING_OUTPUT");                 // 生产-OUTPUT
         var manufacturingDefectMenu = await menuRepository.GetAsync(m => m.MenuCode == "MANUFACTURING_DEFECT");                 // 生产-不良
+        var qualityCostMenu = await menuRepository.GetAsync(m => m.MenuCode == "LOGISTICS_QUALITY_COST");                       // 品质成本
+        var qualityOperationMenu = await menuRepository.GetAsync(m => m.MenuCode == "LOGISTICS_QUALITY_OPERATION");             // 质量业务
 
         // ========== 采购管理下的四级菜单（6.后勤-物料）==========
         if (logisticsMaterialPurchasingMenu != null)
@@ -647,6 +649,182 @@ public class TaktMenuLevel4SeedData
             });
             insertCount += insert16;
             updateCount += update16;
+        }
+
+        // ========== 品质成本下的四级菜单（6.后勤-质量）==========
+        if (qualityCostMenu != null)
+        {
+            // 品质业务
+            var (insert17, update17) = await CreateOrUpdateMenuAsync(menuRepository, "QUALITY_COST_OPERATION", menu =>
+            {
+                menu.MenuName = "品质业务";
+                menu.MenuCode = "QUALITY_COST_OPERATION";
+                menu.MenuL10nKey = "menu.logistics.quality.cost.operation";
+                menu.MenuIcon = "RiClipboardLine";
+                menu.ParentId = qualityCostMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "quality:cost:operation:list";
+                menu.Path = "/logistics/quality/cost/operation";
+                menu.Component = "logistics/quality/cost/operation/index";
+                menu.SortOrder = 1;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insert17;
+            updateCount += update17;
+
+            // 品质问题
+            var (insert18, update18) = await CreateOrUpdateMenuAsync(menuRepository, "QUALITY_COST_ISSUE", menu =>
+            {
+                menu.MenuName = "品质问题";
+                menu.MenuCode = "QUALITY_COST_ISSUE";
+                menu.MenuL10nKey = "menu.logistics.quality.cost.issue";
+                menu.MenuIcon = "RiErrorWarningLine";
+                menu.ParentId = qualityCostMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "quality:cost:issue:list";
+                menu.Path = "/logistics/quality/cost/issue";
+                menu.Component = "logistics/quality/cost/issue/index";
+                menu.SortOrder = 2;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insert18;
+            updateCount += update18;
+
+            // 品质事故
+            var (insert19, update19) = await CreateOrUpdateMenuAsync(menuRepository, "QUALITY_COST_SCRAP", menu =>
+            {
+                menu.MenuName = "品质事故";
+                menu.MenuCode = "QUALITY_COST_SCRAP";
+                menu.MenuL10nKey = "menu.logistics.quality.cost.scrap";
+                menu.MenuIcon = "RiDeleteBinLine";
+                menu.ParentId = qualityCostMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "quality:cost:scrap:list";
+                menu.Path = "/logistics/quality/cost/scrap";
+                menu.Component = "logistics/quality/cost/scrap/index";
+                menu.SortOrder = 3;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insert19;
+            updateCount += update19;
+        }
+
+        // ========== 质量业务下的四级菜单（6.后勤-质量）==========
+        if (qualityOperationMenu != null)
+        {
+            // 抽样方案
+            var (insert20, update20) = await CreateOrUpdateMenuAsync(menuRepository, "QUALITY_OPERATION_SAMPLING_SCHEME", menu =>
+            {
+                menu.MenuName = "抽样方案";
+                menu.MenuCode = "QUALITY_OPERATION_SAMPLING_SCHEME";
+                menu.MenuL10nKey = "menu.logistics.quality.operation.samplingscheme";
+                menu.MenuIcon = "RiFlaskLine";
+                menu.ParentId = qualityOperationMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "quality:operation:samplingscheme:list";
+                menu.Path = "/logistics/quality/operation/sampling-scheme";
+                menu.Component = "logistics/quality/operation/sampling-scheme/index";
+                menu.SortOrder = 1;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insert20;
+            updateCount += update20;
+
+            // 检验标准
+            var (insert21, update21) = await CreateOrUpdateMenuAsync(menuRepository, "QUALITY_OPERATION_INSPECTION_STANDARD", menu =>
+            {
+                menu.MenuName = "检验标准";
+                menu.MenuCode = "QUALITY_OPERATION_INSPECTION_STANDARD";
+                menu.MenuL10nKey = "menu.logistics.quality.operation.inspectionstandard";
+                menu.MenuIcon = "RiBookOpenLine";
+                menu.ParentId = qualityOperationMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "quality:operation:inspectionstandard:list";
+                menu.Path = "/logistics/quality/operation/inspection-standard";
+                menu.Component = "logistics/quality/operation/inspection-standard/index";
+                menu.SortOrder = 2;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insert21;
+            updateCount += update21;
+
+            // 进货检验
+            var (insert22, update22) = await CreateOrUpdateMenuAsync(menuRepository, "QUALITY_OPERATION_IQC_ORDER", menu =>
+            {
+                menu.MenuName = "进货检验";
+                menu.MenuCode = "QUALITY_OPERATION_IQC_ORDER";
+                menu.MenuL10nKey = "menu.logistics.quality.operation.iqcorder";
+                menu.MenuIcon = "RiFileCheckLine";
+                menu.ParentId = qualityOperationMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "quality:operation:iqcorder:list";
+                menu.Path = "/logistics/quality/operation/iqc-order";
+                menu.Component = "logistics/quality/operation/iqc-order/index";
+                menu.SortOrder = 3;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insert22;
+            updateCount += update22;
+
+            // 制程检验
+            var (insert23, update23) = await CreateOrUpdateMenuAsync(menuRepository, "QUALITY_OPERATION_IPQC_ORDER", menu =>
+            {
+                menu.MenuName = "制程检验";
+                menu.MenuCode = "QUALITY_OPERATION_IPQC_ORDER";
+                menu.MenuL10nKey = "menu.logistics.quality.operation.ipqcorder";
+                menu.MenuIcon = "RiFileSearchLine";
+                menu.ParentId = qualityOperationMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "quality:operation:ipqcorder:list";
+                menu.Path = "/logistics/quality/operation/ipqc-order";
+                menu.Component = "logistics/quality/operation/ipqc-order/index";
+                menu.SortOrder = 4;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insert23;
+            updateCount += update23;
+
+            // 入库检验
+            var (insert24, update24) = await CreateOrUpdateMenuAsync(menuRepository, "QUALITY_OPERATION_FQC_ORDER", menu =>
+            {
+                menu.MenuName = "入库检验";
+                menu.MenuCode = "QUALITY_OPERATION_FQC_ORDER";
+                menu.MenuL10nKey = "menu.logistics.quality.operation.fqcorder";
+                menu.MenuIcon = "RiFileWarningLine";
+                menu.ParentId = qualityOperationMenu.Id;
+                menu.MenuType = 1;
+                menu.Permission = "quality:operation:fqcorder:list";
+                menu.Path = "/logistics/quality/operation/fqc-order";
+                menu.Component = "logistics/quality/operation/fqc-order/index";
+                menu.SortOrder = 5;
+                menu.MenuStatus = 1;
+                menu.IsVisible = 1;
+                menu.IsCache = 0;
+                menu.IsExternal = 0;
+            });
+            insertCount += insert24;
+            updateCount += update24;
         }
 
         return (insertCount, updateCount);

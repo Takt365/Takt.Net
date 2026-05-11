@@ -17,6 +17,7 @@ namespace Takt.Domain.Entities.HumanResource.AttendanceLeave;
 /// 加班（时长与状态由业务维护，可与审批流扩展对接）。
 /// </summary>
 [SugarTable("takt_humanresource_overtime", "加班信息表")]
+[SugarIndex("ix_takt_humanresource_overtime_dept_date_unique", nameof(DeptId), OrderByType.Asc, nameof(OvertimeDate), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_humanresource_overtime_dept_id", nameof(DeptId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_overtime_date", nameof(OvertimeDate), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_overtime_type", nameof(OvertimeType), OrderByType.Asc)]
@@ -68,16 +69,16 @@ public class TaktOvertime : TaktEntityBase
     public DateTime OvertimeDate { get; set; }
 
     /// <summary>
-    /// 加班开始时间
+    /// 计划加班开始时间
     /// </summary>
-    [SugarColumn(ColumnName = "start_time", ColumnDescription = "加班开始时间", ColumnDataType = "datetime", IsNullable = false)]
-    public DateTime StartTime { get; set; }
+    [SugarColumn(ColumnName = "planned_start_time", ColumnDescription = "计划开始时间", ColumnDataType = "datetime", IsNullable = false)]
+    public DateTime PlannedStartTime { get; set; }
 
     /// <summary>
-    /// 加班结束时间
+    /// 计划加班结束时间
     /// </summary>
-    [SugarColumn(ColumnName = "end_time", ColumnDescription = "加班结束时间", ColumnDataType = "datetime", IsNullable = false)]
-    public DateTime EndTime { get; set; }
+    [SugarColumn(ColumnName = "planned_end_time", ColumnDescription = "计划结束时间", ColumnDataType = "datetime", IsNullable = false)]
+    public DateTime PlannedEndTime { get; set; }
 
     /// <summary>
     /// 加班总人数

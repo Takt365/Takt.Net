@@ -17,7 +17,7 @@ namespace Takt.Domain.Entities.HumanResource.AttendanceLeave;
 /// 班次定义（如早班、中班、夜班）。
 /// </summary>
 [SugarTable("takt_humanresource_work_shift", "班次信息表")]
-[SugarIndex("ix_takt_humanresource_work_shift_code", nameof(ShiftCode), OrderByType.Asc)]
+[SugarIndex("ix_takt_humanresource_work_shift_code_name_unique", nameof(ShiftCode), OrderByType.Asc, nameof(ShiftName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_humanresource_work_shift_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_humanresource_work_shift_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktWorkShift : TaktEntityBase

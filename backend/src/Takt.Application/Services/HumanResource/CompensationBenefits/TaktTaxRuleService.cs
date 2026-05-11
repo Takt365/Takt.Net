@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.CompensationBenefits
 // 文件名称：TaktTaxRuleService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：税务规则表应用服务，提供TaxRule管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.HumanResource.CompensationBenefits;
-using Takt.Application.Services;
 using Takt.Domain.Entities.HumanResource.CompensationBenefits;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.HumanResource.CompensationBenefits;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.HumanResource.CompensationBenefits;
 public class TaktTaxRuleService : TaktServiceBase, ITaktTaxRuleService
 {
     private readonly ITaktRepository<TaktTaxRule> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">TaxRule仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktTaxRuleService(
         ITaktRepository<TaktTaxRule> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -101,9 +97,12 @@ public class TaktTaxRuleService : TaktServiceBase, ITaktTaxRuleService
     /// <returns>税务规则表(TaxRule)DTO</returns>
     public async Task<TaktTaxRuleDto> CreateTaxRuleAsync(TaktTaxRuleCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.RuleCode, dto.RuleCode, null, $"税务规则表编码 {dto.RuleCode} 已存在");
-
         var entity = dto.Adapt<TaktTaxRule>();
+        // 验证RuleCode的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.RuleCode, dto.RuleCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"税务规则表RuleCode {dto.RuleCode} 已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetTaxRuleByIdAsync(entity.Id)) ?? entity.Adapt<TaktTaxRuleDto>();
     }
@@ -120,8 +119,10 @@ public class TaktTaxRuleService : TaktServiceBase, ITaktTaxRuleService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.taxruleNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.RuleCode, dto.RuleCode, id, $"税务规则表编码 {dto.RuleCode} 已存在");
+        // 验证RuleCode的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.RuleCode, dto.RuleCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"税务规则表RuleCode {dto.RuleCode} 已存在");
 
         dto.Adapt(entity, typeof(TaktTaxRuleUpdateDto), typeof(TaktTaxRule));
         entity.UpdatedAt = DateTime.Now;

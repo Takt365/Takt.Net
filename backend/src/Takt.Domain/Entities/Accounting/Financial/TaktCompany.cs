@@ -19,7 +19,6 @@ namespace Takt.Domain.Entities.Accounting.Financial;
 /// Takt公司实体
 /// </summary>
 [SugarTable("takt_accounting_financial_company", "公司信息表")]
-[SugarIndex("ix_takt_accounting_financial_company_company_code", nameof(CompanyCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_financial_company_company_unique", nameof(CompanyCode), OrderByType.Asc, nameof(CompanyName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_financial_company_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_financial_company_is_deleted", nameof(IsDeleted), OrderByType.Asc)]

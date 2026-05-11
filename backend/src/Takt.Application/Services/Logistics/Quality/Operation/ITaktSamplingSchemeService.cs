@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Logistics.Quality.Operation
 // 文件名称：ITaktSamplingSchemeService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：抽样方案表应用服务接口（主子表），定义SamplingScheme管理的业务操作
 // 
@@ -70,18 +70,11 @@ public interface ITaktSamplingSchemeService
     Task DeleteSamplingSchemeBatchAsync(IEnumerable<long> ids);
 
     /// <summary>
-    /// 更新抽样方案表(SamplingScheme)SchemeStatus
+    /// 更新抽样方案表(SamplingScheme)Status
     /// </summary>
-    /// <param name="dto">抽样方案表(SamplingScheme)SchemeStatusDTO</param>
+    /// <param name="dto">抽样方案表(SamplingScheme)StatusDTO</param>
     /// <returns>抽样方案表(SamplingScheme)DTO</returns>
-    Task<TaktSamplingSchemeDto> UpdateSamplingSchemeSchemeStatusAsync(TaktSamplingSchemeSchemeStatusDto dto);
-
-    /// <summary>
-    /// 更新抽样方案表(SamplingScheme)排序
-    /// </summary>
-    /// <param name="dto">抽样方案表(SamplingScheme)排序DTO</param>
-    /// <returns>抽样方案表(SamplingScheme)DTO</returns>
-    Task<TaktSamplingSchemeDto> UpdateSamplingSchemeSortAsync(TaktSamplingSchemeSortDto dto);
+    Task<TaktSamplingSchemeDto> UpdateSamplingSchemeStatusAsync(TaktSamplingSchemeStatusDto dto);
 
     /// <summary>
     /// 获取导入模板

@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Routine.Business.HelpDesk
 // 文件名称：ITaktTicketService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：工单表应用服务接口（主子表），定义Ticket管理的业务操作
 // 

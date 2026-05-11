@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.AttendanceLeave
 // 文件名称：TaktOvertimeItemService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：加班明细表应用服务，提供OvertimeItem管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.HumanResource.AttendanceLeave;
-using Takt.Application.Services;
 using Takt.Domain.Entities.HumanResource.AttendanceLeave;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.HumanResource.AttendanceLeave;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.HumanResource.AttendanceLeave;
 public class TaktOvertimeItemService : TaktServiceBase, ITaktOvertimeItemService
 {
     private readonly ITaktRepository<TaktOvertimeItem> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">OvertimeItem仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktOvertimeItemService(
         ITaktRepository<TaktOvertimeItem> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -102,6 +98,11 @@ public class TaktOvertimeItemService : TaktServiceBase, ITaktOvertimeItemService
     public async Task<TaktOvertimeItemDto> CreateOvertimeItemAsync(TaktOvertimeItemCreateDto dto)
     {
         var entity = dto.Adapt<TaktOvertimeItem>();
+        // 验证EmployeeId、ActualStartTime组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.EmployeeId == dto.EmployeeId && x.ActualStartTime == dto.ActualStartTime);
+        if (!isUnique)
+            throw new TaktBusinessException($"加班明细表EmployeeId、ActualStartTime组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetOvertimeItemByIdAsync(entity.Id)) ?? entity.Adapt<TaktOvertimeItemDto>();
     }
@@ -118,6 +119,10 @@ public class TaktOvertimeItemService : TaktServiceBase, ITaktOvertimeItemService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.overtimeitemNotFound");
+        // 验证EmployeeId、ActualStartTime组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.EmployeeId == dto.EmployeeId && x.ActualStartTime == dto.ActualStartTime, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"加班明细表EmployeeId、ActualStartTime组合已存在");
 
         dto.Adapt(entity, typeof(TaktOvertimeItemUpdateDto), typeof(TaktOvertimeItem));
         entity.UpdatedAt = DateTime.Now;
@@ -307,6 +312,16 @@ public class TaktOvertimeItemService : TaktServiceBase, ITaktOvertimeItemService
             exp = exp.And(x => x.PlannedHours == queryDto.PlannedHours);
         }
 
+        if (queryDto?.ActualStartTime.HasValue == true)
+        {
+            exp = exp.And(x => x.ActualStartTime == queryDto.ActualStartTime);
+        }
+
+        if (queryDto?.ActualEndTime.HasValue == true)
+        {
+            exp = exp.And(x => x.ActualEndTime == queryDto.ActualEndTime);
+        }
+
         if (queryDto?.ActualHours.HasValue == true)
         {
             exp = exp.And(x => x.ActualHours == queryDto.ActualHours);
@@ -335,6 +350,26 @@ public class TaktOvertimeItemService : TaktServiceBase, ITaktOvertimeItemService
         if (queryDto?.CreatedAt.HasValue == true)
         {
             exp = exp.And(x => x.CreatedAt == queryDto.CreatedAt);
+        }
+
+        // ActualStartTime 日期范围查询
+        if (queryDto?.ActualStartTimeStart.HasValue == true)
+        {
+            exp = exp.And(x => x.ActualStartTime >= queryDto.ActualStartTimeStart);
+        }
+        if (queryDto?.ActualStartTimeEnd.HasValue == true)
+        {
+            exp = exp.And(x => x.ActualStartTime <= queryDto.ActualStartTimeEnd);
+        }
+
+        // ActualEndTime 日期范围查询
+        if (queryDto?.ActualEndTimeStart.HasValue == true)
+        {
+            exp = exp.And(x => x.ActualEndTime >= queryDto.ActualEndTimeStart);
+        }
+        if (queryDto?.ActualEndTimeEnd.HasValue == true)
+        {
+            exp = exp.And(x => x.ActualEndTime <= queryDto.ActualEndTimeEnd);
         }
 
         // CreatedAt 日期范围查询

@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Infrastructure.Data.Seeds
 // 文件名称：TaktSamplingSchemeEntitiesSeedData.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(AI Auto-Generated)
 // 功能描述：TaktSamplingScheme 实体字段翻译种子数据（自动生成）
 //
@@ -228,37 +228,21 @@ public class TaktSamplingSchemeEntitiesSeedData : ITaktSeedData
             new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.samplingscheme.transferruleconfig", TranslationValue = "转移规则配置", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
             new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.samplingscheme.transferruleconfig", TranslationValue = "转移规则配置", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 17 },
 
-            // entity.samplingscheme.isenabled
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.samplingscheme.isenabled", TranslationValue = "Is", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.samplingscheme.isenabled", TranslationValue = "かどうか", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.samplingscheme.isenabled", TranslationValue = "여부", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.samplingscheme.isenabled", TranslationValue = "是否启用", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.samplingscheme.isenabled", TranslationValue = "是否", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.samplingscheme.isenabled", TranslationValue = "是否", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
-
             // entity.samplingscheme.status
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.samplingscheme.status", TranslationValue = "Status", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.samplingscheme.status", TranslationValue = "状態", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.samplingscheme.status", TranslationValue = "상태", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.samplingscheme.status", TranslationValue = "抽样方案状态", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.samplingscheme.status", TranslationValue = "狀態", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.samplingscheme.status", TranslationValue = "狀態", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.samplingscheme.status", TranslationValue = "Status", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.samplingscheme.status", TranslationValue = "状態", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.samplingscheme.status", TranslationValue = "상태", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.samplingscheme.status", TranslationValue = "抽样方案状态", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.samplingscheme.status", TranslationValue = "狀態", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.samplingscheme.status", TranslationValue = "狀態", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 18 },
 
             // entity.samplingscheme.description
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.samplingscheme.description", TranslationValue = "Description", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 20 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.samplingscheme.description", TranslationValue = "説明", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 20 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.samplingscheme.description", TranslationValue = "설명", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 20 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.samplingscheme.description", TranslationValue = "抽样方案描述", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 20 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.samplingscheme.description", TranslationValue = "描述", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 20 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.samplingscheme.description", TranslationValue = "描述", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 20 },
-
-            // entity.samplingscheme.sortorder
-            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.samplingscheme.sortorder", TranslationValue = "Order", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 21 },
-            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.samplingscheme.sortorder", TranslationValue = "並び順", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 21 },
-            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.samplingscheme.sortorder", TranslationValue = "정렬", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 21 },
-            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.samplingscheme.sortorder", TranslationValue = "排序号", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 21 },
-            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.samplingscheme.sortorder", TranslationValue = "排序號", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 21 },
-            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.samplingscheme.sortorder", TranslationValue = "排序號", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 21 },
+            new TaktTranslation { CultureCode = "en-US", ResourceKey = "entity.samplingscheme.description", TranslationValue = "Description", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
+            new TaktTranslation { CultureCode = "ja-JP", ResourceKey = "entity.samplingscheme.description", TranslationValue = "説明", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
+            new TaktTranslation { CultureCode = "ko-KR", ResourceKey = "entity.samplingscheme.description", TranslationValue = "설명", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
+            new TaktTranslation { CultureCode = "zh-CN", ResourceKey = "entity.samplingscheme.description", TranslationValue = "抽样方案描述", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
+            new TaktTranslation { CultureCode = "zh-TW", ResourceKey = "entity.samplingscheme.description", TranslationValue = "描述", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
+            new TaktTranslation { CultureCode = "zh-HK", ResourceKey = "entity.samplingscheme.description", TranslationValue = "描述", ResourceType = "Frontend", ResourceGroup = "Entity", SortOrder = 19 },
         };
     }
 }

@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.Logistics.Sales
 // 文件名称：TaktSalesPriceItemsController.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：销售价格明细表控制器，提供SalesPriceItem管理的RESTful API接口
 //
@@ -128,18 +128,6 @@ public class TaktSalesPriceItemsController : TaktControllerBase
     {
         await _service.DeleteSalesPriceItemBatchAsync(ids);
         return Ok();
-    }
-
-
-    /// <summary>
-    /// 更新销售价格明细表(SalesPriceItem)排序
-    /// </summary>
-    [HttpPut("sort")]
-    [TaktPermission("logistics:sales:salespriceitem:update", "更新销售价格明细表(SalesPriceItem)排序")]
-    public async Task<ActionResult<TaktSalesPriceItemDto>> UpdateSalesPriceItemSortAsync([FromBody] TaktSalesPriceItemSortDto dto)
-    {
-        var result = await _service.UpdateSalesPriceItemSortAsync(dto);
-        return Ok(result);
     }
 
 

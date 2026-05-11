@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Manufacturing.Scheduling
 // 文件名称：TaktApsScheduleItemService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：APS排程明细表应用服务，提供ApsScheduleItem管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Manufacturing.Scheduling;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Manufacturing.Scheduling;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Manufacturing.Scheduling;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Logistics.Manufacturing.Scheduling;
 public class TaktApsScheduleItemService : TaktServiceBase, ITaktApsScheduleItemService
 {
     private readonly ITaktRepository<TaktApsScheduleItem> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">ApsScheduleItem仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktApsScheduleItemService(
         ITaktRepository<TaktApsScheduleItem> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -101,9 +97,12 @@ public class TaktApsScheduleItemService : TaktServiceBase, ITaktApsScheduleItemS
     /// <returns>APS排程明细表(ApsScheduleItem)DTO</returns>
     public async Task<TaktApsScheduleItemDto> CreateApsScheduleItemAsync(TaktApsScheduleItemCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.WorkOrderCode, dto.WorkOrderCode, null, $"APS排程明细表编码 {dto.WorkOrderCode} 已存在");
-
         var entity = dto.Adapt<TaktApsScheduleItem>();
+        // 验证WorkOrderCode的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.WorkOrderCode, dto.WorkOrderCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"APS排程明细表WorkOrderCode {dto.WorkOrderCode} 已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetApsScheduleItemByIdAsync(entity.Id)) ?? entity.Adapt<TaktApsScheduleItemDto>();
     }
@@ -120,8 +119,10 @@ public class TaktApsScheduleItemService : TaktServiceBase, ITaktApsScheduleItemS
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.apsscheduleitemNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.WorkOrderCode, dto.WorkOrderCode, id, $"APS排程明细表编码 {dto.WorkOrderCode} 已存在");
+        // 验证WorkOrderCode的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.WorkOrderCode, dto.WorkOrderCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"APS排程明细表WorkOrderCode {dto.WorkOrderCode} 已存在");
 
         dto.Adapt(entity, typeof(TaktApsScheduleItemUpdateDto), typeof(TaktApsScheduleItem));
         entity.UpdatedAt = DateTime.Now;
@@ -307,10 +308,6 @@ public class TaktApsScheduleItemService : TaktServiceBase, ITaktApsScheduleItemS
                 x.WorkCenterName!.Contains(queryDto.KeyWords) ||
                 x.ProcessCode!.Contains(queryDto.KeyWords) ||
                 x.ProcessName!.Contains(queryDto.KeyWords) ||
-                x.EquipmentCode!.Contains(queryDto.KeyWords) ||
-                x.EquipmentName!.Contains(queryDto.KeyWords) ||
-                x.TeamCode!.Contains(queryDto.KeyWords) ||
-                x.TeamName!.Contains(queryDto.KeyWords) ||
                 x.Remark!.Contains(queryDto.KeyWords) ||
                 x.ExtFieldJson!.Contains(queryDto.KeyWords) ||
                 x.CreatedBy!.Contains(queryDto.KeyWords)
@@ -330,11 +327,6 @@ public class TaktApsScheduleItemService : TaktServiceBase, ITaktApsScheduleItemS
         if (!string.IsNullOrEmpty(queryDto?.WorkOrderCode))
         {
             exp = exp.And(x => x.WorkOrderCode!.Contains(queryDto.WorkOrderCode));
-        }
-
-        if (queryDto?.WorkOrderId.HasValue == true)
-        {
-            exp = exp.And(x => x.WorkOrderId == queryDto.WorkOrderId);
         }
 
         if (!string.IsNullOrEmpty(queryDto?.ProductCode))
@@ -410,26 +402,6 @@ public class TaktApsScheduleItemService : TaktServiceBase, ITaktApsScheduleItemS
         if (queryDto?.ActualEndTime.HasValue == true)
         {
             exp = exp.And(x => x.ActualEndTime == queryDto.ActualEndTime);
-        }
-
-        if (!string.IsNullOrEmpty(queryDto?.EquipmentCode))
-        {
-            exp = exp.And(x => x.EquipmentCode!.Contains(queryDto.EquipmentCode));
-        }
-
-        if (!string.IsNullOrEmpty(queryDto?.EquipmentName))
-        {
-            exp = exp.And(x => x.EquipmentName!.Contains(queryDto.EquipmentName));
-        }
-
-        if (!string.IsNullOrEmpty(queryDto?.TeamCode))
-        {
-            exp = exp.And(x => x.TeamCode!.Contains(queryDto.TeamCode));
-        }
-
-        if (!string.IsNullOrEmpty(queryDto?.TeamName))
-        {
-            exp = exp.And(x => x.TeamName!.Contains(queryDto.TeamName));
         }
 
         if (queryDto?.ProcessStatus.HasValue == true)

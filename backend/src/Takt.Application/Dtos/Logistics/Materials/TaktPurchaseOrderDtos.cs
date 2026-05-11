@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Materials
 // 文件名称：TaktPurchaseOrderDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：采购订单表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,7 +22,8 @@ public partial class TaktPurchaseOrderDto : TaktDtosEntityBase
     /// </summary>
     public TaktPurchaseOrderDto()
     {
-        OrderCode = string.Empty;
+        PlantCode = string.Empty;
+        PurchaseOrderCode = string.Empty;
         SupplierCode = string.Empty;
         SupplierName = string.Empty;
     }
@@ -37,11 +38,11 @@ public partial class TaktPurchaseOrderDto : TaktDtosEntityBase
     /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
     /// <summary>
-    /// 订单编码
+    /// 采购订单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string PurchaseOrderCode { get; set; }
     /// <summary>
     /// 供应商编码
     /// </summary>
@@ -149,9 +150,9 @@ public partial class TaktPurchaseOrderQueryDto : TaktPagedQuery
     /// </summary>
     public string? PlantCode { get; set; }
     /// <summary>
-    /// 订单编码
+    /// 采购订单编码
     /// </summary>
-    public string? OrderCode { get; set; }
+    public string? PurchaseOrderCode { get; set; }
     /// <summary>
     /// 供应商编码
     /// </summary>
@@ -297,7 +298,8 @@ public partial class TaktPurchaseOrderCreateDto
     /// </summary>
     public TaktPurchaseOrderCreateDto()
     {
-        OrderCode = string.Empty;
+        PlantCode = string.Empty;
+        PurchaseOrderCode = string.Empty;
         SupplierCode = string.Empty;
         SupplierName = string.Empty;
     }
@@ -305,12 +307,12 @@ public partial class TaktPurchaseOrderCreateDto
         /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
-    /// 订单编码
+    /// 采购订单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string PurchaseOrderCode { get; set; }
 
         /// <summary>
     /// 供应商编码
@@ -511,7 +513,8 @@ public partial class TaktPurchaseOrderTemplateDto
     /// </summary>
     public TaktPurchaseOrderTemplateDto()
     {
-        OrderCode = string.Empty;
+        PlantCode = string.Empty;
+        PurchaseOrderCode = string.Empty;
         SupplierCode = string.Empty;
         SupplierName = string.Empty;
     }
@@ -519,12 +522,12 @@ public partial class TaktPurchaseOrderTemplateDto
         /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
-    /// 订单编码
+    /// 采购订单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string PurchaseOrderCode { get; set; }
 
         /// <summary>
     /// 供应商编码
@@ -642,7 +645,8 @@ public partial class TaktPurchaseOrderImportDto
     /// </summary>
     public TaktPurchaseOrderImportDto()
     {
-        OrderCode = string.Empty;
+        PlantCode = string.Empty;
+        PurchaseOrderCode = string.Empty;
         SupplierCode = string.Empty;
         SupplierName = string.Empty;
     }
@@ -650,12 +654,12 @@ public partial class TaktPurchaseOrderImportDto
         /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
-    /// 订单编码
+    /// 采购订单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string PurchaseOrderCode { get; set; }
 
         /// <summary>
     /// 供应商编码
@@ -774,7 +778,8 @@ public partial class TaktPurchaseOrderExportDto
     public TaktPurchaseOrderExportDto()
     {
         CreatedAt = DateTime.Now;
-        OrderCode = string.Empty;
+        PlantCode = string.Empty;
+        PurchaseOrderCode = string.Empty;
         SupplierCode = string.Empty;
         SupplierName = string.Empty;
     }
@@ -782,12 +787,12 @@ public partial class TaktPurchaseOrderExportDto
         /// <summary>
     /// 工厂代码
     /// </summary>
-    public string? PlantCode { get; set; }
+    public string PlantCode { get; set; }
 
         /// <summary>
-    /// 订单编码
+    /// 采购订单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string PurchaseOrderCode { get; set; }
 
         /// <summary>
     /// 供应商编码

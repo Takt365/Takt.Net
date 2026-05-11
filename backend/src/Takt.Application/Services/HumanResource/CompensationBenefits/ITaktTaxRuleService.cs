@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.HumanResource.CompensationBenefits
 // 文件名称：ITaktTaxRuleService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：税务规则表应用服务接口，定义TaxRule管理的业务操作
 // 

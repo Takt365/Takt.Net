@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Quality.Cost
 // 文件名称：TaktQualityOperationDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：品质业务主表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -23,7 +23,7 @@ public partial class TaktQualityOperationDto : TaktDtosEntityBase
     public TaktQualityOperationDto()
     {
         PlantCode = string.Empty;
-        OperationNo = string.Empty;
+        QualityOperationCode = string.Empty;
         OperationMonth = string.Empty;
         CostCurrency = string.Empty;
     }
@@ -40,9 +40,9 @@ public partial class TaktQualityOperationDto : TaktDtosEntityBase
     /// </summary>
     public string PlantCode { get; set; }
     /// <summary>
-    /// 品质业务编号
+    /// 品质业务编码
     /// </summary>
-    public string OperationNo { get; set; }
+    public string QualityOperationCode { get; set; }
     /// <summary>
     /// 业务年月
     /// </summary>
@@ -123,9 +123,9 @@ public partial class TaktQualityOperationQueryDto : TaktPagedQuery
     /// </summary>
     public string? PlantCode { get; set; }
     /// <summary>
-    /// 品质业务编号
+    /// 品质业务编码
     /// </summary>
-    public string? OperationNo { get; set; }
+    public string? QualityOperationCode { get; set; }
     /// <summary>
     /// 业务年月
     /// </summary>
@@ -193,7 +193,7 @@ public partial class TaktQualityOperationCreateDto
     public TaktQualityOperationCreateDto()
     {
         PlantCode = string.Empty;
-        OperationNo = string.Empty;
+        QualityOperationCode = string.Empty;
         OperationMonth = string.Empty;
         CostCurrency = string.Empty;
     }
@@ -204,9 +204,9 @@ public partial class TaktQualityOperationCreateDto
     public string PlantCode { get; set; }
 
         /// <summary>
-    /// 品质业务编号
+    /// 品质业务编码
     /// </summary>
-    public string OperationNo { get; set; }
+    public string QualityOperationCode { get; set; }
 
         /// <summary>
     /// 业务年月
@@ -323,7 +323,7 @@ public partial class TaktQualityOperationTemplateDto
     public TaktQualityOperationTemplateDto()
     {
         PlantCode = string.Empty;
-        OperationNo = string.Empty;
+        QualityOperationCode = string.Empty;
         OperationMonth = string.Empty;
         CostCurrency = string.Empty;
     }
@@ -334,9 +334,9 @@ public partial class TaktQualityOperationTemplateDto
     public string PlantCode { get; set; }
 
         /// <summary>
-    /// 品质业务编号
+    /// 品质业务编码
     /// </summary>
-    public string OperationNo { get; set; }
+    public string QualityOperationCode { get; set; }
 
         /// <summary>
     /// 业务年月
@@ -390,7 +390,7 @@ public partial class TaktQualityOperationImportDto
     public TaktQualityOperationImportDto()
     {
         PlantCode = string.Empty;
-        OperationNo = string.Empty;
+        QualityOperationCode = string.Empty;
         OperationMonth = string.Empty;
         CostCurrency = string.Empty;
     }
@@ -401,9 +401,9 @@ public partial class TaktQualityOperationImportDto
     public string PlantCode { get; set; }
 
         /// <summary>
-    /// 品质业务编号
+    /// 品质业务编码
     /// </summary>
-    public string OperationNo { get; set; }
+    public string QualityOperationCode { get; set; }
 
         /// <summary>
     /// 业务年月
@@ -458,7 +458,7 @@ public partial class TaktQualityOperationExportDto
     {
         CreatedAt = DateTime.Now;
         PlantCode = string.Empty;
-        OperationNo = string.Empty;
+        QualityOperationCode = string.Empty;
         OperationMonth = string.Empty;
         CostCurrency = string.Empty;
     }
@@ -469,9 +469,9 @@ public partial class TaktQualityOperationExportDto
     public string PlantCode { get; set; }
 
         /// <summary>
-    /// 品质业务编号
+    /// 品质业务编码
     /// </summary>
-    public string OperationNo { get; set; }
+    public string QualityOperationCode { get; set; }
 
         /// <summary>
     /// 业务年月

@@ -15,6 +15,8 @@ import type { TaktEntityBase, TaktPagedQuery } from '@/types/common'
 export interface Equipment extends TaktEntityBase {
   /** 对应后端字段 equipmentId */
   equipmentId: string
+  /** 对应后端字段 plantCode */
+  plantCode: string
   /** 对应后端字段 equipmentCode */
   equipmentCode: string
   /** 对应后端字段 equipmentName */
@@ -79,6 +81,8 @@ export interface Equipment extends TaktEntityBase {
  * EquipmentQuery类型（对应后端 Takt.Application.Dtos.Logistics.Maintenance.TaktEquipmentQueryDto）
  */
 export interface EquipmentQuery extends TaktPagedQuery {
+  /** 对应后端字段 plantCode */
+  plantCode?: string
   /** 对应后端字段 equipmentCode */
   equipmentCode?: string
   /** 对应后端字段 equipmentName */
@@ -175,6 +179,8 @@ export interface EquipmentQuery extends TaktPagedQuery {
  * EquipmentCreate类型（对应后端 Takt.Application.Dtos.Logistics.Maintenance.TaktEquipmentCreateDto）
  */
 export interface EquipmentCreate {
+  /** 对应后端字段 plantCode */
+  plantCode: string
   /** 对应后端字段 equipmentCode */
   equipmentCode: string
   /** 对应后端字段 equipmentName */

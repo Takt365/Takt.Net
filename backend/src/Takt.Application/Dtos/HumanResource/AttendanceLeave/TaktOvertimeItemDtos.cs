@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.AttendanceLeave
 // 文件名称：TaktOvertimeItemDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：加班明细表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -55,6 +55,14 @@ public partial class TaktOvertimeItemDto : TaktDtosEntityBase
     /// </summary>
     public decimal PlannedHours { get; set; }
     /// <summary>
+    /// 实际开始时间
+    /// </summary>
+    public DateTime? ActualStartTime { get; set; }
+    /// <summary>
+    /// 实际结束时间
+    /// </summary>
+    public DateTime? ActualEndTime { get; set; }
+    /// <summary>
     /// 实际小时数
     /// </summary>
     public decimal? ActualHours { get; set; }
@@ -101,6 +109,32 @@ public partial class TaktOvertimeItemQueryDto : TaktPagedQuery
     /// 计划小时数
     /// </summary>
     public decimal? PlannedHours { get; set; }
+    /// <summary>
+    /// 实际开始时间
+    /// </summary>
+    public DateTime? ActualStartTime { get; set; }
+
+    /// <summary>
+    /// 实际开始时间开始时间
+    /// </summary>
+    public DateTime? ActualStartTimeStart { get; set; }
+    /// <summary>
+    /// 实际开始时间结束时间
+    /// </summary>
+    public DateTime? ActualStartTimeEnd { get; set; }
+    /// <summary>
+    /// 实际结束时间
+    /// </summary>
+    public DateTime? ActualEndTime { get; set; }
+
+    /// <summary>
+    /// 实际结束时间开始时间
+    /// </summary>
+    public DateTime? ActualEndTimeStart { get; set; }
+    /// <summary>
+    /// 实际结束时间结束时间
+    /// </summary>
+    public DateTime? ActualEndTimeEnd { get; set; }
     /// <summary>
     /// 实际小时数
     /// </summary>
@@ -178,6 +212,16 @@ public partial class TaktOvertimeItemCreateDto
     public decimal PlannedHours { get; set; }
 
         /// <summary>
+    /// 实际开始时间
+    /// </summary>
+    public DateTime? ActualStartTime { get; set; }
+
+        /// <summary>
+    /// 实际结束时间
+    /// </summary>
+    public DateTime? ActualEndTime { get; set; }
+
+        /// <summary>
     /// 实际小时数
     /// </summary>
     public decimal? ActualHours { get; set; }
@@ -253,6 +297,16 @@ public partial class TaktOvertimeItemTemplateDto
     public decimal PlannedHours { get; set; }
 
         /// <summary>
+    /// 实际开始时间
+    /// </summary>
+    public DateTime? ActualStartTime { get; set; }
+
+        /// <summary>
+    /// 实际结束时间
+    /// </summary>
+    public DateTime? ActualEndTime { get; set; }
+
+        /// <summary>
     /// 实际小时数
     /// </summary>
     public decimal? ActualHours { get; set; }
@@ -305,6 +359,16 @@ public partial class TaktOvertimeItemImportDto
     /// 计划小时数
     /// </summary>
     public decimal PlannedHours { get; set; }
+
+        /// <summary>
+    /// 实际开始时间
+    /// </summary>
+    public DateTime? ActualStartTime { get; set; }
+
+        /// <summary>
+    /// 实际结束时间
+    /// </summary>
+    public DateTime? ActualEndTime { get; set; }
 
         /// <summary>
     /// 实际小时数
@@ -360,6 +424,16 @@ public partial class TaktOvertimeItemExportDto
     /// 计划小时数
     /// </summary>
     public decimal PlannedHours { get; set; }
+
+        /// <summary>
+    /// 实际开始时间
+    /// </summary>
+    public DateTime? ActualStartTime { get; set; }
+
+        /// <summary>
+    /// 实际结束时间
+    /// </summary>
+    public DateTime? ActualEndTime { get; set; }
 
         /// <summary>
     /// 实际小时数

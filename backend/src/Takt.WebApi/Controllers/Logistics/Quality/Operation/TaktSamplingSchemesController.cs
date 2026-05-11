@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.Logistics.Quality.Operation
 // 文件名称：TaktSamplingSchemesController.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：抽样方案表控制器，提供SamplingScheme管理的RESTful API接口
 //
@@ -132,25 +132,13 @@ public class TaktSamplingSchemesController : TaktControllerBase
 
 
     /// <summary>
-    /// 更新抽样方案表(SamplingScheme)Scheme
+    /// 更新抽样方案表(SamplingScheme)状态
     /// </summary>
-    [HttpPut("status-scheme")]
-    [TaktPermission("logistics:quality:operation:samplingscheme:update", "更新抽样方案表(SamplingScheme)Scheme")]
-    public async Task<ActionResult<TaktSamplingSchemeDto>> UpdateSamplingSchemeSchemeStatusAsync([FromBody] TaktSamplingSchemeSchemeStatusDto dto)
+    [HttpPut("status")]
+    [TaktPermission("logistics:quality:operation:samplingscheme:update", "更新抽样方案表(SamplingScheme)状态")]
+    public async Task<ActionResult<TaktSamplingSchemeDto>> UpdateSamplingSchemeStatusAsync([FromBody] TaktSamplingSchemeStatusDto dto)
     {
-        var result = await _service.UpdateSamplingSchemeSchemeStatusAsync(dto);
-        return Ok(result);
-    }
-
-
-    /// <summary>
-    /// 更新抽样方案表(SamplingScheme)排序
-    /// </summary>
-    [HttpPut("sort")]
-    [TaktPermission("logistics:quality:operation:samplingscheme:update", "更新抽样方案表(SamplingScheme)排序")]
-    public async Task<ActionResult<TaktSamplingSchemeDto>> UpdateSamplingSchemeSortAsync([FromBody] TaktSamplingSchemeSortDto dto)
-    {
-        var result = await _service.UpdateSamplingSchemeSortAsync(dto);
+        var result = await _service.UpdateSamplingSchemeStatusAsync(dto);
         return Ok(result);
     }
 

@@ -14,11 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Takt.Application.Dtos.Statistics.Logging;
 using Takt.Application.Services.Statistics.Logging;
-using Takt.Domain.Events;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.Data;
 using Takt.Infrastructure.Data.Seeds;
-using Takt.Infrastructure.EventBus;
 using Takt.Infrastructure.Extensions;
 using Takt.Infrastructure.Helpers;
 
@@ -441,13 +439,11 @@ public class TaktAutofacModule : Module
         // 使用扩展方法注册所有通用服务（基础设施服务、应用服务）
         builder.AddTaktServices(_configuration);
 
-        // 注册事件总线（ITaktEventBus -> TaktEventBus）
-        builder.RegisterType<TaktEventBus>()
-            .As<ITaktEventBus>()
-            .InstancePerLifetimeScope();
+        // 注册行号生成器
+        builder.RegisterType<TaktLineNumberGenerator>().As<ITaktLineNumberGenerator>().InstancePerLifetimeScope();
 
-        // 注册 MediatR 事件处理器（自动扫描 Domain 和 Application 程序集）
-        builder.AddTaktMediatRHandlers();
+        // 注册排序号生成器
+        builder.RegisterType<TaktSortOrderGenerator>().As<ITaktSortOrderGenerator>().InstancePerLifetimeScope();
     }
 
 }

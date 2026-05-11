@@ -20,8 +20,7 @@ namespace Takt.Domain.Entities.Logistics.Sales;
 /// </summary>
 [SugarTable("takt_logistics_sales_order", "销售订单表")]
 [SugarIndex("ix_takt_logistics_sales_order_plant_code", nameof(PlantCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_sales_order_order_code", nameof(OrderCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_sales_order_so_unique", nameof(PlantCode), OrderByType.Asc, nameof(OrderCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_sales_order_so_unique", nameof(PlantCode), OrderByType.Asc, nameof(SalesOrderCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_sales_order_customer_code", nameof(CustomerCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_sales_order_order_date", nameof(OrderDate), OrderByType.Desc)]
 [SugarIndex("ix_takt_logistics_sales_order_order_status", nameof(OrderStatus), OrderByType.Asc)]
@@ -37,10 +36,10 @@ public class TaktSalesOrder : TaktEntityBase
     public string? PlantCode { get; set; }
 
     /// <summary>
-    /// 订单编码（唯一索引）
+    /// 销售订单编码（唯一索引）
     /// </summary>
-    [SugarColumn(ColumnName = "order_code", ColumnDescription = "订单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
-    public string OrderCode { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "sales_order_code", ColumnDescription = "销售订单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string SalesOrderCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 客户编码

@@ -25,12 +25,18 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.Defect;
 public class TaktPcbaInspectionDetail : TaktEntityBase
 {
     /// <summary>
-    /// PCBA检查日报ID（主表主键，序列化为string以避免Javascript精度问题）
+    /// PCBA检查日报ID（主表主键,序列化为string以避免Javascript精度问题）
     /// </summary>
     [SugarColumn(ColumnName = "pcba_inspection_id", ColumnDescription = "PCBA检查ID", ColumnDataType = "bigint", IsNullable = false)]
     [JsonConverter(typeof(ValueToStringConverter))]
     public long PcbaInspectionId { get; set; }
-
+    
+    /// <summary>
+    /// 生产工单号（冗余字段,便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "prod_order_code", ColumnDescription = "生产工单号", ColumnDataType = "nvarchar", Length = 20, IsNullable = false)]
+    public string ProdOrderCode { get; set; } = string.Empty;
+    
     /// <summary>
     /// 项号（行号）
     /// </summary>

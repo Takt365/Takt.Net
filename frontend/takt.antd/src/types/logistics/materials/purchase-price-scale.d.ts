@@ -17,6 +17,8 @@ export interface PurchasePriceScale extends TaktEntityBase {
   purchasePriceScaleId: string
   /** 对应后端字段 purchasePriceItemId */
   purchasePriceItemId: string
+  /** 对应后端字段 purchasePriceCode */
+  purchasePriceCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 startQuantity */
@@ -35,6 +37,8 @@ export interface PurchasePriceScale extends TaktEntityBase {
 export interface PurchasePriceScaleQuery extends TaktPagedQuery {
   /** 对应后端字段 purchasePriceItemId */
   purchasePriceItemId?: string
+  /** 对应后端字段 purchasePriceCode */
+  purchasePriceCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 startQuantity */
@@ -65,6 +69,8 @@ export interface PurchasePriceScaleQuery extends TaktPagedQuery {
 export interface PurchasePriceScaleCreate {
   /** 对应后端字段 purchasePriceItemId */
   purchasePriceItemId: string
+  /** 对应后端字段 purchasePriceCode */
+  purchasePriceCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 startQuantity */

@@ -24,29 +24,21 @@ export interface InspectionStandard extends TaktEntityBase {
   /** 对应后端字段 inspectionType */
   inspectionType: number
   /** 对应后端字段 materialCategoryCode */
-  materialCategoryCode?: string
+  materialCategoryCode: string
   /** 对应后端字段 materialCategoryName */
-  materialCategoryName?: string
-  /** 对应后端字段 samplingSchemeId */
-  samplingSchemeId?: string
+  materialCategoryName: string
   /** 对应后端字段 samplingSchemeCode */
   samplingSchemeCode?: string
-  /** 对应后端字段 inspectionItemsJson */
-  inspectionItemsJson?: string
-  /** 对应后端字段 inspectionMethod */
-  inspectionMethod?: string
-  /** 对应后端字段 inspectionTools */
-  inspectionTools?: string
-  /** 对应后端字段 judgmentRules */
-  judgmentRules?: string
+  /** 对应后端字段 samplingSchemeName */
+  samplingSchemeName?: string
   /** 对应后端字段 isEnabled */
   isEnabled: number
   /** 对应后端字段 standardStatus */
   standardStatus: number
   /** 对应后端字段 standardDescription */
   standardDescription?: string
-  /** 对应后端字段 sortOrder */
-  sortOrder: number
+  /** 对应后端字段 items */
+  items?: unknown[]
 }
 
 /**
@@ -65,18 +57,10 @@ export interface InspectionStandardQuery extends TaktPagedQuery {
   materialCategoryCode?: string
   /** 对应后端字段 materialCategoryName */
   materialCategoryName?: string
-  /** 对应后端字段 samplingSchemeId */
-  samplingSchemeId?: string
   /** 对应后端字段 samplingSchemeCode */
   samplingSchemeCode?: string
-  /** 对应后端字段 inspectionItemsJson */
-  inspectionItemsJson?: string
-  /** 对应后端字段 inspectionMethod */
-  inspectionMethod?: string
-  /** 对应后端字段 inspectionTools */
-  inspectionTools?: string
-  /** 对应后端字段 judgmentRules */
-  judgmentRules?: string
+  /** 对应后端字段 samplingSchemeName */
+  samplingSchemeName?: string
   /** 对应后端字段 isEnabled */
   isEnabled?: number
   /** 对应后端字段 standardStatus */
@@ -112,33 +96,25 @@ export interface InspectionStandardCreate {
   /** 对应后端字段 inspectionType */
   inspectionType: number
   /** 对应后端字段 materialCategoryCode */
-  materialCategoryCode?: string
+  materialCategoryCode: string
   /** 对应后端字段 materialCategoryName */
-  materialCategoryName?: string
-  /** 对应后端字段 samplingSchemeId */
-  samplingSchemeId?: string
+  materialCategoryName: string
   /** 对应后端字段 samplingSchemeCode */
   samplingSchemeCode?: string
-  /** 对应后端字段 inspectionItemsJson */
-  inspectionItemsJson?: string
-  /** 对应后端字段 inspectionMethod */
-  inspectionMethod?: string
-  /** 对应后端字段 inspectionTools */
-  inspectionTools?: string
-  /** 对应后端字段 judgmentRules */
-  judgmentRules?: string
+  /** 对应后端字段 samplingSchemeName */
+  samplingSchemeName?: string
   /** 对应后端字段 isEnabled */
   isEnabled: number
   /** 对应后端字段 standardStatus */
   standardStatus: number
   /** 对应后端字段 standardDescription */
   standardDescription?: string
-  /** 对应后端字段 sortOrder */
-  sortOrder: number
   /** 对应后端字段 extFieldJson */
   extFieldJson?: string
   /** 对应后端字段 remark */
   remark?: string
+  /** 对应后端字段 items */
+  items?: unknown[]
 }
 
 /**
@@ -147,16 +123,6 @@ export interface InspectionStandardCreate {
 export interface InspectionStandardUpdate extends InspectionStandardCreate {
   /** 对应后端字段 inspectionStandardId */
   inspectionStandardId: string
-}
-
-/**
- * InspectionStandardSort类型（对应后端 Takt.Application.Dtos.Logistics.Quality.Operation.TaktInspectionStandardSortDto）
- */
-export interface InspectionStandardSort {
-  /** 对应后端字段 inspectionStandardId */
-  inspectionStandardId: string
-  /** 对应后端字段 sortOrder */
-  sortOrder: number
 }
 
 /**

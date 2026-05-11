@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Quality.Operation
 // 文件名称：TaktIpqcDefectHandlingDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：制程检验不良处理记录表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,8 +22,8 @@ public partial class TaktIpqcDefectHandlingDto : TaktDtosEntityBase
     /// </summary>
     public TaktIpqcDefectHandlingDto()
     {
-        HandlingCode = string.Empty;
-        OrderCode = string.Empty;
+        IpqcDefectHandlingCode = string.Empty;
+        IpqcOrderCode = string.Empty;
         DefectCode = string.Empty;
         DefectDescription = string.Empty;
     }
@@ -36,18 +36,18 @@ public partial class TaktIpqcDefectHandlingDto : TaktDtosEntityBase
     public long IpqcDefectHandlingId { get; set; } = 0;
 
     /// <summary>
-    /// 不良处理编码
+    /// IPQC不良处理编码
     /// </summary>
-    public string HandlingCode { get; set; }
+    public string IpqcDefectHandlingCode { get; set; }
     /// <summary>
     /// IPQC检验单明细ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long IpqcOrderItemId { get; set; }
     /// <summary>
-    /// 检验单编码
+    /// IPQC检验单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string IpqcOrderCode { get; set; }
     /// <summary>
     /// 检验单行号
     /// </summary>
@@ -126,18 +126,18 @@ public partial class TaktIpqcDefectHandlingQueryDto : TaktPagedQuery
     // KeyWords 属性已从基类 TaktPagedQuery 继承，用于模糊查询
 
     /// <summary>
-    /// 不良处理编码
+    /// IPQC不良处理编码
     /// </summary>
-    public string? HandlingCode { get; set; }
+    public string? IpqcDefectHandlingCode { get; set; }
     /// <summary>
     /// IPQC检验单明细ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? IpqcOrderItemId { get; set; }
     /// <summary>
-    /// 检验单编码
+    /// IPQC检验单编码
     /// </summary>
-    public string? OrderCode { get; set; }
+    public string? IpqcOrderCode { get; set; }
     /// <summary>
     /// 检验单行号
     /// </summary>
@@ -245,16 +245,16 @@ public partial class TaktIpqcDefectHandlingCreateDto
     /// </summary>
     public TaktIpqcDefectHandlingCreateDto()
     {
-        HandlingCode = string.Empty;
-        OrderCode = string.Empty;
+        IpqcDefectHandlingCode = string.Empty;
+        IpqcOrderCode = string.Empty;
         DefectCode = string.Empty;
         DefectDescription = string.Empty;
     }
 
         /// <summary>
-    /// 不良处理编码
+    /// IPQC不良处理编码
     /// </summary>
-    public string HandlingCode { get; set; }
+    public string IpqcDefectHandlingCode { get; set; }
 
         /// <summary>
     /// IPQC检验单明细ID
@@ -263,9 +263,9 @@ public partial class TaktIpqcDefectHandlingCreateDto
     public long IpqcOrderItemId { get; set; }
 
         /// <summary>
-    /// 检验单编码
+    /// IPQC检验单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string IpqcOrderCode { get; set; }
 
         /// <summary>
     /// 检验单行号
@@ -404,16 +404,16 @@ public partial class TaktIpqcDefectHandlingTemplateDto
     /// </summary>
     public TaktIpqcDefectHandlingTemplateDto()
     {
-        HandlingCode = string.Empty;
-        OrderCode = string.Empty;
+        IpqcDefectHandlingCode = string.Empty;
+        IpqcOrderCode = string.Empty;
         DefectCode = string.Empty;
         DefectDescription = string.Empty;
     }
 
         /// <summary>
-    /// 不良处理编码
+    /// IPQC不良处理编码
     /// </summary>
-    public string HandlingCode { get; set; }
+    public string IpqcDefectHandlingCode { get; set; }
 
         /// <summary>
     /// IPQC检验单明细ID
@@ -421,9 +421,9 @@ public partial class TaktIpqcDefectHandlingTemplateDto
     public long IpqcOrderItemId { get; set; }
 
         /// <summary>
-    /// 检验单编码
+    /// IPQC检验单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string IpqcOrderCode { get; set; }
 
         /// <summary>
     /// 检验单行号
@@ -516,16 +516,16 @@ public partial class TaktIpqcDefectHandlingImportDto
     /// </summary>
     public TaktIpqcDefectHandlingImportDto()
     {
-        HandlingCode = string.Empty;
-        OrderCode = string.Empty;
+        IpqcDefectHandlingCode = string.Empty;
+        IpqcOrderCode = string.Empty;
         DefectCode = string.Empty;
         DefectDescription = string.Empty;
     }
 
         /// <summary>
-    /// 不良处理编码
+    /// IPQC不良处理编码
     /// </summary>
-    public string HandlingCode { get; set; }
+    public string IpqcDefectHandlingCode { get; set; }
 
         /// <summary>
     /// IPQC检验单明细ID
@@ -533,9 +533,9 @@ public partial class TaktIpqcDefectHandlingImportDto
     public long IpqcOrderItemId { get; set; }
 
         /// <summary>
-    /// 检验单编码
+    /// IPQC检验单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string IpqcOrderCode { get; set; }
 
         /// <summary>
     /// 检验单行号
@@ -629,16 +629,16 @@ public partial class TaktIpqcDefectHandlingExportDto
     public TaktIpqcDefectHandlingExportDto()
     {
         CreatedAt = DateTime.Now;
-        HandlingCode = string.Empty;
-        OrderCode = string.Empty;
+        IpqcDefectHandlingCode = string.Empty;
+        IpqcOrderCode = string.Empty;
         DefectCode = string.Empty;
         DefectDescription = string.Empty;
     }
 
         /// <summary>
-    /// 不良处理编码
+    /// IPQC不良处理编码
     /// </summary>
-    public string HandlingCode { get; set; }
+    public string IpqcDefectHandlingCode { get; set; }
 
         /// <summary>
     /// IPQC检验单明细ID
@@ -646,9 +646,9 @@ public partial class TaktIpqcDefectHandlingExportDto
     public long IpqcOrderItemId { get; set; }
 
         /// <summary>
-    /// 检验单编码
+    /// IPQC检验单编码
     /// </summary>
-    public string OrderCode { get; set; }
+    public string IpqcOrderCode { get; set; }
 
         /// <summary>
     /// 检验单行号

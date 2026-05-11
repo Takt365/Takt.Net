@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Routine.Business.News
 // 文件名称：TaktNewsService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：新闻表应用服务，提供News管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Routine.Business.News;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Routine.Business.News;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Routine.Business.News;
 
@@ -29,6 +21,7 @@ namespace Takt.Application.Services.Routine.Business.News;
 public class TaktNewsService : TaktServiceBase, ITaktNewsService
 {
     private readonly ITaktRepository<TaktNews> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktNewsAttachment> _newsAttachmentRepository;
     private readonly ITaktRepository<TaktNewsComment> _newsCommentRepository;
     private readonly ITaktRepository<TaktNewsLike> _newsLikeRepository;
@@ -40,6 +33,7 @@ public class TaktNewsService : TaktServiceBase, ITaktNewsService
     /// 构造函数
     /// </summary>
     /// <param name="repository">News仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="newsAttachmentRepository">NewsAttachment仓储</param>
     /// <param name="newsCommentRepository">NewsComment仓储</param>
     /// <param name="newsLikeRepository">NewsLike仓储</param>
@@ -51,6 +45,7 @@ public class TaktNewsService : TaktServiceBase, ITaktNewsService
     /// <param name="localizer">本地化器（可选）</param>
     public TaktNewsService(
         ITaktRepository<TaktNews> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktNewsAttachment> newsAttachmentRepository,
         ITaktRepository<TaktNewsComment> newsCommentRepository,
         ITaktRepository<TaktNewsLike> newsLikeRepository,
@@ -63,6 +58,7 @@ public class TaktNewsService : TaktServiceBase, ITaktNewsService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _newsAttachmentRepository = newsAttachmentRepository;
         _newsCommentRepository = newsCommentRepository;
         _newsLikeRepository = newsLikeRepository;
@@ -142,9 +138,12 @@ public class TaktNewsService : TaktServiceBase, ITaktNewsService
     /// <returns>新闻表(News)DTO</returns>
     public async Task<TaktNewsDto> CreateNewsAsync(TaktNewsCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.NewsCode, dto.NewsCode, null, $"新闻表编码 {dto.NewsCode} 已存在");
-
         var entity = dto.Adapt<TaktNews>();
+        // 验证NewsCode的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.NewsCode, dto.NewsCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"新闻表NewsCode {dto.NewsCode} 已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -227,8 +226,10 @@ public class TaktNewsService : TaktServiceBase, ITaktNewsService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.newsNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.NewsCode, dto.NewsCode, id, $"新闻表编码 {dto.NewsCode} 已存在");
+        // 验证NewsCode的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.NewsCode, dto.NewsCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"新闻表NewsCode {dto.NewsCode} 已存在");
 
         dto.Adapt(entity, typeof(TaktNewsUpdateDto), typeof(TaktNews));
         entity.UpdatedAt = DateTime.Now;

@@ -19,7 +19,6 @@ namespace Takt.Domain.Entities.Accounting.Controlling;
 /// Takt利润中心实体
 /// </summary>
 [SugarTable("takt_accounting_controlling_profit_center", "利润中心表")]
-[SugarIndex("ix_takt_accounting_controlling_profit_center_profit_center_code", nameof(ProfitCenterCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_controlling_profit_center_pc_unique", nameof(CompanyCode), OrderByType.Asc, nameof(ProfitCenterCode), OrderByType.Asc, nameof(ProfitCenterName), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_accounting_controlling_profit_center_parent_id", nameof(ParentId), OrderByType.Asc)]
 [SugarIndex("ix_takt_accounting_controlling_profit_center_config_id", nameof(ConfigId), OrderByType.Asc)]
@@ -29,10 +28,10 @@ namespace Takt.Domain.Entities.Accounting.Controlling;
 public class TaktProfitCenter : TaktEntityBase
 {
     /// <summary>
-    /// 公司代码
+    /// 公司代码（不可空）
     /// </summary>
-    [SugarColumn(ColumnName = "company_code", ColumnDescription = "公司代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? CompanyCode { get; set; }
+    [SugarColumn(ColumnName = "company_code", ColumnDescription = "公司代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string CompanyCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 利润中心编码（唯一索引）

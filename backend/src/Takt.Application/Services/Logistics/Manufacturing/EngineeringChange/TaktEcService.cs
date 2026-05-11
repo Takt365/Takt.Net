@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Manufacturing.EngineeringChange
 // 文件名称：TaktEcService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：设变主表应用服务，提供Ec管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Manufacturing.EngineeringChange;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Manufacturing.EngineeringChange;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Manufacturing.EngineeringChange;
 
@@ -29,6 +21,7 @@ namespace Takt.Application.Services.Logistics.Manufacturing.EngineeringChange;
 public class TaktEcService : TaktServiceBase, ITaktEcService
 {
     private readonly ITaktRepository<TaktEc> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktEcDetail> _ecDetailRepository;
     private readonly ITaktRepository<TaktEcAttachment> _ecAttachmentRepository;
 
@@ -36,6 +29,7 @@ public class TaktEcService : TaktServiceBase, ITaktEcService
     /// 构造函数
     /// </summary>
     /// <param name="repository">Ec仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="ecDetailRepository">EcDetail仓储</param>
     /// <param name="ecAttachmentRepository">EcAttachment仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
@@ -43,6 +37,7 @@ public class TaktEcService : TaktServiceBase, ITaktEcService
     /// <param name="localizer">本地化器（可选）</param>
     public TaktEcService(
         ITaktRepository<TaktEc> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktEcDetail> ecDetailRepository,
         ITaktRepository<TaktEcAttachment> ecAttachmentRepository,
         ITaktUserContext? userContext = null,
@@ -51,6 +46,7 @@ public class TaktEcService : TaktServiceBase, ITaktEcService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _ecDetailRepository = ecDetailRepository;
         _ecAttachmentRepository = ecAttachmentRepository;
     }
@@ -118,9 +114,12 @@ public class TaktEcService : TaktServiceBase, ITaktEcService
     /// <returns>设变主表(Ec)DTO</returns>
     public async Task<TaktEcDto> CreateEcAsync(TaktEcCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.EcnNo, dto.EcnNo, null, $"设变主表编码 {dto.EcnNo} 已存在");
-
         var entity = dto.Adapt<TaktEc>();
+        // 验证工厂编码、EcnNo组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.EcnNo == dto.EcnNo);
+        if (!isUnique)
+            throw new TaktBusinessException($"设变主表工厂编码、EcnNo组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -163,8 +162,10 @@ public class TaktEcService : TaktServiceBase, ITaktEcService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.ecNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.EcnNo, dto.EcnNo, id, $"设变主表编码 {dto.EcnNo} 已存在");
+        // 验证工厂编码、EcnNo组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.EcnNo == dto.EcnNo, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"设变主表工厂编码、EcnNo组合已存在");
 
         dto.Adapt(entity, typeof(TaktEcUpdateDto), typeof(TaktEc));
         entity.UpdatedAt = DateTime.Now;

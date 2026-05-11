@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.HumanResource.AttendanceLeave
 // 文件名称：TaktOvertimeDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：加班信息表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -51,13 +51,13 @@ public partial class TaktOvertimeDto : TaktDtosEntityBase
     /// </summary>
     public DateTime OvertimeDate { get; set; }
     /// <summary>
-    /// 加班开始时间
+    /// 计划开始时间
     /// </summary>
-    public DateTime StartTime { get; set; }
+    public DateTime PlannedStartTime { get; set; }
     /// <summary>
-    /// 加班结束时间
+    /// 计划结束时间
     /// </summary>
-    public DateTime EndTime { get; set; }
+    public DateTime PlannedEndTime { get; set; }
     /// <summary>
     /// 加班总人数
     /// </summary>
@@ -187,31 +187,31 @@ public partial class TaktOvertimeQueryDto : TaktPagedQuery
     /// </summary>
     public DateTime? OvertimeDateEnd { get; set; }
     /// <summary>
-    /// 加班开始时间
+    /// 计划开始时间
     /// </summary>
-    public DateTime? StartTime { get; set; }
+    public DateTime? PlannedStartTime { get; set; }
 
     /// <summary>
-    /// 加班开始时间开始时间
+    /// 计划开始时间开始时间
     /// </summary>
-    public DateTime? StartTimeStart { get; set; }
+    public DateTime? PlannedStartTimeStart { get; set; }
     /// <summary>
-    /// 加班开始时间结束时间
+    /// 计划开始时间结束时间
     /// </summary>
-    public DateTime? StartTimeEnd { get; set; }
+    public DateTime? PlannedStartTimeEnd { get; set; }
     /// <summary>
-    /// 加班结束时间
+    /// 计划结束时间
     /// </summary>
-    public DateTime? EndTime { get; set; }
+    public DateTime? PlannedEndTime { get; set; }
 
     /// <summary>
-    /// 加班结束时间开始时间
+    /// 计划结束时间开始时间
     /// </summary>
-    public DateTime? EndTimeStart { get; set; }
+    public DateTime? PlannedEndTimeStart { get; set; }
     /// <summary>
-    /// 加班结束时间结束时间
+    /// 计划结束时间结束时间
     /// </summary>
-    public DateTime? EndTimeEnd { get; set; }
+    public DateTime? PlannedEndTimeEnd { get; set; }
     /// <summary>
     /// 加班总人数
     /// </summary>
@@ -363,14 +363,14 @@ public partial class TaktOvertimeCreateDto
     public DateTime OvertimeDate { get; set; }
 
         /// <summary>
-    /// 加班开始时间
+    /// 计划开始时间
     /// </summary>
-    public DateTime StartTime { get; set; }
+    public DateTime PlannedStartTime { get; set; }
 
         /// <summary>
-    /// 加班结束时间
+    /// 计划结束时间
     /// </summary>
-    public DateTime EndTime { get; set; }
+    public DateTime PlannedEndTime { get; set; }
 
         /// <summary>
     /// 加班总人数
@@ -549,14 +549,14 @@ public partial class TaktOvertimeTemplateDto
     public DateTime OvertimeDate { get; set; }
 
         /// <summary>
-    /// 加班开始时间
+    /// 计划开始时间
     /// </summary>
-    public DateTime StartTime { get; set; }
+    public DateTime PlannedStartTime { get; set; }
 
         /// <summary>
-    /// 加班结束时间
+    /// 计划结束时间
     /// </summary>
-    public DateTime EndTime { get; set; }
+    public DateTime PlannedEndTime { get; set; }
 
         /// <summary>
     /// 加班总人数
@@ -680,14 +680,14 @@ public partial class TaktOvertimeImportDto
     public DateTime OvertimeDate { get; set; }
 
         /// <summary>
-    /// 加班开始时间
+    /// 计划开始时间
     /// </summary>
-    public DateTime StartTime { get; set; }
+    public DateTime PlannedStartTime { get; set; }
 
         /// <summary>
-    /// 加班结束时间
+    /// 计划结束时间
     /// </summary>
-    public DateTime EndTime { get; set; }
+    public DateTime PlannedEndTime { get; set; }
 
         /// <summary>
     /// 加班总人数
@@ -819,14 +819,14 @@ public partial class TaktOvertimeExportDto
     public DateTime OvertimeDate { get; set; }
 
         /// <summary>
-    /// 加班开始时间
+    /// 计划开始时间
     /// </summary>
-    public DateTime StartTime { get; set; }
+    public DateTime PlannedStartTime { get; set; }
 
         /// <summary>
-    /// 加班结束时间
+    /// 计划结束时间
     /// </summary>
-    public DateTime EndTime { get; set; }
+    public DateTime PlannedEndTime { get; set; }
 
         /// <summary>
     /// 加班总人数

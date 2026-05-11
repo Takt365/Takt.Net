@@ -323,6 +323,7 @@ function getDtoNamespace(entityName) {
 
 /**
  * 判断是否包含唯一字段（用于验证）
+ * 支持单字段唯一索引和组合唯一索引
  */
 function findUniqueField(entityFile) {
   if (!entityFile || !fs.existsSync(entityFile)) {
@@ -331,23 +332,48 @@ function findUniqueField(entityFile) {
   
   const content = fs.readFileSync(entityFile, 'utf-8');
   
-  // 查找带有唯一索引的字段
-  const uniqueIndexMatch = content.match(/SugarIndex\("ix_\w+_(\w+)",\s*nameof\((\w+)\),.*true\)/);
-  if (uniqueIndexMatch) {
-    return uniqueIndexMatch[2];
-  }
+  // 查找所有 SugarIndex 特性
+  const sugarIndexRegex = /\[SugarIndex\("([^"]+)"(?:,\s*nameof\((\w+)\),\s*OrderByType\.\w+)+,\s*true\)\]/g;
+  let match;
+  const uniqueIndexes = [];
   
-  // 查找常见的唯一字段名
-  const commonFields = ['Code', 'No', 'Number'];
-  for (const field of commonFields) {
-    const regex = new RegExp(`public\\s+string\\s+\\w+${field}\\s*{`, 'g');
-    if (regex.test(content)) {
-      const match = content.match(new RegExp(`public\\s+string\\s+(\\w+${field})`));
-      if (match) return match[1];
+  while ((match = sugarIndexRegex.exec(content)) !== null) {
+    const indexName = match[1];
+    const fullMatch = match[0];
+    
+    // 提取所有字段名
+    const fieldRegex = /nameof\((\w+)\)/g;
+    let fieldMatch;
+    const fields = [];
+    
+    while ((fieldMatch = fieldRegex.exec(fullMatch)) !== null) {
+      fields.push(fieldMatch[1]);
     }
+    
+    uniqueIndexes.push({
+      indexName,
+      fields
+    });
   }
   
-  return null;
+  // 如果没有找到唯一索引，尝试查找常见的唯一字段名
+  if (uniqueIndexes.length === 0) {
+    const commonFields = ['Code', 'No', 'Number'];
+    for (const field of commonFields) {
+      const regex = new RegExp(`public\\s+string\\s+\\w+${field}\\s*{`, 'g');
+      if (regex.test(content)) {
+        const match = content.match(new RegExp(`public\\s+string\\s+(\\w+${field})`));
+        if (match) return { fields: [match[1]] };
+      }
+    }
+    return null;
+  }
+  
+  // 优先返回单字段唯一索引，如果没有则返回第一个组合索引
+  const singleFieldIndex = uniqueIndexes.find(idx => idx.fields.length === 1);
+  if (singleFieldIndex) return singleFieldIndex;
+  
+  return uniqueIndexes[0];
 }
 
 /**
@@ -587,17 +613,9 @@ function generateServiceImpl(entityName, methods, description, entityFile) {
   content += `// 免责声明：此软件使用 MIT License，作者不承担任何使用风险。\n`;
   content += `// ========================================\n\n`;
   
-  // using语句
-  content += `using SqlSugar;\n`;
+  // using语句（已在全局using中定义，不重复添加）
   content += `using ${dtoNamespace};\n`;
-  content += `using Takt.Application.Services;\n`;
-  content += `using ${entityFile ? getEntityNamespace(entityFile) : 'Takt.Domain.Entities'};\n`;
-  content += `using Takt.Domain.Interfaces;\n`;
-  content += `using Takt.Domain.Repositories;\n`;
-  content += `using Takt.Domain.Validation;\n`;
-  content += `using Takt.Shared.Exceptions;\n`;
-  content += `using Takt.Shared.Helpers;\n`;
-  content += `using Takt.Shared.Models;\n\n`;
+  content += `using ${entityFile ? getEntityNamespace(entityFile) : 'Takt.Domain.Entities'};\n\n`;
   content += `namespace ${namespace};\n\n`;
   
   // 类定义
@@ -606,7 +624,8 @@ function generateServiceImpl(entityName, methods, description, entityFile) {
   content += `/// </summary>\n`;
   content += `public class ${entityName}Service : TaktServiceBase, I${entityName}Service\n`;
   content += `{\n`;
-  content += `    private readonly ITaktRepository<${entityName}> _repository;\n`;
+  content += `    private readonly ITaktRepository<${entityName}> _repository;\n    private readonly ITaktUniqueValidator _uniqueValidator;
+`;
   
   // 主子表：添加子表仓储
   if (crudType === 'MasterDetail' && childEntities.length > 0) {
@@ -621,7 +640,7 @@ function generateServiceImpl(entityName, methods, description, entityFile) {
   content += `    /// 构造函数\n`;
   content += `    /// </summary>\n`;
   content += `    /// <param name="repository">${entityShortName}仓储</param>\n`;
-  
+  content += `    /// <param name="uniqueValidator">唯一性验证器</param>\n`;
   // 主子表：添加子表仓储参数
   if (crudType === 'MasterDetail' && childEntities.length > 0) {
     for (const child of childEntities) {
@@ -634,7 +653,8 @@ function generateServiceImpl(entityName, methods, description, entityFile) {
   content += `    /// <param name="localizer">本地化器（可选）</param>\n`;
   content += `    public ${entityName}Service(\n`;
   content += `        ITaktRepository<${entityName}> repository,\n`;
-  
+  content += `        ITaktUniqueValidator uniqueValidator,\n`;
+    
   // 主子表：添加子表仓储注入
   if (crudType === 'MasterDetail' && childEntities.length > 0) {
     for (let i = 0; i < childEntities.length; i++) {
@@ -650,7 +670,8 @@ function generateServiceImpl(entityName, methods, description, entityFile) {
   content += `        : base(userContext, tenantContext, localizer)\n`;
   content += `    {\n`;
   content += `        _repository = repository;\n`;
-  
+  content += `        _uniqueValidator = uniqueValidator;\n`;
+    
   // 主子表：赋值子表仓储
   if (crudType === 'MasterDetail' && childEntities.length > 0) {
     for (const child of childEntities) {
@@ -858,12 +879,30 @@ ${sortOrderLine}
 /**
  * 生成创建方法
  */
-function generateCreateMethod(method, entityName, entityShortName, description, uniqueField, crudType, childEntities) {
+function generateCreateMethod(method, entityName, entityShortName, description, uniqueIndex, crudType, childEntities) {
+  // 生成唯一性验证代码
   let validationCode = '';
-  if (uniqueField) {
-    validationCode = `
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.${uniqueField}, dto.${uniqueField}, null, $"${description}编码 {dto.${uniqueField}} 已存在");
+  if (uniqueIndex && uniqueIndex.fields && uniqueIndex.fields.length > 0) {
+    if (uniqueIndex.fields.length === 1) {
+      // 单字段唯一索引
+      const field = uniqueIndex.fields[0];
+      validationCode = `
+        // 验证${getFriendlyFieldName(field)}的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.${field}, dto.${field});
+        if (!isUnique)
+            throw new TaktBusinessException($"${description}${getFriendlyFieldName(field)} {dto.${field}} 已存在");
 `;
+    } else {
+      // 组合唯一索引
+      const conditions = uniqueIndex.fields.map((field) => `x.${field} == dto.${field}`).join(' && ');
+      const fieldNames = uniqueIndex.fields.map(f => getFriendlyFieldName(f)).join('、');
+      validationCode = `
+        // 验证${fieldNames}组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => ${conditions});
+        if (!isUnique)
+            throw new TaktBusinessException($"${description}${fieldNames}组合已存在");
+`;
+    }
   }
   
   // 主子表：创建子表数据
@@ -908,8 +947,8 @@ function generateCreateMethod(method, entityName, entityShortName, description, 
     /// <param name="dto">创建${description}(${entityShortName})DTO</param>
     /// <returns>${description}(${entityShortName})DTO</returns>
     public async Task<${entityName}Dto> Create${entityShortName}Async(${entityName}CreateDto dto)
-    {${validationCode}
-        var entity = dto.Adapt<${entityName}>();
+    {
+        var entity = dto.Adapt<${entityName}>();${validationCode}
         entity = await _repository.CreateAsync(entity);${createChildCode}
         return (await Get${entityShortName}ByIdAsync(entity.Id)) ?? entity.Adapt<${entityName}Dto>();
     }
@@ -920,12 +959,30 @@ function generateCreateMethod(method, entityName, entityShortName, description, 
 /**
  * 生成更新方法
  */
-function generateUpdateMethod(method, entityName, entityShortName, description, uniqueField, crudType, childEntities) {
+function generateUpdateMethod(method, entityName, entityShortName, description, uniqueIndex, crudType, childEntities) {
+  // 生成唯一性验证代码（Update时需要排除当前ID）
   let validationCode = '';
-  if (uniqueField) {
-    validationCode = `
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.${uniqueField}, dto.${uniqueField}, id, $"${description}编码 {dto.${uniqueField}} 已存在");
+  if (uniqueIndex && uniqueIndex.fields && uniqueIndex.fields.length > 0) {
+    if (uniqueIndex.fields.length === 1) {
+      // 单字段唯一索引
+      const field = uniqueIndex.fields[0];
+      validationCode = `
+        // 验证${getFriendlyFieldName(field)}的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.${field}, dto.${field}, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"${description}${getFriendlyFieldName(field)} {dto.${field}} 已存在");
 `;
+    } else {
+      // 组合唯一索引
+      const conditions = uniqueIndex.fields.map((field) => `x.${field} == dto.${field}`).join(' && ');
+      const fieldNames = uniqueIndex.fields.map(f => getFriendlyFieldName(f)).join('、');
+      validationCode = `
+        // 验证${fieldNames}组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => ${conditions}, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"${description}${fieldNames}组合已存在");
+`;
+    }
   }
   
   // 主子表：更新子表数据（删旧建新）
@@ -992,8 +1049,7 @@ function generateUpdateMethod(method, entityName, entityShortName, description, 
     {
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
-            throw new TaktBusinessException("validation.${entityShortName.toLowerCase()}NotFound");
-${validationCode}
+            throw new TaktBusinessException("validation.${entityShortName.toLowerCase()}NotFound");${validationCode}
         dto.Adapt(entity, typeof(${entityName}UpdateDto), typeof(${entityName}));
         entity.UpdatedAt = DateTime.Now;
         await _repository.UpdateAsync(entity);${updateChildCode}
@@ -1286,6 +1342,29 @@ function generateUpdateSortMethod(method, entityName, entityShortName, descripti
     }
 
 `;
+}
+
+/**
+ * 获取字段的友好名称（用于错误提示）
+ */
+function getFriendlyFieldName(fieldName) {
+  // 将驼峰命名转换为中文描述
+  const fieldMap = {
+    'CostCenterCode': '成本中心编码',
+    'CostCenterName': '成本中心名称',
+    'CompanyCode': '公司代码',
+    'EmployeeCode': '员工编码',
+    'DeptCode': '部门编码',
+    'PlantCode': '工厂编码',
+    'RoleCode': '角色编码',
+    'TenantCode': '租户编码',
+    'UserCode': '用户编码',
+    'Code': '编码',
+    'No': '编号',
+    'Number': '号码'
+  };
+  
+  return fieldMap[fieldName] || fieldName;
 }
 
 /**

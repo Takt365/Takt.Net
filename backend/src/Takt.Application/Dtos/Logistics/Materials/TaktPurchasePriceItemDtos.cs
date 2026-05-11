@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Materials
 // 文件名称：TaktPurchasePriceItemDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：采购价格明细表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktPurchasePriceItemDto : TaktDtosEntityBase
     /// </summary>
     public TaktPurchasePriceItemDto()
     {
+        PurchasePriceCode = string.Empty;
         MaterialCode = string.Empty;
         PurchaseUnit = string.Empty;
     }
@@ -38,6 +39,10 @@ public partial class TaktPurchasePriceItemDto : TaktDtosEntityBase
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long PurchasePriceId { get; set; }
+    /// <summary>
+    /// 采购价格编码
+    /// </summary>
+    public string PurchasePriceCode { get; set; }
     /// <summary>
     /// 行号
     /// </summary>
@@ -100,6 +105,10 @@ public partial class TaktPurchasePriceItemQueryDto : TaktPagedQuery
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? PurchasePriceId { get; set; }
+    /// <summary>
+    /// 采购价格编码
+    /// </summary>
+    public string? PurchasePriceCode { get; set; }
     /// <summary>
     /// 行号
     /// </summary>
@@ -174,6 +183,7 @@ public partial class TaktPurchasePriceItemCreateDto
     /// </summary>
     public TaktPurchasePriceItemCreateDto()
     {
+        PurchasePriceCode = string.Empty;
         MaterialCode = string.Empty;
         PurchaseUnit = string.Empty;
     }
@@ -183,6 +193,11 @@ public partial class TaktPurchasePriceItemCreateDto
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long PurchasePriceId { get; set; }
+
+        /// <summary>
+    /// 采购价格编码
+    /// </summary>
+    public string PurchasePriceCode { get; set; }
 
         /// <summary>
     /// 行号
@@ -302,6 +317,7 @@ public partial class TaktPurchasePriceItemTemplateDto
     /// </summary>
     public TaktPurchasePriceItemTemplateDto()
     {
+        PurchasePriceCode = string.Empty;
         MaterialCode = string.Empty;
         PurchaseUnit = string.Empty;
     }
@@ -310,6 +326,11 @@ public partial class TaktPurchasePriceItemTemplateDto
     /// 采购价格ID
     /// </summary>
     public long PurchasePriceId { get; set; }
+
+        /// <summary>
+    /// 采购价格编码
+    /// </summary>
+    public string PurchasePriceCode { get; set; }
 
         /// <summary>
     /// 行号
@@ -377,6 +398,7 @@ public partial class TaktPurchasePriceItemImportDto
     /// </summary>
     public TaktPurchasePriceItemImportDto()
     {
+        PurchasePriceCode = string.Empty;
         MaterialCode = string.Empty;
         PurchaseUnit = string.Empty;
     }
@@ -385,6 +407,11 @@ public partial class TaktPurchasePriceItemImportDto
     /// 采购价格ID
     /// </summary>
     public long PurchasePriceId { get; set; }
+
+        /// <summary>
+    /// 采购价格编码
+    /// </summary>
+    public string PurchasePriceCode { get; set; }
 
         /// <summary>
     /// 行号
@@ -453,6 +480,7 @@ public partial class TaktPurchasePriceItemExportDto
     public TaktPurchasePriceItemExportDto()
     {
         CreatedAt = DateTime.Now;
+        PurchasePriceCode = string.Empty;
         MaterialCode = string.Empty;
         PurchaseUnit = string.Empty;
     }
@@ -461,6 +489,11 @@ public partial class TaktPurchasePriceItemExportDto
     /// 采购价格ID
     /// </summary>
     public long PurchasePriceId { get; set; }
+
+        /// <summary>
+    /// 采购价格编码
+    /// </summary>
+    public string PurchasePriceCode { get; set; }
 
         /// <summary>
     /// 行号

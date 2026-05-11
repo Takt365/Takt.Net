@@ -11,8 +11,7 @@ import type {
   InspectionStandard,
   InspectionStandardQuery,
   InspectionStandardCreate,
-  InspectionStandardUpdate,
-  InspectionStandardSort
+  InspectionStandardUpdate
 } from '@/types/logistics/quality/operation/inspection-standard'
 
 // ========================================
@@ -98,18 +97,6 @@ export function deleteInspectionStandardBatch(ids: string[]): Promise<void> {
     url: `${inspectionStandardUrl}/batch`,
     method: 'delete',
     data: ids
-  })
-}
-
-/**
- * 更新InspectionStandard排序
- * 对应后端：UpdateInspectionStandardSortAsync
- */
-export function updateInspectionStandardSort(data: InspectionStandardSort): Promise<InspectionStandardSort> {
-  return request({
-    url: `${inspectionStandardUrl}/sort`,
-    method: 'put',
-    data
   })
 }
 

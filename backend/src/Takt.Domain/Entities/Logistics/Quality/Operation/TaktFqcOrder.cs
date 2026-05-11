@@ -17,20 +17,17 @@ namespace Takt.Domain.Entities.Logistics.Quality.Operation;
 /// FQC出货检验单实体
 /// </summary>
 [SugarTable("takt_logistics_quality_fqc_order", "出货检验单表")]
-[SugarIndex("ix_takt_logistics_quality_fqc_order_order_code", nameof(OrderCode), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_quality_fqc_order_fqc_order_unique", nameof(PlantCode), OrderByType.Asc, nameof(FqcOrderCode), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_quality_fqc_order_source_code", nameof(SourceCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_fqc_order_plan_code", nameof(PlanCode), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_fqc_order_customer_code", nameof(CustomerCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_fqc_order_order_status", nameof(OrderStatus), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_fqc_order_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_fqc_order_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktFqcOrder : TaktEntityBase
 {
     /// <summary>
-    /// 检验单编码（唯一索引）
+    /// 工厂代码
     /// </summary>
-    [SugarColumn(ColumnName = "order_code", ColumnDescription = "检验单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
-    public string OrderCode { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 8, IsNullable = false)]
+    public string PlantCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 来源单号（销售订单编码或发货单编码）
@@ -39,88 +36,62 @@ public class TaktFqcOrder : TaktEntityBase
     public string SourceCode { get; set; } = string.Empty;
 
     /// <summary>
-    /// 检验计划编码（可选，从计划生成）
+    /// 检验日期
     /// </summary>
-    [SugarColumn(ColumnName = "plan_code", ColumnDescription = "检验计划编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? PlanCode { get; set; }
+    [SugarColumn(ColumnName = "inspection_date", ColumnDescription = "检验日期", ColumnDataType = "date", IsNullable = true)]
+    public DateTime? InspectionDate { get; set; }
 
     /// <summary>
-    /// 检验标准编码
+    /// FQC检验单编码（唯一索引，根据来源单号自动生成）
     /// </summary>
-    [SugarColumn(ColumnName = "standard_code", ColumnDescription = "检验标准编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
-    public string StandardCode { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "fqc_order_code", ColumnDescription = "FQC检验单编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string FqcOrderCode { get; set; } = string.Empty;
 
     /// <summary>
-    /// 物料编码
+    /// 客户编码（可选）
     /// </summary>
-    [SugarColumn(ColumnName = "material_code", ColumnDescription = "物料编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
-    public string MaterialCode { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "customer_code", ColumnDescription = "客户编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
+    public string? CustomerCode { get; set; }
+
+    // ==================== 汇总信息 ====================
 
     /// <summary>
-    /// 物料名称
+    /// 总入库数
     /// </summary>
-    [SugarColumn(ColumnName = "material_name", ColumnDescription = "物料名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
-    public string MaterialName { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "total_warehouse_quantity", ColumnDescription = "总入库数", ColumnDataType = "decimal", Length = 18, DecimalDigits = 4, IsNullable = false, DefaultValue = "0")]
+    public decimal TotalWarehouseQuantity { get; set; } = 0;
 
     /// <summary>
-    /// 批次号
+    /// 总抽样数量（自动计算 = 各明细抽样数量合计）
     /// </summary>
-    [SugarColumn(ColumnName = "batch_no", ColumnDescription = "批次号", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? BatchNo { get; set; }
+    [SugarColumn(ColumnName = "total_sample_quantity", ColumnDescription = "总抽样数量", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int TotalSampleQuantity { get; set; } = 0;
 
     /// <summary>
-    /// 客户编码
+    /// 总合格数量（自动计算 = 各明细合格数量合计）
     /// </summary>
-    [SugarColumn(ColumnName = "customer_code", ColumnDescription = "客户编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
-    public string CustomerCode { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "total_qualified_quantity", ColumnDescription = "总合格数量", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int TotalQualifiedQuantity { get; set; } = 0;
 
     /// <summary>
-    /// 客户名称
+    /// 总不合格数量（自动计算 = 各明细不合格数量合计）
     /// </summary>
-    [SugarColumn(ColumnName = "customer_name", ColumnDescription = "客户名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
-    public string CustomerName { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "total_unqualified_quantity", ColumnDescription = "总不合格数量", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int TotalUnqualifiedQuantity { get; set; } = 0;
 
     /// <summary>
-    /// 出货数量
+    /// 总验退数量（自动计算 = 各明细验退数量合计）
     /// </summary>
-    [SugarColumn(ColumnName = "outgoing_quantity", ColumnDescription = "出货数量", ColumnDataType = "decimal", Length = 18, DecimalDigits = 4, IsNullable = false, DefaultValue = "0")]
-    public decimal OutgoingQuantity { get; set; } = 0;
+    [SugarColumn(ColumnName = "total_inspection_return_quantity", ColumnDescription = "总验退数量", ColumnDataType = "decimal", Length = 16, DecimalDigits = 6, IsNullable = false, DefaultValue = "0")]
+    public decimal TotalInspectionReturnQuantity { get; set; } = 0;
+
+    // ==================== 整单判定 ====================
 
     /// <summary>
-    /// 出货单号
+    /// 判定状态（0=待判定，1=合格，2=不合格，3=让步接收，4=退货）
     /// </summary>
-    [SugarColumn(ColumnName = "delivery_order_code", ColumnDescription = "出货单号", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? DeliveryOrderCode { get; set; }
-
-    /// <summary>
-    /// 抽样方案编码
-    /// </summary>
-    [SugarColumn(ColumnName = "sampling_scheme_code", ColumnDescription = "抽样方案编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? SamplingSchemeCode { get; set; }
-
-    /// <summary>
-    /// 抽样数量
-    /// </summary>
-    [SugarColumn(ColumnName = "sample_quantity", ColumnDescription = "抽样数量", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int SampleQuantity { get; set; } = 0;
-
-    /// <summary>
-    /// 合格数量
-    /// </summary>
-    [SugarColumn(ColumnName = "qualified_quantity", ColumnDescription = "合格数量", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int QualifiedQuantity { get; set; } = 0;
-
-    /// <summary>
-    /// 不合格数量
-    /// </summary>
-    [SugarColumn(ColumnName = "unqualified_quantity", ColumnDescription = "不合格数量", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int UnqualifiedQuantity { get; set; } = 0;
-
-    /// <summary>
-    /// 检验结论（0=待判定，1=合格，2=不合格，3=让步接收，4=退货）
-    /// </summary>
-    [SugarColumn(ColumnName = "inspection_conclusion", ColumnDescription = "检验结论", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int InspectionConclusion { get; set; } = 0;
+    [SugarColumn(ColumnName = "judge_status", ColumnDescription = "判定状态", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int JudgeStatus { get; set; } = 0;
 
     /// <summary>
     /// 判定人（人员代码）
@@ -129,22 +100,16 @@ public class TaktFqcOrder : TaktEntityBase
     public string? JudgeBy { get; set; }
 
     /// <summary>
-    /// 判定时间
+    /// 判定日期
     /// </summary>
-    [SugarColumn(ColumnName = "judge_time", ColumnDescription = "判定时间", ColumnDataType = "datetime", IsNullable = true)]
-    public DateTime? JudgeTime { get; set; }
+    [SugarColumn(ColumnName = "judge_date", ColumnDescription = "判定日期", ColumnDataType = "date", IsNullable = true)]
+    public DateTime? JudgeDate { get; set; }
 
     /// <summary>
-    /// 检验备注
+    /// 判定说明
     /// </summary>
-    [SugarColumn(ColumnName = "inspection_remark", ColumnDescription = "检验备注", ColumnDataType = "nvarchar", Length = 1000, IsNullable = true)]
-    public string? InspectionRemark { get; set; }
-
-    /// <summary>
-    /// 检验单状态（0=草稿，1=待检验，2=检验中，3=待判定，4=已完成，5=已关闭）
-    /// </summary>
-    [SugarColumn(ColumnName = "order_status", ColumnDescription = "检验单状态", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int OrderStatus { get; set; } = 0;
+    [SugarColumn(ColumnName = "judge_description", ColumnDescription = "判定说明", ColumnDataType = "nvarchar", Length = 1000, IsNullable = true)]
+    public string? JudgeDescription { get; set; }
 
     /// <summary>
     /// FQC检验单明细列表（主子表关系）

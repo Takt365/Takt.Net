@@ -20,11 +20,7 @@ namespace Takt.Domain.Entities.Logistics.Quality.Cost;
 /// 品质废弃主表,用于记录废弃单的基础信息(年月日、机种)及汇总数据
 /// </summary>
 [SugarTable("takt_logistics_quality_scrap", "品质废弃主表")]
-[SugarIndex("ix_takt_logistics_quality_scrap_scrap_no", nameof(ScrapNo), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_quality_scrap_plant_code", nameof(PlantCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_scrap_scrap_date", nameof(ScrapDate), OrderByType.Desc)]
-[SugarIndex("ix_takt_logistics_quality_scrap_model", nameof(Model), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_scrap_qs_unique", nameof(PlantCode), OrderByType.Asc, nameof(ScrapDate), OrderByType.Asc, nameof(Model), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_quality_scrap_qs_unique", nameof(PlantCode), OrderByType.Asc, nameof(QualityScrapCode), OrderByType.Asc, nameof(ScrapDate), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_quality_scrap_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_scrap_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktQualityScrap : TaktEntityBase
@@ -36,10 +32,10 @@ public class TaktQualityScrap : TaktEntityBase
     public string PlantCode { get; set; } = string.Empty;
 
     /// <summary>
-    /// 废弃单号(唯一,如:QS-2026-0001)
+    /// 品质废弃编码(唯一,如:QS-2026-0001)
     /// </summary>
-    [SugarColumn(ColumnName = "scrap_no", ColumnDescription = "废弃单号", Length = 30, ColumnDataType = "nvarchar", IsNullable = false)]
-    public string ScrapNo { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "quality_scrap_code", ColumnDescription = "品质废弃编码", Length = 30, ColumnDataType = "nvarchar", IsNullable = false)]
+    public string QualityScrapCode { get; set; } = string.Empty;
 
     // ==================== 基础日期与产品信息 ====================
 

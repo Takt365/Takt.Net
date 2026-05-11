@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Quality.Operation
 // 文件名称：TaktIpqcDefectHandlingService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：制程检验不良处理记录表应用服务，提供IpqcDefectHandling管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Quality.Operation;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Quality.Operation;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Quality.Operation;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Logistics.Quality.Operation;
 public class TaktIpqcDefectHandlingService : TaktServiceBase, ITaktIpqcDefectHandlingService
 {
     private readonly ITaktRepository<TaktIpqcDefectHandling> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">IpqcDefectHandling仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktIpqcDefectHandlingService(
         ITaktRepository<TaktIpqcDefectHandling> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -87,8 +83,8 @@ public class TaktIpqcDefectHandlingService : TaktServiceBase, ITaktIpqcDefectHan
         var all = await _repository.FindAsync(x => x.IsDeleted == 0 && x.HandlingStatus == 1);
         return all.Select(x => new TaktSelectOption
         {
-            DictLabel = x.HandlingCode ?? string.Empty,
-            DictValue = x.HandlingCode
+            DictLabel = x.IpqcDefectHandlingCode ?? string.Empty,
+            DictValue = x.IpqcDefectHandlingCode
 
         }).ToList();
     }
@@ -101,9 +97,12 @@ public class TaktIpqcDefectHandlingService : TaktServiceBase, ITaktIpqcDefectHan
     /// <returns>制程检验不良处理记录表(IpqcDefectHandling)DTO</returns>
     public async Task<TaktIpqcDefectHandlingDto> CreateIpqcDefectHandlingAsync(TaktIpqcDefectHandlingCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.HandlingCode, dto.HandlingCode, null, $"制程检验不良处理记录表编码 {dto.HandlingCode} 已存在");
-
         var entity = dto.Adapt<TaktIpqcDefectHandling>();
+        // 验证IpqcOrderItemId、DefectCode、HandlingMethod组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.IpqcOrderItemId == dto.IpqcOrderItemId && x.DefectCode == dto.DefectCode && x.HandlingMethod == dto.HandlingMethod);
+        if (!isUnique)
+            throw new TaktBusinessException($"制程检验不良处理记录表IpqcOrderItemId、DefectCode、HandlingMethod组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetIpqcDefectHandlingByIdAsync(entity.Id)) ?? entity.Adapt<TaktIpqcDefectHandlingDto>();
     }
@@ -120,8 +119,10 @@ public class TaktIpqcDefectHandlingService : TaktServiceBase, ITaktIpqcDefectHan
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.ipqcdefecthandlingNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.HandlingCode, dto.HandlingCode, id, $"制程检验不良处理记录表编码 {dto.HandlingCode} 已存在");
+        // 验证IpqcOrderItemId、DefectCode、HandlingMethod组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.IpqcOrderItemId == dto.IpqcOrderItemId && x.DefectCode == dto.DefectCode && x.HandlingMethod == dto.HandlingMethod, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"制程检验不良处理记录表IpqcOrderItemId、DefectCode、HandlingMethod组合已存在");
 
         dto.Adapt(entity, typeof(TaktIpqcDefectHandlingUpdateDto), typeof(TaktIpqcDefectHandling));
         entity.UpdatedAt = DateTime.Now;
@@ -300,8 +301,8 @@ public class TaktIpqcDefectHandlingService : TaktServiceBase, ITaktIpqcDefectHan
         if (!string.IsNullOrEmpty(queryDto?.KeyWords))
         {
             exp = exp.And(x =>
-                x.HandlingCode!.Contains(queryDto.KeyWords) ||
-                x.OrderCode!.Contains(queryDto.KeyWords) ||
+                x.IpqcDefectHandlingCode!.Contains(queryDto.KeyWords) ||
+                x.IpqcOrderCode!.Contains(queryDto.KeyWords) ||
                 x.DefectCode!.Contains(queryDto.KeyWords) ||
                 x.DefectDescription!.Contains(queryDto.KeyWords) ||
                 x.HandlingDescription!.Contains(queryDto.KeyWords) ||
@@ -316,9 +317,9 @@ public class TaktIpqcDefectHandlingService : TaktServiceBase, ITaktIpqcDefectHan
             );
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.HandlingCode))
+        if (!string.IsNullOrEmpty(queryDto?.IpqcDefectHandlingCode))
         {
-            exp = exp.And(x => x.HandlingCode!.Contains(queryDto.HandlingCode));
+            exp = exp.And(x => x.IpqcDefectHandlingCode!.Contains(queryDto.IpqcDefectHandlingCode));
         }
 
         if (queryDto?.IpqcOrderItemId.HasValue == true)
@@ -326,9 +327,9 @@ public class TaktIpqcDefectHandlingService : TaktServiceBase, ITaktIpqcDefectHan
             exp = exp.And(x => x.IpqcOrderItemId == queryDto.IpqcOrderItemId);
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.OrderCode))
+        if (!string.IsNullOrEmpty(queryDto?.IpqcOrderCode))
         {
-            exp = exp.And(x => x.OrderCode!.Contains(queryDto.OrderCode));
+            exp = exp.And(x => x.IpqcOrderCode!.Contains(queryDto.IpqcOrderCode));
         }
 
         if (queryDto?.LineNumber.HasValue == true)

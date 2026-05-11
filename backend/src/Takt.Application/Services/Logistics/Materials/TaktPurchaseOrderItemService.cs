@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Materials
 // 文件名称：TaktPurchaseOrderItemService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：采购订单明细表应用服务，提供PurchaseOrderItem管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Materials;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Materials;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Materials;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Logistics.Materials;
 public class TaktPurchaseOrderItemService : TaktServiceBase, ITaktPurchaseOrderItemService
 {
     private readonly ITaktRepository<TaktPurchaseOrderItem> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">PurchaseOrderItem仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktPurchaseOrderItemService(
         ITaktRepository<TaktPurchaseOrderItem> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -88,7 +84,7 @@ public class TaktPurchaseOrderItemService : TaktServiceBase, ITaktPurchaseOrderI
         return all.Select(x => new TaktSelectOption
         {
             DictLabel = x.MaterialName ?? string.Empty,
-            DictValue = x.MaterialCode
+            DictValue = x.PurchaseOrderCode
 
         }).ToList();
     }
@@ -101,9 +97,12 @@ public class TaktPurchaseOrderItemService : TaktServiceBase, ITaktPurchaseOrderI
     /// <returns>采购订单明细表(PurchaseOrderItem)DTO</returns>
     public async Task<TaktPurchaseOrderItemDto> CreatePurchaseOrderItemAsync(TaktPurchaseOrderItemCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.PurchaseOrderId, dto.PurchaseOrderId, null, $"采购订单明细表编码 {dto.PurchaseOrderId} 已存在");
-
         var entity = dto.Adapt<TaktPurchaseOrderItem>();
+        // 验证PurchaseOrderId、LineNumber、MaterialCode组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PurchaseOrderId == dto.PurchaseOrderId && x.LineNumber == dto.LineNumber && x.MaterialCode == dto.MaterialCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"采购订单明细表PurchaseOrderId、LineNumber、MaterialCode组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetPurchaseOrderItemByIdAsync(entity.Id)) ?? entity.Adapt<TaktPurchaseOrderItemDto>();
     }
@@ -120,8 +119,10 @@ public class TaktPurchaseOrderItemService : TaktServiceBase, ITaktPurchaseOrderI
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.purchaseorderitemNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.PurchaseOrderId, dto.PurchaseOrderId, id, $"采购订单明细表编码 {dto.PurchaseOrderId} 已存在");
+        // 验证PurchaseOrderId、LineNumber、MaterialCode组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PurchaseOrderId == dto.PurchaseOrderId && x.LineNumber == dto.LineNumber && x.MaterialCode == dto.MaterialCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"采购订单明细表PurchaseOrderId、LineNumber、MaterialCode组合已存在");
 
         dto.Adapt(entity, typeof(TaktPurchaseOrderItemUpdateDto), typeof(TaktPurchaseOrderItem));
         entity.UpdatedAt = DateTime.Now;
@@ -300,6 +301,7 @@ public class TaktPurchaseOrderItemService : TaktServiceBase, ITaktPurchaseOrderI
         if (!string.IsNullOrEmpty(queryDto?.KeyWords))
         {
             exp = exp.And(x =>
+                x.PurchaseOrderCode!.Contains(queryDto.KeyWords) ||
                 x.RequestCode!.Contains(queryDto.KeyWords) ||
                 x.MaterialCode!.Contains(queryDto.KeyWords) ||
                 x.MaterialName!.Contains(queryDto.KeyWords) ||
@@ -314,6 +316,11 @@ public class TaktPurchaseOrderItemService : TaktServiceBase, ITaktPurchaseOrderI
         if (queryDto?.PurchaseOrderId.HasValue == true)
         {
             exp = exp.And(x => x.PurchaseOrderId == queryDto.PurchaseOrderId);
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.PurchaseOrderCode))
+        {
+            exp = exp.And(x => x.PurchaseOrderCode!.Contains(queryDto.PurchaseOrderCode));
         }
 
         if (queryDto?.LineNumber.HasValue == true)

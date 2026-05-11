@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Accounting.Controlling
 // 文件名称：ITaktCostCenterService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：成本中心表应用服务接口（树形结构），定义CostCenter管理的业务操作
 // 

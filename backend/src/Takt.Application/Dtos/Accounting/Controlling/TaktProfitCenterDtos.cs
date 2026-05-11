@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Accounting.Controlling
 // 文件名称：TaktProfitCenterDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：利润中心表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktProfitCenterDto : TaktDtosEntityBase
     /// </summary>
     public TaktProfitCenterDto()
     {
+        CompanyCode = string.Empty;
         ProfitCenterCode = string.Empty;
         ProfitCenterName = string.Empty;
     }
@@ -36,7 +37,7 @@ public partial class TaktProfitCenterDto : TaktDtosEntityBase
     /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
     /// <summary>
     /// 利润中心编码
     /// </summary>
@@ -243,6 +244,7 @@ public partial class TaktProfitCenterCreateDto
     /// </summary>
     public TaktProfitCenterCreateDto()
     {
+        CompanyCode = string.Empty;
         ProfitCenterCode = string.Empty;
         ProfitCenterName = string.Empty;
     }
@@ -250,7 +252,7 @@ public partial class TaktProfitCenterCreateDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 利润中心编码
@@ -412,6 +414,7 @@ public partial class TaktProfitCenterTemplateDto
     /// </summary>
     public TaktProfitCenterTemplateDto()
     {
+        CompanyCode = string.Empty;
         ProfitCenterCode = string.Empty;
         ProfitCenterName = string.Empty;
     }
@@ -419,7 +422,7 @@ public partial class TaktProfitCenterTemplateDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 利润中心编码
@@ -507,6 +510,7 @@ public partial class TaktProfitCenterImportDto
     /// </summary>
     public TaktProfitCenterImportDto()
     {
+        CompanyCode = string.Empty;
         ProfitCenterCode = string.Empty;
         ProfitCenterName = string.Empty;
     }
@@ -514,7 +518,7 @@ public partial class TaktProfitCenterImportDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 利润中心编码
@@ -603,6 +607,7 @@ public partial class TaktProfitCenterExportDto
     public TaktProfitCenterExportDto()
     {
         CreatedAt = DateTime.Now;
+        CompanyCode = string.Empty;
         ProfitCenterCode = string.Empty;
         ProfitCenterName = string.Empty;
     }
@@ -610,7 +615,7 @@ public partial class TaktProfitCenterExportDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 利润中心编码

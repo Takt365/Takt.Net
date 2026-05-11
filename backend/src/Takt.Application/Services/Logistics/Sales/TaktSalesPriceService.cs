@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Sales
 // 文件名称：TaktSalesPriceService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：销售价格表应用服务，提供SalesPrice管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Sales;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Sales;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Sales;
 
@@ -29,6 +21,7 @@ namespace Takt.Application.Services.Logistics.Sales;
 public class TaktSalesPriceService : TaktServiceBase, ITaktSalesPriceService
 {
     private readonly ITaktRepository<TaktSalesPrice> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktSalesPriceItem> _salesPriceItemRepository;
     private readonly ITaktRepository<TaktSalesPriceChangeLog> _salesPriceChangeLogRepository;
 
@@ -36,6 +29,7 @@ public class TaktSalesPriceService : TaktServiceBase, ITaktSalesPriceService
     /// 构造函数
     /// </summary>
     /// <param name="repository">SalesPrice仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="salesPriceItemRepository">SalesPriceItem仓储</param>
     /// <param name="salesPriceChangeLogRepository">SalesPriceChangeLog仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
@@ -43,6 +37,7 @@ public class TaktSalesPriceService : TaktServiceBase, ITaktSalesPriceService
     /// <param name="localizer">本地化器（可选）</param>
     public TaktSalesPriceService(
         ITaktRepository<TaktSalesPrice> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktSalesPriceItem> salesPriceItemRepository,
         ITaktRepository<TaktSalesPriceChangeLog> salesPriceChangeLogRepository,
         ITaktUserContext? userContext = null,
@@ -51,6 +46,7 @@ public class TaktSalesPriceService : TaktServiceBase, ITaktSalesPriceService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _salesPriceItemRepository = salesPriceItemRepository;
         _salesPriceChangeLogRepository = salesPriceChangeLogRepository;
     }
@@ -104,8 +100,8 @@ public class TaktSalesPriceService : TaktServiceBase, ITaktSalesPriceService
         var all = await _repository.FindAsync(x => x.IsDeleted == 0 && x.PriceStatus == 1);
         return all.Select(x => new TaktSelectOption
         {
-            DictLabel = x.Id.ToString() ?? string.Empty,
-            DictValue = x.Id.ToString()
+            DictLabel = x.SalesPriceCode ?? string.Empty,
+            DictValue = x.SalesPriceCode
 
         }).ToList();
     }
@@ -119,6 +115,11 @@ public class TaktSalesPriceService : TaktServiceBase, ITaktSalesPriceService
     public async Task<TaktSalesPriceDto> CreateSalesPriceAsync(TaktSalesPriceCreateDto dto)
     {
         var entity = dto.Adapt<TaktSalesPrice>();
+        // 验证工厂编码、SalesPriceCode、CustomerCode、PriceType、EffectiveStartDate组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.SalesPriceCode == dto.SalesPriceCode && x.CustomerCode == dto.CustomerCode && x.PriceType == dto.PriceType && x.EffectiveStartDate == dto.EffectiveStartDate);
+        if (!isUnique)
+            throw new TaktBusinessException($"销售价格表工厂编码、SalesPriceCode、CustomerCode、PriceType、EffectiveStartDate组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -161,6 +162,10 @@ public class TaktSalesPriceService : TaktServiceBase, ITaktSalesPriceService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.salespriceNotFound");
+        // 验证工厂编码、SalesPriceCode、CustomerCode、PriceType、EffectiveStartDate组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.SalesPriceCode == dto.SalesPriceCode && x.CustomerCode == dto.CustomerCode && x.PriceType == dto.PriceType && x.EffectiveStartDate == dto.EffectiveStartDate, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"销售价格表工厂编码、SalesPriceCode、CustomerCode、PriceType、EffectiveStartDate组合已存在");
 
         dto.Adapt(entity, typeof(TaktSalesPriceUpdateDto), typeof(TaktSalesPrice));
         entity.UpdatedAt = DateTime.Now;
@@ -448,6 +453,7 @@ public class TaktSalesPriceService : TaktServiceBase, ITaktSalesPriceService
         {
             exp = exp.And(x =>
                 x.PlantCode!.Contains(queryDto.KeyWords) ||
+                x.SalesPriceCode!.Contains(queryDto.KeyWords) ||
                 x.CustomerCode!.Contains(queryDto.KeyWords) ||
                 x.Remark!.Contains(queryDto.KeyWords) ||
                 x.ExtFieldJson!.Contains(queryDto.KeyWords) ||
@@ -458,6 +464,11 @@ public class TaktSalesPriceService : TaktServiceBase, ITaktSalesPriceService
         if (!string.IsNullOrEmpty(queryDto?.PlantCode))
         {
             exp = exp.And(x => x.PlantCode!.Contains(queryDto.PlantCode));
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.SalesPriceCode))
+        {
+            exp = exp.And(x => x.SalesPriceCode!.Contains(queryDto.SalesPriceCode));
         }
 
         if (!string.IsNullOrEmpty(queryDto?.CustomerCode))

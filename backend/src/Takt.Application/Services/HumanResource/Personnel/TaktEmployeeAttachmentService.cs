@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.Personnel
 // 文件名称：TaktEmployeeAttachmentService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：员工附件表应用服务，提供EmployeeAttachment管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.HumanResource.Personnel;
-using Takt.Application.Services;
 using Takt.Domain.Entities.HumanResource.Personnel;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.HumanResource.Personnel;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.HumanResource.Personnel;
 public class TaktEmployeeAttachmentService : TaktServiceBase, ITaktEmployeeAttachmentService
 {
     private readonly ITaktRepository<TaktEmployeeAttachment> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">EmployeeAttachment仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktEmployeeAttachmentService(
         ITaktRepository<TaktEmployeeAttachment> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -101,9 +97,12 @@ public class TaktEmployeeAttachmentService : TaktServiceBase, ITaktEmployeeAttac
     /// <returns>员工附件表(EmployeeAttachment)DTO</returns>
     public async Task<TaktEmployeeAttachmentDto> CreateEmployeeAttachmentAsync(TaktEmployeeAttachmentCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.FileCode, dto.FileCode, null, $"员工附件表编码 {dto.FileCode} 已存在");
-
         var entity = dto.Adapt<TaktEmployeeAttachment>();
+        // 验证FileCode的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.FileCode, dto.FileCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"员工附件表FileCode {dto.FileCode} 已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetEmployeeAttachmentByIdAsync(entity.Id)) ?? entity.Adapt<TaktEmployeeAttachmentDto>();
     }
@@ -120,8 +119,10 @@ public class TaktEmployeeAttachmentService : TaktServiceBase, ITaktEmployeeAttac
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.employeeattachmentNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.FileCode, dto.FileCode, id, $"员工附件表编码 {dto.FileCode} 已存在");
+        // 验证FileCode的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.FileCode, dto.FileCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"员工附件表FileCode {dto.FileCode} 已存在");
 
         dto.Adapt(entity, typeof(TaktEmployeeAttachmentUpdateDto), typeof(TaktEmployeeAttachment));
         entity.UpdatedAt = DateTime.Now;

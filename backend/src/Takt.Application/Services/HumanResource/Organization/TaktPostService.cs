@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.HumanResource.Organization
 // 文件名称：TaktPostService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：岗位信息表应用服务，提供Post管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.HumanResource.Organization;
-using Takt.Application.Services;
 using Takt.Domain.Entities.HumanResource.Organization;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.HumanResource.Organization;
 
@@ -29,18 +21,21 @@ namespace Takt.Application.Services.HumanResource.Organization;
 public class TaktPostService : TaktServiceBase, ITaktPostService
 {
     private readonly ITaktRepository<TaktPost> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktPostDelegate> _postDelegateRepository;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">Post仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="postDelegateRepository">PostDelegate仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktPostService(
         ITaktRepository<TaktPost> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktPostDelegate> postDelegateRepository,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
@@ -48,6 +43,7 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _postDelegateRepository = postDelegateRepository;
     }
 
@@ -99,7 +95,7 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
         return all.Select(x => new TaktSelectOption
         {
             DictLabel = x.PostName ?? string.Empty,
-            DictValue = x.PostCode,
+            DictValue = x.CompanyCode,
             SortOrder = x.SortOrder,
         }).OrderBy(x => x.SortOrder).ToList();
     }
@@ -112,9 +108,12 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
     /// <returns>岗位信息表(Post)DTO</returns>
     public async Task<TaktPostDto> CreatePostAsync(TaktPostCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.PostCode, dto.PostCode, null, $"岗位信息表编码 {dto.PostCode} 已存在");
-
         var entity = dto.Adapt<TaktPost>();
+        // 验证公司代码、PostCode、PostName组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.CompanyCode == dto.CompanyCode && x.PostCode == dto.PostCode && x.PostName == dto.PostName);
+        if (!isUnique)
+            throw new TaktBusinessException($"岗位信息表公司代码、PostCode、PostName组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -147,8 +146,10 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.postNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.PostCode, dto.PostCode, id, $"岗位信息表编码 {dto.PostCode} 已存在");
+        // 验证公司代码、PostCode、PostName组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.CompanyCode == dto.CompanyCode && x.PostCode == dto.PostCode && x.PostName == dto.PostName, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"岗位信息表公司代码、PostCode、PostName组合已存在");
 
         dto.Adapt(entity, typeof(TaktPostUpdateDto), typeof(TaktPost));
         entity.UpdatedAt = DateTime.Now;
@@ -402,6 +403,7 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
         if (!string.IsNullOrEmpty(queryDto?.KeyWords))
         {
             exp = exp.And(x =>
+                x.CompanyCode!.Contains(queryDto.KeyWords) ||
                 x.PostName!.Contains(queryDto.KeyWords) ||
                 x.PostCode!.Contains(queryDto.KeyWords) ||
                 x.PostCategory!.Contains(queryDto.KeyWords) ||
@@ -411,6 +413,11 @@ public class TaktPostService : TaktServiceBase, ITaktPostService
                 x.ExtFieldJson!.Contains(queryDto.KeyWords) ||
                 x.CreatedBy!.Contains(queryDto.KeyWords)
             );
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.CompanyCode))
+        {
+            exp = exp.And(x => x.CompanyCode!.Contains(queryDto.CompanyCode));
         }
 
         if (!string.IsNullOrEmpty(queryDto?.PostName))

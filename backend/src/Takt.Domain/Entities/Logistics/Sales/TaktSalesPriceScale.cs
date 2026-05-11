@@ -23,6 +23,7 @@ namespace Takt.Domain.Entities.Logistics.Sales;
 [SugarIndex("ix_takt_logistics_sales_price_scale_item_line", nameof(ItemId), OrderByType.Asc, nameof(LineNumber), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_sales_price_scale_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_sales_price_scale_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_sales_price_scale_sales_price_code", nameof(SalesPriceCode), OrderByType.Asc)]
 public class TaktSalesPriceScale : TaktEntityBase
 {
     /// <summary>
@@ -31,6 +32,12 @@ public class TaktSalesPriceScale : TaktEntityBase
     [SugarColumn(ColumnName = "item_id", ColumnDescription = "价格明细ID", ColumnDataType = "bigint", IsNullable = false)]
     [JsonConverter(typeof(ValueToStringConverter))]
     public long ItemId { get; set; }
+
+    /// <summary>
+    /// 销售价格编码（冗余字段，便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "sales_price_code", ColumnDescription = "销售价格编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string SalesPriceCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 行号/项号（价格阶梯行号，与ItemId组成联合唯一索引）
@@ -55,12 +62,6 @@ public class TaktSalesPriceScale : TaktEntityBase
     /// </summary>
     [SugarColumn(ColumnName = "scale_price", ColumnDescription = "阶梯价格", ColumnDataType = "decimal", Length = 18, DecimalDigits = 2, IsNullable = false, DefaultValue = "0")]
     public decimal ScalePrice { get; set; } = 0;
-
-    /// <summary>
-    /// 排序号（越小越靠前）
-    /// </summary>
-    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int SortOrder { get; set; } = 0;
 
     /// <summary>
     /// 销售价格明细（主表）

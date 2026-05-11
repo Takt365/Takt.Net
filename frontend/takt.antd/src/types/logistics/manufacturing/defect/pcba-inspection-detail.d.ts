@@ -17,6 +17,8 @@ export interface PcbaInspectionDetail extends TaktEntityBase {
   pcbaInspectionDetailId: string
   /** 对应后端字段 pcbaInspectionId */
   pcbaInspectionId: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 pcbaBoardType */
@@ -65,6 +67,8 @@ export interface PcbaInspectionDetail extends TaktEntityBase {
 export interface PcbaInspectionDetailQuery extends TaktPagedQuery {
   /** 对应后端字段 pcbaInspectionId */
   pcbaInspectionId?: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 pcbaBoardType */
@@ -133,6 +137,8 @@ export interface PcbaInspectionDetailQuery extends TaktPagedQuery {
 export interface PcbaInspectionDetailCreate {
   /** 对应后端字段 pcbaInspectionId */
   pcbaInspectionId: string
+  /** 对应后端字段 prodOrderCode */
+  prodOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 pcbaBoardType */

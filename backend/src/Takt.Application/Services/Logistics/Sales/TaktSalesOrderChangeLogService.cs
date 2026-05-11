@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Sales
 // 文件名称：TaktSalesOrderChangeLogService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：销售订单变更记录表应用服务，提供SalesOrderChangeLog管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Sales;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Sales;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Sales;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Logistics.Sales;
 public class TaktSalesOrderChangeLogService : TaktServiceBase, ITaktSalesOrderChangeLogService
 {
     private readonly ITaktRepository<TaktSalesOrderChangeLog> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">SalesOrderChangeLog仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktSalesOrderChangeLogService(
         ITaktRepository<TaktSalesOrderChangeLog> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -101,9 +97,12 @@ public class TaktSalesOrderChangeLogService : TaktServiceBase, ITaktSalesOrderCh
     /// <returns>销售订单变更记录表(SalesOrderChangeLog)DTO</returns>
     public async Task<TaktSalesOrderChangeLogDto> CreateSalesOrderChangeLogAsync(TaktSalesOrderChangeLogCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.OrderCode, dto.OrderCode, null, $"销售订单变更记录表编码 {dto.OrderCode} 已存在");
-
         var entity = dto.Adapt<TaktSalesOrderChangeLog>();
+        // 验证OrderCode的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.OrderCode, dto.OrderCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"销售订单变更记录表OrderCode {dto.OrderCode} 已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetSalesOrderChangeLogByIdAsync(entity.Id)) ?? entity.Adapt<TaktSalesOrderChangeLogDto>();
     }
@@ -120,8 +119,10 @@ public class TaktSalesOrderChangeLogService : TaktServiceBase, ITaktSalesOrderCh
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.salesorderchangelogNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.OrderCode, dto.OrderCode, id, $"销售订单变更记录表编码 {dto.OrderCode} 已存在");
+        // 验证OrderCode的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.OrderCode, dto.OrderCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"销售订单变更记录表OrderCode {dto.OrderCode} 已存在");
 
         dto.Adapt(entity, typeof(TaktSalesOrderChangeLogUpdateDto), typeof(TaktSalesOrderChangeLog));
         entity.UpdatedAt = DateTime.Now;

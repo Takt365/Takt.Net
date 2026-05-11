@@ -29,6 +29,18 @@ public class TaktEcAttachment : TaktEntityBase
     public long EcnId { get; set; }
 
     /// <summary>
+    /// 设变单号（冗余字段,便于查询）
+    /// </summary>
+    [SugarColumn(ColumnName = "ecn_no", ColumnDescription = "设变单号", ColumnDataType = "nvarchar", Length = 10, IsNullable = false)]
+    public string EcnNo { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 项号（行号）
+    /// </summary>
+    [SugarColumn(ColumnName = "line_number", ColumnDescription = "项号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int LineNumber { get; set; } = 0;
+
+    /// <summary>
     /// 文件类别：Liaison=联络, EPP, FPP, ExternalLiaison=外部联络, TCJ 等
     /// </summary>
     [SugarColumn(ColumnName = "attachment_type", ColumnDescription = "文件类别", ColumnDataType = "nvarchar", Length = 30, IsNullable = false)]

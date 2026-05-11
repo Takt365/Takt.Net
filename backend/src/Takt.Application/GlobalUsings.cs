@@ -17,5 +17,9 @@ global using Newtonsoft.Json;
 global using SqlSugar;
 global using Takt.Shared.Helpers;
 global using Takt.Shared.Models;
+global using Takt.Shared.Exceptions;
 global using Takt.Domain.Entities;
 global using Takt.Domain.Repositories;
+global using Takt.Domain.Interfaces;
+
+

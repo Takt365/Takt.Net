@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Sales
 // 文件名称：TaktSalesPriceScaleDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：销售价格阶梯表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -18,6 +18,14 @@ namespace Takt.Application.Dtos.Logistics.Sales;
 public partial class TaktSalesPriceScaleDto : TaktDtosEntityBase
 {
     /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktSalesPriceScaleDto()
+    {
+        SalesPriceCode = string.Empty;
+    }
+
+    /// <summary>
     /// 销售价格阶梯表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
@@ -29,6 +37,10 @@ public partial class TaktSalesPriceScaleDto : TaktDtosEntityBase
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long ItemId { get; set; }
+    /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
     /// <summary>
     /// 行号
     /// </summary>
@@ -45,10 +57,6 @@ public partial class TaktSalesPriceScaleDto : TaktDtosEntityBase
     /// 阶梯价格
     /// </summary>
     public decimal ScalePrice { get; set; }
-    /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 销售价格明细（主表）
@@ -75,6 +83,10 @@ public partial class TaktSalesPriceScaleQueryDto : TaktPagedQuery
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? ItemId { get; set; }
+    /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string? SalesPriceCode { get; set; }
     /// <summary>
     /// 行号
     /// </summary>
@@ -128,11 +140,24 @@ public partial class TaktSalesPriceScaleQueryDto : TaktPagedQuery
 /// </summary>
 public partial class TaktSalesPriceScaleCreateDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktSalesPriceScaleCreateDto()
+    {
+        SalesPriceCode = string.Empty;
+    }
+
         /// <summary>
     /// 价格明细ID
     /// </summary>
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long ItemId { get; set; }
+
+        /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
 
         /// <summary>
     /// 行号
@@ -153,11 +178,6 @@ public partial class TaktSalesPriceScaleCreateDto
     /// 阶梯价格
     /// </summary>
     public decimal ScalePrice { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -192,39 +212,27 @@ public partial class TaktSalesPriceScaleUpdateDto : TaktSalesPriceScaleCreateDto
 }
 
 /// <summary>
-/// 销售价格阶梯表排序DTO
-/// </summary>
-public partial class TaktSalesPriceScaleSortDto
-{
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public TaktSalesPriceScaleSortDto()
-    {
-    }
-
-        /// <summary>
-    /// 销售价格阶梯表（适配字段，序列化为string以避免Javascript精度问题）
-    /// </summary>
-    [AdaptMember("Id")]
-    [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
-    public long SalesPriceScaleId { get; set; } = 0;
-
-    /// <summary>
-    /// 排序号（越小越靠前）
-    /// </summary>
-    public int SortOrder { get; set; }
-}
-
-/// <summary>
 /// 销售价格阶梯表导入模板DTO
 /// </summary>
 public partial class TaktSalesPriceScaleTemplateDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktSalesPriceScaleTemplateDto()
+    {
+        SalesPriceCode = string.Empty;
+    }
+
         /// <summary>
     /// 价格明细ID
     /// </summary>
     public long ItemId { get; set; }
+
+        /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
 
         /// <summary>
     /// 行号
@@ -245,11 +253,6 @@ public partial class TaktSalesPriceScaleTemplateDto
     /// 阶梯价格
     /// </summary>
     public decimal ScalePrice { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -267,10 +270,23 @@ public partial class TaktSalesPriceScaleTemplateDto
 /// </summary>
 public partial class TaktSalesPriceScaleImportDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktSalesPriceScaleImportDto()
+    {
+        SalesPriceCode = string.Empty;
+    }
+
         /// <summary>
     /// 价格明细ID
     /// </summary>
     public long ItemId { get; set; }
+
+        /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
 
         /// <summary>
     /// 行号
@@ -291,11 +307,6 @@ public partial class TaktSalesPriceScaleImportDto
     /// 阶梯价格
     /// </summary>
     public decimal ScalePrice { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 扩展字段JSON
@@ -319,12 +330,18 @@ public partial class TaktSalesPriceScaleExportDto
     public TaktSalesPriceScaleExportDto()
     {
         CreatedAt = DateTime.Now;
+        SalesPriceCode = string.Empty;
     }
 
         /// <summary>
     /// 价格明细ID
     /// </summary>
     public long ItemId { get; set; }
+
+        /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
 
         /// <summary>
     /// 行号
@@ -345,11 +362,6 @@ public partial class TaktSalesPriceScaleExportDto
     /// 阶梯价格
     /// </summary>
     public decimal ScalePrice { get; set; }
-
-        /// <summary>
-    /// 排序号
-    /// </summary>
-    public int SortOrder { get; set; }
 
     /// <summary>
     /// 创建时间

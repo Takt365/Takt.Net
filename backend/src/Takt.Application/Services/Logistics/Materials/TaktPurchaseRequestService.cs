@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Materials
 // 文件名称：TaktPurchaseRequestService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：采购申请表应用服务，提供PurchaseRequest管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Materials;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Materials;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Materials;
 
@@ -29,6 +21,7 @@ namespace Takt.Application.Services.Logistics.Materials;
 public class TaktPurchaseRequestService : TaktServiceBase, ITaktPurchaseRequestService
 {
     private readonly ITaktRepository<TaktPurchaseRequest> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktPurchaseRequestItem> _purchaseRequestItemRepository;
     private readonly ITaktRepository<TaktPurchaseRequestChangeLog> _purchaseRequestChangeLogRepository;
 
@@ -36,6 +29,7 @@ public class TaktPurchaseRequestService : TaktServiceBase, ITaktPurchaseRequestS
     /// 构造函数
     /// </summary>
     /// <param name="repository">PurchaseRequest仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="purchaseRequestItemRepository">PurchaseRequestItem仓储</param>
     /// <param name="purchaseRequestChangeLogRepository">PurchaseRequestChangeLog仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
@@ -43,6 +37,7 @@ public class TaktPurchaseRequestService : TaktServiceBase, ITaktPurchaseRequestS
     /// <param name="localizer">本地化器（可选）</param>
     public TaktPurchaseRequestService(
         ITaktRepository<TaktPurchaseRequest> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktPurchaseRequestItem> purchaseRequestItemRepository,
         ITaktRepository<TaktPurchaseRequestChangeLog> purchaseRequestChangeLogRepository,
         ITaktUserContext? userContext = null,
@@ -51,6 +46,7 @@ public class TaktPurchaseRequestService : TaktServiceBase, ITaktPurchaseRequestS
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _purchaseRequestItemRepository = purchaseRequestItemRepository;
         _purchaseRequestChangeLogRepository = purchaseRequestChangeLogRepository;
     }
@@ -104,8 +100,8 @@ public class TaktPurchaseRequestService : TaktServiceBase, ITaktPurchaseRequestS
         var all = await _repository.FindAsync(x => x.IsDeleted == 0 && x.RequestStatus == 1);
         return all.Select(x => new TaktSelectOption
         {
-            DictLabel = x.RequestCode ?? string.Empty,
-            DictValue = x.RequestCode
+            DictLabel = x.PlantCode ?? string.Empty,
+            DictValue = x.PlantCode
 
         }).ToList();
     }
@@ -118,9 +114,12 @@ public class TaktPurchaseRequestService : TaktServiceBase, ITaktPurchaseRequestS
     /// <returns>采购申请表(PurchaseRequest)DTO</returns>
     public async Task<TaktPurchaseRequestDto> CreatePurchaseRequestAsync(TaktPurchaseRequestCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.RequestCode, dto.RequestCode, null, $"采购申请表编码 {dto.RequestCode} 已存在");
-
         var entity = dto.Adapt<TaktPurchaseRequest>();
+        // 验证工厂编码、PurchaseRequestCode、RequestDate组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.PurchaseRequestCode == dto.PurchaseRequestCode && x.RequestDate == dto.RequestDate);
+        if (!isUnique)
+            throw new TaktBusinessException($"采购申请表工厂编码、PurchaseRequestCode、RequestDate组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -163,8 +162,10 @@ public class TaktPurchaseRequestService : TaktServiceBase, ITaktPurchaseRequestS
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.purchaserequestNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.RequestCode, dto.RequestCode, id, $"采购申请表编码 {dto.RequestCode} 已存在");
+        // 验证工厂编码、PurchaseRequestCode、RequestDate组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.PurchaseRequestCode == dto.PurchaseRequestCode && x.RequestDate == dto.RequestDate, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"采购申请表工厂编码、PurchaseRequestCode、RequestDate组合已存在");
 
         dto.Adapt(entity, typeof(TaktPurchaseRequestUpdateDto), typeof(TaktPurchaseRequest));
         entity.UpdatedAt = DateTime.Now;
@@ -469,7 +470,7 @@ public class TaktPurchaseRequestService : TaktServiceBase, ITaktPurchaseRequestS
         {
             exp = exp.And(x =>
                 x.PlantCode!.Contains(queryDto.KeyWords) ||
-                x.RequestCode!.Contains(queryDto.KeyWords) ||
+                x.PurchaseRequestCode!.Contains(queryDto.KeyWords) ||
                 x.RequestBy!.Contains(queryDto.KeyWords) ||
                 x.ApproverBy!.Contains(queryDto.KeyWords) ||
                 x.ApproveComment!.Contains(queryDto.KeyWords) ||
@@ -485,9 +486,9 @@ public class TaktPurchaseRequestService : TaktServiceBase, ITaktPurchaseRequestS
             exp = exp.And(x => x.PlantCode!.Contains(queryDto.PlantCode));
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.RequestCode))
+        if (!string.IsNullOrEmpty(queryDto?.PurchaseRequestCode))
         {
-            exp = exp.And(x => x.RequestCode!.Contains(queryDto.RequestCode));
+            exp = exp.And(x => x.PurchaseRequestCode!.Contains(queryDto.PurchaseRequestCode));
         }
 
         if (queryDto?.RequestDate.HasValue == true)

@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.Logistics.Quality.Operation
 // 文件名称：TaktInspectionStandardsController.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：检验标准表控制器，提供InspectionStandard管理的RESTful API接口
 //
@@ -139,18 +139,6 @@ public class TaktInspectionStandardsController : TaktControllerBase
     public async Task<ActionResult<TaktInspectionStandardDto>> UpdateInspectionStandardStandardStatusAsync([FromBody] TaktInspectionStandardStandardStatusDto dto)
     {
         var result = await _service.UpdateInspectionStandardStandardStatusAsync(dto);
-        return Ok(result);
-    }
-
-
-    /// <summary>
-    /// 更新检验标准表(InspectionStandard)排序
-    /// </summary>
-    [HttpPut("sort")]
-    [TaktPermission("logistics:quality:operation:inspectionstandard:update", "更新检验标准表(InspectionStandard)排序")]
-    public async Task<ActionResult<TaktInspectionStandardDto>> UpdateInspectionStandardSortAsync([FromBody] TaktInspectionStandardSortDto dto)
-    {
-        var result = await _service.UpdateInspectionStandardSortAsync(dto);
         return Ok(result);
     }
 

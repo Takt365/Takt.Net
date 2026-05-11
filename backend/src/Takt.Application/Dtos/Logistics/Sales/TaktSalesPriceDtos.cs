@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Sales
 // 文件名称：TaktSalesPriceDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：销售价格表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -18,6 +18,14 @@ namespace Takt.Application.Dtos.Logistics.Sales;
 public partial class TaktSalesPriceDto : TaktDtosEntityBase
 {
     /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktSalesPriceDto()
+    {
+        SalesPriceCode = string.Empty;
+    }
+
+    /// <summary>
     /// 销售价格表（适配字段，序列化为string以避免Javascript精度问题）
     /// </summary>
     [AdaptMember("Id")]
@@ -28,6 +36,10 @@ public partial class TaktSalesPriceDto : TaktDtosEntityBase
     /// 工厂代码
     /// </summary>
     public string? PlantCode { get; set; }
+    /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
     /// <summary>
     /// 客户编码
     /// </summary>
@@ -78,6 +90,10 @@ public partial class TaktSalesPriceQueryDto : TaktPagedQuery
     /// 工厂代码
     /// </summary>
     public string? PlantCode { get; set; }
+    /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string? SalesPriceCode { get; set; }
     /// <summary>
     /// 客户编码
     /// </summary>
@@ -153,10 +169,23 @@ public partial class TaktSalesPriceQueryDto : TaktPagedQuery
 /// </summary>
 public partial class TaktSalesPriceCreateDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktSalesPriceCreateDto()
+    {
+        SalesPriceCode = string.Empty;
+    }
+
         /// <summary>
     /// 工厂代码
     /// </summary>
     public string? PlantCode { get; set; }
+
+        /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
 
         /// <summary>
     /// 客户编码
@@ -257,10 +286,23 @@ public partial class TaktSalesPricePriceStatusDto
 /// </summary>
 public partial class TaktSalesPriceTemplateDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktSalesPriceTemplateDto()
+    {
+        SalesPriceCode = string.Empty;
+    }
+
         /// <summary>
     /// 工厂代码
     /// </summary>
     public string? PlantCode { get; set; }
+
+        /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
 
         /// <summary>
     /// 客户编码
@@ -303,10 +345,23 @@ public partial class TaktSalesPriceTemplateDto
 /// </summary>
 public partial class TaktSalesPriceImportDto
 {
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public TaktSalesPriceImportDto()
+    {
+        SalesPriceCode = string.Empty;
+    }
+
         /// <summary>
     /// 工厂代码
     /// </summary>
     public string? PlantCode { get; set; }
+
+        /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
 
         /// <summary>
     /// 客户编码
@@ -355,12 +410,18 @@ public partial class TaktSalesPriceExportDto
     public TaktSalesPriceExportDto()
     {
         CreatedAt = DateTime.Now;
+        SalesPriceCode = string.Empty;
     }
 
         /// <summary>
     /// 工厂代码
     /// </summary>
     public string? PlantCode { get; set; }
+
+        /// <summary>
+    /// 销售价格编码
+    /// </summary>
+    public string SalesPriceCode { get; set; }
 
         /// <summary>
     /// 客户编码

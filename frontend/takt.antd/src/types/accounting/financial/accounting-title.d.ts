@@ -16,7 +16,7 @@ export interface AccountingTitle extends TaktEntityBase {
   /** 对应后端字段 accountingTitleId */
   accountingTitleId: string
   /** 对应后端字段 companyCode */
-  companyCode?: string
+  companyCode: string
   /** 对应后端字段 titleCode */
   titleCode: string
   /** 对应后端字段 titleName */
@@ -132,7 +132,7 @@ export interface AccountingTitleQuery extends TaktPagedQuery {
  */
 export interface AccountingTitleCreate {
   /** 对应后端字段 companyCode */
-  companyCode?: string
+  companyCode: string
   /** 对应后端字段 titleCode */
   titleCode: string
   /** 对应后端字段 titleName */

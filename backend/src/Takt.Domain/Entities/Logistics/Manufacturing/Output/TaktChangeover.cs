@@ -19,6 +19,7 @@ namespace Takt.Domain.Entities.Logistics.Manufacturing.Output;
 /// 切换记录实体
 /// </summary>
 [SugarTable("takt_logistics_manufacturing_output_changeover", "切换记录表")]
+[SugarIndex("ix_takt_logistics_manufacturing_output_changeover_unique", nameof(PlantCode), OrderByType.Asc, nameof(ProductionCategory), OrderByType.Asc, nameof(ProductionDate), OrderByType.Asc, nameof(ProductionLine), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_changeover_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_manufacturing_output_changeover_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktChangeover : TaktEntityBase

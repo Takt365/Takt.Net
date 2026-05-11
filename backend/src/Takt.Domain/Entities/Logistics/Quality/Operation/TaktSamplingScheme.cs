@@ -19,39 +19,37 @@ namespace Takt.Domain.Entities.Logistics.Quality.Operation;
 /// Takt抽样方案实体
 /// </summary>
 [SugarTable("takt_logistics_quality_sampling_scheme", "抽样方案表")]
-[SugarIndex("ix_takt_logistics_quality_sampling_scheme_plant_code", nameof(PlantCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_sampling_scheme_scheme_code", nameof(SchemeCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_quality_sampling_scheme_ss_unique", nameof(PlantCode), OrderByType.Asc, nameof(SchemeCode), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_quality_sampling_scheme_scheme_type", nameof(SchemeType), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_quality_sampling_scheme_ss_unique", nameof(PlantCode), OrderByType.Asc, nameof(SamplingSchemeCode), OrderByType.Asc, nameof(SamplingSchemeName), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_quality_sampling_scheme_sampling_scheme_type", nameof(SamplingSchemeType), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_sampling_scheme_inspection_level", nameof(InspectionLevel), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_sampling_scheme_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_sampling_scheme_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_sampling_scheme_scheme_status", nameof(SchemeStatus), OrderByType.Asc)]
+[SugarIndex("ix_takt_logistics_quality_sampling_scheme_sampling_scheme_status", nameof(SamplingSchemeStatus), OrderByType.Asc)]
 public class TaktSamplingScheme : TaktEntityBase
 {
     /// <summary>
     /// 工厂代码
     /// </summary>
-    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = true)]
-    public string? PlantCode { get; set; }
+    [SugarColumn(ColumnName = "plant_code", ColumnDescription = "工厂代码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string PlantCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 抽样方案编码（唯一索引）
     /// </summary>
-    [SugarColumn(ColumnName = "scheme_code", ColumnDescription = "抽样方案编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
-    public string SchemeCode { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "sampling_scheme_code", ColumnDescription = "抽样方案编码", ColumnDataType = "nvarchar", Length = 50, IsNullable = false)]
+    public string SamplingSchemeCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 抽样方案名称
     /// </summary>
-    [SugarColumn(ColumnName = "scheme_name", ColumnDescription = "抽样方案名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
-    public string SchemeName { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "sampling_scheme_name", ColumnDescription = "抽样方案名称", ColumnDataType = "nvarchar", Length = 200, IsNullable = false)]
+    public string SamplingSchemeName { get; set; } = string.Empty;
 
     /// <summary>
     /// 抽样方案类型（0=计数型，1=计量型，2=计数调整型，3=计量调整型）
     /// </summary>
-    [SugarColumn(ColumnName = "scheme_type", ColumnDescription = "抽样方案类型", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int SchemeType { get; set; } = 0;
+    [SugarColumn(ColumnName = "sampling_scheme_type", ColumnDescription = "抽样方案类型", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SamplingSchemeType { get; set; } = 0;
 
     /// <summary>
     /// 抽样标准（0=GB/T 2828.1，1=GB/T 6378，2=MIL-STD-105E，3=ANSI/ASQ Z1.4，4=ISO 2859-1，5=自定义）
@@ -120,16 +118,10 @@ public class TaktSamplingScheme : TaktEntityBase
     public string? TransferRuleConfig { get; set; }
 
     /// <summary>
-    /// 是否启用（0=否，1=是）
-    /// </summary>
-    [SugarColumn(ColumnName = "is_enabled", ColumnDescription = "是否启用", ColumnDataType = "int", IsNullable = false, DefaultValue = "1")]
-    public int IsEnabled { get; set; } = 1;
-
-    /// <summary>
     /// 抽样方案状态（0=草稿，1=已发布，2=已停用）
     /// </summary>
-    [SugarColumn(ColumnName = "scheme_status", ColumnDescription = "抽样方案状态", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int SchemeStatus { get; set; } = 0;
+    [SugarColumn(ColumnName = "sampling_scheme_status", ColumnDescription = "抽样方案状态", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
+    public int SamplingSchemeStatus { get; set; } = 0;
 
     /// <summary>
     /// 抽样方案描述
@@ -138,14 +130,8 @@ public class TaktSamplingScheme : TaktEntityBase
     public string? SchemeDescription { get; set; }
 
     /// <summary>
-    /// 排序号（越小越靠前）
-    /// </summary>
-    [SugarColumn(ColumnName = "sort_order", ColumnDescription = "排序号", ColumnDataType = "int", IsNullable = false, DefaultValue = "0")]
-    public int SortOrder { get; set; } = 0;
-
-    /// <summary>
     /// 检验标准列表（主子表关系）
     /// </summary>
-    [Navigate(NavigateType.OneToMany, nameof(TaktInspectionStandard.SamplingSchemeId))]
+    [Navigate(NavigateType.OneToMany, nameof(TaktInspectionStandard.SamplingSchemeCode), nameof(SamplingSchemeCode))]
     public List<TaktInspectionStandard>? InspectionStandards { get; set; }
 }

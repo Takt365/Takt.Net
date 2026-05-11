@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF) 
 // 命名空间：Takt.Application.Services.Logistics.Quality.Operation
 // 文件名称：ITaktIpqcOrderItemService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：制程检验单明细表应用服务接口（主子表），定义IpqcOrderItem管理的业务操作
 // 
@@ -68,6 +68,13 @@ public interface ITaktIpqcOrderItemService
     /// <param name="ids">制程检验单明细表(IpqcOrderItem)ID列表</param>
     /// <returns>任务</returns>
     Task DeleteIpqcOrderItemBatchAsync(IEnumerable<long> ids);
+
+    /// <summary>
+    /// 更新制程检验单明细表(IpqcOrderItem)JudgeStatus
+    /// </summary>
+    /// <param name="dto">制程检验单明细表(IpqcOrderItem)JudgeStatusDTO</param>
+    /// <returns>制程检验单明细表(IpqcOrderItem)DTO</returns>
+    Task<TaktIpqcOrderItemDto> UpdateIpqcOrderItemJudgeStatusAsync(TaktIpqcOrderItemJudgeStatusDto dto);
 
     /// <summary>
     /// 获取导入模板

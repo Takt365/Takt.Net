@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Quality.Operation
 // 文件名称：TaktFqcOrderItemService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：出货检验单明细表应用服务，提供FqcOrderItem管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Quality.Operation;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Quality.Operation;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Quality.Operation;
 
@@ -29,18 +21,21 @@ namespace Takt.Application.Services.Logistics.Quality.Operation;
 public class TaktFqcOrderItemService : TaktServiceBase, ITaktFqcOrderItemService
 {
     private readonly ITaktRepository<TaktFqcOrderItem> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktFqcDefectHandling> _fqcDefectHandlingRepository;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">FqcOrderItem仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="fqcDefectHandlingRepository">FqcDefectHandling仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktFqcOrderItemService(
         ITaktRepository<TaktFqcOrderItem> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktFqcDefectHandling> fqcDefectHandlingRepository,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
@@ -48,6 +43,7 @@ public class TaktFqcOrderItemService : TaktServiceBase, ITaktFqcOrderItemService
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _fqcDefectHandlingRepository = fqcDefectHandlingRepository;
     }
 
@@ -95,11 +91,11 @@ public class TaktFqcOrderItemService : TaktServiceBase, ITaktFqcOrderItemService
     /// <returns>出货检验单明细表(FqcOrderItem)选项列表</returns>
     public async Task<List<TaktSelectOption>> GetFqcOrderItemOptionsAsync()
     {
-        var all = await _repository.FindAsync(x => x.IsDeleted == 0);
+        var all = await _repository.FindAsync(x => x.IsDeleted == 0 && x.JudgeStatus == 1);
         return all.Select(x => new TaktSelectOption
         {
-            DictLabel = x.ItemName ?? string.Empty,
-            DictValue = x.ItemCode
+            DictLabel = x.MaterialName ?? string.Empty,
+            DictValue = x.FqcOrderCode
 
         }).ToList();
     }
@@ -112,9 +108,12 @@ public class TaktFqcOrderItemService : TaktServiceBase, ITaktFqcOrderItemService
     /// <returns>出货检验单明细表(FqcOrderItem)DTO</returns>
     public async Task<TaktFqcOrderItemDto> CreateFqcOrderItemAsync(TaktFqcOrderItemCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.FqcOrderId, dto.FqcOrderId, null, $"出货检验单明细表编码 {dto.FqcOrderId} 已存在");
-
         var entity = dto.Adapt<TaktFqcOrderItem>();
+        // 验证FqcOrderId、LineNumber组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.FqcOrderId == dto.FqcOrderId && x.LineNumber == dto.LineNumber);
+        if (!isUnique)
+            throw new TaktBusinessException($"出货检验单明细表FqcOrderId、LineNumber组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -147,8 +146,10 @@ public class TaktFqcOrderItemService : TaktServiceBase, ITaktFqcOrderItemService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.fqcorderitemNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.FqcOrderId, dto.FqcOrderId, id, $"出货检验单明细表编码 {dto.FqcOrderId} 已存在");
+        // 验证FqcOrderId、LineNumber组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.FqcOrderId == dto.FqcOrderId && x.LineNumber == dto.LineNumber, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"出货检验单明细表FqcOrderId、LineNumber组合已存在");
 
         dto.Adapt(entity, typeof(TaktFqcOrderItemUpdateDto), typeof(TaktFqcOrderItem));
         entity.UpdatedAt = DateTime.Now;
@@ -209,6 +210,9 @@ public class TaktFqcOrderItemService : TaktServiceBase, ITaktFqcOrderItemService
         // 软删除：设置 IsDeleted = 1
         entity.IsDeleted = 1;
 
+        // 同步更新状态字段为禁用状态（1）
+        entity.JudgeStatus = 1;
+
         await _repository.UpdateAsync(entity);
     }
 
@@ -253,13 +257,31 @@ public class TaktFqcOrderItemService : TaktServiceBase, ITaktFqcOrderItemService
         }
 
         
-        // 批量更新：设置 IsDeleted = 1
+        // 批量更新：设置 IsDeleted = 1，并同步更新 JudgeStatus = 1（禁用）
         foreach (var entity in entities)
         {
             entity.IsDeleted = 1;
+            entity.JudgeStatus = 1;
         }
         
         await _repository.UpdateRangeBulkAsync(entities);
+    }
+
+
+    /// <summary>
+    /// 更新出货检验单明细表(FqcOrderItem)状态
+    /// </summary>
+    /// <param name="dto">出货检验单明细表(FqcOrderItem)状态DTO</param>
+    /// <returns>出货检验单明细表(FqcOrderItem)DTO</returns>
+    public async Task<TaktFqcOrderItemDto> UpdateFqcOrderItemJudgeStatusAsync(TaktFqcOrderItemJudgeStatusDto dto)
+    {
+        var entity = await _repository.GetByIdAsync(dto.FqcOrderItemId);
+        if (entity == null)
+            throw new TaktBusinessException("validation.fqcorderitemNotFound");
+        entity.JudgeStatus = dto.JudgeStatus;
+        entity.UpdatedAt = DateTime.Now;
+        await _repository.UpdateAsync(entity);
+        return await GetFqcOrderItemByIdAsync(entity.Id) ?? entity.Adapt<TaktFqcOrderItemDto>();
     }
 
 
@@ -364,17 +386,15 @@ public class TaktFqcOrderItemService : TaktServiceBase, ITaktFqcOrderItemService
         if (!string.IsNullOrEmpty(queryDto?.KeyWords))
         {
             exp = exp.And(x =>
-                x.ItemCode!.Contains(queryDto.KeyWords) ||
-                x.ItemName!.Contains(queryDto.KeyWords) ||
-                x.StandardValue!.Contains(queryDto.KeyWords) ||
-                x.UpperLimit!.Contains(queryDto.KeyWords) ||
-                x.LowerLimit!.Contains(queryDto.KeyWords) ||
-                x.InspectionTool!.Contains(queryDto.KeyWords) ||
-                x.InspectionMethod!.Contains(queryDto.KeyWords) ||
-                x.ActualValue!.Contains(queryDto.KeyWords) ||
-                x.DefectDescription!.Contains(queryDto.KeyWords) ||
+                x.FqcOrderCode!.Contains(queryDto.KeyWords) ||
+                x.MaterialCode!.Contains(queryDto.KeyWords) ||
+                x.MaterialName!.Contains(queryDto.KeyWords) ||
+                x.BatchNo!.Contains(queryDto.KeyWords) ||
+                x.StandardCode!.Contains(queryDto.KeyWords) ||
+                x.SamplingSchemeCode!.Contains(queryDto.KeyWords) ||
+                x.SampleSerialNo!.Contains(queryDto.KeyWords) ||
+                x.InspectionDescription!.Contains(queryDto.KeyWords) ||
                 x.InspectorBy!.Contains(queryDto.KeyWords) ||
-                x.InspectionImages!.Contains(queryDto.KeyWords) ||
                 x.Remark!.Contains(queryDto.KeyWords) ||
                 x.ExtFieldJson!.Contains(queryDto.KeyWords) ||
                 x.CreatedBy!.Contains(queryDto.KeyWords)
@@ -386,69 +406,84 @@ public class TaktFqcOrderItemService : TaktServiceBase, ITaktFqcOrderItemService
             exp = exp.And(x => x.FqcOrderId == queryDto.FqcOrderId);
         }
 
+        if (!string.IsNullOrEmpty(queryDto?.FqcOrderCode))
+        {
+            exp = exp.And(x => x.FqcOrderCode!.Contains(queryDto.FqcOrderCode));
+        }
+
         if (queryDto?.LineNumber.HasValue == true)
         {
             exp = exp.And(x => x.LineNumber == queryDto.LineNumber);
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.ItemCode))
+        if (!string.IsNullOrEmpty(queryDto?.MaterialCode))
         {
-            exp = exp.And(x => x.ItemCode!.Contains(queryDto.ItemCode));
+            exp = exp.And(x => x.MaterialCode!.Contains(queryDto.MaterialCode));
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.ItemName))
+        if (!string.IsNullOrEmpty(queryDto?.MaterialName))
         {
-            exp = exp.And(x => x.ItemName!.Contains(queryDto.ItemName));
+            exp = exp.And(x => x.MaterialName!.Contains(queryDto.MaterialName));
         }
 
-        if (queryDto?.ItemType.HasValue == true)
+        if (!string.IsNullOrEmpty(queryDto?.BatchNo))
         {
-            exp = exp.And(x => x.ItemType == queryDto.ItemType);
+            exp = exp.And(x => x.BatchNo!.Contains(queryDto.BatchNo));
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.StandardValue))
+        if (queryDto?.WarehouseQuantity.HasValue == true)
         {
-            exp = exp.And(x => x.StandardValue!.Contains(queryDto.StandardValue));
+            exp = exp.And(x => x.WarehouseQuantity == queryDto.WarehouseQuantity);
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.UpperLimit))
+        if (!string.IsNullOrEmpty(queryDto?.StandardCode))
         {
-            exp = exp.And(x => x.UpperLimit!.Contains(queryDto.UpperLimit));
+            exp = exp.And(x => x.StandardCode!.Contains(queryDto.StandardCode));
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.LowerLimit))
+        if (!string.IsNullOrEmpty(queryDto?.SamplingSchemeCode))
         {
-            exp = exp.And(x => x.LowerLimit!.Contains(queryDto.LowerLimit));
+            exp = exp.And(x => x.SamplingSchemeCode!.Contains(queryDto.SamplingSchemeCode));
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.InspectionTool))
+        if (queryDto?.InspectionMethod.HasValue == true)
         {
-            exp = exp.And(x => x.InspectionTool!.Contains(queryDto.InspectionTool));
+            exp = exp.And(x => x.InspectionMethod == queryDto.InspectionMethod);
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.InspectionMethod))
+        if (queryDto?.SampleQuantity.HasValue == true)
         {
-            exp = exp.And(x => x.InspectionMethod!.Contains(queryDto.InspectionMethod));
+            exp = exp.And(x => x.SampleQuantity == queryDto.SampleQuantity);
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.ActualValue))
+        if (queryDto?.QualifiedQuantity.HasValue == true)
         {
-            exp = exp.And(x => x.ActualValue!.Contains(queryDto.ActualValue));
+            exp = exp.And(x => x.QualifiedQuantity == queryDto.QualifiedQuantity);
         }
 
-        if (queryDto?.InspectionResult.HasValue == true)
+        if (queryDto?.UnqualifiedQuantity.HasValue == true)
         {
-            exp = exp.And(x => x.InspectionResult == queryDto.InspectionResult);
+            exp = exp.And(x => x.UnqualifiedQuantity == queryDto.UnqualifiedQuantity);
         }
 
-        if (queryDto?.DefectQuantity.HasValue == true)
+        if (queryDto?.InspectionReturnQuantity.HasValue == true)
         {
-            exp = exp.And(x => x.DefectQuantity == queryDto.DefectQuantity);
+            exp = exp.And(x => x.InspectionReturnQuantity == queryDto.InspectionReturnQuantity);
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.DefectDescription))
+        if (queryDto?.JudgeStatus.HasValue == true)
         {
-            exp = exp.And(x => x.DefectDescription!.Contains(queryDto.DefectDescription));
+            exp = exp.And(x => x.JudgeStatus == queryDto.JudgeStatus);
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.SampleSerialNo))
+        {
+            exp = exp.And(x => x.SampleSerialNo!.Contains(queryDto.SampleSerialNo));
+        }
+
+        if (!string.IsNullOrEmpty(queryDto?.InspectionDescription))
+        {
+            exp = exp.And(x => x.InspectionDescription!.Contains(queryDto.InspectionDescription));
         }
 
         if (!string.IsNullOrEmpty(queryDto?.InspectorBy))
@@ -456,14 +491,9 @@ public class TaktFqcOrderItemService : TaktServiceBase, ITaktFqcOrderItemService
             exp = exp.And(x => x.InspectorBy!.Contains(queryDto.InspectorBy));
         }
 
-        if (queryDto?.InspectionTime.HasValue == true)
+        if (queryDto?.InspectionDate.HasValue == true)
         {
-            exp = exp.And(x => x.InspectionTime == queryDto.InspectionTime);
-        }
-
-        if (!string.IsNullOrEmpty(queryDto?.InspectionImages))
-        {
-            exp = exp.And(x => x.InspectionImages!.Contains(queryDto.InspectionImages));
+            exp = exp.And(x => x.InspectionDate == queryDto.InspectionDate);
         }
 
         if (!string.IsNullOrEmpty(queryDto?.Remark))
@@ -491,14 +521,14 @@ public class TaktFqcOrderItemService : TaktServiceBase, ITaktFqcOrderItemService
             exp = exp.And(x => x.CreatedAt == queryDto.CreatedAt);
         }
 
-        // InspectionTime 日期范围查询
-        if (queryDto?.InspectionTimeStart.HasValue == true)
+        // InspectionDate 日期范围查询
+        if (queryDto?.InspectionDateStart.HasValue == true)
         {
-            exp = exp.And(x => x.InspectionTime >= queryDto.InspectionTimeStart);
+            exp = exp.And(x => x.InspectionDate >= queryDto.InspectionDateStart);
         }
-        if (queryDto?.InspectionTimeEnd.HasValue == true)
+        if (queryDto?.InspectionDateEnd.HasValue == true)
         {
-            exp = exp.And(x => x.InspectionTime <= queryDto.InspectionTimeEnd);
+            exp = exp.And(x => x.InspectionDate <= queryDto.InspectionDateEnd);
         }
 
         // CreatedAt 日期范围查询

@@ -15,12 +15,12 @@ import type { TaktEntityBase, TaktPagedQuery } from '@/types/common'
 export interface FqcDefectHandling extends TaktEntityBase {
   /** 对应后端字段 fqcDefectHandlingId */
   fqcDefectHandlingId: string
-  /** 对应后端字段 handlingCode */
-  handlingCode: string
+  /** 对应后端字段 fqcDefectHandlingCode */
+  fqcDefectHandlingCode: string
   /** 对应后端字段 fqcOrderItemId */
   fqcOrderItemId: string
-  /** 对应后端字段 orderCode */
-  orderCode: string
+  /** 对应后端字段 fqcOrderCode */
+  fqcOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 defectType */
@@ -57,12 +57,12 @@ export interface FqcDefectHandling extends TaktEntityBase {
  * FqcDefectHandlingQuery类型（对应后端 Takt.Application.Dtos.Logistics.Quality.Operation.TaktFqcDefectHandlingQueryDto）
  */
 export interface FqcDefectHandlingQuery extends TaktPagedQuery {
-  /** 对应后端字段 handlingCode */
-  handlingCode?: string
+  /** 对应后端字段 fqcDefectHandlingCode */
+  fqcDefectHandlingCode?: string
   /** 对应后端字段 fqcOrderItemId */
   fqcOrderItemId?: string
-  /** 对应后端字段 orderCode */
-  orderCode?: string
+  /** 对应后端字段 fqcOrderCode */
+  fqcOrderCode?: string
   /** 对应后端字段 lineNumber */
   lineNumber?: number
   /** 对应后端字段 defectType */
@@ -115,12 +115,12 @@ export interface FqcDefectHandlingQuery extends TaktPagedQuery {
  * FqcDefectHandlingCreate类型（对应后端 Takt.Application.Dtos.Logistics.Quality.Operation.TaktFqcDefectHandlingCreateDto）
  */
 export interface FqcDefectHandlingCreate {
-  /** 对应后端字段 handlingCode */
-  handlingCode: string
+  /** 对应后端字段 fqcDefectHandlingCode */
+  fqcDefectHandlingCode: string
   /** 对应后端字段 fqcOrderItemId */
   fqcOrderItemId: string
-  /** 对应后端字段 orderCode */
-  orderCode: string
+  /** 对应后端字段 fqcOrderCode */
+  fqcOrderCode: string
   /** 对应后端字段 lineNumber */
   lineNumber: number
   /** 对应后端字段 defectType */

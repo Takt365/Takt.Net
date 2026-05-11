@@ -17,6 +17,8 @@ export interface SalesPrice extends TaktEntityBase {
   salesPriceId: string
   /** 对应后端字段 plantCode */
   plantCode?: string
+  /** 对应后端字段 salesPriceCode */
+  salesPriceCode: string
   /** 对应后端字段 customerCode */
   customerCode?: string
   /** 对应后端字段 priceType */
@@ -39,6 +41,8 @@ export interface SalesPrice extends TaktEntityBase {
 export interface SalesPriceQuery extends TaktPagedQuery {
   /** 对应后端字段 plantCode */
   plantCode?: string
+  /** 对应后端字段 salesPriceCode */
+  salesPriceCode?: string
   /** 对应后端字段 customerCode */
   customerCode?: string
   /** 对应后端字段 priceType */
@@ -79,6 +83,8 @@ export interface SalesPriceQuery extends TaktPagedQuery {
 export interface SalesPriceCreate {
   /** 对应后端字段 plantCode */
   plantCode?: string
+  /** 对应后端字段 salesPriceCode */
+  salesPriceCode: string
   /** 对应后端字段 customerCode */
   customerCode?: string
   /** 对应后端字段 priceType */

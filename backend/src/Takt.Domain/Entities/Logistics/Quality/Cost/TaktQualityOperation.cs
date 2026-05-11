@@ -20,11 +20,7 @@ namespace Takt.Domain.Entities.Logistics.Quality.Cost;
 /// 品质业务主表,用于记录品质业务的基础信息(年月、顾客)及汇总数据
 /// </summary>
 [SugarTable("takt_logistics_quality_operation", "品质业务主表")]
-[SugarIndex("ix_takt_logistics_quality_operation_operation_no", nameof(OperationNo), OrderByType.Asc, true)]
-[SugarIndex("ix_takt_logistics_quality_operation_plant_code", nameof(PlantCode), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_operation_operation_month", nameof(OperationMonth), OrderByType.Desc)]
-[SugarIndex("ix_takt_logistics_quality_operation_customer_name", nameof(CustomerName), OrderByType.Asc)]
-[SugarIndex("ix_takt_logistics_quality_operation_qo_unique", nameof(PlantCode), OrderByType.Asc, nameof(OperationMonth), OrderByType.Asc, nameof(CustomerName), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_logistics_quality_operation_qo_unique", nameof(PlantCode), OrderByType.Asc, nameof(QualityOperationCode), OrderByType.Asc, nameof(OperationMonth), OrderByType.Asc, nameof(CustomerName), OrderByType.Asc, nameof(DebitNoteNo), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_logistics_quality_operation_config_id", nameof(ConfigId), OrderByType.Asc)]
 [SugarIndex("ix_takt_logistics_quality_operation_is_deleted", nameof(IsDeleted), OrderByType.Asc)]
 public class TaktQualityOperation : TaktEntityBase
@@ -36,10 +32,10 @@ public class TaktQualityOperation : TaktEntityBase
     public string PlantCode { get; set; } = string.Empty;
 
     /// <summary>
-    /// 品质业务编号(唯一,如:QO-2026-0001)
+    /// 品质业务编码(唯一,如:QO-2026-0001)
     /// </summary>
-    [SugarColumn(ColumnName = "operation_no", ColumnDescription = "品质业务编号", Length = 30, ColumnDataType = "nvarchar", IsNullable = false)]
-    public string OperationNo { get; set; } = string.Empty;
+    [SugarColumn(ColumnName = "quality_operation_code", ColumnDescription = "品质业务编码", Length = 30, ColumnDataType = "nvarchar", IsNullable = false)]
+    public string QualityOperationCode { get; set; } = string.Empty;
 
     // ==================== 基础日期与信息 ====================
 

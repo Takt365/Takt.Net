@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Quality.Cost
 // 文件名称：TaktQualityIssueDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：品质问题应对主表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -23,7 +23,7 @@ public partial class TaktQualityIssueDto : TaktDtosEntityBase
     public TaktQualityIssueDto()
     {
         PlantCode = string.Empty;
-        IssueNo = string.Empty;
+        QualityIssueCode = string.Empty;
         Model = string.Empty;
         Lot = string.Empty;
         CostCurrency = string.Empty;
@@ -41,9 +41,9 @@ public partial class TaktQualityIssueDto : TaktDtosEntityBase
     /// </summary>
     public string PlantCode { get; set; }
     /// <summary>
-    /// 问题编号
+    /// 品质问题编码
     /// </summary>
-    public string IssueNo { get; set; }
+    public string QualityIssueCode { get; set; }
     /// <summary>
     /// 问题日期
     /// </summary>
@@ -116,9 +116,9 @@ public partial class TaktQualityIssueQueryDto : TaktPagedQuery
     /// </summary>
     public string? PlantCode { get; set; }
     /// <summary>
-    /// 问题编号
+    /// 品质问题编码
     /// </summary>
-    public string? IssueNo { get; set; }
+    public string? QualityIssueCode { get; set; }
     /// <summary>
     /// 问题日期
     /// </summary>
@@ -207,7 +207,7 @@ public partial class TaktQualityIssueCreateDto
     public TaktQualityIssueCreateDto()
     {
         PlantCode = string.Empty;
-        IssueNo = string.Empty;
+        QualityIssueCode = string.Empty;
         Model = string.Empty;
         Lot = string.Empty;
         CostCurrency = string.Empty;
@@ -219,9 +219,9 @@ public partial class TaktQualityIssueCreateDto
     public string PlantCode { get; set; }
 
         /// <summary>
-    /// 问题编号
+    /// 品质问题编码
     /// </summary>
-    public string IssueNo { get; set; }
+    public string QualityIssueCode { get; set; }
 
         /// <summary>
     /// 问题日期
@@ -329,7 +329,7 @@ public partial class TaktQualityIssueTemplateDto
     public TaktQualityIssueTemplateDto()
     {
         PlantCode = string.Empty;
-        IssueNo = string.Empty;
+        QualityIssueCode = string.Empty;
         Model = string.Empty;
         Lot = string.Empty;
         CostCurrency = string.Empty;
@@ -341,9 +341,9 @@ public partial class TaktQualityIssueTemplateDto
     public string PlantCode { get; set; }
 
         /// <summary>
-    /// 问题编号
+    /// 品质问题编码
     /// </summary>
-    public string IssueNo { get; set; }
+    public string QualityIssueCode { get; set; }
 
         /// <summary>
     /// 问题日期
@@ -412,7 +412,7 @@ public partial class TaktQualityIssueImportDto
     public TaktQualityIssueImportDto()
     {
         PlantCode = string.Empty;
-        IssueNo = string.Empty;
+        QualityIssueCode = string.Empty;
         Model = string.Empty;
         Lot = string.Empty;
         CostCurrency = string.Empty;
@@ -424,9 +424,9 @@ public partial class TaktQualityIssueImportDto
     public string PlantCode { get; set; }
 
         /// <summary>
-    /// 问题编号
+    /// 品质问题编码
     /// </summary>
-    public string IssueNo { get; set; }
+    public string QualityIssueCode { get; set; }
 
         /// <summary>
     /// 问题日期
@@ -496,7 +496,7 @@ public partial class TaktQualityIssueExportDto
     {
         CreatedAt = DateTime.Now;
         PlantCode = string.Empty;
-        IssueNo = string.Empty;
+        QualityIssueCode = string.Empty;
         Model = string.Empty;
         Lot = string.Empty;
         CostCurrency = string.Empty;
@@ -508,9 +508,9 @@ public partial class TaktQualityIssueExportDto
     public string PlantCode { get; set; }
 
         /// <summary>
-    /// 问题编号
+    /// 品质问题编码
     /// </summary>
-    public string IssueNo { get; set; }
+    public string QualityIssueCode { get; set; }
 
         /// <summary>
     /// 问题日期

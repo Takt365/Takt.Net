@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Takt.Application.Dtos.Routine.Tasks.SignalR;
 using Takt.Application.Services.Routine.Tasks.SignalR;
-using Takt.Domain.Events;
 using Takt.Domain.Interfaces;
 using Takt.Infrastructure.User;
 using Takt.Shared.Helpers;
@@ -30,7 +29,6 @@ public class TaktNotificationHub : Hub
     private readonly ITaktOnlineService _onlineService;
     private readonly ITaktUserContext _userContext;
     private readonly ITaktTenantContext? _tenantContext;
-    private readonly ITaktEventBus? _eventBus;
 
     /// <summary>
     /// 构造函数
@@ -38,17 +36,14 @@ public class TaktNotificationHub : Hub
     /// <param name="onlineService">在线用户服务（用于查找接收者的连接）</param>
     /// <param name="userContext">用户上下文（须注入）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
-    /// <param name="eventBus">事件总线（可选）</param>
     public TaktNotificationHub(
         ITaktOnlineService onlineService,
         ITaktUserContext userContext,
-        ITaktTenantContext? tenantContext = null,
-        ITaktEventBus? eventBus = null)
+        ITaktTenantContext? tenantContext = null)
     {
         _onlineService = onlineService;
         _userContext = userContext;
         _tenantContext = tenantContext;
-        _eventBus = eventBus;
     }
 
     /// <summary>
@@ -201,28 +196,6 @@ public class TaktNotificationHub : Hub
                 ToUserName = toUserName,
                 SendTime = sendTime
             });
-
-            // 发布消息发送事件
-            if (_eventBus != null)
-            {
-                await _eventBus.PublishAsync(new TaktBusinessEvent
-                {
-                    Module = "Notification",
-                    Action = "MessageSent",
-                    EntityId = 0, // 消息ID（如果需要可以后续从消息服务获取）
-                    EntityType = "TaktMessage",
-                    OperatorId = fromUserId,
-                    Data = new
-                    {
-                        FromUserName = fromUserName,
-                        ToUserName = toUserName,
-                        MessageTitle = messageTitle,
-                        MessageType = messageType,
-                        MessageGroup = messageGroup ?? "Chat",
-                        SendTime = sendTime
-                    }
-                });
-            }
 
             TaktLogger.Information("用户 {FromUserName} 向 {ToUserName} 发送了消息", fromUserName, toUserName);
         }

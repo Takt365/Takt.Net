@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Logistics.Manufacturing.EngineeringChange
 // 文件名称：TaktEcDetailDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：设变明细表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -39,9 +39,13 @@ public partial class TaktEcDetailDto : TaktDtosEntityBase
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long EcnId { get; set; }
     /// <summary>
-    /// 设变编号
+    /// 设变单号
     /// </summary>
     public string EcnNo { get; set; }
+    /// <summary>
+    /// 项号
+    /// </summary>
+    public int LineNumber { get; set; }
     /// <summary>
     /// 型号
     /// </summary>
@@ -162,9 +166,13 @@ public partial class TaktEcDetailQueryDto : TaktPagedQuery
     [JsonConverter(typeof(SqlSugar.ValueToStringConverter))]
     public long? EcnId { get; set; }
     /// <summary>
-    /// 设变编号
+    /// 设变单号
     /// </summary>
     public string? EcnNo { get; set; }
+    /// <summary>
+    /// 项号
+    /// </summary>
+    public int? LineNumber { get; set; }
     /// <summary>
     /// 型号
     /// </summary>
@@ -324,9 +332,14 @@ public partial class TaktEcDetailCreateDto
     public long EcnId { get; set; }
 
         /// <summary>
-    /// 设变编号
+    /// 设变单号
     /// </summary>
     public string EcnNo { get; set; }
+
+        /// <summary>
+    /// 项号
+    /// </summary>
+    public int LineNumber { get; set; }
 
         /// <summary>
     /// 型号
@@ -496,9 +509,14 @@ public partial class TaktEcDetailTemplateDto
     public long EcnId { get; set; }
 
         /// <summary>
-    /// 设变编号
+    /// 设变单号
     /// </summary>
     public string EcnNo { get; set; }
+
+        /// <summary>
+    /// 项号
+    /// </summary>
+    public int LineNumber { get; set; }
 
         /// <summary>
     /// 型号
@@ -641,9 +659,14 @@ public partial class TaktEcDetailImportDto
     public long EcnId { get; set; }
 
         /// <summary>
-    /// 设变编号
+    /// 设变单号
     /// </summary>
     public string EcnNo { get; set; }
+
+        /// <summary>
+    /// 项号
+    /// </summary>
+    public int LineNumber { get; set; }
 
         /// <summary>
     /// 型号
@@ -787,9 +810,14 @@ public partial class TaktEcDetailExportDto
     public long EcnId { get; set; }
 
         /// <summary>
-    /// 设变编号
+    /// 设变单号
     /// </summary>
     public string EcnNo { get; set; }
+
+        /// <summary>
+    /// 项号
+    /// </summary>
+    public int LineNumber { get; set; }
 
         /// <summary>
     /// 型号

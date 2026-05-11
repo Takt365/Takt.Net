@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 · Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Dtos.Accounting.Financial
 // 文件名称：TaktAssetDtos.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365
 // 功能描述：固定资产表DTO，由 DtoCategory 配置驱动。UpdateDto 在同时存在 CreateDto 时继承 CreateDto；无 CreateDto 时退化为独立 UpdateDto 全字段形态。
 //
@@ -22,6 +22,7 @@ public partial class TaktAssetDto : TaktDtosEntityBase
     /// </summary>
     public TaktAssetDto()
     {
+        CompanyCode = string.Empty;
         AssetCode = string.Empty;
         AssetName = string.Empty;
     }
@@ -36,7 +37,7 @@ public partial class TaktAssetDto : TaktDtosEntityBase
     /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
     /// <summary>
     /// 资产编码
     /// </summary>
@@ -335,6 +336,7 @@ public partial class TaktAssetCreateDto
     /// </summary>
     public TaktAssetCreateDto()
     {
+        CompanyCode = string.Empty;
         AssetCode = string.Empty;
         AssetName = string.Empty;
     }
@@ -342,7 +344,7 @@ public partial class TaktAssetCreateDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 资产编码
@@ -535,6 +537,7 @@ public partial class TaktAssetTemplateDto
     /// </summary>
     public TaktAssetTemplateDto()
     {
+        CompanyCode = string.Empty;
         AssetCode = string.Empty;
         AssetName = string.Empty;
     }
@@ -542,7 +545,7 @@ public partial class TaktAssetTemplateDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 资产编码
@@ -685,6 +688,7 @@ public partial class TaktAssetImportDto
     /// </summary>
     public TaktAssetImportDto()
     {
+        CompanyCode = string.Empty;
         AssetCode = string.Empty;
         AssetName = string.Empty;
     }
@@ -692,7 +696,7 @@ public partial class TaktAssetImportDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 资产编码
@@ -836,6 +840,7 @@ public partial class TaktAssetExportDto
     public TaktAssetExportDto()
     {
         CreatedAt = DateTime.Now;
+        CompanyCode = string.Empty;
         AssetCode = string.Empty;
         AssetName = string.Empty;
     }
@@ -843,7 +848,7 @@ public partial class TaktAssetExportDto
         /// <summary>
     /// 公司代码
     /// </summary>
-    public string? CompanyCode { get; set; }
+    public string CompanyCode { get; set; }
 
         /// <summary>
     /// 资产编码

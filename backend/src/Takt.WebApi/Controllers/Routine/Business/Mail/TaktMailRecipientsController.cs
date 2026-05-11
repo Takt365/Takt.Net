@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.WebApi.Controllers.Routine.Business.Mail
 // 文件名称：TaktMailRecipientsController.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：邮件收件人表控制器，提供MailRecipient管理的RESTful API接口
 //

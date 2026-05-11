@@ -23,7 +23,7 @@ namespace Takt.Domain.Entities.Identity;
 /// 姓名、性别、头像等人事信息以 TaktEmployee 为准。
 /// </summary>
 [SugarTable("takt_identity_user", "用户信息表")]
-[SugarIndex("ix_takt_identity_user_user_name", nameof(UserName), OrderByType.Asc, true)]
+[SugarIndex("ix_takt_identity_user_user_unique", nameof(UserName), OrderByType.Asc, nameof(NickName), OrderByType.Asc, nameof(UserEmail), OrderByType.Asc, nameof(UserPhone), OrderByType.Asc, true)]
 [SugarIndex("ix_takt_identity_user_user_email", nameof(UserEmail), OrderByType.Asc)]
 [SugarIndex("ix_takt_identity_user_user_phone", nameof(UserPhone), OrderByType.Asc)]
 [SugarIndex("ix_takt_identity_user_employee_id", nameof(EmployeeId), OrderByType.Asc)]

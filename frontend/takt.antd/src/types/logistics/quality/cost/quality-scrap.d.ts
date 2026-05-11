@@ -17,8 +17,8 @@ export interface QualityScrap extends TaktEntityBase {
   qualityScrapId: string
   /** 对应后端字段 plantCode */
   plantCode: string
-  /** 对应后端字段 scrapNo */
-  scrapNo: string
+  /** 对应后端字段 qualityScrapCode */
+  qualityScrapCode: string
   /** 对应后端字段 scrapDate */
   scrapDate: string
   /** 对应后端字段 indirectManpowerCostPerMinute */
@@ -43,8 +43,8 @@ export interface QualityScrap extends TaktEntityBase {
 export interface QualityScrapQuery extends TaktPagedQuery {
   /** 对应后端字段 plantCode */
   plantCode?: string
-  /** 对应后端字段 scrapNo */
-  scrapNo?: string
+  /** 对应后端字段 qualityScrapCode */
+  qualityScrapCode?: string
   /** 对应后端字段 scrapDate */
   scrapDate?: string
   /** 对应后端字段 scrapDateStart */
@@ -85,8 +85,8 @@ export interface QualityScrapQuery extends TaktPagedQuery {
 export interface QualityScrapCreate {
   /** 对应后端字段 plantCode */
   plantCode: string
-  /** 对应后端字段 scrapNo */
-  scrapNo: string
+  /** 对应后端字段 qualityScrapCode */
+  qualityScrapCode: string
   /** 对应后端字段 scrapDate */
   scrapDate: string
   /** 对应后端字段 indirectManpowerCostPerMinute */

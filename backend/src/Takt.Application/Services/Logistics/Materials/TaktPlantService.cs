@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Materials
 // 文件名称：TaktPlantService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：工厂表应用服务，提供Plant管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Materials;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Materials;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Materials;
 
@@ -29,22 +21,26 @@ namespace Takt.Application.Services.Logistics.Materials;
 public class TaktPlantService : TaktServiceBase, ITaktPlantService
 {
     private readonly ITaktRepository<TaktPlant> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">Plant仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktPlantService(
         ITaktRepository<TaktPlant> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
     }
 
 
@@ -101,9 +97,12 @@ public class TaktPlantService : TaktServiceBase, ITaktPlantService
     /// <returns>工厂表(Plant)DTO</returns>
     public async Task<TaktPlantDto> CreatePlantAsync(TaktPlantCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.PlantCode, dto.PlantCode, null, $"工厂表编码 {dto.PlantCode} 已存在");
-
         var entity = dto.Adapt<TaktPlant>();
+        // 验证工厂编码、PlantName组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.PlantName == dto.PlantName);
+        if (!isUnique)
+            throw new TaktBusinessException($"工厂表工厂编码、PlantName组合已存在");
+
         entity = await _repository.CreateAsync(entity);
         return (await GetPlantByIdAsync(entity.Id)) ?? entity.Adapt<TaktPlantDto>();
     }
@@ -120,8 +119,10 @@ public class TaktPlantService : TaktServiceBase, ITaktPlantService
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.plantNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.PlantCode, dto.PlantCode, id, $"工厂表编码 {dto.PlantCode} 已存在");
+        // 验证工厂编码、PlantName组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.PlantName == dto.PlantName, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"工厂表工厂编码、PlantName组合已存在");
 
         dto.Adapt(entity, typeof(TaktPlantUpdateDto), typeof(TaktPlant));
         entity.UpdatedAt = DateTime.Now;

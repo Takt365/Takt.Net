@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Quality.Operation
 // 文件名称：TaktInspectionStandardService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：检验标准表应用服务，提供InspectionStandard管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Quality.Operation;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Quality.Operation;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Quality.Operation;
 
@@ -29,22 +21,30 @@ namespace Takt.Application.Services.Logistics.Quality.Operation;
 public class TaktInspectionStandardService : TaktServiceBase, ITaktInspectionStandardService
 {
     private readonly ITaktRepository<TaktInspectionStandard> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
+    private readonly ITaktRepository<TaktInspectionStandardItem> _inspectionStandardItemRepository;
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="repository">InspectionStandard仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
+    /// <param name="inspectionStandardItemRepository">InspectionStandardItem仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
     /// <param name="tenantContext">租户上下文（可选）</param>
     /// <param name="localizer">本地化器（可选）</param>
     public TaktInspectionStandardService(
         ITaktRepository<TaktInspectionStandard> repository,
+        ITaktUniqueValidator uniqueValidator,
+        ITaktRepository<TaktInspectionStandardItem> inspectionStandardItemRepository,
         ITaktUserContext? userContext = null,
         ITaktTenantContext? tenantContext = null,
         ITaktLocalizer? localizer = null)
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
+        _inspectionStandardItemRepository = inspectionStandardItemRepository;
     }
 
 
@@ -74,7 +74,14 @@ public class TaktInspectionStandardService : TaktServiceBase, ITaktInspectionSta
     public async Task<TaktInspectionStandardDto?> GetInspectionStandardByIdAsync(long id)
     {
         var entity = await _repository.GetByIdAsync(id);
-        return entity == null ? null : entity.Adapt<TaktInspectionStandardDto>();
+        if (entity == null) return null;
+        var dto = entity.Adapt<TaktInspectionStandardDto>();
+        
+        // 手动加载子表
+        dto.Items = (await _inspectionStandardItemRepository.FindAsync(x => x.InspectionStandardId == id && x.IsDeleted == 0))
+            .Adapt<List<TaktInspectionStandardItemDto>>();
+        
+        return dto;
     }
 
 
@@ -88,9 +95,9 @@ public class TaktInspectionStandardService : TaktServiceBase, ITaktInspectionSta
         return all.Select(x => new TaktSelectOption
         {
             DictLabel = x.StandardName ?? string.Empty,
-            DictValue = x.StandardCode,
-            SortOrder = x.SortOrder,
-        }).OrderBy(x => x.SortOrder).ToList();
+            DictValue = x.StandardCode
+
+        }).ToList();
     }
 
 
@@ -101,10 +108,29 @@ public class TaktInspectionStandardService : TaktServiceBase, ITaktInspectionSta
     /// <returns>检验标准表(InspectionStandard)DTO</returns>
     public async Task<TaktInspectionStandardDto> CreateInspectionStandardAsync(TaktInspectionStandardCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.StandardCode, dto.StandardCode, null, $"检验标准表编码 {dto.StandardCode} 已存在");
-
         var entity = dto.Adapt<TaktInspectionStandard>();
+        // 验证工厂编码、StandardCode、StandardName组合的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.StandardCode == dto.StandardCode && x.StandardName == dto.StandardName);
+        if (!isUnique)
+            throw new TaktBusinessException($"检验标准表工厂编码、StandardCode、StandardName组合已存在");
+
         entity = await _repository.CreateAsync(entity);
+        
+        // 创建子表数据
+        if (entity.Id > 0)
+        {
+            // 创建InspectionStandardItem列表
+            if (dto.Items != null && dto.Items.Count > 0)
+            {
+                var inspectionStandardItemList = dto.Items.Select(x => {
+                    var childEntity = x.Adapt<TaktInspectionStandardItem>();
+                    childEntity.InspectionStandardId = entity.Id;
+                    return childEntity;
+                }).ToList();
+                await _inspectionStandardItemRepository.CreateRangeBulkAsync(inspectionStandardItemList);
+            }
+        }
+
         return (await GetInspectionStandardByIdAsync(entity.Id)) ?? entity.Adapt<TaktInspectionStandardDto>();
     }
 
@@ -120,12 +146,38 @@ public class TaktInspectionStandardService : TaktServiceBase, ITaktInspectionSta
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.inspectionstandardNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.StandardCode, dto.StandardCode, id, $"检验标准表编码 {dto.StandardCode} 已存在");
+        // 验证工厂编码、StandardCode、StandardName组合的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.PlantCode == dto.PlantCode && x.StandardCode == dto.StandardCode && x.StandardName == dto.StandardName, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"检验标准表工厂编码、StandardCode、StandardName组合已存在");
 
         dto.Adapt(entity, typeof(TaktInspectionStandardUpdateDto), typeof(TaktInspectionStandard));
         entity.UpdatedAt = DateTime.Now;
         await _repository.UpdateAsync(entity);
+        
+        // 更新子表数据（删旧建新）
+        // 删除旧的InspectionStandardItem列表
+        var oldInspectionStandardItems = await _inspectionStandardItemRepository.FindAsync(x => x.InspectionStandardId == id && x.IsDeleted == 0);
+        if (oldInspectionStandardItems != null && oldInspectionStandardItems.Count > 0)
+        {
+            foreach (var oldInspectionStandardItem in oldInspectionStandardItems)
+            {
+                oldInspectionStandardItem.IsDeleted = 1;
+            }
+            await _inspectionStandardItemRepository.UpdateRangeBulkAsync(oldInspectionStandardItems);
+        }
+
+        // 创建新的InspectionStandardItem列表
+        if (dto.Items != null && dto.Items.Count > 0)
+        {
+            var inspectionStandardItemList = dto.Items.Select(x => {
+                var childEntity = x.Adapt<TaktInspectionStandardItem>();
+                childEntity.InspectionStandardId = id;
+                return childEntity;
+            }).ToList();
+            await _inspectionStandardItemRepository.CreateRangeBulkAsync(inspectionStandardItemList);
+        }
+
 
         return (await GetInspectionStandardByIdAsync(id)) ?? entity.Adapt<TaktInspectionStandardDto>();
     }
@@ -141,6 +193,19 @@ public class TaktInspectionStandardService : TaktServiceBase, ITaktInspectionSta
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.inspectionstandardNotFound");
+        
+        // 级联删除子表数据
+        // 级联删除InspectionStandardItem列表
+        var inspectionStandardItems = await _inspectionStandardItemRepository.FindAsync(x => x.InspectionStandardId == id && x.IsDeleted == 0);
+        if (inspectionStandardItems != null && inspectionStandardItems.Count > 0)
+        {
+            foreach (var inspectionStandardItem in inspectionStandardItems)
+            {
+                inspectionStandardItem.IsDeleted = 1;
+            }
+            await _inspectionStandardItemRepository.UpdateRangeBulkAsync(inspectionStandardItems);
+        }
+
         
         // 软删除：设置 IsDeleted = 1
         entity.IsDeleted = 1;
@@ -169,7 +234,28 @@ public class TaktInspectionStandardService : TaktServiceBase, ITaktInspectionSta
             if (entity != null) entities.Add(entity);
         }
         
-        if (entities.Count == 0) return;
+        if (entities.Count == 0) return;        
+        // 批量级联删除子表数据
+        // 批量级联删除InspectionStandardItem列表
+        var inspectionStandardItemsToDelete = new List<TaktInspectionStandardItem>();
+        foreach (var id in idList)
+        {
+            var inspectionStandardItems = await _inspectionStandardItemRepository.FindAsync(x => x.InspectionStandardId == id && x.IsDeleted == 0);
+            if (inspectionStandardItems != null && inspectionStandardItems.Count > 0)
+            {
+                inspectionStandardItemsToDelete.AddRange(inspectionStandardItems);
+            }
+        }
+        
+        if (inspectionStandardItemsToDelete.Count > 0)
+        {
+            foreach (var inspectionStandardItem in inspectionStandardItemsToDelete)
+            {
+                inspectionStandardItem.IsDeleted = 1;
+            }
+            await _inspectionStandardItemRepository.UpdateRangeBulkAsync(inspectionStandardItemsToDelete);
+        }
+
         
         // 批量更新：设置 IsDeleted = 1，并同步更新 StandardStatus = 1（禁用）
         foreach (var entity in entities)
@@ -193,23 +279,6 @@ public class TaktInspectionStandardService : TaktServiceBase, ITaktInspectionSta
         if (entity == null)
             throw new TaktBusinessException("validation.inspectionstandardNotFound");
         entity.StandardStatus = dto.StandardStatus;
-        entity.UpdatedAt = DateTime.Now;
-        await _repository.UpdateAsync(entity);
-        return await GetInspectionStandardByIdAsync(entity.Id) ?? entity.Adapt<TaktInspectionStandardDto>();
-    }
-
-
-    /// <summary>
-    /// 更新检验标准表(InspectionStandard)排序
-    /// </summary>
-    /// <param name="dto">检验标准表(InspectionStandard)排序DTO</param>
-    /// <returns>检验标准表(InspectionStandard)DTO</returns>
-    public async Task<TaktInspectionStandardDto> UpdateInspectionStandardSortAsync(TaktInspectionStandardSortDto dto)
-    {
-        var entity = await _repository.GetByIdAsync(dto.InspectionStandardId);
-        if (entity == null)
-            throw new TaktBusinessException("validation.inspectionstandardNotFound");
-        entity.SortOrder = dto.SortOrder;
         entity.UpdatedAt = DateTime.Now;
         await _repository.UpdateAsync(entity);
         return await GetInspectionStandardByIdAsync(entity.Id) ?? entity.Adapt<TaktInspectionStandardDto>();
@@ -323,10 +392,7 @@ public class TaktInspectionStandardService : TaktServiceBase, ITaktInspectionSta
                 x.MaterialCategoryCode!.Contains(queryDto.KeyWords) ||
                 x.MaterialCategoryName!.Contains(queryDto.KeyWords) ||
                 x.SamplingSchemeCode!.Contains(queryDto.KeyWords) ||
-                x.InspectionItemsJson!.Contains(queryDto.KeyWords) ||
-                x.InspectionMethod!.Contains(queryDto.KeyWords) ||
-                x.InspectionTools!.Contains(queryDto.KeyWords) ||
-                x.JudgmentRules!.Contains(queryDto.KeyWords) ||
+                x.SamplingSchemeName!.Contains(queryDto.KeyWords) ||
                 x.StandardDescription!.Contains(queryDto.KeyWords) ||
                 x.Remark!.Contains(queryDto.KeyWords) ||
                 x.ExtFieldJson!.Contains(queryDto.KeyWords) ||
@@ -364,34 +430,14 @@ public class TaktInspectionStandardService : TaktServiceBase, ITaktInspectionSta
             exp = exp.And(x => x.MaterialCategoryName!.Contains(queryDto.MaterialCategoryName));
         }
 
-        if (queryDto?.SamplingSchemeId.HasValue == true)
-        {
-            exp = exp.And(x => x.SamplingSchemeId == queryDto.SamplingSchemeId);
-        }
-
         if (!string.IsNullOrEmpty(queryDto?.SamplingSchemeCode))
         {
             exp = exp.And(x => x.SamplingSchemeCode!.Contains(queryDto.SamplingSchemeCode));
         }
 
-        if (!string.IsNullOrEmpty(queryDto?.InspectionItemsJson))
+        if (!string.IsNullOrEmpty(queryDto?.SamplingSchemeName))
         {
-            exp = exp.And(x => x.InspectionItemsJson!.Contains(queryDto.InspectionItemsJson));
-        }
-
-        if (!string.IsNullOrEmpty(queryDto?.InspectionMethod))
-        {
-            exp = exp.And(x => x.InspectionMethod!.Contains(queryDto.InspectionMethod));
-        }
-
-        if (!string.IsNullOrEmpty(queryDto?.InspectionTools))
-        {
-            exp = exp.And(x => x.InspectionTools!.Contains(queryDto.InspectionTools));
-        }
-
-        if (!string.IsNullOrEmpty(queryDto?.JudgmentRules))
-        {
-            exp = exp.And(x => x.JudgmentRules!.Contains(queryDto.JudgmentRules));
+            exp = exp.And(x => x.SamplingSchemeName!.Contains(queryDto.SamplingSchemeName));
         }
 
         if (queryDto?.IsEnabled.HasValue == true)

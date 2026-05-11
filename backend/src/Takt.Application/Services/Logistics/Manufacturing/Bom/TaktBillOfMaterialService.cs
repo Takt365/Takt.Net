@@ -2,7 +2,7 @@
 // 项目名称：节拍数字工厂 ·Takt Digital Factory (TDF)
 // 命名空间：Takt.Application.Services.Logistics.Manufacturing.Bom
 // 文件名称：TaktBillOfMaterialService.cs
-// 创建时间：2026-05-10
+// 创建时间：2026-05-11
 // 创建人：Takt365(Cursor AI)
 // 功能描述：物料清单表应用服务，提供BillOfMaterial管理的业务逻辑
 //
@@ -10,16 +10,8 @@
 // 免责声明：此软件使用 MIT License，作者不承担任何使用风险。
 // ========================================
 
-using SqlSugar;
 using Takt.Application.Dtos.Logistics.Manufacturing.Bom;
-using Takt.Application.Services;
 using Takt.Domain.Entities.Logistics.Manufacturing.Bom;
-using Takt.Domain.Interfaces;
-using Takt.Domain.Repositories;
-using Takt.Domain.Validation;
-using Takt.Shared.Exceptions;
-using Takt.Shared.Helpers;
-using Takt.Shared.Models;
 
 namespace Takt.Application.Services.Logistics.Manufacturing.Bom;
 
@@ -29,6 +21,7 @@ namespace Takt.Application.Services.Logistics.Manufacturing.Bom;
 public class TaktBillOfMaterialService : TaktServiceBase, ITaktBillOfMaterialService
 {
     private readonly ITaktRepository<TaktBillOfMaterial> _repository;
+    private readonly ITaktUniqueValidator _uniqueValidator;
     private readonly ITaktRepository<TaktBillOfMaterialItem> _billOfMaterialItemRepository;
     private readonly ITaktRepository<TaktBillOfMaterialChangeLog> _billOfMaterialChangeLogRepository;
 
@@ -36,6 +29,7 @@ public class TaktBillOfMaterialService : TaktServiceBase, ITaktBillOfMaterialSer
     /// 构造函数
     /// </summary>
     /// <param name="repository">BillOfMaterial仓储</param>
+    /// <param name="uniqueValidator">唯一性验证器</param>
     /// <param name="billOfMaterialItemRepository">BillOfMaterialItem仓储</param>
     /// <param name="billOfMaterialChangeLogRepository">BillOfMaterialChangeLog仓储</param>
     /// <param name="userContext">用户上下文（可选）</param>
@@ -43,6 +37,7 @@ public class TaktBillOfMaterialService : TaktServiceBase, ITaktBillOfMaterialSer
     /// <param name="localizer">本地化器（可选）</param>
     public TaktBillOfMaterialService(
         ITaktRepository<TaktBillOfMaterial> repository,
+        ITaktUniqueValidator uniqueValidator,
         ITaktRepository<TaktBillOfMaterialItem> billOfMaterialItemRepository,
         ITaktRepository<TaktBillOfMaterialChangeLog> billOfMaterialChangeLogRepository,
         ITaktUserContext? userContext = null,
@@ -51,6 +46,7 @@ public class TaktBillOfMaterialService : TaktServiceBase, ITaktBillOfMaterialSer
         : base(userContext, tenantContext, localizer)
     {
         _repository = repository;
+        _uniqueValidator = uniqueValidator;
         _billOfMaterialItemRepository = billOfMaterialItemRepository;
         _billOfMaterialChangeLogRepository = billOfMaterialChangeLogRepository;
     }
@@ -118,9 +114,12 @@ public class TaktBillOfMaterialService : TaktServiceBase, ITaktBillOfMaterialSer
     /// <returns>物料清单表(BillOfMaterial)DTO</returns>
     public async Task<TaktBillOfMaterialDto> CreateBillOfMaterialAsync(TaktBillOfMaterialCreateDto dto)
     {
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.BomCode, dto.BomCode, null, $"物料清单表编码 {dto.BomCode} 已存在");
-
         var entity = dto.Adapt<TaktBillOfMaterial>();
+        // 验证BomCode的唯一性
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.BomCode, dto.BomCode);
+        if (!isUnique)
+            throw new TaktBusinessException($"物料清单表BomCode {dto.BomCode} 已存在");
+
         entity = await _repository.CreateAsync(entity);
         
         // 创建子表数据
@@ -163,8 +162,10 @@ public class TaktBillOfMaterialService : TaktServiceBase, ITaktBillOfMaterialSer
         var entity = await _repository.GetByIdAsync(id);
         if (entity == null)
             throw new TaktBusinessException("validation.billofmaterialNotFound");
-
-        await TaktUniqueValidatorExtensions.ValidateUniqueAsync(_repository, x => x.BomCode, dto.BomCode, id, $"物料清单表编码 {dto.BomCode} 已存在");
+        // 验证BomCode的唯一性（排除当前记录）
+        var isUnique = await _uniqueValidator.IsUniqueAsync(_repository, x => x.BomCode, dto.BomCode, id);
+        if (!isUnique)
+            throw new TaktBusinessException($"物料清单表BomCode {dto.BomCode} 已存在");
 
         dto.Adapt(entity, typeof(TaktBillOfMaterialUpdateDto), typeof(TaktBillOfMaterial));
         entity.UpdatedAt = DateTime.Now;
